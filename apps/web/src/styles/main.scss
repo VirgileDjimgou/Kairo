@@ -1,0 +1,41 @@
+@use 'variables';
+
+// ── Body ───────────────────────────────────────────────────────────────────────
+body {
+  background-color: var(--om-bg);
+  color: var(--om-text);
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+  -webkit-font-smoothing: antialiased;
+}
+
+// ── Bootstrap overrides ────────────────────────────────────────────────────────
+.btn-primary {
+  --bs-btn-bg: var(--om-primary);
+  --bs-btn-border-color: var(--om-primary);
+  --bs-btn-hover-bg: var(--om-primary-dark);
+  --bs-btn-hover-border-color: var(--om-primary-dark);
+}
+
+.text-primary {
+  color: var(--om-primary) !important;
+}
+
+.card {
+  border-radius: 0.75rem;
+}
+
+// ── Utility ────────────────────────────────────────────────────────────────────
+.font-monospace {
+  font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, monospace;
+}
+
+// ── Page transitions ───────────────────────────────────────────────────────────
+.fade-enter-active,
+.fade-leave-active {
+  transition: opacity 0.15s ease;
+}
+
+.fade-enter-from,
+.fade-leave-to {
+  opacity: 0;
+}
