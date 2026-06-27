@@ -1,0 +1,31 @@
+{
+  "folders": [
+    { "path": "." },
+    { "path": "apps/web" },
+    { "path": "services/api" }
+  ],
+  "settings": {
+    "editor.formatOnSave": true,
+    "files.trimTrailingWhitespace": true,
+    "python.defaultInterpreterPath": "services/api/.venv/bin/python",
+    "python.testing.pytestEnabled": true,
+    "python.testing.pytestArgs": ["services/api/tests"],
+    "python.analysis.extraPaths": ["services/api"],
+    "typescript.preferences.importModuleSpecifier": "relative",
+    "eslint.validate": ["javascript", "typescript", "vue"],
+    "[python]": {
+      "editor.defaultFormatter": "charliermarsh.ruff"
+    },
+    "[vue]": {
+      "editor.defaultFormatter": "Vue.volar"
+    },
+    "[typescript]": {
+      "editor.defaultFormatter": "esbenp.prettier-vscode"
+    },
+    "github.copilot.chat.codeGeneration.instructions": [
+      {
+        "text": "This is Kairo (OrgMind AI). Follow the architecture in orgmind_prompt_pack/. Preserve tenant isolation, RBAC, provider abstractions, and source-grounded AI answers. Never hardcode COMBIS. Use PyJWT (not python-jose). Use async SQLAlchemy with psycopg[async]."
+      }
+    ]
+  }
+}

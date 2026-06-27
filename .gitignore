@@ -1,0 +1,56 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+.venv/
+venv/
+env/
+*.egg-info/
+dist/
+build/
+.eggs/
+*.egg
+
+# Environment
+.env
+.env.local
+.env.*.local
+
+# Testing
+.pytest_cache/
+.coverage
+htmlcov/
+.mypy_cache/
+.ruff_cache/
+
+# IDE
+.vscode/settings.json
+.idea/
+*.swp
+*.swo
+*.DS_Store
+
+# Node / Frontend
+node_modules/
+apps/web/dist/
+apps/web/.vite/
+
+# Docker
+docker-compose.override.yml
+
+# Logs
+*.log
+logs/
+
+# OS
+Thumbs.db
+
+# Secrets — never commit real credentials
+*.pem
+*.key
+*.p12
+
+# Alembic generated (keep migrations, not cache)
+services/api/app/db/migrations/__pycache__/
