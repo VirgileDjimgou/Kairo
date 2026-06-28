@@ -4,7 +4,7 @@ Last updated: 2026-06-28
 
 ## Current Sprint
 
-Sprint 9 - Policies, Rules And Discipline
+Sprint 10 - Events And Announcements
 
 Status: Completed
 
@@ -42,12 +42,25 @@ Status: Completed
   - Admin/treasurer disciplinary management with role-based controls
   - Frontend policy and disciplinary views for member and admin surfaces
   - Backend integration tests covering visibility, isolation, and staff permissions
+- Completed Sprint 10 events and announcements module, including:
+  - Event and Announcement ORM models with visibility scopes and status tracking
+  - Full REST API for tenant-scoped event CRUD (admin) and public listing (members)
+  - Full REST API for tenant-scoped announcement CRUD (admin) and active listing (members)
+  - Visibility scope filtering: members see only non-admin_only published content
+  - Active announcement filtering by published_at/expires_at
+  - Admin-only enforcement on create/update/delete endpoints
+  - Tenant isolation on all queries
+  - Frontend EventsView and AnnouncementsView for member surface
+  - Frontend AdminEventsView and AdminAnnouncementsView for admin management
+  - Admin sidebar navigation links for Events and Announcements
+  - Member sidebar navigation links for Events and Announcements
+  - Backend integration tests: 13 tests covering CRUD, visibility, isolation, admin enforcement, and date filtering
 
 ## Current Verified Product Surface
 
-- Vue frontend with login, dashboard, app shell, admin shell, admin documents view, admin chat audit view, member profile view, admin members view, admin contributions view, public policies view, member disciplinary view, admin policies view, and admin disciplinary view.
-- FastAPI backend with mounted `auth`, `tenants`, `documents`, `admin`, `chat`, `membership`, and `contributions` routers plus `/health`.
-- PostgreSQL-backed identity, tenancy, document, version, ingestion-job, chunk, membership, contribution, and payment models.
+- Vue frontend with login, dashboard, app shell, admin shell, admin documents view, admin chat audit view, member profile view, admin members view, admin contributions view, public policies view, member disciplinary view, admin policies view, admin disciplinary view, member events view, admin events view, member announcements view, and admin announcements view.
+- FastAPI backend with mounted `auth`, `tenants`, `documents`, `admin`, `chat`, `membership`, `contributions`, `events`, and `announcements` routers plus `/health`.
+- PostgreSQL-backed identity, tenancy, document, version, ingestion-job, chunk, membership, contribution, payment, event, and announcement models.
 - MinIO-backed object storage provider.
 - Redis and Celery ingestion worker flow.
 - Parsers for TXT, Markdown, CSV, PDF, DOCX, and WhatsApp exports.

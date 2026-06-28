@@ -57,6 +57,21 @@
         >
           <i class="bi bi-journal-text me-2"></i>Chat audit
         </RouterLink>
+        <hr class="my-2" />
+        <RouterLink
+          to="/admin/events"
+          class="nav-link sidebar-link rounded"
+          active-class="active"
+        >
+          <i class="bi bi-calendar-event me-2"></i>Events
+        </RouterLink>
+        <RouterLink
+          to="/admin/announcements"
+          class="nav-link sidebar-link rounded"
+          active-class="active"
+        >
+          <i class="bi bi-megaphone me-2"></i>Announcements
+        </RouterLink>
       </nav>
     </aside>
 
@@ -74,7 +89,7 @@
           <div
             class="badge bg-warning-subtle text-warning border border-warning-subtle px-3 py-2"
           >
-            Sprint 9 policies
+            Sprint 10 events & announcements
           </div>
         </div>
       </header>

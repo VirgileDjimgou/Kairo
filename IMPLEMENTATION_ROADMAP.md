@@ -134,10 +134,35 @@ Acceptance criteria:
 
 ## Sprint 10 - Events And Announcements
 
-Status: Next
+Status: Completed
 
 Goal:
 Add calendar and announcement capabilities for tenant operations.
+
+Deliverables:
+
+- Event ORM model with visibility_scope, status, start_at/end_at, and location
+- Announcement ORM model with visibility_scope, published_at, and expires_at
+- Full CRUD REST API for events (admin) and public listing endpoint (members)
+- Full CRUD REST API for announcements (admin) and active listing endpoint (members)
+- Visibility scope filtering (admin_only hidden from non-admin users)
+- Active announcement filtering by publish/expiry dates
+- Admin-only enforcement on create, update, delete
+- Tenant isolation on all event and announcement queries
+- Frontend member views: EventsView (upcoming events) and AnnouncementsView (active announcements)
+- Frontend admin management views: AdminEventsView and AdminAnnouncementsView with CRUD modals
+- Frontend Vue Router routes for member and admin event/announcement pages
+- Sidebar navigation links in AppLayout and AdminLayout
+- Backend integration tests: 13 tests covering CRUD, visibility scoping, admin enforcement, tenant isolation, and date-based filtering
+
+Acceptance criteria:
+
+- admin can create, list, update, and delete events
+- admin can create, list, update, and delete announcements
+- member sees only published, non-admin_only events and announcements
+- expired announcements are excluded from the active endpoint
+- tenant A events/announcements are invisible to tenant B
+- non-admin users cannot create, update, or delete events or announcements
 
 ## Sprint 11 - Cloudflare Tunnel Deployment
 

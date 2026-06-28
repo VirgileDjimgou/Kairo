@@ -21,11 +21,11 @@
       <div class="d-flex gap-3">
         <i class="bi bi-rocket-takeoff fs-4 flex-shrink-0"></i>
         <div>
-          <h6 class="alert-heading mb-1">Sprint 9 complete</h6>
+          <h6 class="alert-heading mb-1">Sprint 10 complete</h6>
           <p class="mb-0 small">
-            Policies and disciplinary records are now part of the product surface.
-            Members can browse public policies and inspect their own disciplinary
-            history; admins can create and manage policy and discipline records.
+            Events and announcements are now live. Members can view upcoming
+            events and active announcements; admins can create, edit, and manage
+            both from the admin console.
           </p>
         </div>
       </div>
@@ -88,6 +88,20 @@
             <div>
               <div class="text-muted small">Policies</div>
               <div class="fw-semibold">Sprint 9</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="col-sm-6 col-lg-3">
+        <div class="card shadow-sm border-0 h-100">
+          <div class="card-body d-flex align-items-center gap-3">
+            <div class="stat-icon bg-primary-subtle text-primary rounded-3 p-3">
+              <i class="bi bi-calendar-event fs-4"></i>
+            </div>
+            <div>
+              <div class="text-muted small">Events & Announcements</div>
+              <div class="fw-semibold">Sprint 10</div>
             </div>
           </div>
         </div>
@@ -172,7 +186,8 @@ const sprints = [
   { id: "Sprint 7", goal: "Admin RAG controls", status: "Done" },
   { id: "Sprint 8", goal: "Membership & contributions", status: "Done" },
   { id: "Sprint 9", goal: "Policies, rules & discipline", status: "Done" },
-  { id: "Sprint 10", goal: "Events & announcements", status: "Planned" },
+  { id: "Sprint 10", goal: "Events & announcements", status: "Done" },
+  { id: "Sprint 11", goal: "Cloudflare Tunnel deployment", status: "Planned" },
 ];
 
 function statusClass(status: string) {
