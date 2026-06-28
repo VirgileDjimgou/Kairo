@@ -15,9 +15,34 @@
         >
           <i class="bi bi-speedometer2 me-2"></i>Overview
         </RouterLink>
-        <a class="nav-link sidebar-link rounded disabled" href="#"
-          ><i class="bi bi-people me-2"></i>Users</a
+        <RouterLink
+          to="/admin/members"
+          class="nav-link sidebar-link rounded"
+          active-class="active"
         >
+          <i class="bi bi-people me-2"></i>Members
+        </RouterLink>
+        <RouterLink
+          to="/admin/contributions"
+          class="nav-link sidebar-link rounded"
+          active-class="active"
+        >
+          <i class="bi bi-cash-stack me-2"></i>Contributions
+        </RouterLink>
+        <RouterLink
+          to="/admin/policies"
+          class="nav-link sidebar-link rounded"
+          active-class="active"
+        >
+          <i class="bi bi-journal-text me-2"></i>Policies
+        </RouterLink>
+        <RouterLink
+          to="/admin/disciplinary"
+          class="nav-link sidebar-link rounded"
+          active-class="active"
+        >
+          <i class="bi bi-shield-lock me-2"></i>Disciplinary
+        </RouterLink>
         <RouterLink
           to="/admin/documents"
           class="nav-link sidebar-link rounded"
@@ -32,12 +57,6 @@
         >
           <i class="bi bi-journal-text me-2"></i>Chat audit
         </RouterLink>
-        <a class="nav-link sidebar-link rounded disabled" href="#"
-          ><i class="bi bi-list-check me-2"></i>Ingestion Jobs</a
-        >
-        <a class="nav-link sidebar-link rounded disabled" href="#"
-          ><i class="bi bi-shield-check me-2"></i>Roles & Permissions</a
-        >
       </nav>
     </aside>
 
@@ -55,7 +74,7 @@
           <div
             class="badge bg-warning-subtle text-warning border border-warning-subtle px-3 py-2"
           >
-            Sprint 3 documents
+            Sprint 9 policies
           </div>
         </div>
       </header>

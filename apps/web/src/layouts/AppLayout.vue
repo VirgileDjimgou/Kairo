@@ -22,6 +22,27 @@
           <i class="bi bi-chat-dots me-2"></i>Chat
         </RouterLink>
         <RouterLink
+          to="/members/profile"
+          class="nav-link sidebar-link rounded"
+          active-class="active"
+        >
+          <i class="bi bi-person-badge me-2"></i>My Profile
+        </RouterLink>
+        <RouterLink
+          to="/policies"
+          class="nav-link sidebar-link rounded"
+          active-class="active"
+        >
+          <i class="bi bi-journal-text me-2"></i>Policies
+        </RouterLink>
+        <RouterLink
+          to="/disciplinary"
+          class="nav-link sidebar-link rounded"
+          active-class="active"
+        >
+          <i class="bi bi-shield-check me-2"></i>Disciplinary
+        </RouterLink>
+        <RouterLink
           to="/admin"
           class="nav-link sidebar-link rounded"
           active-class="active"

@@ -13,6 +13,10 @@ from app.modules.admin.router import router as admin_router
 from app.modules.documents.router import router as documents_router
 from app.modules.identity.router import router as identity_router
 from app.modules.tenancy.router import router as tenancy_router
+from app.modules.membership.router import router as membership_router
+from app.modules.contributions.router import router as contributions_router
+from app.modules.policies.router import router as policies_router
+from app.modules.disciplinary.router import router as disciplinary_router
 
 setup_logging()
 logger = structlog.get_logger(__name__)
@@ -54,6 +58,10 @@ app.include_router(tenancy_router, prefix=API_PREFIX)
 app.include_router(admin_router, prefix=API_PREFIX)
 app.include_router(documents_router, prefix=API_PREFIX)
 app.include_router(chat_router, prefix=API_PREFIX)
+app.include_router(membership_router, prefix=API_PREFIX)
+app.include_router(contributions_router, prefix=API_PREFIX)
+app.include_router(policies_router, prefix=API_PREFIX)
+app.include_router(disciplinary_router, prefix=API_PREFIX)
 
 
 # ── System endpoints ───────────────────────────────────────────────────────────

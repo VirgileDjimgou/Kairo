@@ -29,6 +29,21 @@ const router = createRouter({
           name: 'chat',
           component: () => import('@/views/chat/ChatView.vue'),
         },
+        {
+          path: 'members/profile',
+          name: 'my-profile',
+          component: () => import('@/views/members/MyProfileView.vue'),
+        },
+        {
+          path: 'policies',
+          name: 'policies',
+          component: () => import('@/views/policies/PoliciesView.vue'),
+        },
+        {
+          path: 'disciplinary',
+          name: 'my-disciplinary',
+          component: () => import('@/views/disciplinary/MyDisciplinaryView.vue'),
+        },
       ],
     },
     {
@@ -50,6 +65,26 @@ const router = createRouter({
           path: 'chat-queries',
           name: 'admin-chat-queries',
           component: () => import('@/views/admin/AdminChatQueriesView.vue'),
+        },
+        {
+          path: 'members',
+          name: 'admin-members',
+          component: () => import('@/views/members/AdminMembersView.vue'),
+        },
+        {
+          path: 'contributions',
+          name: 'admin-contributions',
+          component: () => import('@/views/contributions/AdminContributionsView.vue'),
+        },
+        {
+          path: 'policies',
+          name: 'admin-policies',
+          component: () => import('@/views/policies/AdminPoliciesView.vue'),
+        },
+        {
+          path: 'disciplinary',
+          name: 'admin-disciplinary',
+          component: () => import('@/views/disciplinary/AdminDisciplinaryView.vue'),
         },
       ],
     },
