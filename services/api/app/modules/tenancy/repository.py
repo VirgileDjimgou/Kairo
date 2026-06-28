@@ -34,6 +34,27 @@ class TenancyRepository:
         )
         return result.scalar_one_or_none()
 
+    async def update_tenant(
+        self, tenant_id: UUID, *, name: str | None = None,
+        default_language: str | None = None,
+        branding_json: str | None = None,
+        settings_json: str | None = None,
+    ) -> Tenant | None:
+        tenant = await self.get_tenant_by_id(tenant_id)
+        if not tenant:
+            return None
+        if name is not None:
+            tenant.name = name
+        if default_language is not None:
+            tenant.default_language = default_language
+        if branding_json is not None:
+            tenant.branding_json = branding_json
+        if settings_json is not None:
+            tenant.settings_json = settings_json
+        await self._db.flush()
+        await self._db.refresh(tenant)
+        return tenant
+
     async def create_tenant(
         self,
         slug: str,

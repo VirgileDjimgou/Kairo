@@ -1,0 +1,67 @@
+# ───────────────────────────────────────────────────────────────────────────────
+# Caddy reverse proxy configuration for Kairo production deployment
+# ───────────────────────────────────────────────────────────────────────────────
+#
+# Caddy automatically provisions and renews Let's Encrypt TLS certificates.
+#
+# Usage:
+#   Replace YOUR_DOMAIN with your actual domain.
+#   Uncomment the with_ssl block if you have Caddy manage TLS.
+#   Run: docker compose -f docker-compose.yml -f docker-compose.prod.yml \
+#                       -f infra/reverse-proxy/docker-compose.caddy.yml up -d
+# ───────────────────────────────────────────────────────────────────────────────
+
+# ── Without SSL (behind Cloudflare Tunnel) ─────────────────────────────────────
+# Cloudflare handles TLS termination, so the proxy runs in plain HTTP.
+http://localhost:80 {
+    # Serve frontend static files
+    root * /usr/share/caddy/html
+    try_files {path} /index.html
+
+    # Proxy API requests to the backend
+    reverse_proxy /api/* api:8000
+    reverse_proxy /health api:8000
+
+    # Security headers
+    header {
+        X-Content-Type-Options "nosniff"
+        X-Frame-Options "DENY"
+        X-XSS-Protection "1; mode=block"
+        Referrer-Policy "strict-origin-when-cross-origin"
+    }
+
+    # Deny access to sensitive paths
+    @denied {
+        path /docs /redoc /openapi.json
+    }
+    respond @denied 404
+
+    # Logs
+    log {
+        output file /var/log/caddy/access.log
+    }
+}
+
+# ── With SSL (standalone, not behind Cloudflare) ──────────────────────────────
+# Uncomment and replace YOUR_DOMAIN to use Caddy's automatic TLS.
+#
+# YOUR_DOMAIN {
+#     root * /usr/share/caddy/html
+#     try_files {path} /index.html
+#
+#     reverse_proxy /api/* api:8000
+#     reverse_proxy /health api:8000
+#
+#     header {
+#         X-Content-Type-Options "nosniff"
+#         X-Frame-Options "DENY"
+#         X-XSS-Protection "1; mode=block"
+#         Strict-Transport-Security "max-age=31536000; includeSubDomains"
+#         Referrer-Policy "strict-origin-when-cross-origin"
+#     }
+#
+#     @denied { path /docs /redoc /openapi.json }
+#     respond @denied 404
+#
+#     log { output file /var/log/caddy/access.log }
+# }

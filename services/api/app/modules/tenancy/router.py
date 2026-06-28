@@ -3,7 +3,11 @@ from uuid import UUID
 from fastapi import APIRouter
 
 from app.core.dependencies import AuthDep, DbDep
-from app.modules.tenancy.schemas import TenantResponse
+from app.modules.tenancy.schemas import (
+    TenantResponse,
+    TenantSettingsResponse,
+    TenantSettingsUpdate,
+)
 from app.modules.tenancy.service import TenancyService
 
 router = APIRouter(prefix="/tenants", tags=["tenants"])
@@ -27,3 +31,40 @@ async def get_tenant(
     """
     service = TenancyService(db)
     return await service.get_tenant(tenant_id, current.user.id)
+
+
+@router.get("/{tenant_id}/settings", response_model=TenantSettingsResponse)
+async def get_tenant_settings(
+    tenant_id: UUID, current: AuthDep, db: DbDep
+) -> TenantSettingsResponse:
+    """
+    Return tenant settings including branding and module toggles.
+
+    Tenant isolation enforced: user must be an active member.
+    """
+    service = TenancyService(db)
+    return await service.get_tenant_settings(tenant_id, current.user.id)
+
+
+@router.put("/{tenant_id}/settings", response_model=TenantSettingsResponse)
+async def update_tenant_settings(
+    tenant_id: UUID,
+    settings: TenantSettingsUpdate,
+    current: AuthDep,
+    db: DbDep,
+) -> TenantSettingsResponse:
+    """
+    Update tenant settings (admin-only).
+
+    Allows updating name, default_language, branding, and module toggles.
+    Non-admin members will receive a 403.
+    """
+    if "admin" not in current.roles:
+        from fastapi import HTTPException, status
+
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Only administrators can update tenant settings",
+        )
+    service = TenancyService(db)
+    return await service.update_tenant_settings(tenant_id, current.user.id, settings)

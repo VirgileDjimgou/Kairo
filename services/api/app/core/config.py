@@ -55,6 +55,17 @@ class Settings(BaseSettings):
     ollama_llm_model: str = "qwen2.5:7b-instruct"
     ollama_embedding_model: str = "nomic-embed-text"
 
+    # Optional notification channel placeholders
+    smtp_host: str | None = None
+    smtp_port: int = 587
+    smtp_username: str | None = None
+    smtp_password: str | None = None
+    smtp_from_email: str | None = None
+    telegram_bot_token: str | None = None
+    telegram_default_chat_id: str | None = None
+    whatsapp_api_base_url: str | None = None
+    whatsapp_api_token: str | None = None
+
     # Upload
     max_upload_mb: int = 50
     allowed_upload_extensions: str = "pdf,docx,txt,md,csv,png,jpg,jpeg,webp"

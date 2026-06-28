@@ -1,10 +1,18 @@
+import json
 from uuid import UUID
 
 from fastapi import HTTPException, status
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from app.modules.tenancy.module_toggles import default_module_toggles, parse_module_toggles
 from app.modules.tenancy.repository import TenancyRepository
-from app.modules.tenancy.schemas import TenantResponse
+from app.modules.tenancy.schemas import (
+    BrandingConfig,
+    ModuleToggles,
+    TenantResponse,
+    TenantSettingsResponse,
+    TenantSettingsUpdate,
+)
 
 
 class TenancyService:
@@ -12,7 +20,6 @@ class TenancyService:
         self._repo = TenancyRepository(db)
 
     async def get_user_tenants(self, user_id: UUID) -> list[TenantResponse]:
-        """Return all tenants the current user is an active member of."""
         memberships = await self._repo.get_user_active_memberships(user_id)
         tenants = []
         for membership in memberships:
@@ -24,11 +31,6 @@ class TenancyService:
     async def get_tenant(
         self, tenant_id: UUID, requesting_user_id: UUID
     ) -> TenantResponse:
-        """
-        Return a specific tenant.
-
-        Enforces isolation: the requesting user must be a member.
-        """
         membership = await self._repo.get_tenant_user(tenant_id, requesting_user_id)
         if not membership or membership.membership_status != "active":
             raise HTTPException(
@@ -42,3 +44,120 @@ class TenancyService:
                 detail="Organization not found",
             )
         return TenantResponse.model_validate(tenant)
+
+    # ── Tenant Settings ─────────────────────────────────────────────────────
+
+    async def get_tenant_settings(
+        self, tenant_id: UUID, requesting_user_id: UUID
+    ) -> TenantSettingsResponse:
+        membership = await self._repo.get_tenant_user(tenant_id, requesting_user_id)
+        if not membership or membership.membership_status != "active":
+            raise HTTPException(
+                status_code=status.HTTP_403_FORBIDDEN,
+                detail="You are not a member of this organization",
+            )
+        tenant = await self._repo.get_tenant_by_id(tenant_id)
+        if not tenant:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail="Organization not found",
+            )
+
+        branding_raw = {}
+        if isinstance(tenant.branding_json, str) and tenant.branding_json.strip():
+            try:
+                branding_raw = json.loads(tenant.branding_json)
+            except json.JSONDecodeError:
+                branding_raw = {}
+
+        settings_raw = {}
+        if isinstance(tenant.settings_json, str) and tenant.settings_json.strip():
+            try:
+                settings_raw = json.loads(tenant.settings_json)
+            except json.JSONDecodeError:
+                settings_raw = {}
+
+        module_toggles = parse_module_toggles(settings_raw)
+        branding = BrandingConfig(**branding_raw) if branding_raw else BrandingConfig()
+
+        return TenantSettingsResponse(
+            tenant_id=tenant.id,
+            name=tenant.name,
+            slug=tenant.slug,
+            default_language=tenant.default_language,
+            branding=branding,
+            modules=ModuleToggles(**module_toggles),
+            updated_at=tenant.updated_at,
+        )
+
+    async def update_tenant_settings(
+        self, tenant_id: UUID, requesting_user_id: UUID, settings: TenantSettingsUpdate
+    ) -> TenantSettingsResponse:
+        membership = await self._repo.get_tenant_user(tenant_id, requesting_user_id)
+        if not membership or membership.membership_status != "active":
+            raise HTTPException(
+                status_code=status.HTTP_403_FORBIDDEN,
+                detail="You are not a member of this organization",
+            )
+        tenant = await self._repo.get_tenant_by_id(tenant_id)
+        if not tenant:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail="Organization not found",
+            )
+
+        name = settings.name
+        default_language = settings.default_language
+
+        current_branding_raw = {}
+        if isinstance(tenant.branding_json, str) and tenant.branding_json.strip():
+            try:
+                current_branding_raw = json.loads(tenant.branding_json)
+            except json.JSONDecodeError:
+                current_branding_raw = {}
+
+        current_settings_raw = {}
+        if isinstance(tenant.settings_json, str) and tenant.settings_json.strip():
+            try:
+                current_settings_raw = json.loads(tenant.settings_json)
+            except json.JSONDecodeError:
+                current_settings_raw = {}
+
+        if settings.branding is not None:
+            current_branding_raw.update(settings.branding.model_dump(exclude_unset=True))
+        if settings.modules is not None:
+            current_settings_raw["modules"] = {
+                **default_module_toggles(),
+                **settings.modules.model_dump(exclude_unset=True),
+            }
+
+        branding_json = json.dumps(current_branding_raw)
+        settings_json = json.dumps(current_settings_raw)
+
+        updated = await self._repo.update_tenant(
+            tenant_id,
+            name=name,
+            default_language=default_language,
+            branding_json=branding_json,
+            settings_json=settings_json,
+        )
+        if not updated:
+            raise HTTPException(
+                status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+                detail="Failed to update tenant settings",
+            )
+
+        module_toggles = parse_module_toggles(
+            json.loads(settings_json) if settings_json else {}
+        )
+        branding = BrandingConfig(**current_branding_raw)
+
+        return TenantSettingsResponse(
+            tenant_id=updated.id,
+            name=updated.name,
+            slug=updated.slug,
+            default_language=updated.default_language,
+            branding=branding,
+            modules=ModuleToggles(**module_toggles),
+            updated_at=updated.updated_at,
+        )

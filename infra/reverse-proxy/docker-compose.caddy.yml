@@ -1,0 +1,27 @@
+# Caddy reverse proxy for Kairo production deployment
+#
+# Usage:
+#   docker compose -f docker-compose.yml -f docker-compose.prod.yml \
+#                  -f infra/reverse-proxy/docker-compose.caddy.yml up -d
+#
+# This places Caddy in front of the web and api containers,
+# handling TLS termination, static file serving, and API proxying.
+
+services:
+  caddy:
+    image: caddy:2-alpine
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./infra/reverse-proxy/Caddyfile:/etc/caddy/Caddyfile:ro
+      - caddy_data:/data
+      - caddy_config:/config
+    depends_on:
+      - web
+      - api
+    restart: unless-stopped
+
+volumes:
+  caddy_data:
+  caddy_config:

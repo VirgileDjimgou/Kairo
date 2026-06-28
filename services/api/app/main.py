@@ -8,6 +8,7 @@ from sqlalchemy import text
 from app.core.config import settings
 from app.core.dependencies import DbDep
 from app.core.logging import setup_logging
+from app.modules.tenancy.module_toggles import ALL_MODULES
 from app.modules.chat.router import router as chat_router
 from app.modules.admin.router import router as admin_router
 from app.modules.documents.router import router as documents_router
@@ -19,6 +20,7 @@ from app.modules.policies.router import router as policies_router
 from app.modules.disciplinary.router import router as disciplinary_router
 from app.modules.events.router import router as events_router
 from app.modules.announcements.router import router as announcements_router
+from app.modules.notifications.router import router as notifications_router
 
 setup_logging()
 logger = structlog.get_logger(__name__)
@@ -66,6 +68,7 @@ app.include_router(policies_router, prefix=API_PREFIX)
 app.include_router(disciplinary_router, prefix=API_PREFIX)
 app.include_router(events_router, prefix=API_PREFIX)
 app.include_router(announcements_router, prefix=API_PREFIX)
+app.include_router(notifications_router, prefix=API_PREFIX)
 
 
 # ── System endpoints ───────────────────────────────────────────────────────────
@@ -97,4 +100,5 @@ async def health_check(db: DbDep) -> dict:
         "version": "0.1.0",
         "env": settings.app_env,
         "checks": checks,
+        "modules": ALL_MODULES,
     }

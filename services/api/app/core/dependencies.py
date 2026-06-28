@@ -122,3 +122,21 @@ def get_llm_provider():
 
 
 LlmDep = Annotated[object, Depends(get_llm_provider)]
+
+
+@lru_cache(maxsize=1)
+def get_notification_providers():
+    from app.providers.notifications import (
+        EmailNotificationProvider,
+        TelegramNotificationProvider,
+        WhatsAppNotificationProvider,
+    )
+
+    return [
+        EmailNotificationProvider(),
+        TelegramNotificationProvider(),
+        WhatsAppNotificationProvider(),
+    ]
+
+
+NotificationsDep = Annotated[list[object], Depends(get_notification_providers)]

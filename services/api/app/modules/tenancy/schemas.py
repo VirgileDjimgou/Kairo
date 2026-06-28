@@ -35,3 +35,39 @@ class RoleResponse(BaseModel):
     is_system_role: bool
 
     model_config = {"from_attributes": True}
+
+
+# ── Tenant Settings ──────────────────────────────────────────────────────────
+
+
+class ModuleToggles(BaseModel):
+    membership: bool = True
+    contributions: bool = True
+    policies: bool = True
+    disciplinary: bool = True
+    events: bool = True
+    announcements: bool = True
+    chat: bool = True
+    notifications: bool = True
+
+
+class BrandingConfig(BaseModel):
+    primary_color: str = "#1f4f8f"
+    logo_url: str = ""
+
+
+class TenantSettingsResponse(BaseModel):
+    tenant_id: UUID
+    name: str
+    slug: str
+    default_language: str
+    branding: BrandingConfig
+    modules: ModuleToggles
+    updated_at: datetime
+
+
+class TenantSettingsUpdate(BaseModel):
+    name: str | None = None
+    default_language: str | None = None
+    branding: BrandingConfig | None = None
+    modules: ModuleToggles | None = None

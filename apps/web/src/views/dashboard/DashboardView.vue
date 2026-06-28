@@ -21,11 +21,11 @@
       <div class="d-flex gap-3">
         <i class="bi bi-rocket-takeoff fs-4 flex-shrink-0"></i>
         <div>
-          <h6 class="alert-heading mb-1">Sprint 10 complete</h6>
+          <h6 class="alert-heading mb-1">Sprint 14 complete</h6>
           <p class="mb-0 small">
-            Events and announcements are now live. Members can view upcoming
-            events and active announcements; admins can create, edit, and manage
-            both from the admin console.
+            Multi-channel extensions are now in place as optional admin tools.
+            The web app remains primary, while Email, Telegram, and WhatsApp
+            placeholders can be inspected and exercised through dry-run dispatches.
           </p>
         </div>
       </div>
@@ -124,6 +124,20 @@
       <div class="col-sm-6 col-lg-3">
         <div class="card shadow-sm border-0 h-100">
           <div class="card-body d-flex align-items-center gap-3">
+            <div class="stat-icon bg-warning-subtle text-warning rounded-3 p-3">
+              <i class="bi bi-broadcast-pin fs-4"></i>
+            </div>
+            <div>
+              <div class="text-muted small">Channels</div>
+              <div class="fw-semibold">Sprint 14</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="col-sm-6 col-lg-3">
+        <div class="card shadow-sm border-0 h-100">
+          <div class="card-body d-flex align-items-center gap-3">
             <div class="stat-icon bg-success-subtle text-success rounded-3 p-3">
               <i class="bi bi-people fs-4"></i>
             </div>
@@ -187,7 +201,11 @@ const sprints = [
   { id: "Sprint 8", goal: "Membership & contributions", status: "Done" },
   { id: "Sprint 9", goal: "Policies, rules & discipline", status: "Done" },
   { id: "Sprint 10", goal: "Events & announcements", status: "Done" },
-  { id: "Sprint 11", goal: "Cloudflare Tunnel deployment", status: "Planned" },
+  { id: "Sprint 11", goal: "Cloudflare Tunnel deployment", status: "Done" },
+  { id: "Sprint 12", goal: "Evaluation & AI safety", status: "Done" },
+  { id: "Sprint 13", goal: "Demo tenant & portfolio polish", status: "Done" },
+  { id: "Sprint 14", goal: "Multi-channel extensions", status: "Done" },
+  { id: "Sprint 15", goal: "Commercialization baseline", status: "Next" },
 ];
 
 function statusClass(status: string) {

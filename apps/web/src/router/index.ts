@@ -106,6 +106,16 @@ const router = createRouter({
           name: 'admin-announcements',
           component: () => import('@/views/announcements/AdminAnnouncementsView.vue'),
         },
+        {
+          path: 'notifications',
+          name: 'admin-notifications',
+          component: () => import('@/views/admin/AdminNotificationsView.vue'),
+        },
+        {
+          path: 'settings',
+          name: 'admin-settings',
+          component: () => import('@/views/admin/AdminSettingsView.vue'),
+        },
       ],
     },
     // Future sprint routes are added here
