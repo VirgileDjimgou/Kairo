@@ -5,6 +5,7 @@ from fastapi import APIRouter, File, Form, HTTPException, UploadFile, status
 
 from app.core.dependencies import AuthDep, DbDep, ObjectStorageDep
 from app.modules.documents.schemas import (
+    DocumentAccessUpdateRequest,
     DocumentListItemResponse,
     IngestionJobResponse,
     UploadDocumentResponse,
@@ -63,3 +64,35 @@ async def get_ingestion_job(
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Ingestion job not found")
 
     return IngestionJobResponse(**job)
+
+
+@router.patch("/{document_id}/access", response_model=DocumentListItemResponse)
+async def update_document_access(
+    document_id: UUID,
+    current: AuthDep,
+    db: DbDep,
+    request: DocumentAccessUpdateRequest,
+) -> DocumentListItemResponse:
+    if not current.has_role("admin"):
+        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Admin role required")
+    service = DocumentService(db, storage_provider=None)
+    return await service.update_document_access(
+        tenant_id=current.tenant_id,
+        document_id=document_id,
+        request=request,
+    )
+
+
+@router.post("/{document_id}/reindex", response_model=IngestionJobResponse)
+async def reindex_document(
+    document_id: UUID,
+    current: AuthDep,
+    db: DbDep,
+) -> IngestionJobResponse:
+    if not current.has_role("admin"):
+        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Admin role required")
+    service = DocumentService(db, storage_provider=None)
+    return await service.request_reingestion(
+        tenant_id=current.tenant_id,
+        document_id=document_id,
+    )

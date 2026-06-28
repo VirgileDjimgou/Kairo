@@ -159,3 +159,85 @@ async def test_ingestion_job_status_is_tenant_scoped(
     body = allowed.json()
     assert body["id"] == job_id
     assert body["status"] == "pending"
+
+
+@pytest.mark.asyncio
+async def test_admin_can_update_document_access_and_roles(
+    client: AsyncClient, seeded_tenant_and_admin: dict
+) -> None:
+    data = seeded_tenant_and_admin
+    token = await login(client, data["user"].email, data["password"])
+
+    upload = await client.post(
+        "/api/v1/documents/upload",
+        headers={"Authorization": f"Bearer {token}"},
+        files={"file": ("policy.txt", b"admin scoped body", "text/plain")},
+        data={"title": "Admin Policy", "access_scope": "tenant_public"},
+    )
+    assert upload.status_code == 200, upload.text
+    document_id = upload.json()["id"]
+
+    response = await client.patch(
+        f"/api/v1/documents/{document_id}/access",
+        headers={"Authorization": f"Bearer {token}"},
+        json={"access_scope": "role_restricted", "allowed_role_ids": ["admin", "member"]},
+    )
+    assert response.status_code == 200, response.text
+    body = response.json()
+    assert body["access_scope"] == "role_restricted"
+    assert sorted(body["allowed_role_ids"]) == ["admin", "member"]
+
+    listing = await client.get(
+        "/api/v1/documents/",
+        headers={"Authorization": f"Bearer {token}"},
+    )
+    assert listing.status_code == 200
+    documents = listing.json()
+    assert documents[0]["allowed_role_ids"] == ["admin", "member"]
+
+
+@pytest.mark.asyncio
+async def test_non_admin_cannot_update_document_access(
+    client: AsyncClient, db_session: AsyncSession
+) -> None:
+    tenant = await create_tenant_with_user(
+        db_session,
+        f"member-{_uuid.uuid4().hex[:6]}",
+        role_code="member",
+        profile_type="member",
+    )
+    token = await login(client, tenant["user"].email, tenant["password"], tenant_slug=tenant["tenant"].slug)
+
+    response = await client.patch(
+        "/api/v1/documents/00000000-0000-0000-0000-000000000001/access",
+        headers={"Authorization": f"Bearer {token}"},
+        json={"access_scope": "tenant_public"},
+    )
+    assert response.status_code == 403
+
+
+@pytest.mark.asyncio
+async def test_admin_can_queue_document_reindex(
+    client: AsyncClient, seeded_tenant_and_admin: dict
+) -> None:
+    data = seeded_tenant_and_admin
+    token = await login(client, data["user"].email, data["password"])
+
+    upload = await client.post(
+        "/api/v1/documents/upload",
+        headers={"Authorization": f"Bearer {token}"},
+        files={"file": ("reindex.txt", b"reindex body", "text/plain")},
+        data={"title": "Reindex Target", "access_scope": "tenant_public"},
+    )
+    assert upload.status_code == 200, upload.text
+    document_id = upload.json()["id"]
+
+    response = await client.post(
+        f"/api/v1/documents/{document_id}/reindex",
+        headers={"Authorization": f"Bearer {token}"},
+    )
+    assert response.status_code == 200, response.text
+    body = response.json()
+    assert body["document_id"] == document_id
+    assert body["status"] == "pending"
+    assert body["chunk_count"] == 0

@@ -1,0 +1,26 @@
+---
+description: Kairo project continuity and architecture rules
+globs:
+alwaysApply: true
+---
+
+# Kairo Cursor Rule
+
+Before editing, read:
+
+1. `AGENTS.md`
+2. `docs/ai/PROJECT_STATE.md`
+3. `docs/ai/NEXT_SPRINT.md`
+4. `orgmind_prompt_pack/01_PROJECT_CONSTITUTION.md`
+5. `orgmind_prompt_pack/02_ARCHITECTURE.md`
+6. `orgmind_prompt_pack/03_ROADMAP_SPRINTS.md`
+
+Follow these rules:
+
+- Preserve tenant isolation in every tenant-scoped query.
+- Backend enforces permissions; the LLM never does.
+- Never send unauthorized chunks to the LLM.
+- Stay within the active sprint unless the user explicitly requests otherwise.
+- Prefer small vertical slices over broad refactors.
+- Add or update tests and docs when behavior changes.
+- If code and docs diverge, trust verified code first, then update the docs.

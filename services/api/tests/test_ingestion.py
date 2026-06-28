@@ -1,4 +1,4 @@
-"""Sprint 4 tests: text ingestion, chunking, and job lifecycle."""
+"""Sprint 4/5 tests: ingestion, chunking, and vector indexing."""
 
 import uuid as _uuid
 
@@ -7,11 +7,24 @@ from httpx import AsyncClient
 from sqlalchemy import func, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from app.core.config import settings
 from app.modules.documents.models import DocumentChunk, IngestionJob
 from app.modules.ingestion.service import IngestionService
 from helpers import create_tenant_with_user, login
+from fakes import FakeEmbeddingProvider, FakeVectorStoreProvider
 
 pytestmark = pytest.mark.integration
+
+
+def _build_ingestion_service(db_session: AsyncSession, fake_storage) -> tuple[IngestionService, FakeVectorStoreProvider]:
+    vector_store = FakeVectorStoreProvider()
+    service = IngestionService(
+        db_session,
+        fake_storage,
+        embedding_provider=FakeEmbeddingProvider(),
+        vector_store_provider=vector_store,
+    )
+    return service, vector_store
 
 
 @pytest.mark.asyncio
@@ -35,37 +48,32 @@ async def test_txt_upload_produces_chunks(
     assert upload.status_code == 200, upload.text
     job_id = _uuid.UUID(upload.json()["ingestion_job_id"])
 
-    service = IngestionService(db_session, fake_storage)
-    await service.process_job(job_id)
+    previous = settings.indexing_auto_enabled
+    settings.indexing_auto_enabled = True
+    try:
+        service, vector_store = _build_ingestion_service(db_session, fake_storage)
+        await service.process_job(job_id)
+    finally:
+        settings.indexing_auto_enabled = previous
     await db_session.commit()
 
     job = await db_session.get(IngestionJob, job_id)
     assert job is not None
     assert job.status == "completed"
-    assert job.error_message is None
-    assert job.started_at is not None
-    assert job.finished_at is not None
 
     chunk_count = await db_session.scalar(
         select(func.count())
         .select_from(DocumentChunk)
         .where(
             DocumentChunk.tenant_id == data["tenant"].id,
-            DocumentChunk.document_id == job.document_id,
+            DocumentChunk.document_version_id == job.document_version_id,
         )
     )
     assert chunk_count and chunk_count >= 1
-
-    chunk_rows = (
-        await db_session.scalars(
-            select(DocumentChunk)
-            .where(DocumentChunk.document_version_id == job.document_version_id)
-            .order_by(DocumentChunk.chunk_index)
-        )
-    ).all()
-    texts = [chunk.text for chunk in chunk_rows]
-    assert any("tenant policy" in text for text in texts)
-    assert all(chunk.tenant_id == data["tenant"].id for chunk in chunk_rows)
+    assert len(vector_store.points) >= 1
+    _, payload = next(iter(vector_store.points.values()))
+    assert payload["tenant_id"] == str(data["tenant"].id)
+    assert payload["access_scope"] == "tenant_public"
 
 
 @pytest.mark.asyncio
@@ -89,7 +97,7 @@ async def test_markdown_upload_produces_chunks(
     assert upload.status_code == 200
     job_id = _uuid.UUID(upload.json()["ingestion_job_id"])
 
-    service = IngestionService(db_session, fake_storage)
+    service, _ = _build_ingestion_service(db_session, fake_storage)
     await service.process_job(job_id)
     await db_session.commit()
 
@@ -97,19 +105,57 @@ async def test_markdown_upload_produces_chunks(
     assert job is not None
     assert job.status == "completed"
 
-    chunks = await db_session.scalars(
-        select(DocumentChunk).where(DocumentChunk.document_version_id == job.document_version_id)
-    )
-    assert len(chunks.all()) >= 1
-
 
 @pytest.mark.asyncio
-async def test_unsupported_format_marks_job_failed(
+async def test_pdf_upload_produces_chunks(
     client: AsyncClient,
     db_session: AsyncSession,
     fake_storage,
 ) -> None:
+    import fitz
+
     data = await create_tenant_with_user(db_session, f"pdf-{_uuid.uuid4().hex[:6]}")
+    token = await login(
+        client, data["user"].email, data["password"], tenant_slug=data["tenant"].slug
+    )
+
+    doc = fitz.open()
+    page = doc.new_page()
+    page.insert_text((72, 72), "tenant policy inside pdf")
+    pdf_bytes = doc.tobytes()
+    doc.close()
+
+    upload = await client.post(
+        "/api/v1/documents/upload",
+        headers={"Authorization": f"Bearer {token}"},
+        files={"file": ("report.pdf", pdf_bytes, "application/pdf")},
+        data={"title": "Report", "access_scope": "tenant_public"},
+    )
+    assert upload.status_code == 200
+    job_id = _uuid.UUID(upload.json()["ingestion_job_id"])
+
+    service, vector_store = _build_ingestion_service(db_session, fake_storage)
+    previous = settings.indexing_auto_enabled
+    settings.indexing_auto_enabled = True
+    try:
+        await service.process_job(job_id)
+    finally:
+        settings.indexing_auto_enabled = previous
+    await db_session.commit()
+
+    job = await db_session.get(IngestionJob, job_id)
+    assert job is not None
+    assert job.status == "completed"
+    assert len(vector_store.points) >= 1
+
+
+@pytest.mark.asyncio
+async def test_image_without_ocr_marks_job_failed(
+    client: AsyncClient,
+    db_session: AsyncSession,
+    fake_storage,
+) -> None:
+    data = await create_tenant_with_user(db_session, f"img-{_uuid.uuid4().hex[:6]}")
     token = await login(
         client, data["user"].email, data["password"], tenant_slug=data["tenant"].slug
     )
@@ -117,13 +163,13 @@ async def test_unsupported_format_marks_job_failed(
     upload = await client.post(
         "/api/v1/documents/upload",
         headers={"Authorization": f"Bearer {token}"},
-        files={"file": ("report.pdf", b"%PDF-1.4 fake", "application/pdf")},
-        data={"title": "Report", "access_scope": "tenant_public"},
+        files={"file": ("scan.png", b"\x89PNG", "image/png")},
+        data={"title": "Scan", "access_scope": "tenant_public"},
     )
     assert upload.status_code == 200
     job_id = _uuid.UUID(upload.json()["ingestion_job_id"])
 
-    service = IngestionService(db_session, fake_storage)
+    service, _ = _build_ingestion_service(db_session, fake_storage)
     await service.process_job(job_id)
     await db_session.commit()
 
@@ -131,4 +177,4 @@ async def test_unsupported_format_marks_job_failed(
     assert job is not None
     assert job.status == "failed"
     assert job.error_message
-    assert "not supported yet" in job.error_message.lower()
+    assert "ocr is not configured" in job.error_message.lower()

@@ -24,7 +24,7 @@
     },
     "github.copilot.chat.codeGeneration.instructions": [
       {
-        "text": "This is Kairo (OrgMind AI). Follow the architecture in orgmind_prompt_pack/. Preserve tenant isolation, RBAC, provider abstractions, and source-grounded AI answers. Never hardcode COMBIS. Use PyJWT (not python-jose). Use async SQLAlchemy with psycopg[async]."
+        "text": "This is Kairo (OrgMind AI). Read constitution/KAIRO_CONSTITUTION.md, IMPLEMENTATION_ROADMAP.md, PROJECT_STATUS.md, and AGENTS.md before coding. Determine the current sprint and continue only that sprint or the next unfinished sprint. Preserve tenant isolation, RBAC, provider abstractions, and source-grounded AI answers. Never hardcode COMBIS. Use PyJWT (not python-jose). Use async SQLAlchemy with psycopg[async]."
       }
     ]
   }

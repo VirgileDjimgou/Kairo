@@ -6,8 +6,10 @@ from fastapi.middleware.cors import CORSMiddleware
 from sqlalchemy import text
 
 from app.core.config import settings
+from app.core.dependencies import DbDep
 from app.core.logging import setup_logging
-from app.db.session import async_session_factory
+from app.modules.chat.router import router as chat_router
+from app.modules.admin.router import router as admin_router
 from app.modules.documents.router import router as documents_router
 from app.modules.identity.router import router as identity_router
 from app.modules.tenancy.router import router as tenancy_router
@@ -49,13 +51,15 @@ API_PREFIX = "/api/v1"
 
 app.include_router(identity_router, prefix=API_PREFIX)
 app.include_router(tenancy_router, prefix=API_PREFIX)
+app.include_router(admin_router, prefix=API_PREFIX)
 app.include_router(documents_router, prefix=API_PREFIX)
+app.include_router(chat_router, prefix=API_PREFIX)
 
 
 # ── System endpoints ───────────────────────────────────────────────────────────
 
 @app.get("/health", tags=["system"], summary="Health check")
-async def health_check() -> dict:
+async def health_check(db: DbDep) -> dict:
     """
     Probes critical dependencies and returns their status.
 
@@ -66,8 +70,7 @@ async def health_check() -> dict:
 
     # Database probe
     try:
-        async with async_session_factory() as session:
-            await session.execute(text("SELECT 1"))
+        await db.execute(text("SELECT 1"))
         checks["database"] = "ok"
     except Exception as exc:
         logger.warning("Database health check failed", error=str(exc))

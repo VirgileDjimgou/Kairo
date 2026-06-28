@@ -26,7 +26,7 @@ class Settings(BaseSettings):
         return v
 
     # Security — MUST be changed in production
-    jwt_secret_key: str = "change-me-in-production"
+    jwt_secret_key: str = "change-me-in-production-use-a-long-random-string"
     jwt_algorithm: str = "HS256"
     access_token_expire_minutes: int = 60
     refresh_token_expire_days: int = 7
@@ -63,6 +63,11 @@ class Settings(BaseSettings):
     ingestion_chunk_size: int = 800
     ingestion_chunk_overlap: int = 100
     ingestion_auto_enqueue: bool = True
+
+    # Embeddings / Qdrant
+    embedding_dimensions: int = 768
+    embedding_request_timeout_seconds: int = 120
+    indexing_auto_enabled: bool = True
 
     @property
     def allowed_extensions_list(self) -> list[str]:

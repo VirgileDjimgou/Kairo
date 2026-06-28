@@ -178,10 +178,17 @@ class TenancyRepository:
             raise ValueError(
                 f"User {user_id} is not a member of tenant {tenant_id}"
             )
-        # Insert into user_roles (ignore conflict)
-        from sqlalchemy.dialects.postgresql import insert as pg_insert
+        dialect_name = self._db.bind.dialect.name if self._db.bind else ""
+        if dialect_name == "sqlite":
+            from sqlalchemy.dialects.sqlite import insert as sqlite_insert
 
-        stmt = pg_insert(user_roles).values(
-            tenant_user_id=tenant_user.id, role_id=role_id
-        ).on_conflict_do_nothing()
+            stmt = sqlite_insert(user_roles).values(
+                tenant_user_id=tenant_user.id, role_id=role_id
+            ).prefix_with("OR IGNORE")
+        else:
+            from sqlalchemy.dialects.postgresql import insert as pg_insert
+
+            stmt = pg_insert(user_roles).values(
+                tenant_user_id=tenant_user.id, role_id=role_id
+            ).on_conflict_do_nothing()
         await self._db.execute(stmt)

@@ -94,3 +94,31 @@ def get_object_storage_provider():
 
 
 ObjectStorageDep = Annotated[object, Depends(get_object_storage_provider)]
+
+
+@lru_cache(maxsize=1)
+def get_embedding_provider():
+    from app.providers.embeddings.ollama import OllamaEmbeddingProvider
+
+    return OllamaEmbeddingProvider()
+
+
+@lru_cache(maxsize=1)
+def get_vector_store_provider():
+    from app.providers.vector_store.qdrant import QdrantVectorStoreProvider
+
+    return QdrantVectorStoreProvider()
+
+
+EmbeddingDep = Annotated[object, Depends(get_embedding_provider)]
+VectorStoreDep = Annotated[object, Depends(get_vector_store_provider)]
+
+
+@lru_cache(maxsize=1)
+def get_llm_provider():
+    from app.providers.llm.ollama import OllamaLLMProvider
+
+    return OllamaLLMProvider()
+
+
+LlmDep = Annotated[object, Depends(get_llm_provider)]

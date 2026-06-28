@@ -22,6 +22,7 @@ class DocumentAccessScope(str, Enum):
 class DocumentStatus(str, Enum):
     uploaded = "uploaded"
     processing = "processing"
+    ready = "ready"
     archived = "archived"
 
 
@@ -44,6 +45,7 @@ class Document(Base):
     access_scope: Mapped[str] = mapped_column(
         String(50), nullable=False, server_default=DocumentAccessScope.tenant_public.value
     )
+    allowed_role_ids_json: Mapped[str | None] = mapped_column(Text, nullable=True)
     owner_user_id: Mapped[uuid.UUID | None] = mapped_column(
         UUID(as_uuid=True),
         ForeignKey("users.id", ondelete="SET NULL"),

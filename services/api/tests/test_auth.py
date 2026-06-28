@@ -72,7 +72,7 @@ async def test_login_unknown_email(client: AsyncClient) -> None:
 @pytest.mark.asyncio
 async def test_protected_endpoint_without_token(client: AsyncClient) -> None:
     response = await client.get("/api/v1/auth/protected")
-    assert response.status_code == 403  # HTTPBearer returns 403 when header missing
+    assert response.status_code == 401
 
 
 @pytest.mark.asyncio

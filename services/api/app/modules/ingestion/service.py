@@ -9,17 +9,28 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from app.core.config import settings
 from app.modules.documents.models import DocumentChunk, DocumentStatus, IngestionJob
 from app.modules.documents.repository import DocumentRepository
+from app.modules.indexing.service import IndexingService
 from app.modules.ingestion.chunking import chunk_text, estimate_token_count
-from app.modules.ingestion.parsers import parse_document_bytes
+from app.providers.parsers import parse_document_bytes
 
 logger = structlog.get_logger(__name__)
 
 
 class IngestionService:
-    def __init__(self, db: AsyncSession, storage_provider) -> None:
+    def __init__(
+        self,
+        db: AsyncSession,
+        storage_provider,
+        embedding_provider=None,
+        vector_store_provider=None,
+    ) -> None:
         self._db = db
         self._storage = storage_provider
         self._repo = DocumentRepository(db)
+        self._indexing = IndexingService(
+            embedding_provider=embedding_provider,
+            vector_store_provider=vector_store_provider,
+        )
 
     async def process_job(self, job_id: UUID) -> None:
         job = await self._repo.get_ingestion_job_by_id(job_id)
@@ -35,6 +46,11 @@ class IngestionService:
             await self._mark_failed(job, "Document version not found for tenant")
             return
 
+        document = await self._repo.get_document(job.tenant_id, job.document_id)
+        if document is None:
+            await self._mark_failed(job, "Document not found for tenant")
+            return
+
         job.status = "processing"
         job.started_at = datetime.now(UTC)
         job.error_message = None
@@ -43,17 +59,18 @@ class IngestionService:
         try:
             file_bytes = self._storage.download_bytes(version.storage_bucket, version.storage_key)
             text = parse_document_bytes(file_bytes, version.file_name)
-            chunks = chunk_text(
+            chunk_values = chunk_text(
                 text,
                 chunk_size=settings.ingestion_chunk_size,
                 chunk_overlap=settings.ingestion_chunk_overlap,
             )
-            if not chunks:
+            if not chunk_values:
                 raise ValueError("No text content extracted from document")
 
             await self._repo.delete_chunks_for_version(job.tenant_id, job.document_version_id)
 
-            for index, chunk_text_value in enumerate(chunks):
+            chunks: list[DocumentChunk] = []
+            for index, chunk_text_value in enumerate(chunk_values):
                 chunk = DocumentChunk(
                     id=uuid4(),
                     tenant_id=job.tenant_id,
@@ -61,15 +78,22 @@ class IngestionService:
                     document_version_id=job.document_version_id,
                     chunk_index=index,
                     text=chunk_text_value,
-                    language="en",
+                    language=document.language,
                     token_count=estimate_token_count(chunk_text_value),
                 )
                 await self._repo.create_chunk(chunk)
+                chunks.append(chunk)
 
-            document = await self._repo.get_document(job.tenant_id, job.document_id)
-            if document is not None:
-                document.status = DocumentStatus.processing.value
+            indexed_count = await self._indexing.index_chunks(
+                document=document,
+                document_version_id=job.document_version_id,
+                chunks=chunks,
+            )
 
+            for chunk in chunks:
+                chunk.qdrant_point_id = chunk.id
+
+            document.status = DocumentStatus.ready.value
             job.status = "completed"
             job.finished_at = datetime.now(UTC)
             await self._db.commit()
@@ -79,6 +103,7 @@ class IngestionService:
                 job_id=str(job.id),
                 tenant_id=str(job.tenant_id),
                 chunk_count=len(chunks),
+                indexed_count=indexed_count,
             )
         except Exception as exc:
             await self._db.rollback()
@@ -93,6 +118,9 @@ class IngestionService:
             return None
 
         chunk_count = await self._repo.count_chunks_for_version(tenant_id, job.document_version_id)
+        indexed_count = await self._repo.count_indexed_chunks_for_version(
+            tenant_id, job.document_version_id
+        )
         return {
             "id": job.id,
             "document_id": job.document_id,
@@ -100,6 +128,7 @@ class IngestionService:
             "status": job.status,
             "error_message": job.error_message,
             "chunk_count": chunk_count,
+            "indexed_chunk_count": indexed_count,
             "started_at": job.started_at,
             "finished_at": job.finished_at,
             "created_at": job.created_at,

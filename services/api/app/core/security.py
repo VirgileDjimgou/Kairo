@@ -6,11 +6,11 @@ from passlib.context import CryptContext
 
 from app.core.config import settings
 
-_pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
+_pwd_context = CryptContext(schemes=["pbkdf2_sha256"], deprecated="auto")
 
 
 def hash_password(plain: str) -> str:
-    """Return a bcrypt hash of the given password."""
+    """Return a portable password hash of the given password."""
     return _pwd_context.hash(plain)
 
 

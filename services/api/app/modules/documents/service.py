@@ -1,7 +1,8 @@
 from __future__ import annotations
 
 import hashlib
-import os
+import json
+from datetime import UTC, datetime
 from pathlib import Path
 from uuid import UUID, uuid4
 
@@ -17,7 +18,12 @@ from app.modules.documents.models import (
     IngestionJob,
 )
 from app.modules.documents.repository import DocumentRepository
-from app.modules.documents.schemas import DocumentListItemResponse, UploadDocumentResponse
+from app.modules.documents.schemas import (
+    DocumentAccessUpdateRequest,
+    DocumentListItemResponse,
+    IngestionJobResponse,
+    UploadDocumentResponse,
+)
 
 ALLOWED_MIME_TYPES: dict[str, set[str]] = {
     "pdf": {"application/pdf"},
@@ -84,6 +90,9 @@ class DocumentService:
             source_type="upload",
             language="en",
             access_scope=document_scope,
+            allowed_role_ids_json=json.dumps(sorted(set(allowed_role_ids or [])))
+            if allowed_role_ids
+            else None,
             owner_user_id=user_id,
             status=DocumentStatus.uploaded.value,
             current_version_id=version_id,
@@ -146,6 +155,96 @@ class DocumentService:
         rows = await self._repo.list_documents(tenant_id)
         return [self._to_list_item(document, version) for document, version in rows]
 
+    async def update_document_access(
+        self,
+        *,
+        tenant_id: UUID,
+        document_id: UUID,
+        request: DocumentAccessUpdateRequest,
+    ) -> DocumentListItemResponse:
+        try:
+            document_scope = DocumentAccessScope(request.access_scope).value
+        except ValueError as exc:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail="Invalid access scope",
+            ) from exc
+
+        allowed_role_ids_json = self._serialize_allowed_role_ids(
+            document_scope=document_scope,
+            allowed_role_ids=request.allowed_role_ids,
+        )
+        document = await self._repo.update_document_access(
+            tenant_id,
+            document_id,
+            access_scope=document_scope,
+            allowed_role_ids_json=allowed_role_ids_json,
+        )
+        if document is None:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail="Document not found",
+            )
+        document.updated_at = datetime.now(UTC)
+        await self._db.commit()
+
+        version = None
+        if document.current_version_id is not None:
+            version = await self._repo.get_version_for_tenant(tenant_id, document.current_version_id)
+        return self._to_list_item(document, version)
+
+    async def request_reingestion(
+        self,
+        *,
+        tenant_id: UUID,
+        document_id: UUID,
+    ) -> IngestionJobResponse:
+        document = await self._repo.get_document(tenant_id, document_id)
+        if document is None:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail="Document not found",
+            )
+        if document.current_version_id is None:
+            raise HTTPException(
+                status_code=status.HTTP_409_CONFLICT,
+                detail="Document has no active version to ingest",
+            )
+        version = await self._repo.get_version_for_tenant(tenant_id, document.current_version_id)
+        if version is None:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail="Document version not found",
+            )
+
+        job = IngestionJob(
+            id=uuid4(),
+            tenant_id=tenant_id,
+            document_id=document.id,
+            document_version_id=version.id,
+            status="pending",
+            created_at=datetime.now(UTC),
+        )
+        await self._repo.create_ingestion_job(job)
+        await self._db.commit()
+
+        from app.worker.tasks.ingestion import enqueue_ingestion_job
+
+        enqueue_ingestion_job(job.id)
+
+        return IngestionJobResponse(
+            id=job.id,
+            document_id=job.document_id,
+            document_version_id=job.document_version_id,
+            status=job.status,
+            error_message=job.error_message,
+            chunk_count=0,
+            indexed_chunk_count=0,
+            started_at=job.started_at,
+            finished_at=job.finished_at,
+            created_at=job.created_at,
+        )
+
     def _to_list_item(
         self, document: Document, version: DocumentVersion | None
     ) -> DocumentListItemResponse:
@@ -169,6 +268,7 @@ class DocumentService:
             source_type=document.source_type,
             language=document.language,
             access_scope=document.access_scope,
+            allowed_role_ids=self._parse_allowed_role_ids(document.allowed_role_ids_json),
             status=document.status,
             owner_user_id=document.owner_user_id,
             created_at=document.created_at,
@@ -196,3 +296,30 @@ class DocumentService:
     def _build_storage_key(self, tenant_id: UUID, document_id: UUID, version_id: UUID, filename: str | None) -> str:
         safe_name = Path(filename or "upload").name.replace(" ", "_")
         return f"tenants/{tenant_id}/documents/{document_id}/versions/{version_id}/{safe_name}"
+
+    def _parse_allowed_role_ids(self, raw: str | None) -> list[str] | None:
+        if not raw:
+            return None
+        try:
+            parsed = json.loads(raw)
+        except json.JSONDecodeError:
+            return None
+        if not isinstance(parsed, list):
+            return None
+        return [str(role) for role in parsed]
+
+    def _serialize_allowed_role_ids(
+        self,
+        *,
+        document_scope: str,
+        allowed_role_ids: list[str] | None,
+    ) -> str | None:
+        if document_scope != DocumentAccessScope.role_restricted.value:
+            return None
+        clean_roles = sorted({role.strip() for role in (allowed_role_ids or []) if role.strip()})
+        if not clean_roles:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail="Role restricted documents require at least one allowed role",
+            )
+        return json.dumps(clean_roles)

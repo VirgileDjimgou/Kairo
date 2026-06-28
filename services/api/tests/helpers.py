@@ -28,6 +28,9 @@ async def create_tenant_with_user(
     db: AsyncSession,
     slug_suffix: str,
     password: str = "TestIsolation1!",
+    *,
+    role_code: str = "admin",
+    profile_type: str = "admin",
 ) -> dict:
     tenant = Tenant(
         id=_uuid.uuid4(),
@@ -50,9 +53,9 @@ async def create_tenant_with_user(
     role = Role(
         id=_uuid.uuid4(),
         tenant_id=tenant.id,
-        code="admin",
-        name="Administrator",
-        is_system_role=True,
+        code=role_code,
+        name="Administrator" if role_code == "admin" else "Member",
+        is_system_role=role_code == "admin",
     )
     db.add(role)
     await db.flush()
@@ -61,7 +64,7 @@ async def create_tenant_with_user(
         id=_uuid.uuid4(),
         tenant_id=tenant.id,
         user_id=user.id,
-        profile_type="admin",
+        profile_type=profile_type,
         membership_status="active",
     )
     db.add(membership)

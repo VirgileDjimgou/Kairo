@@ -15,6 +15,13 @@
           <i class="bi bi-grid-1x2 me-2"></i>Dashboard
         </RouterLink>
         <RouterLink
+          to="/chat"
+          class="nav-link sidebar-link rounded"
+          active-class="active"
+        >
+          <i class="bi bi-chat-dots me-2"></i>Chat
+        </RouterLink>
+        <RouterLink
           to="/admin"
           class="nav-link sidebar-link rounded"
           active-class="active"
