@@ -25,3 +25,5 @@ from app.modules.contributions.models import (  # noqa: F401
 )
 from app.modules.policies.models import PolicyRecord  # noqa: F401
 from app.modules.disciplinary.models import DisciplinaryRecord  # noqa: F401
+from app.modules.events.models import Event  # noqa: F401
+from app.modules.announcements.models import Announcement  # noqa: F401

@@ -44,6 +44,16 @@ const router = createRouter({
           name: 'my-disciplinary',
           component: () => import('@/views/disciplinary/MyDisciplinaryView.vue'),
         },
+        {
+          path: 'events',
+          name: 'events',
+          component: () => import('@/views/events/EventsView.vue'),
+        },
+        {
+          path: 'announcements',
+          name: 'announcements',
+          component: () => import('@/views/announcements/AnnouncementsView.vue'),
+        },
       ],
     },
     {
@@ -85,6 +95,16 @@ const router = createRouter({
           path: 'disciplinary',
           name: 'admin-disciplinary',
           component: () => import('@/views/disciplinary/AdminDisciplinaryView.vue'),
+        },
+        {
+          path: 'events',
+          name: 'admin-events',
+          component: () => import('@/views/events/AdminEventsView.vue'),
+        },
+        {
+          path: 'announcements',
+          name: 'admin-announcements',
+          component: () => import('@/views/announcements/AdminAnnouncementsView.vue'),
         },
       ],
     },

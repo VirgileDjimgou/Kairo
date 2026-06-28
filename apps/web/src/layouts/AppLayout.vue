@@ -49,6 +49,22 @@
         >
           <i class="bi bi-shield-lock me-2"></i>Admin
         </RouterLink>
+        <hr class="my-2" />
+        <div class="small text-muted px-2 mb-1 fw-semibold text-uppercase">Organization</div>
+        <RouterLink
+          to="/events"
+          class="nav-link sidebar-link rounded"
+          active-class="active"
+        >
+          <i class="bi bi-calendar-event me-2"></i>Events
+        </RouterLink>
+        <RouterLink
+          to="/announcements"
+          class="nav-link sidebar-link rounded"
+          active-class="active"
+        >
+          <i class="bi bi-megaphone me-2"></i>Announcements
+        </RouterLink>
       </nav>
 
       <div class="mt-auto pt-3 border-top">

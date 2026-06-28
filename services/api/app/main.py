@@ -17,6 +17,8 @@ from app.modules.membership.router import router as membership_router
 from app.modules.contributions.router import router as contributions_router
 from app.modules.policies.router import router as policies_router
 from app.modules.disciplinary.router import router as disciplinary_router
+from app.modules.events.router import router as events_router
+from app.modules.announcements.router import router as announcements_router
 
 setup_logging()
 logger = structlog.get_logger(__name__)
@@ -62,6 +64,8 @@ app.include_router(membership_router, prefix=API_PREFIX)
 app.include_router(contributions_router, prefix=API_PREFIX)
 app.include_router(policies_router, prefix=API_PREFIX)
 app.include_router(disciplinary_router, prefix=API_PREFIX)
+app.include_router(events_router, prefix=API_PREFIX)
+app.include_router(announcements_router, prefix=API_PREFIX)
 
 
 # ── System endpoints ───────────────────────────────────────────────────────────
