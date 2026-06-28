@@ -20,27 +20,87 @@
       </button>
     </div>
 
+    <div class="row g-3 mb-4">
+      <div class="col-sm-4">
+        <div class="card shadow-sm border-0 h-100">
+          <div class="card-body text-center py-3">
+            <div class="fs-4 fw-bold">{{ stats.total }}</div>
+            <div class="small text-muted">Total queries</div>
+          </div>
+        </div>
+      </div>
+      <div class="col-sm-4">
+        <div class="card shadow-sm border-0 h-100">
+          <div class="card-body text-center py-3">
+            <div class="fs-4 fw-bold text-success">{{ stats.answered }}</div>
+            <div class="small text-muted">Answered</div>
+          </div>
+        </div>
+      </div>
+      <div class="col-sm-4">
+        <div class="card shadow-sm border-0 h-100">
+          <div class="card-body text-center py-3">
+            <div class="fs-4 fw-bold text-warning">{{ stats.refused }}</div>
+            <div class="small text-muted">Refused</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card shadow-sm border-0 mb-4">
+      <div class="card-body py-3">
+        <div class="row g-2 align-items-end">
+          <div class="col-sm-6 col-md-4">
+            <label class="form-label small fw-semibold text-muted mb-1">Search question</label>
+            <input
+              v-model="searchText"
+              type="text"
+              class="form-control form-control-sm"
+              placeholder="Filter by question text..."
+            />
+          </div>
+          <div class="col-sm-3 col-md-2">
+            <label class="form-label small fw-semibold text-muted mb-1">Status</label>
+            <select v-model="statusFilter" class="form-select form-select-sm">
+              <option value="all">All</option>
+              <option value="answered">Answered</option>
+              <option value="refused">Refused</option>
+            </select>
+          </div>
+          <div class="col-sm-3 col-md-2">
+            <label class="form-label small fw-semibold text-muted mb-1">Max results</label>
+            <select v-model="limit" class="form-select form-select-sm">
+              <option :value="10">10</option>
+              <option :value="20">20</option>
+              <option :value="50">50</option>
+              <option :value="100">100</option>
+            </select>
+          </div>
+        </div>
+      </div>
+    </div>
+
     <div class="card shadow-sm border-0">
       <div class="card-body p-4">
         <div v-if="loading" class="text-muted py-5 text-center">
           Loading query log...
         </div>
 
-        <div v-else-if="queries.length === 0" class="empty-state">
+        <div v-else-if="filteredQueries.length === 0" class="empty-state">
           <i class="bi bi-journal-text display-6 text-secondary"></i>
-          <p class="mb-1 fw-semibold">No chat queries yet</p>
+          <p class="mb-1 fw-semibold">No matching queries</p>
           <p class="text-muted mb-0">
-            Chat requests will appear here once users start using the RAG assistant.
+            Try adjusting the filters or wait for users to interact with the RAG assistant.
           </p>
         </div>
 
         <div v-else class="vstack gap-3">
-          <article v-for="query in queries" :key="query.id" class="audit-card">
+          <article v-for="query in filteredQueries" :key="query.id" class="audit-card">
             <div class="d-flex justify-content-between gap-3 flex-wrap mb-2">
               <div>
                 <div class="fw-semibold">{{ query.question }}</div>
                 <div class="small text-muted">
-                  {{ formatDate(query.created_at) }} · User {{ query.user_id }}
+                  {{ formatDate(query.created_at) }} · {{ shortUser(query.user_id) }}
                 </div>
               </div>
               <div class="d-flex align-items-center gap-2">
@@ -83,23 +143,52 @@
 </template>
 
 <script setup lang="ts">
-import { onMounted, ref } from "vue";
+import { computed, onMounted, ref, watch } from "vue";
 import { listChatQueries, type ChatQueryLogResponse } from "../../api/documents.api";
 
 const loading = ref(false);
 const queries = ref<ChatQueryLogResponse[]>([]);
+const searchText = ref("");
+const statusFilter = ref("all");
+const limit = ref(20);
+
+const filteredQueries = computed(() => {
+  return queries.value.filter((q) => {
+    if (statusFilter.value === "answered" && q.refused) return false;
+    if (statusFilter.value === "refused" && !q.refused) return false;
+    if (searchText.value) {
+      const text = searchText.value.toLowerCase();
+      if (!q.question.toLowerCase().includes(text)) return false;
+    }
+    return true;
+  });
+});
+
+const stats = computed(() => {
+  const total = queries.value.length;
+  const refused = queries.value.filter((q) => q.refused).length;
+  return { total, answered: total - refused, refused };
+});
 
 async function refreshQueries() {
   loading.value = true;
   try {
-    queries.value = await listChatQueries(20);
+    queries.value = await listChatQueries(limit.value);
   } finally {
     loading.value = false;
   }
 }
 
+watch(limit, () => {
+  refreshQueries();
+});
+
 function formatDate(value: string): string {
   return new Date(value).toLocaleString();
+}
+
+function shortUser(userId: string): string {
+  return `User ${userId.slice(0, 8)}`;
 }
 
 function formatConfidence(value: number): string {

@@ -35,6 +35,14 @@
           </div>
         </div>
       </div>
+      <div class="col-md-4">
+        <div class="card shadow-sm border-0 h-100">
+          <div class="card-body">
+            <div class="text-muted small">Channels</div>
+            <div class="h3 mb-0">Sprint 14</div>
+          </div>
+        </div>
+      </div>
     </div>
   </div>
 </template>

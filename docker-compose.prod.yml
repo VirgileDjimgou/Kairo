@@ -1,0 +1,33 @@
+# Production override for docker-compose.yml
+#
+# Usage:
+#   docker compose -f docker-compose.yml -f docker-compose.prod.yml up --build -d
+#
+# This override:
+#   - Switches web and api to production targets
+#   - Removes volume mounts (source is baked into images)
+#   - Runs api with 2 uvicorn workers
+#   - Disables debug/docs endpoints
+
+services:
+  web:
+    build:
+      target: production
+    ports:
+      - "80:80"
+    volumes: []
+    environment:
+      - NODE_ENV=production
+
+  api:
+    build:
+      target: production
+    environment:
+      - APP_ENV=production
+      - APP_DEBUG=false
+    volumes: []
+
+  worker:
+    build:
+      target: production
+    volumes: []

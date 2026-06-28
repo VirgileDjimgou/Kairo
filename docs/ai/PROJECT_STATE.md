@@ -8,13 +8,18 @@ Kairo, also positioned as OrgMind AI, is a local-first multi-tenant RAG platform
 
 Current implementation already includes:
 
-- Vue 3 frontend shell with auth flow and admin documents screen
-- FastAPI backend with identity, tenancy, documents, ingestion, and indexing modules
+- Vue 3 frontend shell with auth flow, dashboard, admin console, and full CRUD views
+- FastAPI backend with identity, tenancy, documents, ingestion, indexing, chat, membership, contributions, policies, disciplinary, events, and announcements modules
 - PostgreSQL for relational data
 - MinIO for uploaded files
 - Redis and Celery for ingestion jobs
-- Ollama embeddings provider
-- Qdrant vector indexing
+- Ollama embeddings + LLM providers
+- Qdrant vector indexing with permission-aware retrieval
+- CORS middleware, JWT auth, RBAC, tenant isolation
+- Production deployment infrastructure
+- Hardened AI safety with prompt injection defenses and source demarcation
+- Enhanced audit review screen
+- Optional notification extension foundation with Email, Telegram, and WhatsApp placeholders
 
 ## Implemented Sprints
 
@@ -24,35 +29,28 @@ Current implementation already includes:
 - Sprint 3: Document upload and object storage
 - Sprint 4: Ingestion worker and parsing
 - Sprint 5: Embeddings and Qdrant indexing
-
-## Not Yet Implemented
-
 - Sprint 6: First RAG chat
 - Sprint 7: Admin RAG controls
 - Sprint 8: Membership and contributions
 - Sprint 9: Policies, rules, and discipline
 - Sprint 10: Events and announcements
-- Sprint 11+: deployment hardening, evaluation, portfolio polish, integrations, commercialization
+- Sprint 11: Cloudflare Tunnel Deployment
+- Sprint 12: Evaluation and AI Safety
+- Sprint 13: Demo Tenant and Portfolio Polish
+- Sprint 14: Multi-Channel Extensions
 
-## Current Backend Surface
+## Not Yet Implemented
 
-Mounted API routers:
-
-- `/api/v1/auth/*`
-- `/api/v1/tenants/*`
-- `/api/v1/documents/*`
-- `/health`
-
-There is no chat or RAG query endpoint yet.
+- Sprint 15: Commercialization Baseline
 
 ## Known Gaps And Risks
 
-- No `rag` or `chat` module yet.
-- Frontend tenant switcher is still placeholder data and not API-driven.
-- `allowed_role_ids` is accepted during upload but is not yet enforced through stored metadata and retrieval filters.
-- Document lifecycle status likely needs cleanup after successful ingestion.
-- Some schema details should be aligned between ORM models and migrations.
-- OCR is still a placeholder; image uploads are accepted but fail ingestion intentionally until OCR is implemented.
+- OCR for image ingestion is still a placeholder.
+- CSV import for member profiles is still a placeholder.
+- Frontend tenant switcher is still placeholder-driven and not API-backed.
+- Frontend does not enforce role-based UI restrictions (backend enforces permissions, which is correct by design).
+- Production Docker builds not yet validated end-to-end.
+- Multi-channel providers are still simulated placeholders and not connected to external gateways.
 
 ## Rules For Future Sessions
 

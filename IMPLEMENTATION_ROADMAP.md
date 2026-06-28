@@ -166,35 +166,129 @@ Acceptance criteria:
 
 ## Sprint 11 - Cloudflare Tunnel Deployment
 
-Status: Planned
+Status: Completed
 
 Goal:
 Document and harden local-first remote exposure for demo and small production-like setups.
 
+Deliverables:
+
+- cloudflared config sample with setup instructions and security notes
+- Deployment guide covering architecture, prerequisites, environment config, reverse proxy, Cloudflare Tunnel, backup/restore, and security checklist
+- Caddy reverse proxy config sample (Caddyfile) with SPA fallback, API proxy, TLS, and security headers
+- Caddy docker-compose include file for easy deployment alongside the stack
+- Production nginx.conf for frontend Dockerfile (was missing, unblocking production frontend builds)
+- docker-compose.prod.yml override switching web and api to production targets
+- .env.production.example with hardened defaults and all required variables documented
+- Backup script (scripts/backup.sh) for all persistent Docker volumes
+- CORS documentation and hardening notes in environment files
+- Updated Project Status and Implementation Roadmap
+
+Acceptance criteria:
+
+- user can expose local app through Cloudflare Tunnel
+- docs explain setup clearly
+- no secrets are committed
+- frontend Docker production build can succeed (nginx.conf exists)
+- production docker compose override switches to optimized builds
+- backup script captures all persistent data
+- security checklist is documented and actionable
+
 ## Sprint 12 - Evaluation And AI Safety
 
-Status: Planned
+Status: Completed
 
 Goal:
 Add prompt-injection tests, no-source answer rules, and retrieval safety verification.
 
+Deliverables:
+
+- Hardened system prompt with explicit untrusted source boundary and anti-injection rules
+- Source demarcation using <sources> tags in the user prompt
+- Prompt injection tests (5 tests): system prompt guards, source tag wrapping, access control
+  enforcement for injection documents, no-source refusal after hardening, admin-only document
+  protection against injection content
+- Retrieval evaluation tests (4 tests): citation presence, excerpt correctness, top_k limiting,
+  confidence scoring
+- Enhanced admin audit review screen: search by question text, status filter (all/answered/refused),
+  configurable result limit, summary statistics cards
+
 ## Sprint 13 - Demo Tenant And Portfolio Polish
 
-Status: Planned
+Status: Completed
 
 Goal:
 Prepare a recruiter-friendly and client-friendly local demo.
 
+Deliverables:
+
+- Enhanced seed script (`services/api/app/db/seed.py`) with comprehensive demo tenant data
+  - Tenant: "Acme Community Organization" (slug: demo, anonymized, not COMBIS)
+  - Users: admin, 2 members, treasurer
+  - Roles: admin, member, treasurer with granular permission assignments
+  - Membership profiles with sample data
+  - Sample documents with versions and chunks (bylaws, meeting minutes)
+  - Sample policies (fee policy, attendance policy, code of conduct)
+  - Sample contributions and payments with balance calculations
+  - Sample disciplinary record linked to policy
+  - Sample events (upcoming and past) with visibility scoping
+  - Sample announcements (active, expired, tenant_public)
+- Updated README.md with ASCII architecture diagram, enhanced quickstart, demo credentials table, project structure, and links to deployment guide
+- Demo walkthrough script (`docs/demo-script.md`) covering admin, member, treasurer, AI safety, and tenant isolation
+- Convenience seed helpers in `seed/` directory (PowerShell and bash)
+- All 82 backend tests pass, 0 failures
+- Updated PROJECT_STATUS.md and IMPLEMENTATION_ROADMAP.md
+
+Acceptance criteria:
+
+- recruiter can run docker compose up, seed, and explore the full app in under 5 minutes
+- demo data is plausible but not tied to any real organization
+- README is clear enough for a non-technical evaluation
+- existing tests are not broken
+
 ## Sprint 14 - Multi-Channel Extensions
 
-Status: Planned
+Status: Completed
 
 Goal:
 Add optional messaging and notification provider extensions without polluting the core product.
 
+Deliverables:
+
+- Notification provider abstraction isolated under `providers/notifications`
+- Optional placeholder providers for Email, Telegram, and WhatsApp
+- Admin-only diagnostics endpoint listing available channels and configuration state
+- Admin-only simulated dispatch endpoint for multi-channel notification tests
+- Vue admin notification console for channel status and dry-run dispatch
+- Integration tests covering provider discovery, admin-only enforcement, and simulated dispatch
+
+Acceptance criteria:
+
+- web remains the primary user channel
+- optional providers do not pollute core document/chat/business modules
+- non-admin users cannot access notification extension endpoints
+- admins can inspect available channels and run simulated notification tests without external dependencies
+
 ## Sprint 15 - Commercialization Baseline
 
-Status: Planned
+Status: Completed
 
 Goal:
 Prepare onboarding, settings, observability, backup posture, and product readiness foundations.
+
+Deliverables:
+
+- Tenant settings API (`GET/PUT /api/v1/tenants/{id}/settings`) with full CRUD support
+- Module toggle utility (`modules/tenancy/module_toggles.py`) with 8 known modules and default-enabled configuration
+- Pydantic schemas for `TenantSettingsResponse`, `TenantSettingsUpdate`, `BrandingConfig`, `ModuleToggles`
+- Repository method `update_tenant()` for in-place tenant field updates
+- Admin-only enforcement on settings update endpoint
+- Frontend `AdminSettingsView.vue` with organization info, branding (color picker + logo URL), and module toggle checkboxes
+- Admin sidebar "Settings" link with gear icon
+- Route `/admin/settings` added to Vue Router
+- Enhanced `/health` endpoint returning available module list
+- MIT `LICENSE` file added
+- Updated seed.py demo tenant with default module toggles enabled
+- 86 backend tests pass, 0 failures
+- Frontend builds clean (206 modules)
+- Updated PROJECT_STATUS.md and IMPLEMENTATION_ROADMAP.md

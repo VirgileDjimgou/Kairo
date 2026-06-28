@@ -72,6 +72,21 @@
         >
           <i class="bi bi-megaphone me-2"></i>Announcements
         </RouterLink>
+        <RouterLink
+          to="/admin/notifications"
+          class="nav-link sidebar-link rounded"
+          active-class="active"
+        >
+          <i class="bi bi-broadcast-pin me-2"></i>Channels
+        </RouterLink>
+        <hr class="my-2" />
+        <RouterLink
+          to="/admin/settings"
+          class="nav-link sidebar-link rounded"
+          active-class="active"
+        >
+          <i class="bi bi-gear me-2"></i>Settings
+        </RouterLink>
       </nav>
     </aside>
 
@@ -89,7 +104,7 @@
           <div
             class="badge bg-warning-subtle text-warning border border-warning-subtle px-3 py-2"
           >
-            Sprint 10 events & announcements
+            Admin v0.1
           </div>
         </div>
       </header>
