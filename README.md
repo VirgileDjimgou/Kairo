@@ -80,7 +80,7 @@ Read these files at the start of every new AI-assisted session:
 Reusable prompts are available here:
 
 - `prompts/CODEX_AUTOPILOT.md`
-- `prompts/KAIRO_CONTINUE_5_SPRINTS.md`
+- `prompts/KAIRO_CONTINUE_UNIVERSAL.md`
 
 ## Architecture
 

@@ -21,11 +21,11 @@
       <div class="d-flex gap-3">
         <i class="bi bi-rocket-takeoff fs-4 flex-shrink-0"></i>
         <div>
-          <h6 class="alert-heading mb-1">Sprint 0 + 1 complete</h6>
+          <h6 class="alert-heading mb-1">Sprint 9 complete</h6>
           <p class="mb-0 small">
-            Foundation and Auth are in place. The API is running, the database
-            is connected, and tenant isolation is enforced. Sprint 2 adds the
-            professional app shell and admin layout.
+            Policies and disciplinary records are now part of the product surface.
+            Members can browse public policies and inspect their own disciplinary
+            history; admins can create and manage policy and discipline records.
           </p>
         </div>
       </div>
@@ -73,7 +73,21 @@
             </div>
             <div>
               <div class="text-muted small">Documents</div>
-              <div class="fw-semibold text-muted">Sprint 3</div>
+              <div class="fw-semibold">Sprint 3 - 7</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="col-sm-6 col-lg-3">
+        <div class="card shadow-sm border-0 h-100">
+          <div class="card-body d-flex align-items-center gap-3">
+            <div class="stat-icon bg-info-subtle text-info rounded-3 p-3">
+              <i class="bi bi-journal-check fs-4"></i>
+            </div>
+            <div>
+              <div class="text-muted small">Policies</div>
+              <div class="fw-semibold">Sprint 9</div>
             </div>
           </div>
         </div>
@@ -87,7 +101,21 @@
             </div>
             <div>
               <div class="text-muted small">AI Chat</div>
-              <div class="fw-semibold text-muted">Sprint 6</div>
+              <div class="fw-semibold">Sprint 6</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="col-sm-6 col-lg-3">
+        <div class="card shadow-sm border-0 h-100">
+          <div class="card-body d-flex align-items-center gap-3">
+            <div class="stat-icon bg-success-subtle text-success rounded-3 p-3">
+              <i class="bi bi-people fs-4"></i>
+            </div>
+            <div>
+              <div class="text-muted small">Members</div>
+              <div class="fw-semibold">Sprint 8</div>
             </div>
           </div>
         </div>
@@ -136,15 +164,15 @@ const authStore = useAuthStore();
 const sprints = [
   { id: "Sprint 0", goal: "Foundation & repository skeleton", status: "Done" },
   { id: "Sprint 1", goal: "Identity, tenancy & JWT auth", status: "Done" },
-  { id: "Sprint 2", goal: "Professional Vue layout", status: "Next" },
-  {
-    id: "Sprint 3",
-    goal: "Document upload & MinIO storage",
-    status: "Planned",
-  },
-  { id: "Sprint 4", goal: "Ingestion worker & parsers", status: "Planned" },
-  { id: "Sprint 5", goal: "Embeddings & Qdrant indexing", status: "Planned" },
-  { id: "Sprint 6", goal: "Secure RAG chat with citations", status: "Planned" },
+  { id: "Sprint 2", goal: "Professional Vue layout", status: "Done" },
+  { id: "Sprint 3", goal: "Document upload & MinIO storage", status: "Done" },
+  { id: "Sprint 4", goal: "Ingestion worker & parsers", status: "Done" },
+  { id: "Sprint 5", goal: "Embeddings & Qdrant indexing", status: "Done" },
+  { id: "Sprint 6", goal: "Secure RAG chat with citations", status: "Done" },
+  { id: "Sprint 7", goal: "Admin RAG controls", status: "Done" },
+  { id: "Sprint 8", goal: "Membership & contributions", status: "Done" },
+  { id: "Sprint 9", goal: "Policies, rules & discipline", status: "Done" },
+  { id: "Sprint 10", goal: "Events & announcements", status: "Planned" },
 ];
 
 function statusClass(status: string) {

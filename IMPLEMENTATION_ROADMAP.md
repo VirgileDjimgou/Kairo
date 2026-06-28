@@ -83,21 +83,58 @@ Give administrators operational control over document access, ingestion, and ans
 
 ## Sprint 8 - Membership And Contributions
 
-Status: Next
+Status: Completed
 
 Goal:
 Add structured member and contribution records with self-view and privileged back-office views.
 
+Deliverables:
+
+- MembershipProfile, ContributionRecord, PaymentRecord ORM models
+- Full CRUD API for member profiles (admin)
+- Full CRUD API for contribution records (admin/treasurer)
+- Payment recording with automatic balance recalculation
+- Contribution summary endpoint (aggregate expected/paid/balance)
+- Member self-view endpoints (profile + balance)
+- Tenant isolation enforced on every membership and contribution query
+- Admin members management view (list, create, edit, delete)
+- Admin contributions management view (list, create, record payments)
+- Member profile self-view (profile card + balance summary)
+- Backend integration tests (11 tests, all passing)
+- Frontend build passing
+
+Acceptance criteria:
+
+- member sees only personal profile and balance
+- admin can create/edit/delete member profiles
+- admin can create contributions and record payments
+- balance auto-calculates from expected minus paid
+- tenant A members are invisible to tenant B
+
 ## Sprint 9 - Policies, Rules And Discipline
 
-Status: Planned
+Status: Completed
 
 Goal:
-Support public policies and private disciplinary records with strict access control.
+Support association/business policies and procedures.
+
+Deliverables:
+
+- PolicyRecord model
+- DisciplinaryRecord model
+- rule category management
+- private disciplinary records
+- role-based access rules
+
+Acceptance criteria:
+
+- user can ask about public policies
+- user cannot see another user's disciplinary record
+- admins can manage policy documents
 
 ## Sprint 10 - Events And Announcements
 
-Status: Planned
+Status: Next
 
 Goal:
 Add calendar and announcement capabilities for tenant operations.

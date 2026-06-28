@@ -18,3 +18,10 @@ from app.modules.tenancy.models import (  # noqa: F401
     TenantUser,
     UserRole,
 )
+from app.modules.membership.models import MembershipProfile  # noqa: F401
+from app.modules.contributions.models import (  # noqa: F401
+    ContributionRecord,
+    PaymentRecord,
+)
+from app.modules.policies.models import PolicyRecord  # noqa: F401
+from app.modules.disciplinary.models import DisciplinaryRecord  # noqa: F401

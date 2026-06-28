@@ -1,0 +1,79 @@
+import http from './http'
+
+export interface MembershipProfileResponse {
+  id: string
+  tenant_id: string
+  user_id: string | null
+  member_code: string
+  first_name: string
+  last_name: string
+  display_name: string
+  email: string | null
+  phone: string | null
+  status: string
+  joined_at: string
+  created_at: string
+  updated_at: string
+}
+
+export interface MemberBalanceResponse {
+  profile: MembershipProfileResponse
+  total_expected: string
+  total_paid: string
+  total_balance: string
+  contribution_count: number
+}
+
+export interface CreateMemberPayload {
+  member_code: string
+  first_name: string
+  last_name: string
+  display_name: string
+  email?: string
+  phone?: string
+  status?: string
+}
+
+export interface UpdateMemberPayload {
+  member_code?: string
+  first_name?: string
+  last_name?: string
+  display_name?: string
+  email?: string
+  phone?: string
+  status?: string
+}
+
+export async function getMyProfile(): Promise<MembershipProfileResponse> {
+  const response = await http.get<MembershipProfileResponse>('/memberships/me')
+  return response.data
+}
+
+export async function getMyBalance(): Promise<MemberBalanceResponse> {
+  const response = await http.get<MemberBalanceResponse>('/memberships/me/balance')
+  return response.data
+}
+
+export async function listMembers(): Promise<MembershipProfileResponse[]> {
+  const response = await http.get<MembershipProfileResponse[]>('/memberships/')
+  return response.data
+}
+
+export async function getMember(profileId: string): Promise<MembershipProfileResponse> {
+  const response = await http.get<MembershipProfileResponse>(`/memberships/${profileId}`)
+  return response.data
+}
+
+export async function createMember(payload: CreateMemberPayload): Promise<MembershipProfileResponse> {
+  const response = await http.post<MembershipProfileResponse>('/memberships/', payload)
+  return response.data
+}
+
+export async function updateMember(profileId: string, payload: UpdateMemberPayload): Promise<MembershipProfileResponse> {
+  const response = await http.patch<MembershipProfileResponse>(`/memberships/${profileId}`, payload)
+  return response.data
+}
+
+export async function deleteMember(profileId: string): Promise<void> {
+  await http.delete(`/memberships/${profileId}`)
+}
