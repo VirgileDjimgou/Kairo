@@ -5,7 +5,11 @@ from uuid import UUID
 
 import structlog
 
-from app.core.dependencies import get_object_storage_provider
+from app.core.dependencies import (
+    get_embedding_provider,
+    get_object_storage_provider,
+    get_vector_store_provider,
+)
 from app.db.session import async_session_factory
 from app.modules.ingestion.service import IngestionService
 from app.worker.celery_app import celery_app
@@ -15,7 +19,12 @@ logger = structlog.get_logger(__name__)
 
 async def _process_ingestion_job(job_id: UUID) -> None:
     async with async_session_factory() as db:
-        service = IngestionService(db, get_object_storage_provider())
+        service = IngestionService(
+            db,
+            get_object_storage_provider(),
+            embedding_provider=get_embedding_provider(),
+            vector_store_provider=get_vector_store_provider(),
+        )
         await service.process_job(job_id)
 
 

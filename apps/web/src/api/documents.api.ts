@@ -18,6 +18,7 @@ export interface DocumentListItemResponse {
   source_type: string
   language: string
   access_scope: string
+  allowed_role_ids: string[] | null
   status: string
   owner_user_id: string | null
   created_at: string
@@ -35,6 +36,11 @@ export interface UploadDocumentPayload {
   access_scope?: string
 }
 
+export interface UpdateDocumentAccessPayload {
+  access_scope: string
+  allowed_role_ids?: string[] | null
+}
+
 export async function listDocuments(): Promise<DocumentListItemResponse[]> {
   const response = await http.get<DocumentListItemResponse[]>('/documents')
   return response.data
@@ -47,6 +53,7 @@ export interface IngestionJobResponse {
   status: string
   error_message: string | null
   chunk_count: number
+  indexed_chunk_count: number
   started_at: string | null
   finished_at: string | null
   created_at: string
@@ -68,5 +75,38 @@ export async function uploadDocument(payload: UploadDocumentPayload): Promise<Up
   }
 
   const response = await http.post<UploadDocumentResponse>('/documents/upload', formData)
+  return response.data
+}
+
+export async function updateDocumentAccess(
+  documentId: string,
+  payload: UpdateDocumentAccessPayload,
+): Promise<DocumentListItemResponse> {
+  const response = await http.patch<DocumentListItemResponse>(`/documents/${documentId}/access`, payload)
+  return response.data
+}
+
+export async function reindexDocument(documentId: string): Promise<IngestionJobResponse> {
+  const response = await http.post<IngestionJobResponse>(`/documents/${documentId}/reindex`)
+  return response.data
+}
+
+export interface ChatQueryLogResponse {
+  id: string
+  tenant_id: string
+  user_id: string
+  question: string
+  answer: string
+  refused: boolean
+  refusal_reason: string | null
+  confidence: number
+  citations_json: string
+  created_at: string
+}
+
+export async function listChatQueries(limit = 20): Promise<ChatQueryLogResponse[]> {
+  const response = await http.get<ChatQueryLogResponse[]>('/admin/chat-queries', {
+    params: { limit },
+  })
   return response.data
 }

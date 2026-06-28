@@ -4,7 +4,16 @@ This is a local-first, multi-tenant RAG platform for organizations.
 
 ## Source of truth
 
-Read `orgmind_prompt_pack/00_MASTER_PROMPT_CODEX.md` and related files before making changes.
+Read these files before making changes:
+
+- `AGENTS.md`
+- `constitution/KAIRO_CONSTITUTION.md`
+- `IMPLEMENTATION_ROADMAP.md`
+- `PROJECT_STATUS.md`
+- `orgmind_prompt_pack/00_MASTER_PROMPT_CODEX.md`
+- `orgmind_prompt_pack/01_PROJECT_CONSTITUTION.md`
+- `orgmind_prompt_pack/02_ARCHITECTURE.md`
+- `orgmind_prompt_pack/03_ROADMAP_SPRINTS.md`
 
 ## Hard rules
 
@@ -39,3 +48,9 @@ Each module under `services/api/app/modules/` contains:
 `models.py` · `schemas.py` · `repository.py` · `service.py` · `router.py`
 
 Repository methods always accept `tenant_id: UUID` as a mandatory argument.
+
+## Sprint continuity
+
+- Determine the current sprint from `PROJECT_STATUS.md` and `IMPLEMENTATION_ROADMAP.md`.
+- Do not skip ahead to later roadmap sprints unless explicitly requested.
+- If sprint progress changes, update `PROJECT_STATUS.md` and `IMPLEMENTATION_ROADMAP.md`.

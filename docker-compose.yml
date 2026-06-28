@@ -108,6 +108,10 @@ services:
         condition: service_healthy
       minio:
         condition: service_started
+      qdrant:
+        condition: service_started
+      ollama:
+        condition: service_started
     volumes:
       - ./services/api:/app
     restart: on-failure

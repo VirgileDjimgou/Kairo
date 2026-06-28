@@ -25,6 +25,13 @@
         >
           <i class="bi bi-file-earmark-text me-2"></i>Documents
         </RouterLink>
+        <RouterLink
+          to="/admin/chat-queries"
+          class="nav-link sidebar-link rounded"
+          active-class="active"
+        >
+          <i class="bi bi-journal-text me-2"></i>Chat audit
+        </RouterLink>
         <a class="nav-link sidebar-link rounded disabled" href="#"
           ><i class="bi bi-list-check me-2"></i>Ingestion Jobs</a
         >

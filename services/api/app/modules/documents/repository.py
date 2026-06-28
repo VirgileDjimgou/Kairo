@@ -85,6 +85,18 @@ class DocumentRepository:
         )
         return int(result or 0)
 
+    async def count_indexed_chunks_for_version(self, tenant_id: UUID, version_id: UUID) -> int:
+        result = await self._db.scalar(
+            select(func.count())
+            .select_from(DocumentChunk)
+            .where(
+                DocumentChunk.tenant_id == tenant_id,
+                DocumentChunk.document_version_id == version_id,
+                DocumentChunk.qdrant_point_id.is_not(None),
+            )
+        )
+        return int(result or 0)
+
     async def get_document(self, tenant_id: UUID, document_id: UUID) -> Document | None:
         result = await self._db.execute(
             select(Document).where(
@@ -93,3 +105,36 @@ class DocumentRepository:
             )
         )
         return result.scalar_one_or_none()
+
+    async def update_document_access(
+        self,
+        tenant_id: UUID,
+        document_id: UUID,
+        *,
+        access_scope: str,
+        allowed_role_ids_json: str | None,
+    ) -> Document | None:
+        document = await self.get_document(tenant_id, document_id)
+        if document is None:
+            return None
+        document.access_scope = access_scope
+        document.allowed_role_ids_json = allowed_role_ids_json
+        return document
+
+    async def get_chunks_with_documents(
+        self,
+        tenant_id: UUID,
+        chunk_ids: list[UUID],
+    ) -> list[tuple[DocumentChunk, Document]]:
+        if not chunk_ids:
+            return []
+
+        result = await self._db.execute(
+            select(DocumentChunk, Document)
+            .join(Document, Document.id == DocumentChunk.document_id)
+            .where(
+                DocumentChunk.tenant_id == tenant_id,
+                DocumentChunk.id.in_(chunk_ids),
+            )
+        )
+        return list(result.all())

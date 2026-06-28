@@ -52,7 +52,7 @@ orgmind_prompt_pack/  Source-of-truth product documentation
 ## Development
 
 ```bash
-# API tests (requires PostgreSQL running)
+# API tests (runs on SQLite by default, no local PostgreSQL required)
 cd services/api
 pip install -r requirements.txt
 pytest
@@ -66,12 +66,30 @@ npm run dev
 docker compose --profile tunnel up --build
 ```
 
+## Multi-IDE Workflow
+
+This repository can be continued from Codex, Cursor, or GitHub Copilot without losing sprint context.
+
+Read these files at the start of every new AI-assisted session:
+
+1. `constitution/KAIRO_CONSTITUTION.md`
+2. `IMPLEMENTATION_ROADMAP.md`
+3. `PROJECT_STATUS.md`
+4. `prompts/CODEX_AUTOPILOT.md`
+
+Reusable prompts are available here:
+
+- `prompts/CODEX_AUTOPILOT.md`
+- `prompts/KAIRO_CONTINUE_5_SPRINTS.md`
+
 ## Architecture
 
 - **Backend** enforces all permissions — the LLM never decides access control
 - **Tenant isolation** is mandatory on every DB query
 - **RAG retrieval** is filtered by `tenant_id` and access scope before the LLM sees anything
 - **Provider pattern** — all infrastructure (LLM, embeddings, vector store, storage) is behind interfaces
+- **Autonomous tests** default to SQLite, which makes the suite portable on any machine or agentic IDE
+- **Admin traceability** includes document access control, reindexing, and chat query audit views
 
 See `orgmind_prompt_pack/` for full architecture documentation.
 

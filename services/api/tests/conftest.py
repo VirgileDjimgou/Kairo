@@ -2,18 +2,20 @@
 Pytest configuration and shared fixtures for the Kairo API test suite.
 
 Strategy:
+- Default to an isolated SQLite test database stored in a temporary file.
 - Session-scoped: create all DB tables once per test session, drop after.
 - Function-scoped: each test gets its own DB session with automatic rollback
   so tests are isolated without recreating the schema on every test.
 - The `client` fixture overrides get_db to use the same rolled-back session.
 
-Requires:
-    TEST_DATABASE_URL env variable pointing to a PostgreSQL test database.
-    (default: postgresql+psycopg://orgmind:orgmind_dev_password@localhost:5432/orgmind_test)
+You can still point TEST_DATABASE_URL to a different database explicitly,
+but the default is now fully autonomous and does not require local PostgreSQL.
 """
 
 import asyncio
 import os
+import tempfile
+from pathlib import Path
 import uuid
 from collections.abc import AsyncGenerator
 
@@ -24,12 +26,22 @@ from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker, create_asyn
 
 # ── Test database ──────────────────────────────────────────────────────────────
 
-TEST_DATABASE_URL = os.getenv(
-    "TEST_DATABASE_URL",
-    "postgresql+psycopg://orgmind:orgmind_dev_password@localhost:5432/orgmind_test",
-)
+_requested_test_db_url = os.getenv("TEST_DATABASE_URL", "").strip()
+_sqlite_db_path: Path | None = None
 
-test_engine = create_async_engine(TEST_DATABASE_URL, echo=False, pool_pre_ping=True)
+if _requested_test_db_url and not _requested_test_db_url.startswith("postgresql"):
+    TEST_DATABASE_URL = _requested_test_db_url
+else:
+    fd, raw_path = tempfile.mkstemp(prefix="kairo-tests-", suffix=".sqlite3")
+    os.close(fd)
+    _sqlite_db_path = Path(raw_path)
+    TEST_DATABASE_URL = f"sqlite+aiosqlite:///{_sqlite_db_path.as_posix()}"
+
+engine_kwargs = {"echo": False, "pool_pre_ping": True}
+if TEST_DATABASE_URL.startswith("sqlite+aiosqlite"):
+    engine_kwargs["connect_args"] = {"check_same_thread": False}
+
+test_engine = create_async_engine(TEST_DATABASE_URL, **engine_kwargs)
 TestSessionLocal = async_sessionmaker(
     test_engine,
     class_=AsyncSession,
@@ -63,6 +75,8 @@ async def create_tables():
         await conn.run_sync(Base.metadata.drop_all)
 
     await test_engine.dispose()
+    if _sqlite_db_path and _sqlite_db_path.exists():
+        _sqlite_db_path.unlink(missing_ok=True)
 
 
 # ── Per-test DB session ────────────────────────────────────────────────────────
@@ -80,14 +94,17 @@ async def db_session(create_tables) -> AsyncGenerator[AsyncSession, None]:
 
 
 @pytest.fixture(autouse=True)
-def disable_ingestion_enqueue():
-    """Tests drive ingestion explicitly; skip Celery enqueue during uploads."""
+def disable_background_jobs():
+    """Tests drive ingestion/indexing explicitly."""
     from app.core.config import settings
 
-    previous = settings.ingestion_auto_enqueue
+    previous_enqueue = settings.ingestion_auto_enqueue
+    previous_indexing = settings.indexing_auto_enabled
     settings.ingestion_auto_enqueue = False
+    settings.indexing_auto_enabled = False
     yield
-    settings.ingestion_auto_enqueue = previous
+    settings.ingestion_auto_enqueue = previous_enqueue
+    settings.indexing_auto_enabled = previous_indexing
 
 
 # ── HTTP test client ───────────────────────────────────────────────────────────
@@ -124,22 +141,43 @@ async def fake_storage():
 
 
 @pytest_asyncio.fixture
+async def fake_vector_store():
+    from fakes import FakeVectorStoreProvider
+
+    return FakeVectorStoreProvider()
+
+
+@pytest_asyncio.fixture
+async def fake_llm():
+    from fakes import FakeLlmProvider
+
+    return FakeLlmProvider()
+
+
+@pytest_asyncio.fixture
 async def client(
-    db_session: AsyncSession, fake_storage
+    db_session: AsyncSession, fake_storage, fake_vector_store, fake_llm
 ) -> AsyncGenerator[AsyncClient, None]:
     """
     Yield an AsyncClient wired to the FastAPI app, with get_db overridden
     to use the same rolled-back test session.
     """
     from app.core.dependencies import get_db
+    from app.core.dependencies import get_embedding_provider
+    from app.core.dependencies import get_llm_provider
     from app.core.dependencies import get_object_storage_provider
+    from app.core.dependencies import get_vector_store_provider
     from app.main import app
+    from fakes import FakeEmbeddingProvider
 
     async def override_get_db() -> AsyncGenerator[AsyncSession, None]:
         yield db_session
 
     app.dependency_overrides[get_db] = override_get_db
     app.dependency_overrides[get_object_storage_provider] = lambda: fake_storage
+    app.dependency_overrides[get_embedding_provider] = lambda: FakeEmbeddingProvider()
+    app.dependency_overrides[get_vector_store_provider] = lambda: fake_vector_store
+    app.dependency_overrides[get_llm_provider] = lambda: fake_llm
 
     async with AsyncClient(
         transport=ASGITransport(app=app), base_url="http://test"

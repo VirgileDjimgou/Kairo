@@ -129,9 +129,11 @@
                   <tr>
                     <th>Title</th>
                     <th>Status</th>
+                    <th>Access</th>
                     <th>Ingestion</th>
                     <th>File</th>
                     <th>Size</th>
+                    <th>Actions</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -150,10 +152,42 @@
                       </span>
                     </td>
                     <td>
+                      <div class="vstack gap-2">
+                        <select
+                          v-model="draftAccessScopeByDocument[document.id]"
+                          class="form-select form-select-sm"
+                        >
+                          <option value="tenant_public">Tenant public</option>
+                          <option value="members_only">Members only</option>
+                          <option value="role_restricted">
+                            Role restricted
+                          </option>
+                          <option value="user_private">User private</option>
+                          <option value="admin_only">Admin only</option>
+                        </select>
+                        <input
+                          v-model="draftAllowedRolesByDocument[document.id]"
+                          class="form-control form-control-sm"
+                          type="text"
+                          placeholder="admin, member"
+                          :disabled="
+                            draftAccessScopeByDocument[document.id] !==
+                            'role_restricted'
+                          "
+                        />
+                        <div class="small text-muted">
+                          {{
+                            formatAllowedRoles(
+                              document.allowed_role_ids,
+                              document.id
+                            )
+                          }}
+                        </div>
+                      </div>
+                    </td>
+                    <td>
                       <span class="badge text-bg-light text-dark border">
-                        {{
-                          ingestionStatusByDocument[document.id] || "unknown"
-                        }}
+                        {{ formatIngestionStatus(document.id) }}
                       </span>
                     </td>
                     <td>
@@ -173,6 +207,26 @@
                         )
                       }}
                     </td>
+                    <td>
+                      <div class="d-flex flex-column gap-2">
+                        <button
+                          class="btn btn-sm btn-outline-primary"
+                          type="button"
+                          @click="saveAccess(document.id)"
+                          :disabled="busyDocumentId === document.id"
+                        >
+                          Save access
+                        </button>
+                        <button
+                          class="btn btn-sm btn-outline-secondary"
+                          type="button"
+                          @click="queueReindex(document.id)"
+                          :disabled="busyDocumentId === document.id"
+                        >
+                          Reindex
+                        </button>
+                      </div>
+                    </td>
                   </tr>
                 </tbody>
               </table>
@@ -189,6 +243,8 @@ import { onMounted, ref } from "vue";
 import {
   getIngestionJob,
   listDocuments,
+  reindexDocument,
+  updateDocumentAccess,
   uploadDocument,
   type DocumentListItemResponse,
 } from "../../api/documents.api";
@@ -201,21 +257,55 @@ const description = ref("");
 const accessScope = ref("tenant_public");
 const selectedFile = ref<File | null>(null);
 const statusMessage = ref("");
+const busyDocumentId = ref<string | null>(null);
 const ingestionStatusByDocument = ref<Record<string, string>>({});
 const ingestionJobByDocument = ref<Record<string, string>>({});
+const draftAccessScopeByDocument = ref<Record<string, string>>({});
+const draftAllowedRolesByDocument = ref<Record<string, string>>({});
+
+function formatIngestionStatus(documentId: string): string {
+  const status = ingestionStatusByDocument.value[documentId];
+  const detail = ingestionDetailByDocument.value[documentId];
+  if (!status) {
+    return "unknown";
+  }
+  if (detail && status === "completed") {
+    return `${status} (${detail.indexed}/${detail.chunks} indexed)`;
+  }
+  return status;
+}
+
+const ingestionDetailByDocument = ref<
+  Record<string, { chunks: number; indexed: number }>
+>({});
 
 async function refreshDocuments() {
   loading.value = true;
   try {
     documents.value = await listDocuments();
+    syncDocumentDrafts();
     await refreshIngestionStatuses();
   } finally {
     loading.value = false;
   }
 }
 
+function syncDocumentDrafts() {
+  const nextScopes: Record<string, string> = {};
+  const nextRoles: Record<string, string> = {};
+
+  for (const document of documents.value) {
+    nextScopes[document.id] = document.access_scope;
+    nextRoles[document.id] = (document.allowed_role_ids ?? []).join(", ");
+  }
+
+  draftAccessScopeByDocument.value = nextScopes;
+  draftAllowedRolesByDocument.value = nextRoles;
+}
+
 async function refreshIngestionStatuses() {
   const nextStatuses: Record<string, string> = {};
+  const nextDetails: Record<string, { chunks: number; indexed: number }> = {};
 
   await Promise.all(
     Object.entries(ingestionJobByDocument.value).map(
@@ -226,6 +316,10 @@ async function refreshIngestionStatuses() {
         try {
           const job = await getIngestionJob(jobId);
           nextStatuses[documentId] = job.status;
+          nextDetails[documentId] = {
+            chunks: job.chunk_count,
+            indexed: job.indexed_chunk_count,
+          };
         } catch {
           nextStatuses[documentId] = "unknown";
         }
@@ -234,11 +328,68 @@ async function refreshIngestionStatuses() {
   );
 
   ingestionStatusByDocument.value = nextStatuses;
+  ingestionDetailByDocument.value = nextDetails;
 }
 
 function handleFileChange(event: Event) {
   const input = event.target as HTMLInputElement;
   selectedFile.value = input.files?.[0] ?? null;
+}
+
+function formatAllowedRoles(roles: string[] | null, documentId: string): string {
+  const draftScope = draftAccessScopeByDocument.value[documentId];
+  const draftRoles = draftAllowedRolesByDocument.value[documentId]?.trim();
+
+  if (draftScope === "role_restricted") {
+    return draftRoles ? `Draft roles: ${draftRoles}` : "No roles selected yet";
+  }
+
+  if (!roles || roles.length === 0) {
+    return "No role restriction";
+  }
+
+  return `Allowed roles: ${roles.join(", ")}`;
+}
+
+function parseAllowedRoles(documentId: string): string[] {
+  const draftRoles = draftAllowedRolesByDocument.value[documentId] ?? "";
+  return draftRoles
+    .split(",")
+    .map((role) => role.trim())
+    .filter(Boolean);
+}
+
+async function saveAccess(documentId: string) {
+  busyDocumentId.value = documentId;
+  try {
+    const updated = await updateDocumentAccess(documentId, {
+      access_scope: draftAccessScopeByDocument.value[documentId] ?? "tenant_public",
+      allowed_role_ids:
+        draftAccessScopeByDocument.value[documentId] === "role_restricted"
+          ? parseAllowedRoles(documentId)
+          : null,
+    });
+    documents.value = documents.value.map((doc) =>
+      doc.id === documentId ? updated : doc
+    );
+    syncDocumentDrafts();
+    statusMessage.value = `Updated access for ${updated.title}.`;
+  } finally {
+    busyDocumentId.value = null;
+  }
+}
+
+async function queueReindex(documentId: string) {
+  busyDocumentId.value = documentId;
+  try {
+    const job = await reindexDocument(documentId);
+    ingestionJobByDocument.value[documentId] = job.id;
+    ingestionStatusByDocument.value[documentId] = job.status;
+    statusMessage.value = `Reindex queued for document ${documentId}.`;
+    await refreshDocuments();
+  } finally {
+    busyDocumentId.value = null;
+  }
 }
 
 async function submitUpload() {

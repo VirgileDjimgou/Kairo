@@ -24,6 +24,11 @@ const router = createRouter({
           name: 'dashboard',
           component: () => import('@/views/dashboard/DashboardView.vue'),
         },
+        {
+          path: 'chat',
+          name: 'chat',
+          component: () => import('@/views/chat/ChatView.vue'),
+        },
       ],
     },
     {
@@ -40,6 +45,11 @@ const router = createRouter({
           path: 'documents',
           name: 'admin-documents',
           component: () => import('@/views/admin/AdminDocumentsView.vue'),
+        },
+        {
+          path: 'chat-queries',
+          name: 'admin-chat-queries',
+          component: () => import('@/views/admin/AdminChatQueriesView.vue'),
         },
       ],
     },
