@@ -7,7 +7,7 @@
         </div>
         <h1 class="h4 fw-bold mb-1">Reset password</h1>
         <p class="text-muted small mb-0">
-          Enter your email and we'll send you a reset link.
+          Enter your email and we'll send you a reset link. If you're already signed in, you can also trigger the same recovery flow from Account Security.
         </p>
       </div>
 
@@ -76,6 +76,7 @@
 <script setup lang="ts">
 import { ref } from "vue";
 import { forgotPassword } from "@/api/auth.api";
+import { getApiErrorDetail, mapForgotPasswordError } from "@/utils/authErrors";
 
 const email = ref("");
 const loading = ref(false);
@@ -94,8 +95,8 @@ async function handleSubmit() {
     if (isDev && result.reset_token) {
       devToken.value = result.reset_token;
     }
-  } catch {
-    errorMessage.value = "Something went wrong. Please try again.";
+  } catch (err: unknown) {
+    errorMessage.value = mapForgotPasswordError(getApiErrorDetail(err));
   } finally {
     loading.value = false;
   }

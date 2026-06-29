@@ -29,6 +29,16 @@ class NotificationProvider(Protocol):
 
     def describe(self) -> NotificationChannelDescriptor: ...
 
+    async def send_message(
+        self,
+        *,
+        tenant_id: UUID,
+        actor_user_id: UUID | None,
+        recipient: str,
+        subject: str | None,
+        body: str,
+    ) -> NotificationDispatchResult: ...
+
     async def send_test_message(
         self,
         *,

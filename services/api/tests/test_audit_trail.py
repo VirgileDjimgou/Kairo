@@ -156,5 +156,11 @@ async def test_audit_trail_is_tenant_scoped(
         headers={"Authorization": f"Bearer {token_b}"},
     )
     assert resp.status_code == 200, resp.text
-    assert resp.json() == []
+
+    # tenant_b sees only its own audit events (login_succeeded from the
+    # login call above), never tenant_a's member_profile_created event
+    body = resp.json()
+    assert isinstance(body, list)
+    for event in body:
+        assert event["action"] != "member_profile_created"
 

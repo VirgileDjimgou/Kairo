@@ -7,7 +7,7 @@
         </div>
         <h1 class="h4 fw-bold mb-1">Set new password</h1>
         <p class="text-muted small mb-0">
-          Choose a strong password for your account.
+          Choose a strong password for your account. After sign-in, review Account Security to enable MFA.
         </p>
       </div>
 
@@ -68,7 +68,7 @@
       <div v-else class="text-center">
         <i class="bi bi-check-circle fs-1 text-success"></i>
         <p class="mt-2 mb-1 fw-medium">Password reset successful</p>
-        <p class="text-muted small">You can now sign in with your new password.</p>
+        <p class="text-muted small">You can now sign in with your new password and continue hardening the account from Account Security.</p>
         <router-link to="/login" class="btn btn-primary mt-2">
           Sign in
         </router-link>
@@ -87,6 +87,7 @@
 import { computed, ref } from "vue";
 import { useRoute } from "vue-router";
 import { resetPassword } from "@/api/auth.api";
+import { getApiErrorDetail, mapResetPasswordError } from "@/utils/authErrors";
 
 const route = useRoute();
 const token = computed(() => (route.query.token as string) || "");
@@ -118,8 +119,7 @@ async function handleSubmit() {
     await resetPassword({ token: token.value, new_password: password.value });
     success.value = true;
   } catch (err: unknown) {
-    const e = err as { response?: { data?: { detail?: string } } };
-    errorMessage.value = e.response?.data?.detail || "Reset failed. The link may be expired.";
+    errorMessage.value = mapResetPasswordError(getApiErrorDetail(err));
   } finally {
     loading.value = false;
   }

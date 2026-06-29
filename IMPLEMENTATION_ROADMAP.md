@@ -1331,7 +1331,7 @@ Completed implementation:
 
 ## Sprint 30 - Account Security And Identity Self-Service
 
-Status: Planned
+Status: Completed
 
 Goal:
 Turn the existing MFA, password recovery, and post-invite identity flows into a coherent user-facing security surface suitable for real customer operations.
@@ -1380,3 +1380,442 @@ Acceptance criteria:
 - a user can find and manage MFA from within the product
 - password recovery and invite acceptance feel consistent and production-ready
 - the sprint preserves backend authority for all access and security decisions
+
+Completed implementation:
+
+- `services/api/app/modules/identity/router.py`, `service.py`, and `schemas.py` now expose a minimal MFA status endpoint so the frontend can render account security state without leaking secrets
+- `services/api/tests/test_identity_lifecycle.py` now validates MFA status across disabled, enrolled, enabled, and disabled-again scenarios
+- `apps/web/src/views/account/AccountSecurityView.vue` now provides an authenticated account security surface for MFA setup, verification, disablement, and password recovery launch
+- `apps/web/src/layouts/AppLayout.vue` and `apps/web/src/router/index.ts` now provide a first-class navigation path into account security, and `/mfa/setup` now resolves into the new authenticated security surface
+- `apps/web/src/views/auth/AcceptInviteView.vue`, `LoginView.vue`, `ForgotPasswordView.vue`, and `ResetPasswordView.vue` now present clearer continuity around post-login security hardening
+- `apps/web/e2e/account-security.spec.ts` now validates MFA enablement, disablement, and password recovery launch autonomously through Playwright mocks
+- `docs/commercial/administrator-guide.md`, `PROJECT_STATUS.md`, `docs/ai/NEXT_SPRINT.md`, and `docs/ai/PROJECT_STATE.md` now reflect the new self-service account security surface
+
+## Sprint 31 - Secure Identity Message Delivery And Access Notifications
+
+Status: Completed
+
+Goal:
+Replace manual invite and reset-link handoff with a real, auditable outbound identity message pipeline suitable for customer operations.
+
+Why this sprint now:
+
+- Sprint 29 and Sprint 30 made access and security workflows credible inside the product, but message delivery is still the weakest operational gap.
+- Commercial deployments need invites and password-recovery notifications to be delivered through a real channel, not only copied manually or surfaced as development tokens.
+- The notification abstraction already exists, so the next step is to connect identity lifecycle events to a maintainable delivery path.
+
+Primary dependencies:
+
+- Sprint 14 multi-channel extension foundation
+- Sprint 29 access operations console
+- Sprint 30 account security self-service flows
+
+Execution scope:
+
+- outbound delivery for invitations and password reset
+- operational visibility into delivery success or failure
+- branded message baseline for customer-facing identity emails
+- tests and docs for delivery behavior
+
+Deliverables:
+
+- Identity message delivery abstraction for invitation and password reset flows
+- Initial real email-oriented provider integration or production-ready provider contract replacing manual-only handoff
+- Branded baseline templates for invitation and password recovery messages
+- Admin visibility into delivery success/failure or fallback state where useful
+- Test coverage for successful dispatch, provider failure, and safe fallback behavior
+- Documentation for configuring and operating identity message delivery
+
+Validation requirements:
+
+- backend tests for invite/reset delivery behavior and provider-failure safety
+- frontend or browser validation where delivery state is surfaced
+- no regression in tenant isolation, auth safety, or non-enumeration guarantees
+
+Definition of done:
+
+- identity flows no longer depend on manual link sharing as the primary operational path
+- delivery failure states are visible and supportable
+- the delivery layer stays modular and subordinate to backend security controls
+
+Acceptance criteria:
+
+- invitation and password reset flows can dispatch through a real configured delivery path
+- delivery failures degrade safely without exposing unauthorized data
+- operators can understand whether an identity message was sent, simulated, or failed
+
+Completed implementation:
+
+- `services/api/app/providers/notifications/base.py` and `placeholders.py` now support direct identity-message dispatch, with SMTP-backed email delivery when configured and simulated fallback otherwise
+- `services/api/app/modules/identity/service.py`, `router.py`, and `schemas.py` now route invitation and forgot-password flows through notification providers, record delivery outcomes, and hide raw tokens after successful production delivery
+- `apps/web/src/api/auth.api.ts` and `apps/web/src/views/admin/AdminAccessView.vue` now expose and render delivery-state feedback for the latest invitation instead of assuming manual link sharing is always required
+- `services/api/tests/test_identity_delivery.py` now validates sent, simulated, and failed delivery behavior with autonomous fake providers and production-mode token-hiding assertions
+- `apps/web/e2e/admin-access.spec.ts` now validates the updated access-console delivery UX through Playwright mocks
+- Verified with:
+  - `python -m pytest services/api/tests/test_identity_lifecycle.py services/api/tests/test_identity_delivery.py services/api/tests/test_notifications.py -q`
+  - `npm run build`
+  - `npx playwright test e2e/admin-access.spec.ts --config=playwright.config.ts --reporter=line`
+
+## Sprint 32 - Session Governance And Security Event Operations
+
+Status: Completed
+
+Goal:
+Turn identity security from individual flows into an operationally mature session-governance model for users and tenant administrators.
+
+Why this sprint now:
+
+- Sprint 31 closes outbound identity delivery, but commercial operators still lack strong visibility and control over active sessions and suspicious account activity.
+- Password reset, MFA, and invite flows are now credible, so the next maturity gap is post-authentication governance.
+- Security-conscious customers expect session revocation, recent-security-event visibility, and safer recovery after sensitive account changes.
+
+Primary dependencies:
+
+- Sprint 17 identity lifecycle foundation
+- Sprint 19 audit trail and governance
+- Sprint 30 account security surface
+- Sprint 31 identity delivery pipeline
+
+Execution scope:
+
+- session inventory and revocation controls
+- security-event visibility for users and admins
+- safer token invalidation after sensitive identity changes
+- regression-safe backend and browser validation
+
+Deliverables:
+
+- Backend session model or equivalent token-version strategy for revoking active sessions safely
+- User-facing session visibility in the authenticated security area, including current session identification
+- Logout-other-sessions and logout-all-sessions controls with backend enforcement
+- Automatic session invalidation rules after password reset, MFA disablement, or administrator-driven account lockdown where appropriate
+- Admin and/or user-visible recent security events based on the audit trail for critical identity actions
+- Tests for session revocation, refresh-token invalidation, multi-tenant safety, and browser-level UX continuity
+- Documentation for session governance and incident response workflow
+
+Validation requirements:
+
+- backend tests for session revocation and sensitive-identity-event invalidation
+- frontend build and browser validation for the account-security session controls
+- no regression in tenant isolation, backend-only authorization, or auth recovery flows
+
+Definition of done:
+
+- users and operators can see and revoke active access paths with confidence
+- sensitive account changes invalidate stale sessions consistently
+- security operations move beyond one-off identity flows into a maintainable commercial posture
+
+Acceptance criteria:
+
+- a user can identify and revoke other active sessions from the product
+- password reset or similar sensitive actions invalidate stale sessions according to policy
+- administrators and support operators can review recent critical identity events without bypassing backend controls
+
+Completed implementation:
+
+- `services/api/app/modules/identity/models.py` and `repository.py` now add a persistent `UserSession` inventory used for backend-enforced session validation and revocation
+- `services/api/app/core/security.py` and `core/dependencies.py` now carry `sid` inside access and refresh JWTs so revoked sessions are rejected by the backend on every authenticated request
+- `services/api/app/modules/identity/service.py`, `router.py`, and `schemas.py` now expose session inventory, per-session revocation, revoke-other-sessions, revoke-all-sessions, and current-user security-event endpoints
+- Password reset completion now revokes all active sessions for the user, and MFA disablement now revokes other sessions while preserving the current request path
+- Successful logins and session revocations are now recorded in the identity audit trail so the authenticated user and tenant admins can review security-relevant events
+- `apps/web/src/views/account/AccountSecurityView.vue` now surfaces active sessions, revoke controls, and recent security activity alongside MFA and password recovery
+- `services/api/tests/test_session_governance.py` now covers session inventory, targeted revocation, global revocation, password-reset invalidation, refresh-token invalidation, and MFA-disable side effects
+- `apps/web/e2e/account-security.spec.ts` now validates the session-governance UX through autonomous Playwright mocks
+- Verified with:
+  - `python -m pytest services/api/tests/test_auth.py services/api/tests/test_identity_lifecycle.py services/api/tests/test_identity_delivery.py services/api/tests/test_session_governance.py -q`
+  - `npm run build`
+  - `npx playwright test e2e/account-security.spec.ts --config=playwright.config.ts --reporter=line`
+
+## Final Open-Source Stabilization Track
+
+Strategic target:
+Ship Kairo as a stable, portfolio-grade open-source product that is realistic to operate for an association or organization of about 200 members.
+
+Delivery constraint:
+The remaining roadmap is intentionally capped at five execution sprints, from Sprint 33 through Sprint 37.
+
+Priority rule for these final sprints:
+
+1. secure user lifecycle and tenant governance
+2. harden authentication and session behavior
+3. reduce operational fragility and migration risk
+4. strengthen real association-facing workflows
+5. finish with stability, docs, and demonstrable open-source readiness
+
+## Sprint 33 - Tenant User Lifecycle Governance And Account Lockdown
+
+Status: Completed
+
+Goal:
+Give tenant administrators safe operational control over user lifecycle state, access suspension, and identity incident response.
+
+Why this sprint now:
+
+- Sprint 32 gives users session visibility and revocation, but administrators still cannot directly suspend or contain risky accounts inside the product.
+- For a stable organization-ready release, offboarding and account containment must be first-class product behavior rather than manual database work.
+- The audit trail, invitation flow, and session inventory are now mature enough to support admin lifecycle actions without bypassing backend policy.
+
+Primary dependencies:
+
+- Sprint 17 identity lifecycle foundation
+- Sprint 19 audit trail and governance
+- Sprint 29 access operations console
+- Sprint 32 session governance and security event operations
+
+Execution scope:
+
+- admin-visible user lifecycle state and access status
+- account suspension or deactivation with backend enforcement
+- tenant-scoped forced session revocation for incident response
+- stronger admin visibility into identity events and risky states
+
+Deliverables:
+
+- Admin user-access management view or extension of the access console showing active, invited, suspended, and disabled account states
+- Backend endpoints for tenant-authorized suspension, reactivation, and forced session revocation of managed users
+- Clear backend rules for what happens to authentication, session access, and invitation reuse when an account is suspended
+- Audit coverage for admin-driven account lifecycle actions and forced revocations
+- Frontend workflows for safe confirmation of suspension/reactivation actions
+- Tests for admin enforcement, tenant isolation, suspended-user denial, and incident-response flows
+- Documentation for offboarding and account-compromise response
+
+Validation requirements:
+
+- backend tests for suspension/reactivation/session containment
+- frontend build and browser validation for admin lifecycle operations
+- no regression in invitation flow, session governance, or backend-only access control
+
+Definition of done:
+
+- tenant admins can contain a compromised or departed user without database-only intervention
+- suspended accounts lose effective access through backend enforcement and session invalidation
+- lifecycle governance becomes supportable for real tenant operations
+
+Acceptance criteria:
+
+- an admin can suspend or reactivate a tenant user through the product
+- suspension invalidates active access safely and predictably
+- all admin lifecycle actions remain tenant-scoped, audited, and backend-enforced
+
+Completed implementation:
+
+- `services/api/app/core/dependencies.py` now revalidates the active tenant membership on every protected request, so suspended memberships lose backend access immediately instead of only failing on the next login
+- `services/api/app/modules/tenancy/repository.py` now exposes tenant-user detail listing and explicit membership-status updates for lifecycle operations
+- `services/api/app/modules/identity/repository.py` now supports tenant-scoped active-session counting and tenant-scoped session revocation for managed users
+- `services/api/app/modules/identity/service.py`, `router.py`, and `schemas.py` now expose admin lifecycle endpoints for managed-user listing, suspension, reactivation, and forced tenant-session revocation
+- Invitation handling now blocks reuse as a reactivation bypass: existing suspended or historical memberships must be managed through lifecycle controls instead of a fresh invite
+- `apps/web/src/api/auth.api.ts` and `apps/web/src/views/admin/AdminAccessView.vue` now extend `/admin/access` into a combined onboarding and lifecycle console with membership status, active-session counts, recent identity activity, suspend/reactivate actions, and forced session revocation
+- `services/api/tests/test_identity_governance.py` now validates admin-only lifecycle management, tenant isolation, self-protection rules, suspended-user denial, reactivation, and tenant-scoped session containment
+- `apps/web/e2e/admin-access.spec.ts` now validates lifecycle actions through autonomous Playwright mocks in addition to invitation flows
+- Verified with:
+  - `python -m pytest services/api/tests/test_identity_lifecycle.py services/api/tests/test_identity_delivery.py services/api/tests/test_session_governance.py services/api/tests/test_identity_governance.py -q`
+  - `npm run build`
+  - `npx playwright test e2e/admin-access.spec.ts --config=playwright.config.ts --reporter=line`
+
+## Sprint 34 - Authentication Hardening And Recovery Stability
+
+Status: Completed
+
+Goal:
+Make login, recovery, invitation acceptance, and session continuity resilient enough for daily use without hidden auth edge-case failures.
+
+Why this sprint now:
+
+- Once admins can suspend and reactivate accounts, authentication state transitions become more complex and easier to regress.
+- A portfolio-grade open-source release must be stable around the most frequently used flows: sign-in, invite acceptance, password reset, session refresh, and logout.
+- This sprint turns identity from feature-complete into predictably supportable behavior.
+
+Primary dependencies:
+
+- Sprint 30 account security and identity self-service
+- Sprint 31 secure identity delivery
+- Sprint 32 session governance
+- Sprint 33 tenant lifecycle governance
+
+Execution scope:
+
+- auth edge-case stabilization
+- invitation and reset-token lifecycle consistency
+- better defensive handling of expired, replayed, revoked, and cross-state credentials
+- stronger browser and API regression coverage for authentication-critical flows
+
+Deliverables:
+
+- Hardened backend handling for revoked, expired, already-used, or state-incompatible identity tokens
+- Clear user-facing frontend states for expired invites, revoked access, locked accounts, and invalid reset links
+- Additional backend tests around auth transitions, replay attempts, and state invalidation rules
+- Additional Playwright coverage for login, accept-invite, forgot-password, reset-password, logout, tenant switching, and suspended-user denial
+- Documentation of supported identity state transitions and recovery expectations
+
+Validation requirements:
+
+- targeted backend auth and identity tests all pass
+- frontend build passes
+- browser validation covers the main auth journeys without relying on a local PostgreSQL instance
+
+Definition of done:
+
+- authentication and recovery flows fail safely and predictably under edge conditions
+- identity regressions become easier to catch automatically before later sprint work
+
+Acceptance criteria:
+
+- expired or replayed tokens always produce safe backend-enforced outcomes
+- suspended or disabled users cannot bypass restrictions through stale sessions or incomplete client state
+- the main authentication journeys are covered by autonomous regression tests
+
+Implemented in this sprint:
+
+- Hardened refresh-token behavior so a session can no longer mint a fresh access token after the active tenant membership has been suspended or invalidated
+- Fixed the MFA login flow for multi-tenant users so post-verification navigation now returns to the organization picker instead of skipping directly into the app shell
+- Added shared frontend auth error mapping for login, invitation acceptance, forgot-password, reset-password, and MFA verification states
+- Added autonomous backend and Playwright regression coverage for suspended-access denial, MFA multi-tenant continuation, expired invitations, used reset links, and refresh-token invalidation
+- Documented identity recovery expectations for operators in the administrator guide
+
+## Sprint 35 - Operational Reliability, Data Safety, And Migration Discipline
+
+Status: Completed
+
+Goal:
+Reduce operational fragility so maintainers can update, validate, and restore the project confidently in a self-hosted open-source context.
+
+Why this sprint now:
+
+- A usable open-source product is not only feature-complete; it must also be recoverable, testable, and predictable during upgrades.
+- Current docs and scripts cover important parts of operations, but migration discipline, restore confidence, and operator-safe workflows still need tightening.
+- This sprint protects the final two product-facing sprints from being built on shaky operational ground.
+
+Primary dependencies:
+
+- Sprint 23 observability and runtime reliability
+- Sprint 24 production validation, recovery, and security hardening
+- Sprint 33 and Sprint 34 identity stabilization work
+
+Execution scope:
+
+- migration verification discipline
+- backup and restore confidence
+- operator-safe maintenance workflows
+- docs and scripts aligned with a reproducible self-hosted deployment story
+
+Deliverables:
+
+- Stronger migration validation guidance and any missing guardrails needed for safe schema evolution
+- Backup and restore documentation refined for realistic self-hosted usage
+- Operational smoke or verification scripts updated where needed to reflect the current stack
+- Clear documented expectations for Docker-based validation, health checks, and dependency readiness
+- Regression tests or checks added for areas directly touched by operational hardening
+
+Validation requirements:
+
+- relevant backend tests pass
+- migration chain remains valid from a fresh database
+- operational verification steps are documented and reproducible from the repository
+
+Definition of done:
+
+- maintainers can understand how to upgrade, validate, and recover the product without guesswork
+- the project is less dependent on implicit local setup knowledge
+
+Acceptance criteria:
+
+- migration and restore expectations are explicit and current
+- no newly introduced operational behavior relies on undocumented manual intervention
+- the repo tells a coherent self-hosted deployment story
+
+## Sprint 36 - Association Operations Robustness
+
+Status: Planned
+
+Goal:
+Strengthen the most important business workflows so the product is realistically usable by an association or organization with about 200 members.
+
+Why this sprint now:
+
+- Identity and operations hardening should happen before refining association-facing workflows.
+- The product already covers members, contributions, events, announcements, policies, and disciplinary records, but the remaining gaps should now be prioritized by real usability and day-to-day administration needs.
+- This sprint converts the existing feature base into a more dependable operational tool rather than a feature showcase.
+
+Primary dependencies:
+
+- all previous completed module sprints
+- Sprint 35 operational reliability
+
+Execution scope:
+
+- highest-friction business workflow stabilization
+- data integrity and operator clarity for association administration
+- realistic UX and validation improvements for the most used admin and member paths
+
+Deliverables:
+
+- Focused improvements on the most fragile or incomplete association-management workflows discovered from the current codebase
+- Better empty states, validation, error handling, and operator guidance where business actions remain ambiguous
+- Additional tenant-isolation and regression coverage for touched membership, contribution, event, announcement, or policy flows
+- Documentation updates that clarify what is production-usable now versus what remains intentionally limited
+
+Validation requirements:
+
+- module-specific backend tests pass for every touched business area
+- frontend build passes
+- browser validation covers the most important association workflows affected by the sprint
+
+Definition of done:
+
+- the project feels coherent and dependable for a small-to-medium organization rather than only technically impressive
+- key admin workflows can be demonstrated end to end with fewer ambiguous states and less manual interpretation
+
+Acceptance criteria:
+
+- the sprint addresses the highest-value business friction visible in the real codebase
+- touched workflows are validated with realistic tests
+- documentation reflects the true practical operating model
+
+## Sprint 37 - Final Open-Source Release Stabilization And Portfolio Readiness
+
+Status: Planned
+
+Goal:
+Close the roadmap with a stable, demonstrable, well-documented open-source release candidate suitable for portfolio presentation and real pilot usage.
+
+Why this sprint now:
+
+- The preceding four sprints should leave only final stabilization, verification, and packaging work.
+- A strong portfolio-grade open-source project needs a clean handoff story, honest documentation, reproducible validation, and a clearly stated maturity boundary.
+
+Primary dependencies:
+
+- Sprint 33 through Sprint 36
+
+Execution scope:
+
+- final regression sweep
+- release-facing documentation cleanup
+- open-source usability and handoff quality
+- remaining high-value paper cuts that block confident demonstration
+
+Deliverables:
+
+- Final documentation pass across README, status, roadmap, deployment, and handoff files
+- Explicit release-positioning notes describing intended usage, scale target, strengths, and known limits
+- Final regression test pass summary covering backend, frontend build, and browser checks that matter most
+- Cleanup of small but important inconsistencies that would otherwise weaken portfolio presentation
+- Clear post-roadmap suggestions for optional future enhancements beyond Sprint 37
+
+Validation requirements:
+
+- relevant automated tests pass
+- the application remains buildable and demonstrable
+- the documentation matches the verified state of the codebase
+
+Definition of done:
+
+- Kairo is presentable as a stable open-source portfolio project
+- the project is realistically usable for a 200-member organization within its documented scope
+- another agent or contributor can continue from the repository without hidden context
+
+Acceptance criteria:
+
+- roadmap, status, and handoff documentation all agree on the achieved state
+- the release story is honest, polished, and technically defensible
+- the project has a clear endpoint for this final five-sprint stabilization track

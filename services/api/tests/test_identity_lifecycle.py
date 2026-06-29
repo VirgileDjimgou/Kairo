@@ -415,6 +415,20 @@ class TestPasswordResetFlow:
 
 class TestMfaFlow:
     @pytest.mark.asyncio
+    async def test_mfa_status_reports_disabled_by_default(
+        self, client: AsyncClient, seeded_tenant_and_admin: dict
+    ) -> None:
+        data = seeded_tenant_and_admin
+        token = await _login_as_admin(client, data)
+
+        resp = await client.get(
+            "/api/v1/auth/mfa/status",
+            headers={"Authorization": f"Bearer {token}"},
+        )
+        assert resp.status_code == 200, resp.text
+        assert resp.json() == {"enabled": False, "enrolled": False}
+
+    @pytest.mark.asyncio
     async def test_enroll_mfa_generates_secret(
         self, client: AsyncClient, seeded_tenant_and_admin: dict
     ) -> None:
@@ -430,6 +444,13 @@ class TestMfaFlow:
         assert "secret" in body
         assert "uri" in body
         assert len(body["secret"]) > 10
+
+        status_resp = await client.get(
+            "/api/v1/auth/mfa/status",
+            headers={"Authorization": f"Bearer {token}"},
+        )
+        assert status_resp.status_code == 200, status_resp.text
+        assert status_resp.json() == {"enabled": False, "enrolled": True}
 
     @pytest.mark.asyncio
     async def test_enroll_then_verify_and_enable_mfa(
@@ -454,6 +475,13 @@ class TestMfaFlow:
         )
         assert resp.status_code == 200, resp.text
         assert resp.json()["enabled"] is True
+
+        status_resp = await client.get(
+            "/api/v1/auth/mfa/status",
+            headers={"Authorization": f"Bearer {auth_token}"},
+        )
+        assert status_resp.status_code == 200, status_resp.text
+        assert status_resp.json() == {"enabled": True, "enrolled": True}
 
     @pytest.mark.asyncio
     async def test_login_triggers_mfa_when_enabled(
@@ -566,6 +594,13 @@ class TestMfaFlow:
         assert login_resp.status_code == 200, login_resp.text
         assert "mfa_required" not in login_resp.json()
 
+        status_resp = await client.get(
+            "/api/v1/auth/mfa/status",
+            headers={"Authorization": f"Bearer {auth_token}"},
+        )
+        assert status_resp.status_code == 200, status_resp.text
+        assert status_resp.json() == {"enabled": False, "enrolled": False}
+
 
 # ── Token Refresh ──────────────────────────────────────────────────────────────
 
@@ -574,10 +609,18 @@ class TestTokenRefresh:
     async def test_refresh_token_works(
         self, client: AsyncClient, seeded_tenant_and_admin: dict
     ) -> None:
-        from app.core.security import create_refresh_token
+        from app.core.security import create_refresh_token, decode_access_token
 
         data = seeded_tenant_and_admin
-        refresh = create_refresh_token(data["user"].id)
+        login_resp = await client.post(
+            "/api/v1/auth/login",
+            json={"email": data["user"].email, "password": data["password"]},
+        )
+        access_token = login_resp.json()["access_token"]
+        refresh = create_refresh_token(
+            data["user"].id,
+            session_id=decode_access_token(access_token)["sid"],
+        )
 
         resp = await client.post(
             "/api/v1/auth/refresh",

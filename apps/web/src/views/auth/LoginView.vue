@@ -148,6 +148,11 @@
                 <i class="bi bi-exclamation-circle me-1"></i>{{ errorMessage }}
               </div>
 
+              <div class="alert alert-light border py-2 small" role="status">
+                <i class="bi bi-shield-check me-1"></i>
+                Need a stronger sign-in posture later? You can enable MFA from <strong>Account Security</strong> after login.
+              </div>
+
               <button
                 type="submit"
                 class="btn btn-primary w-100 py-2 mt-1 fw-medium"
@@ -288,6 +293,7 @@ import { reactive, ref } from "vue";
 import { useRouter } from "vue-router";
 import { useAuthStore } from "@/stores/auth.store";
 import { useTenantStore } from "@/stores/tenant.store";
+import { getApiErrorDetail, mapLoginError, mapMfaError } from "@/utils/authErrors";
 
 const router = useRouter();
 const authStore = useAuthStore();
@@ -358,6 +364,8 @@ async function handleLogin() {
 
   loading.value = true;
   errorMessage.value = "";
+  showTenantPicker.value = false;
+  needsMfa.value = false;
 
   try {
     const result = await authStore.login(form.email, form.password);
@@ -367,21 +375,9 @@ async function handleLogin() {
       return;
     }
 
-    const memberships = tenantStore.memberships;
-    const redirect = (router.currentRoute.value.query.redirect as string) || "/dashboard";
-
-    if (memberships.length === 0) {
-      errorMessage.value = "No active organization membership found.";
-    } else if (memberships.length === 1) {
-      await router.push(redirect);
-    } else {
-      showTenantPicker.value = true;
-    }
+    await continueAfterAuthentication();
   } catch (err: unknown) {
-    const e = err as { response?: { data?: { detail?: string } } };
-    errorMessage.value =
-      e.response?.data?.detail ||
-      "Sign in failed. Please check your credentials.";
+    errorMessage.value = mapLoginError(getApiErrorDetail(err));
   } finally {
     loading.value = false;
   }
@@ -404,14 +400,32 @@ async function handleMfa() {
       cancelMfa();
       return;
     }
-    const redirect = (router.currentRoute.value.query.redirect as string) || "/dashboard";
-    await router.push(redirect);
+    needsMfa.value = false;
+    await continueAfterAuthentication();
   } catch (err: unknown) {
-    const e = err as { response?: { data?: { detail?: string } } };
-    errorMessage.value = e.response?.data?.detail || "Invalid verification code.";
+    errorMessage.value = mapMfaError(getApiErrorDetail(err));
   } finally {
     loading.value = false;
   }
+}
+
+async function continueAfterAuthentication() {
+  const memberships = tenantStore.memberships;
+  const redirect = (router.currentRoute.value.query.redirect as string) || "/dashboard";
+
+  if (memberships.length === 0) {
+    errorMessage.value = "No active organization membership found.";
+    authStore.logout();
+    return;
+  }
+
+  if (memberships.length === 1) {
+    showTenantPicker.value = false;
+    await router.push(redirect);
+    return;
+  }
+
+  showTenantPicker.value = true;
 }
 
 function cancelMfa() {

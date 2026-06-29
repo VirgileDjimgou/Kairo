@@ -29,8 +29,13 @@ Current implementation already includes:
 - Guided tenant onboarding dashboard with checklist-driven first-run orientation
 - Admin operations hub with module-aware metrics, watchlist, and quick actions
 - Admin access operations console with tenant role selection, invitation visibility, and cancellation controls
+- Authenticated account security surface with MFA status, self-service MFA management, and password recovery launch
+- SMTP-backed identity message delivery for invitations and password recovery, with delivery-state visibility and safe production token hiding
+- Persistent session governance for authenticated users, including active-session inventory, revoke controls, and recent security-event visibility
+- Tenant user lifecycle governance for administrators, including suspension, reactivation, tenant-scoped session containment, and backend membership revalidation
+- Authentication recovery hardening with clearer denial states, MFA multi-tenant continuation, and stricter refresh-token session validation
 
-## Implemented Sprints
+## ## Implemented Sprints
 
 - Sprint 0: Foundation and repository skeleton
 - Sprint 1: Identity, tenancy, and JWT auth
@@ -62,19 +67,32 @@ Current implementation already includes:
 - Sprint 27: Guided Tenant Onboarding And Conversion Flow
 - Sprint 28: Admin Overview And Tenant Operations Hub
 - Sprint 29: Team Invitations And Access Operations Console
+- Sprint 30: Account Security And Identity Self-Service
+- Sprint 31: Secure Identity Message Delivery And Access Notifications
+- Sprint 32: Session Governance And Security Event Operations
+- Sprint 33: Tenant User Lifecycle Governance And Account Lockdown
+- Sprint 34: Authentication Hardening And Recovery Stability
+- Sprint 35: Operational Reliability, Data Safety, And Migration Discipline
 
 ## Remaining Roadmap
 
-The foundational roadmap is complete. The next commercial refinement sprint is already defined.
+The product now enters its final five-sprint open-source stabilization track.
+
+Target frame:
+
+- stable, portfolio-grade open-source release
+- usable by an association or organization of about 200 members
+- finish within Sprint 35 through Sprint 37
 
 Immediate next sprint:
 
-- Sprint 30 - Account Security And Identity Self-Service
+- Sprint 36 - Association Operations Robustness
 
 ## Known Gaps And Risks
 
 - Production Docker builds were validated end-to-end, but `/health` still reports `ollama` as unavailable when the model container is not running.
-- Multi-channel providers are still simulated placeholders and not connected to external gateways.
+- Only email is wired for real identity delivery; multi-channel providers beyond email remain simulated placeholders.
+- The roadmap now prioritizes stability and practical usability over additional commercial-positioning work.
 - A deeper first-run wizard remains a future enhancement beyond the current guided checklist.
 - Playwright coverage for login and dashboard is autonomous, but broader admin/business E2E still benefits from a live API stack.
 - Sprint 24 has been completed with a validated production build and smoke run.
@@ -82,7 +100,14 @@ Immediate next sprint:
 - Sprint 26 has been completed with the public entry commercial surface.
 - Sprint 27 has been completed with guided onboarding for new tenant admins.
 - Sprint 28 has been completed with a real admin operations hub.
-- Sprint 29 has been completed with in-product invitation operations, but delivery remains manual and self-service security UX is still the next gap.
+- Sprint 29 has been completed with in-product invitation operations.
+- Sprint 30 has been completed with self-service account security UX.
+- Sprint 31 has been completed with secure outbound identity delivery and delivery-state visibility.
+- Sprint 32 has been completed with session governance and current-user security event operations.
+- Sprint 33 has been completed with tenant user lifecycle governance and account lockdown.
+- Sprint 34 has been completed with authentication hardening and recovery stability.
+- Sprint 35 has been completed with operational reliability, migration gap fixes, restore automation, and Docker healthchecks.
+- Sprint 36 through Sprint 37 now remain in the final planned stabilization track for the current open-source target.
 
 ## Rules For Future Sessions
 
