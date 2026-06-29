@@ -1,232 +1,314 @@
 <template>
-  <div class="p-4">
-    <!-- Page header -->
-    <div class="d-flex align-items-center justify-content-between mb-4">
+  <div class="p-4 p-lg-5">
+    <div class="d-flex flex-column flex-lg-row align-items-lg-end justify-content-between gap-3 mb-4">
       <div>
-        <h1 class="h4 fw-bold mb-0">Dashboard</h1>
-        <p class="text-muted small mb-0">
-          Welcome back, <strong>{{ authStore.user?.display_name }}</strong>
+        <div class="text-uppercase small fw-semibold text-secondary mb-2">
+          Tenant overview
+        </div>
+        <h1 class="h4 fw-bold mb-1">Welcome back, {{ authStore.user?.display_name }}</h1>
+        <p class="text-muted mb-0">
+          Your current tenant is <strong>{{ tenantStore.currentTenantName }}</strong>.
+          The dashboard now highlights the next steps that matter most for a first-run setup.
         </p>
       </div>
       <span
-        class="badge bg-success-subtle text-success border border-success-subtle px-3 py-2"
+        class="badge px-3 py-2"
+        :class="isSetupMode ? 'bg-warning-subtle text-warning border border-warning-subtle' : 'bg-success-subtle text-success border border-success-subtle'"
       >
         <i class="bi bi-circle-fill me-1" style="font-size: 0.5rem"></i>
-        System online
+        {{ isSetupMode ? 'Setup mode' : 'Operational' }}
       </span>
     </div>
 
-    <!-- Sprint status card -->
-    <div class="alert alert-info border-0 shadow-sm mb-4" role="alert">
+    <div v-if="loading" class="alert alert-info border-0 shadow-sm mb-4" role="alert">
       <div class="d-flex gap-3">
-        <i class="bi bi-rocket-takeoff fs-4 flex-shrink-0"></i>
+        <div class="spinner-border spinner-border-sm mt-1" role="status" aria-hidden="true"></div>
         <div>
-          <h6 class="alert-heading mb-1">Sprint 14 complete</h6>
+          <h6 class="alert-heading mb-1">Loading tenant onboarding guidance</h6>
           <p class="mb-0 small">
-            Multi-channel extensions are now in place as optional admin tools.
-            The web app remains primary, while Email, Telegram, and WhatsApp
-            placeholders can be inspected and exercised through dry-run dispatches.
+            We are checking documents, members, announcements, and events so the checklist reflects the live tenant state.
           </p>
         </div>
       </div>
     </div>
 
-    <!-- Summary cards -->
-    <div class="row g-3 mb-4">
-      <div class="col-sm-6 col-lg-3">
-        <div class="card shadow-sm border-0 h-100">
-          <div class="card-body d-flex align-items-center gap-3">
-            <div class="stat-icon bg-primary-subtle text-primary rounded-3 p-3">
-              <i class="bi bi-person-badge fs-4"></i>
-            </div>
-            <div>
-              <div class="text-muted small">My roles</div>
-              <div class="fw-semibold">
-                {{ authStore.user?.roles.join(", ") || "—" }}
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <div class="col-sm-6 col-lg-3">
-        <div class="card shadow-sm border-0 h-100">
-          <div class="card-body d-flex align-items-center gap-3">
-            <div class="stat-icon bg-success-subtle text-success rounded-3 p-3">
-              <i class="bi bi-building fs-4"></i>
-            </div>
-            <div>
-              <div class="text-muted small">Organization ID</div>
-              <div class="fw-semibold font-monospace small">
-                {{ authStore.user?.tenant_id?.slice(0, 8) }}…
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <div class="col-sm-6 col-lg-3">
-        <div class="card shadow-sm border-0 h-100">
-          <div class="card-body d-flex align-items-center gap-3">
-            <div class="stat-icon bg-warning-subtle text-warning rounded-3 p-3">
-              <i class="bi bi-file-earmark-text fs-4"></i>
-            </div>
-            <div>
-              <div class="text-muted small">Documents</div>
-              <div class="fw-semibold">Sprint 3 - 7</div>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <div class="col-sm-6 col-lg-3">
-        <div class="card shadow-sm border-0 h-100">
-          <div class="card-body d-flex align-items-center gap-3">
-            <div class="stat-icon bg-info-subtle text-info rounded-3 p-3">
-              <i class="bi bi-journal-check fs-4"></i>
-            </div>
-            <div>
-              <div class="text-muted small">Policies</div>
-              <div class="fw-semibold">Sprint 9</div>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <div class="col-sm-6 col-lg-3">
-        <div class="card shadow-sm border-0 h-100">
-          <div class="card-body d-flex align-items-center gap-3">
-            <div class="stat-icon bg-primary-subtle text-primary rounded-3 p-3">
-              <i class="bi bi-calendar-event fs-4"></i>
-            </div>
-            <div>
-              <div class="text-muted small">Events & Announcements</div>
-              <div class="fw-semibold">Sprint 10</div>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <div class="col-sm-6 col-lg-3">
-        <div class="card shadow-sm border-0 h-100">
-          <div class="card-body d-flex align-items-center gap-3">
-            <div class="stat-icon bg-info-subtle text-info rounded-3 p-3">
-              <i class="bi bi-chat-dots fs-4"></i>
-            </div>
-            <div>
-              <div class="text-muted small">AI Chat</div>
-              <div class="fw-semibold">Sprint 6</div>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <div class="col-sm-6 col-lg-3">
-        <div class="card shadow-sm border-0 h-100">
-          <div class="card-body d-flex align-items-center gap-3">
-            <div class="stat-icon bg-warning-subtle text-warning rounded-3 p-3">
-              <i class="bi bi-broadcast-pin fs-4"></i>
-            </div>
-            <div>
-              <div class="text-muted small">Channels</div>
-              <div class="fw-semibold">Sprint 14</div>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <div class="col-sm-6 col-lg-3">
-        <div class="card shadow-sm border-0 h-100">
-          <div class="card-body d-flex align-items-center gap-3">
-            <div class="stat-icon bg-success-subtle text-success rounded-3 p-3">
-              <i class="bi bi-people fs-4"></i>
-            </div>
-            <div>
-              <div class="text-muted small">Members</div>
-              <div class="fw-semibold">Sprint 8</div>
-            </div>
-          </div>
-        </div>
-      </div>
+    <div v-else-if="error" class="alert alert-warning border-0 shadow-sm mb-4" role="alert">
+      <i class="bi bi-exclamation-triangle me-2"></i>{{ error }}
     </div>
 
-    <!-- Roadmap table -->
-    <div class="card shadow-sm border-0">
-      <div class="card-header bg-transparent border-bottom py-3">
-        <h5 class="mb-0 fw-semibold">Sprint Roadmap</h5>
-      </div>
-      <div class="table-responsive">
-        <table class="table table-hover mb-0 align-middle">
-          <thead class="table-light">
-            <tr>
-              <th class="ps-4">Sprint</th>
-              <th>Goal</th>
-              <th>Status</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr v-for="sprint in sprints" :key="sprint.id">
-              <td class="ps-4 fw-medium">{{ sprint.id }}</td>
-              <td>{{ sprint.goal }}</td>
-              <td>
-                <span
-                  class="badge rounded-pill"
-                  :class="statusClass(sprint.status)"
+    <div v-else class="row g-4">
+      <div class="col-xl-8">
+        <div class="card shadow-sm border-0 onboarding-card h-100" data-testid="tenant-onboarding">
+          <div class="card-body p-4 p-xl-5">
+            <div class="d-flex flex-column flex-md-row justify-content-between gap-3 mb-4">
+              <div>
+                <div class="text-uppercase small fw-semibold text-secondary mb-2">
+                  First-run checklist
+                </div>
+                <h2 class="h5 fw-bold mb-2">{{ statusTitle }}</h2>
+                <p class="text-muted mb-0">
+                  {{ statusMessage }}
+                </p>
+              </div>
+              <div class="text-md-end">
+                <div
+                  class="display-6 fw-bold lh-1"
+                  data-testid="tenant-onboarding-progress"
                 >
-                  {{ sprint.status }}
+                  {{ progressPercent }}%
+                </div>
+                <div class="small text-muted">complete</div>
+              </div>
+            </div>
+
+            <div class="progress mb-4" style="height: 0.75rem">
+              <div
+                class="progress-bar"
+                role="progressbar"
+                :aria-valuenow="progressPercent"
+                aria-valuemin="0"
+                aria-valuemax="100"
+                :style="{ width: `${progressPercent}%` }"
+              ></div>
+            </div>
+
+            <div v-if="nextStep" class="alert alert-primary border-0 mb-4">
+              <div class="d-flex align-items-start gap-3">
+                <i class="bi bi-arrow-right-circle fs-4 flex-shrink-0"></i>
+                <div>
+                  <div class="fw-semibold mb-1">Next best action</div>
+                  <p class="mb-2 small">
+                    {{ nextStep.title }}: {{ nextStep.description }}
+                  </p>
+                  <RouterLink :to="nextStep.to" class="btn btn-sm btn-primary">
+                    {{ nextStep.actionLabel }}
+                  </RouterLink>
+                </div>
+              </div>
+            </div>
+
+            <div class="vstack gap-3">
+              <article
+                v-for="step in checklist"
+                :key="step.id"
+                class="checklist-item"
+                :class="{ completed: step.completed }"
+              >
+                <div class="d-flex flex-column flex-md-row justify-content-between gap-3">
+                  <div class="d-flex gap-3">
+                    <div class="step-icon" :class="{ completed: step.completed }">
+                      <i :class="step.completed ? 'bi bi-check2' : stepIcon(step.id)"></i>
+                    </div>
+                    <div>
+                      <div class="fw-semibold mb-1">{{ step.title }}</div>
+                      <p class="small text-muted mb-0">{{ step.description }}</p>
+                    </div>
+                  </div>
+
+                  <div class="text-md-end">
+                    <span
+                      class="badge mb-2"
+                      :class="step.completed ? 'bg-success-subtle text-success border border-success-subtle' : 'bg-secondary-subtle text-secondary border border-secondary-subtle'"
+                    >
+                      {{ step.completed ? 'Completed' : 'Pending' }}
+                    </span>
+                    <div>
+                      <RouterLink :to="step.to" class="btn btn-sm btn-outline-primary">
+                        {{ step.actionLabel }}
+                      </RouterLink>
+                    </div>
+                  </div>
+                </div>
+              </article>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="col-xl-4">
+        <div class="card shadow-sm border-0 mb-4">
+          <div class="card-body p-4">
+            <div class="d-flex align-items-center justify-content-between gap-3 mb-3">
+              <div>
+                <div class="text-uppercase small fw-semibold text-secondary mb-1">
+                  Tenant snapshot
+                </div>
+                <h2 class="h6 fw-bold mb-0">Live usage signals</h2>
+              </div>
+              <button class="btn btn-outline-secondary btn-sm" type="button" @click="refresh" :disabled="loading">
+                Refresh
+              </button>
+            </div>
+
+            <div class="row g-3">
+              <div v-for="metric in summaryMetrics" :key="metric.label" class="col-6">
+                <div class="metric-card h-100">
+                  <div class="small text-muted">{{ metric.label }}</div>
+                  <div class="fs-4 fw-bold lh-1 mb-1">{{ metric.value }}</div>
+                  <div class="small text-secondary">{{ metric.hint }}</div>
+                </div>
+              </div>
+            </div>
+
+            <hr class="my-4" />
+
+            <div class="small text-uppercase fw-semibold text-secondary mb-2">
+              Current tenant
+            </div>
+            <div class="vstack gap-2 small">
+              <div class="d-flex justify-content-between gap-2">
+                <span class="text-muted">Tenant</span>
+                <span class="fw-semibold text-end">{{ tenantStore.currentTenantName }}</span>
+              </div>
+              <div class="d-flex justify-content-between gap-2">
+                <span class="text-muted">Role</span>
+                <span class="fw-semibold text-end">
+                  {{ authStore.user?.roles.join(', ') || '—' }}
                 </span>
-              </td>
-            </tr>
-          </tbody>
-        </table>
+              </div>
+              <div class="d-flex justify-content-between gap-2">
+                <span class="text-muted">Checklist complete</span>
+                <span class="fw-semibold text-end">
+                  {{ completedCount }} / {{ checklist.length }}
+                </span>
+              </div>
+              <div class="d-flex justify-content-between gap-2">
+                <span class="text-muted">Last refresh</span>
+                <span class="fw-semibold text-end">
+                  {{ lastRefreshedAt ? formatDateTime(lastRefreshedAt) : 'Just loaded' }}
+                </span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="card shadow-sm border-0">
+          <div class="card-body p-4">
+            <div class="text-uppercase small fw-semibold text-secondary mb-2">
+              Quick actions
+            </div>
+            <div class="vstack gap-2">
+              <RouterLink to="/admin/settings" class="btn btn-outline-secondary text-start">
+                <i class="bi bi-sliders me-2"></i>Review tenant settings
+              </RouterLink>
+              <RouterLink to="/admin/documents" class="btn btn-outline-secondary text-start">
+                <i class="bi bi-file-earmark-text me-2"></i>Upload documents
+              </RouterLink>
+              <RouterLink
+                v-if="tenantStore.isModuleEnabled('membership')"
+                to="/admin/members"
+                class="btn btn-outline-secondary text-start"
+              >
+                <i class="bi bi-people me-2"></i>Import members
+              </RouterLink>
+              <RouterLink
+                v-if="tenantStore.isModuleEnabled('announcements')"
+                to="/admin/announcements"
+                class="btn btn-outline-secondary text-start"
+              >
+                <i class="bi bi-megaphone me-2"></i>Publish announcement
+              </RouterLink>
+              <RouterLink
+                v-if="tenantStore.isModuleEnabled('events')"
+                to="/admin/events"
+                class="btn btn-outline-secondary text-start"
+              >
+                <i class="bi bi-calendar-event me-2"></i>Schedule event
+              </RouterLink>
+            </div>
+          </div>
+        </div>
       </div>
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
-import { useAuthStore } from "@/stores/auth.store";
+import { computed, onMounted } from 'vue'
+import { RouterLink } from 'vue-router'
+import { useAuthStore } from '@/stores/auth.store'
+import { useTenantStore } from '@/stores/tenant.store'
+import { useTenantOnboarding } from '@/composables/useTenantOnboarding'
 
-const authStore = useAuthStore();
+const authStore = useAuthStore()
+const tenantStore = useTenantStore()
+const {
+  loading,
+  error,
+  checklist,
+  completedCount,
+  progressPercent,
+  statusTitle,
+  statusMessage,
+  summaryMetrics,
+  nextStep,
+  lastRefreshedAt,
+  refresh,
+} = useTenantOnboarding()
 
-const sprints = [
-  { id: "Sprint 0", goal: "Foundation & repository skeleton", status: "Done" },
-  { id: "Sprint 1", goal: "Identity, tenancy & JWT auth", status: "Done" },
-  { id: "Sprint 2", goal: "Professional Vue layout", status: "Done" },
-  { id: "Sprint 3", goal: "Document upload & MinIO storage", status: "Done" },
-  { id: "Sprint 4", goal: "Ingestion worker & parsers", status: "Done" },
-  { id: "Sprint 5", goal: "Embeddings & Qdrant indexing", status: "Done" },
-  { id: "Sprint 6", goal: "Secure RAG chat with citations", status: "Done" },
-  { id: "Sprint 7", goal: "Admin RAG controls", status: "Done" },
-  { id: "Sprint 8", goal: "Membership & contributions", status: "Done" },
-  { id: "Sprint 9", goal: "Policies, rules & discipline", status: "Done" },
-  { id: "Sprint 10", goal: "Events & announcements", status: "Done" },
-  { id: "Sprint 11", goal: "Cloudflare Tunnel deployment", status: "Done" },
-  { id: "Sprint 12", goal: "Evaluation & AI safety", status: "Done" },
-  { id: "Sprint 13", goal: "Demo tenant & portfolio polish", status: "Done" },
-  { id: "Sprint 14", goal: "Multi-channel extensions", status: "Done" },
-  { id: "Sprint 15", goal: "Commercialization baseline", status: "Next" },
-];
+const isSetupMode = computed(() => {
+  return progressPercent.value < 100 && completedCount.value === 0
+})
 
-function statusClass(status: string) {
-  return (
-    {
-      Done: "bg-success-subtle text-success border border-success-subtle",
-      Next: "bg-primary-subtle text-primary border border-primary-subtle",
-      Planned:
-        "bg-secondary-subtle text-secondary border border-secondary-subtle",
-    }[status] ?? "bg-secondary-subtle text-secondary"
-  );
+function stepIcon(stepId: string): string {
+  const map: Record<string, string> = {
+    branding: 'bi bi-palette',
+    documents: 'bi bi-file-earmark-text',
+    members: 'bi bi-people',
+    announcements: 'bi bi-megaphone',
+    events: 'bi bi-calendar-event',
+  }
+
+  return map[stepId] || 'bi bi-arrow-right'
 }
+
+function formatDateTime(value: string): string {
+  return new Date(value).toLocaleString(undefined, {
+    dateStyle: 'medium',
+    timeStyle: 'short',
+  })
+}
+
+onMounted(refresh)
 </script>
 
 <style scoped>
-.stat-icon {
-  width: 52px;
-  height: 52px;
-  display: flex;
+.onboarding-card {
+  border-radius: 1.25rem;
+}
+
+.checklist-item {
+  border: 1px solid var(--om-border, #d9e2ec);
+  border-radius: 1rem;
+  background: #fff;
+  padding: 1rem;
+}
+
+.checklist-item.completed {
+  background: linear-gradient(180deg, rgba(25, 135, 84, 0.03), rgba(25, 135, 84, 0.01));
+}
+
+.step-icon {
+  width: 2.5rem;
+  height: 2.5rem;
+  border-radius: 0.85rem;
+  display: inline-flex;
   align-items: center;
   justify-content: center;
+  background: rgba(31, 79, 143, 0.08);
+  color: var(--om-primary, #1f4f8f);
   flex-shrink: 0;
+}
+
+.step-icon.completed {
+  background: rgba(25, 135, 84, 0.12);
+  color: #198754;
+}
+
+.metric-card {
+  border: 1px solid var(--om-border, #d9e2ec);
+  border-radius: 0.95rem;
+  padding: 0.9rem;
+  background: #fff;
 }
 </style>

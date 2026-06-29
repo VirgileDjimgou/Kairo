@@ -6,6 +6,7 @@ from uuid import UUID
 from fastapi import APIRouter, HTTPException, status
 
 from app.core.dependencies import AuthDep, DbDep
+from app.core.module_guard import require_module
 from app.modules.disciplinary.schemas import (
     DisciplinaryRecordCreate,
     DisciplinaryRecordResponse,
@@ -13,7 +14,11 @@ from app.modules.disciplinary.schemas import (
 )
 from app.modules.disciplinary.service import DisciplinaryService
 
-router = APIRouter(prefix="/disciplinary", tags=["disciplinary"])
+router = APIRouter(
+    prefix="/disciplinary",
+    tags=["disciplinary"],
+    dependencies=[require_module("disciplinary")],
+)
 
 
 def _is_staff(current: AuthDep) -> bool:
@@ -54,7 +59,12 @@ async def create_record(
     if not _is_staff(current):
         raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Admin or treasurer role required")
     service = DisciplinaryService(db)
-    return await service.create_record(current.tenant_id, current.user.id, data)
+    return await service.create_record(
+        current.tenant_id,
+        current.user.id,
+        data,
+        actor_user_id=current.user.id,
+    )
 
 
 @router.patch("/{record_id}", response_model=DisciplinaryRecordResponse)
@@ -67,7 +77,12 @@ async def update_record(
     if not _is_staff(current):
         raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Admin or treasurer role required")
     service = DisciplinaryService(db)
-    return await service.update_record(current.tenant_id, record_id, data)
+    return await service.update_record(
+        current.tenant_id,
+        record_id,
+        data,
+        actor_user_id=current.user.id,
+    )
 
 
 @router.delete("/{record_id}", status_code=204)
@@ -79,4 +94,6 @@ async def delete_record(
     if not current.has_role("admin"):
         raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Admin role required")
     service = DisciplinaryService(db)
-    await service.delete_record(current.tenant_id, record_id)
+    await service.delete_record(
+        current.tenant_id, record_id, actor_user_id=current.user.id
+    )

@@ -6,6 +6,7 @@ from uuid import UUID
 from fastapi import APIRouter, HTTPException, status
 
 from app.core.dependencies import AuthDep, DbDep
+from app.core.module_guard import require_module
 from app.modules.policies.schemas import (
     PolicyCategoryResponse,
     PolicyRecordCreate,
@@ -14,7 +15,11 @@ from app.modules.policies.schemas import (
 )
 from app.modules.policies.service import PolicyService
 
-router = APIRouter(prefix="/policies", tags=["policies"])
+router = APIRouter(
+    prefix="/policies",
+    tags=["policies"],
+    dependencies=[require_module("policies")],
+)
 
 
 @router.get("/public", response_model=list[PolicyRecordResponse])
@@ -56,7 +61,9 @@ async def create_policy(
     if not current.has_role("admin"):
         raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Admin role required")
     service = PolicyService(db)
-    return await service.create_policy(current.tenant_id, data, current.user.id)
+    return await service.create_policy(
+        current.tenant_id, data, current.user.id, actor_user_id=current.user.id
+    )
 
 
 @router.patch("/{policy_id}", response_model=PolicyRecordResponse)
@@ -69,7 +76,9 @@ async def update_policy(
     if not current.has_role("admin"):
         raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Admin role required")
     service = PolicyService(db)
-    return await service.update_policy(current.tenant_id, policy_id, data)
+    return await service.update_policy(
+        current.tenant_id, policy_id, data, actor_user_id=current.user.id
+    )
 
 
 @router.delete("/{policy_id}", status_code=204)
@@ -81,4 +90,6 @@ async def delete_policy(
     if not current.has_role("admin"):
         raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Admin role required")
     service = PolicyService(db)
-    await service.delete_policy(current.tenant_id, policy_id)
+    await service.delete_policy(
+        current.tenant_id, policy_id, actor_user_id=current.user.id
+    )

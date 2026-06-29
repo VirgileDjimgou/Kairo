@@ -107,3 +107,29 @@ export async function getContributionSummary(year?: number): Promise<Contributio
   const response = await http.get<ContributionSummary>('/contributions/summary', { params })
   return response.data
 }
+
+export interface ImportRowError {
+  row: number
+  message: string
+}
+
+export interface ImportResult {
+  total: number
+  success_count: number
+  error_count: number
+  errors: ImportRowError[]
+}
+
+export async function importContributionsCsv(file: File, dryRun = false): Promise<ImportResult> {
+  const formData = new FormData()
+  formData.append('file', file)
+  const params = dryRun ? { dry_run: 'true' } : {}
+  const response = await http.post<ImportResult>('/contributions/import', formData, { params })
+  return response.data
+}
+
+export async function exportContributionsCsv(year?: number): Promise<Blob> {
+  const params = year ? { year } : {}
+  const response = await http.get('/contributions/export', { params, responseType: 'blob' })
+  return response.data
+}

@@ -5,45 +5,130 @@ Copie-colle ce prompt dans Codex, Cursor ou GitHub Copilot Chat pour reprendre l
 ```text
 Tu travailles sur le projet Kairo.
 
-Avant toute action, lis et considère comme source de vérité :
-- constitution/KAIRO_CONSTITUTION.md
-- IMPLEMENTATION_ROADMAP.md
-- PROJECT_STATUS.md
-- prompts/CODEX_AUTOPILOT.md
-- orgmind_prompt_pack/ si nécessaire pour l’architecture et la sécurité
+Avant toute action, lis et considère comme source de vérité, dans cet ordre :
+1. constitution/KAIRO_CONSTITUTION.md
+2. IMPLEMENTATION_ROADMAP.md
+3. PROJECT_STATUS.md
+4. prompts/CODEX_AUTOPILOT.md
+5. prompts/KAIRO_CONTINUE_UNIVERSAL.md si présent
+6. docs/ai/NEXT_SPRINT.md
+7. docs/ai/PROJECT_STATE.md
+8. orgmind_prompt_pack/ si nécessaire pour l’architecture, la sécurité, la gouvernance ou la vision produit
 
-Ensuite, inspecte le codebase réel.
+Ensuite, inspecte le code réel du dépôt avant de décider quoi que ce soit.
 
-Objectif :
-- déterminer le sprint courant ou, si aucun sprint n’est explicitement indiqué, identifier de manière autonome le prochain sprint pertinent en fonction de l’état d’avancement, de la maturité du produit et des dépendances architecturales
+Mission générale :
+- déterminer automatiquement le sprint courant ou, si aucun sprint actif n’est explicitement en cours, identifier le prochain sprint officiel à exécuter à partir de la roadmap
 - exécuter uniquement ce sprint
-- ne pas partir sur plusieurs sprints à la fois
+- ne jamais partir sur plusieurs sprints à la fois
+- poursuivre le projet vers une version commerciale, professionnelle et mûre
+- agir comme un agent produit + architecture + implémentation + QA + documentation
 
-Règles de travail :
-- Commence par comprendre l’architecture, les modules existants et les points de fragilité.
-- Si le prochain sprint n’est pas écrit ou si la feuille de route est partielle, déduis la priorité la plus logique à partir de l’état du produit, des risques techniques, et des objectifs commerciaux.
-- Quand c’est utile, fais d’abord une lecture module par module du backend, puis du frontend, puis des tests et de la documentation.
-- Implémente la fonctionnalité de bout en bout : backend, frontend, contrats API, migration si nécessaire, tests, et documentation.
-- Préfère une stratégie de tests totalement autonome. Ne dépends pas d’un PostgreSQL local si le dépôt propose déjà un mode SQLite ou des fakes pour les tests.
-- Ajoute ou mets à jour des tests pour toute logique touchée. Fais des tests réalistes et approfondis : unitaires, intégration, et si pertinent vérification navigateur / environnement virtuel.
-- Vérifie les cas limites, les permissions, l’isolation multi-tenant, et les régressions probables.
-- Les permissions sont toujours garanties par le backend. Le LLM ou le frontend ne doivent jamais décider de l’accès.
-- Ne fais jamais fuiter des données non autorisées vers le LLM ou vers une vue qui ne devrait pas les voir.
-- Garde les changements petits, explicites et cohérents avec l’architecture existante.
-- Si une valeur de sprint n’est pas claire, rends-la explicite dans ton raisonnement, puis choisis la suite la plus utile.
-- Si un test ou un build échoue, analyse, corrige, relance, puis continue jusqu’à validation.
-- Mets à jour PROJECT_STATUS.md et IMPLEMENTATION_ROADMAP.md dès que le sprint progresse ou se termine.
-- Si une doc de handoff existe ou doit être créée, mets-la à jour pour que Cursor, Copilot ou Codex puissent continuer sans perte de contexte.
+Règle de priorité pour choisir le sprint :
+1. si PROJECT_STATUS.md ou docs/ai/NEXT_SPRINT.md indique explicitement un prochain sprint, exécuter celui-là
+2. sinon, identifier dans IMPLEMENTATION_ROADMAP.md le premier sprint non terminé
+3. si la roadmap est incomplète ou ambiguë, déduis le sprint le plus pertinent selon :
+   - l’état réel du code
+   - les dépendances architecturales
+   - les risques techniques
+   - les besoins de robustesse produit
+   - la cohérence avec une trajectoire commerciale réaliste
+4. rendre explicite le sprint choisi et pourquoi
+
+Mode opératoire obligatoire :
+- commencer par comprendre l’architecture existante
+- lire les modules backend, frontend, tests, scripts, docs et configurations utiles
+- identifier les écarts entre roadmap, état réel du code et statut déclaré
+- implémenter le sprint de bout en bout
+- garder les changements petits, cohérents, explicites et compatibles avec l’architecture existante
+- ne pas réécrire inutilement ce qui fonctionne déjà
+- préserver strictement l’isolation multi-tenant, la sécurité et les permissions backend
+
+Exigences d’implémentation :
+- implémenter réellement le sprint choisi, pas seulement proposer un plan
+- couvrir si nécessaire :
+  - backend
+  - frontend
+  - contrats API
+  - schémas
+  - modèles
+  - services
+  - migrations
+  - tests
+  - documentation
+  - seed ou fixtures si utile
+- si un point du sprint exige une décision de conception non triviale, choisir l’option la plus simple, maintenable et cohérente avec le dépôt
+- ne pas dériver vers le sprint suivant tant que le sprint courant n’est pas terminé
+
+Règles de sécurité et de gouvernance :
+- les permissions sont toujours garanties par le backend
+- le frontend et tout composant IA ne doivent jamais décider seuls de l’accès
+- ne jamais exposer de données d’un tenant à un autre
+- ne jamais fuiter de données non autorisées vers le LLM, vers une vue, vers un export ou vers un log
+- vérifier les cas limites, les rôles, les accès croisés, les IDs invalides, les ressources absentes et les états partiels
+
+Règles de test :
+- privilégier une suite de tests autonome
+- ne pas dépendre d’un PostgreSQL local si le dépôt permet SQLite, des fakes, des mocks ou une configuration de test isolée
+- ajouter ou mettre à jour les tests pour toute logique touchée
+- exécuter autant que pertinent :
+  - tests unitaires
+  - tests d’intégration
+  - tests API
+  - tests de régression
+  - tests navigateur / E2E si adaptés au sprint
+- si le projet permet une vérification navigateur ou environnement virtuel, l’utiliser pour valider les parcours critiques
+- si un test échoue, analyser, corriger, relancer, puis continuer jusqu’à obtenir un état valide
+
+Règles de qualité :
+- traiter la dette technique utile à corriger seulement si elle bloque ou fragilise directement le sprint
+- signaler clairement les risques restants
+- éviter les hacks cachés, les valeurs magiques et les duplications évitables
+- documenter les arbitrages quand ils impactent les futures sessions
+- préparer le projet pour une continuité fluide dans Codex, Cursor ou Copilot
+
+Mise à jour documentaire obligatoire :
+à la fin du sprint, mettre à jour si nécessaire :
+- PROJECT_STATUS.md
+- IMPLEMENTATION_ROADMAP.md
+- docs/ai/NEXT_SPRINT.md
+- docs/ai/PROJECT_STATE.md
+- toute documentation de handoff utile
+
+Règle de continuité inter-IDE :
+- faire en sorte qu’un autre agent puisse reprendre immédiatement sans mémoire implicite
+- écrire l’état final du sprint de manière exploitable
+- identifier explicitement le prochain sprint à exécuter après celui terminé
+- si la roadmap doit être raffinée à la marge pour refléter la réalité du code, la mettre à jour proprement
 
 Critère d’arrêt :
-- tu t’arrêtes seulement quand le sprint en cours est terminé, testé, documenté, et que le prochain sprint est clairement identifié.
+tu t’arrêtes seulement quand :
+- le sprint choisi est effectivement implémenté
+- les tests pertinents ont été lancés
+- les échecs ont été corrigés ou explicitement documentés
+- la documentation a été mise à jour
+- le prochain sprint est clairement identifié
 
-Format de sortie attendu :
+Format de sortie attendu en fin d’exécution :
 - sprint exécuté
+- pourquoi ce sprint a été choisi
 - objectif du sprint
+- analyse rapide de l’existant pertinent
 - changements réalisés
 - fichiers modifiés
-- tests lancés et résultats
+- tests lancés
+- résultats des tests
 - risques restants
+- dette technique restante pertinente
+- mises à jour documentaires effectuées
 - prochain sprint à exécuter
+
+Comportement attendu :
+- sois autonome, rigoureux et concret
+- n’attends pas une validation intermédiaire pour avancer
+- exécute
+- vérifie
+- corrige
+- documente
+- passe la main proprement au sprint suivant
 ```

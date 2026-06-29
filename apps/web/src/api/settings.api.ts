@@ -33,6 +33,15 @@ export interface TenantSettingsUpdate {
   modules?: Partial<ModuleToggles>
 }
 
+export interface RoleResponse {
+  id: string
+  tenant_id: string
+  code: string
+  name: string
+  description: string | null
+  is_system_role: boolean
+}
+
 export async function getTenantSettings(tenantId: string): Promise<TenantSettingsResponse> {
   const { data } = await http.get(`/tenants/${tenantId}/settings`)
   return data
@@ -44,4 +53,14 @@ export async function updateTenantSettings(
 ): Promise<TenantSettingsResponse> {
   const { data } = await http.put(`/tenants/${tenantId}/settings`, settings)
   return data
+}
+
+export async function getTenantRoles(tenantId: string): Promise<RoleResponse[]> {
+  const { data } = await http.get(`/tenants/${tenantId}/roles`)
+  return data
+}
+
+export async function checkModuleHasData(tenantId: string, module: string): Promise<boolean> {
+  const { data } = await http.get(`/admin/module-has-data`, { params: { module } })
+  return data.has_data
 }

@@ -5,9 +5,11 @@ from fastapi import APIRouter, File, Form, HTTPException, UploadFile, status
 
 from app.core.dependencies import AuthDep, DbDep, ObjectStorageDep
 from app.modules.documents.schemas import (
+    BulkUploadResponse,
     DocumentAccessUpdateRequest,
     DocumentListItemResponse,
     IngestionJobResponse,
+    IngestionJobRetryResponse,
     UploadDocumentResponse,
 )
 from app.modules.documents.service import DocumentService
@@ -48,6 +50,31 @@ async def upload_document(
     )
 
 
+@router.post("/bulk-upload", response_model=BulkUploadResponse)
+async def bulk_upload_documents(
+    current: AuthDep,
+    db: DbDep,
+    storage: ObjectStorageDep,
+    files: Annotated[list[UploadFile], File(...)],
+    title_prefix: Annotated[str, Form()] = "",
+    description: Annotated[str | None, Form()] = None,
+    access_scope: Annotated[str, Form()] = "tenant_public",
+    allowed_role_ids: Annotated[list[str] | None, Form()] = None,
+) -> BulkUploadResponse:
+    if current.tenant_id is None:
+        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Tenant not resolved")
+    service = DocumentService(db, storage)
+    return await service.upload_documents_bulk(
+        tenant_id=current.tenant_id,
+        user_id=current.user.id,
+        files=files,
+        title_prefix=title_prefix,
+        description=description,
+        access_scope=access_scope,
+        allowed_role_ids=allowed_role_ids,
+    )
+
+
 @router.get("/ingestion-jobs/{job_id}", response_model=IngestionJobResponse)
 async def get_ingestion_job(
     job_id: UUID,
@@ -80,6 +107,7 @@ async def update_document_access(
         tenant_id=current.tenant_id,
         document_id=document_id,
         request=request,
+        actor_user_id=current.user.id,
     )
 
 
@@ -95,4 +123,56 @@ async def reindex_document(
     return await service.request_reingestion(
         tenant_id=current.tenant_id,
         document_id=document_id,
+        actor_user_id=current.user.id,
+    )
+
+
+@router.post("/ingestion-jobs/{job_id}/retry", response_model=IngestionJobRetryResponse)
+async def retry_ingestion_job(
+    job_id: UUID,
+    current: AuthDep,
+    db: DbDep,
+    storage: ObjectStorageDep,
+) -> IngestionJobRetryResponse:
+    if not current.has_role("admin"):
+        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Admin role required")
+    service = DocumentService(db, storage)
+    return await service.retry_failed_ingestion_job(
+        tenant_id=current.tenant_id,
+        job_id=job_id,
+        actor_user_id=current.user.id,
+    )
+
+
+@router.patch("/{document_id}/archive", response_model=DocumentListItemResponse)
+async def archive_document(
+    document_id: UUID,
+    current: AuthDep,
+    db: DbDep,
+    storage: ObjectStorageDep,
+) -> DocumentListItemResponse:
+    if not current.has_role("admin"):
+        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Admin role required")
+    service = DocumentService(db, storage)
+    return await service.archive_document(
+        tenant_id=current.tenant_id,
+        document_id=document_id,
+        actor_user_id=current.user.id,
+    )
+
+
+@router.patch("/{document_id}/unarchive", response_model=DocumentListItemResponse)
+async def unarchive_document(
+    document_id: UUID,
+    current: AuthDep,
+    db: DbDep,
+    storage: ObjectStorageDep,
+) -> DocumentListItemResponse:
+    if not current.has_role("admin"):
+        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Admin role required")
+    service = DocumentService(db, storage)
+    return await service.unarchive_document(
+        tenant_id=current.tenant_id,
+        document_id=document_id,
+        actor_user_id=current.user.id,
     )

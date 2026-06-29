@@ -2,7 +2,9 @@ from __future__ import annotations
 
 from fastapi import APIRouter, HTTPException, status
 
-from app.core.dependencies import AuthDep, NotificationsDep
+from app.core.dependencies import AuthDep, DbDep, NotificationsDep
+from app.modules.audit.service import AuditService
+from app.core.module_guard import require_module
 from app.modules.notifications.schemas import (
     NotificationChannelResponse,
     NotificationTestRequest,
@@ -10,7 +12,11 @@ from app.modules.notifications.schemas import (
 )
 from app.modules.notifications.service import NotificationService
 
-router = APIRouter(prefix="/notifications", tags=["notifications"])
+router = APIRouter(
+    prefix="/notifications",
+    tags=["notifications"],
+    dependencies=[require_module("notifications")],
+)
 
 
 def _require_admin(current: AuthDep) -> None:
@@ -32,10 +38,11 @@ async def list_notification_channels(
 async def send_test_notification(
     payload: NotificationTestRequest,
     current: AuthDep,
+    db: DbDep,
     notifications: NotificationsDep,
 ) -> NotificationTestResponse:
     _require_admin(current)
-    service = NotificationService(notifications)
+    service = NotificationService(notifications, db=db, audit=AuditService(db))
     return await service.send_test(
         tenant_id=current.tenant_id,
         actor_user_id=current.user.id,

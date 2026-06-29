@@ -5,23 +5,38 @@
         <h1 class="h4 fw-bold mb-0">Announcements</h1>
         <p class="text-muted small mb-0">Manage organization announcements</p>
       </div>
-      <button class="btn btn-primary btn-sm" data-bs-toggle="modal" data-bs-target="#createModal">
-        <i class="bi bi-plus-circle me-1"></i>Add announcement
-      </button>
+      <div class="d-flex gap-2">
+        <button class="btn btn-outline-secondary btn-sm" @click="exportAnnouncements" :disabled="exporting">
+          <i v-if="exporting" class="spinner-border spinner-border-sm me-1"></i>
+          <i v-else class="bi bi-download me-1"></i>Export CSV
+        </button>
+        <button class="btn btn-primary btn-sm" data-bs-toggle="modal" data-bs-target="#createModal">
+          <i class="bi bi-plus-circle me-1"></i>Add announcement
+        </button>
+      </div>
     </div>
 
-    <div v-if="loading" class="text-center py-5 text-muted">Loading announcements...</div>
+    <div v-if="error" class="alert alert-danger alert-dismissible small py-2 mb-3" role="alert">
+      <i class="bi bi-exclamation-triangle me-1"></i>{{ error }}
+      <button type="button" class="btn-close py-2" @click="error = ''"></button>
+    </div>
 
-    <div v-else class="card shadow-sm border-0">
+    <div v-if="loading" class="text-center py-5">
+      <div class="spinner-border text-primary" role="status">
+        <span class="visually-hidden">Loading...</span>
+      </div>
+    </div>
+
+    <div v-else-if="announcements.length > 0" class="card shadow-sm border-0">
       <div class="table-responsive">
-        <table class="table table-hover mb-0 align-middle">
+        <table class="table table-hover mb-0 align-middle" aria-label="Announcements list">
           <thead class="table-light">
             <tr>
-              <th class="ps-4">Title</th>
-              <th>Published</th>
-              <th>Expires</th>
-              <th>Visibility</th>
-              <th class="text-end pe-4">Actions</th>
+              <th class="ps-4" scope="col">Title</th>
+              <th scope="col">Published</th>
+              <th scope="col">Expires</th>
+              <th scope="col">Visibility</th>
+              <th class="text-end pe-4" scope="col">Actions</th>
             </tr>
           </thead>
           <tbody>
@@ -33,28 +48,30 @@
                 <span class="badge bg-info-subtle text-info border border-info-subtle">{{ a.visibility_scope }}</span>
               </td>
               <td class="text-end pe-4">
-                <button class="btn btn-sm btn-outline-secondary me-1" @click="editItem(a)">
+                <button class="btn btn-sm btn-outline-secondary me-1" aria-label="Edit announcement" @click="editItem(a)">
                   <i class="bi bi-pencil"></i>
                 </button>
-                <button class="btn btn-sm btn-outline-danger" @click="confirmDelete(a)">
+                <button class="btn btn-sm btn-outline-danger" aria-label="Delete announcement" @click="confirmDelete(a)">
                   <i class="bi bi-trash"></i>
                 </button>
               </td>
-            </tr>
-            <tr v-if="announcements.length === 0">
-              <td colspan="5" class="text-center text-muted py-4">No announcements yet</td>
             </tr>
           </tbody>
         </table>
       </div>
     </div>
+    <div v-else class="empty-state">
+      <i class="bi bi-megaphone display-6 text-secondary"></i>
+      <p class="mb-1 fw-semibold">No announcements yet</p>
+      <p class="text-muted mb-0">Create announcements to inform your organization members.</p>
+    </div>
 
     <!-- Create/Edit Modal -->
-    <div class="modal fade" id="createModal" tabindex="-1">
+    <div class="modal fade" id="createModal" tabindex="-1" aria-labelledby="createModalLabel">
       <div class="modal-dialog">
         <div class="modal-content">
           <div class="modal-header">
-            <h5 class="modal-title">{{ editingId ? 'Edit' : 'Add' }} announcement</h5>
+            <h5 class="modal-title" id="createModalLabel">{{ editingId ? 'Edit' : 'Add' }} announcement</h5>
             <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
           </div>
           <div class="modal-body">
@@ -94,14 +111,22 @@
 <script setup lang="ts">
 import { onMounted, ref, nextTick } from 'vue'
 import * as bootstrap from 'bootstrap'
-import { listAnnouncements, createAnnouncement, updateAnnouncement, deleteAnnouncement, type AnnouncementResponse } from '@/api/announcements.api'
+import { listAnnouncements, createAnnouncement, updateAnnouncement, deleteAnnouncement, exportAnnouncementsCsv, type AnnouncementResponse } from '@/api/announcements.api'
+import { useCsvExport } from '@/composables/useCsvExport'
 
 const loading = ref(true)
+const error = ref('')
 const saving = ref(false)
 const announcements = ref<AnnouncementResponse[]>([])
 const editingId = ref<string | null>(null)
 
+function setError(err: unknown) {
+  error.value = (err as any)?.response?.data?.detail || (err as any)?.message || 'An unexpected error occurred'
+}
+
 const form = ref({ title: '', body: '', visibility_scope: 'members_only', expires_at: '' })
+
+const { exportCsv, exporting } = useCsvExport()
 
 function formatDate(dateStr: string): string {
   return new Date(dateStr).toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' })
@@ -110,7 +135,8 @@ function formatDate(dateStr: string): string {
 async function load() {
   try {
     announcements.value = await listAnnouncements()
-  } finally { loading.value = false }
+  } catch (err) { setError(err) }
+  finally { loading.value = false }
 }
 
 async function handleSave() {
@@ -147,6 +173,12 @@ function confirmDelete(a: AnnouncementResponse) {
   if (confirm(`Delete announcement "${a.title}"?`)) {
     deleteAnnouncement(a.id).then(load)
   }
+}
+
+async function exportAnnouncements() {
+  try {
+    await exportCsv(exportAnnouncementsCsv, 'announcements.csv')
+  } catch (err) { setError(err) }
 }
 
 onMounted(load)

@@ -27,6 +27,7 @@ export interface DocumentListItemResponse {
 
 export interface UploadDocumentResponse extends DocumentListItemResponse {
   ingestion_job_id: string
+  duplicate_of_document_id: string | null
 }
 
 export interface UploadDocumentPayload {
@@ -88,6 +89,62 @@ export async function updateDocumentAccess(
 
 export async function reindexDocument(documentId: string): Promise<IngestionJobResponse> {
   const response = await http.post<IngestionJobResponse>(`/documents/${documentId}/reindex`)
+  return response.data
+}
+
+export interface BulkUploadItemResponse {
+  index: number
+  file_name: string
+  status: string
+  document: UploadDocumentResponse | null
+  error: string | null
+}
+
+export interface BulkUploadResponse {
+  items: BulkUploadItemResponse[]
+  success_count: number
+  failure_count: number
+}
+
+export async function bulkUploadDocuments(payload: {
+  files: File[]
+  title_prefix?: string
+  description?: string
+  access_scope?: string
+  allowed_role_ids?: string[] | null
+}): Promise<BulkUploadResponse> {
+  const formData = new FormData()
+  for (const file of payload.files) {
+    formData.append('files', file)
+  }
+  formData.append('title_prefix', payload.title_prefix ?? '')
+  formData.append('access_scope', payload.access_scope ?? 'tenant_public')
+  if (payload.description) {
+    formData.append('description', payload.description)
+  }
+  if (payload.allowed_role_ids && payload.allowed_role_ids.length > 0) {
+    for (const role of payload.allowed_role_ids) {
+      formData.append('allowed_role_ids', role)
+    }
+  }
+  const response = await http.post<BulkUploadResponse>('/documents/bulk-upload', formData)
+  return response.data
+}
+
+export async function archiveDocument(documentId: string): Promise<DocumentListItemResponse> {
+  const response = await http.patch<DocumentListItemResponse>(`/documents/${documentId}/archive`)
+  return response.data
+}
+
+export async function unarchiveDocument(documentId: string): Promise<DocumentListItemResponse> {
+  const response = await http.patch<DocumentListItemResponse>(`/documents/${documentId}/unarchive`)
+  return response.data
+}
+
+export async function retryIngestionJob(jobId: string): Promise<{ job: IngestionJobResponse; retried: boolean }> {
+  const response = await http.post<{ job: IngestionJobResponse; retried: boolean }>(
+    `/documents/ingestion-jobs/${jobId}/retry`,
+  )
   return response.data
 }
 

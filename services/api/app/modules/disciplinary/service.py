@@ -7,6 +7,7 @@ from uuid import UUID
 from fastapi import HTTPException, status
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from app.modules.audit.service import AuditService
 from app.modules.disciplinary.models import DisciplinaryRecord
 from app.modules.disciplinary.repository import DisciplinaryRepository
 from app.modules.disciplinary.schemas import (
@@ -24,6 +25,7 @@ class DisciplinaryService:
         self._repo = DisciplinaryRepository(db)
         self._membership_repo = MembershipRepository(db)
         self._policy_repo = PolicyRepository(db)
+        self._audit = AuditService(db)
 
     async def list_records(self, tenant_id: UUID) -> list[DisciplinaryRecordResponse]:
         records = await self._repo.list_by_tenant(tenant_id)
@@ -58,6 +60,8 @@ class DisciplinaryService:
         tenant_id: UUID,
         created_by: UUID,
         data: DisciplinaryRecordCreate,
+        *,
+        actor_user_id: UUID | None = None,
     ) -> DisciplinaryRecordResponse:
         profile = await self._membership_repo.get_by_id(tenant_id, data.membership_profile_id)
         if profile is None:
@@ -79,6 +83,20 @@ class DisciplinaryService:
             recorded_at=datetime.now(UTC),
         )
         await self._repo.create(record)
+        await self._audit.record_event(
+            tenant_id=tenant_id,
+            actor_user_id=actor_user_id or created_by,
+            action="create",
+            entity_type="disciplinary_record",
+            entity_id=record.id,
+            module_key="disciplinary",
+            details={
+                "membership_profile_id": record.membership_profile_id,
+                "policy_record_id": record.policy_record_id,
+                "title": record.title,
+                "status": record.status,
+            },
+        )
         await self._db.commit()
         return await self._to_response(tenant_id, record)
 
@@ -87,6 +105,8 @@ class DisciplinaryService:
         tenant_id: UUID,
         record_id: UUID,
         data: DisciplinaryRecordUpdate,
+        *,
+        actor_user_id: UUID | None = None,
     ) -> DisciplinaryRecordResponse:
         payload = data.model_dump(exclude_unset=True)
         if payload.get("policy_record_id") is not None:
@@ -97,13 +117,41 @@ class DisciplinaryService:
         if record is None:
             raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Disciplinary record not found")
         record.updated_at = datetime.now(UTC)
+        await self._audit.record_event(
+            tenant_id=tenant_id,
+            actor_user_id=actor_user_id,
+            action="update",
+            entity_type="disciplinary_record",
+            entity_id=record.id,
+            module_key="disciplinary",
+            details={"changes": payload},
+        )
         await self._db.commit()
         return await self._to_response(tenant_id, record)
 
-    async def delete_record(self, tenant_id: UUID, record_id: UUID) -> None:
+    async def delete_record(
+        self,
+        tenant_id: UUID,
+        record_id: UUID,
+        *,
+        actor_user_id: UUID | None = None,
+    ) -> None:
+        existing = await self._repo.get_by_id(tenant_id, record_id)
         deleted = await self._repo.delete(tenant_id, record_id)
         if not deleted:
             raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Disciplinary record not found")
+        await self._audit.record_event(
+            tenant_id=tenant_id,
+            actor_user_id=actor_user_id,
+            action="delete",
+            entity_type="disciplinary_record",
+            entity_id=record_id,
+            module_key="disciplinary",
+            details={
+                "title": existing.title if existing else None,
+                "membership_profile_id": existing.membership_profile_id if existing else None,
+            },
+        )
         await self._db.commit()
 
     async def _to_response(self, tenant_id: UUID, record: DisciplinaryRecord) -> DisciplinaryRecordResponse:

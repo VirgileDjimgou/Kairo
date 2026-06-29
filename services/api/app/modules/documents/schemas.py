@@ -34,6 +34,21 @@ class DocumentListItemResponse(BaseModel):
 class UploadDocumentResponse(DocumentListItemResponse):
     ingestion_job_id: UUID
     current_version: DocumentVersionResponse | None = None
+    duplicate_of_document_id: UUID | None = None
+
+
+class BulkUploadItemResponse(BaseModel):
+    index: int
+    file_name: str
+    status: str
+    document: UploadDocumentResponse | None = None
+    error: str | None = None
+
+
+class BulkUploadResponse(BaseModel):
+    items: list[BulkUploadItemResponse] = Field(default_factory=list)
+    success_count: int = 0
+    failure_count: int = 0
 
 
 class UploadResultResponse(BaseModel):
@@ -56,3 +71,8 @@ class IngestionJobResponse(BaseModel):
     started_at: datetime | None
     finished_at: datetime | None
     created_at: datetime
+
+
+class IngestionJobRetryResponse(BaseModel):
+    job: IngestionJobResponse
+    retried: bool = True

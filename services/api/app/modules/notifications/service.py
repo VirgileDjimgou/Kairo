@@ -1,7 +1,9 @@
 from __future__ import annotations
 
 from fastapi import HTTPException, status
+from sqlalchemy.ext.asyncio import AsyncSession
 
+from app.modules.audit.service import AuditService
 from app.modules.notifications.schemas import (
     NotificationChannelResponse,
     NotificationDispatchResponse,
@@ -12,9 +14,16 @@ from app.providers.notifications.base import NotificationProvider
 
 
 class NotificationService:
-    def __init__(self, providers: list[NotificationProvider]) -> None:
+    def __init__(
+        self,
+        providers: list[NotificationProvider],
+        db: AsyncSession | None = None,
+        audit: AuditService | None = None,
+    ) -> None:
         self._providers = providers
         self._provider_map = {provider.channel: provider for provider in providers}
+        self._db = db
+        self._audit = audit
 
     def list_channels(self) -> list[NotificationChannelResponse]:
         return [
@@ -67,5 +76,21 @@ class NotificationService:
                     simulation_only=dispatched.simulation_only,
                 )
             )
+
+        if self._audit is not None:
+            await self._audit.record_event(
+                tenant_id=tenant_id,
+                actor_user_id=actor_user_id,
+                action="notification_test",
+                entity_type="notification",
+                entity_id="test",
+                module_key="notifications",
+                details={
+                    "channels": unique_channels,
+                    "recipient": payload.recipient,
+                },
+            )
+            if self._db is not None:
+                await self._db.commit()
 
         return NotificationTestResponse(results=results)

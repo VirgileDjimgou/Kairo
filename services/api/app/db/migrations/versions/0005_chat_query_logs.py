@@ -1,7 +1,7 @@
 """add chat query logs
 
 Revision ID: 0005_chat_query_logs
-Revises: 0004_document_allowed_role_ids
+Revises: 0004
 Create Date: 2026-06-28
 """
 
@@ -12,7 +12,7 @@ from sqlalchemy.dialects import postgresql
 
 # revision identifiers, used by Alembic.
 revision = "0005_chat_query_logs"
-down_revision = "0004_document_allowed_role_ids"
+down_revision = "0004"
 branch_labels = None
 depends_on = None
 

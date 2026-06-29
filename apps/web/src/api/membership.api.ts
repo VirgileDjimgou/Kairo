@@ -77,3 +77,28 @@ export async function updateMember(profileId: string, payload: UpdateMemberPaylo
 export async function deleteMember(profileId: string): Promise<void> {
   await http.delete(`/memberships/${profileId}`)
 }
+
+export interface ImportRowError {
+  row: number
+  message: string
+}
+
+export interface ImportResult {
+  total: number
+  success_count: number
+  error_count: number
+  errors: ImportRowError[]
+}
+
+export async function importMembersCsv(file: File, dryRun = false): Promise<ImportResult> {
+  const formData = new FormData()
+  formData.append('file', file)
+  const params = dryRun ? { dry_run: 'true' } : {}
+  const response = await http.post<ImportResult>('/memberships/import', formData, { params })
+  return response.data
+}
+
+export async function exportMembersCsv(): Promise<Blob> {
+  const response = await http.get('/memberships/export', { responseType: 'blob' })
+  return response.data
+}

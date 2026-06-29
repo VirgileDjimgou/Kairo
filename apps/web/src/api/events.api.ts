@@ -64,3 +64,8 @@ export async function updateEvent(eventId: string, payload: UpdateEventPayload):
 export async function deleteEvent(eventId: string): Promise<void> {
   await http.delete(`/events/${eventId}`)
 }
+
+export async function exportEventsCsv(): Promise<Blob> {
+  const response = await http.get('/events/export', { responseType: 'blob' })
+  return response.data
+}

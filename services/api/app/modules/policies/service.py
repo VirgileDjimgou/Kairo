@@ -6,6 +6,7 @@ from uuid import UUID
 from fastapi import HTTPException, status
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from app.modules.audit.service import AuditService
 from app.modules.documents.repository import DocumentRepository
 from app.modules.policies.models import PolicyRecord, PolicyStatus
 from app.modules.policies.repository import PolicyRepository
@@ -22,6 +23,7 @@ class PolicyService:
         self._db = db
         self._repo = PolicyRepository(db)
         self._document_repo = DocumentRepository(db)
+        self._audit = AuditService(db)
 
     async def list_public(self, tenant_id: UUID) -> list[PolicyRecordResponse]:
         records = await self._repo.list_by_tenant(tenant_id, published_only=True)
@@ -49,7 +51,14 @@ class PolicyService:
             raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Policy not found")
         return self._to_response(policy)
 
-    async def create_policy(self, tenant_id: UUID, data: PolicyRecordCreate, created_by: UUID) -> PolicyRecordResponse:
+    async def create_policy(
+        self,
+        tenant_id: UUID,
+        data: PolicyRecordCreate,
+        created_by: UUID,
+        *,
+        actor_user_id: UUID | None = None,
+    ) -> PolicyRecordResponse:
         document = None
         if data.document_id is not None:
             document = await self._document_repo.get_document(tenant_id, data.document_id)
@@ -65,10 +74,31 @@ class PolicyService:
             created_by=created_by,
         )
         await self._repo.create(policy)
+        await self._audit.record_event(
+            tenant_id=tenant_id,
+            actor_user_id=actor_user_id or created_by,
+            action="create",
+            entity_type="policy_record",
+            entity_id=policy.id,
+            module_key="policies",
+            details={
+                "title": policy.title,
+                "category": policy.category,
+                "status": policy.status,
+                "document_id": document.id if document else None,
+            },
+        )
         await self._db.commit()
         return self._to_response(policy, document_title=document.title if document else None)
 
-    async def update_policy(self, tenant_id: UUID, policy_id: UUID, data: PolicyRecordUpdate) -> PolicyRecordResponse:
+    async def update_policy(
+        self,
+        tenant_id: UUID,
+        policy_id: UUID,
+        data: PolicyRecordUpdate,
+        *,
+        actor_user_id: UUID | None = None,
+    ) -> PolicyRecordResponse:
         payload = data.model_dump(exclude_unset=True)
         if "document_id" in payload and payload["document_id"] is not None:
             document = await self._document_repo.get_document(tenant_id, payload["document_id"])
@@ -78,6 +108,15 @@ class PolicyService:
         if policy is None:
             raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Policy not found")
         policy.updated_at = datetime.now(UTC)
+        await self._audit.record_event(
+            tenant_id=tenant_id,
+            actor_user_id=actor_user_id,
+            action="update",
+            entity_type="policy_record",
+            entity_id=policy.id,
+            module_key="policies",
+            details={"changes": payload},
+        )
         await self._db.commit()
         document_title = None
         if policy.document_id is not None:
@@ -85,10 +124,29 @@ class PolicyService:
             document_title = doc.title if doc else None
         return self._to_response(policy, document_title=document_title)
 
-    async def delete_policy(self, tenant_id: UUID, policy_id: UUID) -> None:
+    async def delete_policy(
+        self,
+        tenant_id: UUID,
+        policy_id: UUID,
+        *,
+        actor_user_id: UUID | None = None,
+    ) -> None:
+        existing = await self._repo.get_by_id(tenant_id, policy_id)
         deleted = await self._repo.delete(tenant_id, policy_id)
         if not deleted:
             raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Policy not found")
+        await self._audit.record_event(
+            tenant_id=tenant_id,
+            actor_user_id=actor_user_id,
+            action="delete",
+            entity_type="policy_record",
+            entity_id=policy_id,
+            module_key="policies",
+            details={
+                "title": existing.title if existing else None,
+                "category": existing.category if existing else None,
+            },
+        )
         await self._db.commit()
 
     def _to_response(self, policy: PolicyRecord, *, document_title: str | None = None) -> PolicyRecordResponse:

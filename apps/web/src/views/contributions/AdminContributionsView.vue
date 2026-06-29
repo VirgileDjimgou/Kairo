@@ -9,10 +9,22 @@
         <select v-model="selectedYear" class="form-select form-select-sm" style="width: auto" @change="loadData">
           <option v-for="y in years" :key="y" :value="y">{{ y }}</option>
         </select>
+        <button class="btn btn-outline-secondary btn-sm" @click="exportContributions" :disabled="exporting">
+          <i v-if="exporting" class="spinner-border spinner-border-sm me-1"></i>
+          <i v-else class="bi bi-download me-1"></i>Export CSV
+        </button>
+        <button class="btn btn-outline-primary btn-sm" data-bs-toggle="modal" data-bs-target="#importContributionModal">
+          <i class="bi bi-upload me-1"></i>Import CSV
+        </button>
         <button class="btn btn-primary btn-sm" data-bs-toggle="modal" data-bs-target="#createContributionModal">
           <i class="bi bi-plus-circle me-1"></i>Add contribution
         </button>
       </div>
+    </div>
+
+    <div v-if="error" class="alert alert-danger alert-dismissible small py-2 mb-3" role="alert">
+      <i class="bi bi-exclamation-triangle me-1"></i>{{ error }}
+      <button type="button" class="btn-close py-2" @click="error = ''"></button>
     </div>
 
     <!-- Summary cards -->
@@ -52,19 +64,19 @@
     </div>
 
     <!-- Contributions table -->
-    <div v-else class="card shadow-sm border-0">
+    <div v-else-if="contributions.length > 0" class="card shadow-sm border-0">
       <div class="table-responsive">
-        <table class="table table-hover mb-0 align-middle">
+        <table class="table table-hover mb-0 align-middle" aria-label="Contributions list">
           <thead class="table-light">
             <tr>
-              <th class="ps-4">Year</th>
-              <th>Member</th>
-              <th>Expected</th>
-              <th>Paid</th>
-              <th>Balance</th>
-              <th>Status</th>
-              <th>Due</th>
-              <th class="text-end pe-4">Actions</th>
+              <th class="ps-4" scope="col">Year</th>
+              <th scope="col">Member</th>
+              <th scope="col">Expected</th>
+              <th scope="col">Paid</th>
+              <th scope="col">Balance</th>
+              <th scope="col">Status</th>
+              <th scope="col">Due</th>
+              <th class="text-end pe-4" scope="col">Actions</th>
             </tr>
           </thead>
           <tbody>
@@ -82,32 +94,87 @@
               </td>
               <td class="small">{{ c.due_date ? formatDate(c.due_date) : '—' }}</td>
               <td class="text-end pe-4">
-                <button class="btn btn-sm btn-outline-primary me-1" title="Record payment"
+                <button class="btn btn-sm btn-outline-primary me-1" aria-label="Record payment"
                   @click="openPaymentModal(c)">
                   <i class="bi bi-cash"></i>
                 </button>
-                <button class="btn btn-sm btn-outline-danger" title="Delete"
+                <button class="btn btn-sm btn-outline-danger" aria-label="Delete contribution"
                   @click="confirmDeleteContribution(c)">
                   <i class="bi bi-trash"></i>
                 </button>
-              </td>
-            </tr>
-            <tr v-if="contributions.length === 0">
-              <td colspan="8" class="text-center text-muted py-4">
-                <i class="bi bi-cash-stack me-2"></i>No contribution records for {{ selectedYear }}
               </td>
             </tr>
           </tbody>
         </table>
       </div>
     </div>
+    <div v-else class="empty-state">
+      <i class="bi bi-cash-stack display-6 text-secondary"></i>
+      <p class="mb-1 fw-semibold">No contribution records for {{ selectedYear }}</p>
+      <p class="text-muted mb-0">Add contribution records manually or import them from a CSV file.</p>
+    </div>
+
+    <!-- Import Contributions Modal -->
+    <div class="modal fade" id="importContributionModal" tabindex="-1" aria-labelledby="importContributionModalLabel">
+      <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title" id="importContributionModalLabel">Import contributions from CSV</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" @click="resetContribImport"></button>
+          </div>
+          <div class="modal-body">
+            <div class="mb-3">
+              <label class="form-label small fw-medium">CSV file</label>
+              <input ref="contribImportFileInput" class="form-control form-control-sm" type="file" accept=".csv" @change="onContribImportFileChange" />
+              <div class="form-text small">Required columns: <code>member_code</code>, <code>year</code>, <code>expected_amount</code>. Optional: <code>paid_amount</code>, <code>status</code>.</div>
+            </div>
+            <div class="form-check mb-3">
+              <input id="contribImportDryRun" v-model="contribImportDryRun" type="checkbox" class="form-check-input" />
+              <label for="contribImportDryRun" class="form-check-label small">Dry run (validate only, no changes saved)</label>
+            </div>
+            <div v-if="contribImportResult" class="mt-3">
+              <hr />
+              <div class="d-flex gap-3 mb-3">
+                <span class="badge bg-secondary">Total: {{ contribImportResult.total }}</span>
+                <span class="badge bg-success">Success: {{ contribImportResult.success_count }}</span>
+                <span class="badge" :class="contribImportResult.error_count > 0 ? 'bg-danger' : 'bg-success'">Errors: {{ contribImportResult.error_count }}</span>
+              </div>
+              <div v-if="contribImportResult.errors.length > 0" class="mb-3">
+                <h6 class="small fw-bold text-danger">Validation errors</h6>
+                <table class="table table-sm small mb-0">
+                  <thead><tr><th>Row</th><th>Error</th></tr></thead>
+                  <tbody>
+                    <tr v-for="err in contribImportResult.errors" :key="err.row">
+                      <td>{{ err.row }}</td>
+                      <td>{{ err.message }}</td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+              <div v-if="contribImportResult.error_count === 0 && !contribImportDryRun" class="alert alert-success small py-2 mb-0">
+                Successfully imported {{ contribImportResult.success_count }} contributions.
+              </div>
+            </div>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-sm btn-secondary" data-bs-dismiss="modal" @click="resetContribImport">Cancel</button>
+            <button v-if="contribImportDryRun && contribImportResult && contribImportResult.error_count === 0" type="button" class="btn btn-sm btn-primary" @click="confirmContribImport" :disabled="contribImporting">
+              {{ contribImporting ? 'Importing...' : 'Confirm import' }}
+            </button>
+            <button v-else type="button" class="btn btn-sm btn-primary" @click="handleContribImport" :disabled="contribImporting || !contribImportSelectedFile">
+              {{ contribImporting ? 'Importing...' : contribImportDryRun ? 'Validate' : 'Import' }}
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
 
     <!-- Create Contribution Modal -->
-    <div class="modal fade" id="createContributionModal" tabindex="-1">
+    <div class="modal fade" id="createContributionModal" tabindex="-1" aria-labelledby="createContributionModalLabel">
       <div class="modal-dialog">
         <div class="modal-content">
           <div class="modal-header">
-            <h5 class="modal-title">Add contribution</h5>
+            <h5 class="modal-title" id="createContributionModalLabel">Add contribution</h5>
             <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
           </div>
           <div class="modal-body">
@@ -144,11 +211,11 @@
     </div>
 
     <!-- Record Payment Modal -->
-    <div class="modal fade" id="paymentModal" tabindex="-1">
+    <div class="modal fade" id="paymentModal" tabindex="-1" aria-labelledby="paymentModalLabel">
       <div class="modal-dialog modal-sm">
         <div class="modal-content">
           <div class="modal-header">
-            <h5 class="modal-title">Record payment</h5>
+            <h5 class="modal-title" id="paymentModalLabel">Record payment</h5>
             <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
           </div>
           <div class="modal-body">
@@ -186,18 +253,26 @@
 <script setup lang="ts">
 import { ref, onMounted, nextTick } from 'vue'
 import * as bootstrap from 'bootstrap'
-import { listContributions, createContribution, deleteContribution, recordPayment, getContributionSummary } from '@/api/contributions.api'
+import { listContributions, createContribution, deleteContribution, recordPayment, getContributionSummary, importContributionsCsv, exportContributionsCsv } from '@/api/contributions.api'
 import { listMembers } from '@/api/membership.api'
-import type { ContributionRecordResponse, ContributionSummary } from '@/api/contributions.api'
+import type { ContributionRecordResponse, ContributionSummary, ImportResult } from '@/api/contributions.api'
 import type { MembershipProfileResponse } from '@/api/membership.api'
+import { useCsvExport } from '@/composables/useCsvExport'
 
 const loading = ref(true)
+const error = ref('')
 const saving = ref(false)
 const contributions = ref<ContributionRecordResponse[]>([])
 const members = ref<MembershipProfileResponse[]>([])
 const summary = ref<ContributionSummary | null>(null)
 const selectedYear = ref(new Date().getFullYear())
 const years = Array.from({ length: 5 }, (_, i) => new Date().getFullYear() - i)
+
+const { exportCsv, exporting } = useCsvExport()
+
+function setError(err: unknown) {
+  error.value = (err as any)?.response?.data?.detail || (err as any)?.message || 'An unexpected error occurred'
+}
 
 const contribForm = ref({
   membership_profile_id: '',
@@ -215,6 +290,50 @@ const paymentForm = ref({
 })
 
 const deletingContribution = ref<ContributionRecordResponse | null>(null)
+
+const contribImportSelectedFile = ref<File | null>(null)
+const contribImportDryRun = ref(true)
+const contribImporting = ref(false)
+const contribImportResult = ref<ImportResult | null>(null)
+const contribImportFileInput = ref<HTMLInputElement | null>(null)
+
+function resetContribImport() {
+  contribImportSelectedFile.value = null
+  contribImportDryRun.value = true
+  contribImporting.value = false
+  contribImportResult.value = null
+  if (contribImportFileInput.value) contribImportFileInput.value.value = ''
+}
+
+function onContribImportFileChange(event: Event) {
+  const input = event.target as HTMLInputElement
+  contribImportSelectedFile.value = input.files?.[0] ?? null
+  contribImportResult.value = null
+}
+
+async function handleContribImport() {
+  if (!contribImportSelectedFile.value) return
+  contribImporting.value = true
+  try {
+    contribImportResult.value = await importContributionsCsv(contribImportSelectedFile.value, contribImportDryRun.value)
+  } finally { contribImporting.value = false }
+}
+
+async function confirmContribImport() {
+  contribImportDryRun.value = false
+  await handleContribImport()
+  if (contribImportResult.value && contribImportResult.value.error_count > 0) {
+    contribImportDryRun.value = true
+  } else {
+    await loadData()
+  }
+}
+
+async function exportContributions() {
+  try {
+    await exportCsv(() => exportContributionsCsv(selectedYear.value), `contributions-${selectedYear.value}.csv`)
+  } catch (err) { setError(err) }
+}
 
 function statusBadgeClass(status: string): string {
   const map: Record<string, string> = {
@@ -237,7 +356,7 @@ async function loadData() {
     members.value = await listMembers()
     contributions.value = await listContributions(selectedYear.value)
     summary.value = await getContributionSummary(selectedYear.value)
-  } catch { /* handled by interceptor */ }
+  } catch (err) { setError(err) }
   finally { loading.value = false }
 }
 
@@ -249,7 +368,7 @@ async function handleCreateContribution() {
     const modal = bootstrap.Modal.getInstance(document.getElementById('createContributionModal')!)
     modal?.hide()
     contribForm.value = { membership_profile_id: '', year: new Date().getFullYear(), expected_amount: '0.00', paid_amount: '0.00', status: 'pending' }
-  } catch { /* handled by interceptor */ }
+  } catch (err) { setError(err) }
   finally { saving.value = false }
 }
 
@@ -268,7 +387,7 @@ async function handleRecordPayment() {
     await loadData()
     const modal = bootstrap.Modal.getInstance(document.getElementById('paymentModal')!)
     modal?.hide()
-  } catch { /* handled by interceptor */ }
+  } catch (err) { setError(err) }
   finally { saving.value = false }
 }
 
@@ -284,7 +403,7 @@ async function handleDeleteContribution(id: string) {
   try {
     await deleteContribution(id)
     await loadData()
-  } catch { /* handled by interceptor */ }
+  } catch (err) { setError(err) }
   finally { saving.value = false }
 }
 

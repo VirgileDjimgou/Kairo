@@ -2,6 +2,7 @@ from __future__ import annotations
 
 from pathlib import Path
 
+from app.providers.parsers.image_ocr import parse_image_bytes
 from app.providers.parsers.pdf_docx import parse_docx_bytes, parse_pdf_bytes
 from app.providers.parsers.whatsapp import parse_whatsapp_export
 
@@ -22,7 +23,7 @@ def parse_document_bytes(file_bytes: bytes, file_name: str) -> str:
     if extension in WHATSAPP_EXTENSIONS or _looks_like_whatsapp_export(file_name, file_bytes):
         return parse_whatsapp_export(file_bytes)
     if extension in IMAGE_EXTENSIONS:
-        raise ValueError("OCR is not configured yet for image documents")
+        return parse_image_bytes(file_bytes)
 
     raise ValueError(f"Parser for .{extension} is not supported yet")
 

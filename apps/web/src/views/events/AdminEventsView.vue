@@ -5,25 +5,40 @@
         <h1 class="h4 fw-bold mb-0">Events</h1>
         <p class="text-muted small mb-0">Manage organization calendar events</p>
       </div>
-      <button class="btn btn-primary btn-sm" data-bs-toggle="modal" data-bs-target="#createEventModal">
-        <i class="bi bi-plus-circle me-1"></i>Add event
-      </button>
+      <div class="d-flex gap-2">
+        <button class="btn btn-outline-secondary btn-sm" @click="exportEvents" :disabled="exporting">
+          <i v-if="exporting" class="spinner-border spinner-border-sm me-1"></i>
+          <i v-else class="bi bi-download me-1"></i>Export CSV
+        </button>
+        <button class="btn btn-primary btn-sm" data-bs-toggle="modal" data-bs-target="#createEventModal">
+          <i class="bi bi-plus-circle me-1"></i>Add event
+        </button>
+      </div>
     </div>
 
-    <div v-if="loading" class="text-center py-5 text-muted">Loading events...</div>
+    <div v-if="error" class="alert alert-danger alert-dismissible small py-2 mb-3" role="alert">
+      <i class="bi bi-exclamation-triangle me-1"></i>{{ error }}
+      <button type="button" class="btn-close py-2" @click="error = ''"></button>
+    </div>
 
-    <div v-else class="card shadow-sm border-0">
+    <div v-if="loading" class="text-center py-5">
+      <div class="spinner-border text-primary" role="status">
+        <span class="visually-hidden">Loading...</span>
+      </div>
+    </div>
+
+    <div v-else-if="events.length > 0" class="card shadow-sm border-0">
       <div class="table-responsive">
-        <table class="table table-hover mb-0 align-middle">
+        <table class="table table-hover mb-0 align-middle" aria-label="Events list">
           <thead class="table-light">
             <tr>
-              <th class="ps-4">Title</th>
-              <th>Start</th>
-              <th>End</th>
-              <th>Location</th>
-              <th>Visibility</th>
-              <th>Status</th>
-              <th class="text-end pe-4">Actions</th>
+              <th class="ps-4" scope="col">Title</th>
+              <th scope="col">Start</th>
+              <th scope="col">End</th>
+              <th scope="col">Location</th>
+              <th scope="col">Visibility</th>
+              <th scope="col">Status</th>
+              <th class="text-end pe-4" scope="col">Actions</th>
             </tr>
           </thead>
           <tbody>
@@ -42,28 +57,30 @@
                 </span>
               </td>
               <td class="text-end pe-4">
-                <button class="btn btn-sm btn-outline-secondary me-1" @click="editEvent(event)">
+                <button class="btn btn-sm btn-outline-secondary me-1" aria-label="Edit event" @click="editEvent(event)">
                   <i class="bi bi-pencil"></i>
                 </button>
-                <button class="btn btn-sm btn-outline-danger" @click="confirmDelete(event)">
+                <button class="btn btn-sm btn-outline-danger" aria-label="Delete event" @click="confirmDelete(event)">
                   <i class="bi bi-trash"></i>
                 </button>
               </td>
-            </tr>
-            <tr v-if="events.length === 0">
-              <td colspan="7" class="text-center text-muted py-4">No events yet</td>
             </tr>
           </tbody>
         </table>
       </div>
     </div>
+    <div v-else class="empty-state">
+      <i class="bi bi-calendar-event display-6 text-secondary"></i>
+      <p class="mb-1 fw-semibold">No events yet</p>
+      <p class="text-muted mb-0">Create events for your organization members.</p>
+    </div>
 
     <!-- Create Event Modal -->
-    <div class="modal fade" id="createEventModal" tabindex="-1">
+    <div class="modal fade" id="createEventModal" tabindex="-1" aria-labelledby="createEventModalLabel">
       <div class="modal-dialog">
         <div class="modal-content">
           <div class="modal-header">
-            <h5 class="modal-title">Add event</h5>
+            <h5 class="modal-title" id="createEventModalLabel">Add event</h5>
             <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
           </div>
           <div class="modal-body">
@@ -109,11 +126,11 @@
     </div>
 
     <!-- Edit Event Modal -->
-    <div class="modal fade" id="editEventModal" tabindex="-1">
+    <div class="modal fade" id="editEventModal" tabindex="-1" aria-labelledby="editEventModalLabel">
       <div class="modal-dialog">
         <div class="modal-content">
           <div class="modal-header">
-            <h5 class="modal-title">Edit event</h5>
+            <h5 class="modal-title" id="editEventModalLabel">Edit event</h5>
             <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
           </div>
           <div class="modal-body">
@@ -172,15 +189,23 @@
 <script setup lang="ts">
 import { onMounted, ref, nextTick } from 'vue'
 import * as bootstrap from 'bootstrap'
-import { listAllEvents, createEvent, updateEvent, deleteEvent, type EventResponse } from '@/api/events.api'
+import { listAllEvents, createEvent, updateEvent, deleteEvent, exportEventsCsv, type EventResponse } from '@/api/events.api'
+import { useCsvExport } from '@/composables/useCsvExport'
 
 const loading = ref(true)
+const error = ref('')
 const saving = ref(false)
 const events = ref<EventResponse[]>([])
 const editingId = ref<string | null>(null)
 
+function setError(err: unknown) {
+  error.value = (err as any)?.response?.data?.detail || (err as any)?.message || 'An unexpected error occurred'
+}
+
 const form = ref({ title: '', description: '', start_at: '', end_at: '', location: '', visibility_scope: 'members_only' })
 const editForm = ref({ title: '', description: '', start_at: '', end_at: '', location: '', visibility_scope: 'members_only', status: 'published' })
+
+const { exportCsv, exporting } = useCsvExport()
 
 function formatDate(dateStr: string): string {
   return new Date(dateStr).toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' })
@@ -189,7 +214,8 @@ function formatDate(dateStr: string): string {
 async function loadEvents() {
   try {
     events.value = await listAllEvents()
-  } finally { loading.value = false }
+  } catch (err) { setError(err) }
+  finally { loading.value = false }
 }
 
 function toLocalDatetime(dateStr: string): string {
@@ -240,6 +266,12 @@ function confirmDelete(event: EventResponse) {
   if (confirm(`Delete event "${event.title}"?`)) {
     deleteEvent(event.id).then(loadEvents)
   }
+}
+
+async function exportEvents() {
+  try {
+    await exportCsv(exportEventsCsv, 'events.csv')
+  } catch (err) { setError(err) }
 }
 
 onMounted(loadEvents)
