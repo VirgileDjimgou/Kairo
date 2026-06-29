@@ -6,24 +6,26 @@ from uuid import UUID
 
 from pydantic import BaseModel, Field, field_serializer
 
+from app.modules.disciplinary.models import DisciplinaryStatus
+
 
 class DisciplinaryRecordCreate(BaseModel):
     membership_profile_id: UUID
     policy_record_id: UUID | None = None
     title: str = Field(min_length=1, max_length=255)
-    description: str | None = None
+    description: str | None = Field(None, max_length=10000)
     amount: Decimal = Field(default=Decimal("0.00"), ge=0)
-    currency: str = "EUR"
-    status: str = "open"
+    currency: str = Field(default="EUR", max_length=3)
+    status: DisciplinaryStatus = DisciplinaryStatus.open
 
 
 class DisciplinaryRecordUpdate(BaseModel):
     policy_record_id: UUID | None = None
     title: str | None = Field(default=None, min_length=1, max_length=255)
-    description: str | None = None
+    description: str | None = Field(None, max_length=10000)
     amount: Decimal | None = Field(default=None, ge=0)
-    currency: str | None = None
-    status: str | None = None
+    currency: str | None = Field(None, max_length=3)
+    status: DisciplinaryStatus | None = None
 
 
 class DisciplinaryRecordResponse(BaseModel):

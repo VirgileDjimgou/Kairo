@@ -234,6 +234,191 @@ async def test_member_cannot_see_other_members_disciplinary_record(
 
 
 @pytest.mark.asyncio
+async def test_admin_can_get_policy_by_id(
+    client: AsyncClient,
+    db_session: AsyncSession,
+) -> None:
+    admin = await create_tenant_with_user(db_session, f"policy-get-{_uuid.uuid4().hex[:6]}")
+    admin_token = await login(client, admin["user"].email, admin["password"], tenant_slug=admin["tenant"].slug)
+
+    created = await client.post(
+        "/api/v1/policies/",
+        headers={"Authorization": f"Bearer {admin_token}"},
+        json={"title": "Data Policy", "category": "data", "description": "Data handling rules.", "status": "published"},
+    )
+    assert created.status_code == 201
+    policy_id = created.json()["id"]
+
+    get_resp = await client.get(
+        f"/api/v1/policies/{policy_id}",
+        headers={"Authorization": f"Bearer {admin_token}"},
+    )
+    assert get_resp.status_code == 200
+    assert get_resp.json()["title"] == "Data Policy"
+
+
+@pytest.mark.asyncio
+async def test_admin_can_list_all_policies(
+    client: AsyncClient,
+    db_session: AsyncSession,
+) -> None:
+    admin = await create_tenant_with_user(db_session, f"policy-list-{_uuid.uuid4().hex[:6]}")
+    admin_token = await login(client, admin["user"].email, admin["password"], tenant_slug=admin["tenant"].slug)
+
+    for title in ["Policy A", "Policy B"]:
+        await client.post(
+            "/api/v1/policies/",
+            headers={"Authorization": f"Bearer {admin_token}"},
+            json={"title": title, "category": "general", "status": "published"},
+        )
+
+    list_resp = await client.get(
+        "/api/v1/policies/",
+        headers={"Authorization": f"Bearer {admin_token}"},
+    )
+    assert list_resp.status_code == 200
+    assert len(list_resp.json()) == 2
+
+
+@pytest.mark.asyncio
+async def test_admin_can_update_policy(
+    client: AsyncClient,
+    db_session: AsyncSession,
+) -> None:
+    admin = await create_tenant_with_user(db_session, f"policy-upd-{_uuid.uuid4().hex[:6]}")
+    admin_token = await login(client, admin["user"].email, admin["password"], tenant_slug=admin["tenant"].slug)
+
+    created = await client.post(
+        "/api/v1/policies/",
+        headers={"Authorization": f"Bearer {admin_token}"},
+        json={"title": "Old Title", "category": "general", "status": "draft"},
+    )
+    policy_id = created.json()["id"]
+
+    patch_resp = await client.patch(
+        f"/api/v1/policies/{policy_id}",
+        headers={"Authorization": f"Bearer {admin_token}"},
+        json={"title": "New Title", "status": "published"},
+    )
+    assert patch_resp.status_code == 200, patch_resp.text
+    updated = patch_resp.json()
+    assert updated["title"] == "New Title"
+    assert updated["status"] == "published"
+
+
+@pytest.mark.asyncio
+async def test_admin_can_delete_policy(
+    client: AsyncClient,
+    db_session: AsyncSession,
+) -> None:
+    admin = await create_tenant_with_user(db_session, f"policy-del-{_uuid.uuid4().hex[:6]}")
+    admin_token = await login(client, admin["user"].email, admin["password"], tenant_slug=admin["tenant"].slug)
+
+    created = await client.post(
+        "/api/v1/policies/",
+        headers={"Authorization": f"Bearer {admin_token}"},
+        json={"title": "Delete Me", "category": "general", "status": "published"},
+    )
+    policy_id = created.json()["id"]
+
+    delete_resp = await client.delete(
+        f"/api/v1/policies/{policy_id}",
+        headers={"Authorization": f"Bearer {admin_token}"},
+    )
+    assert delete_resp.status_code == 204
+
+    get_resp = await client.get(
+        f"/api/v1/policies/{policy_id}",
+        headers={"Authorization": f"Bearer {admin_token}"},
+    )
+    assert get_resp.status_code == 404
+
+
+@pytest.mark.asyncio
+async def test_admin_can_update_disciplinary_record(
+    client: AsyncClient,
+    db_session: AsyncSession,
+) -> None:
+    admin = await create_tenant_with_user(db_session, f"disc-upd-{_uuid.uuid4().hex[:6]}")
+    subject = await _create_linked_member(
+        db_session,
+        tenant_id=admin["tenant"].id,
+        email=f"disc-subj-{_uuid.uuid4().hex[:6]}@test.org",
+        password="DiscSubj1!",
+        member_code="DS-001",
+        display_name="Disc Subject",
+    )
+    admin_token = await login(client, admin["user"].email, admin["password"], tenant_slug=admin["tenant"].slug)
+
+    created = await client.post(
+        "/api/v1/disciplinary/",
+        headers={"Authorization": f"Bearer {admin_token}"},
+        json={
+            "membership_profile_id": str(subject["profile"].id),
+            "title": "Initial warning",
+            "amount": "50.00",
+            "currency": "EUR",
+            "status": "open",
+        },
+    )
+    assert created.status_code == 201
+    record_id = created.json()["id"]
+
+    patch_resp = await client.patch(
+        f"/api/v1/disciplinary/{record_id}",
+        headers={"Authorization": f"Bearer {admin_token}"},
+        json={"status": "resolved", "amount": "25.00"},
+    )
+    assert patch_resp.status_code == 200, patch_resp.text
+    updated = patch_resp.json()
+    assert updated["status"] == "resolved"
+    assert updated["amount"] == "25.00"
+
+
+@pytest.mark.asyncio
+async def test_admin_can_delete_disciplinary_record(
+    client: AsyncClient,
+    db_session: AsyncSession,
+) -> None:
+    admin = await create_tenant_with_user(db_session, f"disc-del-{_uuid.uuid4().hex[:6]}")
+    subject = await _create_linked_member(
+        db_session,
+        tenant_id=admin["tenant"].id,
+        email=f"disc-subj2-{_uuid.uuid4().hex[:6]}@test.org",
+        password="DiscSubj2!",
+        member_code="DS-002",
+        display_name="Disc Subject Two",
+    )
+    admin_token = await login(client, admin["user"].email, admin["password"], tenant_slug=admin["tenant"].slug)
+
+    created = await client.post(
+        "/api/v1/disciplinary/",
+        headers={"Authorization": f"Bearer {admin_token}"},
+        json={
+            "membership_profile_id": str(subject["profile"].id),
+            "title": "Temp record",
+            "amount": "10.00",
+            "currency": "EUR",
+            "status": "open",
+        },
+    )
+    assert created.status_code == 201
+    record_id = created.json()["id"]
+
+    delete_resp = await client.delete(
+        f"/api/v1/disciplinary/{record_id}",
+        headers={"Authorization": f"Bearer {admin_token}"},
+    )
+    assert delete_resp.status_code == 204
+
+    get_resp = await client.get(
+        f"/api/v1/disciplinary/{record_id}",
+        headers={"Authorization": f"Bearer {admin_token}"},
+    )
+    assert get_resp.status_code == 404
+
+
+@pytest.mark.asyncio
 async def test_treasurer_can_create_disciplinary_record(
     client: AsyncClient,
     db_session: AsyncSession,

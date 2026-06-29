@@ -125,6 +125,13 @@
       </div>
     </div>
 
+    <ConfirmModal v-if="showDeleteModal && deletingEvent"
+      title="Delete event"
+      :message="`Delete event &quot;${deletingEvent.title}&quot;?`"
+      @confirm="handleDelete"
+      @cancel="showDeleteModal = false; deletingEvent = null"
+    />
+
     <!-- Edit Event Modal -->
     <div class="modal fade" id="editEventModal" tabindex="-1" aria-labelledby="editEventModalLabel">
       <div class="modal-dialog">
@@ -189,6 +196,7 @@
 <script setup lang="ts">
 import { onMounted, ref, nextTick } from 'vue'
 import * as bootstrap from 'bootstrap'
+import ConfirmModal from '@/components/ConfirmModal.vue'
 import { listAllEvents, createEvent, updateEvent, deleteEvent, exportEventsCsv, type EventResponse } from '@/api/events.api'
 import { useCsvExport } from '@/composables/useCsvExport'
 
@@ -197,6 +205,8 @@ const error = ref('')
 const saving = ref(false)
 const events = ref<EventResponse[]>([])
 const editingId = ref<string | null>(null)
+const showDeleteModal = ref(false)
+const deletingEvent = ref<EventResponse | null>(null)
 
 function setError(err: unknown) {
   error.value = (err as any)?.response?.data?.detail || (err as any)?.message || 'An unexpected error occurred'
@@ -263,8 +273,19 @@ async function handleUpdate() {
 }
 
 function confirmDelete(event: EventResponse) {
-  if (confirm(`Delete event "${event.title}"?`)) {
-    deleteEvent(event.id).then(loadEvents)
+  deletingEvent.value = event
+  showDeleteModal.value = true
+}
+
+async function handleDelete() {
+  if (!deletingEvent.value) return
+  try {
+    await deleteEvent(deletingEvent.value.id)
+    await loadEvents()
+  } catch (err) { setError(err) }
+  finally {
+    showDeleteModal.value = false
+    deletingEvent.value = null
   }
 }
 

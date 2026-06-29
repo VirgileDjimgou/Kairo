@@ -5,21 +5,23 @@ from uuid import UUID
 
 from pydantic import BaseModel, Field
 
+from app.modules.policies.models import PolicyStatus
+
 
 class PolicyRecordCreate(BaseModel):
     title: str = Field(min_length=1, max_length=255)
     category: str = Field(min_length=1, max_length=100)
-    description: str | None = None
+    description: str | None = Field(None, max_length=10000)
     document_id: UUID | None = None
-    status: str = "published"
+    status: PolicyStatus = PolicyStatus.published
 
 
 class PolicyRecordUpdate(BaseModel):
     title: str | None = Field(default=None, min_length=1, max_length=255)
     category: str | None = Field(default=None, min_length=1, max_length=100)
-    description: str | None = None
+    description: str | None = Field(None, max_length=10000)
     document_id: UUID | None = None
-    status: str | None = None
+    status: PolicyStatus | None = None
 
 
 class PolicyRecordResponse(BaseModel):

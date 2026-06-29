@@ -1725,7 +1725,7 @@ Acceptance criteria:
 
 ## Sprint 36 - Association Operations Robustness
 
-Status: Planned
+Status: Completed
 
 Goal:
 Strengthen the most important business workflows so the product is realistically usable by an association or organization with about 200 members.
