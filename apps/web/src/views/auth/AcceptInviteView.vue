@@ -69,10 +69,17 @@
       <div v-else class="text-center">
         <i class="bi bi-check-circle fs-1 text-success"></i>
         <p class="mt-2 mb-1 fw-medium">Welcome!</p>
-        <p class="text-muted small">Your account has been set up and you're now signed in.</p>
-        <router-link to="/dashboard" class="btn btn-primary mt-2">
-          Go to dashboard
-        </router-link>
+        <p class="text-muted small">
+          Your account has been set up and you're now signed in. The next recommended step is to review your account security.
+        </p>
+        <div class="d-flex flex-column flex-sm-row justify-content-center gap-2 mt-3">
+          <router-link to="/account/security" class="btn btn-primary">
+            Secure account
+          </router-link>
+          <router-link to="/dashboard" class="btn btn-outline-secondary">
+            Go to dashboard
+          </router-link>
+        </div>
       </div>
 
       <div class="text-center mt-3">
@@ -86,12 +93,12 @@
 
 <script setup lang="ts">
 import { computed, reactive, ref } from "vue";
-import { useRoute, useRouter } from "vue-router";
+import { useRoute } from "vue-router";
 import { acceptInvite } from "@/api/auth.api";
 import { useAuthStore } from "@/stores/auth.store";
+import { getApiErrorDetail, mapAcceptInviteError } from "@/utils/authErrors";
 
 const route = useRoute();
-const router = useRouter();
 const authStore = useAuthStore();
 
 const token = computed(() => (route.query.token as string) || "");
@@ -130,8 +137,7 @@ async function handleSubmit() {
     await authStore.restoreSession();
     success.value = true;
   } catch (err: unknown) {
-    const e = err as { response?: { data?: { detail?: string } } };
-    errorMessage.value = e.response?.data?.detail || "Acceptance failed. The link may be expired.";
+    errorMessage.value = mapAcceptInviteError(getApiErrorDetail(err));
   } finally {
     loading.value = false;
   }

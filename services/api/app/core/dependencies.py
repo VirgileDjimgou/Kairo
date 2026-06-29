@@ -4,7 +4,7 @@ from typing import Annotated
 from uuid import UUID
 
 import jwt
-from fastapi import Depends, HTTPException, status
+from fastapi import Depends, HTTPException, Request, status
 from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -26,6 +26,7 @@ class CurrentUser:
     user: object  # app.modules.identity.models.User (typed here to avoid circular import)
     tenant_id: UUID
     roles: list[str]
+    session_id: UUID
 
     def has_role(self, *role_codes: str) -> bool:
         return any(r in self.roles for r in role_codes)
@@ -40,6 +41,7 @@ async def get_db() -> AsyncSession:  # type: ignore[misc]
 async def get_current_user(
     credentials: Annotated[HTTPAuthorizationCredentials, Depends(_bearer_scheme)],
     db: Annotated[AsyncSession, Depends(get_db)],
+    request: Request,
 ) -> CurrentUser:
     """
     FastAPI dependency: decode JWT, validate, load User from DB.
@@ -56,28 +58,56 @@ async def get_current_user(
         payload = decode_access_token(credentials.credentials)
         user_id_str: str | None = payload.get("sub")
         tenant_id_str: str | None = payload.get("tenant_id")
+        session_id_str: str | None = payload.get("sid")
         token_type: str | None = payload.get("type")
 
-        if not user_id_str or not tenant_id_str or token_type != "access":
+        if not user_id_str or not tenant_id_str or not session_id_str or token_type != "access":
             raise unauthorized
 
         user_id = UUID(user_id_str)
         tenant_id = UUID(tenant_id_str)
+        session_id = UUID(session_id_str)
         roles: list[str] = payload.get("roles", [])
 
     except (jwt.PyJWTError, ValueError):
         raise unauthorized
 
     # Import locally to break circular dependency
-    from app.modules.identity.repository import UserRepository
+    from app.modules.identity.repository import UserRepository, UserSessionRepository
+    from app.modules.tenancy.repository import TenancyRepository
 
     repo = UserRepository(db)
     user = await repo.get_by_id(user_id)
+    session_repo = UserSessionRepository(db)
+    session = await session_repo.get_active_by_id(session_id)
+    tenancy_repo = TenancyRepository(db)
+    membership = await tenancy_repo.get_tenant_user(tenant_id, user_id)
 
-    if user is None or user.status != "active":
+    if (
+        user is None
+        or user.status != "active"
+        or session is None
+        or session.user_id != user_id
+        or membership is None
+        or membership.membership_status != "active"
+    ):
         raise unauthorized
 
-    return CurrentUser(user=user, tenant_id=tenant_id, roles=roles)
+    forwarded = request.headers.get("X-Forwarded-For") if request else None
+    ip_address = (
+        forwarded.split(",")[0].strip()
+        if forwarded
+        else request.client.host if request and request.client else None
+    )
+    user_agent = request.headers.get("User-Agent") if request else None
+    await session_repo.touch(
+        session_id,
+        tenant_id=tenant_id,
+        ip_address=ip_address,
+        user_agent=user_agent,
+    )
+
+    return CurrentUser(user=user, tenant_id=tenant_id, roles=roles, session_id=session_id)
 
 
 # Convenience type alias for route signatures

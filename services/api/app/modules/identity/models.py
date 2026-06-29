@@ -61,6 +61,53 @@ class User(Base):
         return f"<User id={self.id} email={self.email}>"
 
 
+class UserSession(Base):
+    """Persistent authenticated session used for revocation and visibility."""
+
+    __tablename__ = "user_sessions"
+
+    id: Mapped[uuid.UUID] = mapped_column(
+        UUID(as_uuid=True),
+        primary_key=True,
+        default=uuid.uuid4,
+    )
+    user_id: Mapped[uuid.UUID] = mapped_column(
+        UUID(as_uuid=True),
+        ForeignKey("users.id", ondelete="CASCADE"),
+        nullable=False,
+        index=True,
+    )
+    current_tenant_id: Mapped[uuid.UUID] = mapped_column(
+        UUID(as_uuid=True),
+        ForeignKey("tenants.id", ondelete="CASCADE"),
+        nullable=False,
+        index=True,
+    )
+    created_ip: Mapped[str | None] = mapped_column(String(128), nullable=True)
+    created_user_agent: Mapped[str | None] = mapped_column(Text, nullable=True)
+    last_seen_ip: Mapped[str | None] = mapped_column(String(128), nullable=True)
+    last_seen_user_agent: Mapped[str | None] = mapped_column(Text, nullable=True)
+    created_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True),
+        nullable=False,
+        server_default=text("CURRENT_TIMESTAMP"),
+    )
+    last_seen_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True),
+        nullable=False,
+        server_default=text("CURRENT_TIMESTAMP"),
+    )
+    revoked_at: Mapped[datetime | None] = mapped_column(
+        DateTime(timezone=True),
+        nullable=True,
+        index=True,
+    )
+    revoked_reason: Mapped[str | None] = mapped_column(String(120), nullable=True)
+
+    def __repr__(self) -> str:
+        return f"<UserSession id={self.id} user_id={self.user_id} revoked={self.revoked_at is not None}>"
+
+
 class Invitation(Base):
     """
     A pending invitation for a user to join a tenant.

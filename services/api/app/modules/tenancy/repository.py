@@ -1,8 +1,10 @@
+from datetime import datetime, timezone
 from uuid import UUID
 
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from app.modules.identity.models import User
 from app.modules.tenancy.models import Role, Tenant, TenantUser, user_roles
 
 
@@ -113,6 +115,17 @@ class TenancyRepository:
         result = await self._db.execute(query)
         return list(result.scalars().all())
 
+    async def list_tenant_user_details(
+        self, tenant_id: UUID
+    ) -> list[tuple[TenantUser, User]]:
+        result = await self._db.execute(
+            select(TenantUser, User)
+            .join(User, User.id == TenantUser.user_id)
+            .where(TenantUser.tenant_id == tenant_id)
+            .order_by(User.display_name.asc(), User.email.asc())
+        )
+        return list(result.all())
+
     async def create_tenant_user(
         self,
         tenant_id: UUID,
@@ -130,6 +143,21 @@ class TenancyRepository:
         await self._db.flush()
         await self._db.refresh(tu)
         return tu
+
+    async def update_membership_status(
+        self,
+        tenant_id: UUID,
+        user_id: UUID,
+        membership_status: str,
+    ) -> TenantUser | None:
+        membership = await self.get_tenant_user(tenant_id, user_id)
+        if membership is None:
+            return None
+        membership.membership_status = membership_status
+        membership.updated_at = datetime.now(timezone.utc)
+        await self._db.flush()
+        await self._db.refresh(membership)
+        return membership
 
     # ── Roles ──────────────────────────────────────────────────────────────────
 

@@ -32,7 +32,7 @@ const router = createRouter({
     {
       path: '/mfa/setup',
       name: 'mfa-setup',
-      component: () => import('@/views/auth/MfaSetupView.vue'),
+      redirect: '/account/security',
       meta: { requiresAuth: true },
     },
     {
@@ -60,6 +60,11 @@ const router = createRouter({
           name: 'my-profile',
           component: () => import('@/views/members/MyProfileView.vue'),
           meta: { module: 'membership' },
+        },
+        {
+          path: 'account/security',
+          name: 'account-security',
+          component: () => import('@/views/account/AccountSecurityView.vue'),
         },
         {
           path: 'policies',

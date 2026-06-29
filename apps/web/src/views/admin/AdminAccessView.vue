@@ -1,13 +1,13 @@
 <template>
   <div class="p-4 p-lg-5">
     <div class="d-flex flex-column flex-xl-row justify-content-between gap-3 mb-4">
-      <div>
-        <div class="text-uppercase small fw-semibold text-secondary mb-2">
-          Team onboarding and access
-        </div>
-        <h1 class="h4 fw-bold mb-1">Access operations</h1>
+        <div>
+          <div class="text-uppercase small fw-semibold text-secondary mb-2">
+          Team onboarding and lifecycle
+          </div>
+        <h1 class="h4 fw-bold mb-1">Access and lifecycle operations</h1>
         <p class="text-muted mb-0">
-          Invite teammates, monitor invitation status, and keep tenant access rollout visible.
+          Invite teammates, contain risky access, and keep tenant user lifecycle visible from one admin surface.
         </p>
       </div>
       <div class="d-flex gap-2 align-items-start">
@@ -108,19 +108,32 @@
             <div class="text-uppercase small fw-semibold text-secondary mb-2">
               Latest invitation
             </div>
-            <h2 class="h6 fw-bold mb-2">Share the acceptance link securely</h2>
-            <p class="small text-muted">
-              Email delivery is not wired yet, so this sprint surfaces the secure acceptance URL directly for admin operations and demos.
+            <h2 class="h6 fw-bold mb-2">Delivery outcome</h2>
+            <p class="small text-muted mb-2">
+              Invitation delivery is handled by the backend. Manual link sharing is exposed only for simulation or fallback scenarios.
             </p>
-            <div class="invite-link-box small mb-3">{{ latestInvite.acceptUrl }}</div>
-            <div class="d-flex flex-wrap gap-2">
-              <button class="btn btn-outline-primary btn-sm" type="button" @click="copyLatestInviteLink">
-                <i class="bi bi-clipboard me-1"></i>{{ copiedInviteId === latestInvite.invitation_id ? 'Copied' : 'Copy link' }}
-              </button>
-              <a :href="latestInvite.acceptUrl" class="btn btn-outline-secondary btn-sm" target="_blank" rel="noreferrer">
-                Open acceptance page
-              </a>
+            <div class="d-flex flex-wrap gap-2 align-items-center mb-3">
+              <span class="badge" :class="deliveryBadgeClass(latestInvite.delivery_status)">
+                {{ latestInvite.delivery_status }}
+              </span>
+              <span class="small text-muted">
+                {{ latestInvite.delivery_message || 'No provider detail returned.' }}
+              </span>
             </div>
+            <template v-if="latestInvite.acceptUrl">
+              <div class="invite-link-box small mb-3">{{ latestInvite.acceptUrl }}</div>
+              <div class="d-flex flex-wrap gap-2">
+                <button class="btn btn-outline-primary btn-sm" type="button" @click="copyLatestInviteLink">
+                  <i class="bi bi-clipboard me-1"></i>{{ copiedInviteId === latestInvite.invitation_id ? 'Copied' : 'Copy link' }}
+                </button>
+                <a :href="latestInvite.acceptUrl" class="btn btn-outline-secondary btn-sm" target="_blank" rel="noreferrer">
+                  Open acceptance page
+                </a>
+              </div>
+            </template>
+            <p v-else class="small text-muted mb-0">
+              The secure link was delivered through the configured email channel and is intentionally not exposed here.
+            </p>
           </div>
         </div>
       </div>
@@ -197,6 +210,109 @@
           </div>
         </div>
 
+        <div class="card shadow-sm border-0 mb-4">
+          <div class="card-body p-4">
+            <div class="d-flex flex-column flex-lg-row justify-content-between gap-3 mb-3">
+              <div>
+                <div class="text-uppercase small fw-semibold text-secondary mb-2">
+                  Tenant user lifecycle
+                </div>
+                <h2 class="h6 fw-bold mb-1">Current user access state</h2>
+                <p class="text-muted small mb-0">
+                  Suspend or reactivate tenant users, and revoke active tenant sessions when incident response is needed.
+                </p>
+              </div>
+              <span class="badge bg-light text-dark border align-self-start">
+                {{ managedUsers.length }} user(s)
+              </span>
+            </div>
+
+            <div v-if="loading" class="text-center py-5">
+              <div class="spinner-border text-primary" role="status">
+                <span class="visually-hidden">Loading...</span>
+              </div>
+            </div>
+
+            <div v-else-if="managedUsers.length === 0" class="empty-state">
+              <i class="bi bi-people display-6 text-secondary"></i>
+              <p class="mb-1 fw-semibold">No tenant users found</p>
+              <p class="text-muted mb-0">
+                User lifecycle controls appear here once the tenant has active or historical memberships.
+              </p>
+            </div>
+
+            <div v-else class="table-responsive">
+              <table class="table align-middle mb-0" aria-label="Tenant user lifecycle" data-testid="admin-user-lifecycle">
+                <thead class="table-light">
+                  <tr>
+                    <th scope="col">User</th>
+                    <th scope="col">Profile</th>
+                    <th scope="col">Status</th>
+                    <th scope="col">Sessions</th>
+                    <th scope="col">Last activity</th>
+                    <th class="text-end" scope="col">Actions</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr v-for="managedUser in managedUsers" :key="managedUser.user_id">
+                    <td>
+                      <div class="fw-medium">{{ managedUser.display_name }}</div>
+                      <div class="small text-muted">{{ managedUser.email }}</div>
+                    </td>
+                    <td>
+                      <div class="small">{{ managedUser.profile_type }}</div>
+                      <div class="small text-muted">{{ managedUser.roles.join(', ') || 'No roles' }}</div>
+                    </td>
+                    <td>
+                      <span class="badge" :class="membershipStatusBadgeClass(managedUser.membership_status)">
+                        {{ managedUser.membership_status }}
+                      </span>
+                    </td>
+                    <td>
+                      <div class="fw-medium">{{ managedUser.active_session_count }}</div>
+                      <div class="small text-muted">{{ managedUser.active_session_count === 1 ? 'active session' : 'active sessions' }}</div>
+                    </td>
+                    <td class="small">
+                      <div>{{ managedUser.last_security_event_at ? formatDateTime(managedUser.last_security_event_at) : 'No recent event' }}</div>
+                      <div class="text-muted">{{ managedUser.last_security_event_action || 'No identity activity yet' }}</div>
+                    </td>
+                    <td class="text-end">
+                      <div class="d-flex flex-wrap gap-2 justify-content-end">
+                        <button
+                          v-if="managedUser.membership_status === 'active'"
+                          class="btn btn-sm btn-outline-danger"
+                          type="button"
+                          :disabled="lifecycleActionId === `${managedUser.user_id}:suspend`"
+                          @click="suspendUser(managedUser.user_id)"
+                        >
+                          {{ lifecycleActionId === `${managedUser.user_id}:suspend` ? 'Suspending...' : 'Suspend' }}
+                        </button>
+                        <button
+                          v-if="managedUser.membership_status !== 'active'"
+                          class="btn btn-sm btn-outline-success"
+                          type="button"
+                          :disabled="lifecycleActionId === `${managedUser.user_id}:reactivate`"
+                          @click="reactivateUser(managedUser.user_id)"
+                        >
+                          {{ lifecycleActionId === `${managedUser.user_id}:reactivate` ? 'Reactivating...' : 'Reactivate' }}
+                        </button>
+                        <button
+                          class="btn btn-sm btn-outline-secondary"
+                          type="button"
+                          :disabled="lifecycleActionId === `${managedUser.user_id}:revoke`"
+                          @click="revokeUserSessions(managedUser.user_id)"
+                        >
+                          {{ lifecycleActionId === `${managedUser.user_id}:revoke` ? 'Revoking...' : 'Revoke sessions' }}
+                        </button>
+                      </div>
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+
         <div class="card shadow-sm border-0">
           <div class="card-body p-4">
             <div class="text-uppercase small fw-semibold text-secondary mb-2">
@@ -210,7 +326,7 @@
                 Password reset and MFA already exist as self-service identity flows and stay protected by backend checks.
               </div>
               <div>
-                Use the audit trail to review sensitive invitation actions and confirm who invited or cancelled access.
+                Use the audit trail to review invitation, suspension, reactivation, and forced-session-revocation actions.
               </div>
             </div>
           </div>
@@ -227,8 +343,13 @@ import {
   cancelInvitation,
   inviteUser,
   listInvitations,
+  listManagedUsers,
+  reactivateManagedUser,
+  revokeManagedUserSessions,
+  suspendManagedUser,
   type InvitationStatusResponse,
   type InviteResponse,
+  type ManagedTenantUserResponse,
 } from '@/api/auth.api'
 import { getTenantRoles, type RoleResponse } from '@/api/settings.api'
 import { useTenantStore } from '@/stores/tenant.store'
@@ -240,11 +361,13 @@ const pageError = ref('')
 const submitError = ref('')
 const submitting = ref(false)
 const cancellingId = ref<string | null>(null)
+const lifecycleActionId = ref<string | null>(null)
 const copiedInviteId = ref<string | null>(null)
 
 const roleOptions = ref<RoleResponse[]>([])
 const invitations = ref<InvitationStatusResponse[]>([])
-const latestInvite = ref<(InviteResponse & { acceptUrl: string }) | null>(null)
+const managedUsers = ref<ManagedTenantUserResponse[]>([])
+const latestInvite = ref<(InviteResponse & { acceptUrl: string | null }) | null>(null)
 
 const inviteForm = reactive({
   email: '',
@@ -263,11 +386,13 @@ const summaryCards = computed(() => {
   const accepted = invitations.value.filter((item) => item.status === 'accepted').length
   const cancelled = invitations.value.filter((item) => item.status === 'cancelled').length
   const expired = invitations.value.filter((item) => isExpired(item)).length
+  const suspended = managedUsers.value.filter((item) => item.membership_status !== 'active').length
 
   return [
     { id: 'pending', label: 'Pending', value: String(pending), hint: 'Awaiting invitee action' },
     { id: 'accepted', label: 'Accepted', value: String(accepted), hint: 'Successfully onboarded' },
     { id: 'cancelled', label: 'Cancelled', value: String(cancelled), hint: 'Stopped before use' },
+    { id: 'suspended', label: 'Suspended', value: String(suspended), hint: 'Need admin reactivation' },
     { id: 'roles', label: 'Available roles', value: String(roleOptions.value.length), hint: 'Selectable tenant roles' },
     ...(expired > 0
       ? [{ id: 'expired', label: 'Expired', value: String(expired), hint: 'Need a new invite link' }]
@@ -291,6 +416,19 @@ function statusBadgeClass(status: string) {
   if (status === 'cancelled') return 'bg-secondary-subtle text-secondary'
   if (status === 'expired') return 'bg-danger-subtle text-danger'
   return 'bg-warning-subtle text-warning'
+}
+
+function deliveryBadgeClass(status: string) {
+  if (status === 'sent') return 'bg-success-subtle text-success'
+  if (status === 'failed') return 'bg-danger-subtle text-danger'
+  if (status === 'manual') return 'bg-secondary-subtle text-secondary'
+  return 'bg-warning-subtle text-warning'
+}
+
+function membershipStatusBadgeClass(status: string) {
+  if (status === 'active') return 'bg-success-subtle text-success'
+  if (status === 'suspended') return 'bg-danger-subtle text-danger'
+  return 'bg-secondary-subtle text-secondary'
 }
 
 function formatDateTime(value: string) {
@@ -339,14 +477,18 @@ async function loadAccessConsole() {
   pageError.value = ''
 
   try {
-    const [roles, invitationItems] = await Promise.all([
+    const [roles, invitationItems, managedUserItems] = await Promise.all([
       getTenantRoles(tenantId.value),
       listInvitations(tenantId.value),
+      listManagedUsers(tenantId.value),
     ])
     roleOptions.value = roles.sort((left, right) => left.name.localeCompare(right.name))
     invitations.value = invitationItems
       .map(normalizeInvitation)
       .sort((left, right) => new Date(right.created_at).getTime() - new Date(left.created_at).getTime())
+    managedUsers.value = managedUserItems
+      .slice()
+      .sort((left, right) => left.display_name.localeCompare(right.display_name))
 
     if (!inviteForm.roleCode && roleOptions.value.length > 0) {
       inviteForm.roleCode = roleOptions.value[0].code
@@ -375,7 +517,7 @@ async function submitInvite() {
     })
     latestInvite.value = {
       ...created,
-      acceptUrl: buildAcceptUrl(created.invite_token),
+      acceptUrl: created.invite_token ? buildAcceptUrl(created.invite_token) : null,
     }
     inviteForm.email = ''
     await loadAccessConsole()
@@ -402,8 +544,50 @@ async function cancelInvite(invitationId: string) {
   }
 }
 
+async function suspendUser(userId: string) {
+  lifecycleActionId.value = `${userId}:suspend`
+  pageError.value = ''
+  try {
+    await suspendManagedUser(userId)
+    await loadAccessConsole()
+  } catch (err: unknown) {
+    const detail = (err as { response?: { data?: { detail?: string } } })?.response?.data?.detail
+    pageError.value = detail || 'Could not suspend this tenant user.'
+  } finally {
+    lifecycleActionId.value = null
+  }
+}
+
+async function reactivateUser(userId: string) {
+  lifecycleActionId.value = `${userId}:reactivate`
+  pageError.value = ''
+  try {
+    await reactivateManagedUser(userId)
+    await loadAccessConsole()
+  } catch (err: unknown) {
+    const detail = (err as { response?: { data?: { detail?: string } } })?.response?.data?.detail
+    pageError.value = detail || 'Could not reactivate this tenant user.'
+  } finally {
+    lifecycleActionId.value = null
+  }
+}
+
+async function revokeUserSessions(userId: string) {
+  lifecycleActionId.value = `${userId}:revoke`
+  pageError.value = ''
+  try {
+    await revokeManagedUserSessions(userId)
+    await loadAccessConsole()
+  } catch (err: unknown) {
+    const detail = (err as { response?: { data?: { detail?: string } } })?.response?.data?.detail
+    pageError.value = detail || 'Could not revoke sessions for this tenant user.'
+  } finally {
+    lifecycleActionId.value = null
+  }
+}
+
 async function copyLatestInviteLink() {
-  if (!latestInvite.value) return
+  if (!latestInvite.value?.acceptUrl) return
   await navigator.clipboard.writeText(latestInvite.value.acceptUrl)
   copiedInviteId.value = latestInvite.value.invitation_id
 }

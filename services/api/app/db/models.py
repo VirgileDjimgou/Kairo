@@ -6,6 +6,7 @@ from app.modules.identity.models import (  # noqa: F401
     Invitation,
     PasswordResetToken,
     User,
+    UserSession,
 )
 from app.modules.documents.models import (  # noqa: F401
     Document,

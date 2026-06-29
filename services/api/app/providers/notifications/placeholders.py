@@ -1,5 +1,9 @@
 from __future__ import annotations
 
+import asyncio
+import smtplib
+from email.message import EmailMessage
+
 from app.core.config import settings
 from app.providers.notifications.base import (
     NotificationChannelDescriptor,
@@ -26,11 +30,31 @@ class _PlaceholderNotificationProvider:
             target_hint=self.target_hint,
         )
 
+    async def send_message(
+        self,
+        *,
+        tenant_id,
+        actor_user_id,
+        recipient: str,
+        subject: str | None,
+        body: str,
+    ) -> NotificationDispatchResult:
+        return await self._send_simulated(recipient=recipient, subject=subject, body=body)
+
     async def send_test_message(
         self,
         *,
         tenant_id,
         actor_user_id,
+        recipient: str,
+        subject: str | None,
+        body: str,
+    ) -> NotificationDispatchResult:
+        return await self._send_simulated(recipient=recipient, subject=subject, body=body)
+
+    async def _send_simulated(
+        self,
+        *,
         recipient: str,
         subject: str | None,
         body: str,
@@ -61,6 +85,81 @@ class EmailNotificationProvider(_PlaceholderNotificationProvider):
 
     def __init__(self) -> None:
         super().__init__(configured=bool(settings.smtp_host and settings.smtp_from_email))
+
+    def describe(self) -> NotificationChannelDescriptor:
+        descriptor = super().describe()
+        if not self._configured:
+            return descriptor
+        return NotificationChannelDescriptor(
+            channel=descriptor.channel,
+            display_name=descriptor.display_name,
+            description="SMTP-backed provider for transactional identity or operational email.",
+            configured=True,
+            simulation_only=False,
+            target_hint=descriptor.target_hint,
+        )
+
+    async def send_message(
+        self,
+        *,
+        tenant_id,
+        actor_user_id,
+        recipient: str,
+        subject: str | None,
+        body: str,
+    ) -> NotificationDispatchResult:
+        if not self._configured:
+            return await self._send_simulated(recipient=recipient, subject=subject, body=body)
+
+        try:
+            await asyncio.to_thread(
+                self._send_via_smtp,
+                recipient=recipient,
+                subject=subject or "Kairo notification",
+                body=body,
+            )
+        except Exception as exc:  # pragma: no cover - exercised via tests with fakes
+            return NotificationDispatchResult(
+                channel=self.channel,
+                status="failed",
+                message=f"SMTP delivery failed for {recipient}: {exc}",
+                delivered=False,
+                simulation_only=False,
+            )
+
+        return NotificationDispatchResult(
+            channel=self.channel,
+            status="sent",
+            message=f"SMTP delivery accepted for {recipient}.",
+            delivered=True,
+            simulation_only=False,
+        )
+
+    def _send_via_smtp(self, *, recipient: str, subject: str, body: str) -> None:
+        message = EmailMessage()
+        message["From"] = settings.smtp_from_email
+        message["To"] = recipient
+        message["Subject"] = subject
+        message.set_content(body)
+
+        use_ssl = settings.smtp_port == 465
+        if use_ssl:
+            with smtplib.SMTP_SSL(settings.smtp_host, settings.smtp_port, timeout=15) as smtp:
+                self._authenticate_if_needed(smtp)
+                smtp.send_message(message)
+            return
+
+        with smtplib.SMTP(settings.smtp_host, settings.smtp_port, timeout=15) as smtp:
+            smtp.ehlo()
+            if settings.smtp_username or settings.smtp_password:
+                smtp.starttls()
+                smtp.ehlo()
+            self._authenticate_if_needed(smtp)
+            smtp.send_message(message)
+
+    def _authenticate_if_needed(self, smtp: smtplib.SMTP) -> None:
+        if settings.smtp_username and settings.smtp_password:
+            smtp.login(settings.smtp_username, settings.smtp_password)
 
 
 class TelegramNotificationProvider(_PlaceholderNotificationProvider):

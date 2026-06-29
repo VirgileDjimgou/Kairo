@@ -202,7 +202,29 @@ The script backs up all persistent data:
 | MinIO | Uploaded files | Data directory |
 | Ollama | Downloaded models | Model files |
 
-### Manual restore
+### Automated restore
+
+```bash
+chmod +x scripts/restore.sh
+./scripts/restore.sh ./backups/kairo-backup-20260629_120000.tar.gz
+```
+
+The restore script:
+1. Extracts the backup archive
+2. Restores PostgreSQL from the SQL dump
+3. Restores Redis RDB, Qdrant storage, MinIO data, and Ollama models
+4. Restarts affected services so they pick up the restored data
+5. Cleans up temporary files
+
+After restore, run the production smoke check to verify:
+
+```bash
+./scripts/production_smoke.sh
+```
+
+### Manual restore (alternative)
+
+If the automated script is unavailable, follow these steps:
 
 ```bash
 # 1. Stop all containers

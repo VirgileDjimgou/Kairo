@@ -1,10 +1,10 @@
 from datetime import datetime, timezone
 from uuid import UUID
 
-from sqlalchemy import select, update
+from sqlalchemy import func, select, update
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.modules.identity.models import Invitation, PasswordResetToken, User
+from app.modules.identity.models import Invitation, PasswordResetToken, User, UserSession
 
 
 class UserRepository:
@@ -100,6 +100,187 @@ class UserRepository:
                 updated_at=datetime.now(timezone.utc),
             )
         )
+
+
+class UserSessionRepository:
+    """Data access for persisted authenticated sessions."""
+
+    def __init__(self, db: AsyncSession) -> None:
+        self._db = db
+
+    async def get_by_id(self, session_id: UUID) -> UserSession | None:
+        result = await self._db.execute(
+            select(UserSession).where(UserSession.id == session_id)
+        )
+        return result.scalar_one_or_none()
+
+    async def get_active_by_id(self, session_id: UUID) -> UserSession | None:
+        result = await self._db.execute(
+            select(UserSession).where(
+                UserSession.id == session_id,
+                UserSession.revoked_at.is_(None),
+            )
+        )
+        return result.scalar_one_or_none()
+
+    async def list_active_for_user(self, user_id: UUID) -> list[UserSession]:
+        result = await self._db.execute(
+            select(UserSession)
+            .where(
+                UserSession.user_id == user_id,
+                UserSession.revoked_at.is_(None),
+            )
+            .order_by(UserSession.last_seen_at.desc(), UserSession.created_at.desc())
+        )
+        return list(result.scalars().all())
+
+    async def list_active_for_user_and_tenant(
+        self,
+        *,
+        user_id: UUID,
+        tenant_id: UUID,
+    ) -> list[UserSession]:
+        result = await self._db.execute(
+            select(UserSession)
+            .where(
+                UserSession.user_id == user_id,
+                UserSession.current_tenant_id == tenant_id,
+                UserSession.revoked_at.is_(None),
+            )
+            .order_by(UserSession.last_seen_at.desc(), UserSession.created_at.desc())
+        )
+        return list(result.scalars().all())
+
+    async def count_active_for_users_by_tenant(
+        self,
+        *,
+        tenant_id: UUID,
+        user_ids: list[UUID],
+    ) -> dict[UUID, int]:
+        if not user_ids:
+            return {}
+        result = await self._db.execute(
+            select(UserSession.user_id, func.count(UserSession.id))
+            .where(
+                UserSession.current_tenant_id == tenant_id,
+                UserSession.user_id.in_(user_ids),
+                UserSession.revoked_at.is_(None),
+            )
+            .group_by(UserSession.user_id)
+        )
+        return {user_id: int(count) for user_id, count in result.all()}
+
+    async def create(
+        self,
+        *,
+        user_id: UUID,
+        tenant_id: UUID,
+        ip_address: str | None,
+        user_agent: str | None,
+    ) -> UserSession:
+        session = UserSession(
+            user_id=user_id,
+            current_tenant_id=tenant_id,
+            created_ip=ip_address,
+            created_user_agent=user_agent,
+            last_seen_ip=ip_address,
+            last_seen_user_agent=user_agent,
+        )
+        self._db.add(session)
+        await self._db.flush()
+        await self._db.refresh(session)
+        return session
+
+    async def touch(
+        self,
+        session_id: UUID,
+        *,
+        tenant_id: UUID,
+        ip_address: str | None,
+        user_agent: str | None,
+    ) -> None:
+        await self._db.execute(
+            update(UserSession)
+            .where(
+                UserSession.id == session_id,
+                UserSession.revoked_at.is_(None),
+            )
+            .values(
+                current_tenant_id=tenant_id,
+                last_seen_at=datetime.now(timezone.utc),
+                last_seen_ip=ip_address,
+                last_seen_user_agent=user_agent,
+            )
+        )
+
+    async def revoke_session(
+        self,
+        *,
+        session_id: UUID,
+        revoked_reason: str,
+    ) -> UserSession | None:
+        session = await self.get_active_by_id(session_id)
+        if session is None:
+            return None
+        session.revoked_at = datetime.now(timezone.utc)
+        session.revoked_reason = revoked_reason
+        await self._db.flush()
+        return session
+
+    async def revoke_other_sessions(
+        self,
+        *,
+        user_id: UUID,
+        keep_session_id: UUID,
+        revoked_reason: str,
+    ) -> list[UserSession]:
+        sessions = await self.list_active_for_user(user_id)
+        revoked: list[UserSession] = []
+        now = datetime.now(timezone.utc)
+        for session in sessions:
+            if session.id == keep_session_id:
+                continue
+            session.revoked_at = now
+            session.revoked_reason = revoked_reason
+            revoked.append(session)
+        await self._db.flush()
+        return revoked
+
+    async def revoke_all_for_user(
+        self,
+        *,
+        user_id: UUID,
+        revoked_reason: str,
+    ) -> list[UserSession]:
+        sessions = await self.list_active_for_user(user_id)
+        revoked: list[UserSession] = []
+        now = datetime.now(timezone.utc)
+        for session in sessions:
+            session.revoked_at = now
+            session.revoked_reason = revoked_reason
+            revoked.append(session)
+        await self._db.flush()
+        return revoked
+
+    async def revoke_all_for_user_and_tenant(
+        self,
+        *,
+        user_id: UUID,
+        tenant_id: UUID,
+        revoked_reason: str,
+    ) -> list[UserSession]:
+        sessions = await self.list_active_for_user_and_tenant(
+            user_id=user_id,
+            tenant_id=tenant_id,
+        )
+        revoked: list[UserSession] = []
+        now = datetime.now(timezone.utc)
+        for session in sessions:
+            session.revoked_at = now
+            session.revoked_reason = revoked_reason
+            revoked.append(session)
+        await self._db.flush()
+        return revoked
 
 
 class InvitationRepository:

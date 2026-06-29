@@ -4,13 +4,23 @@ Last updated: 2026-06-29
 
 ## Current Sprint
 
-Sprint 29 - Team Invitations And Access Operations Console
+Sprint 35 - Operational Reliability, Data Safety, And Migration Discipline
 
 Status: Completed
 
 ## Official Next Sprint
 
-Sprint 30 - Account Security And Identity Self-Service
+Sprint 36 - Association Operations Robustness
+
+## Active Delivery Frame
+
+- Target outcome: a stable, portfolio-grade open-source Kairo release
+- Intended operational scope: usable by an association or organization of about 200 members
+- Remaining planned execution window: Sprint 35 through Sprint 37
+- Priority order:
+  - operational reliability and migration safety
+  - association workflow robustness
+  - final release stabilization and handoff quality
 
 ## Source Of Truth
 
@@ -204,11 +214,55 @@ Sprint 30 - Account Security And Identity Self-Service
   - Admin overview quick actions now link directly into access operations
   - Frontend admin-route restore behavior was hardened so session restoration does not wrongly eject valid admins
   - Backend invitation and tenant-role tests pass, and autonomous Playwright browser coverage now validates invite creation and cancellation
+- Completed Sprint 30 Account Security And Identity Self-Service:
+  - Authenticated `Account Security` view added at `/account/security` for MFA status, enrollment, verification, disablement, and password recovery launch
+  - Backend now exposes a minimal MFA status endpoint without leaking secrets
+  - App shell now provides a clear navigation path into account security from sidebar and account menu
+  - Invite acceptance, login, forgot-password, and reset-password screens now guide users toward a coherent post-login security posture
+  - Logged-in users can trigger the existing password reset flow against their own account from the authenticated shell
+  - Autonomous backend and Playwright validation now cover MFA status, enable/disable, and password recovery launch behavior
+- Completed Sprint 31 Secure Identity Message Delivery And Access Notifications:
+  - Identity invite and forgot-password flows now dispatch through the notification provider abstraction instead of relying only on manual token handoff
+  - SMTP-configured email delivery is now supported through the existing email provider, with safe simulated fallback when no provider is configured
+  - Invitation responses now expose delivery state (`sent`, `simulated`, `failed`, `manual`) and only reveal raw invite tokens for development, simulation, or failed-delivery fallback
+  - Password-reset responses preserve non-enumeration and hide raw reset tokens in production when delivery succeeds through a real provider
+  - Admin access UI now surfaces delivery outcome instead of assuming every invite must be manually shared
+  - New autonomous backend tests cover sent, simulated, and failed delivery behavior; frontend build and Playwright access-console validation passed
+- Completed Sprint 32 Session Governance And Security Event Operations:
+  - Persistent user-session inventory now exists in the backend, with `sid`-aware JWT validation and backend-enforced session revocation
+  - Authenticated users can now list active sessions, revoke a specific other session, revoke all other sessions, or revoke all sessions from the account-security surface
+  - Password reset completion now invalidates all existing sessions, and MFA disablement now revokes other sessions to reduce stale access risk
+  - Recent identity security events are now visible from the authenticated security surface and continue to flow through the tenant audit trail
+  - Refresh-token validation now depends on the active session record, so revoked sessions cannot mint fresh access tokens
+  - Autonomous backend tests, frontend build validation, and Playwright browser coverage passed for the new session-governance workflows
+- Completed Sprint 33 Tenant User Lifecycle Governance And Account Lockdown:
+  - Backend auth dependency now rechecks active tenant membership on every protected request, so suspended memberships lose effective access immediately
+  - Tenant admins can now list managed users, inspect membership status, see active tenant-session counts, and review the latest identity activity from `/admin/access`
+  - Admin lifecycle endpoints now support suspension, reactivation, and forced tenant-scoped session revocation for managed users
+  - Invitation handling no longer allows suspended or historical memberships to bypass lifecycle controls through a fresh invite
+  - Autonomous backend tests, frontend build validation, and Playwright browser coverage passed for managed-user lifecycle operations
+- Completed Sprint 34 Authentication Hardening And Recovery Stability:
+  - Backend refresh-token validation now fails safely when the active session's tenant membership has been suspended or invalidated
+  - MFA completion now preserves the multi-tenant organization-picker flow instead of dropping multi-membership users directly into the app
+  - Login, invitation acceptance, forgot-password, reset-password, and MFA views now surface clearer backend-aligned recovery and denial messages
+  - New autonomous browser coverage validates suspended-access denial, MFA multi-tenant continuation, expired invitation feedback, used reset-link feedback, and redirect preservation
+  - Targeted backend tests, frontend production build validation, and Playwright authentication regression coverage passed for the sprint
+- Completed Sprint 35 Operational Reliability, Data Safety, And Migration Discipline:
+  - Created `scripts/restore.sh` to automate full restoration of PostgreSQL, Redis, Qdrant, MinIO, and Ollama from backup archives
+  - Added Docker healthchecks for api, worker, and web services in docker-compose.yml
+  - Created migration `0009_user_sessions` for the missing `user_sessions` table (Sprint 32 model was never migrated)
+  - Created migration `0010_document_version_fk` for the missing FK constraint on `documents.current_version_id`
+  - Fixed `contributions/models.py` numeric column annotations to match migration precision
+  - Updated `scripts/production_smoke.sh` with response body validation and detailed pass/fail reporting
+  - Added 8 health endpoint tests covering response shape, per-service status, and Prometheus metrics
+  - Fixed pre-existing `test_audit_trail_is_tenant_scoped` failure caused by login audit event logging
+  - Updated deployment guide with automated restore procedure
+  - Backend: 171 tests pass, 0 failures
 
 ## Current Verified Product Surface
 
-- Vue frontend with login (multi-tenant flow), guided onboarding dashboard, app shell (with real tenant switcher and branding), admin shell (with brand-aware UI), real admin overview hub, admin access operations console, admin documents view, admin chat audit view, member profile view, admin members view (with CSV import/export), admin contributions view (with CSV import/export), public policies view, member disciplinary view, admin policies view, admin disciplinary view, member events view, admin events view (with CSV export), member announcements view, admin announcements view (with CSV export), admin notification extensions view, and admin tenant settings view.
-- FastAPI backend with mounted `auth`, `tenants`, `documents`, `admin`, `chat`, `membership`, `contributions`, `events`, `announcements`, and `notifications` routers plus `/health` and `/metrics`. Tenants router includes settings endpoints for branding, module toggles, and admin role listing for access operations.
+- Vue frontend with login (multi-tenant flow), guided onboarding dashboard, app shell (with real tenant switcher and branding), authenticated account security view, admin shell (with brand-aware UI), real admin overview hub, admin access and lifecycle console, admin documents view, admin chat audit view, member profile view, admin members view (with CSV import/export), admin contributions view (with CSV import/export), public policies view, member disciplinary view, admin policies view, admin disciplinary view, member events view, admin events view (with CSV export), member announcements view, admin announcements view (with CSV export), admin notification extensions view, and admin tenant settings view.
+- FastAPI backend with mounted `auth`, `tenants`, `documents`, `admin`, `chat`, `membership`, `contributions`, `events`, `announcements`, and `notifications` routers plus `/health` and `/metrics`. Identity routes now include invitation lifecycle, password reset, MFA status, enrollment, verification, disablement, managed-user lifecycle controls, and tenant-scoped session containment.
 - PostgreSQL-backed identity, tenancy, document, version, ingestion-job, chunk, membership, contribution, payment, event, and announcement models.
 - MinIO-backed object storage provider.
 - Redis and Celery ingestion worker flow.
@@ -246,6 +300,10 @@ Sprint 30 - Account Security And Identity Self-Service
 - Frontend route guard redirects disabled module routes to dashboard.
 - Admin data-warning before disabling modules that have existing business records.
 - Admin access console for invitations with tenant role selection, pending/cancelled visibility, and secure acceptance-link handoff.
+- Authenticated account security surface for MFA status, self-service MFA management, and password recovery launch.
+- Identity message delivery pipeline for invitations and password recovery with SMTP-backed email support, delivery-state visibility, and safe token fallback rules.
+- Persistent session governance with active-session inventory, targeted revocation controls, revoke-all flows, and recent security-event visibility for authenticated users.
+- Tenant user lifecycle governance with backend-enforced suspension, reactivation, admin-visible identity state, and tenant-scoped forced session revocation.
 
 ## Known Risks
 
@@ -259,11 +317,19 @@ Sprint 30 - Account Security And Identity Self-Service
 - Backup script is a bash script and may need adaptation for non-Linux hosts (Docker Desktop on Windows/macOS paths).
 - Multi-channel providers are placeholders only; no real external gateway integration has been validated yet.
 - A deeper first-run wizard is still a future enhancement beyond the current guided checklist and action-oriented empty states.
-- Invitation delivery is still manual from the admin console because email/notification dispatch is not yet integrated into the invite lifecycle.
+- Only the email channel is wired for real identity delivery today; Telegram and WhatsApp remain simulated extension placeholders.
+- Identity emails currently use a plain-text branded baseline template and do not yet provide rich HTML theming or provider-side webhook reconciliation.
+- The roadmap has been re-framed away from near-term commercial positioning and toward a five-sprint open-source stabilization target ending at Sprint 37.
 - Sprint 26 has been completed with the public entry commercial surface.
 - Sprint 27 has been completed with guided onboarding for new tenant admins.
 - Sprint 28 has been completed with a real admin operations hub.
-- Sprint 29 has been completed with in-product invitation management, but self-service MFA and account-security UX are still fragmented across auth screens.
+- Sprint 29 has been completed with in-product invitation management.
+- Sprint 30 has been completed with self-service account security UX.
+- Sprint 31 has been completed with secure outbound identity delivery and delivery-state visibility.
+- Sprint 32 has been completed with session governance and current-user security event operations.
+- Sprint 33 has been completed with tenant user lifecycle governance and account lockdown.
+- Sprint 34 has been completed with authentication hardening and recovery stability.
+- Sprint 35 has been completed with operational reliability, migration gap fixes, restore automation, and Docker healthchecks.
 
 ## Next Session Rule
 

@@ -93,6 +93,12 @@ services:
     volumes:
       - ./services/api:/app
     restart: on-failure
+    healthcheck:
+      test: ["CMD-SHELL", "curl -sf http://localhost:8000/health || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 30s
 
   worker:
     build:
@@ -115,6 +121,12 @@ services:
     volumes:
       - ./services/api:/app
     restart: on-failure
+    healthcheck:
+      test: ["CMD-SHELL", "pgrep -f 'celery.*worker' || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 30s
 
   web:
     build:
@@ -128,8 +140,15 @@ services:
       - ./apps/web:/app
       - /app/node_modules
     depends_on:
-      - api
+      api:
+        condition: service_started
     restart: on-failure
+    healthcheck:
+      test: ["CMD-SHELL", "node -e 'require(\"net\").createConnection(5173).on(\"connect\",()=>process.exit(0)).on(\"error\",()=>process.exit(1))'"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 30s
 
   cloudflared:
     image: cloudflare/cloudflared:latest

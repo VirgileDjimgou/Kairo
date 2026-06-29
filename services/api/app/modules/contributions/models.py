@@ -3,7 +3,7 @@ from datetime import datetime
 from decimal import Decimal
 from enum import Enum
 
-from sqlalchemy import DateTime, ForeignKey, Integer, String, Text
+from sqlalchemy import DateTime, ForeignKey, Integer, Numeric, String, Text
 from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.orm import Mapped, mapped_column
 from sqlalchemy.sql import text as sql_text
@@ -52,9 +52,9 @@ class ContributionRecord(Base):
         index=True,
     )
     year: Mapped[int] = mapped_column(Integer, nullable=False)
-    expected_amount: Mapped[Decimal] = mapped_column(nullable=False, default=Decimal("0.00"))
-    paid_amount: Mapped[Decimal] = mapped_column(nullable=False, default=Decimal("0.00"))
-    balance: Mapped[Decimal] = mapped_column(nullable=False, default=Decimal("0.00"))
+    expected_amount: Mapped[Decimal] = mapped_column(Numeric(12, 2), nullable=False, server_default=sql_text("0.00"))
+    paid_amount: Mapped[Decimal] = mapped_column(Numeric(12, 2), nullable=False, server_default=sql_text("0.00"))
+    balance: Mapped[Decimal] = mapped_column(Numeric(12, 2), nullable=False, server_default=sql_text("0.00"))
     currency: Mapped[str] = mapped_column(String(3), nullable=False, server_default="EUR")
     status: Mapped[str] = mapped_column(
         String(50), nullable=False, server_default=ContributionStatus.pending.value

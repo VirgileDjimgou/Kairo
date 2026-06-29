@@ -31,6 +31,13 @@
           <i class="bi bi-person-badge me-2"></i>My Profile
         </RouterLink>
         <RouterLink
+          to="/account/security"
+          class="nav-link sidebar-link rounded"
+          active-class="active"
+        >
+          <i class="bi bi-shield-check me-2"></i>Account Security
+        </RouterLink>
+        <RouterLink
           v-if="modules.policies"
           to="/policies"
           class="nav-link sidebar-link rounded"
@@ -135,6 +142,14 @@
             data-bs-dismiss="offcanvas"
           >
             <i class="bi bi-person-badge me-2"></i>My Profile
+          </RouterLink>
+          <RouterLink
+            to="/account/security"
+            class="nav-link sidebar-link rounded"
+            active-class="active"
+            data-bs-dismiss="offcanvas"
+          >
+            <i class="bi bi-shield-check me-2"></i>Account Security
           </RouterLink>
           <RouterLink
             v-if="modules.policies"
@@ -270,6 +285,11 @@
                   }}</span>
                 </li>
                 <li><hr class="dropdown-divider" /></li>
+                <li>
+                  <RouterLink to="/account/security" class="dropdown-item">
+                    Account security
+                  </RouterLink>
+                </li>
                 <li>
                   <button
                     class="dropdown-item text-danger"

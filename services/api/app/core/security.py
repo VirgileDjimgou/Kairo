@@ -24,12 +24,14 @@ def create_access_token(
     user_id: UUID,
     tenant_id: UUID,
     roles: list[str],
+    session_id: UUID,
 ) -> str:
     now = datetime.now(timezone.utc)
     payload: dict = {
         "sub": str(user_id),
         "tenant_id": str(tenant_id),
         "roles": roles,
+        "sid": str(session_id),
         "type": "access",
         "iat": now,
         "exp": now + timedelta(minutes=settings.access_token_expire_minutes),
@@ -45,10 +47,11 @@ def decode_access_token(token: str) -> dict:
     )
 
 
-def create_refresh_token(user_id: UUID) -> str:
+def create_refresh_token(user_id: UUID, session_id: UUID) -> str:
     now = datetime.now(timezone.utc)
     payload: dict = {
         "sub": str(user_id),
+        "sid": str(session_id),
         "type": "refresh",
         "iat": now,
         "exp": now + timedelta(days=settings.refresh_token_expire_days),
@@ -56,7 +59,7 @@ def create_refresh_token(user_id: UUID) -> str:
     return jwt.encode(payload, settings.jwt_secret_key, algorithm=settings.jwt_algorithm)
 
 
-def create_mfa_token(user_id: UUID) -> str:
+def create_mfa_token(user_id: UUID, tenant_id: UUID | None = None) -> str:
     now = datetime.now(timezone.utc)
     payload: dict = {
         "sub": str(user_id),
@@ -64,6 +67,8 @@ def create_mfa_token(user_id: UUID) -> str:
         "iat": now,
         "exp": now + timedelta(minutes=5),
     }
+    if tenant_id is not None:
+        payload["tenant_id"] = str(tenant_id)
     return jwt.encode(payload, settings.jwt_secret_key, algorithm=settings.jwt_algorithm)
 
 

@@ -63,6 +63,53 @@ class UserWithMembershipsResponse(UserResponse):
     memberships: list[TenantMembershipResponse]
 
 
+class ActiveSessionResponse(BaseModel):
+    id: UUID
+    current: bool
+    current_tenant_id: UUID
+    created_at: datetime
+    last_seen_at: datetime
+    created_ip: str | None = None
+    last_seen_ip: str | None = None
+    created_user_agent: str | None = None
+    last_seen_user_agent: str | None = None
+
+
+class SessionActionResponse(BaseModel):
+    message: str
+    revoked_session_count: int = 0
+
+
+class SecurityEventResponse(BaseModel):
+    id: UUID
+    action: str
+    actor_user_id: UUID | None = None
+    entity_type: str
+    entity_id: str | None = None
+    details: dict
+    created_at: datetime
+
+
+class ManagedTenantUserResponse(BaseModel):
+    user_id: UUID
+    email: str
+    display_name: str
+    profile_type: str
+    membership_status: str
+    user_status: str
+    roles: list[str]
+    last_login_at: datetime | None = None
+    active_session_count: int = 0
+    last_security_event_action: str | None = None
+    last_security_event_at: datetime | None = None
+
+
+class ManagedTenantUserActionResponse(BaseModel):
+    message: str
+    membership_status: str
+    revoked_session_count: int = 0
+
+
 class SwitchTenantResponse(BaseModel):
     access_token: str
     token_type: str = "bearer"
@@ -86,7 +133,13 @@ class InviteResponse(BaseModel):
     role_code: str
     status: str
     expires_at: datetime
-    invite_token: str = Field(description="Raw token — share with the invitee securely")
+    delivery_status: str = "manual"
+    delivery_message: str | None = None
+    delivery_simulation_only: bool = True
+    invite_token: str | None = Field(
+        default=None,
+        description="Raw token exposed only for simulation, development, or manual fallback flows",
+    )
 
 
 class AcceptInviteRequest(BaseModel):
@@ -152,6 +205,11 @@ class MfaVerifyRequest(BaseModel):
 class MfaVerifyResponse(BaseModel):
     enabled: bool = True
     message: str = "MFA has been enabled"
+
+
+class MfaStatusResponse(BaseModel):
+    enabled: bool
+    enrolled: bool
 
 
 class MfaCompleteLoginRequest(BaseModel):

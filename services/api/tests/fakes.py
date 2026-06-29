@@ -1,9 +1,14 @@
-"""Test doubles for embedding and vector store providers."""
+"""Test doubles for embedding, vector store, and notification providers."""
 
 from __future__ import annotations
 
 from typing import Any
 from uuid import UUID
+
+from app.providers.notifications.base import (
+    NotificationChannelDescriptor,
+    NotificationDispatchResult,
+)
 
 
 class FakeEmbeddingProvider:
@@ -64,3 +69,76 @@ class FakeLlmProvider:
     async def generate(self, *, system_prompt: str, user_prompt: str) -> str:
         self.calls.append({"system_prompt": system_prompt, "user_prompt": user_prompt})
         return "Grounded answer from authorized sources."
+
+
+class FakeEmailNotificationProvider:
+    channel = "email"
+
+    def __init__(
+        self,
+        *,
+        configured: bool = True,
+        status: str = "sent",
+        simulation_only: bool = False,
+        delivered: bool = True,
+        message: str = "Email accepted by fake provider.",
+    ) -> None:
+        self._configured = configured
+        self._status = status
+        self._simulation_only = simulation_only
+        self._delivered = delivered
+        self._message = message
+        self.calls: list[dict[str, Any]] = []
+
+    def describe(self) -> NotificationChannelDescriptor:
+        return NotificationChannelDescriptor(
+            channel=self.channel,
+            display_name="Email",
+            description="Fake email provider for tests.",
+            configured=self._configured,
+            simulation_only=self._simulation_only,
+            target_hint="Email address",
+        )
+
+    async def send_message(
+        self,
+        *,
+        tenant_id: UUID,
+        actor_user_id: UUID | None,
+        recipient: str,
+        subject: str | None,
+        body: str,
+    ) -> NotificationDispatchResult:
+        self.calls.append(
+            {
+                "tenant_id": str(tenant_id),
+                "actor_user_id": str(actor_user_id) if actor_user_id else None,
+                "recipient": recipient,
+                "subject": subject,
+                "body": body,
+            }
+        )
+        return NotificationDispatchResult(
+            channel=self.channel,
+            status=self._status,
+            message=self._message,
+            delivered=self._delivered,
+            simulation_only=self._simulation_only,
+        )
+
+    async def send_test_message(
+        self,
+        *,
+        tenant_id: UUID,
+        actor_user_id: UUID,
+        recipient: str,
+        subject: str | None,
+        body: str,
+    ) -> NotificationDispatchResult:
+        return await self.send_message(
+            tenant_id=tenant_id,
+            actor_user_id=actor_user_id,
+            recipient=recipient,
+            subject=subject,
+            body=body,
+        )

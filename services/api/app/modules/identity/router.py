@@ -3,27 +3,33 @@ from uuid import UUID
 
 from fastapi import APIRouter, HTTPException, Request, status
 
-from app.core.dependencies import AuthDep, DbDep
+from app.core.dependencies import AuthDep, DbDep, NotificationsDep
 from app.core.rate_limiter import rate_limiter
 from app.modules.identity.schemas import (
     AcceptInviteRequest,
     AcceptInviteResponse,
+    ActiveSessionResponse,
     ForgotPasswordRequest,
     ForgotPasswordResponse,
     InvitationStatusResponse,
     InviteRequest,
     InviteResponse,
     LoginRequest,
+    ManagedTenantUserActionResponse,
+    ManagedTenantUserResponse,
     MfaCompleteLoginRequest,
     MfaEnrollResponse,
     MfaLoginResponse,
     MfaRequiredResponse,
+    MfaStatusResponse,
     MfaVerifyRequest,
     MfaVerifyResponse,
     RefreshTokenRequest,
     RefreshTokenResponse,
     ResetPasswordRequest,
     ResetPasswordResponse,
+    SecurityEventResponse,
+    SessionActionResponse,
     SwitchTenantRequest,
     SwitchTenantResponse,
     TokenResponse,
@@ -63,7 +69,10 @@ async def login(
             status_code=status.HTTP_429_TOO_MANY_REQUESTS,
             detail="Too many login attempts. Please try again later.",
         )
-    service = AuthService(db)
+    service = AuthService(db).with_request_context(
+        ip_address=ip,
+        user_agent=fastapi_request.headers.get("User-Agent"),
+    )
     return await service.login(request)
 
 
@@ -80,7 +89,10 @@ async def mfa_complete_login(
             status_code=status.HTTP_429_TOO_MANY_REQUESTS,
             detail="Too many MFA attempts. Please try again later.",
         )
-    service = AuthService(db)
+    service = AuthService(db).with_request_context(
+        ip_address=ip,
+        user_agent=fastapi_request.headers.get("User-Agent"),
+    )
     return await service.complete_mfa_login(request)
 
 
@@ -103,11 +115,18 @@ async def get_me(current: AuthDep, db: DbDep) -> UserWithMembershipsResponse:
 
 @router.post("/switch-tenant", response_model=SwitchTenantResponse)
 async def switch_tenant(
-    request: SwitchTenantRequest, current: AuthDep, db: DbDep
+    request: SwitchTenantRequest, current: AuthDep, db: DbDep, fastapi_request: Request
 ) -> SwitchTenantResponse:
     """Switch the active tenant for the current user."""
-    service = AuthService(db)
-    return await service.switch_tenant(current.user.id, request)
+    service = AuthService(db).with_request_context(
+        ip_address=_client_ip(fastapi_request),
+        user_agent=fastapi_request.headers.get("User-Agent"),
+    )
+    return await service.switch_tenant(
+        current.user.id,
+        request,
+        session_id=current.session_id,
+    )
 
 
 # ── Invitation Endpoints ──────────────────────────────────────────────────────
@@ -117,6 +136,7 @@ async def invite_user(
     request: InviteRequest,
     current: AuthDep,
     db: DbDep,
+    notifications: NotificationsDep,
     fastapi_request: Request,
 ) -> InviteResponse:
     """Invite a user to join an organization (admin only)."""
@@ -125,7 +145,7 @@ async def invite_user(
         max_requests=10,
         window_seconds=300,
     )
-    service = AuthService(db)
+    service = AuthService(db).with_notification_providers(notifications)
     return await service.invite_user(
         request,
         current.user.id,
@@ -145,7 +165,10 @@ async def accept_invite(
         max_requests=5,
         window_seconds=300,
     )
-    service = AuthService(db)
+    service = AuthService(db).with_request_context(
+        ip_address=_client_ip(fastapi_request),
+        user_agent=fastapi_request.headers.get("User-Agent"),
+    )
     return await service.accept_invite(request)
 
 
@@ -182,18 +205,93 @@ async def cancel_invitation(
     )
 
 
+@router.get(
+    "/admin/managed-users/{tenant_id}",
+    response_model=list[ManagedTenantUserResponse],
+)
+async def list_managed_users(
+    tenant_id: UUID,
+    current: AuthDep,
+    db: DbDep,
+) -> list[ManagedTenantUserResponse]:
+    """List tenant-scoped managed users for lifecycle operations."""
+    service = AuthService(db)
+    return await service.list_managed_users(
+        tenant_id=tenant_id,
+        requesting_user_id=current.user.id,
+    )
+
+
+@router.post(
+    "/admin/managed-users/{user_id}/suspend",
+    response_model=ManagedTenantUserActionResponse,
+)
+async def suspend_managed_user(
+    user_id: UUID,
+    current: AuthDep,
+    db: DbDep,
+) -> ManagedTenantUserActionResponse:
+    """Suspend a tenant user and revoke tenant-scoped sessions."""
+    service = AuthService(db)
+    return await service.suspend_tenant_user(
+        tenant_id=current.tenant_id,
+        target_user_id=user_id,
+        requesting_user_id=current.user.id,
+        actor_user_id=current.user.id,
+    )
+
+
+@router.post(
+    "/admin/managed-users/{user_id}/reactivate",
+    response_model=ManagedTenantUserActionResponse,
+)
+async def reactivate_managed_user(
+    user_id: UUID,
+    current: AuthDep,
+    db: DbDep,
+) -> ManagedTenantUserActionResponse:
+    """Reactivate a suspended tenant user."""
+    service = AuthService(db)
+    return await service.reactivate_tenant_user(
+        tenant_id=current.tenant_id,
+        target_user_id=user_id,
+        requesting_user_id=current.user.id,
+        actor_user_id=current.user.id,
+    )
+
+
+@router.post(
+    "/admin/managed-users/{user_id}/revoke-sessions",
+    response_model=ManagedTenantUserActionResponse,
+)
+async def revoke_managed_user_sessions(
+    user_id: UUID,
+    current: AuthDep,
+    db: DbDep,
+) -> ManagedTenantUserActionResponse:
+    """Revoke current-tenant sessions for a managed tenant user."""
+    service = AuthService(db)
+    return await service.revoke_tenant_user_sessions(
+        tenant_id=current.tenant_id,
+        target_user_id=user_id,
+        requesting_user_id=current.user.id,
+        actor_user_id=current.user.id,
+    )
+
+
 # ── Password Reset Endpoints ──────────────────────────────────────────────────
 
 @router.post("/forgot-password", response_model=ForgotPasswordResponse)
 async def forgot_password(
     request: ForgotPasswordRequest,
     db: DbDep,
+    notifications: NotificationsDep,
     fastapi_request: Request,
 ) -> ForgotPasswordResponse:
     """Request a password reset token."""
     ip = _client_ip(fastapi_request)
     _rate_limit_or_429(f"forgot-password:{ip}", max_requests=3, window_seconds=300)
-    service = AuthService(db)
+    service = AuthService(db).with_notification_providers(notifications)
     return await service.forgot_password(request)
 
 
@@ -209,7 +307,10 @@ async def reset_password(
         max_requests=5,
         window_seconds=300,
     )
-    service = AuthService(db)
+    service = AuthService(db).with_request_context(
+        ip_address=_client_ip(fastapi_request),
+        user_agent=fastapi_request.headers.get("User-Agent"),
+    )
     return await service.reset_password(request)
 
 
@@ -229,6 +330,16 @@ async def enroll_mfa(
     )
     service = AuthService(db)
     return await service.enroll_mfa(current.user.id, current.user.email)
+
+
+@router.get("/mfa/status", response_model=MfaStatusResponse)
+async def get_mfa_status(
+    current: AuthDep,
+    db: DbDep,
+) -> MfaStatusResponse:
+    """Return the current user's MFA status without exposing secrets."""
+    service = AuthService(db)
+    return await service.get_mfa_status(current.user.id)
 
 
 @router.post("/mfa/verify", response_model=MfaVerifyResponse)
@@ -257,7 +368,11 @@ async def disable_mfa(
 ) -> None:
     """Disable MFA on the current account."""
     service = AuthService(db)
-    await service.disable_mfa(current.user.id, tenant_id=current.tenant_id)
+    await service.disable_mfa(
+        current.user.id,
+        tenant_id=current.tenant_id,
+        current_session_id=current.session_id,
+    )
 
 
 # ── Token Refresh ─────────────────────────────────────────────────────────────
@@ -266,10 +381,83 @@ async def disable_mfa(
 async def refresh_token(
     request: RefreshTokenRequest,
     db: DbDep,
+    fastapi_request: Request,
 ) -> RefreshTokenResponse:
     """Issue a new access token using a valid refresh token."""
-    service = AuthService(db)
+    service = AuthService(db).with_request_context(
+        ip_address=_client_ip(fastapi_request),
+        user_agent=fastapi_request.headers.get("User-Agent"),
+    )
     return await service.refresh_token(request)
+
+
+@router.get("/sessions", response_model=list[ActiveSessionResponse])
+async def list_active_sessions(
+    current: AuthDep,
+    db: DbDep,
+) -> list[ActiveSessionResponse]:
+    """List active sessions for the current user."""
+    service = AuthService(db)
+    return await service.list_active_sessions(
+        user_id=current.user.id,
+        current_session_id=current.session_id,
+    )
+
+
+@router.post("/sessions/revoke-others", response_model=SessionActionResponse)
+async def revoke_other_sessions(
+    current: AuthDep,
+    db: DbDep,
+) -> SessionActionResponse:
+    """Revoke all other active sessions for the current user."""
+    service = AuthService(db)
+    return await service.revoke_other_sessions(
+        user_id=current.user.id,
+        tenant_id=current.tenant_id,
+        current_session_id=current.session_id,
+    )
+
+
+@router.post("/sessions/revoke-all", response_model=SessionActionResponse)
+async def revoke_all_sessions(
+    current: AuthDep,
+    db: DbDep,
+) -> SessionActionResponse:
+    """Revoke all active sessions for the current user, including the current one."""
+    service = AuthService(db)
+    return await service.revoke_all_sessions(
+        user_id=current.user.id,
+        tenant_id=current.tenant_id,
+    )
+
+
+@router.delete("/sessions/{session_id}", response_model=SessionActionResponse)
+async def revoke_session(
+    session_id: UUID,
+    current: AuthDep,
+    db: DbDep,
+) -> SessionActionResponse:
+    """Revoke a specific non-current session for the current user."""
+    service = AuthService(db)
+    return await service.revoke_session(
+        user_id=current.user.id,
+        tenant_id=current.tenant_id,
+        current_session_id=current.session_id,
+        target_session_id=session_id,
+    )
+
+
+@router.get("/security-events", response_model=list[SecurityEventResponse])
+async def list_security_events(
+    current: AuthDep,
+    db: DbDep,
+) -> list[SecurityEventResponse]:
+    """List recent security-relevant identity events for the current user."""
+    service = AuthService(db)
+    return await service.list_security_events(
+        tenant_id=current.tenant_id,
+        user_id=current.user.id,
+    )
 
 
 @router.get("/protected", response_model=dict)

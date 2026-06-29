@@ -10,11 +10,14 @@ Covers:
 - Branding and module toggles are returned in the memberships payload
 """
 
+import uuid
+
 import pytest
 from httpx import AsyncClient
+from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.modules.tenancy.models import Role
+from app.modules.tenancy.models import Role, Tenant, TenantUser, user_roles
 from helpers import create_tenant_with_user
 
 
@@ -188,3 +191,77 @@ async def test_non_admin_cannot_list_tenant_roles(
         headers={"Authorization": f"Bearer {access_token}"},
     )
     assert response.status_code == 403
+
+
+@pytest.mark.asyncio
+async def test_refresh_rejects_suspended_current_session_membership(
+    client: AsyncClient,
+    seeded_tenant_and_admin: dict,
+    db_session: AsyncSession,
+) -> None:
+    from app.core.security import create_refresh_token, decode_access_token
+
+    data = seeded_tenant_and_admin
+
+    secondary_tenant = Tenant(
+        id=uuid.uuid4(),
+        slug=f"secondary-{uuid.uuid4().hex[:6]}",
+        name="Secondary Organization",
+    )
+    db_session.add(secondary_tenant)
+    await db_session.flush()
+
+    secondary_role = Role(
+        id=uuid.uuid4(),
+        tenant_id=secondary_tenant.id,
+        code="member",
+        name="Member",
+        is_system_role=False,
+    )
+    db_session.add(secondary_role)
+    await db_session.flush()
+
+    secondary_membership = TenantUser(
+        id=uuid.uuid4(),
+        tenant_id=secondary_tenant.id,
+        user_id=data["user"].id,
+        profile_type="member",
+        membership_status="active",
+    )
+    db_session.add(secondary_membership)
+    await db_session.flush()
+    await db_session.execute(
+        user_roles.insert().values(
+            tenant_user_id=secondary_membership.id,
+            role_id=secondary_role.id,
+        )
+    )
+    await db_session.flush()
+
+    login = await client.post(
+        "/api/v1/auth/login",
+        json={"email": data["user"].email, "password": data["password"]},
+    )
+    assert login.status_code == 200, login.text
+    access_token = login.json()["access_token"]
+    refresh_token = create_refresh_token(
+        data["user"].id,
+        session_id=decode_access_token(access_token)["sid"],
+    )
+
+    primary_membership = await db_session.scalar(
+        select(TenantUser).where(
+            TenantUser.tenant_id == data["tenant"].id,
+            TenantUser.user_id == data["user"].id,
+        )
+    )
+    assert primary_membership is not None
+    primary_membership.membership_status = "suspended"
+    await db_session.flush()
+
+    response = await client.post(
+        "/api/v1/auth/refresh",
+        json={"refresh_token": refresh_token},
+    )
+    assert response.status_code == 403, response.text
+    assert "no longer valid" in response.json()["detail"].lower()

@@ -21,7 +21,9 @@ Mission générale :
 - déterminer automatiquement le sprint courant ou, si aucun sprint actif n’est explicitement en cours, identifier le prochain sprint officiel à exécuter à partir de la roadmap
 - exécuter uniquement ce sprint
 - ne jamais partir sur plusieurs sprints à la fois
-- poursuivre le projet vers une version commerciale, professionnelle et mûre
+- poursuivre le projet vers une version open source stable, fonctionnelle, démontrable et crédible pour un portfolio
+- viser un produit réellement utilisable par une association ou une organisation d’environ 200 membres
+- respecter le cadrage actuel : terminer dans les 5 derniers sprints planifiés, de Sprint 33 à Sprint 37
 - agir comme un agent produit + architecture + implémentation + QA + documentation
 
 Règle de priorité pour choisir le sprint :
@@ -32,8 +34,15 @@ Règle de priorité pour choisir le sprint :
    - les dépendances architecturales
    - les risques techniques
    - les besoins de robustesse produit
-   - la cohérence avec une trajectoire commerciale réaliste
+   - la cohérence avec l’objectif open source stable et utilisable
 4. rendre explicite le sprint choisi et pourquoi
+
+Priorités absolues pour les 5 derniers sprints :
+1. gouvernance des utilisateurs et suspension/containment backend
+2. durcissement des parcours d’authentification, d’invitation, de reset mot de passe et de session
+3. fiabilité d’exploitation, discipline des migrations, sauvegarde/restauration et reproductibilité
+4. robustesse des parcours métier vraiment utiles pour gérer une association d’environ 200 membres
+5. stabilisation finale, documentation honnête, handoff inter-IDE et démonstrabilité open source
 
 Mode opératoire obligatoire :
 - commencer par comprendre l’architecture existante
@@ -86,6 +95,7 @@ Règles de qualité :
 - éviter les hacks cachés, les valeurs magiques et les duplications évitables
 - documenter les arbitrages quand ils impactent les futures sessions
 - préparer le projet pour une continuité fluide dans Codex, Cursor ou Copilot
+- ne pas dériver vers des ambitions SaaS/enterprise supplémentaires si elles ne sont pas nécessaires pour le cadrage open source des 5 derniers sprints
 
 Mise à jour documentaire obligatoire :
 à la fin du sprint, mettre à jour si nécessaire :
@@ -108,6 +118,7 @@ tu t’arrêtes seulement quand :
 - les échecs ont été corrigés ou explicitement documentés
 - la documentation a été mise à jour
 - le prochain sprint est clairement identifié
+- et la sortie rapproche explicitement le dépôt de la cible Sprint 37 : version open source stable et présentable
 
 Format de sortie attendu en fin d’exécution :
 - sprint exécuté
