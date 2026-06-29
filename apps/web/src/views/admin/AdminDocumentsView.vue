@@ -97,6 +97,81 @@
                 {{ statusMessage }}
               </div>
             </form>
+
+            <hr class="my-4" />
+
+            <h2 class="h6 fw-bold mb-3">Bulk upload</h2>
+            <form class="vstack gap-3" @submit.prevent="submitBulkUpload">
+              <div>
+                <label class="form-label">Files</label>
+                <input
+                  class="form-control"
+                  type="file"
+                  accept=".pdf,.docx,.txt,.md,.csv,.png,.jpg,.jpeg,.webp"
+                  multiple
+                  @change="handleBulkFileChange"
+                />
+              </div>
+              <div>
+                <label class="form-label">Title prefix</label>
+                <input
+                  v-model.trim="bulkTitlePrefix"
+                  class="form-control"
+                  type="text"
+                  placeholder="Migration"
+                />
+              </div>
+              <div class="d-flex gap-2">
+                <button
+                  class="btn btn-outline-primary"
+                  type="submit"
+                  :disabled="bulkUploading || bulkFiles.length === 0"
+                >
+                  {{ bulkUploading ? "Uploading..." : "Bulk upload" }}
+                </button>
+                <button
+                  class="btn btn-outline-secondary"
+                  type="button"
+                  @click="clearBulkSelection"
+                >
+                  Clear
+                </button>
+              </div>
+              <div v-if="bulkStatusMessage" class="alert alert-info mb-0">
+                {{ bulkStatusMessage }}
+              </div>
+            </form>
+            <div v-if="bulkResults.length > 0" class="mt-3">
+              <div class="small text-uppercase text-muted fw-semibold mb-2">
+                Bulk result
+              </div>
+              <div class="vstack gap-2">
+                <div
+                  v-for="item in bulkResults"
+                  :key="`${item.index}-${item.file_name}`"
+                  class="border rounded-3 p-3"
+                >
+                  <div class="d-flex justify-content-between gap-2 flex-wrap">
+                    <div class="fw-semibold">{{ item.file_name }}</div>
+                    <span
+                      :class="item.status === 'uploaded' ? 'badge text-bg-success-subtle text-success border border-success-subtle' : 'badge text-bg-danger-subtle text-danger border border-danger-subtle'"
+                    >
+                      {{ item.status }}
+                    </span>
+                  </div>
+                  <div v-if="item.error" class="small text-danger mt-2">
+                    {{ item.error }}
+                  </div>
+                  <div v-else-if="item.document" class="small text-muted mt-2">
+                    Document {{ item.document.title }} queued as
+                    {{ item.document.ingestion_job_id }}
+                    <span v-if="item.document.duplicate_of_document_id">
+                      · duplicate of {{ item.document.duplicate_of_document_id }}
+                    </span>
+                  </div>
+                </div>
+              </div>
+            </div>
           </div>
         </div>
       </div>
@@ -118,9 +193,18 @@
             <div v-else-if="documents.length === 0" class="empty-state">
               <i class="bi bi-file-earmark-text display-6 text-secondary"></i>
               <p class="mb-1 fw-semibold">No documents yet</p>
-              <p class="text-muted mb-0">
-                Upload the first tenant document to populate this list.
+              <p class="text-muted mb-3">
+                Start with a welcome guide, policy, or operating document.
+                Once the first file is uploaded, the tenant begins to feel real.
               </p>
+              <div class="d-flex flex-wrap justify-content-center gap-2">
+                <RouterLink to="/admin/settings" class="btn btn-outline-secondary btn-sm">
+                  Review settings
+                </RouterLink>
+                <RouterLink to="/admin/members" class="btn btn-outline-secondary btn-sm">
+                  Add members first
+                </RouterLink>
+              </div>
             </div>
 
             <div v-else class="table-responsive">
@@ -221,9 +305,36 @@
                           class="btn btn-sm btn-outline-secondary"
                           type="button"
                           @click="queueReindex(document.id)"
-                          :disabled="busyDocumentId === document.id"
+                          :disabled="busyDocumentId === document.id || document.status === 'archived'"
                         >
                           Reindex
+                        </button>
+                        <button
+                          v-if="document.status !== 'archived'"
+                          class="btn btn-sm btn-outline-warning"
+                          type="button"
+                          @click="archive(document.id)"
+                          :disabled="busyDocumentId === document.id"
+                        >
+                          Archive
+                        </button>
+                        <button
+                          v-else
+                          class="btn btn-sm btn-outline-success"
+                          type="button"
+                          @click="unarchive(document.id)"
+                          :disabled="busyDocumentId === document.id"
+                        >
+                          Restore
+                        </button>
+                        <button
+                          v-if="formatIngestionStatus(document.id) === 'failed'"
+                          class="btn btn-sm btn-outline-danger"
+                          type="button"
+                          @click="retryJob(document.id)"
+                          :disabled="busyDocumentId === document.id"
+                        >
+                          Retry job
                         </button>
                       </div>
                     </td>
@@ -240,13 +351,19 @@
 
 <script setup lang="ts">
 import { onMounted, ref } from "vue";
+import { RouterLink } from "vue-router";
 import {
+  archiveDocument,
+  bulkUploadDocuments,
   getIngestionJob,
   listDocuments,
   reindexDocument,
+  retryIngestionJob,
+  unarchiveDocument,
   updateDocumentAccess,
   uploadDocument,
   type DocumentListItemResponse,
+  type UploadDocumentResponse,
 } from "../../api/documents.api";
 
 const documents = ref<DocumentListItemResponse[]>([]);
@@ -257,7 +374,14 @@ const description = ref("");
 const accessScope = ref("tenant_public");
 const selectedFile = ref<File | null>(null);
 const statusMessage = ref("");
+const bulkStatusMessage = ref("");
 const busyDocumentId = ref<string | null>(null);
+const bulkUploading = ref(false);
+const bulkTitlePrefix = ref("");
+const bulkFiles = ref<File[]>([]);
+const bulkResults = ref<
+  { index: number; file_name: string; status: string; document: UploadDocumentResponse | null; error: string | null }[]
+>([]);
 const ingestionStatusByDocument = ref<Record<string, string>>({});
 const ingestionJobByDocument = ref<Record<string, string>>({});
 const draftAccessScopeByDocument = ref<Record<string, string>>({});
@@ -336,6 +460,11 @@ function handleFileChange(event: Event) {
   selectedFile.value = input.files?.[0] ?? null;
 }
 
+function handleBulkFileChange(event: Event) {
+  const input = event.target as HTMLInputElement;
+  bulkFiles.value = Array.from(input.files ?? []);
+}
+
 function formatAllowedRoles(roles: string[] | null, documentId: string): string {
   const draftScope = draftAccessScopeByDocument.value[documentId];
   const draftRoles = draftAllowedRolesByDocument.value[documentId]?.trim();
@@ -392,6 +521,49 @@ async function queueReindex(documentId: string) {
   }
 }
 
+async function archive(documentId: string) {
+  busyDocumentId.value = documentId;
+  try {
+    const updated = await archiveDocument(documentId);
+    documents.value = documents.value.map((doc) =>
+      doc.id === documentId ? updated : doc
+    );
+    statusMessage.value = `Archived ${updated.title}.`;
+  } finally {
+    busyDocumentId.value = null;
+  }
+}
+
+async function unarchive(documentId: string) {
+  busyDocumentId.value = documentId;
+  try {
+    const updated = await unarchiveDocument(documentId);
+    documents.value = documents.value.map((doc) =>
+      doc.id === documentId ? updated : doc
+    );
+    statusMessage.value = `Restored ${updated.title}.`;
+  } finally {
+    busyDocumentId.value = null;
+  }
+}
+
+async function retryJob(documentId: string) {
+  const jobId = ingestionJobByDocument.value[documentId];
+  if (!jobId) {
+    statusMessage.value = "No job found for this document.";
+    return;
+  }
+  busyDocumentId.value = documentId;
+  try {
+    const result = await retryIngestionJob(jobId);
+    ingestionStatusByDocument.value[documentId] = result.job.status;
+    statusMessage.value = `Retried ingestion job ${jobId}.`;
+    await refreshDocuments();
+  } finally {
+    busyDocumentId.value = null;
+  }
+}
+
 async function submitUpload() {
   if (!selectedFile.value) {
     statusMessage.value = "Choose a file before uploading.";
@@ -419,6 +591,40 @@ async function submitUpload() {
   } finally {
     uploading.value = false;
   }
+}
+
+async function submitBulkUpload() {
+  if (bulkFiles.value.length === 0) {
+    bulkStatusMessage.value = "Select at least one file.";
+    return;
+  }
+
+  bulkUploading.value = true;
+  bulkStatusMessage.value = "";
+  try {
+    const result = await bulkUploadDocuments({
+      files: bulkFiles.value,
+      title_prefix: bulkTitlePrefix.value,
+      access_scope: accessScope.value,
+    });
+    bulkResults.value = result.items.map((item) => ({
+      index: item.index,
+      file_name: item.file_name,
+      status: item.status,
+      document: item.document,
+      error: item.error,
+    }));
+    bulkStatusMessage.value = `${result.success_count} uploaded, ${result.failure_count} failed.`;
+    await refreshDocuments();
+  } finally {
+    bulkUploading.value = false;
+  }
+}
+
+function clearBulkSelection() {
+  bulkFiles.value = [];
+  bulkResults.value = [];
+  bulkStatusMessage.value = "";
 }
 
 function resetForm() {

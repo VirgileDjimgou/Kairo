@@ -54,6 +54,7 @@ class IngestionService:
         job.status = "processing"
         job.started_at = datetime.now(UTC)
         job.error_message = None
+        document.status = DocumentStatus.processing.value
         await self._db.flush()
 
         try:
@@ -110,6 +111,10 @@ class IngestionService:
             job = await self._repo.get_ingestion_job_by_id(job_id)
             if job is not None:
                 await self._mark_failed(job, str(exc))
+            document = await self._repo.get_document(job.tenant_id, job.document_id) if job is not None else None
+            if document is not None and document.status != DocumentStatus.archived.value:
+                document.status = DocumentStatus.uploaded.value
+                await self._db.commit()
             logger.exception("ingestion_failed", job_id=str(job_id))
 
     async def get_job_status(self, tenant_id: UUID, job_id: UUID) -> dict | None:

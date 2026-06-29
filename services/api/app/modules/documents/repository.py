@@ -28,6 +28,21 @@ class DocumentRepository:
         await self._db.refresh(job)
         return job
 
+    async def get_duplicate_document_by_checksum(
+        self, tenant_id: UUID, checksum: str, file_name: str
+    ) -> Document | None:
+        result = await self._db.execute(
+            select(Document)
+            .join(DocumentVersion, Document.current_version_id == DocumentVersion.id)
+            .where(
+                Document.tenant_id == tenant_id,
+                DocumentVersion.checksum == checksum,
+                DocumentVersion.file_name == file_name,
+            )
+            .order_by(Document.created_at.desc())
+        )
+        return result.scalar_one_or_none()
+
     async def list_documents(self, tenant_id: UUID) -> list[tuple[Document, DocumentVersion | None]]:
         result = await self._db.execute(
             select(Document, DocumentVersion)

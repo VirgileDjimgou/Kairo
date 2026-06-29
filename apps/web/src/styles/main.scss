@@ -39,3 +39,30 @@ body {
 .fade-leave-to {
   opacity: 0;
 }
+
+// ── Empty state ────────────────────────────────────────────────────────────
+.empty-state {
+  text-align: center;
+  padding: 3rem 1rem;
+  background: var(--om-card-bg, #fff);
+  border-radius: 0.75rem;
+  border: 1px dashed var(--om-border, #dee2e6);
+}
+
+.empty-state i {
+  margin-bottom: 0.75rem;
+}
+
+// ── Focus visible ─────────────────────────────────────────────────────────
+:focus-visible {
+  outline: 2px solid var(--om-primary, #1f4f8f);
+  outline-offset: 2px;
+}
+
+.btn:focus-visible {
+  outline-offset: 1px;
+}
+
+.sidebar-link:focus-visible {
+  outline-offset: 1px;
+}

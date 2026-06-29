@@ -13,11 +13,14 @@ services:
   web:
     build:
       target: production
-    ports:
+    ports: !override
       - "80:80"
-    volumes: []
+    volumes: !reset []
     environment:
       - NODE_ENV=production
+      - APP_ENV=production
+      - APP_DEBUG=false
+      - VITE_API_BASE_URL=/api/v1
 
   api:
     build:
@@ -25,9 +28,29 @@ services:
     environment:
       - APP_ENV=production
       - APP_DEBUG=false
-    volumes: []
+    volumes: !reset []
+    ports: !reset []
 
   worker:
     build:
       target: production
-    volumes: []
+    volumes: !reset []
+    ports: !reset []
+    environment:
+      - APP_ENV=production
+      - APP_DEBUG=false
+
+  postgres:
+    ports: !reset []
+
+  redis:
+    ports: !reset []
+
+  qdrant:
+    ports: !reset []
+
+  minio:
+    ports: !reset []
+
+  ollama:
+    ports: !reset []

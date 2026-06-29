@@ -3,8 +3,10 @@ from __future__ import annotations
 from uuid import UUID
 
 from fastapi import APIRouter, HTTPException, status
+from fastapi.responses import StreamingResponse
 
 from app.core.dependencies import AuthDep, DbDep
+from app.core.module_guard import require_module
 from app.modules.announcements.schemas import (
     AnnouncementCreate,
     AnnouncementResponse,
@@ -12,7 +14,11 @@ from app.modules.announcements.schemas import (
 )
 from app.modules.announcements.service import AnnouncementService
 
-router = APIRouter(prefix="/announcements", tags=["announcements"])
+router = APIRouter(
+    prefix="/announcements",
+    tags=["announcements"],
+    dependencies=[require_module("announcements")],
+)
 
 
 @router.get("/active", response_model=list[AnnouncementResponse])
@@ -37,6 +43,20 @@ async def list_all_announcements(
     return await service.list_announcements(current.tenant_id)
 
 
+@router.get("/export")
+async def export_announcements(current: AuthDep, db: DbDep) -> StreamingResponse:
+    """Export announcements as CSV (admin only)."""
+    if not current.has_role("admin"):
+        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Admin role required")
+    service = AnnouncementService(db)
+    csv_content = await service.export_csv(current.tenant_id)
+    return StreamingResponse(
+        iter([csv_content]),
+        media_type="text/csv",
+        headers={"Content-Disposition": "attachment; filename=announcements.csv"},
+    )
+
+
 @router.get("/{announcement_id}", response_model=AnnouncementResponse)
 async def get_announcement(
     announcement_id: UUID, current: AuthDep, db: DbDep
@@ -54,7 +74,9 @@ async def create_announcement(
     if not current.has_role("admin"):
         raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Admin role required")
     service = AnnouncementService(db)
-    return await service.create_announcement(current.tenant_id, data)
+    return await service.create_announcement(
+        current.tenant_id, data, actor_user_id=current.user.id
+    )
 
 
 @router.patch("/{announcement_id}", response_model=AnnouncementResponse)
@@ -65,7 +87,9 @@ async def update_announcement(
     if not current.has_role("admin"):
         raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Admin role required")
     service = AnnouncementService(db)
-    return await service.update_announcement(current.tenant_id, announcement_id, data)
+    return await service.update_announcement(
+        current.tenant_id, announcement_id, data, actor_user_id=current.user.id
+    )
 
 
 @router.delete("/{announcement_id}", status_code=204)
@@ -76,4 +100,6 @@ async def delete_announcement(
     if not current.has_role("admin"):
         raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Admin role required")
     service = AnnouncementService(db)
-    await service.delete_announcement(current.tenant_id, announcement_id)
+    await service.delete_announcement(
+        current.tenant_id, announcement_id, actor_user_id=current.user.id
+    )

@@ -1,6 +1,7 @@
 """Unit tests for document parsers, chunking, and indexing payloads."""
 
 import pytest
+from io import BytesIO
 
 from app.modules.indexing.service import build_chunk_payload
 from app.modules.ingestion.chunking import chunk_text, estimate_token_count
@@ -60,9 +61,21 @@ def test_parse_whatsapp_export() -> None:
     assert "Bob: Hi Alice" in text
 
 
-def test_image_without_ocr_raises() -> None:
-    with pytest.raises(ValueError, match="OCR is not configured"):
-        parse_document_bytes(b"\x89PNG", "scan.png")
+def test_parse_image_bytes_uses_ocr() -> None:
+    from PIL import Image, ImageDraw, ImageFont
+
+    image = Image.new("RGB", (900, 240), "white")
+    draw = ImageDraw.Draw(image)
+    try:
+        font = ImageFont.truetype("arial.ttf", 64)
+    except OSError:
+        font = ImageFont.load_default()
+    draw.text((40, 70), "HELLO OCR", fill="black", font=font)
+    buffer = BytesIO()
+    image.save(buffer, format="PNG")
+
+    text = parse_document_bytes(buffer.getvalue(), "scan.png")
+    assert "HELLO" in text.upper()
 
 
 def test_unsupported_extension_raises() -> None:

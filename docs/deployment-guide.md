@@ -11,6 +11,7 @@ This guide covers production deployment and remote exposure via Cloudflare Tunne
 - [Reverse Proxy (Caddy)](#reverse-proxy-caddy)
 - [Cloudflare Tunnel](#cloudflare-tunnel)
 - [Backup and Restore](#backup-and-restore)
+- [Production Validation](#production-validation)
 - [Security Checklist](#security-checklist)
 - [Troubleshooting](#troubleshooting)
 
@@ -242,6 +243,25 @@ docker compose up -d
 # Daily backup at 3 AM
 0 3 * * * /path/to/kairo/scripts/backup.sh /mnt/backups >> /var/log/kairo-backup.log 2>&1
 ```
+
+---
+
+## Production Validation
+
+For a repeatable production smoke check, use:
+
+```bash
+chmod +x scripts/production_smoke.sh
+./scripts/production_smoke.sh http://localhost
+```
+
+For the full validation and restore workflow, see [`docs/operations/production-readiness.md`](docs/operations/production-readiness.md).
+
+For customer-facing packaging and go-live preparation, see:
+
+- [`docs/commercial/README.md`](docs/commercial/README.md)
+- [`docs/commercial/demo-to-production-checklist.md`](docs/commercial/demo-to-production-checklist.md)
+- [`docs/commercial/support-playbook.md`](docs/commercial/support-playbook.md)
 
 ---
 

@@ -292,3 +292,1091 @@ Deliverables:
 - 86 backend tests pass, 0 failures
 - Frontend builds clean (206 modules)
 - Updated PROJECT_STATUS.md and IMPLEMENTATION_ROADMAP.md
+
+## Sprint 16 - Tenant Activation And Multi-Tenant UX
+
+Status: Completed
+
+Goal:
+Turn multi-tenancy from a backend capability into a coherent end-user experience with first-tenant activation, real tenant selection, and branded runtime behavior.
+
+Why this sprint now:
+
+- Sprint 15 introduced tenant settings and module toggles, but the user-facing tenant experience is still partial.
+- Commercially, the platform cannot scale to multiple customer organizations if tenant selection stays placeholder-driven.
+- This sprint unlocks the next layers of product hardening by making tenant context explicit everywhere.
+
+Primary dependencies:
+
+- Existing auth, tenancy, and settings APIs from Sprints 1 and 15
+- Existing frontend auth store and shell layouts
+- Seed/demo tenant data from Sprint 13
+
+Execution scope:
+
+- Backend tenant membership discovery and selection flow
+- Frontend authenticated tenant bootstrap
+- First-run tenant activation UX
+- Tenant-aware branding and module-aware navigation
+- Regression-safe test coverage for multi-tenant switching behavior
+
+Deliverables:
+
+- Tenant-aware login flow in the frontend with explicit organization selection or tenant slug input
+- Real tenant list loading from API instead of placeholder tenant data in the frontend store
+- Post-login tenant switcher backed by authenticated tenant membership data
+- First-use activation path for a newly created tenant admin
+- Frontend branding application from tenant settings (name, colors, logo) across layouts
+- Module-aware navigation hiding disabled modules in the sidebar and dashboard
+- Graceful empty states when a tenant has no documents, no members, or no enabled modules yet
+- Backend support for tenant membership listing optimized for the frontend switcher flow
+- Tests for login/tenant selection behavior and module-aware navigation rendering
+- Documentation update describing the real multi-tenant UX model
+
+Detailed implementation slices:
+
+- Auth and tenancy API
+  - add or refine endpoint(s) that return the current user tenant memberships with tenant metadata, role summary, branding summary, and enabled modules
+  - ensure the post-login payload gives the frontend enough information to bootstrap the active tenant without hardcoded defaults
+  - define safe behavior when a user has zero memberships, exactly one membership, or multiple memberships
+- Frontend auth bootstrap
+  - replace placeholder tenant arrays in stores with API-backed membership loading
+  - persist the active tenant choice safely across refreshes without trusting stale client-only state
+  - handle invalid remembered tenant selections gracefully
+- Tenant activation experience
+  - provide a clean first-use state for newly created tenant admins
+  - define the minimum information needed to activate or personalize a tenant after first login
+  - make sure this path works even if there is no content yet
+- Product shell adaptation
+  - apply tenant branding consistently in layout header, sidebar, dashboard, and high-visibility UI accents
+  - hide disabled modules from dashboard cards, primary navigation, and quick actions
+  - display useful empty states instead of broken or blank screens
+- Safety and consistency
+  - ensure tenant switching clears or refreshes any stale tenant-scoped cached data
+  - verify that switching tenants never exposes data from the previous tenant in the UI
+  - verify that frontend tenant switching remains subordinate to backend authorization
+
+Validation requirements:
+
+- backend integration tests for membership listing and tenant bootstrap response shape
+- frontend tests for tenant selection, remembered tenant restoration, and disabled-module navigation filtering
+- manual browser validation for login -> tenant selection -> dashboard -> tenant switch -> logout
+
+Definition of done:
+
+- all tenant choices shown in the frontend come from the real API
+- tenant switch changes the effective product shell without page corruption or stale data leakage
+- branded shell and module-aware navigation behave consistently after refresh
+- status docs point to Sprint 17 as next only after Sprint 16 is fully completed
+
+Acceptance criteria:
+
+- a user with multiple tenant memberships can explicitly choose the target tenant
+- the sidebar and dashboard reflect the currently selected tenant
+- tenant branding is visible in the product shell after login
+- disabled modules are not shown in navigation for that tenant
+- the frontend no longer relies on hardcoded placeholder tenant options
+
+Deliverables:
+
+- Backend: `GET /api/v1/auth/me` now returns `memberships` array with tenant metadata, branding, module toggles, and roles
+- Backend: `POST /api/v1/auth/switch-tenant` endpoint issues a new JWT scoped to the target tenant
+- Backend: Membership resolution with branding/module parsing in `AuthService.get_user_memberships()`
+- Frontend: `tenant.store.ts` rewritten — hardcoded placeholder tenants replaced with API-driven membership loading
+- Frontend: `auth.store.ts` updated to sync memberships to tenant store on login/session restore
+- Frontend: `LoginView.vue` now shows tenant picker after login when user has multiple memberships
+- Frontend: `AppLayout.vue` applies tenant branding (primary color), filters sidebar by enabled modules, and uses real API-backed tenant switcher
+- Frontend: `AdminLayout.vue` filters sidebar navigation by enabled modules per tenant settings
+- Frontend API client extended with `TenantMembershipResponse`, `SwitchTenantRequest/Response` types
+- 5 new backend integration tests for switch-tenant and /me memberships
+- 91 total backend tests pass, 0 failures
+- Frontend builds clean (206 modules)
+- Updated PROJECT_STATUS.md, IMPLEMENTATION_ROADMAP.md, NEXT_SPRINT.md, and PROJECT_STATE.md
+
+## Sprint 17 - Identity Lifecycle And Access Hardening
+
+Status: Completed
+
+Goal:
+Make account access management commercially credible with invitation flows, password lifecycle tooling, and stronger authentication posture.
+
+Why this sprint now:
+
+- Once tenant activation is real, onboarding and account recovery become immediate commercial blockers.
+- A product positioned for real customers needs lifecycle management beyond seed users and manual database setup.
+- This sprint reduces operational fragility before broader adoption.
+
+Primary dependencies:
+
+- Stable tenant membership flow from Sprint 16
+- Existing auth module and role assignment foundations from Sprint 1
+
+Execution scope:
+
+- invitation and onboarding lifecycle
+- password reset and recovery lifecycle
+- admin-oriented authentication hardening
+- token expiry, abuse resistance, and auth edge-case coverage
+
+Deliverables:
+
+- Invitation model and token flow for inviting admins, members, and treasurers into a tenant
+- Admin invitation endpoints and frontend invite form
+- Accept-invitation flow with initial password setup
+- Forgot password / reset password request and confirmation flow
+- Password reset token storage and expiry rules
+- Optional TOTP-based MFA foundation for admin accounts
+- Admin session review/log out other sessions capability or session invalidation baseline
+- Basic login abuse protection strategy documented and implemented where reasonable
+- Backend tests for invitation acceptance, token expiry, password reset, and auth edge cases
+- Frontend screens for invitation acceptance and password reset
+
+Detailed implementation slices:
+
+- Invitation lifecycle
+  - define persistent invitation records with tenant scope, target email, role intent, issuer, expiry, and acceptance status
+  - design secure invitation acceptance rules for existing users versus brand-new users
+  - decide whether invitation acceptance creates a user, binds an existing user, or both depending on email ownership
+- Password recovery lifecycle
+  - add reset request endpoint with non-enumerating response semantics
+  - store reset tokens securely with expiry and one-time-use behavior
+  - implement reset confirmation flow with password policy validation
+- Authentication hardening
+  - introduce baseline password strength policy and clearer failure states
+  - add optional MFA scaffolding for privileged accounts without breaking non-MFA tenants
+  - define session invalidation behavior for password changes, admin actions, or suspicious account events
+- Admin UX
+  - add invitation management visibility for admins
+  - add acceptance and recovery screens that are explicit, resilient, and understandable
+  - expose only safe operational detail, never token secrets
+- Security and abuse controls
+  - apply sane throttling or lockout guidance for login and reset flows
+  - make sure expired, revoked, reused, or cross-tenant tokens fail safely
+  - ensure invitation acceptance cannot escalate privilege beyond the inviter's allowed scope
+
+Validation requirements:
+
+- backend tests for invite creation, invite acceptance, duplicate invite handling, reset request, reset confirm, token expiry, token replay, and tenant isolation
+- frontend tests for invitation acceptance, invalid token states, and password reset UX
+- security review of auth responses to avoid account enumeration and privilege escalation
+
+Definition of done:
+
+- admins can onboard users without manual database work
+- users can recover access without unsafe shortcuts
+- privileged auth flows are materially stronger than the current baseline
+- docs clearly explain invitation and recovery behavior for future agents and operators
+
+Acceptance criteria:
+
+- an admin can invite a user without manual DB intervention
+- an invited user can join the tenant through a secure token flow
+- a user can reset a forgotten password without direct admin support
+- expired or invalid tokens are safely rejected
+- admin accounts have a stronger authentication path than the current baseline
+
+## Sprint 18 - Module Enforcement And Entitlements
+
+Status: Completed
+
+Goal:
+Make tenant module toggles real product controls instead of configuration-only metadata.
+
+Why this sprint now:
+
+- Sprint 15 introduced module configuration, but without enforcement the feature is not trustworthy.
+- Commercial packaging and editioning later in the roadmap require real entitlements, not cosmetic toggles.
+- This sprint closes a security and consistency gap between admin settings and runtime behavior.
+
+Primary dependencies:
+
+- Tenant settings and module toggle data from Sprint 15
+- Tenant-aware frontend shell from Sprint 16
+
+Execution scope:
+
+- backend enforcement layer
+- frontend route and navigation enforcement
+- consistency rules for disabled features with existing data
+- tests for denial behavior and tenant safety
+
+Deliverables:
+
+- Central backend dependency or policy guard enforcing module availability per tenant
+- Router-level protection for disabled modules (`membership`, `contributions`, `policies`, `disciplinary`, `events`, `announcements`, `chat`, `notifications`)
+- Consistent 403/404/409 behavior for disabled module access
+- Frontend route guards and navigation filtering aligned with backend enforcement
+- Health and tenant settings surfaces showing current effective module map
+- Admin UX warnings before disabling modules with existing data
+- Tests covering disabled module enforcement across API and frontend navigation
+- Documentation describing module toggle semantics and operational caveats
+
+Detailed implementation slices:
+
+- Backend enforcement model
+  - define a reusable per-module enforcement dependency or policy utility
+  - map every module router and sensitive endpoint to a canonical module key
+  - decide and document whether disabled modules return 403, 404, or conflict-style responses per case
+- Frontend enforcement model
+  - align route guards, navigation visibility, and dashboard cards with backend module state
+  - prevent dead-end routes and confusing UI states when a module is disabled after a user already visited it
+  - ensure the app refresh path re-evaluates enabled modules before rendering protected views
+- Operational rules
+  - warn admins before disabling a module that already contains business data
+  - document whether disabling a module hides data temporarily or requires archival/export steps first
+  - preserve tenant data integrity even when a module becomes disabled
+- Entitlement foundations
+  - keep implementation generic enough to support future edition/package controls
+  - avoid scattering toggle checks manually across unrelated code paths
+  - centralize module constants and capability mapping
+
+Validation requirements:
+
+- backend tests for every guarded module endpoint in enabled and disabled states
+- frontend tests for route denial, navigation filtering, and stale route recovery
+- manual validation that direct URL entry cannot bypass a disabled module
+
+Definition of done:
+
+- module toggles alter both backend behavior and frontend visibility
+- no disabled feature remains reachable solely through direct routing
+- the codebase has a single coherent enforcement pattern reusable by future modules
+
+Acceptance criteria:
+
+- disabling a module prevents access to its API endpoints for that tenant
+- disabled modules disappear from the frontend navigation and settings-derived UI
+- backend and frontend enforcement stay consistent
+- no tenant can accidentally access a disabled feature through a direct URL alone
+
+## Sprint 19 - Audit Trail And Administrative Governance
+
+Status: Completed
+
+Goal:
+Introduce a serious administrative audit layer for sensitive product actions beyond chat traceability.
+
+Why this sprint now:
+
+- As modules mature, administrative accountability becomes essential for customer trust and supportability.
+- Commercial customers will expect durable evidence for who changed what and when.
+- This sprint also reduces future debugging cost by adding operational traceability.
+
+Primary dependencies:
+
+- Stable core CRUD modules from Sprints 3 through 18
+- Tenant isolation and admin surfaces already in place
+
+Execution scope:
+
+- structured audit model
+- reusable audit emission service
+- admin review and export tooling
+- tenant-isolated governance workflows
+
+Deliverables:
+
+- Audit log model for sensitive actions across documents, access changes, memberships, contributions, disciplinary actions, settings, and notifications
+- Reusable audit service for structured action logging
+- Audit events for create/update/delete flows on sensitive business records
+- Admin audit review API with filtering by actor, action type, date range, and entity type
+- Frontend admin audit screen for operational review
+- Export capability for audit results (CSV or JSON baseline)
+- Tests covering audit generation for key actions and tenant isolation of logs
+- Documentation defining which actions are auditable and why
+
+Detailed implementation slices:
+
+- Audit domain model
+  - define durable audit record structure with actor, tenant, action, entity type, entity id, timestamp, result, and redacted context
+  - decide which contextual fields are safe to retain and which must be minimized
+  - ensure audit storage is append-oriented and resistant to accidental silent mutation
+- Emission strategy
+  - integrate audit logging into create, update, delete, membership, permission, settings, and document access flows
+  - avoid copy-paste audit logic by introducing a small service or utility layer
+  - define behavior for failed operations, partial success, and permission-denied attempts where appropriate
+- Admin review surface
+  - add filtered search by actor, action family, entity type, and date range
+  - support practical export for incident review or client reporting
+  - make sure no raw sensitive payloads are exposed unnecessarily in the UI
+- Governance considerations
+  - preserve strict tenant isolation
+  - document audit coverage limits so customers are not misled
+  - keep audit terminology consistent across backend, frontend, and docs
+
+Validation requirements:
+
+- backend tests proving audit creation for sensitive write operations
+- tenant isolation tests for audit review and export
+- frontend smoke coverage for audit filtering and export initiation
+
+Definition of done:
+
+- major sensitive admin actions produce durable, queryable audit evidence
+- audit review is usable without database access
+- audit coverage and exclusions are explicit in the documentation
+
+Acceptance criteria:
+
+- sensitive admin actions generate durable audit records
+- tenant A cannot view tenant B audit events
+- admins can search and review audit history without raw database access
+- audit entries include actor, action, timestamp, and target context
+
+## Sprint 20 - Document Operations Maturity
+
+Status: Completed
+
+Goal:
+Make document ingestion and knowledge base operations robust enough for routine business use.
+
+Why this sprint now:
+
+- Kairo's AI value depends on reliable document operations, but ingestion is still operationally shallow in key areas.
+- OCR, retry handling, and bulk import are important before commercial deployments or migration projects.
+- This sprint strengthens the platform's core knowledge pipeline before broader packaging work.
+
+Primary dependencies:
+
+- Existing upload, ingestion, and indexing foundations from Sprints 3 to 7
+- Audit/governance improvements from Sprint 19 where relevant for operator actions
+
+Execution scope:
+
+- OCR and richer ingestion lifecycle
+- bulk upload and operator recovery workflows
+- diagnostics and duplicate awareness
+- realistic tests for ingestion resilience
+
+Deliverables:
+
+- OCR implementation replacing the current placeholder for image-based documents
+- Bulk document upload workflow with progress and partial failure reporting
+- Retry/requeue ingestion actions for failed jobs
+- Better ingestion diagnostics (parser failure reasons, chunk counts, indexing counts)
+- Document archive/unarchive lifecycle instead of upload-only/ready semantics
+- Optional duplicate detection baseline using checksum and filename heuristics
+- Retention or cleanup strategy for superseded document versions
+- Tests covering OCR path, bulk upload edge cases, retries, and archive behavior
+- Documentation for document operations and operator troubleshooting
+
+Detailed implementation slices:
+
+- OCR enablement
+  - replace placeholder image-ingestion behavior with a real OCR pipeline or clearly modular OCR adapter
+  - define supported file/image types and failure semantics
+  - preserve traceability between uploaded file, extracted text, and chunked/indexed output
+- Bulk operations
+  - support multi-file submission with per-file status reporting
+  - handle partial success cleanly without collapsing the whole batch
+  - provide usable operator feedback for failures, duplicates, or skipped items
+- Recovery workflows
+  - add retry or requeue operations for failed ingestion jobs
+  - expose actionable failure diagnostics rather than opaque status labels
+  - define archive/unarchive semantics that do not break citation or retrieval history unexpectedly
+- Operational maturity
+  - add checksum and lightweight duplicate detection heuristics
+  - define retention or cleanup expectations for versioned or superseded documents
+  - ensure archived or failed documents behave predictably in retrieval and admin listings
+
+Validation requirements:
+
+- backend tests for OCR path, retry flow, duplicate heuristics, archive state transitions, and tenant isolation
+- worker/integration validation for ingestion status transitions
+- browser or UI smoke checks for bulk upload workflow and recovery actions
+
+Definition of done:
+
+- image-based documents can become searchable through an actual ingestion path
+- admins can diagnose and recover failed ingestion runs without direct database intervention
+- document lifecycle states are understandable, durable, and reflected in the UI
+
+Acceptance criteria:
+
+- image-based uploads can produce searchable text through OCR
+- admins can recover from failed ingestion without manual database intervention
+- bulk upload is usable for real tenant setup and migration work
+- document lifecycle is clearer than the current minimal status model
+
+## Sprint 21 - Data Import And Backoffice Automation
+
+Status: Completed
+
+Goal:
+Reduce manual administration effort with structured import/export workflows for core business records.
+
+Why this sprint now:
+
+- After document operations mature, the next business bottleneck is manual data entry for real customer onboarding.
+- Commercial rollout requires practical migration paths from spreadsheets and legacy office processes.
+- This sprint transforms the product from demo-friendly to operations-friendly.
+
+Primary dependencies:
+
+- Membership and contributions modules from Sprint 8
+- Stable tenant UX from Sprint 16
+- Stronger governance from Sprint 19 for import traceability where needed
+
+Execution scope:
+
+- member and contribution import pipelines
+- dry-run validation and reporting
+- exports for operational reporting
+- admin-friendly import UX with safe failure handling
+
+Deliverables:
+
+- CSV import for member profiles replacing the current placeholder
+- CSV or spreadsheet import for contribution records
+- Validation report format for import errors and warnings
+- Dry-run import mode before persistence
+- Export endpoints for members, contributions, events, and announcements
+- Admin frontend import screens with upload, validation summary, and result review
+- Tests for malformed rows, duplicates, tenant isolation, and dry-run safety
+- Documentation for supported import templates and operational workflow
+
+Detailed implementation slices:
+
+- Import architecture
+  - define import parsing, validation, normalization, and persistence phases explicitly
+  - support dry-run mode that produces a useful report without writing records
+  - design row-level error reporting that operators can act on without reading server logs
+- Member import
+  - replace placeholder logic with real CSV/spreadsheet mapping for core profile fields
+  - handle duplicates, missing required fields, and identifier collisions predictably
+  - decide how imports interact with existing users versus profile-only records
+- Contribution import
+  - support expected amounts, payment history baselines, or partial settlement data as appropriate
+  - validate year, amount, currency assumptions, and member matching rules
+  - ensure financial imports do not silently corrupt balance calculations
+- Export workflows
+  - provide clean tenant-scoped exports for members, contributions, events, and announcements
+  - choose stable column naming and formatting conventions
+  - ensure exported data respects role and tenant boundaries
+
+Validation requirements:
+
+- backend tests for dry-run behavior, duplicate handling, malformed files, and cross-tenant safety
+- frontend tests for import summary rendering and failure reporting
+- sample import templates validated against the implemented parser
+
+Definition of done:
+
+- admins can move meaningful operational data in and out of Kairo without bespoke scripts
+- bad rows are isolated and reported clearly
+- dry-run mode is trustworthy enough to use before real imports
+
+Acceptance criteria:
+
+- an admin can import member and contribution data without manual API scripting
+- invalid rows are reported clearly without corrupting valid data
+- imports are tenant-scoped and reversible where appropriate
+- exports produce useful operational data for external reporting
+
+## Sprint 22 - Product UX Polish And Browser QA
+
+Status: Complete
+
+Goal:
+Raise the user experience from functional admin tooling to a polished, trustworthy product surface.
+
+Why this sprint now:
+
+- By this point, the main product modules should exist, making end-to-end UX refinement efficient.
+- Commercial perception is shaped heavily by reliability, clarity, and consistency in daily workflows.
+- This sprint also prepares the product for higher-confidence demos and acceptance testing.
+
+Primary dependencies:
+
+- Stable flows across Sprints 16 through 21
+- Existing frontend surface and component library patterns
+
+Execution scope:
+
+- cross-flow UX cleanup
+- accessibility and responsive quality pass
+- browser-level regression coverage
+- clearer role-aware messaging and state handling
+
+Deliverables:
+
+- [x] Workflow review: error/loading/empty states standardized across 4 first-gen admin views
+- [x] UX copy cleanup: "Export CSV" / "Cancel" labels aligned across admin views
+- [x] Responsive fixes: offcanvas mobile sidebar for AppLayout and AdminLayout
+- [x] Role-aware UI: Admin link hidden from non-admin users in AppLayout sidebar
+- [x] Browser-based end-to-end smoke test suite: Playwright config + unauthenticated-flow specs written (need running stack to execute)
+- [x] Accessibility pass: ARIA labels, focus-visible styles, scope attributes, modal labelling
+- [x] Frontend component cleanup: export blob logic extracted to `useCsvExport` composable
+
+Detailed implementation slices:
+
+- Workflow review
+  - review the full user journey for admins, members, and treasurers across major modules
+  - remove dead ends, ambiguous labels, and inconsistent page-level behaviors
+  - align empty states and success/error messaging with real product expectations
+- Accessibility and responsiveness
+  - improve semantic labels, keyboard navigation, focus handling, color contrast, and screen-size behavior
+  - validate tables, forms, modals, badges, and alerts across desktop and mobile widths
+  - ensure branded elements remain readable and professional
+- Frontend maintainability
+  - reduce fragile page-level API coupling where views have accumulated too much orchestration logic
+  - standardize loading and error state patterns
+  - keep changes coherent with the current Vue architecture instead of introducing a UI rewrite
+- Browser QA
+  - add browser-level smoke flows for login, tenant selection, documents, chat, members, contributions, policies, events, and settings
+  - focus on critical customer-visible regressions rather than broad but shallow coverage
+  - capture stable setup instructions so future agents can rerun the suite consistently
+
+Validation requirements:
+
+- browser smoke suite for critical flows
+- frontend tests for key shared UI states where practical
+- manual responsive verification on desktop, tablet, and mobile breakpoints
+
+Definition of done:
+
+- the product feels coherent and reliable across its main workflows
+- browser-level smoke tests cover the most commercially important flows
+- obvious accessibility and responsive quality issues are materially reduced
+
+Acceptance criteria:
+
+- the major product workflows are reliable on desktop and mobile
+- accessibility and error recovery are materially better than the current baseline
+- critical flows are covered by automated browser-level smoke tests
+- the UI looks and behaves like a professional product, not just an internal tool
+
+## Sprint 23 - Observability And Runtime Reliability
+
+Status: Completed
+
+Goal:
+Give operators and future customers enough visibility to trust the system in daily use.
+
+Why this sprint now:
+
+- After the surface is polished, operational trust becomes the next barrier to production adoption.
+- Support and incident response become difficult without metrics, health quality, and correlation across components.
+- This sprint lowers operating risk before production validation work.
+
+Primary dependencies:
+
+- Mature application flows through Sprint 22
+- Existing `/health`, worker, and infrastructure foundations
+
+Execution scope:
+
+- runtime observability primitives
+- health and dependency introspection
+- background job visibility
+- operational documentation for support and diagnosis
+
+Deliverables:
+
+- Metrics endpoint or observability integration for API, worker, queue, ingestion, and chat flows
+- Structured error taxonomy and correlation IDs across request lifecycles
+- Background job health visibility (queued, processing, failed, retried)
+- Optional runtime dashboards or example Grafana/Prometheus integration docs
+- Alerting guidance for critical failure modes (DB unavailable, worker stuck, ingestion backlog)
+- Better health probes for Redis, MinIO, Qdrant, and Ollama
+- Tests for health response shape and degraded dependency reporting
+- Operations documentation for logs, metrics, and troubleshooting
+
+Detailed implementation slices:
+
+- Metrics and telemetry
+  - define practical metrics for API latency, error rates, ingestion throughput, job failures, and chat usage
+  - keep the initial observability layer simple enough to operate locally and in small deployments
+  - expose metrics in a format that can support future dashboards or managed monitoring
+- Correlation and error taxonomy
+  - add request or operation correlation identifiers where they materially improve debugging
+  - normalize key error classes so logs and support diagnostics are easier to interpret
+  - avoid leaking sensitive content into logs
+- Dependency health
+  - improve `/health` so it reflects real dependency state rather than a shallow process-up signal
+  - include Redis, MinIO, Qdrant, Ollama, and worker/queue visibility where feasible
+  - clearly separate healthy, degraded, and unavailable states
+- Supportability
+  - document how operators inspect queues, failed jobs, ingestion backlog, and degraded dependencies
+  - provide example dashboard or monitoring integration guidance without overengineering
+  - make sure support teams can reason from symptoms to likely subsystem
+
+Validation requirements:
+
+- backend tests for health response contract and degraded dependency states
+- manual validation of metrics exposure and worker/dependency diagnostics
+- documentation review for real incident workflows
+
+Definition of done:
+
+- operators can determine whether the platform is healthy, degraded, or failing
+- support diagnostics no longer depend on reading source code first
+- runtime visibility covers both request path and background processing path
+
+Acceptance criteria:
+
+- operators can detect degraded dependencies quickly
+- API and worker runtime have actionable observability beyond raw logs
+- health reporting reflects the real state of critical services
+- support teams can diagnose common incidents without reading code
+
+## Sprint 24 - Production Validation, Recovery And Security Hardening
+
+Status: Completed
+
+Goal:
+Prove that the platform is not only designed for production, but actually survivable in production-like conditions.
+
+Why this sprint now:
+
+- Observability helps detect problems, but commercial readiness also requires recovery and hardening evidence.
+- This sprint is where documented production posture becomes validated operational practice.
+- It reduces deployment risk before positioning the product as commercially launchable.
+
+Primary dependencies:
+
+- Deployment and backup docs from Sprint 11
+- Observability and health improvements from Sprint 23
+
+Execution scope:
+
+- production-like deployment validation
+- restore and upgrade drills
+- auth and sensitive-route hardening
+- security and supply-chain review baseline
+
+Deliverables:
+
+- End-to-end production Docker validation runbook and repeatable smoke test
+- Restore drill documentation and validation for backups
+- Upgrade/migration runbook for schema and application releases
+- Secret rotation guidance and environment hardening improvements
+- Admin route protection hardening recommendations or baseline implementation
+- Optional rate limiting baseline for auth and sensitive endpoints
+- Dependency review and supply-chain hardening pass
+- Security regression tests or checklists for production-sensitive flows
+
+Detailed implementation slices:
+
+- Production validation
+  - perform a repeatable production-like deployment check using the documented Docker flow
+  - verify frontend build, API startup, worker startup, storage integration, and essential user journeys
+  - capture the exact operational steps required to reproduce the validation
+- Recovery and continuity
+  - validate backup and restore guidance with at least one practical restore drill
+  - define what constitutes a successful recovery for database, objects, and vector state
+  - identify any unrecoverable gaps and document them honestly
+- Upgrade safety
+  - document and test schema/application upgrade expectations with rollback considerations where realistic
+  - make migration risk visible instead of assumed
+  - ensure future agents have a runbook for safe product evolution
+- Security hardening
+  - review auth, admin, and sensitive endpoints for the most obvious production gaps
+  - add baseline rate limiting or mitigation where justified
+  - review dependency posture and configuration hardening without derailing the existing architecture
+
+Validation requirements:
+
+- production-like smoke run
+- restore drill evidence
+- security checklist or regression tests for critical routes and auth flows
+
+Definition of done:
+
+- recovery and deployment guidance are validated, not just aspirational
+- the most obvious production hardening gaps are either fixed or explicitly bounded
+- operators have practical runbooks for deployment, restore, and upgrade workflows
+
+Acceptance criteria:
+
+- production build and restore workflow are validated, not just documented
+- upgrade path is explicit enough for a real customer deployment
+- the most obvious production security gaps are closed or clearly bounded
+- operators can recover from common failure scenarios with documented steps
+
+## Sprint 25 - Commercial Packaging And Launch Readiness
+
+Status: Completed
+
+Goal:
+Turn Kairo from a strong engineering product into a sellable and supportable commercial offer.
+
+Why this sprint now:
+
+- Product and platform maturity alone do not make a commercial offer understandable or supportable.
+- A final packaging sprint is needed to turn engineering readiness into buyer clarity and operator confidence.
+- This sprint defines the bridge from product prototype to commercial MVP.
+
+Primary dependencies:
+
+- Stable product surface through Sprint 24
+- Deployment, support, security, and operational docs already validated
+
+Execution scope:
+
+- commercial packaging definition
+- support and onboarding materials
+- demo-to-production transition guidance
+- final readiness review from a product-business perspective
+
+Deliverables:
+
+- Product packaging definition: self-hosted edition, managed-service edition, and support boundaries
+- Final product README and positioning refresh for commercial conversations
+- Customer-facing onboarding documentation and administrator guide
+- Support playbook for installation, upgrades, incidents, and common questions
+- Feature matrix clarifying included modules, optional channels, and future premium connectors
+- Example pricing/offer structure or commercialization notes for service-led rollout
+- Demo-to-production transition checklist
+- Final maturity review of legal, branding, support, and operational readiness
+
+Detailed implementation slices:
+
+- Offer definition
+  - define what is included in self-hosted versus managed-service positioning
+  - clarify support boundaries, customer responsibilities, and implementation expectations
+  - make the feature matrix understandable without needing to inspect the repository
+- Customer-facing documentation
+  - produce a cleaner onboarding path for administrators and evaluators
+  - refresh README and positioning language for commercial conversations rather than purely technical review
+  - align terminology across docs, UI, and demo material
+- Support readiness
+  - prepare installation, upgrade, incident, and FAQ guidance that a support workflow can actually use
+  - identify which flows are mature, beta, optional, or future-looking
+  - document escalation boundaries for integrations and external providers
+- Commercial readiness review
+  - capture remaining blockers that still separate the product from a confident commercial MVP
+  - identify any legal, operational, or branding gaps that require decision rather than engineering
+  - define the immediate post-Sprint-25 path for pilot customers or managed onboarding
+
+Validation requirements:
+
+- documentation review from the perspective of a new evaluator and a future operator
+- consistency pass across README, deployment docs, onboarding docs, and roadmap status
+- final launch-readiness checklist with explicit unresolved items
+
+Definition of done:
+
+- Kairo can be presented as a credible commercial MVP with clear packaging and support boundaries
+- a new evaluator can understand what the product is, how it is deployed, and what operational model is offered
+- the roadmap after Sprint 25 is no longer foundational maturity, but market expansion or premium evolution
+
+Acceptance criteria:
+
+- a prospect can understand what the product is, how it is deployed, and what they are buying
+- the project can be presented as a credible commercial MVP
+- support and operational boundaries are explicit enough for real customer conversations
+- the path from demo environment to customer environment is clearly documented
+
+## Sprint 26 - Public Product Landing And Lead Capture
+
+Status: Completed
+
+Goal:
+Turn the public sign-in experience into a credible product landing surface that communicates value fast without weakening access control.
+
+Why this sprint now:
+
+- The commercial documentation is in place, but the public entry point still looks mostly like a sign-in form.
+- Prospects need to understand the product in seconds, not only after opening repository docs.
+- A stronger first impression supports demos, pilot conversations, and self-serve evaluation.
+
+Primary dependencies:
+
+- Commercial packaging docs from Sprint 25
+- Existing public login route and auth flow
+- Frontend branding and responsive shell work from Sprints 2 and 22
+
+Execution scope:
+
+- public-facing login page redesign with a commercial landing narrative
+- feature highlights and trust signals for evaluators
+- clear call-to-action toward sign-in and commercial docs
+- mobile-first layout that still works as the auth entry point
+- browser-level regression coverage for the public entry page
+
+Deliverables:
+
+- Redesigned login page with a stronger product value proposition
+- Public summary of Kairo capabilities and deployment posture on the login surface
+- Prominent trust signals for tenant isolation, citations, and production readiness
+- More intentional empty/login states for guests
+- E2E coverage for the public entry page and the existing auth redirects
+- Documentation note explaining the public entry surface
+
+Detailed implementation slices:
+
+- Landing experience
+  - present Kairo as a product, not only a form
+  - explain the main value pillars: private AI, operational workflows, production posture
+  - keep the actual sign-in path obvious and fast
+- Visual credibility
+  - use a layout that feels intentionally commercial and professional
+  - make the mobile view readable and not cramped
+  - preserve the established brand language and tenant-aware styling
+- Safety and continuity
+  - keep backend auth unchanged
+  - do not expose private tenant data on the public page
+  - ensure authenticated users still land in the app, not on the marketing surface
+- Validation
+  - update browser checks for the public entry surface
+  - verify login, tenant selection, and protected redirects still work
+
+Validation requirements:
+
+- frontend build passing
+- browser smoke coverage for the public entry page
+- no regression in login or authenticated route guards
+
+Definition of done:
+
+- a first-time visitor can understand what Kairo does before signing in
+- the login page reads like a product entry point, not a bare authentication form
+- authenticated users still reach the app normally
+
+Acceptance criteria:
+
+- the public entry page explains the product value in a few seconds
+- the sign-in path remains clear and working
+- the surface looks credible enough for a live evaluation demo
+
+Completed implementation:
+
+- `apps/web/src/views/auth/LoginView.vue` now presents a commercial hero section, trust signals, and a clear sign-in card without changing backend auth rules
+- `apps/web/e2e/login.spec.ts` now validates the public entry surface and the existing redirect behavior
+- Frontend build passed and Playwright login smoke coverage passed on Chromium
+
+## Sprint 27 - Guided Tenant Onboarding And Conversion Flow
+
+Status: Completed
+
+Goal:
+Help a new tenant admin move from login to a working environment with less confusion and fewer dead ends.
+
+Why this sprint now:
+
+- Once the public entry is better, the next gap is first-time tenant orientation.
+- A commercial offer should help evaluators become productive quickly.
+- The current product still assumes too much prior knowledge after login.
+
+Primary dependencies:
+
+- Sprint 26 public entry surface
+- Existing tenant settings, module toggles, and multi-tenant auth flow
+- Existing empty states and onboarding-adjacent docs
+
+Execution scope:
+
+- first-run checklist or onboarding guidance inside the app
+- clearer next-step cues after tenant login
+- conversion from demo thinking to real tenant setup
+- tighter empty states for brand-new tenants
+
+Deliverables:
+
+- Guided first-run checklist for new tenant admins
+- Clear next-step guidance after login when a tenant has little or no data
+- Updated empty states that point toward setup actions
+- Documentation for the evaluator-to-admin transition
+
+Validation requirements:
+
+- browser validation for first login and first-run orientation
+- tests for empty-state and tenant-setup guidance
+
+Definition of done:
+
+- a new tenant admin can orient themselves quickly after first login
+- the product suggests useful next steps without exposing sensitive internals
+
+Acceptance criteria:
+
+- the app helps new customers move from demo to working setup
+- empty states and first-run guidance feel intentional and helpful
+
+Completed implementation:
+
+- `apps/web/src/composables/useTenantOnboarding.ts` now derives a first-run checklist from real tenant signals instead of static copy
+- `apps/web/src/views/dashboard/DashboardView.vue` now presents setup progress, next best action, quick actions, and tenant usage metrics
+- `apps/web/src/views/admin/AdminDocumentsView.vue` and `apps/web/src/views/members/AdminMembersView.vue` now expose setup-oriented empty states with direct actions
+- `docs/commercial/onboarding-guide.md` and `docs/commercial/feature-matrix.md` now describe the guided onboarding surface
+- `apps/web/playwright.config.ts`, `apps/web/e2e/login.spec.ts`, and `apps/web/e2e/dashboard.spec.ts` now provide autonomous browser validation without requiring a local backend
+
+## Sprint 28 - Admin Overview And Tenant Operations Hub
+
+Status: Completed
+
+Goal:
+Replace the placeholder admin home with a real operations hub that helps tenant admins monitor readiness, activity, and risk in one place.
+
+Why this sprint now:
+
+- Sprint 27 improves first-run guidance, but `/admin` is still a Sprint 2 placeholder and weakens the product's commercial credibility.
+- Tenant admins need a command surface that summarizes operational status without jumping across multiple modules.
+- This sprint converts an obvious maturity gap into a product-strengthening surface for demos and day-to-day use.
+
+Primary dependencies:
+
+- Sprint 27 guided onboarding dashboard
+- Existing observability, audit, document, member, contribution, event, announcement, and notification modules
+- Tenant settings and module toggles already enforced in the shell
+
+Execution scope:
+
+- real admin overview data cards and summaries
+- launch-readiness and operational health indicators
+- shortcuts into the highest-value admin workflows
+- module-aware admin overview rendering
+
+Deliverables:
+
+- Real `AdminOverviewView` replacing placeholder sprint text
+- Summary cards for documents, members, contributions, announcements, events, and audit activity where enabled
+- Admin-oriented readiness or risk panel surfacing missing setup items and operational warnings
+- Quick links into documents, settings, members, announcements, events, audit, and notification diagnostics
+- Module-aware hiding of overview widgets for disabled modules
+- Browser and frontend validation for the new admin hub
+- Documentation update for the admin operating surface
+
+Validation requirements:
+
+- frontend build passing
+- browser validation for authenticated admin overview rendering
+- no regression in admin routing and module-aware visibility
+
+Definition of done:
+
+- `/admin` no longer feels like a placeholder
+- a tenant admin can understand current readiness and the next operational action from one screen
+- the view respects module toggles and tenant isolation
+
+Acceptance criteria:
+
+- the admin landing page surfaces real product state
+- disabled modules do not render misleading cards
+- the page is credible enough for demo and production handoff conversations
+
+Completed implementation:
+
+- `apps/web/src/views/admin/AdminOverviewView.vue` now replaces the placeholder with a real admin operations hub
+- `apps/web/src/composables/useAdminOverview.ts` aggregates documents, members, contributions, events, announcements, audit, channels, ingestion health, and onboarding readiness into one surface
+- `apps/web/src/api/admin.api.ts` adds the frontend contract for ingestion job health
+- `apps/web/src/layouts/AdminLayout.vue` and `apps/web/src/layouts/AppLayout.vue` now react correctly to module-state changes instead of freezing module visibility at first render
+- `apps/web/e2e/admin-overview.spec.ts` now validates the authenticated admin hub and module-aware hiding through autonomous browser mocks
+- `docs/commercial/administrator-guide.md` now documents the admin overview as an operations hub
+
+## Sprint 29 - Team Invitations And Access Operations Console
+
+Status: Completed
+
+Goal:
+Turn the existing invitation and identity lifecycle backend into a credible admin-facing operations workflow for onboarding real customer teams.
+
+Why this sprint now:
+
+- The admin landing page is now useful, but tenant administrators still lack a strong in-product surface to invite colleagues and manage access lifecycle.
+- The backend foundations for invitations, MFA, and password recovery already exist, so the highest-value next step is operationalizing them in the admin UX.
+- Commercial deployments need team onboarding to feel first-class, not hidden behind API capability alone.
+
+Primary dependencies:
+
+- Sprint 17 identity lifecycle backend
+- Sprint 28 admin operations hub
+- Existing tenant settings, audit logging, and role model
+
+Execution scope:
+
+- admin invitation management surface
+- visibility into pending and completed invitation state
+- operational cues around MFA and access lifecycle
+- browser and regression validation for access operations
+
+Deliverables:
+
+- Admin UI for inviting users into a tenant with role selection
+- Pending invitation list with expiry and cancellation visibility
+- Links or flows that connect invitation operations to the broader admin hub
+- Better admin-facing access lifecycle guidance for onboarding teammates
+- Browser validation for invite-management interactions
+- Documentation update for tenant team onboarding and access operations
+
+Validation requirements:
+
+- frontend build passing
+- browser validation for admin invitation workflow
+- no regression in auth routing, role checks, or tenant isolation assumptions
+
+Definition of done:
+
+- a tenant admin can onboard other users through the product without API-only workflows
+- invitation state is visible and understandable from the admin surface
+- the product is more credible for real multi-user tenant rollout
+
+Acceptance criteria:
+
+- an admin can initiate and review invitations from the UI
+- pending invitations are visible with meaningful status
+- the workflow feels coherent with the admin operations hub
+
+Completed implementation:
+
+- `apps/web/src/views/admin/AdminAccessView.vue` now provides a dedicated admin console for team invitations and access rollout
+- `apps/web/src/api/settings.api.ts` now loads tenant-scoped roles from the backend for real invite role selection
+- `services/api/app/modules/tenancy/router.py` and `services/api/app/modules/tenancy/service.py` now expose an admin-safe tenant roles endpoint used by the access console
+- `apps/web/src/layouts/AdminLayout.vue` and `apps/web/src/router/index.ts` now surface the access console in navigation and preserve admin session restoration without premature redirects
+- `apps/web/src/composables/useAdminOverview.ts` now links the operations hub directly to access operations
+- `apps/web/e2e/admin-access.spec.ts` now validates invitation creation and cancellation autonomously through Playwright mocks
+- `services/api/tests/test_multi_tenant_auth.py` now verifies the tenant roles endpoint for both admin and non-admin users
+- `docs/commercial/administrator-guide.md`, `PROJECT_STATUS.md`, `docs/ai/NEXT_SPRINT.md`, and `docs/ai/PROJECT_STATE.md` now reflect the new access operations surface
+
+## Sprint 30 - Account Security And Identity Self-Service
+
+Status: Planned
+
+Goal:
+Turn the existing MFA, password recovery, and post-invite identity flows into a coherent user-facing security surface suitable for real customer operations.
+
+Why this sprint now:
+
+- Sprint 29 makes team onboarding real, but the day-2 security experience is still fragmented across isolated auth screens.
+- Commercial customers need a visible security posture for password recovery, MFA enablement, and account hardening after invitation acceptance.
+- The backend foundations already exist, so the next leverage point is productizing them into a coherent self-service experience.
+
+Primary dependencies:
+
+- Sprint 17 identity lifecycle backend
+- Sprint 29 access operations console
+- Existing audit logging and auth rate limiting
+
+Execution scope:
+
+- authenticated security settings UX
+- clearer MFA enrollment and disablement flow
+- stronger continuity across invite acceptance, login, forgot-password, and reset-password journeys
+- browser and regression validation for identity self-service
+
+Deliverables:
+
+- Dedicated authenticated security view for MFA status, enrollment, verification guidance, and disablement
+- Clear navigation path from the product shell into personal account security
+- Better continuity messaging between invitation acceptance, login, forgot-password, and reset-password screens
+- Browser validation for MFA setup/disable and password-reset journeys through autonomous mocks where possible
+- Documentation update for account security operations and user self-service expectations
+
+Validation requirements:
+
+- frontend build passing
+- browser validation for MFA and password lifecycle UX
+- no regression in auth routing, invite acceptance, or backend-enforced access control
+
+Definition of done:
+
+- a real invited user can move from account creation to a credible self-service security posture
+- MFA and password recovery are understandable without reading backend docs
+- account-security flows feel like part of the product, not detached utility screens
+
+Acceptance criteria:
+
+- a user can find and manage MFA from within the product
+- password recovery and invite acceptance feel consistent and production-ready
+- the sprint preserves backend authority for all access and security decisions

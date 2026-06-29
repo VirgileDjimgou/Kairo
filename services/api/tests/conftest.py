@@ -94,6 +94,24 @@ async def db_session(create_tables) -> AsyncGenerator[AsyncSession, None]:
 
 
 @pytest.fixture(autouse=True)
+def reset_rate_limiter():
+    """Reset the in-memory rate limiter before each test to avoid 429 errors."""
+    from app.core.rate_limiter import rate_limiter
+    rate_limiter._windows.clear()
+    yield
+
+
+@pytest.fixture(autouse=True)
+def reset_observability_metrics():
+    """Reset observability counters between tests."""
+    from app.core.metrics import metrics
+
+    metrics.reset()
+    yield
+    metrics.reset()
+
+
+@pytest.fixture(autouse=True)
 def disable_background_jobs():
     """Tests drive ingestion/indexing explicitly."""
     from app.core.config import settings

@@ -1,36 +1,37 @@
 # Next Sprint
 
-## Official Next Sprint
+## Last Completed Sprint
 
-Sprint 15 - Commercialization Baseline
+Sprint 29 - Team Invitations And Access Operations Console
 
-## Sprint Goal
+Status: Completed
 
-Prepare onboarding, settings, observability, backup posture, and product readiness foundations.
+## What Was Verified In Sprint 29
 
-## Scope
+- The admin console now exposes `/admin/access` for team invitations and invitation lifecycle visibility
+- Tenant roles are loaded from the backend so admins choose real tenant-scoped roles instead of a hardcoded list
+- Pending invitations can be cancelled and accepted/cancelled states remain visible for operational traceability
+- Browser validation now covers invitation creation and cancellation without relying on a live backend
+- Backend tests confirm tenant-role endpoint safety and invitation lifecycle regressions remain green
 
-Product foundations:
+## Status
 
-- onboarding flow
-- tenant settings
-- module toggles
-- basic observability
-- backup and restore posture review
+- Sprint 29 - Team Invitations And Access Operations Console
+- Status: Completed
 
-Documentation and readiness:
+## Sprint 29 Closed
 
-- commercialization-oriented README and product messaging
-- operational guidance for settings and backups
-- clear handoff state for future autonomous sessions
+- Sprint 29 is complete. The next sprint is already defined in the roadmap.
 
-## Acceptance Criteria
+## Handoff Guidance
 
-- product can be presented as a commercializable MVP
-- deployment and backup posture are documented clearly
-- tenant settings can govern enabled modules or product behavior
+- Read `constitution/KAIRO_CONSTITUTION.md`
+- Read `IMPLEMENTATION_ROADMAP.md`
+- Read `PROJECT_STATUS.md`
+- Read `prompts/CODEX_AUTOPILOT.md`
+- Next official sprint: `Sprint 30 - Account Security And Identity Self-Service`
 
-## Out Of Scope
+## Notes
 
-- new multi-channel providers beyond the Sprint 14 placeholder foundation
-- deep SaaS billing or full enterprise provisioning
+- Do not continue from memory alone.
+- All changes are uncommitted.

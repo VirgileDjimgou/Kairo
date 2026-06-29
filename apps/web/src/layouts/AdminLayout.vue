@@ -2,8 +2,8 @@
   <div class="d-flex min-vh-100 admin-shell-bg">
     <aside class="admin-sidebar d-none d-lg-flex flex-column p-3">
       <div class="d-flex align-items-center gap-2 mb-4 px-1">
-        <i class="bi bi-shield-lock text-primary fs-5"></i>
-        <span class="fw-bold text-dark">Admin Console</span>
+        <i class="bi bi-shield-lock fs-5" :style="{ color: primaryColor }"></i>
+        <span class="fw-bold" :style="{ color: textColor }">Admin Console</span>
       </div>
 
       <nav class="nav flex-column gap-1">
@@ -16,6 +16,7 @@
           <i class="bi bi-speedometer2 me-2"></i>Overview
         </RouterLink>
         <RouterLink
+          v-if="modules.membership"
           to="/admin/members"
           class="nav-link sidebar-link rounded"
           active-class="active"
@@ -23,6 +24,7 @@
           <i class="bi bi-people me-2"></i>Members
         </RouterLink>
         <RouterLink
+          v-if="modules.contributions"
           to="/admin/contributions"
           class="nav-link sidebar-link rounded"
           active-class="active"
@@ -30,6 +32,7 @@
           <i class="bi bi-cash-stack me-2"></i>Contributions
         </RouterLink>
         <RouterLink
+          v-if="modules.policies"
           to="/admin/policies"
           class="nav-link sidebar-link rounded"
           active-class="active"
@@ -37,11 +40,19 @@
           <i class="bi bi-journal-text me-2"></i>Policies
         </RouterLink>
         <RouterLink
+          v-if="modules.disciplinary"
           to="/admin/disciplinary"
           class="nav-link sidebar-link rounded"
           active-class="active"
         >
           <i class="bi bi-shield-lock me-2"></i>Disciplinary
+        </RouterLink>
+        <RouterLink
+          to="/admin/access"
+          class="nav-link sidebar-link rounded"
+          active-class="active"
+        >
+          <i class="bi bi-person-plus me-2"></i>Access
         </RouterLink>
         <RouterLink
           to="/admin/documents"
@@ -51,14 +62,23 @@
           <i class="bi bi-file-earmark-text me-2"></i>Documents
         </RouterLink>
         <RouterLink
+          v-if="modules.chat"
           to="/admin/chat-queries"
           class="nav-link sidebar-link rounded"
           active-class="active"
         >
           <i class="bi bi-journal-text me-2"></i>Chat audit
         </RouterLink>
+        <RouterLink
+          to="/admin/audit"
+          class="nav-link sidebar-link rounded"
+          active-class="active"
+        >
+          <i class="bi bi-shield-check me-2"></i>Audit trail
+        </RouterLink>
         <hr class="my-2" />
         <RouterLink
+          v-if="modules.events"
           to="/admin/events"
           class="nav-link sidebar-link rounded"
           active-class="active"
@@ -66,6 +86,7 @@
           <i class="bi bi-calendar-event me-2"></i>Events
         </RouterLink>
         <RouterLink
+          v-if="modules.announcements"
           to="/admin/announcements"
           class="nav-link sidebar-link rounded"
           active-class="active"
@@ -73,6 +94,7 @@
           <i class="bi bi-megaphone me-2"></i>Announcements
         </RouterLink>
         <RouterLink
+          v-if="modules.notifications"
           to="/admin/notifications"
           class="nav-link sidebar-link rounded"
           active-class="active"
@@ -90,6 +112,140 @@
       </nav>
     </aside>
 
+    <aside
+      id="adminMobileSidebar"
+      class="offcanvas offcanvas-start d-lg-none"
+      tabindex="-1"
+      aria-labelledby="adminMobileSidebarLabel"
+    >
+      <div class="offcanvas-header border-bottom">
+        <span id="adminMobileSidebarLabel" class="fw-bold">
+          <i class="bi bi-shield-lock me-1" :style="{ color: primaryColor }"></i>
+          Admin Console
+        </span>
+        <button class="btn-close" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+      </div>
+      <div class="offcanvas-body p-3">
+        <nav class="nav flex-column gap-1">
+          <RouterLink
+            to="/admin"
+            class="nav-link sidebar-link rounded"
+            active-class="active"
+            end
+            data-bs-dismiss="offcanvas"
+          >
+            <i class="bi bi-speedometer2 me-2"></i>Overview
+          </RouterLink>
+          <RouterLink
+            v-if="modules.membership"
+            to="/admin/members"
+            class="nav-link sidebar-link rounded"
+            active-class="active"
+            data-bs-dismiss="offcanvas"
+          >
+            <i class="bi bi-people me-2"></i>Members
+          </RouterLink>
+          <RouterLink
+            v-if="modules.contributions"
+            to="/admin/contributions"
+            class="nav-link sidebar-link rounded"
+            active-class="active"
+            data-bs-dismiss="offcanvas"
+          >
+            <i class="bi bi-cash-stack me-2"></i>Contributions
+          </RouterLink>
+          <RouterLink
+            v-if="modules.policies"
+            to="/admin/policies"
+            class="nav-link sidebar-link rounded"
+            active-class="active"
+            data-bs-dismiss="offcanvas"
+          >
+            <i class="bi bi-journal-text me-2"></i>Policies
+          </RouterLink>
+          <RouterLink
+            v-if="modules.disciplinary"
+            to="/admin/disciplinary"
+            class="nav-link sidebar-link rounded"
+            active-class="active"
+            data-bs-dismiss="offcanvas"
+          >
+            <i class="bi bi-shield-lock me-2"></i>Disciplinary
+          </RouterLink>
+          <RouterLink
+            to="/admin/access"
+            class="nav-link sidebar-link rounded"
+            active-class="active"
+            data-bs-dismiss="offcanvas"
+          >
+            <i class="bi bi-person-plus me-2"></i>Access
+          </RouterLink>
+          <RouterLink
+            to="/admin/documents"
+            class="nav-link sidebar-link rounded"
+            active-class="active"
+            data-bs-dismiss="offcanvas"
+          >
+            <i class="bi bi-file-earmark-text me-2"></i>Documents
+          </RouterLink>
+          <RouterLink
+            v-if="modules.chat"
+            to="/admin/chat-queries"
+            class="nav-link sidebar-link rounded"
+            active-class="active"
+            data-bs-dismiss="offcanvas"
+          >
+            <i class="bi bi-journal-text me-2"></i>Chat audit
+          </RouterLink>
+          <RouterLink
+            to="/admin/audit"
+            class="nav-link sidebar-link rounded"
+            active-class="active"
+            data-bs-dismiss="offcanvas"
+          >
+            <i class="bi bi-shield-check me-2"></i>Audit trail
+          </RouterLink>
+          <hr class="my-2" />
+          <RouterLink
+            v-if="modules.events"
+            to="/admin/events"
+            class="nav-link sidebar-link rounded"
+            active-class="active"
+            data-bs-dismiss="offcanvas"
+          >
+            <i class="bi bi-calendar-event me-2"></i>Events
+          </RouterLink>
+          <RouterLink
+            v-if="modules.announcements"
+            to="/admin/announcements"
+            class="nav-link sidebar-link rounded"
+            active-class="active"
+            data-bs-dismiss="offcanvas"
+          >
+            <i class="bi bi-megaphone me-2"></i>Announcements
+          </RouterLink>
+          <RouterLink
+            v-if="modules.notifications"
+            to="/admin/notifications"
+            class="nav-link sidebar-link rounded"
+            active-class="active"
+            data-bs-dismiss="offcanvas"
+          >
+            <i class="bi bi-broadcast-pin me-2"></i>Channels
+          </RouterLink>
+          <hr class="my-2" />
+          <RouterLink
+            to="/admin/settings"
+            class="nav-link sidebar-link rounded"
+            active-class="active"
+            data-bs-dismiss="offcanvas"
+          >
+            <i class="bi bi-gear me-2"></i>Settings
+          </RouterLink>
+        </nav>
+      </div>
+    </aside>
+
     <main class="flex-grow-1 overflow-auto">
       <header class="topbar sticky-top bg-white border-bottom">
         <div
@@ -97,14 +253,24 @@
         >
           <div>
             <div class="text-muted small text-uppercase fw-semibold">
-              Admin dashboard
+              {{ tenantStore.currentTenantName }}
             </div>
             <div class="fw-semibold">Operational control center</div>
           </div>
-          <div
-            class="badge bg-warning-subtle text-warning border border-warning-subtle px-3 py-2"
-          >
-            Admin v0.1
+          <div class="d-flex align-items-center gap-2 ms-auto">
+            <button
+              class="btn btn-link d-lg-none p-1 text-dark"
+              data-bs-toggle="offcanvas"
+              data-bs-target="#adminMobileSidebar"
+              aria-label="Toggle navigation"
+            >
+              <i class="bi bi-list fs-4"></i>
+            </button>
+            <div
+              class="badge bg-warning-subtle text-warning border border-warning-subtle px-3 py-2"
+            >
+              Admin v0.1
+            </div>
           </div>
         </div>
       </header>
@@ -117,7 +283,28 @@
 </template>
 
 <script setup lang="ts">
+import { computed } from "vue";
 import { RouterLink, RouterView } from "vue-router";
+import { useTenantStore } from "@/stores/tenant.store";
+
+const tenantStore = useTenantStore();
+
+const modules = computed(() => ({
+  membership: tenantStore.isModuleEnabled("membership"),
+  contributions: tenantStore.isModuleEnabled("contributions"),
+  policies: tenantStore.isModuleEnabled("policies"),
+  disciplinary: tenantStore.isModuleEnabled("disciplinary"),
+  events: tenantStore.isModuleEnabled("events"),
+  announcements: tenantStore.isModuleEnabled("announcements"),
+  chat: tenantStore.isModuleEnabled("chat"),
+  notifications: tenantStore.isModuleEnabled("notifications"),
+}));
+
+const primaryColor = computed(() => {
+  return tenantStore.currentTenant?.branding.primary_color || "#1f4f8f";
+});
+
+const textColor = computed(() => "#1f2937");
 </script>
 
 <style scoped>

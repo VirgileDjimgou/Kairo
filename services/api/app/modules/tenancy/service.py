@@ -4,11 +4,13 @@ from uuid import UUID
 from fastapi import HTTPException, status
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from app.modules.audit.service import AuditService
 from app.modules.tenancy.module_toggles import default_module_toggles, parse_module_toggles
 from app.modules.tenancy.repository import TenancyRepository
 from app.modules.tenancy.schemas import (
     BrandingConfig,
     ModuleToggles,
+    RoleResponse,
     TenantResponse,
     TenantSettingsResponse,
     TenantSettingsUpdate,
@@ -17,7 +19,9 @@ from app.modules.tenancy.schemas import (
 
 class TenancyService:
     def __init__(self, db: AsyncSession) -> None:
+        self._db = db
         self._repo = TenancyRepository(db)
+        self._audit = AuditService(db)
 
     async def get_user_tenants(self, user_id: UUID) -> list[TenantResponse]:
         memberships = await self._repo.get_user_active_memberships(user_id)
@@ -44,6 +48,26 @@ class TenancyService:
                 detail="Organization not found",
             )
         return TenantResponse.model_validate(tenant)
+
+    async def get_tenant_roles(
+        self, tenant_id: UUID, requesting_user_id: UUID
+    ) -> list[RoleResponse]:
+        membership = await self._repo.get_tenant_user(tenant_id, requesting_user_id)
+        if not membership or membership.membership_status != "active":
+            raise HTTPException(
+                status_code=status.HTTP_403_FORBIDDEN,
+                detail="You are not a member of this organization",
+            )
+
+        role_codes = await self._repo.get_user_role_codes(tenant_id, requesting_user_id)
+        if "admin" not in role_codes:
+            raise HTTPException(
+                status_code=status.HTTP_403_FORBIDDEN,
+                detail="Only administrators can view tenant roles",
+            )
+
+        roles = await self._repo.get_roles_for_tenant(tenant_id)
+        return [RoleResponse.model_validate(role) for role in roles]
 
     # ── Tenant Settings ─────────────────────────────────────────────────────
 
@@ -146,6 +170,22 @@ class TenancyService:
                 status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
                 detail="Failed to update tenant settings",
             )
+
+        await self._audit.record_event(
+            tenant_id=tenant_id,
+            actor_user_id=requesting_user_id,
+            action="settings_updated",
+            entity_type="tenant_settings",
+            entity_id=tenant_id,
+            module_key="tenancy",
+            details={
+                "name": updated.name,
+                "default_language": updated.default_language,
+                "branding_changed": settings.branding is not None,
+                "modules_changed": settings.modules is not None,
+            },
+        )
+        await self._db.commit()
 
         module_toggles = parse_module_toggles(
             json.loads(settings_json) if settings_json else {}

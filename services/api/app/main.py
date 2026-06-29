@@ -2,14 +2,25 @@ from contextlib import asynccontextmanager
 
 import structlog
 from fastapi import FastAPI
+from fastapi.exceptions import RequestValidationError
 from fastapi.middleware.cors import CORSMiddleware
-from sqlalchemy import text
+from fastapi.responses import PlainTextResponse
+from starlette.exceptions import HTTPException as StarletteHTTPException
 
 from app.core.config import settings
 from app.core.dependencies import DbDep
+from app.core.metrics import build_runtime_metrics
+from app.core.observability import (
+    ObservabilityMiddleware,
+    http_exception_handler,
+    unhandled_exception_handler,
+    validation_exception_handler,
+)
+from app.core.health_checks import run_all_checks
 from app.core.logging import setup_logging
 from app.modules.tenancy.module_toggles import ALL_MODULES
 from app.modules.chat.router import router as chat_router
+from app.modules.audit.router import router as audit_router
 from app.modules.admin.router import router as admin_router
 from app.modules.documents.router import router as documents_router
 from app.modules.identity.router import router as identity_router
@@ -46,6 +57,8 @@ app = FastAPI(
     redoc_url="/redoc" if settings.app_debug else None,
 )
 
+app.add_middleware(ObservabilityMiddleware)
+
 app.add_middleware(
     CORSMiddleware,
     allow_origins=settings.cors_origins,
@@ -54,12 +67,17 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+app.add_exception_handler(StarletteHTTPException, http_exception_handler)
+app.add_exception_handler(RequestValidationError, validation_exception_handler)
+app.add_exception_handler(Exception, unhandled_exception_handler)
+
 # ── API v1 routers ─────────────────────────────────────────────────────────────
 API_PREFIX = "/api/v1"
 
 app.include_router(identity_router, prefix=API_PREFIX)
 app.include_router(tenancy_router, prefix=API_PREFIX)
 app.include_router(admin_router, prefix=API_PREFIX)
+app.include_router(audit_router, prefix=API_PREFIX)
 app.include_router(documents_router, prefix=API_PREFIX)
 app.include_router(chat_router, prefix=API_PREFIX)
 app.include_router(membership_router, prefix=API_PREFIX)
@@ -79,21 +97,18 @@ async def health_check(db: DbDep) -> dict:
     Probes critical dependencies and returns their status.
 
     Returns HTTP 200 in all cases — callers should inspect the `status`
-    field (`ok` | `degraded`) to determine overall health.
+    field (`ok` | `degraded` | `unavailable`) and per-service `checks`
+    to determine overall health.
     """
-    checks: dict[str, str] = {}
+    checks = await run_all_checks(db)
 
-    # Database probe
-    try:
-        await db.execute(text("SELECT 1"))
-        checks["database"] = "ok"
-    except Exception as exc:
-        logger.warning("Database health check failed", error=str(exc))
-        checks["database"] = "error"
-
-    # Future sprints: Redis, Qdrant, MinIO probes added here
-
-    overall = "ok" if all(v == "ok" for v in checks.values()) else "degraded"
+    statuses = [c["status"] for c in checks.values()]
+    if all(s == "ok" for s in statuses):
+        overall = "ok"
+    elif any(s == "unavailable" for s in statuses):
+        overall = "unavailable"
+    else:
+        overall = "degraded"
 
     return {
         "status": overall,
@@ -102,3 +117,8 @@ async def health_check(db: DbDep) -> dict:
         "checks": checks,
         "modules": ALL_MODULES,
     }
+
+
+@app.get("/metrics", tags=["system"], summary="Runtime metrics")
+async def metrics(db: DbDep) -> PlainTextResponse:
+    return PlainTextResponse(await build_runtime_metrics(db), media_type="text/plain; version=0.0.4")

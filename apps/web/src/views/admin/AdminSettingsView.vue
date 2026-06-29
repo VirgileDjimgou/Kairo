@@ -126,7 +126,7 @@
 <script setup lang="ts">
 import { onMounted, reactive, ref, computed } from "vue";
 import { useAuthStore } from "@/stores/auth.store";
-import { getTenantSettings, updateTenantSettings, type TenantSettingsResponse, type ModuleToggles, type BrandingConfig } from "../../api/settings.api";
+import { getTenantSettings, updateTenantSettings, checkModuleHasData, type TenantSettingsResponse, type ModuleToggles, type BrandingConfig } from "../../api/settings.api";
 
 const auth = useAuthStore();
 const loading = ref(true);
@@ -198,6 +198,22 @@ async function loadSettings() {
 
 async function saveSettings() {
   if (!auth.user?.tenant_id) return;
+
+  // Warn if disabling a module that has existing data
+  const disabledModules = Object.keys(form.modules).filter(
+    (key) => !form.modules[key as keyof ModuleToggles]
+  );
+  for (const module of disabledModules) {
+    const hasData = await checkModuleHasData(auth.user.tenant_id, module);
+    if (hasData) {
+      const confirmed = confirm(
+        `"${moduleLabel(module)}" has existing data. Disabling it will hide that data from users. Are you sure?`
+      );
+      if (!confirmed) return;
+      break;
+    }
+  }
+
   saving.value = true;
   saved.value = false;
   error.value = "";

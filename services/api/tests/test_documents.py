@@ -1,11 +1,15 @@
-"""Sprint 3 acceptance tests: document upload and tenant-scoped listing."""
+"""Sprint 3 and Sprint 20 acceptance tests: document upload and tenant-scoped listing."""
 
+from io import BytesIO
 import uuid as _uuid
 
 import pytest
 from httpx import AsyncClient
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from app.modules.documents.models import Document, IngestionJob
+from app.modules.ingestion.service import IngestionService
+from app.providers.parsers import parse_document_bytes
 from helpers import create_tenant_with_user, login
 
 pytestmark = pytest.mark.integration
@@ -241,3 +245,150 @@ async def test_admin_can_queue_document_reindex(
     assert body["document_id"] == document_id
     assert body["status"] == "pending"
     assert body["chunk_count"] == 0
+
+
+@pytest.mark.asyncio
+async def test_duplicate_upload_reports_existing_document(
+    client: AsyncClient, seeded_tenant_and_admin: dict
+) -> None:
+    data = seeded_tenant_and_admin
+    token = await login(client, data["user"].email, data["password"])
+
+    first = await client.post(
+        "/api/v1/documents/upload",
+        headers={"Authorization": f"Bearer {token}"},
+        files={"file": ("duplicate.txt", b"same body", "text/plain")},
+        data={"title": "Duplicate Source", "access_scope": "tenant_public"},
+    )
+    assert first.status_code == 200, first.text
+
+    second = await client.post(
+        "/api/v1/documents/upload",
+        headers={"Authorization": f"Bearer {token}"},
+        files={"file": ("duplicate.txt", b"same body", "text/plain")},
+        data={"title": "Duplicate Source Copy", "access_scope": "tenant_public"},
+    )
+    assert second.status_code == 200, second.text
+    assert second.json()["duplicate_of_document_id"] == first.json()["id"]
+
+
+@pytest.mark.asyncio
+async def test_image_document_uses_ocr_and_becomes_searchable(
+    client: AsyncClient,
+    db_session: AsyncSession,
+    fake_storage,
+    fake_vector_store,
+    fake_llm,
+) -> None:
+    from PIL import Image, ImageDraw, ImageFont
+
+    data = await create_tenant_with_user(db_session, f"ocr-{_uuid.uuid4().hex[:6]}")
+    token = await login(client, data["user"].email, data["password"], tenant_slug=data["tenant"].slug)
+
+    image = Image.new("RGB", (900, 240), "white")
+    draw = ImageDraw.Draw(image)
+    try:
+        font = ImageFont.truetype("arial.ttf", 64)
+    except OSError:
+        font = ImageFont.load_default()
+    draw.text((40, 70), "HELLO OCR", fill="black", font=font)
+    buffer = BytesIO()
+    image.save(buffer, format="PNG")
+    image_bytes = buffer.getvalue()
+
+    parsed = parse_document_bytes(image_bytes, "hello.png")
+    assert "HELLO" in parsed.upper()
+
+    upload = await client.post(
+        "/api/v1/documents/upload",
+        headers={"Authorization": f"Bearer {token}"},
+        files={"file": ("hello.png", image_bytes, "image/png")},
+        data={"title": "OCR target", "access_scope": "tenant_public"},
+    )
+    assert upload.status_code == 200, upload.text
+    job_id = upload.json()["ingestion_job_id"]
+
+    service = IngestionService(
+        db_session,
+        fake_storage,
+        embedding_provider=type("E", (), {"embed_texts": lambda self, texts: [[0.1] * 8 for _ in texts]})(),
+        vector_store_provider=fake_vector_store,
+    )
+    await service.process_job(_uuid.UUID(job_id))
+
+    docs = await client.get(
+        "/api/v1/documents/",
+        headers={"Authorization": f"Bearer {token}"},
+    )
+    assert docs.status_code == 200, docs.text
+    body = docs.json()[0]
+    assert body["status"] == "ready"
+
+
+@pytest.mark.asyncio
+async def test_bulk_upload_returns_partial_success(
+    client: AsyncClient, seeded_tenant_and_admin: dict
+) -> None:
+    data = seeded_tenant_and_admin
+    token = await login(client, data["user"].email, data["password"])
+
+    response = await client.post(
+        "/api/v1/documents/bulk-upload",
+        headers={"Authorization": f"Bearer {token}"},
+        files=[
+            ("files", ("a.txt", b"alpha bulk body", "text/plain")),
+            ("files", ("bad.exe", b"MZ", "application/octet-stream")),
+        ],
+        data={"title_prefix": "Bulk "},
+    )
+    assert response.status_code == 200, response.text
+    body = response.json()
+    assert body["success_count"] == 1
+    assert body["failure_count"] == 1
+    assert body["items"][0]["status"] == "uploaded"
+    assert body["items"][1]["status"] == "failed"
+
+
+@pytest.mark.asyncio
+async def test_archive_restore_and_retry_failed_job(
+    client: AsyncClient, db_session: AsyncSession
+) -> None:
+    data = await create_tenant_with_user(db_session, f"arch-{_uuid.uuid4().hex[:6]}")
+    token = await login(client, data["user"].email, data["password"], tenant_slug=data["tenant"].slug)
+
+    upload = await client.post(
+        "/api/v1/documents/upload",
+        headers={"Authorization": f"Bearer {token}"},
+        files={"file": ("archive.txt", b"archive body", "text/plain")},
+        data={"title": "Archive Target", "access_scope": "tenant_public"},
+    )
+    assert upload.status_code == 200, upload.text
+    document_id = upload.json()["id"]
+    job_id = upload.json()["ingestion_job_id"]
+
+    archive_resp = await client.patch(
+        f"/api/v1/documents/{document_id}/archive",
+        headers={"Authorization": f"Bearer {token}"},
+    )
+    assert archive_resp.status_code == 200, archive_resp.text
+    assert archive_resp.json()["status"] == "archived"
+
+    restore_resp = await client.patch(
+        f"/api/v1/documents/{document_id}/unarchive",
+        headers={"Authorization": f"Bearer {token}"},
+    )
+    assert restore_resp.status_code == 200, restore_resp.text
+    assert restore_resp.json()["status"] in {"ready", "uploaded"}
+
+    job = await db_session.get(IngestionJob, _uuid.UUID(job_id))
+    assert job is not None
+    job.status = "failed"
+    job.error_message = "parser error"
+    await db_session.commit()
+
+    retry_resp = await client.post(
+        f"/api/v1/documents/ingestion-jobs/{job_id}/retry",
+        headers={"Authorization": f"Bearer {token}"},
+    )
+    assert retry_resp.status_code == 200, retry_resp.text
+    assert retry_resp.json()["job"]["status"] == "pending"

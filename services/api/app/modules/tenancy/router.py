@@ -4,6 +4,7 @@ from fastapi import APIRouter
 
 from app.core.dependencies import AuthDep, DbDep
 from app.modules.tenancy.schemas import (
+    RoleResponse,
     TenantResponse,
     TenantSettingsResponse,
     TenantSettingsUpdate,
@@ -31,6 +32,19 @@ async def get_tenant(
     """
     service = TenancyService(db)
     return await service.get_tenant(tenant_id, current.user.id)
+
+
+@router.get("/{tenant_id}/roles", response_model=list[RoleResponse])
+async def list_tenant_roles(
+    tenant_id: UUID, current: AuthDep, db: DbDep
+) -> list[RoleResponse]:
+    """
+    Return the roles available in a tenant for admin access operations.
+
+    Tenant isolation enforced and restricted to tenant administrators.
+    """
+    service = TenancyService(db)
+    return await service.get_tenant_roles(tenant_id, current.user.id)
 
 
 @router.get("/{tenant_id}/settings", response_model=TenantSettingsResponse)
@@ -65,6 +79,6 @@ async def update_tenant_settings(
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
             detail="Only administrators can update tenant settings",
-        )
+    )
     service = TenancyService(db)
     return await service.update_tenant_settings(tenant_id, current.user.id, settings)

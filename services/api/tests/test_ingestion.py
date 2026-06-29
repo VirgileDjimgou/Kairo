@@ -150,20 +150,35 @@ async def test_pdf_upload_produces_chunks(
 
 
 @pytest.mark.asyncio
-async def test_image_without_ocr_marks_job_failed(
+async def test_image_upload_with_ocr_completes_ingestion(
     client: AsyncClient,
     db_session: AsyncSession,
     fake_storage,
 ) -> None:
+    from io import BytesIO
+
+    from PIL import Image, ImageDraw, ImageFont
+
     data = await create_tenant_with_user(db_session, f"img-{_uuid.uuid4().hex[:6]}")
     token = await login(
         client, data["user"].email, data["password"], tenant_slug=data["tenant"].slug
     )
 
+    image = Image.new("RGB", (900, 240), "white")
+    draw = ImageDraw.Draw(image)
+    try:
+        font = ImageFont.truetype("arial.ttf", 64)
+    except OSError:
+        font = ImageFont.load_default()
+    draw.text((40, 70), "HELLO OCR", fill="black", font=font)
+    buffer = BytesIO()
+    image.save(buffer, format="PNG")
+    image_bytes = buffer.getvalue()
+
     upload = await client.post(
         "/api/v1/documents/upload",
         headers={"Authorization": f"Bearer {token}"},
-        files={"file": ("scan.png", b"\x89PNG", "image/png")},
+        files={"file": ("scan.png", image_bytes, "image/png")},
         data={"title": "Scan", "access_scope": "tenant_public"},
     )
     assert upload.status_code == 200
@@ -175,6 +190,4 @@ async def test_image_without_ocr_marks_job_failed(
 
     job = await db_session.get(IngestionJob, job_id)
     assert job is not None
-    assert job.status == "failed"
-    assert job.error_message
-    assert "ocr is not configured" in job.error_message.lower()
+    assert job.status == "completed"

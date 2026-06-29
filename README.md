@@ -110,6 +110,20 @@ See [`docs/demo-script.md`](docs/demo-script.md) for a complete walkthrough cove
 4. **AI safety** — prompt injection resistance, no-source refusal
 5. **Treasurer view** — manage contributions and payments
 
+## Commercial Packaging
+
+If you want to present Kairo as a product rather than only a codebase, start here:
+
+1. [`docs/commercial/README.md`](docs/commercial/README.md) - commercial overview and reading order
+2. [`docs/commercial/public-entry.md`](docs/commercial/public-entry.md) - what the public login surface communicates
+3. [`docs/commercial/onboarding-guide.md`](docs/commercial/onboarding-guide.md) - customer onboarding flow
+4. [`docs/commercial/administrator-guide.md`](docs/commercial/administrator-guide.md) - tenant admin operations
+5. [`docs/commercial/support-playbook.md`](docs/commercial/support-playbook.md) - support boundary and incident workflow
+6. [`docs/commercial/feature-matrix.md`](docs/commercial/feature-matrix.md) - included modules and future boundaries
+7. [`docs/commercial/commercialization-notes.md`](docs/commercial/commercialization-notes.md) - service-led offer structure
+8. [`docs/commercial/demo-to-production-checklist.md`](docs/commercial/demo-to-production-checklist.md) - go-live transition checklist
+9. [`docs/commercial/maturity-review.md`](docs/commercial/maturity-review.md) - remaining legal and business decisions
+
 ## Development
 
 ```bash

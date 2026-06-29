@@ -10,6 +10,7 @@ from fastapi import HTTPException, UploadFile, status
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core.config import settings
+from app.modules.audit.service import AuditService
 from app.modules.documents.models import (
     Document,
     DocumentAccessScope,
@@ -19,9 +20,12 @@ from app.modules.documents.models import (
 )
 from app.modules.documents.repository import DocumentRepository
 from app.modules.documents.schemas import (
+    BulkUploadItemResponse,
+    BulkUploadResponse,
     DocumentAccessUpdateRequest,
     DocumentListItemResponse,
     IngestionJobResponse,
+    IngestionJobRetryResponse,
     UploadDocumentResponse,
 )
 
@@ -43,6 +47,7 @@ class DocumentService:
         self._db = db
         self._storage = storage_provider
         self._repo = DocumentRepository(db)
+        self._audit = AuditService(db)
 
     async def upload_document(
         self,
@@ -69,6 +74,9 @@ class DocumentService:
             )
         checksum = hashlib.sha256(file_bytes).hexdigest()
         storage_key = self._build_storage_key(tenant_id, document_id, version_id, file.filename)
+        duplicate = await self._repo.get_duplicate_document_by_checksum(
+            tenant_id, checksum, file.filename or ""
+        )
 
         self._storage.upload_bytes(
             bucket=settings.minio_bucket_documents,
@@ -122,6 +130,21 @@ class DocumentService:
         await self._repo.create_document(document)
         await self._repo.create_version(version)
         await self._repo.create_ingestion_job(job)
+        await self._audit.record_event(
+            tenant_id=tenant_id,
+            actor_user_id=user_id,
+            action="upload",
+            entity_type="document",
+            entity_id=document.id,
+            module_key="documents",
+            details={
+                "title": document.title,
+                "access_scope": document.access_scope,
+                "source_type": document.source_type,
+                "file_name": version.file_name,
+                "duplicate_of_document_id": duplicate.id if duplicate else None,
+            },
+        )
         await self._db.commit()
 
         from app.worker.tasks.ingestion import enqueue_ingestion_job
@@ -138,6 +161,7 @@ class DocumentService:
             status=document.status,
             owner_user_id=document.owner_user_id,
             created_at=document.created_at,
+            duplicate_of_document_id=duplicate.id if duplicate else None,
             current_version={
                 "id": version.id,
                 "file_name": version.file_name,
@@ -151,6 +175,58 @@ class DocumentService:
             ingestion_job_id=job.id,
         )
 
+    async def upload_documents_bulk(
+        self,
+        *,
+        tenant_id: UUID,
+        user_id: UUID,
+        files: list[UploadFile],
+        title_prefix: str = "",
+        description: str | None = None,
+        access_scope: str = "tenant_public",
+        allowed_role_ids: list[str] | None = None,
+    ) -> BulkUploadResponse:
+        items: list[BulkUploadItemResponse] = []
+        for index, file in enumerate(files):
+            try:
+                title = f"{title_prefix}{Path(file.filename or f'upload-{index + 1}').stem}".strip()
+                if not title:
+                    title = file.filename or f"upload-{index + 1}"
+                document = await self.upload_document(
+                    tenant_id=tenant_id,
+                    user_id=user_id,
+                    file=file,
+                    title=title,
+                    description=description,
+                    access_scope=access_scope,
+                    allowed_role_ids=allowed_role_ids,
+                )
+                items.append(
+                    BulkUploadItemResponse(
+                        index=index,
+                        file_name=file.filename or f"upload-{index + 1}",
+                        status="uploaded",
+                        document=document,
+                    )
+                )
+            except Exception as exc:
+                items.append(
+                    BulkUploadItemResponse(
+                        index=index,
+                        file_name=file.filename or f"upload-{index + 1}",
+                        status="failed",
+                        error=str(exc),
+                    )
+                )
+
+        success_count = sum(1 for item in items if item.status == "uploaded")
+        failure_count = len(items) - success_count
+        return BulkUploadResponse(
+            items=items,
+            success_count=success_count,
+            failure_count=failure_count,
+        )
+
     async def list_documents(self, tenant_id: UUID) -> list[DocumentListItemResponse]:
         rows = await self._repo.list_documents(tenant_id)
         return [self._to_list_item(document, version) for document, version in rows]
@@ -161,6 +237,7 @@ class DocumentService:
         tenant_id: UUID,
         document_id: UUID,
         request: DocumentAccessUpdateRequest,
+        actor_user_id: UUID | None = None,
     ) -> DocumentListItemResponse:
         try:
             document_scope = DocumentAccessScope(request.access_scope).value
@@ -185,6 +262,18 @@ class DocumentService:
                 status_code=status.HTTP_404_NOT_FOUND,
                 detail="Document not found",
             )
+        await self._audit.record_event(
+            tenant_id=tenant_id,
+            actor_user_id=actor_user_id,
+            action="access_updated",
+            entity_type="document",
+            entity_id=document.id,
+            module_key="documents",
+            details={
+                "access_scope": document.access_scope,
+                "allowed_role_ids": request.allowed_role_ids or [],
+            },
+        )
         document.updated_at = datetime.now(UTC)
         await self._db.commit()
 
@@ -198,12 +287,18 @@ class DocumentService:
         *,
         tenant_id: UUID,
         document_id: UUID,
+        actor_user_id: UUID | None = None,
     ) -> IngestionJobResponse:
         document = await self._repo.get_document(tenant_id, document_id)
         if document is None:
             raise HTTPException(
                 status_code=status.HTTP_404_NOT_FOUND,
                 detail="Document not found",
+            )
+        if document.status == DocumentStatus.archived.value:
+            raise HTTPException(
+                status_code=status.HTTP_409_CONFLICT,
+                detail="Archived documents must be restored before reindexing",
             )
         if document.current_version_id is None:
             raise HTTPException(
@@ -226,6 +321,18 @@ class DocumentService:
             created_at=datetime.now(UTC),
         )
         await self._repo.create_ingestion_job(job)
+        await self._audit.record_event(
+            tenant_id=tenant_id,
+            actor_user_id=actor_user_id,
+            action="reindex_requested",
+            entity_type="document",
+            entity_id=document.id,
+            module_key="documents",
+            details={
+                "version_id": version.id,
+                "job_id": job.id,
+            },
+        )
         await self._db.commit()
 
         from app.worker.tasks.ingestion import enqueue_ingestion_job
@@ -244,6 +351,128 @@ class DocumentService:
             finished_at=job.finished_at,
             created_at=job.created_at,
         )
+
+    async def retry_failed_ingestion_job(
+        self,
+        *,
+        tenant_id: UUID,
+        job_id: UUID,
+        actor_user_id: UUID | None = None,
+    ) -> IngestionJobRetryResponse:
+        job = await self._repo.get_ingestion_job(tenant_id, job_id)
+        if job is None:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail="Ingestion job not found",
+            )
+        if job.status != "failed":
+            raise HTTPException(
+                status_code=status.HTTP_409_CONFLICT,
+                detail="Only failed jobs can be retried",
+            )
+        job.status = "pending"
+        job.error_message = None
+        job.started_at = None
+        job.finished_at = None
+        await self._db.commit()
+
+        from app.worker.tasks.ingestion import enqueue_ingestion_job
+
+        enqueue_ingestion_job(job.id)
+
+        await self._audit.record_event(
+            tenant_id=tenant_id,
+            actor_user_id=actor_user_id,
+            action="ingestion_retried",
+            entity_type="ingestion_job",
+            entity_id=job.id,
+            module_key="documents",
+            details={"document_id": job.document_id, "version_id": job.document_version_id},
+        )
+        await self._db.commit()
+
+        refreshed = await self._repo.get_ingestion_job(tenant_id, job_id)
+        if refreshed is None:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail="Ingestion job not found",
+            )
+        return IngestionJobRetryResponse(
+            job=IngestionJobResponse(
+                id=refreshed.id,
+                document_id=refreshed.document_id,
+                document_version_id=refreshed.document_version_id,
+                status=refreshed.status,
+                error_message=refreshed.error_message,
+                chunk_count=0,
+                indexed_chunk_count=0,
+                started_at=refreshed.started_at,
+                finished_at=refreshed.finished_at,
+                created_at=refreshed.created_at,
+            )
+        )
+
+    async def archive_document(
+        self,
+        *,
+        tenant_id: UUID,
+        document_id: UUID,
+        actor_user_id: UUID | None = None,
+    ) -> DocumentListItemResponse:
+        document = await self._repo.get_document(tenant_id, document_id)
+        if document is None:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail="Document not found",
+            )
+        document.status = DocumentStatus.archived.value
+        document.updated_at = datetime.now(UTC)
+        await self._audit.record_event(
+            tenant_id=tenant_id,
+            actor_user_id=actor_user_id,
+            action="archive",
+            entity_type="document",
+            entity_id=document.id,
+            module_key="documents",
+            details={"title": document.title},
+        )
+        await self._db.commit()
+        version = None
+        if document.current_version_id is not None:
+            version = await self._repo.get_version_for_tenant(tenant_id, document.current_version_id)
+        return self._to_list_item(document, version)
+
+    async def unarchive_document(
+        self,
+        *,
+        tenant_id: UUID,
+        document_id: UUID,
+        actor_user_id: UUID | None = None,
+    ) -> DocumentListItemResponse:
+        document = await self._repo.get_document(tenant_id, document_id)
+        if document is None:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail="Document not found",
+            )
+        document.status = (
+            DocumentStatus.ready.value if document.current_version_id else DocumentStatus.uploaded.value
+        )
+        document.updated_at = datetime.now(UTC)
+        await self._audit.record_event(
+            tenant_id=tenant_id,
+            actor_user_id=actor_user_id,
+            action="unarchive",
+            entity_type="document",
+            entity_id=document.id,
+            module_key="documents",
+            details={"title": document.title},
+        )
+        await self._db.commit()
+        version = None
+        if document.current_version_id is not None:
+            version = await self._repo.get_version_for_tenant(tenant_id, document.current_version_id)
+        return self._to_list_item(document, version)
 
     def _to_list_item(
         self, document: Document, version: DocumentVersion | None

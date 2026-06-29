@@ -57,3 +57,8 @@ export async function updateAnnouncement(announcementId: string, payload: Update
 export async function deleteAnnouncement(announcementId: string): Promise<void> {
   await http.delete(`/announcements/${announcementId}`)
 }
+
+export async function exportAnnouncementsCsv(): Promise<Blob> {
+  const response = await http.get('/announcements/export', { responseType: 'blob' })
+  return response.data
+}
