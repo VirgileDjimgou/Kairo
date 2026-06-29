@@ -114,6 +114,13 @@
       <p class="text-muted mb-0">Add contribution records manually or import them from a CSV file.</p>
     </div>
 
+    <ConfirmModal v-if="showDeleteModal && deletingContribution"
+      title="Delete contribution"
+      :message="`Delete contribution record for ${deletingContribution.year}?`"
+      @confirm="handleDeleteContribution"
+      @cancel="showDeleteModal = false; deletingContribution = null"
+    />
+
     <!-- Import Contributions Modal -->
     <div class="modal fade" id="importContributionModal" tabindex="-1" aria-labelledby="importContributionModalLabel">
       <div class="modal-dialog modal-lg">
@@ -179,8 +186,13 @@
           </div>
           <div class="modal-body">
             <div class="mb-3">
-              <label class="form-label small fw-medium">Member profile ID</label>
-              <input v-model="contribForm.membership_profile_id" class="form-control form-control-sm" required />
+              <label class="form-label small fw-medium">Member</label>
+              <select v-model="contribForm.membership_profile_id" class="form-select form-select-sm" required>
+                <option value="" disabled>Select member</option>
+                <option v-for="m in members" :key="m.id" :value="m.id">
+                  {{ m.display_name }} ({{ m.member_code }})
+                </option>
+              </select>
             </div>
             <div class="mb-3">
               <label class="form-label small fw-medium">Year</label>
@@ -253,6 +265,7 @@
 <script setup lang="ts">
 import { ref, onMounted, nextTick } from 'vue'
 import * as bootstrap from 'bootstrap'
+import ConfirmModal from '@/components/ConfirmModal.vue'
 import { listContributions, createContribution, deleteContribution, recordPayment, getContributionSummary, importContributionsCsv, exportContributionsCsv } from '@/api/contributions.api'
 import { listMembers } from '@/api/membership.api'
 import type { ContributionRecordResponse, ContributionSummary, ImportResult } from '@/api/contributions.api'
@@ -289,6 +302,7 @@ const paymentForm = ref({
   reference: '',
 })
 
+const showDeleteModal = ref(false)
 const deletingContribution = ref<ContributionRecordResponse | null>(null)
 
 const contribImportSelectedFile = ref<File | null>(null)
@@ -393,18 +407,21 @@ async function handleRecordPayment() {
 
 function confirmDeleteContribution(contribution: ContributionRecordResponse) {
   deletingContribution.value = contribution
-  if (confirm(`Delete contribution record for ${contribution.year}?`)) {
-    handleDeleteContribution(contribution.id)
-  }
+  showDeleteModal.value = true
 }
 
-async function handleDeleteContribution(id: string) {
+async function handleDeleteContribution() {
+  if (!deletingContribution.value) return
   saving.value = true
   try {
-    await deleteContribution(id)
+    await deleteContribution(deletingContribution.value.id)
     await loadData()
   } catch (err) { setError(err) }
-  finally { saving.value = false }
+  finally {
+    saving.value = false
+    showDeleteModal.value = false
+    deletingContribution.value = null
+  }
 }
 
 onMounted(loadData)

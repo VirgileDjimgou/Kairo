@@ -4,13 +4,13 @@ Last updated: 2026-06-29
 
 ## Current Sprint
 
-Sprint 35 - Operational Reliability, Data Safety, And Migration Discipline
+Sprint 36 - Association Operations Robustness
 
 Status: Completed
 
 ## Official Next Sprint
 
-Sprint 36 - Association Operations Robustness
+Sprint 37 - Final Open-Source Release Stabilization And Portfolio Readiness
 
 ## Active Delivery Frame
 
@@ -258,6 +258,26 @@ Sprint 36 - Association Operations Robustness
   - Fixed pre-existing `test_audit_trail_is_tenant_scoped` failure caused by login audit event logging
   - Updated deployment guide with automated restore procedure
   - Backend: 171 tests pass, 0 failures
+
+- Completed Sprint 36 Association Operations Robustness:
+  - Phase 1 — Backend schema enum validation and cross-field validators for all 6 association modules:
+    - Membership: `EmailStr` on email field, `MembershipStatus` enum, `min_length`/`max_length` constraints on name/code fields
+    - Contributions: `ContributionStatus`/`PaymentMethod` enum, `currency` Literal with `max_length=3`, numeric `ge=0` constraints
+    - Events: `EventStatus`/`EventVisibility` enum, `@model_validator` enforcing `end_at` after `start_at`
+    - Announcements: `AnnouncementVisibility` enum, `@model_validator` enforcing `expires_at` after `published_at`, `body` `max_length=50000`
+    - Policies: `PolicyStatus` enum, `description` `max_length=10000`
+    - Disciplinary: `DisciplinaryStatus` enum, `currency` Literal with `max_length=3`
+  - Phase 2 — Backend tests for previously untested endpoints (10 new tests):
+    - Contributions: PATCH, DELETE, by-member list, payment list
+    - Policies: GET by ID, admin list all, PATCH, DELETE
+    - Disciplinary: PATCH, DELETE
+  - Phase 3 — Frontend improvements:
+    - Created reusable `ConfirmModal.vue` component (Bootstrap 5 modal) with delete/cancel actions
+    - Replaced raw `confirm()` dialogs in Events, Announcements, Policies, Disciplinary, and Contributions admin views
+    - Added try/catch error handling on all delete operations (Events, Announcements)
+    - Replaced raw UUID text input in Contributions create form with member dropdown selector
+  - Backend: 181 tests pass, 0 failures
+  - Frontend: builds clean (234 modules)
 
 ## Current Verified Product Surface
 

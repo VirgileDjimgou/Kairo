@@ -139,9 +139,17 @@
       </div>
     </div>
   </div>
+
+  <ConfirmModal v-if="showDeleteModal && deletingItem"
+    title="Delete policy"
+    :message="`Delete policy &quot;${deletingItem.title}&quot;?`"
+    @confirm="handleDelete"
+    @cancel="showDeleteModal = false; deletingItem = null"
+  />
 </template>
 
 <script setup lang="ts">
+import ConfirmModal from '@/components/ConfirmModal.vue'
 import { onMounted, ref } from 'vue'
 import { listDocuments, type DocumentListItemResponse } from '@/api/documents.api'
 import {
@@ -161,6 +169,8 @@ const policies = ref<PolicyRecordResponse[]>([])
 const categories = ref<string[]>([])
 const documents = ref<DocumentListItemResponse[]>([])
 const editingId = ref<string | null>(null)
+const showDeleteModal = ref(false)
+const deletingItem = ref<PolicyRecordResponse | null>(null)
 
 const form = ref<CreatePolicyPayload>({
   title: '',
@@ -239,19 +249,24 @@ async function savePolicy() {
   }
 }
 
-async function removePolicy(policy: PolicyRecordResponse) {
-  if (!confirm(`Delete policy "${policy.title}"?`)) {
-    return
-  }
+function removePolicy(policy: PolicyRecordResponse) {
+  deletingItem.value = policy
+  showDeleteModal.value = true
+}
+
+async function handleDelete() {
+  if (!deletingItem.value) return
   saving.value = true
   try {
-    await deletePolicy(policy.id)
+    await deletePolicy(deletingItem.value.id)
     await refreshPolicies()
-    if (editingId.value === policy.id) {
+    if (editingId.value === deletingItem.value.id) {
       resetForm()
     }
   } finally {
     saving.value = false
+    showDeleteModal.value = false
+    deletingItem.value = null
   }
 }
 

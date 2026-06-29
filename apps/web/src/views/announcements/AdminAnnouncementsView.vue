@@ -66,6 +66,13 @@
       <p class="text-muted mb-0">Create announcements to inform your organization members.</p>
     </div>
 
+    <ConfirmModal v-if="showDeleteModal && deletingItem"
+      title="Delete announcement"
+      :message="`Delete announcement &quot;${deletingItem.title}&quot;?`"
+      @confirm="handleDelete"
+      @cancel="showDeleteModal = false; deletingItem = null"
+    />
+
     <!-- Create/Edit Modal -->
     <div class="modal fade" id="createModal" tabindex="-1" aria-labelledby="createModalLabel">
       <div class="modal-dialog">
@@ -111,6 +118,7 @@
 <script setup lang="ts">
 import { onMounted, ref, nextTick } from 'vue'
 import * as bootstrap from 'bootstrap'
+import ConfirmModal from '@/components/ConfirmModal.vue'
 import { listAnnouncements, createAnnouncement, updateAnnouncement, deleteAnnouncement, exportAnnouncementsCsv, type AnnouncementResponse } from '@/api/announcements.api'
 import { useCsvExport } from '@/composables/useCsvExport'
 
@@ -119,6 +127,8 @@ const error = ref('')
 const saving = ref(false)
 const announcements = ref<AnnouncementResponse[]>([])
 const editingId = ref<string | null>(null)
+const showDeleteModal = ref(false)
+const deletingItem = ref<AnnouncementResponse | null>(null)
 
 function setError(err: unknown) {
   error.value = (err as any)?.response?.data?.detail || (err as any)?.message || 'An unexpected error occurred'
@@ -170,8 +180,19 @@ function editItem(a: AnnouncementResponse) {
 }
 
 function confirmDelete(a: AnnouncementResponse) {
-  if (confirm(`Delete announcement "${a.title}"?`)) {
-    deleteAnnouncement(a.id).then(load)
+  deletingItem.value = a
+  showDeleteModal.value = true
+}
+
+async function handleDelete() {
+  if (!deletingItem.value) return
+  try {
+    await deleteAnnouncement(deletingItem.value.id)
+    await load()
+  } catch (err) { setError(err) }
+  finally {
+    showDeleteModal.value = false
+    deletingItem.value = null
   }
 }
 

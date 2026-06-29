@@ -4,22 +4,24 @@ from uuid import UUID
 
 from pydantic import BaseModel, Field, field_serializer
 
+from app.modules.contributions.models import ContributionStatus, PaymentMethod
+
 
 class ContributionRecordCreate(BaseModel):
     membership_profile_id: UUID
     year: int = Field(..., ge=2000, le=2100)
     expected_amount: Decimal = Field(default=Decimal("0.00"), ge=0)
     paid_amount: Decimal = Field(default=Decimal("0.00"), ge=0)
-    currency: str = "EUR"
-    status: str = "pending"
+    currency: str = Field(default="EUR", max_length=3)
+    status: ContributionStatus = ContributionStatus.pending
     due_date: datetime | None = None
 
 
 class ContributionRecordUpdate(BaseModel):
     expected_amount: Decimal | None = Field(None, ge=0)
     paid_amount: Decimal | None = Field(None, ge=0)
-    currency: str | None = None
-    status: str | None = None
+    currency: str | None = Field(None, max_length=3)
+    status: ContributionStatus | None = None
     due_date: datetime | None = None
 
 
@@ -47,10 +49,10 @@ class ContributionRecordResponse(BaseModel):
 class PaymentRecordCreate(BaseModel):
     contribution_record_id: UUID
     amount: Decimal = Field(..., gt=0)
-    currency: str = "EUR"
+    currency: str = Field(default="EUR", max_length=3)
     paid_at: datetime | None = None
-    payment_method: str = "other"
-    reference: str | None = None
+    payment_method: PaymentMethod = PaymentMethod.other
+    reference: str | None = Field(None, max_length=255)
 
 
 class PaymentRecordResponse(BaseModel):

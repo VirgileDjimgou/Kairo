@@ -359,6 +359,193 @@ async def test_update_member_profile(client: AsyncClient, db_session: AsyncSessi
 
 
 @pytest.mark.asyncio
+async def test_update_contribution_record(client: AsyncClient, db_session: AsyncSession):
+    ctx = await create_tenant_with_user(db_session, "contrib-update")
+    token = await login(client, ctx["user"].email, "TestIsolation1!", ctx["tenant"].slug)
+
+    profile_resp = await client.post(
+        "/api/v1/memberships/",
+        json={
+            "member_code": "CU001",
+            "first_name": "Contrib",
+            "last_name": "Updater",
+            "display_name": "Contrib Updater",
+        },
+        headers={"Authorization": f"Bearer {token}"},
+    )
+    profile_id = profile_resp.json()["id"]
+
+    create_resp = await client.post(
+        "/api/v1/contributions/",
+        json={
+            "membership_profile_id": profile_id,
+            "year": 2026,
+            "expected_amount": "100.00",
+            "paid_amount": "0.00",
+            "currency": "EUR",
+        },
+        headers={"Authorization": f"Bearer {token}"},
+    )
+    contrib_id = create_resp.json()["id"]
+
+    patch_resp = await client.patch(
+        f"/api/v1/contributions/{contrib_id}",
+        json={"expected_amount": "150.00", "status": "partial"},
+        headers={"Authorization": f"Bearer {token}"},
+    )
+    assert patch_resp.status_code == 200, patch_resp.text
+    updated = patch_resp.json()
+    assert updated["expected_amount"] == "150.00"
+    assert updated["status"] == "partial"
+    assert updated["balance"] == "150.00"
+
+
+@pytest.mark.asyncio
+async def test_delete_contribution_record(client: AsyncClient, db_session: AsyncSession):
+    ctx = await create_tenant_with_user(db_session, "contrib-delete")
+    token = await login(client, ctx["user"].email, "TestIsolation1!", ctx["tenant"].slug)
+
+    profile_resp = await client.post(
+        "/api/v1/memberships/",
+        json={
+            "member_code": "CD001",
+            "first_name": "Contrib",
+            "last_name": "Deleter",
+            "display_name": "Contrib Deleter",
+        },
+        headers={"Authorization": f"Bearer {token}"},
+    )
+    profile_id = profile_resp.json()["id"]
+
+    create_resp = await client.post(
+        "/api/v1/contributions/",
+        json={
+            "membership_profile_id": profile_id,
+            "year": 2026,
+            "expected_amount": "100.00",
+            "paid_amount": "0.00",
+        },
+        headers={"Authorization": f"Bearer {token}"},
+    )
+    contrib_id = create_resp.json()["id"]
+
+    delete_resp = await client.delete(
+        f"/api/v1/contributions/{contrib_id}",
+        headers={"Authorization": f"Bearer {token}"},
+    )
+    assert delete_resp.status_code == 204
+
+    get_resp = await client.get(
+        f"/api/v1/contributions/{contrib_id}",
+        headers={"Authorization": f"Bearer {token}"},
+    )
+    assert get_resp.status_code == 404
+
+
+@pytest.mark.asyncio
+async def test_get_contributions_by_member(client: AsyncClient, db_session: AsyncSession):
+    ctx = await create_tenant_with_user(db_session, "contrib-by-member")
+    token = await login(client, ctx["user"].email, "TestIsolation1!", ctx["tenant"].slug)
+
+    profile_resp = await client.post(
+        "/api/v1/memberships/",
+        json={
+            "member_code": "BM001",
+            "first_name": "By",
+            "last_name": "Member",
+            "display_name": "By Member",
+        },
+        headers={"Authorization": f"Bearer {token}"},
+    )
+    profile_id = profile_resp.json()["id"]
+
+    for year in [2025, 2026]:
+        await client.post(
+            "/api/v1/contributions/",
+            json={
+                "membership_profile_id": profile_id,
+                "year": year,
+                "expected_amount": "100.00",
+                "paid_amount": "0.00",
+            },
+            headers={"Authorization": f"Bearer {token}"},
+        )
+
+    response = await client.get(
+        f"/api/v1/contributions/by-member/{profile_id}",
+        headers={"Authorization": f"Bearer {token}"},
+    )
+    assert response.status_code == 200, response.text
+    data = response.json()
+    assert len(data) == 2
+    years = sorted(r["year"] for r in data)
+    assert years == [2025, 2026]
+
+
+@pytest.mark.asyncio
+async def test_get_contribution_payments(client: AsyncClient, db_session: AsyncSession):
+    ctx = await create_tenant_with_user(db_session, "contrib-payments")
+    token = await login(client, ctx["user"].email, "TestIsolation1!", ctx["tenant"].slug)
+
+    profile_resp = await client.post(
+        "/api/v1/memberships/",
+        json={
+            "member_code": "PM001",
+            "first_name": "Payment",
+            "last_name": "List",
+            "display_name": "Payment List",
+        },
+        headers={"Authorization": f"Bearer {token}"},
+    )
+    profile_id = profile_resp.json()["id"]
+
+    contrib_resp = await client.post(
+        "/api/v1/contributions/",
+        json={
+            "membership_profile_id": profile_id,
+            "year": 2026,
+            "expected_amount": "100.00",
+            "paid_amount": "0.00",
+        },
+        headers={"Authorization": f"Bearer {token}"},
+    )
+    contrib_id = contrib_resp.json()["id"]
+
+    await client.post(
+        "/api/v1/contributions/payments",
+        json={
+            "contribution_record_id": contrib_id,
+            "amount": "30.00",
+            "currency": "EUR",
+            "payment_method": "cash",
+        },
+        headers={"Authorization": f"Bearer {token}"},
+    )
+    await client.post(
+        "/api/v1/contributions/payments",
+        json={
+            "contribution_record_id": contrib_id,
+            "amount": "70.00",
+            "currency": "EUR",
+            "payment_method": "bank_transfer",
+        },
+        headers={"Authorization": f"Bearer {token}"},
+    )
+
+    response = await client.get(
+        f"/api/v1/contributions/{contrib_id}/payments",
+        headers={"Authorization": f"Bearer {token}"},
+    )
+    assert response.status_code == 200, response.text
+    data = response.json()
+    assert len(data) == 2
+    methods = sorted(p["payment_method"] for p in data)
+    assert methods == ["bank_transfer", "cash"]
+    total = sum(float(p["amount"]) for p in data)
+    assert total == 100.00
+
+
+@pytest.mark.asyncio
 async def test_delete_member_profile(client: AsyncClient, db_session: AsyncSession):
     ctx = await create_tenant_with_user(db_session, "delete-profile")
     token = await login(client, ctx["user"].email, "TestIsolation1!", ctx["tenant"].slug)

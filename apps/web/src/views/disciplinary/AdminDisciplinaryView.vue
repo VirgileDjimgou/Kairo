@@ -154,9 +154,17 @@
       </div>
     </div>
   </div>
+
+  <ConfirmModal v-if="showDeleteModal && deletingItem"
+    title="Delete disciplinary record"
+    :message="`Delete disciplinary record &quot;${deletingItem.title}&quot;?`"
+    @confirm="handleDelete"
+    @cancel="showDeleteModal = false; deletingItem = null"
+  />
 </template>
 
 <script setup lang="ts">
+import ConfirmModal from '@/components/ConfirmModal.vue'
 import { onMounted, ref } from 'vue'
 import { listMembers, type MembershipProfileResponse } from '@/api/membership.api'
 import { listPolicies, type PolicyRecordResponse } from '@/api/policies.api'
@@ -176,6 +184,8 @@ const records = ref<DisciplinaryRecordResponse[]>([])
 const members = ref<MembershipProfileResponse[]>([])
 const policies = ref<PolicyRecordResponse[]>([])
 const editingId = ref<string | null>(null)
+const showDeleteModal = ref(false)
+const deletingItem = ref<DisciplinaryRecordResponse | null>(null)
 
 const form = ref<CreateDisciplinaryPayload>({
   membership_profile_id: '',
@@ -271,19 +281,24 @@ async function saveRecord() {
   }
 }
 
-async function removeRecord(record: DisciplinaryRecordResponse) {
-  if (!confirm(`Delete disciplinary record "${record.title}"?`)) {
-    return
-  }
+function removeRecord(record: DisciplinaryRecordResponse) {
+  deletingItem.value = record
+  showDeleteModal.value = true
+}
+
+async function handleDelete() {
+  if (!deletingItem.value) return
   saving.value = true
   try {
-    await deleteDisciplinaryRecord(record.id)
+    await deleteDisciplinaryRecord(deletingItem.value.id)
     await refreshData()
-    if (editingId.value === record.id) {
+    if (editingId.value === deletingItem.value.id) {
       resetForm()
     }
   } finally {
     saving.value = false
+    showDeleteModal.value = false
+    deletingItem.value = null
   }
 }
 

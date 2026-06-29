@@ -2,27 +2,29 @@ from datetime import datetime
 from decimal import Decimal, ROUND_HALF_UP
 from uuid import UUID
 
-from pydantic import BaseModel, Field, field_serializer
+from pydantic import BaseModel, EmailStr, Field, field_serializer
+
+from app.modules.membership.models import MembershipStatus
 
 
 class MembershipProfileCreate(BaseModel):
-    member_code: str = Field(..., max_length=50)
-    first_name: str = Field(..., max_length=100)
-    last_name: str = Field(..., max_length=100)
-    display_name: str = Field(..., max_length=255)
-    email: str | None = Field(None, max_length=255)
+    member_code: str = Field(..., min_length=1, max_length=50)
+    first_name: str = Field(..., min_length=1, max_length=100)
+    last_name: str = Field(..., min_length=1, max_length=100)
+    display_name: str = Field(..., min_length=1, max_length=255)
+    email: EmailStr | None = None
     phone: str | None = Field(None, max_length=50)
-    status: str = "active"
+    status: MembershipStatus = MembershipStatus.active
 
 
 class MembershipProfileUpdate(BaseModel):
-    member_code: str | None = Field(None, max_length=50)
-    first_name: str | None = Field(None, max_length=100)
-    last_name: str | None = Field(None, max_length=100)
-    display_name: str | None = Field(None, max_length=255)
-    email: str | None = Field(None, max_length=255)
+    member_code: str | None = Field(None, min_length=1, max_length=50)
+    first_name: str | None = Field(None, min_length=1, max_length=100)
+    last_name: str | None = Field(None, min_length=1, max_length=100)
+    display_name: str | None = Field(None, min_length=1, max_length=255)
+    email: EmailStr | None = None
     phone: str | None = Field(None, max_length=50)
-    status: str | None = None
+    status: MembershipStatus | None = None
 
 
 class MembershipProfileResponse(BaseModel):
