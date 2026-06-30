@@ -90,6 +90,12 @@ const router = createRouter({
           component: () => import('@/views/announcements/AnnouncementsView.vue'),
           meta: { module: 'announcements' },
         },
+        {
+          path: 'finance',
+          name: 'finance-workspace',
+          component: () => import('@/views/finance/FinanceWorkspaceView.vue'),
+          meta: { requiresFinanceWorkspace: true },
+        },
       ],
     },
     {
@@ -197,6 +203,22 @@ router.beforeEach((to) => {
     auth.isAuthenticated &&
     auth.user &&
     !auth.hasRole('admin').value
+  ) {
+    return { name: 'dashboard' }
+  }
+
+  if (
+    to.meta.requiresFinanceWorkspace &&
+    auth.isAuthenticated &&
+    auth.user &&
+    !auth.hasAnyRole(['admin', 'treasurer']).value
+  ) {
+    return { name: 'dashboard' }
+  }
+
+  if (
+    to.meta.requiresFinanceWorkspace &&
+    (!tenant.isModuleEnabled('membership') || !tenant.isModuleEnabled('contributions'))
   ) {
     return { name: 'dashboard' }
   }

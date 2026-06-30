@@ -54,7 +54,15 @@
           <i class="bi bi-shield-check me-2"></i>Disciplinary
         </RouterLink>
         <RouterLink
-          v-if="authStore.hasRole('admin')"
+          v-if="showFinanceWorkspace"
+          to="/finance"
+          class="nav-link sidebar-link rounded"
+          active-class="active"
+        >
+          <i class="bi bi-cash-coin me-2"></i>Finance
+        </RouterLink>
+        <RouterLink
+          v-if="isAdmin"
           to="/admin"
           class="nav-link sidebar-link rounded"
           active-class="active"
@@ -170,7 +178,16 @@
             <i class="bi bi-shield-check me-2"></i>Disciplinary
           </RouterLink>
           <RouterLink
-            v-if="authStore.hasRole('admin')"
+            v-if="showFinanceWorkspace"
+            to="/finance"
+            class="nav-link sidebar-link rounded"
+            active-class="active"
+            data-bs-dismiss="offcanvas"
+          >
+            <i class="bi bi-cash-coin me-2"></i>Finance
+          </RouterLink>
+          <RouterLink
+            v-if="isAdmin"
             to="/admin"
             class="nav-link sidebar-link rounded"
             active-class="active"
@@ -331,6 +348,16 @@ const modules = computed(() => ({
   chat: tenantStore.isModuleEnabled("chat"),
   notifications: tenantStore.isModuleEnabled("notifications"),
 }));
+
+const showFinanceWorkspace = computed(() => {
+  return (
+    authStore.hasAnyRole(["admin", "treasurer"]).value &&
+    modules.value.membership &&
+    modules.value.contributions
+  );
+});
+
+const isAdmin = computed(() => authStore.hasRole("admin").value);
 
 const primaryColor = computed(() => {
   return tenantStore.currentTenant?.branding.primary_color || "#1f4f8f";

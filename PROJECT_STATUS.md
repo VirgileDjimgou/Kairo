@@ -1,23 +1,23 @@
 # Project Status
 
-Last updated: 2026-06-29
+Last updated: 2026-06-30
 
 ## Current Sprint
 
-Sprint 37 - Final Open-Source Release Stabilization And Portfolio Readiness
+Sprint 38 - Treasurer Workspace And Finance Permission Hardening
 
 Status: Completed
 
 ## Official Next Sprint
 
-The planned 38-sprint roadmap is fully delivered. See `RELEASE_NOTES.md` for the open-source release summary.
+Sprint 39 - Role-Aware Dashboard And Action Surface Hardening
 
 ## Active Delivery Frame
 
 - Target outcome: a stable, portfolio-grade open-source Kairo release
 - Intended operational scope: usable by an association or organization of about 200 members
-- Remaining planned execution window: none — the planned roadmap is complete
-- Delivery status: release stabilization track finished at Sprint 37
+- Remaining planned execution window: post-roadmap stabilization and role-surface hardening
+- Delivery status: release stabilization continued beyond Sprint 37 with targeted role-operations work
 
 ## Source Of Truth
 
@@ -289,10 +289,23 @@ The planned 38-sprint roadmap is fully delivered. See `RELEASE_NOTES.md` for the
   - Updated `IMPLEMENTATION_ROADMAP.md` — Sprint 37 marked completed
   - Backend: 181 tests pass, 0 failures
   - Frontend: builds clean (234 modules)
+- Completed Sprint 38 Treasurer Workspace And Finance Permission Hardening:
+  - Backend membership and contributions routers now enforce explicit role gates instead of relying on comments or implicit assumptions
+  - Membership endpoints now split correctly between `admin`-only mutation/export/import and `admin`/`treasurer` finance lookup operations
+  - Contribution endpoints now split correctly between `admin`-only delete/export/import and `admin`/`treasurer` finance operations
+  - Added same-tenant integration-test helper `create_user_for_tenant()` for realistic role scenarios
+  - Added backend regression tests proving plain members receive `403` on staff finance endpoints and treasurers can work without admin-only export/delete rights
+  - Added authenticated frontend route `/finance` with a dedicated treasurer workspace
+  - Added member balance lookup, contribution creation, payment recording, and year-scoped finance summary in the new workspace
+  - Fixed the AppLayout role-visibility bug that rendered the Admin link for non-admin users because a computed ref returned by `hasRole()` was used directly in the template
+  - Added Playwright browser coverage for the treasurer finance workspace with mocked API flows
+  - Backend targeted suite: 17 tests passed
+  - Frontend build passed
+  - Playwright finance workspace suite: 2 tests passed
 
 ## Current Verified Product Surface
 
-- Vue frontend with login (multi-tenant flow), guided onboarding dashboard, app shell (with real tenant switcher and branding), authenticated account security view, admin shell (with brand-aware UI), real admin overview hub, admin access and lifecycle console, admin documents view, admin chat audit view, member profile view, admin members view (with CSV import/export), admin contributions view (with CSV import/export), public policies view, member disciplinary view, admin policies view, admin disciplinary view, member events view, admin events view (with CSV export), member announcements view, admin announcements view (with CSV export), admin notification extensions view, and admin tenant settings view.
+- Vue frontend with login (multi-tenant flow), guided onboarding dashboard, app shell (with real tenant switcher and branding), authenticated account security view, dedicated finance workspace for `treasurer` and `admin` users, admin shell (with brand-aware UI), real admin overview hub, admin access and lifecycle console, admin documents view, admin chat audit view, member profile view, admin members view (with CSV import/export), admin contributions view (with CSV import/export), public policies view, member disciplinary view, admin policies view, admin disciplinary view, member events view, admin events view (with CSV export), member announcements view, admin announcements view (with CSV export), admin notification extensions view, and admin tenant settings view.
 - FastAPI backend with mounted `auth`, `tenants`, `documents`, `admin`, `chat`, `membership`, `contributions`, `events`, `announcements`, and `notifications` routers plus `/health` and `/metrics`. Identity routes now include invitation lifecycle, password reset, MFA status, enrollment, verification, disablement, managed-user lifecycle controls, and tenant-scoped session containment.
 - PostgreSQL-backed identity, tenancy, document, version, ingestion-job, chunk, membership, contribution, payment, event, and announcement models.
 - MinIO-backed object storage provider.
@@ -338,8 +351,8 @@ The planned 38-sprint roadmap is fully delivered. See `RELEASE_NOTES.md` for the
 
 ## Known Risks
 
+- Some dashboard onboarding and quick-action surfaces are still admin-oriented even when the authenticated role is `treasurer`; they should become role-aware instead of pointing staff users toward admin-only destinations.
 - `allowed_role_ids` naming still reflects the upload/API contract and should be revisited if we want UUID-backed role targeting later.
-- Import/export documentation exists in `docs/import-export/README.md` but sample CSV template files are not yet provided as downloadable assets.
 - The login and dashboard Playwright coverage now runs autonomously, but broader end-to-end admin/business flows still need a live API stack. See `apps/web/e2e/`.
 - Health endpoint probes Redis, MinIO, Qdrant, and Ollama with per-service status/latency.
 - Dashboard sprint roadmap may display stale data if not updated as sprints progress.
@@ -350,7 +363,7 @@ The planned 38-sprint roadmap is fully delivered. See `RELEASE_NOTES.md` for the
 - A deeper first-run wizard is still a future enhancement beyond the current guided checklist and action-oriented empty states.
 - Only the email channel is wired for real identity delivery today; Telegram and WhatsApp remain simulated extension placeholders.
 - Identity emails currently use a plain-text branded baseline template and do not yet provide rich HTML theming or provider-side webhook reconciliation.
-- The roadmap has been re-framed away from near-term commercial positioning and toward a five-sprint open-source stabilization target ending at Sprint 37.
+- The original open-source stabilization target ended at Sprint 37; current work is now a post-roadmap continuation focused on role-surface coherence and portfolio-grade operational polish.
 - Sprint 26 has been completed with the public entry commercial surface.
 - Sprint 27 has been completed with guided onboarding for new tenant admins.
 - Sprint 28 has been completed with a real admin operations hub.
@@ -361,6 +374,7 @@ The planned 38-sprint roadmap is fully delivered. See `RELEASE_NOTES.md` for the
 - Sprint 33 has been completed with tenant user lifecycle governance and account lockdown.
 - Sprint 34 has been completed with authentication hardening and recovery stability.
 - Sprint 35 has been completed with operational reliability, migration gap fixes, restore automation, and Docker healthchecks.
+- Sprint 38 has been completed with treasurer workspace activation and finance permission hardening.
 
 ## Next Session Rule
 

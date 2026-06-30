@@ -21,6 +21,22 @@ router = APIRouter(
 )
 
 
+def _require_staff_role(current: AuthDep) -> None:
+    if not current.has_role("admin", "treasurer"):
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Admin or treasurer role required",
+        )
+
+
+def _require_admin_role(current: AuthDep) -> None:
+    if not current.has_role("admin"):
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Admin role required",
+        )
+
+
 @router.get("/me", response_model=MembershipProfileResponse)
 async def get_my_profile(current: AuthDep, db: DbDep) -> MembershipProfileResponse:
     """Return the member profile linked to the current user."""
@@ -43,8 +59,7 @@ async def import_members(
     dry_run: bool = Query(False, description="Validate without persisting"),
 ) -> ImportResult:
     """Import member profiles from a CSV file (admin only)."""
-    if not current.has_role("admin"):
-        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Admin role required")
+    _require_admin_role(current)
     content = await file.read()
     service = MembershipService(db)
     return await service.import_csv(
@@ -55,6 +70,7 @@ async def import_members(
 @router.get("/export")
 async def export_members(current: AuthDep, db: DbDep) -> StreamingResponse:
     """Export member profiles as CSV (admin only)."""
+    _require_admin_role(current)
     service = MembershipService(db)
     csv_content = await service.export_csv(current.tenant_id)
     return StreamingResponse(
@@ -69,6 +85,7 @@ async def get_profile(
     profile_id: UUID, current: AuthDep, db: DbDep
 ) -> MembershipProfileResponse:
     """Return a specific member profile (admin/treasurer only)."""
+    _require_staff_role(current)
     service = MembershipService(db)
     return await service.get_profile(current.tenant_id, profile_id)
 
@@ -78,6 +95,7 @@ async def get_member_balance(
     profile_id: UUID, current: AuthDep, db: DbDep
 ) -> MemberBalanceResponse:
     """Return a specific member's contribution balance (admin/treasurer only)."""
+    _require_staff_role(current)
     service = MembershipService(db)
     return await service.get_member_balance(current.tenant_id, profile_id)
 
@@ -87,6 +105,7 @@ async def list_profiles(
     current: AuthDep, db: DbDep, status: str | None = None
 ) -> list[MembershipProfileResponse]:
     """List all member profiles for the current tenant (admin/treasurer only)."""
+    _require_staff_role(current)
     service = MembershipService(db)
     return await service.list_profiles(current.tenant_id, status)
 
@@ -96,6 +115,7 @@ async def create_profile(
     data: MembershipProfileCreate, current: AuthDep, db: DbDep
 ) -> MembershipProfileResponse:
     """Create a new member profile (admin only)."""
+    _require_admin_role(current)
     service = MembershipService(db)
     return await service.create_profile(current.tenant_id, data, actor_user_id=current.user.id)
 
@@ -105,6 +125,7 @@ async def update_profile(
     profile_id: UUID, data: MembershipProfileUpdate, current: AuthDep, db: DbDep
 ) -> MembershipProfileResponse:
     """Update a member profile (admin only)."""
+    _require_admin_role(current)
     service = MembershipService(db)
     return await service.update_profile(
         current.tenant_id, profile_id, data, actor_user_id=current.user.id
@@ -116,6 +137,7 @@ async def delete_profile(
     profile_id: UUID, current: AuthDep, db: DbDep
 ) -> None:
     """Delete a member profile (admin only)."""
+    _require_admin_role(current)
     service = MembershipService(db)
     await service.delete_profile(
         current.tenant_id, profile_id, actor_user_id=current.user.id

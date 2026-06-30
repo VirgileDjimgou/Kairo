@@ -6,7 +6,7 @@ import pytest
 from httpx import AsyncClient
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from helpers import create_tenant_with_user, login
+from helpers import create_tenant_with_user, create_user_for_tenant, login
 
 
 @pytest.mark.asyncio
@@ -574,3 +574,157 @@ async def test_delete_member_profile(client: AsyncClient, db_session: AsyncSessi
         headers={"Authorization": f"Bearer {token}"},
     )
     assert get_resp.status_code == 404
+
+
+@pytest.mark.asyncio
+async def test_member_role_cannot_access_staff_membership_and_contribution_endpoints(
+    client: AsyncClient, db_session: AsyncSession
+):
+    admin = await create_tenant_with_user(db_session, f"staff-guard-{uuid.uuid4().hex[:6]}")
+    member = await create_user_for_tenant(
+        db_session,
+        tenant_id=admin["tenant"].id,
+        email=f"member-{uuid.uuid4().hex[:6]}@test.org",
+        password="MemberPass1!",
+        display_name="Member Guard",
+        role_code="member",
+        profile_type="member",
+        member_code="MG-001",
+    )
+    await db_session.commit()
+
+    admin_token = await login(client, admin["user"].email, admin["password"], admin["tenant"].slug)
+    member_token = await login(client, member["user"].email, member["password"], admin["tenant"].slug)
+
+    create_resp = await client.post(
+        "/api/v1/memberships/",
+        json={
+            "member_code": "MG-002",
+            "first_name": "Other",
+            "last_name": "Person",
+            "display_name": "Other Person",
+        },
+        headers={"Authorization": f"Bearer {admin_token}"},
+    )
+    assert create_resp.status_code == 201, create_resp.text
+    profile_id = create_resp.json()["id"]
+
+    requests = [
+        ("/api/v1/memberships/", {}),
+        (f"/api/v1/memberships/{profile_id}", {}),
+        (f"/api/v1/memberships/{profile_id}/balance", {}),
+        ("/api/v1/contributions/", {}),
+        ("/api/v1/contributions/summary", {}),
+        (f"/api/v1/contributions/by-member/{profile_id}", {}),
+    ]
+    for path, params in requests:
+        response = await client.get(
+            path,
+            params=params,
+            headers={"Authorization": f"Bearer {member_token}"},
+        )
+        assert response.status_code == 403, response.text
+
+
+@pytest.mark.asyncio
+async def test_treasurer_can_run_finance_operations_but_not_admin_only_exports_or_deletes(
+    client: AsyncClient, db_session: AsyncSession
+):
+    admin = await create_tenant_with_user(db_session, f"treasury-{uuid.uuid4().hex[:6]}")
+    treasurer = await create_user_for_tenant(
+        db_session,
+        tenant_id=admin["tenant"].id,
+        email=f"treasurer-{uuid.uuid4().hex[:6]}@test.org",
+        password="TreasurerPass1!",
+        display_name="Treasurer User",
+        role_code="treasurer",
+        profile_type="treasurer",
+        member_code="TR-001",
+    )
+    await db_session.commit()
+
+    admin_token = await login(client, admin["user"].email, admin["password"], admin["tenant"].slug)
+    treasurer_token = await login(client, treasurer["user"].email, treasurer["password"], admin["tenant"].slug)
+
+    member_resp = await client.post(
+        "/api/v1/memberships/",
+        json={
+            "member_code": "FIN-001",
+            "first_name": "Finance",
+            "last_name": "Member",
+            "display_name": "Finance Member",
+            "email": "finance-member@test.org",
+        },
+        headers={"Authorization": f"Bearer {admin_token}"},
+    )
+    assert member_resp.status_code == 201, member_resp.text
+    profile_id = member_resp.json()["id"]
+
+    list_members_resp = await client.get(
+        "/api/v1/memberships/",
+        headers={"Authorization": f"Bearer {treasurer_token}"},
+    )
+    assert list_members_resp.status_code == 200, list_members_resp.text
+    assert any(member["id"] == profile_id for member in list_members_resp.json())
+
+    create_contrib_resp = await client.post(
+        "/api/v1/contributions/",
+        json={
+            "membership_profile_id": profile_id,
+            "year": 2026,
+            "expected_amount": "120.00",
+            "paid_amount": "0.00",
+            "currency": "EUR",
+            "status": "pending",
+        },
+        headers={"Authorization": f"Bearer {treasurer_token}"},
+    )
+    assert create_contrib_resp.status_code == 201, create_contrib_resp.text
+    contribution_id = create_contrib_resp.json()["id"]
+
+    payment_resp = await client.post(
+        "/api/v1/contributions/payments",
+        json={
+            "contribution_record_id": contribution_id,
+            "amount": "45.00",
+            "currency": "EUR",
+            "payment_method": "bank_transfer",
+        },
+        headers={"Authorization": f"Bearer {treasurer_token}"},
+    )
+    assert payment_resp.status_code == 201, payment_resp.text
+
+    balance_resp = await client.get(
+        f"/api/v1/memberships/{profile_id}/balance",
+        headers={"Authorization": f"Bearer {treasurer_token}"},
+    )
+    assert balance_resp.status_code == 200, balance_resp.text
+    balance_data = balance_resp.json()
+    assert balance_data["total_expected"] == "120.00"
+    assert balance_data["total_paid"] == "45.00"
+    assert balance_data["total_balance"] == "75.00"
+
+    summary_resp = await client.get(
+        "/api/v1/contributions/summary?year=2026",
+        headers={"Authorization": f"Bearer {treasurer_token}"},
+    )
+    assert summary_resp.status_code == 200, summary_resp.text
+    assert summary_resp.json()["total_balance"] == "75.00"
+
+    export_members_resp = await client.get(
+        "/api/v1/memberships/export",
+        headers={"Authorization": f"Bearer {treasurer_token}"},
+    )
+    assert export_members_resp.status_code == 403
+
+    export_contributions_resp = await client.get(
+        "/api/v1/contributions/export",
+        headers={"Authorization": f"Bearer {treasurer_token}"},
+    )
+    assert export_contributions_resp.status_code == 403
+
+    delete_contribution_resp = await client.delete(
+        f"/api/v1/contributions/{contribution_id}",
+        headers={"Authorization": f"Bearer {treasurer_token}"},
+    )
+    assert delete_contribution_resp.status_code == 403
