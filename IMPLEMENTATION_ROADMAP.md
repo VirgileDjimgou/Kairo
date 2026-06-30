@@ -1773,7 +1773,7 @@ Acceptance criteria:
 
 ## Sprint 37 - Final Open-Source Release Stabilization And Portfolio Readiness
 
-Status: Planned
+Status: Completed
 
 Goal:
 Close the roadmap with a stable, demonstrable, well-documented open-source release candidate suitable for portfolio presentation and real pilot usage.

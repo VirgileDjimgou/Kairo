@@ -10,6 +10,11 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core.security import decode_access_token
 from app.db.session import async_session_factory
+from app.providers.llm.base import LLMProvider
+from app.providers.embeddings.base import EmbeddingProvider
+from app.providers.vector_store.base import VectorStoreProvider
+from app.providers.object_storage.base import ObjectStorageProvider
+from app.providers.notifications.base import NotificationProvider
 
 _bearer_scheme = HTTPBearer(auto_error=True)
 
@@ -116,46 +121,46 @@ DbDep = Annotated[AsyncSession, Depends(get_db)]
 
 
 @lru_cache(maxsize=1)
-def get_object_storage_provider():
+def get_object_storage_provider() -> ObjectStorageProvider:
     """Return the singleton object storage provider (MinIO in production)."""
     from app.providers.object_storage.minio import MinIOObjectStorageProvider
 
     return MinIOObjectStorageProvider()
 
 
-ObjectStorageDep = Annotated[object, Depends(get_object_storage_provider)]
+ObjectStorageDep = Annotated[ObjectStorageProvider, Depends(get_object_storage_provider)]
 
 
 @lru_cache(maxsize=1)
-def get_embedding_provider():
+def get_embedding_provider() -> EmbeddingProvider:
     from app.providers.embeddings.ollama import OllamaEmbeddingProvider
 
     return OllamaEmbeddingProvider()
 
 
 @lru_cache(maxsize=1)
-def get_vector_store_provider():
+def get_vector_store_provider() -> VectorStoreProvider:
     from app.providers.vector_store.qdrant import QdrantVectorStoreProvider
 
     return QdrantVectorStoreProvider()
 
 
-EmbeddingDep = Annotated[object, Depends(get_embedding_provider)]
-VectorStoreDep = Annotated[object, Depends(get_vector_store_provider)]
+EmbeddingDep = Annotated[EmbeddingProvider, Depends(get_embedding_provider)]
+VectorStoreDep = Annotated[VectorStoreProvider, Depends(get_vector_store_provider)]
 
 
 @lru_cache(maxsize=1)
-def get_llm_provider():
+def get_llm_provider() -> LLMProvider:
     from app.providers.llm.ollama import OllamaLLMProvider
 
     return OllamaLLMProvider()
 
 
-LlmDep = Annotated[object, Depends(get_llm_provider)]
+LlmDep = Annotated[LLMProvider, Depends(get_llm_provider)]
 
 
 @lru_cache(maxsize=1)
-def get_notification_providers():
+def get_notification_providers() -> list[NotificationProvider]:
     from app.providers.notifications import (
         EmailNotificationProvider,
         TelegramNotificationProvider,
@@ -169,4 +174,4 @@ def get_notification_providers():
     ]
 
 
-NotificationsDep = Annotated[list[object], Depends(get_notification_providers)]
+NotificationsDep = Annotated[list[NotificationProvider], Depends(get_notification_providers)]

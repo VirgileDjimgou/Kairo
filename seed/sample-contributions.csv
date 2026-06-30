@@ -1,0 +1,6 @@
+member_code,year,expected_amount,paid_amount,currency,status,due_date
+M001,2026,100.00,50.00,EUR,partial,2026-06-30
+M002,2026,100.00,0.00,EUR,pending,2026-06-30
+M001,2025,100.00,100.00,EUR,paid,
+M003,2026,100.00,0.00,EUR,pending,2026-12-31
+M004,2025,50.00,50.00,EUR,paid,

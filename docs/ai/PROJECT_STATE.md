@@ -6,36 +6,9 @@ Last verified against repository code on 2026-06-29.
 
 Kairo, also positioned as OrgMind AI, is a local-first multi-tenant RAG platform for organizations.
 
-Current implementation already includes:
+All 38 sprints (Sprint 0 through Sprint 37) have been completed. The roadmap is fully delivered.
 
-- Vue 3 frontend shell with auth flow (multi-tenant), dashboard, admin console, full CRUD views
-- FastAPI backend with identity, tenancy, documents, ingestion, indexing, chat, membership, contributions, policies, disciplinary, events, and announcements modules
-- PostgreSQL for relational data
-- MinIO for uploaded files
-- Redis and Celery for ingestion jobs
-- Ollama embeddings + LLM providers
-- Qdrant vector indexing with permission-aware retrieval
-- Document operations with OCR for images, bulk upload, archive/unarchive, and ingestion retry
-- Runtime observability with `/health`, `/metrics`, request IDs, and ingestion job health visibility
-- CORS middleware, JWT auth, RBAC, tenant isolation
-- Production deployment infrastructure
-- Hardened AI safety with prompt injection defenses and source demarcation
-- Enhanced audit review screen
-- Optional notification extension foundation with Email, Telegram, and WhatsApp placeholders
-- Tenant settings API with branding and module toggles
-- API-driven multi-tenant UX with tenant switching and module-aware navigation
-- Audit trail API and admin review screen for sensitive actions
-- Public product landing surface on the login page with trust signals and a clear sign-in path
-- Guided tenant onboarding dashboard with checklist-driven first-run orientation
-- Admin operations hub with module-aware metrics, watchlist, and quick actions
-- Admin access operations console with tenant role selection, invitation visibility, and cancellation controls
-- Authenticated account security surface with MFA status, self-service MFA management, and password recovery launch
-- SMTP-backed identity message delivery for invitations and password recovery, with delivery-state visibility and safe production token hiding
-- Persistent session governance for authenticated users, including active-session inventory, revoke controls, and recent security-event visibility
-- Tenant user lifecycle governance for administrators, including suspension, reactivation, tenant-scoped session containment, and backend membership revalidation
-- Authentication recovery hardening with clearer denial states, MFA multi-tenant continuation, and stricter refresh-token session validation
-
-## ## Implemented Sprints
+## Implemented Sprints
 
 - Sprint 0: Foundation and repository skeleton
 - Sprint 1: Identity, tenancy, and JWT auth
@@ -73,44 +46,31 @@ Current implementation already includes:
 - Sprint 33: Tenant User Lifecycle Governance And Account Lockdown
 - Sprint 34: Authentication Hardening And Recovery Stability
 - Sprint 35: Operational Reliability, Data Safety, And Migration Discipline
+- Sprint 36: Association Operations Robustness
+- Sprint 37: Final Open-Source Release Stabilization And Portfolio Readiness
 
-## Remaining Roadmap
+## Current State
 
-The product now enters its final five-sprint open-source stabilization track.
+- **Open-source release**: v0.1.0
+- **Backend tests**: 181 pass, 0 failures
+- **Frontend build**: clean (234 modules)
+- **Roadmap**: fully delivered — all 38 sprints completed
+- **License**: MIT
 
-Target frame:
+## Next Steps
 
-- stable, portfolio-grade open-source release
-- usable by an association or organization of about 200 members
-- finish within Sprint 35 through Sprint 37
+The planned stabilization track is complete. Future work should be treated as optional enhancements beyond the current open-source release scope. Potential areas include:
 
-Immediate next sprint:
+- Additional third-party provider integrations (OpenAI, Pinecone)
+- Mobile or PWA surface
+- Enhanced onboarding wizard
+- SSO/SAML/OIDC integration
+- Rich HTML email templates
 
-- Sprint 36 - Association Operations Robustness
+## Known Limitations
 
-## Known Gaps And Risks
-
-- Production Docker builds were validated end-to-end, but `/health` still reports `ollama` as unavailable when the model container is not running.
-- Only email is wired for real identity delivery; multi-channel providers beyond email remain simulated placeholders.
-- The roadmap now prioritizes stability and practical usability over additional commercial-positioning work.
-- A deeper first-run wizard remains a future enhancement beyond the current guided checklist.
-- Playwright coverage for login and dashboard is autonomous, but broader admin/business E2E still benefits from a live API stack.
-- Sprint 24 has been completed with a validated production build and smoke run.
-- Sprint 25 has been completed with the commercial packaging documentation set.
-- Sprint 26 has been completed with the public entry commercial surface.
-- Sprint 27 has been completed with guided onboarding for new tenant admins.
-- Sprint 28 has been completed with a real admin operations hub.
-- Sprint 29 has been completed with in-product invitation operations.
-- Sprint 30 has been completed with self-service account security UX.
-- Sprint 31 has been completed with secure outbound identity delivery and delivery-state visibility.
-- Sprint 32 has been completed with session governance and current-user security event operations.
-- Sprint 33 has been completed with tenant user lifecycle governance and account lockdown.
-- Sprint 34 has been completed with authentication hardening and recovery stability.
-- Sprint 35 has been completed with operational reliability, migration gap fixes, restore automation, and Docker healthchecks.
-- Sprint 36 through Sprint 37 now remain in the final planned stabilization track for the current open-source target.
-
-## Rules For Future Sessions
-
-- Preserve the existing module pattern under `services/api/app/modules/`.
-- Do not jump to later roadmap modules before the active sprint is complete.
-- When sprint progress changes, update this file and `docs/ai/NEXT_SPRINT.md`.
+- Only email is wired for real identity delivery (Telegram/WhatsApp are simulated placeholders)
+- Production Docker builds need a real end-to-end test with Docker
+- Cloudflare Tunnel setup is documented but not validated with a real tunnel integration test
+- Backup script is bash — may need adaptation for Windows/macOS Docker Desktop
+- LLM responses depend on Ollama model availability

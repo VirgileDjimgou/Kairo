@@ -1,0 +1,6 @@
+member_code,first_name,last_name,display_name,email,phone,status
+M001,Alice,Martin,Alice Martin,alice@example.com,+33123456789,active
+M002,Bob,Dupont,Bob Dupont,bob@example.com,,active
+M003,Claire,Petit,Claire Petit,claire@example.com,+33987654321,inactive
+M004,David,Moreau,David Moreau,david@example.com,+33111111111,active
+M005,Emma,Bernard,Emma Bernard,emma@example.com,+33222222222,suspended

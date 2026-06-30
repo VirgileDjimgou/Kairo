@@ -2,50 +2,39 @@
 
 ## Last Completed Sprint
 
-Sprint 35 - Operational Reliability, Data Safety, And Migration Discipline
+Sprint 37 - Final Open-Source Release Stabilization And Portfolio Readiness
 
 Status: Completed
 
-## What Was Delivered In Sprint 35
+## What Was Delivered In Sprint 37
 
-### Operational scripts
-- `scripts/restore.sh` — automated full restore from backup archives (PostgreSQL, Redis, Qdrant, MinIO, Ollama)
-- `scripts/production_smoke.sh` — now validates response body content (health status field, metrics HELP prefix), checks /docs and /redoc redirects, reports pass/fail per check
+### Code quality fixes
+- Centralized API version string into `app/_version.py` (`__version__ = "0.1.0"`) — removed 3 hardcoded copies in `main.py`
+- Fixed `health_checks.py:run_all_checks()` return type annotation (`-> list[dict]` → `-> dict[str, dict]`)
+- Added proper return type annotations to all 5 provider factory functions in `dependencies.py` (`ObjectStorageProvider`, `EmbeddingProvider`, `VectorStoreProvider`, `LLMProvider`, `list[NotificationProvider]`)
+- Removed stale files: `services/api/test_debug.py`, `services/api/UNKNOWN.egg-info/`
 
-### Docker healthchecks
-- `api` service — `curl -sf http://localhost:8000/health`
-- `worker` service — `pgrep -f 'celery.*worker'`
-- `web` service — Node.js built-in TCP port check against port 5173
+### Sample CSV templates
+- Created `seed/sample-members.csv` (5 rows, covers active/inactive/suspended)
+- Created `seed/sample-contributions.csv` (5 rows, covers partial/paid/pending)
+- Updated `docs/import-export/README.md` to reference sample files
 
-### Migration chain gap fixes
-- **0009_user_sessions** — creates the `user_sessions` table (Sprint 32 model was never migrated; only existed via `Base.metadata.create_all()` in tests)
-- **0010_document_version_fk** — adds missing FK constraint on `documents.current_version_id` → `document_versions.id`
-- Fixed `contributions/models.py` — `Numeric(12, 2)` precision annotations now match the 0006 migration
+### Open-source handoff documentation
+- Created `CONTRIBUTING.md` with development workflow, project structure, conventions, and submission guidelines
+- Created `RELEASE_NOTES.md` (v0.1.0) with overview, target audience, architecture, test coverage, and known limitations
+- Updated `README.md` test count from "82+" to "181+"
 
-### Tests & bug fixes
-- 8 new health endpoint tests covering response shape, per-service status/latency, and Prometheus metrics format
-- Fixed pre-existing `test_audit_trail_is_tenant_scoped` failure (login audit events recorded during test setup polluted the assertion)
-- 171 backend tests pass, 0 failures
+### AI session continuity docs
+- Updated `docs/ai/NEXT_SPRINT.md` — Sprint 37 as the final completed sprint, no next sprint
+- Updated `docs/ai/PROJECT_STATE.md` — Sprint 37 completed, roadmap fully delivered
 
-### Documentation
-- Deployment guide updated: "Backup and Restore" section now references `scripts/restore.sh` as the primary restore path
+### Final deliverables
+- All 181 backend tests pass, 0 failures
+- Frontend builds clean (234 modules)
+- No known critical risks remaining for open-source release
 
-## Sprint 35 Closed
+## Sprint 37 Closed
 
-- Sprint 35 is complete.
-- The next official sprint is now `Sprint 36 - Association Operations Robustness`.
-
-## Handoff Guidance
-
-- Read `constitution/KAIRO_CONSTITUTION.md`
-- Read `IMPLEMENTATION_ROADMAP.md`
-- Read `PROJECT_STATUS.md`
-- Read `prompts/CODEX_AUTOPILOT.md`
-- Next official sprint: `Sprint 36 - Association Operations Robustness`
-- Final stabilization target: `Sprint 37 - Final Open-Source Release Stabilization And Portfolio Readiness`
-
-## Notes
-
-- Do not continue from memory alone.
-- All changes are uncommitted.
-- The current objective is a stable open-source release suitable for a portfolio and for an organization of about 200 members.
+- Sprint 37 is the final sprint of the planned stabilization track.
+- The roadmap is fully delivered. See `RELEASE_NOTES.md` and `IMPLEMENTATION_ROADMAP.md` for the achieved state.
+- Future work beyond this point is optional and should start a new roadmap.

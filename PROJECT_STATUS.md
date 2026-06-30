@@ -4,23 +4,20 @@ Last updated: 2026-06-29
 
 ## Current Sprint
 
-Sprint 36 - Association Operations Robustness
+Sprint 37 - Final Open-Source Release Stabilization And Portfolio Readiness
 
 Status: Completed
 
 ## Official Next Sprint
 
-Sprint 37 - Final Open-Source Release Stabilization And Portfolio Readiness
+The planned 38-sprint roadmap is fully delivered. See `RELEASE_NOTES.md` for the open-source release summary.
 
 ## Active Delivery Frame
 
 - Target outcome: a stable, portfolio-grade open-source Kairo release
 - Intended operational scope: usable by an association or organization of about 200 members
-- Remaining planned execution window: Sprint 35 through Sprint 37
-- Priority order:
-  - operational reliability and migration safety
-  - association workflow robustness
-  - final release stabilization and handoff quality
+- Remaining planned execution window: none — the planned roadmap is complete
+- Delivery status: release stabilization track finished at Sprint 37
 
 ## Source Of Truth
 
@@ -276,6 +273,20 @@ Sprint 37 - Final Open-Source Release Stabilization And Portfolio Readiness
     - Replaced raw `confirm()` dialogs in Events, Announcements, Policies, Disciplinary, and Contributions admin views
     - Added try/catch error handling on all delete operations (Events, Announcements)
     - Replaced raw UUID text input in Contributions create form with member dropdown selector
+  - Backend: 181 tests pass, 0 failures
+  - Frontend: builds clean (234 modules)
+
+- Completed Sprint 37 Final Open-Source Release Stabilization And Portfolio Readiness:
+  - Centralized API version in `app/_version.py`, removed 3 hardcoded copies in `main.py`
+  - Fixed `health_checks.py:run_all_checks()` return type annotation (`-> list[dict]` → `-> dict[str, dict]`)
+  - Added proper return type annotations to all 5 provider factory functions in `dependencies.py`
+  - Removed stale files (`test_debug.py`, `UNKNOWN.egg-info/`)
+  - Created `seed/sample-members.csv` and `seed/sample-contributions.csv` with reference in import-export docs
+  - Created `CONTRIBUTING.md` with development workflow and conventions
+  - Created `RELEASE_NOTES.md` (v0.1.0) with overview, architecture, test coverage, and known limitations
+  - Updated `README.md` test count from "82+" to "181+"
+  - Updated `docs/ai/NEXT_SPRINT.md` and `docs/ai/PROJECT_STATE.md` for final release state
+  - Updated `IMPLEMENTATION_ROADMAP.md` — Sprint 37 marked completed
   - Backend: 181 tests pass, 0 failures
   - Frontend: builds clean (234 modules)
 
