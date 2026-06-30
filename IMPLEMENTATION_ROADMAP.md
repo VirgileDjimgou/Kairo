@@ -1819,3 +1819,60 @@ Acceptance criteria:
 - roadmap, status, and handoff documentation all agree on the achieved state
 - the release story is honest, polished, and technically defensible
 - the project has a clear endpoint for this final five-sprint stabilization track
+
+## Sprint 38 - Treasurer Workspace And Finance Permission Hardening
+
+Status: Completed
+
+Goal:
+Turn the seeded `treasurer` role into a real constrained operator by exposing a dedicated finance workspace and aligning backend authorization with the intended role model.
+
+Why this sprint now:
+
+- The roadmap through Sprint 37 delivered an open-source release, but the README still documented a treasurer product gap.
+- Backend comments already described mixed `admin` / `treasurer` finance capabilities, yet several endpoints were not explicitly enforcing those rules.
+- The product could not honestly claim role maturity while the treasurer persona still landed in a mostly member-only shell.
+
+Deliverables:
+
+- Explicit backend role enforcement on membership and contribution routers
+- Admin-only protection for finance export/import/delete operations
+- Staff-only protection for member directory lookup, member balance lookup, contribution listing, summary, creation/update, payment recording, and payment history
+- Dedicated authenticated frontend route `/finance`
+- Sidebar navigation entry for `treasurer` and `admin` users when membership and contributions modules are enabled
+- `FinanceWorkspaceView.vue` with:
+  - member balance lookup
+  - contribution creation
+  - payment recording
+  - year-scoped contribution summary and ledger table
+- Browser regression coverage for the treasurer workspace
+- Updated roadmap, status, and README documentation
+
+Acceptance criteria:
+
+- a plain member cannot access staff membership or contribution endpoints
+- a treasurer can review member balances and record payments without full admin-console access
+- admin-only export and delete operations remain backend-enforced
+- the authenticated shell no longer exposes the Admin link because of a template truthiness bug
+- frontend build, targeted backend tests, and treasurer browser flow all pass
+
+## Sprint 39 - Role-Aware Dashboard And Action Surface Hardening
+
+Status: Planned
+
+Goal:
+Remove the remaining admin-centric guidance shown to non-admin staff users by making dashboard widgets, onboarding actions, and quick links role-aware across the authenticated shell.
+
+Why this sprint next:
+
+- Sprint 38 activated the treasurer workflow, but the current dashboard still presents admin-only actions such as document upload, admin settings, and member import to a treasurer session.
+- This is now the clearest remaining role-coherence gap in the product surface.
+- Fixing it will improve trust, reduce dead-end navigation, and make the portfolio demo more professionally consistent.
+
+Planned deliverables:
+
+- Role-aware dashboard quick actions and first-run guidance
+- Removal or replacement of admin-only CTA links for treasurer sessions
+- Shared capability helpers for frontend role-gated affordances
+- Browser coverage for admin vs treasurer dashboard divergence
+- Documentation updates for role-specific product walkthroughs

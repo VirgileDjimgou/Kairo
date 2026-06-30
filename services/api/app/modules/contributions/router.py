@@ -22,11 +22,28 @@ router = APIRouter(
 )
 
 
+def _require_staff_role(current: AuthDep) -> None:
+    if not current.has_role("admin", "treasurer"):
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Admin or treasurer role required",
+        )
+
+
+def _require_admin_role(current: AuthDep) -> None:
+    if not current.has_role("admin"):
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Admin role required",
+        )
+
+
 @router.post("/", response_model=ContributionRecordResponse, status_code=201)
 async def create_contribution(
     data: ContributionRecordCreate, current: AuthDep, db: DbDep
 ) -> ContributionRecordResponse:
     """Create a contribution record (admin/treasurer only)."""
+    _require_staff_role(current)
     service = ContributionService(db)
     return await service.create_contribution(
         current.tenant_id, data, actor_user_id=current.user.id
@@ -38,6 +55,7 @@ async def list_contributions(
     current: AuthDep, db: DbDep, year: int | None = None
 ) -> list[ContributionRecordResponse]:
     """List all contribution records for the tenant (admin/treasurer only)."""
+    _require_staff_role(current)
     service = ContributionService(db)
     return await service.list_contributions(current.tenant_id, year)
 
@@ -47,6 +65,7 @@ async def get_contribution_summary(
     current: AuthDep, db: DbDep, year: int | None = None
 ) -> dict:
     """Return aggregate contribution summary for the tenant."""
+    _require_staff_role(current)
     service = ContributionService(db)
     return await service.get_summary(current.tenant_id, year)
 
@@ -56,6 +75,7 @@ async def list_member_contributions(
     profile_id: UUID, current: AuthDep, db: DbDep
 ) -> list[ContributionRecordResponse]:
     """List contributions for a specific member."""
+    _require_staff_role(current)
     service = ContributionService(db)
     return await service.list_member_contributions(current.tenant_id, profile_id)
 
@@ -68,8 +88,7 @@ async def import_contributions(
     dry_run: bool = Query(False, description="Validate without persisting"),
 ) -> ImportResult:
     """Import contribution records from a CSV file (admin only)."""
-    if not current.has_role("admin"):
-        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Admin role required")
+    _require_admin_role(current)
     content = await file.read()
     service = ContributionService(db)
     return await service.import_csv(
@@ -80,6 +99,7 @@ async def import_contributions(
 @router.get("/export")
 async def export_contributions(current: AuthDep, db: DbDep) -> StreamingResponse:
     """Export contribution records as CSV (admin only)."""
+    _require_admin_role(current)
     service = ContributionService(db)
     csv_content = await service.export_csv(current.tenant_id)
     return StreamingResponse(
@@ -94,6 +114,7 @@ async def get_contribution(
     contribution_id: UUID, current: AuthDep, db: DbDep
 ) -> ContributionRecordResponse:
     """Get a specific contribution record."""
+    _require_staff_role(current)
     service = ContributionService(db)
     return await service.get_contribution(current.tenant_id, contribution_id)
 
@@ -103,6 +124,7 @@ async def update_contribution(
     contribution_id: UUID, data: ContributionRecordUpdate, current: AuthDep, db: DbDep
 ) -> ContributionRecordResponse:
     """Update a contribution record (admin/treasurer only)."""
+    _require_staff_role(current)
     service = ContributionService(db)
     return await service.update_contribution(
         current.tenant_id,
@@ -117,6 +139,7 @@ async def delete_contribution(
     contribution_id: UUID, current: AuthDep, db: DbDep
 ) -> None:
     """Delete a contribution record (admin only)."""
+    _require_admin_role(current)
     service = ContributionService(db)
     await service.delete_contribution(
         current.tenant_id, contribution_id, actor_user_id=current.user.id
@@ -128,6 +151,7 @@ async def record_payment(
     data: PaymentRecordCreate, current: AuthDep, db: DbDep
 ) -> PaymentRecordResponse:
     """Record a payment against a contribution (admin/treasurer only)."""
+    _require_staff_role(current)
     service = ContributionService(db)
     return await service.record_payment(
         current.tenant_id, data, actor_user_id=current.user.id
@@ -139,5 +163,6 @@ async def list_payments(
     contribution_id: UUID, current: AuthDep, db: DbDep
 ) -> list[PaymentRecordResponse]:
     """List payments for a specific contribution."""
+    _require_staff_role(current)
     service = ContributionService(db)
     return await service.list_payments(current.tenant_id, contribution_id)

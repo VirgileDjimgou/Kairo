@@ -18,6 +18,8 @@ export const useAuthStore = defineStore('auth', () => {
   const isAuthenticated = computed(() => !!token.value)
   const needsMfa = computed(() => !!mfaToken.value)
   const hasRole = (role: string) => computed(() => user.value?.roles?.includes(role) ?? false)
+  const hasAnyRole = (roles: string[]) =>
+    computed(() => roles.some((role) => user.value?.roles?.includes(role) ?? false))
 
   async function login(email: string, password: string, tenantSlug?: string): Promise<boolean | string> {
     const data = await apiLogin({ email, password, tenant_slug: tenantSlug })
@@ -79,6 +81,7 @@ export const useAuthStore = defineStore('auth', () => {
     isAuthenticated,
     needsMfa,
     hasRole,
+    hasAnyRole,
     login,
     completeMfa,
     logout,

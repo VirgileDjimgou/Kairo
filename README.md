@@ -108,7 +108,7 @@ See [`docs/demo-script.md`](docs/demo-script.md) for a complete walkthrough cove
 2. **Member login** — view profile, check balance, see events and announcements
 3. **RAG chat** — ask questions about bylaws and policies with cited answers
 4. **AI safety** — prompt injection resistance, no-source refusal
-5. **Treasurer view** — manage contributions and payments
+5. **Treasurer finance workspace** — review member balances, create contribution records, and record payments
 
 ## Demo Gallery
 
@@ -133,9 +133,9 @@ The gallery also includes role-play walkthroughs for association governance:
 - `04-president/` uses the current admin role to demonstrate president-facing governance flows
 - `05-secretary/` uses the current admin role to demonstrate secretary-facing communication and audit flows
 
-### Known Demo Limitation
+### Treasurer Finance Flow
 
-The `03-treasurer/` session documents a current product gap: the seeded treasurer account authenticates correctly, but the frontend still lands on the shared member shell and does not yet expose a dedicated finance workspace.
+The `03-treasurer/` session now demonstrates the dedicated finance workspace exposed to `treasurer` users, including member balance lookup, contribution creation, and payment recording without full admin-console access.
 
 ## Commercial Packaging
 

@@ -64,6 +64,11 @@ export async function getMember(profileId: string): Promise<MembershipProfileRes
   return response.data
 }
 
+export async function getMemberBalance(profileId: string): Promise<MemberBalanceResponse> {
+  const response = await http.get<MemberBalanceResponse>(`/memberships/${profileId}/balance`)
+  return response.data
+}
+
 export async function createMember(payload: CreateMemberPayload): Promise<MembershipProfileResponse> {
   const response = await http.post<MembershipProfileResponse>('/memberships/', payload)
   return response.data
