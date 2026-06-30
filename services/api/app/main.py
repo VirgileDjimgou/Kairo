@@ -7,6 +7,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import PlainTextResponse
 from starlette.exceptions import HTTPException as StarletteHTTPException
 
+from app._version import __version__
 from app.core.config import settings
 from app.core.dependencies import DbDep
 from app.core.metrics import build_runtime_metrics
@@ -39,14 +40,14 @@ logger = structlog.get_logger(__name__)
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):  # type: ignore[type-arg]
-    logger.info("Starting Kairo API", env=settings.app_env, version="0.1.0")
+    logger.info("Starting Kairo API", env=settings.app_env, version=__version__)
     yield
     logger.info("Kairo API shutdown complete")
 
 
 app = FastAPI(
     title="Kairo — OrgMind AI API",
-    version="0.1.0",
+    version=__version__,
     description=(
         "Local-first multi-tenant RAG platform for organizations. "
         "Backend is the sole policy enforcement point."
@@ -112,7 +113,7 @@ async def health_check(db: DbDep) -> dict:
 
     return {
         "status": overall,
-        "version": "0.1.0",
+        "version": __version__,
         "env": settings.app_env,
         "checks": checks,
         "modules": ALL_MODULES,

@@ -77,9 +77,9 @@ class QdrantVectorStoreProvider:
         query_vector: list[float],
         limit: int,
     ) -> list[dict[str, Any]]:
-        results = self._client.search(
+        response = self._client.query_points(
             collection_name=self._collection,
-            query_vector=query_vector,
+            query=query_vector,
             query_filter=Filter(
                 must=[
                     FieldCondition(key="tenant_id", match=MatchValue(value=str(tenant_id))),
@@ -88,6 +88,7 @@ class QdrantVectorStoreProvider:
             limit=limit,
             with_payload=True,
         )
+        results = getattr(response, "points", response)
         return [
             {
                 "id": str(point.id),

@@ -7,7 +7,7 @@ test.describe('Application health', () => {
   })
 
   test('404 page redirects gracefully', async ({ page }) => {
-    const response = await page.goto('/api/nonexistent')
-    expect(response?.status?.()).toBeLessThan(500)
+    await page.goto('/this-route-does-not-exist')
+    await expect(page).toHaveURL(/login/)
   })
 })

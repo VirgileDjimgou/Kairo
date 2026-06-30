@@ -109,7 +109,7 @@ async def _check_ollama() -> dict:
         return {"status": "unavailable", "latency_ms": elapsed}
 
 
-async def run_all_checks(db: AsyncSession) -> list[dict]:
+async def run_all_checks(db: AsyncSession) -> dict[str, dict]:
     checks = {
         "database": _check_db(db),
         "redis": _check_redis(),

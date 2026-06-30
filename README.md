@@ -90,7 +90,7 @@ kairo/
 │   │   │                events, announcements)
 │   │   ├── db/          Session, migrations, seed scripts
 │   │   └── core/        Security, logging, provider abstractions
-│   └── tests/           82+ integration tests (SQLite, no infra needed)
+│   └── tests/           181+ integration tests (SQLite, no infra needed)
 ├── infra/               Infrastructure config samples (nginx, caddy, cloudflare)
 ├── docs/                Architecture docs, ADRs, sprint notes, deployment guide
 ├── orgmind_prompt_pack/ Source-of-truth product documentation
@@ -109,6 +109,33 @@ See [`docs/demo-script.md`](docs/demo-script.md) for a complete walkthrough cove
 3. **RAG chat** — ask questions about bylaws and policies with cited answers
 4. **AI safety** — prompt injection resistance, no-source refusal
 5. **Treasurer view** — manage contributions and payments
+
+## Demo Gallery
+
+The repository includes a reusable end-to-end screenshot pack for GitHub and product walkthroughs.
+
+- Screenshot sessions: [`docs/github-demo/sessions/`](docs/github-demo/sessions/)
+- Capture script: [`scripts/capture-github-demo.mjs`](scripts/capture-github-demo.mjs)
+- Regenerate locally after the stack is running: `node scripts/capture-github-demo.mjs`
+
+### Admin Operations Hub
+
+![Admin overview](docs/github-demo/sessions/00-admin/02-admin-overview.png)
+
+### Member RAG Chat With Citation
+
+![Member chat answer](docs/github-demo/sessions/01-member-alice/03-member-chat-answer.png)
+
+### Governance Personas
+
+The gallery also includes role-play walkthroughs for association governance:
+
+- `04-president/` uses the current admin role to demonstrate president-facing governance flows
+- `05-secretary/` uses the current admin role to demonstrate secretary-facing communication and audit flows
+
+### Known Demo Limitation
+
+The `03-treasurer/` session documents a current product gap: the seeded treasurer account authenticates correctly, but the frontend still lands on the shared member shell and does not yet expose a dedicated finance workspace.
 
 ## Commercial Packaging
 

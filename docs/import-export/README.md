@@ -41,6 +41,8 @@ M002,Bob,Dupont,Bob Dupont,bob@example.com,,active
 M003,Claire,Petit,Claire Petit,claire@example.com,+33987654321,inactive
 ```
 
+Sample CSV file: [`seed/sample-members.csv`](../../seed/sample-members.csv)
+
 ### Validation rules
 
 | Field | Rule |
@@ -74,6 +76,8 @@ M001,2026,100.00,50.00,EUR,partial,2026-06-30
 M002,2026,100.00,0.00,EUR,pending,2026-06-30
 M001,2025,100.00,100.00,EUR,paid,
 ```
+
+Sample CSV file: [`seed/sample-contributions.csv`](../../seed/sample-contributions.csv)
 
 ### Validation rules
 
