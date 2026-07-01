@@ -1858,7 +1858,7 @@ Acceptance criteria:
 
 ## Sprint 39 - Role-Aware Dashboard And Action Surface Hardening
 
-Status: Planned
+Status: Completed
 
 Goal:
 Remove the remaining admin-centric guidance shown to non-admin staff users by making dashboard widgets, onboarding actions, and quick links role-aware across the authenticated shell.
@@ -1869,10 +1869,36 @@ Why this sprint next:
 - This is now the clearest remaining role-coherence gap in the product surface.
 - Fixing it will improve trust, reduce dead-end navigation, and make the portfolio demo more professionally consistent.
 
-Planned deliverables:
+Deliverables:
 
 - Role-aware dashboard quick actions and first-run guidance
 - Removal or replacement of admin-only CTA links for treasurer sessions
 - Shared capability helpers for frontend role-gated affordances
 - Browser coverage for admin vs treasurer dashboard divergence
 - Documentation updates for role-specific product walkthroughs
+
+## Sprint 40 - Demo Gallery And Handoff Polish
+
+Status: Completed
+
+Goal:
+Refresh the public demo assets and universal handoff materials so the repository tells the same story as the current codebase across screenshots, README, and continuation prompts.
+
+Why this sprint next:
+
+- Sprint 39 made the runtime role surfaces coherent, but the screenshot gallery and public walkthrough text can still drift after UI changes.
+- The repository is intended to be resumed by Codex, Cursor, or GitHub Copilot, so the handoff artifacts should be as current as the code itself.
+- A final polish sprint is the best place to regenerate screenshots, tighten demo narratives, and align the reusable prompt pack with the actual product surface.
+
+Deliverables:
+
+- Regenerate role-specific screenshots for the public demo gallery
+- Update README walkthrough text and image references if needed
+- Refresh any continuation or handoff prompts that describe the current sprint model
+- Confirm that the treasurer, admin, and member walkthroughs all match the verified UI
+- Keep the focus on documentation and demo fidelity rather than new product features
+
+## Roadmap Completion
+
+The current implementation roadmap is complete through Sprint 40.
+Future work should begin with a new roadmap before any further implementation resumes.

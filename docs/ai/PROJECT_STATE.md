@@ -1,12 +1,12 @@
 # Project State
 
-Last verified against repository code on 2026-06-29.
+Last verified against repository code on 2026-07-01.
 
 ## Product Snapshot
 
 Kairo, also positioned as OrgMind AI, is a local-first multi-tenant RAG platform for organizations.
 
-All 38 sprints (Sprint 0 through Sprint 37) have been completed. The roadmap is fully delivered.
+The current roadmap extension through Sprint 40 is complete. The repository is in a portfolio-ready, open-source handoff state, and any further work should begin with a new roadmap.
 
 ## Implemented Sprints
 
@@ -48,29 +48,27 @@ All 38 sprints (Sprint 0 through Sprint 37) have been completed. The roadmap is 
 - Sprint 35: Operational Reliability, Data Safety, And Migration Discipline
 - Sprint 36: Association Operations Robustness
 - Sprint 37: Final Open-Source Release Stabilization And Portfolio Readiness
+- Sprint 38: Treasurer Workspace Activation And Finance Permission Hardening
+- Sprint 39: Role-Aware Dashboard And Action Surface Hardening
+- Sprint 40: Demo Gallery And Handoff Polish
 
 ## Current State
 
 - **Open-source release**: v0.1.0
+- **Current roadmap extension**: complete through Sprint 40
 - **Backend tests**: 181 pass, 0 failures
-- **Frontend build**: clean (234 modules)
-- **Roadmap**: fully delivered — all 38 sprints completed
+- **Frontend build**: clean
 - **License**: MIT
 
 ## Next Steps
 
-The planned stabilization track is complete. Future work should be treated as optional enhancements beyond the current open-source release scope. Potential areas include:
-
-- Additional third-party provider integrations (OpenAI, Pinecone)
-- Mobile or PWA surface
-- Enhanced onboarding wizard
-- SSO/SAML/OIDC integration
-- Rich HTML email templates
+The current roadmap is complete.
+Future work should begin with a new roadmap before any new sprint work starts.
 
 ## Known Limitations
 
 - Only email is wired for real identity delivery (Telegram/WhatsApp are simulated placeholders)
-- Production Docker builds need a real end-to-end test with Docker
+- Production Docker builds still benefit from occasional end-to-end validation with Docker
 - Cloudflare Tunnel setup is documented but not validated with a real tunnel integration test
-- Backup script is bash — may need adaptation for Windows/macOS Docker Desktop
+- Backup script is bash-only and may need adaptation for Windows/macOS Docker Desktop
 - LLM responses depend on Ollama model availability

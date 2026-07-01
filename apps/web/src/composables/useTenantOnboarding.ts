@@ -35,6 +35,7 @@ export function useTenantOnboarding() {
   const lastRefreshedAt = ref<string | null>(null)
 
   const isAdmin = computed(() => authStore.user?.roles.includes('admin') ?? false)
+  const isTreasurer = computed(() => authStore.user?.roles.includes('treasurer') ?? false)
   const isSetupMode = computed(() => {
     const docs = documentCount.value ?? 0
     const members = memberCount.value ?? 0
@@ -71,8 +72,21 @@ export function useTenantOnboarding() {
         actionLabel:
           (documentCount.value ?? 0) > 0 ? 'Review documents' : 'Upload first document',
         to: '/admin/documents',
+        adminOnly: true,
       },
     ]
+
+    if (tenantStore.isModuleEnabled('membership') && tenantStore.isModuleEnabled('contributions') && (isAdmin.value || isTreasurer.value)) {
+      steps.push({
+        id: 'finance',
+        title: 'Review the finance workspace',
+        description:
+          'Check member balances, create contribution records, and record incoming payments from the dedicated finance surface.',
+        completed: (memberCount.value ?? 0) > 0,
+        actionLabel: 'Open finance workspace',
+        to: '/finance',
+      })
+    }
 
     if (tenantStore.isModuleEnabled('membership')) {
       steps.push({

@@ -3,7 +3,7 @@ import path from "node:path";
 import { chromium } from "../apps/web/node_modules/playwright/index.mjs";
 
 const repoRoot = process.cwd();
-const baseUrl = "http://localhost:5173";
+const baseUrl = process.env.KAIRO_DEMO_BASE_URL || "http://localhost:5173";
 const outputRoot = path.join(repoRoot, "docs", "github-demo", "sessions");
 
 const sessions = [
@@ -54,10 +54,15 @@ const sessions = [
     account: "treasurer@demo.org",
     password: "Treasurer123!",
     note:
-      "Treasurer account walkthrough. In the current OSS build, the finance role still lands on the shared member dashboard even though the backend carries the treasurer role.",
+      "Treasurer walkthrough focused on the role-aware dashboard, finance workspace, and account security surface.",
     steps: [
       { route: "/dashboard", file: "01-treasurer-dashboard.png", waitFor: "Welcome back" },
-      { route: "/members/profile", file: "02-treasurer-profile.png", waitFor: "No member profile linked to your account" },
+      {
+        route: "/finance",
+        file: "02-treasurer-finance-workspace.png",
+        waitFor: "Treasury operations",
+        financeMemberLabel: "Alice Johnson (MEM-001)",
+      },
       { route: "/account/security", file: "03-treasurer-security.png", waitFor: "Account Security" },
     ],
   },
@@ -129,6 +134,11 @@ async function waitForText(page, text) {
 async function captureStep(page, sessionDir, step) {
   console.log(`Capturing ${path.basename(sessionDir)} -> ${step.route} -> ${step.file}`);
   await page.goto(`${baseUrl}${step.route}`, { waitUntil: "networkidle" });
+
+  if (step.financeMemberLabel) {
+    await page.locator("#finance-balance-member").selectOption({ label: step.financeMemberLabel });
+    await page.waitForSelector('[data-testid="finance-member-balance"]', { timeout: 30000 });
+  }
 
   if (step.chatQuestion) {
     await page.locator("textarea").fill(step.chatQuestion);

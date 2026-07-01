@@ -7,7 +7,7 @@ This folder stores reusable full-stack screenshot sessions generated from the lo
 - `sessions/00-admin/` — login, admin overview, members, documents
 - `sessions/01-member-alice/` — member dashboard, profile, AI chat answer, announcements
 - `sessions/02-member-bob/` — second member walkthrough focused on profile and events
-- `sessions/03-treasurer/` — treasurer account behavior in the current OSS build
+- `sessions/03-treasurer/` — treasurer dashboard, finance workspace, and account security
 - `sessions/04-president/` — governance persona mapped to admin workflows
 - `sessions/05-secretary/` — communication and audit persona mapped to admin workflows
 
@@ -23,3 +23,5 @@ Start the stack and demo seed first, then run:
 ```bash
 node scripts/capture-github-demo.mjs
 ```
+
+If your frontend runs on a different local URL, set `KAIRO_DEMO_BASE_URL` before the command.

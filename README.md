@@ -135,7 +135,11 @@ The gallery also includes role-play walkthroughs for association governance:
 
 ### Treasurer Finance Flow
 
-The `03-treasurer/` session now demonstrates the dedicated finance workspace exposed to `treasurer` users, including member balance lookup, contribution creation, and payment recording without full admin-console access.
+![Treasurer dashboard](docs/github-demo/sessions/03-treasurer/01-treasurer-dashboard.png)
+
+![Treasurer finance workspace](docs/github-demo/sessions/03-treasurer/02-treasurer-finance-workspace.png)
+
+The `03-treasurer/` session now demonstrates the dedicated finance workspace exposed to `treasurer` users, including member balance lookup, contribution creation, payment recording, and role-aware dashboard shortcuts without full admin-console access.
 
 ## Commercial Packaging
 
