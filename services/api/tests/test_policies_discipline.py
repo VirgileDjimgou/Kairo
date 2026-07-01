@@ -419,7 +419,7 @@ async def test_admin_can_delete_disciplinary_record(
 
 
 @pytest.mark.asyncio
-async def test_treasurer_can_create_disciplinary_record(
+async def test_treasurer_cannot_create_disciplinary_record(
     client: AsyncClient,
     db_session: AsyncSession,
 ) -> None:
@@ -464,7 +464,4 @@ async def test_treasurer_can_create_disciplinary_record(
             "status": "under_review",
         },
     )
-    assert response.status_code == 201, response.text
-    body = response.json()
-    assert body["status"] == "under_review"
-    assert body["membership_display_name"] == "Subject Two"
+    assert response.status_code == 403, response.text

@@ -1,11 +1,12 @@
 from datetime import datetime, timezone
 from uuid import UUID
 
-from sqlalchemy import select
+from sqlalchemy import delete, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.modules.identity.models import User
 from app.modules.tenancy.models import Role, Tenant, TenantUser, user_roles
+from app.modules.tenancy.role_catalog import canonical_role_definitions
 
 
 class TenancyRepository:
@@ -190,6 +191,7 @@ class TenancyRepository:
                 user_roles.c.tenant_user_id == tenant_user.id,
                 Role.tenant_id == tenant_id,
             )
+            .order_by(Role.code.asc())
         )
         return list(result.scalars().all())
 
@@ -218,6 +220,32 @@ class TenancyRepository:
         await self._db.refresh(role)
         return role
 
+    async def ensure_canonical_role_catalog(self, tenant_id: UUID) -> list[Role]:
+        existing_roles = {
+            role.code: role for role in await self.get_roles_for_tenant(tenant_id)
+        }
+        for definition in canonical_role_definitions():
+            role = existing_roles.get(definition.code)
+            if role is None:
+                role = Role(
+                    tenant_id=tenant_id,
+                    code=definition.code,
+                    name=definition.name,
+                    description=definition.description,
+                    is_system_role=definition.is_system_role,
+                )
+                self._db.add(role)
+                await self._db.flush()
+                existing_roles[definition.code] = role
+                continue
+
+            role.name = definition.name
+            role.description = definition.description
+            role.is_system_role = definition.is_system_role
+
+        await self._db.flush()
+        return await self.get_roles_for_tenant(tenant_id)
+
     async def assign_role_to_user(
         self, tenant_id: UUID, user_id: UUID, role_id: UUID
     ) -> None:
@@ -241,3 +269,37 @@ class TenancyRepository:
                 tenant_user_id=tenant_user.id, role_id=role_id
             ).on_conflict_do_nothing()
         await self._db.execute(stmt)
+
+    async def replace_user_roles(
+        self,
+        tenant_id: UUID,
+        user_id: UUID,
+        role_ids: list[UUID],
+    ) -> tuple[list[Role], list[Role]]:
+        tenant_user = await self.get_tenant_user(tenant_id, user_id)
+        if not tenant_user:
+            raise ValueError(
+                f"User {user_id} is not a member of tenant {tenant_id}"
+            )
+
+        current_roles = await self.get_user_roles(tenant_id, user_id)
+        current_role_ids = {role.id for role in current_roles}
+        target_role_ids = list(dict.fromkeys(role_ids))
+        target_role_id_set = set(target_role_ids)
+
+        removed_role_ids = current_role_ids - target_role_id_set
+        if removed_role_ids:
+            await self._db.execute(
+                delete(user_roles).where(
+                    user_roles.c.tenant_user_id == tenant_user.id,
+                    user_roles.c.role_id.in_(removed_role_ids),
+                )
+            )
+
+        for role_id in target_role_ids:
+            if role_id not in current_role_ids:
+                await self.assign_role_to_user(tenant_id, user_id, role_id)
+
+        await self._db.flush()
+        updated_roles = await self.get_user_roles(tenant_id, user_id)
+        return current_roles, updated_roles

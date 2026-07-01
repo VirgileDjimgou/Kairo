@@ -3,8 +3,13 @@ from __future__ import annotations
 from typing import Annotated
 from uuid import UUID
 
-from fastapi import APIRouter, HTTPException, status
+from fastapi import APIRouter
 
+from app.core.authorization import require_capability
+from app.core.capabilities import (
+    CAP_DISCIPLINARY_TENANT_READ,
+    CAP_DISCIPLINARY_WRITE,
+)
 from app.core.dependencies import AuthDep, DbDep
 from app.core.module_guard import require_module
 from app.modules.disciplinary.schemas import (
@@ -21,10 +26,6 @@ router = APIRouter(
 )
 
 
-def _is_staff(current: AuthDep) -> bool:
-    return current.has_role("admin", "treasurer")
-
-
 @router.get("/me", response_model=list[DisciplinaryRecordResponse])
 async def list_my_records(current: AuthDep, db: DbDep) -> list[DisciplinaryRecordResponse]:
     service = DisciplinaryService(db)
@@ -33,8 +34,11 @@ async def list_my_records(current: AuthDep, db: DbDep) -> list[DisciplinaryRecor
 
 @router.get("/", response_model=list[DisciplinaryRecordResponse])
 async def list_records(current: AuthDep, db: DbDep) -> list[DisciplinaryRecordResponse]:
-    if not _is_staff(current):
-        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Admin or treasurer role required")
+    require_capability(
+        current,
+        CAP_DISCIPLINARY_TENANT_READ,
+        detail="Disciplinary read capability required",
+    )
     service = DisciplinaryService(db)
     return await service.list_records(current.tenant_id)
 
@@ -46,7 +50,7 @@ async def get_record(record_id: UUID, current: AuthDep, db: DbDep) -> Disciplina
         tenant_id=current.tenant_id,
         record_id=record_id,
         user_id=current.user.id,
-        is_admin_or_treasurer=_is_staff(current),
+        can_read_tenant_records=current.has_capability(CAP_DISCIPLINARY_TENANT_READ),
     )
 
 
@@ -56,8 +60,11 @@ async def create_record(
     current: AuthDep,
     db: DbDep,
 ) -> DisciplinaryRecordResponse:
-    if not _is_staff(current):
-        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Admin or treasurer role required")
+    require_capability(
+        current,
+        CAP_DISCIPLINARY_WRITE,
+        detail="Disciplinary write capability required",
+    )
     service = DisciplinaryService(db)
     return await service.create_record(
         current.tenant_id,
@@ -74,8 +81,11 @@ async def update_record(
     current: AuthDep,
     db: DbDep,
 ) -> DisciplinaryRecordResponse:
-    if not _is_staff(current):
-        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Admin or treasurer role required")
+    require_capability(
+        current,
+        CAP_DISCIPLINARY_WRITE,
+        detail="Disciplinary write capability required",
+    )
     service = DisciplinaryService(db)
     return await service.update_record(
         current.tenant_id,
@@ -91,8 +101,11 @@ async def delete_record(
     current: AuthDep,
     db: DbDep,
 ) -> None:
-    if not current.has_role("admin"):
-        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Admin role required")
+    require_capability(
+        current,
+        CAP_DISCIPLINARY_WRITE,
+        detail="Disciplinary write capability required",
+    )
     service = DisciplinaryService(db)
     await service.delete_record(
         current.tenant_id, record_id, actor_user_id=current.user.id

@@ -102,6 +102,11 @@ export async function listPayments(contributionId: string): Promise<PaymentRecor
   return response.data
 }
 
+export async function listTenantPayments(): Promise<PaymentRecordResponse[]> {
+  const response = await http.get<PaymentRecordResponse[]>('/contributions/payments')
+  return response.data
+}
+
 export async function getContributionSummary(year?: number): Promise<ContributionSummary> {
   const params = year ? { year } : {}
   const response = await http.get<ContributionSummary>('/contributions/summary', { params })
@@ -131,5 +136,10 @@ export async function importContributionsCsv(file: File, dryRun = false): Promis
 export async function exportContributionsCsv(year?: number): Promise<Blob> {
   const params = year ? { year } : {}
   const response = await http.get('/contributions/export', { params, responseType: 'blob' })
+  return response.data
+}
+
+export async function exportFinanceReportCsv(): Promise<Blob> {
+  const response = await http.get('/contributions/report/export', { responseType: 'blob' })
   return response.data
 }

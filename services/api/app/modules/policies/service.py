@@ -42,12 +42,12 @@ class PolicyService:
         *,
         tenant_id: UUID,
         policy_id: UUID,
-        is_admin: bool = False,
+        can_view_unpublished: bool = False,
     ) -> PolicyRecordResponse:
         policy = await self._repo.get_by_id(tenant_id, policy_id)
         if not policy:
             raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Policy not found")
-        if policy.status != PolicyStatus.published.value and not is_admin:
+        if policy.status != PolicyStatus.published.value and not can_view_unpublished:
             raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Policy not found")
         return self._to_response(policy)
 

@@ -177,6 +177,10 @@ class ContributionService:
         )
         return [PaymentRecordResponse.model_validate(p) for p in payments]
 
+    async def list_tenant_payments(self, tenant_id: UUID) -> list[PaymentRecordResponse]:
+        payments = await self._repo.list_payments_by_tenant(tenant_id)
+        return [PaymentRecordResponse.model_validate(p) for p in payments]
+
     async def get_summary(
         self, tenant_id: UUID, year: int | None = None
     ) -> dict:
@@ -295,5 +299,31 @@ class ContributionService:
                 "due_date": str(r.due_date) if r.due_date else "",
             }
             for r in records
+        ]
+        return generate_csv(rows)
+
+    async def export_finance_report_csv(self, tenant_id: UUID) -> str:
+        records = await self._repo.list_by_tenant(tenant_id)
+        payments = await self._repo.list_payments_by_tenant(tenant_id)
+
+        payment_count_by_contribution: dict[str, int] = {}
+        for payment in payments:
+            key = str(payment.contribution_record_id)
+            payment_count_by_contribution[key] = payment_count_by_contribution.get(key, 0) + 1
+
+        rows = [
+            {
+                "contribution_id": str(record.id),
+                "membership_profile_id": str(record.membership_profile_id),
+                "year": str(record.year),
+                "expected_amount": str(record.expected_amount),
+                "paid_amount": str(record.paid_amount),
+                "balance": str(record.balance),
+                "currency": record.currency,
+                "status": record.status,
+                "payment_count": str(payment_count_by_contribution.get(str(record.id), 0)),
+                "due_date": str(record.due_date) if record.due_date else "",
+            }
+            for record in records
         ]
         return generate_csv(rows)

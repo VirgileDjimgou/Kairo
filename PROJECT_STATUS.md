@@ -4,21 +4,20 @@ Last updated: 2026-07-01
 
 ## Current Sprint
 
-Sprint 40 - Demo Gallery And Handoff Polish
+Sprint 45 - Treasurer And Auditor Finance Console
 
 Status: Completed
 
 ## Official Next Sprint
 
-No official next sprint is defined.
-Future work should begin with a new roadmap.
+Sprint 46 - Censor Discipline Workspace
 
 ## Active Delivery Frame
 
-- Target outcome: a stable, portfolio-grade open-source Kairo release
-- Intended operational scope: usable by an association or organization of about 200 members
-- Remaining planned execution window: closed current roadmap; future work requires a new roadmap
-- Delivery status: release stabilization, demo polish, and handoff continuity are complete for the current roadmap extension
+- Target outcome: a stable, professional, mature association-management product with secure role-aware workspaces and a trustworthy chatbot
+- Intended operational scope: usable by an association or organization of about 200 members with differentiated office roles
+- Remaining planned execution window: 7 additional professionalization sprints from Sprint 46 through Sprint 52
+- Delivery status: roadmap reopened after Sprint 40 to expand Kairo from a strong open-source base into a role-complete association product
 
 ## Source Of Truth
 
@@ -26,6 +25,19 @@ Future work should begin with a new roadmap.
 - Deep product docs: `orgmind_prompt_pack/`
 - Roadmap: `IMPLEMENTATION_ROADMAP.md`
 - Autopilot prompt: `prompts/CODEX_AUTOPILOT.md`
+
+## Professionalization Assessment
+
+- Estimated additional sprints required from the current state: 7
+- Current strengths:
+  - multi-tenant auth and role resolution
+  - secure document RAG with citations and prompt-injection defenses
+  - membership, contributions, events, announcements, disciplinary, audit, and onboarding foundations
+  - autonomous test posture and role-aware dashboard, secretary, and finance oversight improvements
+- Main gaps before the target product is mature:
+  - dedicated workspaces still need to be completed for censor, sports manager, president, vice president, and principal administrator
+  - the chatbot is secure for document RAG but not yet a complete role-aware assistant over authorized structured data
+  - office-role workspaces and structured-data chat access still need to be aligned around the capability matrix
 
 ## Completed
 
@@ -206,6 +218,12 @@ Future work should begin with a new roadmap.
   - Browser validation covers the authenticated admin hub through autonomous Playwright mocks
 - Completed Sprint 29 Team Invitations And Access Operations Console:
   - Admin access console added at `/admin/access` for tenant-scoped invitations and access rollout
+ - Completed Sprint 45 Treasurer And Auditor Finance Console, including:
+  - tenant-wide payment listing and finance report export endpoints with backend capability enforcement
+  - enriched treasurer workspace with recent payment activity and stronger day-to-day finance visibility
+  - new read-only auditor finance workspace for `auditor`, `president`, `principal_admin`, and `admin`
+  - backend authorization tests proving auditors can inspect and export while treasurers cannot access auditor-only export paths
+  - browser validation for treasurer finance operations and auditor read-only oversight
   - Tenant role catalog is now exposed through a backend admin-safe endpoint for real role selection in the invite workflow
   - Pending, accepted, cancelled, and expired invitation states are visible in-product with cancellation support
   - Latest invite acceptance URL is surfaced for secure manual sharing while external delivery remains future work
@@ -245,6 +263,18 @@ Future work should begin with a new roadmap.
   - Login, invitation acceptance, forgot-password, reset-password, and MFA views now surface clearer backend-aligned recovery and denial messages
   - New autonomous browser coverage validates suspended-access denial, MFA multi-tenant continuation, expired invitation feedback, used reset-link feedback, and redirect preservation
   - Targeted backend tests, frontend production build validation, and Playwright authentication regression coverage passed for the sprint
+- Completed Sprint 43 Member Self-Service And Personal PDF Statements:
+  - Added authenticated member-only statement endpoints for personal contribution history, consolidated statement data, and PDF download
+  - Added backend PDF generation for personal contribution statements without exposing another member selector or cross-member export path
+  - Hardened integration tests to prove a member sees only personal statement data and personal PDF content
+  - Reworked the member self-service view into a cleaner workspace focused on profile, balance, contribution history, and statement download
+  - Targeted backend tests passed and the frontend production build passed
+- Completed Sprint 44 Secretary General Workspace And Document Governance:
+  - Added a dedicated secretary workspace with role-scoped navigation and a focused overview surface
+  - Reused the existing document, policy, and announcement management flows through secretary-only routes instead of forcing office staff into the admin console
+  - Hardened frontend route protection so direct navigation to guarded workspaces restores session state before evaluating role access
+  - Added backend coverage proving the secretary general can manage documents, policies, and announcements but cannot mutate finance or disciplinary records
+  - Added browser validation for secretary workspace navigation and finance-route denial, and made Playwright port selection configurable for reproducible local runs
 - Completed Sprint 35 Operational Reliability, Data Safety, And Migration Discipline:
   - Created `scripts/restore.sh` to automate full restoration of PostgreSQL, Redis, Qdrant, MinIO, and Ollama from backup archives
   - Added Docker healthchecks for api, worker, and web services in docker-compose.yml
@@ -317,6 +347,23 @@ Future work should begin with a new roadmap.
   - Added a finance-workspace screenshot to the README gallery
   - Refreshed the reusable continuation prompt for Codex, Cursor, and GitHub Copilot
   - Restored the demo/gallery docs to match the verified runtime surface
+- Completed Sprint 41 Governance Role Matrix And Capability Foundation:
+  - Added a canonical association role catalog covering `principal_admin`, `president`, `vice_president`, `secretary_general`, `treasurer`, `auditor`, `censor`, `sports_manager`, and `member`
+  - Added a reusable backend capability matrix plus legacy `admin` compatibility for the transition track
+  - Extended `CurrentUser` with capability checks for backend authorization composition
+  - Tenant role listing now auto-syncs the canonical catalog and returns capability metadata
+  - Added a tenant-scoped managed-user role replacement endpoint with audit logging for role changes
+  - Invitation acceptance now records explicit audited role-assignment events for canonical roles
+  - Seed data now provisions the canonical governance role catalog alongside the legacy compatibility roles
+  - Added targeted governance tests and passed targeted validation for Sprint 41
+- Completed Sprint 42 Fine-Grained Backend Permission Enforcement:
+  - Added a shared backend capability enforcement helper under `app/core/authorization.py`
+  - Migrated membership, contributions, documents, policies, disciplinary, events, announcements, audit, and admin operational routers away from broad inline `admin` / `admin,treasurer` checks
+  - Mapped backend actions to explicit capabilities such as membership read/write, finance read/write, document governance write, policy write, disciplinary read/write, event write, announcement write, audit read, and tenant administration
+  - Kept legacy `admin` compatibility while enabling canonical roles such as `secretary_general`, `auditor`, `censor`, `sports_manager`, and `principal_admin`
+  - Updated policy and disciplinary service interfaces to consume capability-driven access semantics instead of hardcoded admin/staff booleans
+  - Added targeted integration tests for secretary general, sports manager, auditor, censor, principal admin, and denial paths for over-broad roles
+  - Passed targeted backend validation suites for authorization-sensitive modules and governance continuity
 
 ## Current Verified Product Surface
 
@@ -363,9 +410,13 @@ Future work should begin with a new roadmap.
 - Identity message delivery pipeline for invitations and password recovery with SMTP-backed email support, delivery-state visibility, and safe token fallback rules.
 - Persistent session governance with active-session inventory, targeted revocation controls, revoke-all flows, and recent security-event visibility for authenticated users.
 - Tenant user lifecycle governance with backend-enforced suspension, reactivation, admin-visible identity state, and tenant-scoped forced session revocation.
+- Canonical governance role catalog and backend capability foundation for the professional association track, including audited managed-user role changes.
 
 ## Known Risks
 
+- The backend capability layer is now wired into the major association modules, but frontend navigation and surfaces do not yet reflect the finer-grained role model.
+- The current chatbot is strong on document RAG, but it is not yet a complete role-aware assistant over approved structured association data.
+- Dedicated workspaces for secretary general, auditor, censor, sports manager, president, vice president, and principal administrator are still roadmap work, not completed product surface.
 - `allowed_role_ids` naming still reflects the upload/API contract and should be revisited if we want UUID-backed role targeting later.
 - The login and dashboard Playwright coverage now runs autonomously, but broader end-to-end admin/business flows still need a live API stack. See `apps/web/e2e/`.
 - Health endpoint probes Redis, MinIO, Qdrant, and Ollama with per-service status/latency.
@@ -377,8 +428,8 @@ Future work should begin with a new roadmap.
 - A deeper first-run wizard is still a future enhancement beyond the current guided checklist and action-oriented empty states.
 - Only the email channel is wired for real identity delivery today; Telegram and WhatsApp remain simulated extension placeholders.
 - Identity emails currently use a plain-text branded baseline template and do not yet provide rich HTML theming or provider-side webhook reconciliation.
-- The original open-source stabilization target ended at Sprint 37; the current roadmap extension is now complete, and any further work needs a new roadmap.
-- A future sprint must not be inferred implicitly; a fresh roadmap should be written before implementation resumes.
+- The original open-source stabilization target ended at Sprint 37; the product is now entering a second track focused on professional association role coverage and maturity.
+- The new execution path is explicit: Sprint 43 through Sprint 52 define the remaining professionalization plan and should be followed one sprint at a time.
 - Sprint 26 has been completed with the public entry commercial surface.
 - Sprint 27 has been completed with guided onboarding for new tenant admins.
 - Sprint 28 has been completed with a real admin operations hub.
@@ -392,6 +443,7 @@ Future work should begin with a new roadmap.
 - Sprint 38 has been completed with treasurer workspace activation and finance permission hardening.
 - Sprint 39 has been completed with role-aware dashboard and action-surface hardening.
 - Sprint 40 has been completed with demo gallery and handoff polish.
+- A new 12-sprint professional association maturity track is now defined from Sprint 41 through Sprint 52.
 
 ## Next Session Rule
 

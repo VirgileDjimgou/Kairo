@@ -1,16 +1,19 @@
-from collections.abc import Sequence
+from datetime import datetime
 from decimal import Decimal
 from uuid import UUID
 
+import fitz
 from fastapi import HTTPException, status
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core.import_export import ImportResult, ImportRowError, generate_csv, parse_csv
+from app.modules.contributions.schemas import ContributionRecordResponse
 from app.modules.audit.service import AuditService
 from app.modules.membership.models import MembershipProfile
 from app.modules.membership.repository import MembershipRepository
 from app.modules.membership.schemas import (
     MemberBalanceResponse,
+    MemberStatementResponse,
     MembershipProfileCreate,
     MembershipProfileResponse,
     MembershipProfileUpdate,
@@ -168,6 +171,98 @@ class MembershipService:
             total_balance=Decimal(str(total_balance)),
             contribution_count=len(contributions),
         )
+
+    async def get_my_contributions(
+        self, tenant_id: UUID, user_id: UUID
+    ) -> list[ContributionRecordResponse]:
+        profile = await self._repo.get_by_user_id(tenant_id, user_id)
+        if not profile:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail="No member profile linked to your account",
+            )
+        contributions = await self._contrib_repo.list_by_profile(tenant_id, profile.id)
+        return [ContributionRecordResponse.model_validate(c) for c in contributions]
+
+    async def get_my_statement(
+        self, tenant_id: UUID, user_id: UUID
+    ) -> MemberStatementResponse:
+        balance = await self.get_my_balance(tenant_id, user_id)
+        contributions = await self.get_my_contributions(tenant_id, user_id)
+        return MemberStatementResponse(
+            profile=balance.profile,
+            summary=balance,
+            contributions=contributions,
+        )
+
+    async def generate_my_statement_pdf(
+        self, tenant_id: UUID, user_id: UUID
+    ) -> bytes:
+        statement = await self.get_my_statement(tenant_id, user_id)
+        profile = statement.profile
+        summary = statement.summary
+
+        document = fitz.open()
+        page = document.new_page()
+
+        margin_x = 50
+        cursor_y = 56
+        line_height = 18
+
+        def write_line(text: str, *, size: float = 11, indent: float = 0) -> None:
+            nonlocal cursor_y, page
+            if cursor_y > 780:
+                page = document.new_page()
+                cursor_y = 56
+            page.insert_text(
+                (margin_x + indent, cursor_y),
+                text,
+                fontsize=size,
+                fontname="helv",
+            )
+            cursor_y += line_height if size <= 11 else line_height + 4
+
+        generated_at = datetime.utcnow().strftime("%Y-%m-%d %H:%M UTC")
+
+        write_line("Kairo Personal Contribution Statement", size=16)
+        write_line(f"Generated: {generated_at}", size=10)
+        cursor_y += 6
+        write_line(f"Member: {profile.display_name}")
+        write_line(f"Member code: {profile.member_code}")
+        write_line(f"Tenant ID: {profile.tenant_id}", size=10)
+        write_line(f"Status: {profile.status}", size=10)
+        if profile.email:
+            write_line(f"Email: {profile.email}", size=10)
+        cursor_y += 6
+        write_line("Summary", size=13)
+        write_line(f"Total expected: {summary.total_expected} EUR", indent=10)
+        write_line(f"Total paid: {summary.total_paid} EUR", indent=10)
+        write_line(f"Outstanding balance: {summary.total_balance} EUR", indent=10)
+        write_line(f"Contribution records: {summary.contribution_count}", indent=10)
+        cursor_y += 6
+        write_line("Contribution history", size=13)
+
+        if not statement.contributions:
+            write_line("No contribution records available.", indent=10)
+        else:
+            for contribution in statement.contributions:
+                write_line(
+                    (
+                        f"{contribution.year}  "
+                        f"Expected {contribution.expected_amount} {contribution.currency}  "
+                        f"Paid {contribution.paid_amount} {contribution.currency}  "
+                        f"Balance {contribution.balance} {contribution.currency}"
+                    ),
+                    indent=10,
+                )
+                write_line(f"Status: {contribution.status}", size=10, indent=22)
+                if contribution.due_date:
+                    due_label = contribution.due_date.strftime("%Y-%m-%d")
+                    write_line(f"Due date: {due_label}", size=10, indent=22)
+
+        pdf_bytes = document.tobytes()
+        document.close()
+        return pdf_bytes
 
     async def get_member_balance(
         self, tenant_id: UUID, profile_id: UUID

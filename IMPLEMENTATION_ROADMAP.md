@@ -1898,7 +1898,448 @@ Deliverables:
 - Confirm that the treasurer, admin, and member walkthroughs all match the verified UI
 - Keep the focus on documentation and demo fidelity rather than new product features
 
-## Roadmap Completion
+## Professional Association Maturity Track
 
-The current implementation roadmap is complete through Sprint 40.
-Future work should begin with a new roadmap before any further implementation resumes.
+Estimated additional sprints from the current state: 12
+
+Why 12 sprints are needed:
+
+- The current product base is strong on tenancy, authentication, document RAG, membership, contributions, events, announcements, audit, and operational hardening.
+- The main gap is no longer the technical foundation; it is the business-role model and the product surface expected by a real association with multiple office functions.
+- Today, most sensitive write flows are still effectively grouped under broad `admin` or `admin/treasurer` checks, which is not enough for roles such as secretary general, censor, auditor, sports manager, president, or vice president.
+- The chatbot is already secure for document retrieval, but it is not yet a full role-aware assistant across structured organizational data such as personal balances, finance oversight, sanctions governance, and office workspaces.
+- A professional, mature target requires both backend permission refactoring and focused UI workspaces, plus regression coverage for each role. Compressing all of that into fewer sprints would create too much product and security risk.
+
+Current gap summary before this new track:
+
+- Role catalog is still too coarse for the target association model.
+- Many write surfaces are still `admin`-only, even where the real business owner should be another office role.
+- Members do not yet have a dedicated PDF self-service flow for their own dues and statements.
+- There is no dedicated workspace yet for secretary general, censor, sports lead, president, vice president, or principal administrator.
+- The chatbot remains document-grounded and does not yet expose carefully filtered structured business answers by role.
+
+## Sprint 41 - Governance Role Matrix And Capability Foundation
+
+Status: Completed
+
+Goal:
+Define the professional association role model and introduce a reusable backend capability layer that future sprints can build on safely.
+
+Why this sprint first:
+
+- The target product needs more than `admin`, `member`, and `treasurer`.
+- Every later workspace sprint depends on a clean capability matrix.
+- If we skip this foundation, later role work will become inconsistent and risky.
+
+Deliverables:
+
+- Canonical tenant role catalog for the association target:
+  - `principal_admin`
+  - `president`
+  - `vice_president`
+  - `secretary_general`
+  - `treasurer`
+  - `auditor`
+  - `censor`
+  - `sports_manager`
+  - `member`
+- Capability matrix documenting who can read, write, export, audit, or manage each domain
+- Reusable backend helpers for capability checks instead of multiplying inline role checks
+- Seed/demo role updates and tenant role catalog refresh
+- Audit logging for role assignment and role changes
+- Documentation updates for the new target governance model
+
+Acceptance criteria:
+
+- the backend can represent all target office roles without breaking tenant isolation
+- role changes remain tenant-scoped and audited
+- no existing route becomes less secure during the role-model expansion
+- next sprints can depend on named capabilities instead of ad hoc role comparisons
+
+Delivered:
+
+- Canonical association role catalog added under `services/api/app/modules/tenancy/role_catalog.py`
+- Reusable capability layer added under `services/api/app/core/capabilities.py`
+- `CurrentUser.has_capability()` introduced for backend authorization composition
+- Tenant role listing now auto-syncs the canonical role catalog and returns capabilities plus canonical metadata
+- Managed-user role replacement endpoint added with audit logging for tenant-scoped role changes
+- Invitation acceptance now records explicit audited `role_assigned` events
+- Seed data updated to provision the canonical governance role set while preserving legacy `admin` compatibility
+- Governance role tests added for catalog exposure, audited role updates, invite acceptance, and compatibility semantics
+
+## Sprint 42 - Fine-Grained Backend Permission Enforcement
+
+Status: Completed
+
+Goal:
+Replace broad `admin` and `admin/treasurer` gating with explicit capability enforcement per module and action.
+
+Why this sprint next:
+
+- The current codebase still contains many broad role checks in membership, contributions, documents, policies, events, announcements, and disciplinary flows.
+- The professional target requires read/write separation across office roles before new UI spaces are built.
+
+Deliverables:
+
+- Capability-driven backend guards for:
+  - member directory read
+  - finance read
+  - finance write
+  - document governance write
+  - policy write
+  - disciplinary write
+  - events write
+  - announcements write
+  - audit read
+  - tenant administration
+- Router refactors to consume shared capability checks
+- Regression tests for each protected action and each role family
+- Updated error messages for denied access
+
+Acceptance criteria:
+
+- ordinary members remain read-only and tenant-safe
+- bureau roles receive only their intended write privileges
+- auditor access is read-only where required
+- principal admin keeps the broadest tenant-scoped access without bypassing tenant isolation
+
+Delivered:
+
+- Shared capability enforcement helper added under `services/api/app/core/authorization.py`
+- Membership router refactored onto explicit capabilities for tenant read, finance read, membership write, and tenant administration actions
+- Contributions router refactored onto explicit capabilities for finance read, finance write, and tenant administration actions
+- Documents router refactored onto explicit document read/write capabilities
+- Policies router now uses policy-write capability instead of hardcoded admin checks
+- Disciplinary router now uses disciplinary read/write capabilities, removing treasurer's former over-broad mutation access
+- Events and announcements routers now use explicit event/announcement write capabilities plus tenant administration for exports
+- Audit and admin operational endpoints now use audit-read, document-write, and tenant-administration capabilities
+- Added role-family integration coverage for secretary general, sports manager, auditor, censor, principal admin, and negative authorization paths
+- Targeted backend authorization suites passed
+
+## Sprint 43 - Member Self-Service And Personal PDF Statements
+
+Status: Completed
+
+Goal:
+Give ordinary members a simple, elegant, low-noise workspace centered on their own data and downloadable statements.
+
+Why this sprint next:
+
+- The member experience should stay simple and useful while office roles grow more complex.
+- Personal contribution visibility and PDF exports are a core practical need for a real association.
+
+Deliverables:
+
+- Simplified member home focused on:
+  - personal profile
+  - current balance
+  - contribution history
+  - announcements and events in read-only mode
+- Personal PDF statement export for the authenticated member only
+- Optional payment receipt or dues history PDF generation
+- Tests proving one member cannot fetch another member's PDF or contribution statement
+- UX polish for a sober, professional member surface
+
+Delivered:
+
+- Added authenticated member-only endpoints for:
+  - personal contribution history
+  - consolidated personal statement data
+  - PDF statement download
+- Implemented backend PDF generation directly from tenant-scoped member and contribution data
+- Refreshed the member self-service view into a cleaner profile, balance, history, and download workspace
+- Added integration coverage proving personal statement isolation and PDF content isolation between members
+- Verified targeted backend tests and frontend production build
+
+Acceptance criteria:
+
+- a member can view only personal contribution data
+- a member can download only personal PDF statements
+- the UI is clear, uncluttered, and read-only for ordinary members
+- backend enforcement prevents cross-member leakage
+
+## Sprint 44 - Secretary General Workspace And Document Governance
+
+Status: Completed
+
+Goal:
+Create the first dedicated office workspace for document governance, statutes, protocols, and announcements.
+
+Why this sprint next:
+
+- The secretary general is one of the clearest non-finance office roles in the target product.
+- Kairo already has documents, policies, and announcements; they now need a business-owner workspace instead of generic admin-only handling.
+
+Deliverables:
+
+- `secretary_general` workspace and navigation entry
+- Document governance surface for official association content:
+  - statutes
+  - protocols
+  - internal notices
+  - meeting-support documents
+- Secretary-scoped announcement management
+- Secretary-scoped policy/document update permissions where appropriate
+- Clear separation between document governance and finance/sanctions/admin powers
+- Browser and backend tests for secretary-only write paths
+
+Delivered:
+
+- Added a dedicated `Secretary` workspace layout, overview screen, and navigation entry
+- Added secretary-scoped routes for documents, policies, and announcements using the existing capability-enforced backend
+- Adapted shared document-management UI so it stays coherent outside the admin console
+- Hardened frontend route guards so direct navigation restores session state before evaluating role-restricted workspaces
+- Added backend authorization coverage for secretary-negative paths and browser validation for secretary navigation and finance-route denial
+- Made Playwright web port selection configurable so browser validation remains reproducible on occupied local ports
+
+Acceptance criteria:
+
+- the secretary general can manage official documents and announcements
+- the secretary general cannot access finance mutation or disciplinary administration unless explicitly granted
+- document updates remain audited and tenant-scoped
+
+## Sprint 45 - Treasurer And Auditor Finance Console
+
+Status: Completed
+
+Goal:
+Mature the finance area into a professional workspace for treasurer operations and auditor oversight.
+
+Why this sprint next:
+
+- Finance is already one of the strongest implemented domains.
+- The next maturity step is splitting finance operations from finance oversight.
+
+Deliverables:
+
+- Expanded treasurer workspace for day-to-day dues management
+- Read-only auditor (`auditor`) finance cockpit with:
+  - association-level totals
+  - per-member balances
+  - payment history visibility
+  - export/report access where appropriate
+- Role-specific finance summaries for `principal_admin` and `president`
+- Export boundaries for treasurer vs auditor vs member
+- Deep backend permission and browser tests for finance visibility and mutation rules
+
+Acceptance criteria:
+
+- the treasurer can manage contributions and payments
+- the auditor can inspect finance data without mutating it
+- ordinary members cannot access tenant-wide finance reports
+- the backend remains the sole enforcement point for finance access
+
+Implementation notes:
+
+- Added tenant-wide payment listing and CSV finance report export endpoints over the existing contributions domain
+- Enriched the treasurer workspace with recent payment activity so day-to-day finance work stays in one place
+- Added a dedicated read-only auditor workspace with totals, per-member balances, payment history, and export access
+- Extended backend authorization tests and browser E2E coverage for treasurer and auditor role boundaries
+
+## Sprint 46 - Censor Discipline Workspace
+
+Status: Planned
+
+Goal:
+Create a dedicated disciplinary governance area for the censor role with privacy, traceability, and clear limits.
+
+Why this sprint next:
+
+- Disciplinary data is sensitive and should not remain bundled with broad staff access forever.
+- The target product explicitly requires a censor-like role for sanctions and related processes.
+
+Deliverables:
+
+- `censor` role workspace
+- Disciplinary management UI aligned to sanction workflows
+- Private record visibility rules revisited for censor, principal admin, and affected member
+- Audit trail enrichment for sanction creation, update, and closure actions
+- Tests for privacy, role isolation, and member self-visibility boundaries
+
+Acceptance criteria:
+
+- the censor can manage disciplinary records inside tenant scope
+- ordinary members can only see their own records when policy allows
+- treasurer and unrelated office roles cannot browse disciplinary records without explicit permission
+- all sanction mutations are audited
+
+## Sprint 47 - Sports Operations Workspace
+
+Status: Planned
+
+Goal:
+Introduce a focused workspace for the sports affairs lead to manage sports events without broad administrative power.
+
+Why this sprint next:
+
+- The target association model includes a sports operations owner distinct from generic administration.
+- Events already exist; they now need a professional delegated management surface.
+
+Deliverables:
+
+- `sports_manager` role and workspace
+- Sports-focused event management views
+- Optional event categorization or filtering for sports operations
+- Role-specific write access for sports events without document/finance/admin spillover
+- Tests for sports-manager write boundaries
+
+Acceptance criteria:
+
+- the sports manager can create and update sports events
+- the sports manager cannot manage finance, sanctions, or tenant administration
+- members continue to consume events in simple read-only mode
+
+## Sprint 48 - President And Vice President Governance Cockpit
+
+Status: Planned
+
+Goal:
+Provide executive workspaces for strategic oversight, cross-module visibility, and limited governance actions.
+
+Why this sprint next:
+
+- The president and vice president need broader organizational visibility than ordinary office roles.
+- Their experience should remain focused on oversight, not raw system administration.
+
+Deliverables:
+
+- `president` and `vice_president` dashboards
+- Cross-module oversight cards:
+  - finance summary
+  - key announcements
+  - major documents
+  - sanctions overview where authorized
+  - upcoming events
+- Carefully limited governance actions aligned with the capability matrix
+- Executive visibility tests proving they do not inherit unrestricted principal-admin powers
+
+Acceptance criteria:
+
+- the president has a coherent cross-module oversight surface
+- the vice president has a narrower but still useful executive view
+- executive roles do not automatically bypass principal-admin controls
+
+## Sprint 49 - Principal Admin Global Control Plane
+
+Status: Planned
+
+Goal:
+Separate true platform-style tenant administration from ordinary office work by formalizing the `principal_admin` role.
+
+Why this sprint next:
+
+- The target product still needs one trusted operator with the broadest tenant-scoped powers.
+- That role should be explicit and professionally presented rather than implied by legacy `admin` usage.
+
+Deliverables:
+
+- `principal_admin` role semantics and migration path from legacy `admin`
+- Global tenant control plane for:
+  - role assignments
+  - access review
+  - tenant settings
+  - high-sensitivity exports
+  - module management
+  - broad audit access
+- Clear UI distinction between office workspaces and principal administration
+- Tests proving principal admin has the intended extended access inside tenant scope only
+
+Acceptance criteria:
+
+- the principal admin can access the full tenant control surface
+- tenant isolation is still preserved everywhere
+- office roles no longer depend on generic `admin` semantics for their day-to-day work
+
+## Sprint 50 - Role-Aware Chat And Structured Knowledge Boundaries
+
+Status: Planned
+
+Goal:
+Turn the chatbot into a role-aware assistant that can answer from authorized documents and approved structured data without leaking anything across members or roles.
+
+Why this sprint next:
+
+- This is the highest-value and highest-risk maturity step for the target product.
+- The current chatbot is secure for document RAG, but it does not yet cover structured organizational answers by role.
+
+Deliverables:
+
+- Role-aware chat policies per role family
+- Structured context adapters for approved domains such as:
+  - personal contribution balance
+  - finance summaries for authorized roles
+  - disciplinary visibility where allowed
+  - governance documents
+  - events and announcements
+- Prompt assembly that clearly separates structured facts from retrieved documents
+- Strong regression tests for cross-member and cross-role leakage
+- Chat trace updates showing source types and refusal reasons
+
+Acceptance criteria:
+
+- an ordinary member can ask about personal dues but never another member's dues
+- an auditor can obtain finance summaries without seeing unrelated private data outside granted scope
+- the chatbot remains backend-governed and never self-decides permissions
+- refusals are clear whenever evidence is missing or unauthorized
+
+## Sprint 51 - Role-Specific Navigation And UX Simplification
+
+Status: Planned
+
+Goal:
+Make the interface feel sober, elegant, and professional for each role by reducing noise and clarifying what matters first.
+
+Why this sprint next:
+
+- After adding the main workspaces, the product must feel simple rather than overloaded.
+- The member surface and the office surfaces should not share the same complexity level.
+
+Deliverables:
+
+- Role-specific landing pages and navigation sets
+- Reduced sidebar clutter for ordinary members
+- Clear workspace entry points for office roles
+- Design-system polish for a professional, low-noise visual hierarchy
+- Browser QA for each major role surface on desktop and mobile
+
+Acceptance criteria:
+
+- members see a simple, readable interface with fast access to their own essentials
+- office roles land in the right workspace without hunting through admin-heavy menus
+- the interface remains professional, clear, and not overloaded
+
+## Sprint 52 - Full Regression Matrix And Professional Release Candidate
+
+Status: Planned
+
+Goal:
+Close the track with release-level hardening, realistic end-to-end verification, and a clean handoff state.
+
+Why this sprint last:
+
+- All role workspaces, chat boundaries, and exports will need final integrated verification.
+- The product target is not just feature completeness; it is maturity and confidence.
+
+Deliverables:
+
+- API and browser regression matrix for all major roles:
+  - member
+  - secretary general
+  - treasurer
+  - auditor
+  - censor
+  - sports manager
+  - president
+  - vice president
+  - principal admin
+- Final bug-fix sweep based on regression findings
+- Updated demo seed and walkthrough assets for the expanded role model
+- Updated README, status, roadmap, and handoff docs
+- Release-candidate checklist for a professional association deployment
+
+Acceptance criteria:
+
+- critical role flows pass end-to-end
+- no known tenant-isolation or role-leak regression remains open
+- documentation is current enough for Codex, Cursor, or Copilot to continue without hidden context
+- the repository is ready for a professional release candidate review

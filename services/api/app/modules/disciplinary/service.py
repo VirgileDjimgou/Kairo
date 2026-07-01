@@ -44,12 +44,12 @@ class DisciplinaryService:
         tenant_id: UUID,
         record_id: UUID,
         user_id: UUID,
-        is_admin_or_treasurer: bool,
+        can_read_tenant_records: bool,
     ) -> DisciplinaryRecordResponse:
         record = await self._repo.get_by_id(tenant_id, record_id)
         if record is None:
             raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Disciplinary record not found")
-        if not is_admin_or_treasurer:
+        if not can_read_tenant_records:
             profile = await self._membership_repo.get_by_user_id(tenant_id, user_id)
             if profile is None or profile.id != record.membership_profile_id:
                 raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Disciplinary record not found")

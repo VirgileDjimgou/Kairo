@@ -2,9 +2,14 @@ from __future__ import annotations
 
 from uuid import UUID
 
-from fastapi import APIRouter, HTTPException, status
+from fastapi import APIRouter
 from fastapi.responses import StreamingResponse
 
+from app.core.authorization import require_capability
+from app.core.capabilities import (
+    CAP_ANNOUNCEMENTS_WRITE,
+    CAP_TENANT_ADMINISTRATION,
+)
 from app.core.dependencies import AuthDep, DbDep
 from app.core.module_guard import require_module
 from app.modules.announcements.schemas import (
@@ -28,7 +33,7 @@ async def list_active_announcements(
     """Return active (published, not expired) announcements visible to the user."""
     service = AnnouncementService(db)
     return await service.list_visible_announcements(
-        current.tenant_id, is_admin=current.has_role("admin")
+        current.tenant_id, is_admin=current.has_capability(CAP_ANNOUNCEMENTS_WRITE)
     )
 
 
@@ -37,8 +42,11 @@ async def list_all_announcements(
     current: AuthDep, db: DbDep
 ) -> list[AnnouncementResponse]:
     """List all announcements for the tenant (admin only)."""
-    if not current.has_role("admin"):
-        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Admin role required")
+    require_capability(
+        current,
+        CAP_ANNOUNCEMENTS_WRITE,
+        detail="Announcement write capability required",
+    )
     service = AnnouncementService(db)
     return await service.list_announcements(current.tenant_id)
 
@@ -46,8 +54,11 @@ async def list_all_announcements(
 @router.get("/export")
 async def export_announcements(current: AuthDep, db: DbDep) -> StreamingResponse:
     """Export announcements as CSV (admin only)."""
-    if not current.has_role("admin"):
-        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Admin role required")
+    require_capability(
+        current,
+        CAP_TENANT_ADMINISTRATION,
+        detail="Tenant administration capability required",
+    )
     service = AnnouncementService(db)
     csv_content = await service.export_csv(current.tenant_id)
     return StreamingResponse(
@@ -71,8 +82,11 @@ async def create_announcement(
     data: AnnouncementCreate, current: AuthDep, db: DbDep
 ) -> AnnouncementResponse:
     """Create a new announcement (admin only)."""
-    if not current.has_role("admin"):
-        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Admin role required")
+    require_capability(
+        current,
+        CAP_ANNOUNCEMENTS_WRITE,
+        detail="Announcement write capability required",
+    )
     service = AnnouncementService(db)
     return await service.create_announcement(
         current.tenant_id, data, actor_user_id=current.user.id
@@ -84,8 +98,11 @@ async def update_announcement(
     announcement_id: UUID, data: AnnouncementUpdate, current: AuthDep, db: DbDep
 ) -> AnnouncementResponse:
     """Update an announcement (admin only)."""
-    if not current.has_role("admin"):
-        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Admin role required")
+    require_capability(
+        current,
+        CAP_ANNOUNCEMENTS_WRITE,
+        detail="Announcement write capability required",
+    )
     service = AnnouncementService(db)
     return await service.update_announcement(
         current.tenant_id, announcement_id, data, actor_user_id=current.user.id
@@ -97,8 +114,11 @@ async def delete_announcement(
     announcement_id: UUID, current: AuthDep, db: DbDep
 ) -> None:
     """Delete an announcement (admin only)."""
-    if not current.has_role("admin"):
-        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Admin role required")
+    require_capability(
+        current,
+        CAP_ANNOUNCEMENTS_WRITE,
+        detail="Announcement write capability required",
+    )
     service = AnnouncementService(db)
     await service.delete_announcement(
         current.tenant_id, announcement_id, actor_user_id=current.user.id

@@ -6,69 +6,58 @@ Last verified against repository code on 2026-07-01.
 
 Kairo, also positioned as OrgMind AI, is a local-first multi-tenant RAG platform for organizations.
 
-The current roadmap extension through Sprint 40 is complete. The repository is in a portfolio-ready, open-source handoff state, and any further work should begin with a new roadmap.
+The repository now enters a new professionalization track aimed at a mature association product with:
 
-## Implemented Sprints
+- read-only ordinary member surfaces
+- role-specific office workspaces
+- secure finance, sanctions, documents, and events governance
+- a role-aware chatbot that never leaks cross-member data
 
-- Sprint 0: Foundation and repository skeleton
-- Sprint 1: Identity, tenancy, and JWT auth
-- Sprint 2: Professional Vue layout
-- Sprint 3: Document upload and object storage
-- Sprint 4: Ingestion worker and parsing
-- Sprint 5: Embeddings and Qdrant indexing
-- Sprint 6: First RAG chat
-- Sprint 7: Admin RAG controls
-- Sprint 8: Membership and contributions
-- Sprint 9: Policies, rules, and discipline
-- Sprint 10: Events and announcements
-- Sprint 11: Cloudflare Tunnel Deployment
-- Sprint 12: Evaluation and AI Safety
-- Sprint 13: Demo Tenant and Portfolio Polish
-- Sprint 14: Multi-Channel Extensions
-- Sprint 15: Commercialization Baseline
-- Sprint 16: Tenant Activation And Multi-Tenant UX
-- Sprint 17: Identity Lifecycle And Access Hardening
-- Sprint 18: Module Enforcement And Entitlements
-- Sprint 19: Audit Trail And Administrative Governance
-- Sprint 20: Document Operations Maturity
-- Sprint 21: Data Import And Backoffice Automation
-- Sprint 22: Product UX Polish And Browser QA
-- Sprint 23: Observability And Runtime Reliability
-- Sprint 24: Production Validation, Recovery And Security Hardening
-- Sprint 25: Commercial Packaging And Launch Readiness
-- Sprint 26: Public Product Landing And Lead Capture
-- Sprint 27: Guided Tenant Onboarding And Conversion Flow
-- Sprint 28: Admin Overview And Tenant Operations Hub
-- Sprint 29: Team Invitations And Access Operations Console
-- Sprint 30: Account Security And Identity Self-Service
-- Sprint 31: Secure Identity Message Delivery And Access Notifications
-- Sprint 32: Session Governance And Security Event Operations
-- Sprint 33: Tenant User Lifecycle Governance And Account Lockdown
-- Sprint 34: Authentication Hardening And Recovery Stability
-- Sprint 35: Operational Reliability, Data Safety, And Migration Discipline
-- Sprint 36: Association Operations Robustness
-- Sprint 37: Final Open-Source Release Stabilization And Portfolio Readiness
-- Sprint 38: Treasurer Workspace Activation And Finance Permission Hardening
-- Sprint 39: Role-Aware Dashboard And Action Surface Hardening
-- Sprint 40: Demo Gallery And Handoff Polish
+## What Is Already Strong
+
+- Multi-tenant authentication, tenant switching, session governance, and identity hardening
+- Secure document RAG with citations, no-source refusal, prompt-injection defenses, and audit traceability
+- Membership, contributions, announcements, events, disciplinary records, document ingestion, and operational observability foundations
+- Guided onboarding, role-aware dashboard progress, secretary workspace, treasurer finance workspace, auditor oversight, and demo gallery
+- Autonomous backend test posture with SQLite-first execution
+
+## Main Gaps To Close
+
+- Backend capability enforcement is now in place across the major modules, but several role-specific workspaces still remain beyond the secretary and finance flows
+- Dedicated workspaces do not yet exist for censor, sports manager, president, vice president, or principal administrator
+- Office-role workspaces still need to be implemented over the new capability model
+- The chatbot is secure for document retrieval, but not yet a full role-aware assistant over authorized structured association data
+
+## Current Execution Plan
+
+- New roadmap track: Sprint 41 through Sprint 52
+- Estimated additional sprints required from the current state: 7
+- Next sprint: Sprint 46 - Censor Discipline Workspace
 
 ## Current State
 
-- **Open-source release**: v0.1.0
-- **Current roadmap extension**: complete through Sprint 40
-- **Backend tests**: 181 pass, 0 failures
-- **Frontend build**: clean
+- **Open-source release base**: strong and demonstrable
+- **Roadmap status**: active professional association maturity track, with Sprint 45 completed and Sprint 46 next
+- **Governance foundation**: canonical role catalog and backend capability matrix are now present
+- **Authorization state**: the major backend modules now enforce explicit capabilities instead of broad inline role checks
+- **Member self-service**: personal contribution history and member-only PDF statements are now in place
+- **Secretary workspace**: a dedicated office workspace now exists for documents, policies, and announcements
+- **Finance oversight**: treasurer operations and auditor read-only finance oversight now have distinct workspaces and backend permission checks
+- **Validation status**: targeted backend finance authorization tests, frontend build, and finance browser E2E all passed on 2026-07-01
 - **License**: MIT
 
-## Next Steps
+## Continuity Rule
 
-The current roadmap is complete.
-Future work should begin with a new roadmap before any new sprint work starts.
+Future agent sessions should not invent the next step from memory.
 
-## Known Limitations
+They should read:
 
-- Only email is wired for real identity delivery (Telegram/WhatsApp are simulated placeholders)
-- Production Docker builds still benefit from occasional end-to-end validation with Docker
-- Cloudflare Tunnel setup is documented but not validated with a real tunnel integration test
-- Backup script is bash-only and may need adaptation for Windows/macOS Docker Desktop
-- LLM responses depend on Ollama model availability
+1. `README.md`
+2. `AGENTS.md`
+3. `constitution/KAIRO_CONSTITUTION.md`
+4. `IMPLEMENTATION_ROADMAP.md`
+5. `PROJECT_STATUS.md`
+6. `prompts/CODEX_AUTOPILOT.md`
+7. `prompts/KAIRO_CONTINUE_UNIVERSAL.md`
+
+Then they should execute only the next planned sprint or the active sprint if one is already in progress.

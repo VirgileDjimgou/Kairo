@@ -33,6 +33,8 @@ class RoleResponse(BaseModel):
     name: str
     description: str | None
     is_system_role: bool
+    is_canonical: bool = False
+    capabilities: list[str] = Field(default_factory=list)
 
     model_config = {"from_attributes": True}
 

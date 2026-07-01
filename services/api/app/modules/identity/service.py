@@ -6,6 +6,7 @@ import jwt
 from fastapi import HTTPException, status
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from app.core.capabilities import CAP_ROLE_ASSIGN, has_capability
 from app.core.config import settings
 from app.core.security import (
     create_access_token,
@@ -39,6 +40,8 @@ from app.modules.identity.schemas import (
     InviteResponse,
     LoginRequest,
     ManagedTenantUserActionResponse,
+    ManagedTenantUserRolesUpdateRequest,
+    ManagedTenantUserRolesUpdateResponse,
     ManagedTenantUserResponse,
     MfaCompleteLoginRequest,
     MfaEnrollResponse,
@@ -107,10 +110,10 @@ class AuthService:
 
     async def _require_admin(self, tenant_id: UUID, user_id: UUID) -> list[str]:
         roles = await self._tenancy_repo.get_user_role_codes(tenant_id, user_id)
-        if "admin" not in roles:
+        if not has_capability(roles, CAP_ROLE_ASSIGN):
             raise HTTPException(
                 status_code=status.HTTP_403_FORBIDDEN,
-                detail="Only administrators can perform this action",
+                detail="Only authorized tenant administrators can perform this action",
             )
         return roles
 
@@ -397,12 +400,13 @@ class AuthService:
         inviter_roles = await self._tenancy_repo.get_user_role_codes(
             request.tenant_id, invited_by_user_id
         )
-        if "admin" not in inviter_roles:
+        if not has_capability(inviter_roles, CAP_ROLE_ASSIGN):
             raise HTTPException(
                 status_code=status.HTTP_403_FORBIDDEN,
-                detail="Only administrators can invite users",
+                detail="Only authorized tenant administrators can invite users",
             )
 
+        await self._tenancy_repo.ensure_canonical_role_catalog(request.tenant_id)
         # Verify the role exists in this tenant
         role = await self._tenancy_repo.get_role_by_code(
             request.tenant_id, request.role_code
@@ -539,36 +543,50 @@ class AuthService:
                 )
 
         # Create or activate tenant membership
-        existing_membership = await self._tenancy_repo.get_tenant_user(
+        membership = await self._tenancy_repo.get_tenant_user(
             invitation.tenant_id, user.id
         )
-        if existing_membership:
-            if existing_membership.membership_status == "active":
+        if membership:
+            if membership.membership_status == "active":
                 raise HTTPException(
                     status_code=status.HTTP_409_CONFLICT,
                     detail="User is already an active member",
                 )
-            if existing_membership.membership_status == "suspended":
+            if membership.membership_status == "suspended":
                 raise HTTPException(
                     status_code=status.HTTP_403_FORBIDDEN,
                     detail="This membership is suspended. Ask an administrator to reactivate access.",
                 )
             # Reactivate inactive membership
-            existing_membership.membership_status = "active"
+            membership.membership_status = "active"
         else:
-            await self._tenancy_repo.create_tenant_user(
+            membership = await self._tenancy_repo.create_tenant_user(
                 tenant_id=invitation.tenant_id,
                 user_id=user.id,
                 profile_type=invitation.role_code,
             )
 
         # Assign role
+        await self._tenancy_repo.ensure_canonical_role_catalog(invitation.tenant_id)
         role = await self._tenancy_repo.get_role_by_code(
             invitation.tenant_id, invitation.role_code
         )
         if role:
             await self._tenancy_repo.assign_role_to_user(
                 invitation.tenant_id, user.id, role.id
+            )
+            await self._audit.record_event(
+                tenant_id=invitation.tenant_id,
+                actor_user_id=user.id if actor_user_id is None else actor_user_id,
+                action="role_assigned",
+                entity_type="tenant_user",
+                entity_id=membership.id if membership is not None else None,
+                module_key="identity",
+                details={
+                    "assigned_user_id": user.id,
+                    "role_code": invitation.role_code,
+                    "source": "invitation_acceptance",
+                },
             )
 
         # Mark invitation as accepted
@@ -871,6 +889,71 @@ class AuthService:
             message="Active tenant sessions were revoked for the managed user.",
             membership_status=membership.membership_status,
             revoked_session_count=len(revoked_sessions),
+        )
+
+    async def update_tenant_user_roles(
+        self,
+        *,
+        tenant_id: UUID,
+        target_user_id: UUID,
+        requesting_user_id: UUID,
+        request: ManagedTenantUserRolesUpdateRequest,
+        actor_user_id: UUID | None = None,
+    ) -> ManagedTenantUserRolesUpdateResponse:
+        await self._require_admin(tenant_id, requesting_user_id)
+        if target_user_id == requesting_user_id:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail="Use another administrator account to modify your own roles.",
+            )
+
+        await self._tenancy_repo.ensure_canonical_role_catalog(tenant_id)
+        membership = await self._tenancy_repo.get_tenant_user(tenant_id, target_user_id)
+        if membership is None:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail="Managed user not found in this organization",
+            )
+
+        normalized_role_codes = list(dict.fromkeys(request.role_codes))
+        resolved_roles = []
+        for role_code in normalized_role_codes:
+            role = await self._tenancy_repo.get_role_by_code(tenant_id, role_code)
+            if role is None:
+                raise HTTPException(
+                    status_code=status.HTTP_400_BAD_REQUEST,
+                    detail=f"Role '{role_code}' does not exist in this organization",
+                )
+            resolved_roles.append(role)
+
+        previous_roles, updated_roles = await self._tenancy_repo.replace_user_roles(
+            tenant_id=tenant_id,
+            user_id=target_user_id,
+            role_ids=[role.id for role in resolved_roles],
+        )
+        previous_role_codes = sorted(role.code for role in previous_roles)
+        updated_role_codes = sorted(role.code for role in updated_roles)
+
+        await self._audit.record_event(
+            tenant_id=tenant_id,
+            actor_user_id=requesting_user_id if actor_user_id is None else actor_user_id,
+            action="roles_updated",
+            entity_type="tenant_user",
+            entity_id=membership.id,
+            module_key="identity",
+            details={
+                "target_user_id": target_user_id,
+                "previous_role_codes": previous_role_codes,
+                "role_codes": updated_role_codes,
+                "added_role_codes": sorted(set(updated_role_codes) - set(previous_role_codes)),
+                "removed_role_codes": sorted(set(previous_role_codes) - set(updated_role_codes)),
+            },
+        )
+        await self._db.commit()
+
+        return ManagedTenantUserRolesUpdateResponse(
+            message="Tenant roles updated successfully.",
+            role_codes=updated_role_codes,
         )
 
     # ── Password Reset ─────────────────────────────────────────────────────────

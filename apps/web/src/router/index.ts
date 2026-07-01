@@ -96,6 +96,47 @@ const router = createRouter({
           component: () => import('@/views/finance/FinanceWorkspaceView.vue'),
           meta: { requiresFinanceWorkspace: true },
         },
+        {
+          path: 'finance-audit',
+          name: 'finance-audit-workspace',
+          component: () => import('@/views/finance/AuditorFinanceView.vue'),
+          meta: {
+            requiresAuth: true,
+            allowedRoles: ['auditor', 'president', 'principal_admin', 'admin'],
+          },
+        },
+        {
+          path: 'secretary',
+          component: () => import('@/layouts/SecretaryLayout.vue'),
+          meta: {
+            requiresAuth: true,
+            allowedRoles: ['secretary_general', 'principal_admin', 'admin'],
+          },
+          children: [
+            {
+              path: '',
+              name: 'secretary-overview',
+              component: () => import('@/views/secretary/SecretaryOverviewView.vue'),
+            },
+            {
+              path: 'documents',
+              name: 'secretary-documents',
+              component: () => import('@/views/admin/AdminDocumentsView.vue'),
+            },
+            {
+              path: 'policies',
+              name: 'secretary-policies',
+              component: () => import('@/views/policies/AdminPoliciesView.vue'),
+              meta: { module: 'policies' },
+            },
+            {
+              path: 'announcements',
+              name: 'secretary-announcements',
+              component: () => import('@/views/announcements/AdminAnnouncementsView.vue'),
+              meta: { module: 'announcements' },
+            },
+          ],
+        },
       ],
     },
     {
@@ -186,12 +227,16 @@ const router = createRouter({
 })
 
 // Navigation guard
-router.beforeEach((to) => {
+router.beforeEach(async (to) => {
   const auth = useAuthStore()
   const tenant = useTenantStore()
 
   if (to.meta.requiresAuth && !auth.isAuthenticated) {
     return { name: 'login', query: { redirect: to.fullPath } }
+  }
+
+  if (auth.isAuthenticated && !auth.user) {
+    await auth.restoreSession()
   }
 
   if (to.meta.requiresGuest && auth.isAuthenticated) {
@@ -207,11 +252,19 @@ router.beforeEach((to) => {
     return { name: 'dashboard' }
   }
 
+  if (to.meta.allowedRoles && auth.isAuthenticated && auth.user) {
+    const allowedRoles = to.meta.allowedRoles as string[]
+    const hasAllowedRole = allowedRoles.some((role) => auth.user?.roles?.includes(role))
+    if (!hasAllowedRole) {
+      return { name: 'dashboard' }
+    }
+  }
+
   if (
     to.meta.requiresFinanceWorkspace &&
     auth.isAuthenticated &&
     auth.user &&
-    !auth.hasAnyRole(['admin', 'treasurer']).value
+    !auth.hasAnyRole(['admin', 'treasurer', 'principal_admin']).value
   ) {
     return { name: 'dashboard' }
   }

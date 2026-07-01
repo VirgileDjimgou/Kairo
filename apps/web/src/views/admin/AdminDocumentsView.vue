@@ -5,12 +5,11 @@
     >
       <div>
         <div class="text-uppercase small fw-semibold text-secondary mb-2">
-          Documents
+          {{ workspaceLabel }}
         </div>
-        <h1 class="h4 fw-bold mb-1">Document intake</h1>
+        <h1 class="h4 fw-bold mb-1">{{ workspaceTitle }}</h1>
         <p class="text-muted mb-0">
-          Upload tenant documents into object storage and review the latest
-          version metadata.
+          {{ workspaceDescription }}
         </p>
       </div>
       <button
@@ -198,11 +197,11 @@
                 Once the first file is uploaded, the tenant begins to feel real.
               </p>
               <div class="d-flex flex-wrap justify-content-center gap-2">
-                <RouterLink to="/admin/settings" class="btn btn-outline-secondary btn-sm">
-                  Review settings
+                <RouterLink :to="emptyStatePrimaryLink.to" class="btn btn-outline-secondary btn-sm">
+                  {{ emptyStatePrimaryLink.label }}
                 </RouterLink>
-                <RouterLink to="/admin/members" class="btn btn-outline-secondary btn-sm">
-                  Add members first
+                <RouterLink :to="emptyStateSecondaryLink.to" class="btn btn-outline-secondary btn-sm">
+                  {{ emptyStateSecondaryLink.label }}
                 </RouterLink>
               </div>
             </div>
@@ -350,8 +349,8 @@
 </template>
 
 <script setup lang="ts">
-import { onMounted, ref } from "vue";
-import { RouterLink } from "vue-router";
+import { computed, onMounted, ref } from "vue";
+import { RouterLink, useRoute } from "vue-router";
 import {
   archiveDocument,
   bulkUploadDocuments,
@@ -365,6 +364,30 @@ import {
   type DocumentListItemResponse,
   type UploadDocumentResponse,
 } from "../../api/documents.api";
+
+const route = useRoute();
+const isSecretaryWorkspace = computed(() => route.path.startsWith("/secretary"));
+const workspaceLabel = computed(() =>
+  isSecretaryWorkspace.value ? "Secretary documents" : "Documents"
+);
+const workspaceTitle = computed(() =>
+  isSecretaryWorkspace.value ? "Official document governance" : "Document intake"
+);
+const workspaceDescription = computed(() =>
+  isSecretaryWorkspace.value
+    ? "Upload and govern statutes, protocols, notices, and other official organization records."
+    : "Upload tenant documents into object storage and review the latest version metadata."
+);
+const emptyStatePrimaryLink = computed(() =>
+  isSecretaryWorkspace.value
+    ? { to: "/secretary/policies", label: "Review policies" }
+    : { to: "/admin/settings", label: "Review settings" }
+);
+const emptyStateSecondaryLink = computed(() =>
+  isSecretaryWorkspace.value
+    ? { to: "/secretary/announcements", label: "Prepare announcements" }
+    : { to: "/admin/members", label: "Add members first" }
+);
 
 const documents = ref<DocumentListItemResponse[]>([]);
 const loading = ref(false);
