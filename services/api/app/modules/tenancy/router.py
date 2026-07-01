@@ -73,12 +73,5 @@ async def update_tenant_settings(
     Allows updating name, default_language, branding, and module toggles.
     Non-admin members will receive a 403.
     """
-    if "admin" not in current.roles:
-        from fastapi import HTTPException, status
-
-        raise HTTPException(
-            status_code=status.HTTP_403_FORBIDDEN,
-            detail="Only administrators can update tenant settings",
-    )
     service = TenancyService(db)
     return await service.update_tenant_settings(tenant_id, current.user.id, settings)

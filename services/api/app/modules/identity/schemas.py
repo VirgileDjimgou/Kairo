@@ -110,6 +110,18 @@ class ManagedTenantUserActionResponse(BaseModel):
     revoked_session_count: int = 0
 
 
+class ManagedTenantUserRolesUpdateRequest(BaseModel):
+    role_codes: list[str] = Field(
+        min_length=1,
+        description="Complete tenant-scoped role set for the user",
+    )
+
+
+class ManagedTenantUserRolesUpdateResponse(BaseModel):
+    message: str
+    role_codes: list[str]
+
+
 class SwitchTenantResponse(BaseModel):
     access_token: str
     token_type: str = "bearer"

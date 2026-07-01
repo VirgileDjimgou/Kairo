@@ -4,9 +4,16 @@ from uuid import UUID
 from fastapi import HTTPException, status
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from app.core.capabilities import (
+    CAP_ROLE_CATALOG_READ,
+    CAP_TENANT_SETTINGS_WRITE,
+    capabilities_for_roles,
+    has_capability,
+)
 from app.modules.audit.service import AuditService
 from app.modules.tenancy.module_toggles import default_module_toggles, parse_module_toggles
 from app.modules.tenancy.repository import TenancyRepository
+from app.modules.tenancy.role_catalog import is_canonical_role
 from app.modules.tenancy.schemas import (
     BrandingConfig,
     ModuleToggles,
@@ -59,15 +66,28 @@ class TenancyService:
                 detail="You are not a member of this organization",
             )
 
+        await self._repo.ensure_canonical_role_catalog(tenant_id)
         role_codes = await self._repo.get_user_role_codes(tenant_id, requesting_user_id)
-        if "admin" not in role_codes:
+        if not has_capability(role_codes, CAP_ROLE_CATALOG_READ):
             raise HTTPException(
                 status_code=status.HTTP_403_FORBIDDEN,
-                detail="Only administrators can view tenant roles",
+                detail="Only authorized tenant administrators can view tenant roles",
             )
 
         roles = await self._repo.get_roles_for_tenant(tenant_id)
-        return [RoleResponse.model_validate(role) for role in roles]
+        return [
+            RoleResponse(
+                id=role.id,
+                tenant_id=role.tenant_id,
+                code=role.code,
+                name=role.name,
+                description=role.description,
+                is_system_role=role.is_system_role,
+                is_canonical=is_canonical_role(role.code),
+                capabilities=list(capabilities_for_roles([role.code])),
+            )
+            for role in roles
+        ]
 
     # ── Tenant Settings ─────────────────────────────────────────────────────
 
@@ -128,6 +148,12 @@ class TenancyService:
             raise HTTPException(
                 status_code=status.HTTP_404_NOT_FOUND,
                 detail="Organization not found",
+            )
+        role_codes = await self._repo.get_user_role_codes(tenant_id, requesting_user_id)
+        if not has_capability(role_codes, CAP_TENANT_SETTINGS_WRITE):
+            raise HTTPException(
+                status_code=status.HTTP_403_FORBIDDEN,
+                detail="Only authorized tenant administrators can update tenant settings",
             )
 
         name = settings.name

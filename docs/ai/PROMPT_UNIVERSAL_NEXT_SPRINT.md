@@ -1,14 +1,18 @@
 # Universal Prompt For The Next Sprint
 
-This file is kept for compatibility. Use the portable handoff prompt in
-`prompts/KAIRO_CONTINUE_UNIVERSAL.md` to determine whether there is still an active
-sprint, or whether a new roadmap must be defined first.
+This file is kept for compatibility.
 
-If you need a new sprint:
-1. Define it in `IMPLEMENTATION_ROADMAP.md`.
-2. Update `PROJECT_STATUS.md`.
-3. Keep `docs/ai/NEXT_SPRINT.md` and `docs/ai/PROJECT_STATE.md` in sync.
-4. Then paste the universal prompt into Codex, Cursor, or Copilot.
+Use the portable handoff prompt in `prompts/KAIRO_CONTINUE_UNIVERSAL.md`.
 
-If the foundational roadmap is already complete, start by creating the next roadmap
-before assigning more sprint work.
+Current state:
+
+- the roadmap is active again
+- the professional association maturity track now runs from Sprint 41 through Sprint 52
+- the next sprint to execute is defined in `docs/ai/NEXT_SPRINT.md` and `PROJECT_STATUS.md`
+
+Before implementation, always keep these files aligned:
+
+1. `IMPLEMENTATION_ROADMAP.md`
+2. `PROJECT_STATUS.md`
+3. `docs/ai/NEXT_SPRINT.md`
+4. `docs/ai/PROJECT_STATE.md`

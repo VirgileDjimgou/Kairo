@@ -16,6 +16,8 @@ from app.modules.identity.schemas import (
     InviteResponse,
     LoginRequest,
     ManagedTenantUserActionResponse,
+    ManagedTenantUserRolesUpdateRequest,
+    ManagedTenantUserRolesUpdateResponse,
     ManagedTenantUserResponse,
     MfaCompleteLoginRequest,
     MfaEnrollResponse,
@@ -275,6 +277,27 @@ async def revoke_managed_user_sessions(
         tenant_id=current.tenant_id,
         target_user_id=user_id,
         requesting_user_id=current.user.id,
+        actor_user_id=current.user.id,
+    )
+
+
+@router.put(
+    "/admin/managed-users/{user_id}/roles",
+    response_model=ManagedTenantUserRolesUpdateResponse,
+)
+async def update_managed_user_roles(
+    user_id: UUID,
+    request: ManagedTenantUserRolesUpdateRequest,
+    current: AuthDep,
+    db: DbDep,
+) -> ManagedTenantUserRolesUpdateResponse:
+    """Replace the tenant-scoped role set for a managed user."""
+    service = AuthService(db)
+    return await service.update_tenant_user_roles(
+        tenant_id=current.tenant_id,
+        target_user_id=user_id,
+        requesting_user_id=current.user.id,
+        request=request,
         actor_user_id=current.user.id,
     )
 

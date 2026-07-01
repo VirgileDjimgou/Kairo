@@ -36,6 +36,11 @@ class CurrentUser:
     def has_role(self, *role_codes: str) -> bool:
         return any(r in self.roles for r in role_codes)
 
+    def has_capability(self, capability: str) -> bool:
+        from app.core.capabilities import has_capability
+
+        return has_capability(self.roles, capability)
+
 
 async def get_db() -> AsyncSession:  # type: ignore[misc]
     """FastAPI dependency: yields an async SQLAlchemy session."""

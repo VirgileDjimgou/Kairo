@@ -3,8 +3,10 @@ from __future__ import annotations
 from typing import Annotated
 from uuid import UUID
 
-from fastapi import APIRouter, HTTPException, status
+from fastapi import APIRouter
 
+from app.core.authorization import require_capability
+from app.core.capabilities import CAP_POLICIES_WRITE
 from app.core.dependencies import AuthDep, DbDep
 from app.core.module_guard import require_module
 from app.modules.policies.schemas import (
@@ -40,14 +42,17 @@ async def get_policy(policy_id: UUID, current: AuthDep, db: DbDep) -> PolicyReco
     return await service.get_policy(
         tenant_id=current.tenant_id,
         policy_id=policy_id,
-        is_admin=current.has_role("admin"),
+        can_view_unpublished=current.has_capability(CAP_POLICIES_WRITE),
     )
 
 
 @router.get("/", response_model=list[PolicyRecordResponse])
 async def list_policies(current: AuthDep, db: DbDep) -> list[PolicyRecordResponse]:
-    if not current.has_role("admin"):
-        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Admin role required")
+    require_capability(
+        current,
+        CAP_POLICIES_WRITE,
+        detail="Policy write capability required",
+    )
     service = PolicyService(db)
     return await service.list_all(current.tenant_id)
 
@@ -58,8 +63,11 @@ async def create_policy(
     current: AuthDep,
     db: DbDep,
 ) -> PolicyRecordResponse:
-    if not current.has_role("admin"):
-        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Admin role required")
+    require_capability(
+        current,
+        CAP_POLICIES_WRITE,
+        detail="Policy write capability required",
+    )
     service = PolicyService(db)
     return await service.create_policy(
         current.tenant_id, data, current.user.id, actor_user_id=current.user.id
@@ -73,8 +81,11 @@ async def update_policy(
     current: AuthDep,
     db: DbDep,
 ) -> PolicyRecordResponse:
-    if not current.has_role("admin"):
-        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Admin role required")
+    require_capability(
+        current,
+        CAP_POLICIES_WRITE,
+        detail="Policy write capability required",
+    )
     service = PolicyService(db)
     return await service.update_policy(
         current.tenant_id, policy_id, data, actor_user_id=current.user.id
@@ -87,8 +98,11 @@ async def delete_policy(
     current: AuthDep,
     db: DbDep,
 ) -> None:
-    if not current.has_role("admin"):
-        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Admin role required")
+    require_capability(
+        current,
+        CAP_POLICIES_WRITE,
+        detail="Policy write capability required",
+    )
     service = PolicyService(db)
     await service.delete_policy(
         current.tenant_id, policy_id, actor_user_id=current.user.id

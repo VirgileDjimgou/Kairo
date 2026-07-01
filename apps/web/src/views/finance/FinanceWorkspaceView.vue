@@ -145,6 +145,36 @@
         <div class="card shadow-sm border-0 mb-4">
           <div class="card-body p-4">
             <div class="d-flex align-items-center justify-content-between mb-3">
+              <h2 class="h6 fw-bold mb-0">Recent payments</h2>
+              <span class="badge text-bg-light border text-dark">{{ recentPayments.length }} items</span>
+            </div>
+
+            <div v-if="recentPayments.length === 0" class="text-muted small mb-0">
+              No payments have been recorded yet in this tenant workspace.
+            </div>
+
+            <div v-else class="list-group list-group-flush">
+              <div v-for="payment in recentPayments" :key="payment.id" class="list-group-item px-0">
+                <div class="d-flex justify-content-between gap-3">
+                  <div>
+                    <div class="fw-medium">{{ paymentMemberLabel(payment.contribution_record_id) }}</div>
+                    <div class="small text-muted">
+                      {{ payment.amount }} EUR · {{ formatPaymentMethod(payment.payment_method) }}
+                    </div>
+                  </div>
+                  <div class="text-end small text-muted">
+                    <div>{{ formatDate(payment.paid_at) }}</div>
+                    <div>{{ payment.reference || 'No reference' }}</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="card shadow-sm border-0 mb-4">
+          <div class="card-body p-4">
+            <div class="d-flex align-items-center justify-content-between mb-3">
               <h2 class="h6 fw-bold mb-0">Record payment</h2>
               <span v-if="paymentTarget" class="badge text-bg-light border text-dark">{{ paymentTarget.year }}</span>
             </div>
@@ -254,9 +284,11 @@ import {
   createContribution,
   getContributionSummary,
   listContributions,
+  listTenantPayments,
   recordPayment,
   type ContributionRecordResponse,
   type ContributionSummary,
+  type PaymentRecordResponse,
 } from '@/api/contributions.api'
 import {
   getMemberBalance,
@@ -277,6 +309,7 @@ const summary = ref<ContributionSummary | null>(null)
 const selectedMemberBalance = ref<MemberBalanceResponse | null>(null)
 const selectedMemberId = ref('')
 const paymentTarget = ref<ContributionRecordResponse | null>(null)
+const recentPayments = ref<PaymentRecordResponse[]>([])
 
 const currentYear = new Date().getFullYear()
 const years = [currentYear - 1, currentYear, currentYear + 1]
@@ -299,6 +332,10 @@ const membersById = computed(() =>
   Object.fromEntries(members.value.map((member) => [member.id, member])),
 )
 
+const contributionsById = computed(() =>
+  Object.fromEntries(contributions.value.map((contribution) => [contribution.id, contribution])),
+)
+
 function memberLabel(profileId: string): string {
   const member = membersById.value[profileId]
   if (!member) return 'Unknown member'
@@ -308,6 +345,10 @@ function memberLabel(profileId: string): string {
 function formatDate(value: string | null): string {
   if (!value) return '—'
   return new Date(value).toLocaleDateString()
+}
+
+function formatPaymentMethod(value: string): string {
+  return value.replace('_', ' ')
 }
 
 function statusBadgeClass(status: string): string {
@@ -321,13 +362,21 @@ function statusBadgeClass(status: string): string {
   return map[status] || 'bg-light text-dark'
 }
 
+function paymentMemberLabel(contributionId: string): string {
+  const contribution = contributionsById.value[contributionId]
+  if (!contribution) return 'Unknown member'
+  return memberLabel(contribution.membership_profile_id)
+}
+
 async function refreshFinanceData() {
-  const [contributionRows, summaryData] = await Promise.all([
+  const [contributionRows, summaryData, paymentRows] = await Promise.all([
     listContributions(selectedYear.value),
     getContributionSummary(selectedYear.value),
+    listTenantPayments(),
   ])
   contributions.value = contributionRows
   summary.value = summaryData
+  recentPayments.value = paymentRows.slice(0, 8)
 }
 
 async function loadSelectedMemberBalance() {

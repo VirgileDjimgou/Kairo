@@ -62,6 +62,22 @@
           <i class="bi bi-cash-coin me-2"></i>Finance
         </RouterLink>
         <RouterLink
+          v-if="showFinanceAuditWorkspace"
+          to="/finance-audit"
+          class="nav-link sidebar-link rounded"
+          active-class="active"
+        >
+          <i class="bi bi-clipboard-data me-2"></i>Finance Audit
+        </RouterLink>
+        <RouterLink
+          v-if="showSecretaryWorkspace"
+          to="/secretary"
+          class="nav-link sidebar-link rounded"
+          active-class="active"
+        >
+          <i class="bi bi-journal-richtext me-2"></i>Secretary
+        </RouterLink>
+        <RouterLink
           v-if="isAdmin"
           to="/admin"
           class="nav-link sidebar-link rounded"
@@ -185,6 +201,24 @@
             data-bs-dismiss="offcanvas"
           >
             <i class="bi bi-cash-coin me-2"></i>Finance
+          </RouterLink>
+          <RouterLink
+            v-if="showFinanceAuditWorkspace"
+            to="/finance-audit"
+            class="nav-link sidebar-link rounded"
+            active-class="active"
+            data-bs-dismiss="offcanvas"
+          >
+            <i class="bi bi-clipboard-data me-2"></i>Finance Audit
+          </RouterLink>
+          <RouterLink
+            v-if="showSecretaryWorkspace"
+            to="/secretary"
+            class="nav-link sidebar-link rounded"
+            active-class="active"
+            data-bs-dismiss="offcanvas"
+          >
+            <i class="bi bi-journal-richtext me-2"></i>Secretary
           </RouterLink>
           <RouterLink
             v-if="isAdmin"
@@ -351,9 +385,25 @@ const modules = computed(() => ({
 
 const showFinanceWorkspace = computed(() => {
   return (
-    authStore.hasAnyRole(["admin", "treasurer"]).value &&
+    authStore.hasAnyRole(["admin", "treasurer", "principal_admin"]).value &&
     modules.value.membership &&
     modules.value.contributions
+  );
+});
+
+const showFinanceAuditWorkspace = computed(() => {
+  return (
+    authStore.hasAnyRole(["auditor", "president", "principal_admin", "admin"]).value &&
+    modules.value.membership &&
+    modules.value.contributions
+  );
+});
+
+const showSecretaryWorkspace = computed(() => {
+  return (
+    authStore.hasAnyRole(["secretary_general", "principal_admin"]).value &&
+    modules.value.policies &&
+    modules.value.announcements
   );
 });
 

@@ -4,19 +4,16 @@ from datetime import datetime
 from typing import Annotated, Literal
 from uuid import UUID
 
-from fastapi import APIRouter, HTTPException, Query, Response, status
+from fastapi import APIRouter, Query, Response
 from fastapi.responses import JSONResponse
 
+from app.core.authorization import require_capability
+from app.core.capabilities import CAP_AUDIT_READ
 from app.core.dependencies import AuthDep, DbDep
 from app.modules.audit.schemas import AuditEventResponse
 from app.modules.audit.service import AuditService
 
 router = APIRouter(prefix="/admin/audit", tags=["audit"])
-
-
-def _require_admin(current: AuthDep) -> None:
-    if not current.has_role("admin"):
-        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Admin role required")
 
 
 @router.get("/events", response_model=list[AuditEventResponse])
@@ -34,7 +31,11 @@ async def list_audit_events(
     created_from: datetime | None = Query(default=None),
     created_to: datetime | None = Query(default=None),
 ) -> list[AuditEventResponse]:
-    _require_admin(current)
+    require_capability(
+        current,
+        CAP_AUDIT_READ,
+        detail="Audit read capability required",
+    )
     service = AuditService(db)
     return await service.list_events(
         current.tenant_id,
@@ -65,7 +66,11 @@ async def export_audit_events(
     created_from: datetime | None = Query(default=None),
     created_to: datetime | None = Query(default=None),
 ) -> Response:
-    _require_admin(current)
+    require_capability(
+        current,
+        CAP_AUDIT_READ,
+        detail="Audit read capability required",
+    )
     service = AuditService(db)
     rows = await service.list_events(
         current.tenant_id,
@@ -102,4 +107,3 @@ async def export_audit_events(
         media_type="text/csv",
         headers={"Content-Disposition": 'attachment; filename="audit-events.csv"'},
     )
-

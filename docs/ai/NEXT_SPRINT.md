@@ -1,21 +1,30 @@
 # Next Sprint
 
-## Last Completed Sprint
+## Sprint To Execute
 
-Sprint 40 - Demo Gallery And Handoff Polish
+Sprint 46 - Censor Discipline Workspace
 
-Status: Completed
+Status: Planned
 
-## What Was Delivered In Sprint 40
+## Why This Sprint Is Next
 
-- Regenerated the reusable GitHub demo screenshot gallery from the current codebase
-- Updated the treasurer walkthrough to show the dashboard, finance workspace, and account security
-- Refreshed the README gallery with current screenshots and clearer role storytelling
-- Rewrote the portable continuation prompt so Codex, Cursor, and GitHub Copilot can resume from the same truth
-- Aligned the demo/gallery docs with the verified runtime surface
+- Sprint 45 completed the finance split between treasurer operations and auditor oversight.
+- Sensitive disciplinary workflows are now the next major product gap for role-specific office governance.
+- This sprint is now the highest-value step because sanctions and privacy rules still need a dedicated workspace and tighter operational traceability.
 
-## Current Roadmap State
+## Sprint Goal
 
-The current roadmap extension is complete.
-No official next sprint is defined.
-Future work should begin with a new roadmap.
+Deliver a dedicated censor workspace for disciplinary governance with strict privacy and auditability.
+
+## Deliverables
+
+- Dedicated `censor` workspace for disciplinary operations
+- Stronger privacy boundaries around sanction records and related workflows
+- Audit trail coverage for disciplinary actions
+- Backend and browser validation for disciplinary role isolation
+
+## Acceptance Criteria
+
+- the censor can manage disciplinary records within tenant scope
+- non-censor office roles cannot mutate or casually browse sanctions without explicit capabilities
+- the repository remains aligned with the one-sprint-at-a-time professionalization track

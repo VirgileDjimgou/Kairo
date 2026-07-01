@@ -86,6 +86,21 @@ async function mockFinanceWorkspace(page: Page) {
     },
   ]
 
+  let payments = [
+    {
+      id: 'payment-seed-1',
+      tenant_id: 'tenant-demo-1',
+      contribution_record_id: 'contrib-1',
+      amount: '40.00',
+      currency: 'EUR',
+      paid_at: '2026-03-15T10:00:00Z',
+      payment_method: 'bank_transfer',
+      reference: 'INV-001',
+      recorded_by: 'user-treasurer-1',
+      created_at: '2026-03-15T10:00:00Z',
+    },
+  ]
+
   function buildSummary(year?: number) {
     const scoped = contributions.filter((item) => !year || item.year === year)
     const totalExpected = scoped.reduce((sum, item) => sum + Number(item.expected_amount), 0)
@@ -179,6 +194,15 @@ async function mockFinanceWorkspace(page: Page) {
   })
 
   await page.route(/http:\/\/localhost:8000\/api\/v1\/contributions\/payments$/, async (route) => {
+    if (route.request().method() === 'GET') {
+      await route.fulfill({
+        status: 200,
+        contentType: 'application/json',
+        body: JSON.stringify(payments),
+      })
+      return
+    }
+
     const payload = route.request().postDataJSON() as {
       contribution_record_id: string
       amount: string
@@ -197,21 +221,24 @@ async function mockFinanceWorkspace(page: Page) {
         updated_at: '2026-06-30T12:00:00Z',
       }
     })
+    const createdPayment = {
+      id: `payment-${payments.length + 1}`,
+      tenant_id: 'tenant-demo-1',
+      contribution_record_id: payload.contribution_record_id,
+      amount: payload.amount,
+      currency: 'EUR',
+      paid_at: '2026-06-30T12:00:00Z',
+      payment_method: payload.payment_method,
+      reference: payload.reference ?? null,
+      recorded_by: 'user-treasurer-1',
+      created_at: '2026-06-30T12:00:00Z',
+    }
+    payments = [createdPayment, ...payments]
+
     await route.fulfill({
       status: 201,
       contentType: 'application/json',
-      body: JSON.stringify({
-        id: 'payment-1',
-        tenant_id: 'tenant-demo-1',
-        contribution_record_id: payload.contribution_record_id,
-        amount: payload.amount,
-        currency: 'EUR',
-        paid_at: '2026-06-30T12:00:00Z',
-        payment_method: payload.payment_method,
-        reference: payload.reference ?? null,
-        recorded_by: 'user-treasurer-1',
-        created_at: '2026-06-30T12:00:00Z',
-      }),
+      body: JSON.stringify(createdPayment),
     })
   })
 
@@ -261,6 +288,10 @@ async function mockFinanceWorkspace(page: Page) {
   })
 }
 
+function financeNavLink(page: Page) {
+  return page.locator('aside a[href="/finance"]').first()
+}
+
 test.describe('Finance workspace', () => {
   test('shows the dedicated finance workspace to the treasurer role', async ({ page }) => {
     await mockFinanceWorkspace(page)
@@ -269,12 +300,12 @@ test.describe('Finance workspace', () => {
       window.localStorage.setItem('access_token', 'playwright-treasurer-token')
     })
     await page.goto('/dashboard')
-    await expect(page.getByRole('link', { name: 'Finance' })).toBeVisible()
-    await page.getByRole('link', { name: 'Finance' }).click()
+    await expect(financeNavLink(page)).toBeVisible()
+    await financeNavLink(page).click()
 
     await expect(page).toHaveURL(/\/finance$/)
     await expect(page.getByRole('heading', { name: 'Treasury operations' })).toBeVisible()
-    await expect(page.getByRole('link', { name: 'Finance' })).toBeVisible()
+    await expect(financeNavLink(page)).toBeVisible()
     await expect(page.getByRole('link', { name: 'Admin' })).toHaveCount(0)
 
     await page.getByLabel('Member').first().selectOption('member-1')
@@ -288,8 +319,8 @@ test.describe('Finance workspace', () => {
       window.localStorage.setItem('access_token', 'playwright-treasurer-token')
     })
     await page.goto('/dashboard')
-    await expect(page.getByRole('link', { name: 'Finance' })).toBeVisible()
-    await page.getByRole('link', { name: 'Finance' }).click()
+    await expect(financeNavLink(page)).toBeVisible()
+    await financeNavLink(page).click()
 
     await page.getByRole('button', { name: 'Record payment' }).first().click()
     await page.getByLabel('Amount (EUR)', { exact: true }).fill('80.00')

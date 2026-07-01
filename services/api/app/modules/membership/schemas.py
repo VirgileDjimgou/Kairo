@@ -4,6 +4,7 @@ from uuid import UUID
 
 from pydantic import BaseModel, EmailStr, Field, field_serializer
 
+from app.modules.contributions.schemas import ContributionRecordResponse
 from app.modules.membership.models import MembershipStatus
 
 
@@ -57,3 +58,9 @@ class MemberBalanceResponse(BaseModel):
     @field_serializer("total_expected", "total_paid", "total_balance")
     def serialize_decimal(self, value: Decimal) -> str:
         return str(value.quantize(Decimal("0.01"), rounding=ROUND_HALF_UP))
+
+
+class MemberStatementResponse(BaseModel):
+    profile: MembershipProfileResponse
+    summary: MemberBalanceResponse
+    contributions: list[ContributionRecordResponse]

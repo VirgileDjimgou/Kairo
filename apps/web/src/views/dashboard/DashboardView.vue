@@ -215,6 +215,10 @@ const authStore = useAuthStore()
 const tenantStore = useTenantStore()
 const isAdmin = computed(() => authStore.user?.roles.includes('admin') ?? false)
 const isTreasurer = computed(() => authStore.user?.roles.includes('treasurer') ?? false)
+const isSecretaryGeneral = computed(() => authStore.user?.roles.includes('secretary_general') ?? false)
+const isAuditor = computed(() => authStore.user?.roles.includes('auditor') ?? false)
+const isPresident = computed(() => authStore.user?.roles.includes('president') ?? false)
+const isPrincipalAdmin = computed(() => authStore.user?.roles.includes('principal_admin') ?? false)
 const {
   loading,
   error,
@@ -243,12 +247,23 @@ const quickActions = computed(() => {
     if (tenantStore.isModuleEnabled('membership')) {
       actions.push({ label: 'Review member profile', to: '/members/profile', icon: 'bi bi-person-badge' })
     }
+  } else if (isSecretaryGeneral.value) {
+    actions.push({ label: 'Open secretary workspace', to: '/secretary', icon: 'bi bi-journal-richtext' })
+    actions.push({ label: 'Review documents', to: '/secretary/documents', icon: 'bi bi-file-earmark-text' })
+    if (tenantStore.isModuleEnabled('policies')) {
+      actions.push({ label: 'Review policies', to: '/secretary/policies', icon: 'bi bi-journal-text' })
+    }
+  } else if (isAuditor.value || isPresident.value || isPrincipalAdmin.value) {
+    actions.push({ label: 'Open finance audit', to: '/finance-audit', icon: 'bi bi-clipboard-data' })
+    if (tenantStore.isModuleEnabled('membership')) {
+      actions.push({ label: 'Review member directory', to: '/members/profile', icon: 'bi bi-person-badge' })
+    }
   }
 
   if (tenantStore.isModuleEnabled('announcements')) {
     actions.push({
-      label: isAdmin.value ? 'Publish announcement' : 'Review announcements',
-      to: isAdmin.value ? '/admin/announcements' : '/announcements',
+      label: isAdmin.value || isSecretaryGeneral.value ? 'Publish announcement' : 'Review announcements',
+      to: isAdmin.value ? '/admin/announcements' : isSecretaryGeneral.value ? '/secretary/announcements' : '/announcements',
       icon: 'bi bi-megaphone',
     })
   }

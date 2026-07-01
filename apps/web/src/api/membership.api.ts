@@ -1,4 +1,5 @@
 import http from './http'
+import type { ContributionRecordResponse } from './contributions.api'
 
 export interface MembershipProfileResponse {
   id: string
@@ -22,6 +23,12 @@ export interface MemberBalanceResponse {
   total_paid: string
   total_balance: string
   contribution_count: number
+}
+
+export interface MemberStatementResponse {
+  profile: MembershipProfileResponse
+  summary: MemberBalanceResponse
+  contributions: ContributionRecordResponse[]
 }
 
 export interface CreateMemberPayload {
@@ -51,6 +58,21 @@ export async function getMyProfile(): Promise<MembershipProfileResponse> {
 
 export async function getMyBalance(): Promise<MemberBalanceResponse> {
   const response = await http.get<MemberBalanceResponse>('/memberships/me/balance')
+  return response.data
+}
+
+export async function getMyContributions(): Promise<ContributionRecordResponse[]> {
+  const response = await http.get<ContributionRecordResponse[]>('/memberships/me/contributions')
+  return response.data
+}
+
+export async function getMyStatement(): Promise<MemberStatementResponse> {
+  const response = await http.get<MemberStatementResponse>('/memberships/me/statement')
+  return response.data
+}
+
+export async function downloadMyStatementPdf(): Promise<Blob> {
+  const response = await http.get('/memberships/me/statement.pdf', { responseType: 'blob' })
   return response.data
 }
 

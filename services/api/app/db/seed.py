@@ -49,6 +49,7 @@ from app.modules.disciplinary.models import DisciplinaryRecord
 from app.modules.events.models import Event
 from app.modules.announcements.models import Announcement
 from app.modules.documents.models import Document, DocumentChunk, DocumentVersion
+from app.modules.tenancy.role_catalog import canonical_role_definitions
 
 setup_logging()
 logger = structlog.get_logger(__name__)
@@ -68,6 +69,7 @@ TREASURER_PASSWORD = "Treasurer123!"
 ADMIN_ROLE_CODE = "admin"
 MEMBER_ROLE_CODE = "member"
 TREASURER_ROLE_CODE = "treasurer"
+PRINCIPAL_ADMIN_ROLE_CODE = "principal_admin"
 
 NOW = datetime.now(timezone.utc)
 
@@ -256,20 +258,19 @@ async def seed_database() -> None:
                 "Full administrative access",
                 is_system_role=True,
             )
-            member_role = await _get_or_create_role(
-                db,
-                tenant.id,
-                MEMBER_ROLE_CODE,
-                "Member",
-                "Standard member with read access to documents, events, and announcements",
-            )
-            treasurer_role = await _get_or_create_role(
-                db,
-                tenant.id,
-                TREASURER_ROLE_CODE,
-                "Treasurer",
-                "Financial role with contribution and payment management access",
-            )
+            canonical_roles: dict[str, Role] = {}
+            for definition in canonical_role_definitions():
+                canonical_roles[definition.code] = await _get_or_create_role(
+                    db,
+                    tenant.id,
+                    definition.code,
+                    definition.name,
+                    definition.description,
+                    is_system_role=definition.is_system_role,
+                )
+            member_role = canonical_roles[MEMBER_ROLE_CODE]
+            treasurer_role = canonical_roles[TREASURER_ROLE_CODE]
+            principal_admin_role = canonical_roles[PRINCIPAL_ADMIN_ROLE_CODE]
 
             # ── Role-Permission assignments ────────────────────────────────
             await _assign_permission_if_not_exists(db, admin_role.id, perms["admin:all"].id)
@@ -298,6 +299,7 @@ async def seed_database() -> None:
 
             # ── UserRole assignments ───────────────────────────────────────
             await _assign_role_if_not_exists(db, admin_tu.id, admin_role.id)
+            await _assign_role_if_not_exists(db, admin_tu.id, principal_admin_role.id)
             await _assign_role_if_not_exists(db, member_1_tu.id, member_role.id)
             await _assign_role_if_not_exists(db, member_2_tu.id, member_role.id)
             await _assign_role_if_not_exists(db, treasurer_tu.id, treasurer_role.id)

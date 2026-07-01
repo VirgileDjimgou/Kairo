@@ -2,9 +2,15 @@ from __future__ import annotations
 
 from typing import Annotated
 
-from fastapi import APIRouter, HTTPException, Query, status
+from fastapi import APIRouter, Query
 from sqlalchemy import func, select
 
+from app.core.authorization import require_capability
+from app.core.capabilities import (
+    CAP_AUDIT_READ,
+    CAP_DOCUMENTS_WRITE,
+    CAP_TENANT_ADMINISTRATION,
+)
 from app.core.dependencies import AuthDep, DbDep
 from app.core.module_guard import require_module
 from app.modules.admin.schemas import (
@@ -27,8 +33,11 @@ async def list_chat_queries(
     limit: Annotated[int, Query(ge=1, le=100)] = 20,
     _chat_guard: None = require_module("chat"),
 ) -> list[ChatQueryLogResponse]:
-    if not current.has_role("admin"):
-        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Admin role required")
+    require_capability(
+        current,
+        CAP_AUDIT_READ,
+        detail="Audit read capability required",
+    )
 
     result = await db.execute(
         select(ChatQueryLog)
@@ -59,8 +68,11 @@ async def check_module_has_data(
     db: DbDep,
     module: Annotated[str, Query(description="Module key to check")],
 ) -> dict:
-    if not current.has_role("admin"):
-        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Admin role required")
+    require_capability(
+        current,
+        CAP_TENANT_ADMINISTRATION,
+        detail="Tenant administration capability required",
+    )
     has_data = await module_has_data(db, current.tenant_id, module)
     return {"module": module, "has_data": has_data}
 
@@ -74,8 +86,11 @@ async def ingestion_jobs_health(
     db: DbDep,
     _documents_guard: None = require_module("documents"),
 ) -> IngestionJobHealthResponse:
-    if not current.has_role("admin"):
-        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Admin role required")
+    require_capability(
+        current,
+        CAP_DOCUMENTS_WRITE,
+        detail="Document governance write capability required",
+    )
 
     status_rows = await db.execute(
         select(IngestionJob.status, func.count()).where(

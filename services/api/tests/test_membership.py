@@ -2,6 +2,7 @@
 
 import uuid
 
+import fitz
 import pytest
 from httpx import AsyncClient
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -135,6 +136,20 @@ async def test_get_my_balance(client: AsyncClient, db_session: AsyncSession):
         headers={"Authorization": f"Bearer {token}"},
     )
     assert response.status_code == 404  # No profile linked to user yet
+
+
+@pytest.mark.asyncio
+async def test_get_my_statement_requires_linked_profile(
+    client: AsyncClient, db_session: AsyncSession
+):
+    ctx = await create_tenant_with_user(db_session, "my-statement")
+    token = await login(client, ctx["user"].email, "TestIsolation1!", ctx["tenant"].slug)
+
+    response = await client.get(
+        "/api/v1/memberships/me/statement",
+        headers={"Authorization": f"Bearer {token}"},
+    )
+    assert response.status_code == 404
 
 
 @pytest.mark.asyncio
@@ -624,6 +639,105 @@ async def test_member_role_cannot_access_staff_membership_and_contribution_endpo
             headers={"Authorization": f"Bearer {member_token}"},
         )
         assert response.status_code == 403, response.text
+
+
+@pytest.mark.asyncio
+async def test_member_can_fetch_only_personal_statement_and_pdf(
+    client: AsyncClient, db_session: AsyncSession
+):
+    admin = await create_tenant_with_user(db_session, f"member-statement-{uuid.uuid4().hex[:6]}")
+    alice = await create_user_for_tenant(
+        db_session,
+        tenant_id=admin["tenant"].id,
+        email=f"alice-{uuid.uuid4().hex[:6]}@test.org",
+        password="MemberPass1!",
+        display_name="Alice Statement",
+        role_code="member",
+        profile_type="member",
+        member_code="AL-001",
+    )
+    bob = await create_user_for_tenant(
+        db_session,
+        tenant_id=admin["tenant"].id,
+        email=f"bob-{uuid.uuid4().hex[:6]}@test.org",
+        password="MemberPass1!",
+        display_name="Bob Statement",
+        role_code="member",
+        profile_type="member",
+        member_code="BO-001",
+    )
+    await db_session.commit()
+
+    admin_token = await login(client, admin["user"].email, admin["password"], admin["tenant"].slug)
+    alice_token = await login(client, alice["user"].email, alice["password"], admin["tenant"].slug)
+    bob_token = await login(client, bob["user"].email, bob["password"], admin["tenant"].slug)
+
+    alice_contribution = await client.post(
+        "/api/v1/contributions/",
+        json={
+            "membership_profile_id": str(alice["profile"].id),
+            "year": 2026,
+            "expected_amount": "120.00",
+            "paid_amount": "20.00",
+            "currency": "EUR",
+            "status": "partial",
+        },
+        headers={"Authorization": f"Bearer {admin_token}"},
+    )
+    assert alice_contribution.status_code == 201, alice_contribution.text
+
+    bob_contribution = await client.post(
+        "/api/v1/contributions/",
+        json={
+            "membership_profile_id": str(bob["profile"].id),
+            "year": 2026,
+            "expected_amount": "75.00",
+            "paid_amount": "75.00",
+            "currency": "EUR",
+            "status": "paid",
+        },
+        headers={"Authorization": f"Bearer {admin_token}"},
+    )
+    assert bob_contribution.status_code == 201, bob_contribution.text
+
+    statement_response = await client.get(
+        "/api/v1/memberships/me/statement",
+        headers={"Authorization": f"Bearer {alice_token}"},
+    )
+    assert statement_response.status_code == 200, statement_response.text
+    statement_data = statement_response.json()
+    assert statement_data["profile"]["display_name"] == "Alice Statement"
+    assert statement_data["summary"]["total_expected"] == "120.00"
+    assert statement_data["summary"]["total_paid"] == "20.00"
+    assert statement_data["summary"]["total_balance"] == "100.00"
+    assert len(statement_data["contributions"]) == 1
+    assert statement_data["contributions"][0]["membership_profile_id"] == str(alice["profile"].id)
+
+    pdf_response = await client.get(
+        "/api/v1/memberships/me/statement.pdf",
+        headers={"Authorization": f"Bearer {alice_token}"},
+    )
+    assert pdf_response.status_code == 200, pdf_response.text
+    assert pdf_response.headers["content-type"] == "application/pdf"
+    assert "attachment; filename=" in pdf_response.headers["content-disposition"]
+
+    pdf = fitz.open(stream=pdf_response.content, filetype="pdf")
+    pdf_text = "".join(page.get_text() for page in pdf)
+    pdf.close()
+
+    assert "Alice Statement" in pdf_text
+    assert "AL-001" in pdf_text
+    assert "120.00 EUR" in pdf_text
+    assert "20.00 EUR" in pdf_text
+    assert "Bob Statement" not in pdf_text
+    assert "BO-001" not in pdf_text
+    assert "75.00 EUR" not in pdf_text
+
+    other_member_access = await client.get(
+        f"/api/v1/contributions/by-member/{alice['profile'].id}",
+        headers={"Authorization": f"Bearer {bob_token}"},
+    )
+    assert other_member_access.status_code == 403, other_member_access.text
 
 
 @pytest.mark.asyncio

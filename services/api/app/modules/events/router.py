@@ -2,9 +2,14 @@ from __future__ import annotations
 
 from uuid import UUID
 
-from fastapi import APIRouter, HTTPException, Query, status
+from fastapi import APIRouter, Query
 from fastapi.responses import StreamingResponse
 
+from app.core.authorization import require_capability
+from app.core.capabilities import (
+    CAP_EVENTS_WRITE,
+    CAP_TENANT_ADMINISTRATION,
+)
 from app.core.dependencies import AuthDep, DbDep
 from app.core.module_guard import require_module
 from app.modules.events.schemas import EventCreate, EventResponse, EventUpdate
@@ -22,7 +27,7 @@ async def list_public_events(current: AuthDep, db: DbDep) -> list[EventResponse]
     """Return published events visible to the authenticated user."""
     service = EventService(db)
     return await service.list_visible_events(
-        current.tenant_id, is_admin=current.has_role("admin")
+        current.tenant_id, is_admin=current.has_capability(CAP_EVENTS_WRITE)
     )
 
 
@@ -31,8 +36,11 @@ async def list_all_events(
     current: AuthDep, db: DbDep, upcoming: bool = Query(default=False)
 ) -> list[EventResponse]:
     """List all events for the tenant (admin only)."""
-    if not current.has_role("admin"):
-        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Admin role required")
+    require_capability(
+        current,
+        CAP_EVENTS_WRITE,
+        detail="Event write capability required",
+    )
     service = EventService(db)
     if upcoming:
         return await service.list_upcoming_events(current.tenant_id)
@@ -42,8 +50,11 @@ async def list_all_events(
 @router.get("/export")
 async def export_events(current: AuthDep, db: DbDep) -> StreamingResponse:
     """Export events as CSV (admin only)."""
-    if not current.has_role("admin"):
-        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Admin role required")
+    require_capability(
+        current,
+        CAP_TENANT_ADMINISTRATION,
+        detail="Tenant administration capability required",
+    )
     service = EventService(db)
     csv_content = await service.export_csv(current.tenant_id)
     return StreamingResponse(
@@ -67,8 +78,11 @@ async def create_event(
     data: EventCreate, current: AuthDep, db: DbDep
 ) -> EventResponse:
     """Create a new event (admin only)."""
-    if not current.has_role("admin"):
-        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Admin role required")
+    require_capability(
+        current,
+        CAP_EVENTS_WRITE,
+        detail="Event write capability required",
+    )
     service = EventService(db)
     return await service.create_event(
         current.tenant_id, data, actor_user_id=current.user.id
@@ -80,8 +94,11 @@ async def update_event(
     event_id: UUID, data: EventUpdate, current: AuthDep, db: DbDep
 ) -> EventResponse:
     """Update an event (admin only)."""
-    if not current.has_role("admin"):
-        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Admin role required")
+    require_capability(
+        current,
+        CAP_EVENTS_WRITE,
+        detail="Event write capability required",
+    )
     service = EventService(db)
     return await service.update_event(
         current.tenant_id, event_id, data, actor_user_id=current.user.id
@@ -91,8 +108,11 @@ async def update_event(
 @router.delete("/{event_id}", status_code=204)
 async def delete_event(event_id: UUID, current: AuthDep, db: DbDep) -> None:
     """Delete an event (admin only)."""
-    if not current.has_role("admin"):
-        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Admin role required")
+    require_capability(
+        current,
+        CAP_EVENTS_WRITE,
+        detail="Event write capability required",
+    )
     service = EventService(db)
     await service.delete_event(
         current.tenant_id, event_id, actor_user_id=current.user.id
