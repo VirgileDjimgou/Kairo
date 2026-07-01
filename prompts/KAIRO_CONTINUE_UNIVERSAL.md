@@ -10,136 +10,47 @@ Avant toute action, lis et considère comme source de vérité, dans cet ordre :
 2. IMPLEMENTATION_ROADMAP.md
 3. PROJECT_STATUS.md
 4. prompts/CODEX_AUTOPILOT.md
-5. prompts/KAIRO_CONTINUE_UNIVERSAL.md si présent
-6. docs/ai/NEXT_SPRINT.md
-7. docs/ai/PROJECT_STATE.md
-8. orgmind_prompt_pack/ si nécessaire pour l’architecture, la sécurité, la gouvernance ou la vision produit
+5. orgmind_prompt_pack/ si nécessaire pour l’architecture, la sécurité, la gouvernance ou la vision produit
 
 Ensuite, inspecte le code réel du dépôt avant de décider quoi que ce soit.
 
-Mission générale :
-- déterminer automatiquement le sprint courant ou, si aucun sprint actif n’est explicitement en cours, identifier le prochain sprint officiel à exécuter à partir de la roadmap
-- exécuter uniquement ce sprint
-- ne jamais partir sur plusieurs sprints à la fois
-- poursuivre le projet vers une version open source stable, fonctionnelle, démontrable et crédible pour un portfolio
-- viser un produit réellement utilisable par une association ou une organisation d’environ 200 membres
-- respecter le cadrage actuel : terminer dans les 5 derniers sprints planifiés, de Sprint 33 à Sprint 37
-- agir comme un agent produit + architecture + implémentation + QA + documentation
+Mission :
+- déterminer automatiquement le sprint courant ou, si aucun sprint actif n’est explicitement en cours, identifier le prochain sprint non terminé à partir de la roadmap
+- si la roadmap est partielle ou ambiguë, déduire le sprint le plus pertinent à partir de l’état réel du code, des dépendances architecturales, des risques techniques et de la maturité produit
+- exécuter uniquement ce sprint, pas plusieurs à la fois
+- garder les changements petits, cohérents et vérifiables
+- préserver strictement l’isolation multi-tenant et la sécurité backend
+- ne jamais laisser le LLM décider des droits d’accès
+- ne jamais envoyer de données non autorisées au LLM, à une vue, à un export ou à un log
+- implémenter la fonctionnalité de bout en bout si le sprint le demande : backend, frontend, contrats API, migrations, tests et documentation
+- privilégier des tests autonomes et reproductibles, sans dépendre d’un PostgreSQL local si le dépôt propose déjà SQLite, des fakes ou un mode de test isolé
+- exécuter les vérifications pertinentes, corriger les échecs, puis relancer jusqu’à validation
+- mettre à jour PROJECT_STATUS.md et IMPLEMENTATION_ROADMAP.md dès que l’état du sprint change
+- mettre à jour toute documentation de handoff utile pour qu’un autre agent reprenne immédiatement sans mémoire implicite
 
-Règle de priorité pour choisir le sprint :
-1. si PROJECT_STATUS.md ou docs/ai/NEXT_SPRINT.md indique explicitement un prochain sprint, exécuter celui-là
-2. sinon, identifier dans IMPLEMENTATION_ROADMAP.md le premier sprint non terminé
-3. si la roadmap est incomplète ou ambiguë, déduis le sprint le plus pertinent selon :
-   - l’état réel du code
-   - les dépendances architecturales
-   - les risques techniques
-   - les besoins de robustesse produit
-   - la cohérence avec l’objectif open source stable et utilisable
-4. rendre explicite le sprint choisi et pourquoi
-
-Priorités absolues pour les 5 derniers sprints :
-1. gouvernance des utilisateurs et suspension/containment backend
-2. durcissement des parcours d’authentification, d’invitation, de reset mot de passe et de session
-3. fiabilité d’exploitation, discipline des migrations, sauvegarde/restauration et reproductibilité
-4. robustesse des parcours métier vraiment utiles pour gérer une association d’environ 200 membres
-5. stabilisation finale, documentation honnête, handoff inter-IDE et démonstrabilité open source
-
-Mode opératoire obligatoire :
-- commencer par comprendre l’architecture existante
-- lire les modules backend, frontend, tests, scripts, docs et configurations utiles
-- identifier les écarts entre roadmap, état réel du code et statut déclaré
-- implémenter le sprint de bout en bout
-- garder les changements petits, cohérents, explicites et compatibles avec l’architecture existante
-- ne pas réécrire inutilement ce qui fonctionne déjà
-- préserver strictement l’isolation multi-tenant, la sécurité et les permissions backend
-
-Exigences d’implémentation :
-- implémenter réellement le sprint choisi, pas seulement proposer un plan
-- couvrir si nécessaire :
-  - backend
-  - frontend
-  - contrats API
-  - schémas
-  - modèles
-  - services
-  - migrations
-  - tests
-  - documentation
-  - seed ou fixtures si utile
-- si un point du sprint exige une décision de conception non triviale, choisir l’option la plus simple, maintenable et cohérente avec le dépôt
-- ne pas dériver vers le sprint suivant tant que le sprint courant n’est pas terminé
-
-Règles de sécurité et de gouvernance :
-- les permissions sont toujours garanties par le backend
-- le frontend et tout composant IA ne doivent jamais décider seuls de l’accès
-- ne jamais exposer de données d’un tenant à un autre
-- ne jamais fuiter de données non autorisées vers le LLM, vers une vue, vers un export ou vers un log
-- vérifier les cas limites, les rôles, les accès croisés, les IDs invalides, les ressources absentes et les états partiels
-
-Règles de test :
-- privilégier une suite de tests autonome
-- ne pas dépendre d’un PostgreSQL local si le dépôt permet SQLite, des fakes, des mocks ou une configuration de test isolée
-- ajouter ou mettre à jour les tests pour toute logique touchée
-- exécuter autant que pertinent :
-  - tests unitaires
-  - tests d’intégration
-  - tests API
-  - tests de régression
-  - tests navigateur / E2E si adaptés au sprint
-- si le projet permet une vérification navigateur ou environnement virtuel, l’utiliser pour valider les parcours critiques
-- si un test échoue, analyser, corriger, relancer, puis continuer jusqu’à obtenir un état valide
-
-Règles de qualité :
-- traiter la dette technique utile à corriger seulement si elle bloque ou fragilise directement le sprint
-- signaler clairement les risques restants
-- éviter les hacks cachés, les valeurs magiques et les duplications évitables
-- documenter les arbitrages quand ils impactent les futures sessions
-- préparer le projet pour une continuité fluide dans Codex, Cursor ou Copilot
-- ne pas dériver vers des ambitions SaaS/enterprise supplémentaires si elles ne sont pas nécessaires pour le cadrage open source des 5 derniers sprints
-
-Mise à jour documentaire obligatoire :
-à la fin du sprint, mettre à jour si nécessaire :
-- PROJECT_STATUS.md
-- IMPLEMENTATION_ROADMAP.md
-- docs/ai/NEXT_SPRINT.md
-- docs/ai/PROJECT_STATE.md
-- toute documentation de handoff utile
-
-Règle de continuité inter-IDE :
-- faire en sorte qu’un autre agent puisse reprendre immédiatement sans mémoire implicite
-- écrire l’état final du sprint de manière exploitable
-- identifier explicitement le prochain sprint à exécuter après celui terminé
-- si la roadmap doit être raffinée à la marge pour refléter la réalité du code, la mettre à jour proprement
+Règles de travail :
+1. Commence par comprendre l’architecture, les modules existants et les points de fragilité.
+2. Lis ensuite les modules ou docs utiles au sprint courant.
+3. Implémente uniquement le sprint identifié.
+4. Lance les tests et vérifications pertinentes pour la zone touchée.
+5. Corrige les régressions avant de conclure.
+6. Si la valeur du sprint n’est pas claire, rends le raisonnement explicite puis choisis la suite la plus utile.
+7. Si le sprint est terminé, documenté et validé, indique clairement le prochain sprint ou précise qu’un nouveau cadrage est nécessaire.
 
 Critère d’arrêt :
-tu t’arrêtes seulement quand :
-- le sprint choisi est effectivement implémenté
-- les tests pertinents ont été lancés
-- les échecs ont été corrigés ou explicitement documentés
+- le sprint choisi est effectivement terminé
+- les tests pertinents ont été lancés et réussis
 - la documentation a été mise à jour
-- le prochain sprint est clairement identifié
-- et la sortie rapproche explicitement le dépôt de la cible Sprint 37 : version open source stable et présentable
+- le prochain sprint est clairement identifié, ou l’absence d’un prochain sprint officiel est explicitement signalée
 
-Format de sortie attendu en fin d’exécution :
+Format de sortie attendu :
 - sprint exécuté
 - pourquoi ce sprint a été choisi
 - objectif du sprint
-- analyse rapide de l’existant pertinent
 - changements réalisés
 - fichiers modifiés
 - tests lancés
 - résultats des tests
 - risques restants
-- dette technique restante pertinente
-- mises à jour documentaires effectuées
 - prochain sprint à exécuter
-
-Comportement attendu :
-- sois autonome, rigoureux et concret
-- n’attends pas une validation intermédiaire pour avancer
-- exécute
-- vérifie
-- corrige
-- documente
-- passe la main proprement au sprint suivant
 ```

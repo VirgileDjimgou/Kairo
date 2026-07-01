@@ -1,9 +1,9 @@
 # Treasurer
 
 - Account: `treasurer@demo.org`
-- Purpose: Treasurer account walkthrough. In the current OSS build, the finance role still lands on the shared member dashboard even though the backend carries the treasurer role.
+- Purpose: Treasurer walkthrough focused on the role-aware dashboard, finance workspace, and account security surface.
 
 ## Captures
 - 01-treasurer-dashboard.png
-- 02-treasurer-profile.png
+- 02-treasurer-finance-workspace.png
 - 03-treasurer-security.png

@@ -188,32 +188,13 @@
               Quick actions
             </div>
             <div class="vstack gap-2">
-              <RouterLink to="/admin/settings" class="btn btn-outline-secondary text-start">
-                <i class="bi bi-sliders me-2"></i>Review tenant settings
-              </RouterLink>
-              <RouterLink to="/admin/documents" class="btn btn-outline-secondary text-start">
-                <i class="bi bi-file-earmark-text me-2"></i>Upload documents
-              </RouterLink>
               <RouterLink
-                v-if="tenantStore.isModuleEnabled('membership')"
-                to="/admin/members"
+                v-for="action in quickActions"
+                :key="action.to + action.label"
+                :to="action.to"
                 class="btn btn-outline-secondary text-start"
               >
-                <i class="bi bi-people me-2"></i>Import members
-              </RouterLink>
-              <RouterLink
-                v-if="tenantStore.isModuleEnabled('announcements')"
-                to="/admin/announcements"
-                class="btn btn-outline-secondary text-start"
-              >
-                <i class="bi bi-megaphone me-2"></i>Publish announcement
-              </RouterLink>
-              <RouterLink
-                v-if="tenantStore.isModuleEnabled('events')"
-                to="/admin/events"
-                class="btn btn-outline-secondary text-start"
-              >
-                <i class="bi bi-calendar-event me-2"></i>Schedule event
+                <i :class="action.icon" class="me-2"></i>{{ action.label }}
               </RouterLink>
             </div>
           </div>
@@ -232,6 +213,8 @@ import { useTenantOnboarding } from '@/composables/useTenantOnboarding'
 
 const authStore = useAuthStore()
 const tenantStore = useTenantStore()
+const isAdmin = computed(() => authStore.user?.roles.includes('admin') ?? false)
+const isTreasurer = computed(() => authStore.user?.roles.includes('treasurer') ?? false)
 const {
   loading,
   error,
@@ -245,6 +228,41 @@ const {
   lastRefreshedAt,
   refresh,
 } = useTenantOnboarding()
+
+const quickActions = computed(() => {
+  const actions: Array<{ label: string; to: string; icon: string }> = []
+
+  if (isAdmin.value) {
+    actions.push({ label: 'Review tenant settings', to: '/admin/settings', icon: 'bi bi-sliders' })
+    actions.push({ label: 'Upload documents', to: '/admin/documents', icon: 'bi bi-file-earmark-text' })
+    if (tenantStore.isModuleEnabled('membership')) {
+      actions.push({ label: 'Import members', to: '/admin/members', icon: 'bi bi-people' })
+    }
+  } else if (isTreasurer.value) {
+    actions.push({ label: 'Go to finance workspace', to: '/finance', icon: 'bi bi-cash-coin' })
+    if (tenantStore.isModuleEnabled('membership')) {
+      actions.push({ label: 'Review member profile', to: '/members/profile', icon: 'bi bi-person-badge' })
+    }
+  }
+
+  if (tenantStore.isModuleEnabled('announcements')) {
+    actions.push({
+      label: isAdmin.value ? 'Publish announcement' : 'Review announcements',
+      to: isAdmin.value ? '/admin/announcements' : '/announcements',
+      icon: 'bi bi-megaphone',
+    })
+  }
+
+  if (tenantStore.isModuleEnabled('events')) {
+    actions.push({
+      label: isAdmin.value ? 'Schedule event' : 'Review events',
+      to: isAdmin.value ? '/admin/events' : '/events',
+      icon: 'bi bi-calendar-event',
+    })
+  }
+
+  return actions
+})
 
 const isSetupMode = computed(() => {
   return progressPercent.value < 100 && completedCount.value === 0
