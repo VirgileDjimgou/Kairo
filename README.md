@@ -71,12 +71,19 @@ docker compose exec api python -m app.db.seed
 
 ### Demo Credentials
 
-| Role       | Email                 | Password       |
-| ---------- | --------------------- | -------------- |
-| Admin      | admin@demo.org        | Admin123!      |
-| Member     | alice@demo.org        | Member123!     |
-| Member     | bob@demo.org          | Member123!     |
-| Treasurer  | treasurer@demo.org    | Treasurer123!  |
+| Role | Email | Password |
+| --- | --- | --- |
+| Admin | `admin@demo.org` | `Admin123!` |
+| Member | `alice@demo.org` | `Member123!` |
+| Member | `bob@demo.org` | `Member123!` |
+| Treasurer | `treasurer@demo.org` | `Treasurer123!` |
+| Secretary General | `secretary@demo.org` | `Secretary123!` |
+| Auditor | `auditor@demo.org` | `Auditor123!` |
+| Censor | `censor@demo.org` | `Censor123!` |
+| Sports Manager | `sports@demo.org` | `Sports123!` |
+| President | `president@demo.org` | `President123!` |
+| Vice President | `vice-president@demo.org` | `VicePresident123!` |
+| Principal Admin | `principal@demo.org` | `Principal123!` |
 
 ## Project Structure
 
@@ -105,41 +112,98 @@ kairo/
 See [`docs/demo-script.md`](docs/demo-script.md) for a complete walkthrough covering:
 
 1. **Admin login** — browse members, manage documents, view policies, configure tenant settings & module toggles
-2. **Member login** — view profile, check balance, see events and announcements
+2. **Member login** — view profile, download a personal PDF statement, check balance, and read association updates
 3. **RAG chat** — ask questions about bylaws and policies with cited answers
 4. **AI safety** — prompt injection resistance, no-source refusal
-5. **Treasurer finance workspace** — review member balances, create contribution records, and record payments
+5. **Secretary workspace** — manage documents, policies, and announcements without finance powers
+6. **Treasurer finance workspace** — review member balances, create contribution records, and record payments
+7. **Auditor finance oversight** — inspect balances, exports, and payment activity in read-only mode
+8. **Censor workspace** — manage disciplinary records inside explicit privacy boundaries
+9. **Sports operations workspace** — manage sports events from a dedicated role-scoped surface
+10. **Governance cockpit** — review cross-module executive oversight from president and vice president views
+11. **Principal admin control plane** — manage tenant-wide settings, access, and high-sensitivity operations
+12. **Multi-tenant UX** — validate the tenant picker and tenant switcher through the browser gallery harness
 
 ## Demo Gallery
 
-The repository includes a reusable end-to-end screenshot pack for GitHub and product walkthroughs.
+The repository includes two reusable browser-driven screenshot packs:
 
-- Screenshot sessions: [`docs/github-demo/sessions/`](docs/github-demo/sessions/)
-- Capture script: [`scripts/capture-github-demo.mjs`](scripts/capture-github-demo.mjs)
-- Regenerate locally after the stack is running: `node scripts/capture-github-demo.mjs`
+- Seeded full-stack sessions: [`docs/github-demo/sessions/`](docs/github-demo/sessions/)
+- Role and tenant gallery: [`docs/github-demo/role-gallery/`](docs/github-demo/role-gallery/)
+- Full-stack capture script: [`scripts/capture-github-demo.mjs`](scripts/capture-github-demo.mjs)
+- Role-gallery capture script: [`scripts/capture-readme-gallery.mjs`](scripts/capture-readme-gallery.mjs)
 
-### Admin Operations Hub
+The role gallery below is generated from the current application routes and role matrix. It is deterministic and reproducible even when the local demo seed remains single-tenant.
 
-![Admin overview](docs/github-demo/sessions/00-admin/02-admin-overview.png)
+### Public Entry
 
-### Member RAG Chat With Citation
+![Public entry](docs/github-demo/role-gallery/00-public-entry/01-public-entry.png)
 
-![Member chat answer](docs/github-demo/sessions/01-member-alice/03-member-chat-answer.png)
+### Tenant Picker
 
-### Governance Personas
+![Tenant picker](docs/github-demo/role-gallery/01-tenant-picker/01-tenant-picker.png)
 
-The gallery also includes role-play walkthroughs for association governance:
+### Member Portal
 
-- `04-president/` uses the current admin role to demonstrate president-facing governance flows
-- `05-secretary/` uses the current admin role to demonstrate secretary-facing communication and audit flows
+![Member portal](docs/github-demo/role-gallery/02-member/01-member-statement.png)
 
-### Treasurer Finance Flow
+### Secretary General
 
-![Treasurer dashboard](docs/github-demo/sessions/03-treasurer/01-treasurer-dashboard.png)
+![Secretary general workspace](docs/github-demo/role-gallery/03-secretary-general/01-secretary-overview.png)
 
-![Treasurer finance workspace](docs/github-demo/sessions/03-treasurer/02-treasurer-finance-workspace.png)
+### Treasurer
 
-The `03-treasurer/` session now demonstrates the dedicated finance workspace exposed to `treasurer` users, including member balance lookup, contribution creation, payment recording, and role-aware dashboard shortcuts without full admin-console access.
+![Treasurer workspace](docs/github-demo/role-gallery/04-treasurer/01-treasurer-finance.png)
+
+### Auditor
+
+![Auditor workspace](docs/github-demo/role-gallery/05-auditor/01-auditor-finance.png)
+
+### Censor
+
+![Censor workspace](docs/github-demo/role-gallery/06-censor/01-censor-workspace.png)
+
+### Sports Manager
+
+![Sports manager workspace](docs/github-demo/role-gallery/07-sports-manager/01-sports-workspace.png)
+
+### President
+
+![President governance cockpit](docs/github-demo/role-gallery/08-president/01-president-governance.png)
+
+### Vice President
+
+![Vice president governance cockpit](docs/github-demo/role-gallery/09-vice-president/01-vice-president-governance.png)
+
+### Principal Admin
+
+![Principal admin overview](docs/github-demo/role-gallery/10-principal-admin/01-principal-admin-overview.png)
+
+### Tenant Switcher
+
+![Tenant switcher](docs/github-demo/role-gallery/11-tenant-switcher/01-tenant-switcher-open.png)
+
+### Secondary Tenant Shell
+
+![Secondary tenant shell](docs/github-demo/role-gallery/12-secondary-tenant/01-secondary-tenant-dashboard.png)
+
+To regenerate the role gallery locally:
+
+```bash
+node scripts/capture-readme-gallery.mjs
+```
+
+If you already have the frontend running elsewhere, set `KAIRO_DEMO_BASE_URL` first.
+
+## Delivery Status
+
+Kairo is currently a strong professional release candidate for association workflows:
+
+- suitable for controlled pilot deployments and disciplined self-hosting
+- technically mature on tenant isolation, backend-enforced permissions, auditability, onboarding, and role-scoped workspaces
+- not yet a fully turnkey broad-market product, because outbound delivery remains partly placeholder-based and business/legal packaging is not fully finalized
+
+See [`docs/commercial/maturity-review.md`](docs/commercial/maturity-review.md) and [`docs/commercial/demo-to-production-checklist.md`](docs/commercial/demo-to-production-checklist.md).
 
 ## Commercial Packaging
 
@@ -153,7 +217,8 @@ If you want to present Kairo as a product rather than only a codebase, start her
 6. [`docs/commercial/feature-matrix.md`](docs/commercial/feature-matrix.md) - included modules and future boundaries
 7. [`docs/commercial/commercialization-notes.md`](docs/commercial/commercialization-notes.md) - service-led offer structure
 8. [`docs/commercial/demo-to-production-checklist.md`](docs/commercial/demo-to-production-checklist.md) - go-live transition checklist
-9. [`docs/commercial/maturity-review.md`](docs/commercial/maturity-review.md) - remaining legal and business decisions
+9. [`docs/commercial/professional-release-candidate-checklist.md`](docs/commercial/professional-release-candidate-checklist.md) - final release-candidate validation checklist
+10. [`docs/commercial/maturity-review.md`](docs/commercial/maturity-review.md) - remaining legal and business decisions
 
 ## Development
 

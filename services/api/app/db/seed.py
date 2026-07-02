@@ -6,10 +6,14 @@ Run once after migrations:
 
 Creates:
   - Tenant:    slug="demo", name="Acme Community Organization"
-  - Users:     admin@demo.org, alice@demo.org, bob@demo.org, treasurer@demo.org
-  - Roles:     admin (system), member, treasurer
+  - Users:     admin@demo.org, alice@demo.org, bob@demo.org, treasurer@demo.org,
+               secretary@demo.org, auditor@demo.org, censor@demo.org,
+               sports@demo.org, president@demo.org, vice-president@demo.org,
+               principal@demo.org
+  - Roles:     admin (system), member, treasurer, secretary_general, auditor,
+               censor, sports_manager, president, vice_president, principal_admin
   - Permissions for each role
-  - Membership profiles for Alice and Bob
+  - Membership profiles for Alice, Bob, and the office role demo accounts
   - Sample documents with versions and chunks (bylaws, meeting minutes)
   - Sample policies (fee policy, attendance policy, code of conduct)
   - Sample contributions and payments
@@ -22,9 +26,17 @@ User credentials:
   - alice@demo.org / Member123!     (Member)
   - bob@demo.org / Member123!       (Member)
   - treasurer@demo.org / Treasurer123! (Treasurer)
+  - secretary@demo.org / Secretary123! (Secretary General)
+  - auditor@demo.org / Auditor123!     (Auditor)
+  - censor@demo.org / Censor123!       (Censor)
+  - sports@demo.org / Sports123!       (Sports Manager)
+  - president@demo.org / President123! (President)
+  - vice-president@demo.org / VicePresident123! (Vice President)
+  - principal@demo.org / Principal123! (Principal Admin)
 """
 
 import asyncio
+import json
 import uuid
 from datetime import datetime, timedelta, timezone
 
@@ -65,6 +77,27 @@ MEMBER_PASSWORD = "Member123!"
 
 TREASURER_EMAIL = "treasurer@demo.org"
 TREASURER_PASSWORD = "Treasurer123!"
+
+SECRETARY_EMAIL = "secretary@demo.org"
+SECRETARY_PASSWORD = "Secretary123!"
+
+AUDITOR_EMAIL = "auditor@demo.org"
+AUDITOR_PASSWORD = "Auditor123!"
+
+CENSOR_EMAIL = "censor@demo.org"
+CENSOR_PASSWORD = "Censor123!"
+
+SPORTS_EMAIL = "sports@demo.org"
+SPORTS_PASSWORD = "Sports123!"
+
+PRESIDENT_EMAIL = "president@demo.org"
+PRESIDENT_PASSWORD = "President123!"
+
+VICE_PRESIDENT_EMAIL = "vice-president@demo.org"
+VICE_PRESIDENT_PASSWORD = "VicePresident123!"
+
+PRINCIPAL_ADMIN_EMAIL = "principal@demo.org"
+PRINCIPAL_ADMIN_PASSWORD = "Principal123!"
 
 ADMIN_ROLE_CODE = "admin"
 MEMBER_ROLE_CODE = "member"
@@ -288,6 +321,27 @@ async def seed_database() -> None:
             treasurer_user = await _get_or_create_user(
                 db, TREASURER_EMAIL, TREASURER_PASSWORD, "Carol Williams"
             )
+            secretary_user = await _get_or_create_user(
+                db, SECRETARY_EMAIL, SECRETARY_PASSWORD, "Dana Secretary"
+            )
+            auditor_user = await _get_or_create_user(
+                db, AUDITOR_EMAIL, AUDITOR_PASSWORD, "Evan Auditor"
+            )
+            censor_user = await _get_or_create_user(
+                db, CENSOR_EMAIL, CENSOR_PASSWORD, "Fiona Censor"
+            )
+            sports_user = await _get_or_create_user(
+                db, SPORTS_EMAIL, SPORTS_PASSWORD, "Gabe Sports"
+            )
+            president_user = await _get_or_create_user(
+                db, PRESIDENT_EMAIL, PRESIDENT_PASSWORD, "Hana President"
+            )
+            vice_president_user = await _get_or_create_user(
+                db, VICE_PRESIDENT_EMAIL, VICE_PRESIDENT_PASSWORD, "Iris Vice President"
+            )
+            principal_admin_user = await _get_or_create_user(
+                db, PRINCIPAL_ADMIN_EMAIL, PRINCIPAL_ADMIN_PASSWORD, "Jordan Principal"
+            )
 
             # ── TenantUser ─────────────────────────────────────────────────
             admin_tu = await _get_or_create_tenant_user(db, tenant.id, admin_user.id, "admin")
@@ -295,6 +349,23 @@ async def seed_database() -> None:
             member_2_tu = await _get_or_create_tenant_user(db, tenant.id, member_2.id, "member")
             treasurer_tu = await _get_or_create_tenant_user(
                 db, tenant.id, treasurer_user.id, "staff"
+            )
+            secretary_tu = await _get_or_create_tenant_user(
+                db, tenant.id, secretary_user.id, "staff"
+            )
+            auditor_tu = await _get_or_create_tenant_user(
+                db, tenant.id, auditor_user.id, "staff"
+            )
+            censor_tu = await _get_or_create_tenant_user(db, tenant.id, censor_user.id, "staff")
+            sports_tu = await _get_or_create_tenant_user(db, tenant.id, sports_user.id, "staff")
+            president_tu = await _get_or_create_tenant_user(
+                db, tenant.id, president_user.id, "staff"
+            )
+            vice_president_tu = await _get_or_create_tenant_user(
+                db, tenant.id, vice_president_user.id, "staff"
+            )
+            principal_admin_tu = await _get_or_create_tenant_user(
+                db, tenant.id, principal_admin_user.id, "admin"
             )
 
             # ── UserRole assignments ───────────────────────────────────────
@@ -304,12 +375,47 @@ async def seed_database() -> None:
             await _assign_role_if_not_exists(db, member_2_tu.id, member_role.id)
             await _assign_role_if_not_exists(db, treasurer_tu.id, treasurer_role.id)
             await _assign_role_if_not_exists(db, treasurer_tu.id, member_role.id)
+            await _assign_role_if_not_exists(db, secretary_tu.id, canonical_roles["secretary_general"].id)
+            await _assign_role_if_not_exists(db, auditor_tu.id, canonical_roles["auditor"].id)
+            await _assign_role_if_not_exists(db, censor_tu.id, canonical_roles["censor"].id)
+            await _assign_role_if_not_exists(db, sports_tu.id, canonical_roles["sports_manager"].id)
+            await _assign_role_if_not_exists(db, president_tu.id, canonical_roles["president"].id)
+            await _assign_role_if_not_exists(
+                db, vice_president_tu.id, canonical_roles["vice_president"].id
+            )
+            await _assign_role_if_not_exists(
+                db, principal_admin_tu.id, principal_admin_role.id
+            )
 
             # ── Membership Profiles ────────────────────────────────────────
             member_defs = [
                 (member_1, MEMBER_1_EMAIL, "MEM-001", "Alice", "Johnson", "+1-555-0101",
                  '{"department": "events"}'),
                 (member_2, MEMBER_2_EMAIL, "MEM-002", "Bob", "Smith", "+1-555-0102", "{}"),
+                (treasurer_user, TREASURER_EMAIL, "TRE-001", "Carol", "Williams", None, "{}"),
+                (secretary_user, SECRETARY_EMAIL, "SEC-001", "Dana", "Secretary", None, "{}"),
+                (auditor_user, AUDITOR_EMAIL, "AUD-001", "Evan", "Auditor", None, "{}"),
+                (censor_user, CENSOR_EMAIL, "CEN-001", "Fiona", "Censor", None, "{}"),
+                (sports_user, SPORTS_EMAIL, "SPT-001", "Gabe", "Sports", None, "{}"),
+                (president_user, PRESIDENT_EMAIL, "PRE-001", "Hana", "President", None, "{}"),
+                (
+                    vice_president_user,
+                    VICE_PRESIDENT_EMAIL,
+                    "VPR-001",
+                    "Iris",
+                    "Vice President",
+                    None,
+                    "{}",
+                ),
+                (
+                    principal_admin_user,
+                    PRINCIPAL_ADMIN_EMAIL,
+                    "PAD-001",
+                    "Jordan",
+                    "Principal Admin",
+                    None,
+                    "{}",
+                ),
             ]
             for user_obj, email, code, first, last, phone, meta in member_defs:
                 existing = await db.execute(
@@ -628,8 +734,23 @@ async def seed_database() -> None:
                     "members_only",
                     "completed",
                 ),
+                (
+                    "Football Training Session",
+                    "Weekly sports training session for registered players and staff.",
+                    NOW + timedelta(days=21),
+                    NOW + timedelta(days=21, hours=2),
+                    "Sports Field, Pitch 1",
+                    "members_only",
+                    "published",
+                    {"workspace": "sports", "sport_type": "training"},
+                ),
             ]
-            for title, desc, start, end, location, visibility, status in event_defs:
+            for event_def in event_defs:
+                if len(event_def) == 7:
+                    title, desc, start, end, location, visibility, status = event_def
+                    metadata = {}
+                else:
+                    title, desc, start, end, location, visibility, status, metadata = event_def
                 existing = await db.execute(
                     select(Event).where(
                         Event.tenant_id == tenant.id,
@@ -650,6 +771,7 @@ async def seed_database() -> None:
                     visibility_scope=visibility,
                     status=status,
                     created_by=admin_user.id,
+                    metadata_json=json.dumps(metadata, ensure_ascii=False),
                 )
                 db.add(event)
                 await db.flush()

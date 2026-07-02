@@ -114,7 +114,48 @@ This guide walks through all major features of Kairo using the pre-seeded demo t
 3. Record a payment for Bob
 4. Create a new contribution record
 
-## 4. Tenant Isolation Demo
+## 4. Expanded Role Model
+
+The seeded demo tenant now includes the full association role set so you can validate the professional track end to end.
+
+### Secretary General
+
+1. Logout, then login with: `secretary@demo.org` / `Secretary123!`
+2. Open **Secretary workspace**
+3. Manage documents, policies, and announcements without touching finance or discipline
+
+### Auditor
+
+1. Logout, then login with: `auditor@demo.org` / `Auditor123!`
+2. Open **Finance audit**
+3. Review balances, payment history, and audit trails in read-only mode
+
+### Censor
+
+1. Logout, then login with: `censor@demo.org` / `Censor123!`
+2. Open **Disciplinary console**
+3. Create and review disciplinary records without finance access
+
+### Sports Manager
+
+1. Logout, then login with: `sports@demo.org` / `Sports123!`
+2. Open **Sports workspace**
+3. Create and update sports events without broader admin power
+
+### President and Vice President
+
+1. Logout, then login with: `president@demo.org` / `President123!`
+2. Open **Governance cockpit**
+3. Review cross-module oversight and finance summaries without principal-admin controls
+4. Repeat with `vice-president@demo.org` / `VicePresident123!` to verify the narrower executive view
+
+### Principal Admin
+
+1. Logout, then login with: `principal@demo.org` / `Principal123!`
+2. Open **Admin overview**
+3. Confirm the control plane is visibly distinct from the office workspaces and still tenant-scoped
+
+## 5. Tenant Isolation Demo
 
 To demonstrate multi-tenancy, you would need a second tenant:
 
@@ -122,21 +163,27 @@ To demonstrate multi-tenancy, you would need a second tenant:
 2. Login as a user from that tenant
 3. Verify that no data from "Acme Community Organization" is visible
 
-## 5. Running Tests
+## 6. Running Tests
 
 ```bash
-# Backend integration tests (82+ tests, no external infra needed)
+# Backend integration tests and the release-candidate regression matrix (SQLite only)
 cd services/api
 pip install -r requirements.txt
 pytest -v
+
+# Focused release-candidate matrix
+pytest -v tests/test_release_candidate_matrix.py
 
 # Frontend build check
 cd apps/web
 npm install
 npm run build
+
+# Browser release-candidate matrix
+npx playwright test e2e/release-candidate.spec.ts --project=chromium
 ```
 
-## 6. Production Deployment
+## 7. Production Deployment
 
 See [deployment-guide.md](deployment-guide.md) for:
 

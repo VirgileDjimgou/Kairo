@@ -8,7 +8,7 @@ import pytest
 from httpx import AsyncClient
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from helpers import create_tenant_with_user, login
+from helpers import create_tenant_with_user, create_user_for_tenant, login
 
 
 async def _create_linked_member(
@@ -294,6 +294,60 @@ async def test_events_are_tenant_isolated(
     )
     assert beta_events.status_code == 200
     assert len(beta_events.json()) == 0
+
+
+@pytest.mark.asyncio
+async def test_sports_events_are_tenant_isolated(
+    client: AsyncClient,
+    db_session: AsyncSession,
+) -> None:
+    alpha = await create_tenant_with_user(db_session, f"sports-alpha-{_uuid.uuid4().hex[:6]}")
+    beta = await create_tenant_with_user(db_session, f"sports-beta-{_uuid.uuid4().hex[:6]}")
+    alpha_manager = await create_user_for_tenant(
+        db_session,
+        tenant_id=alpha["tenant"].id,
+        email=f"sports-alpha-{_uuid.uuid4().hex[:6]}@test.org",
+        password="SportsTenant1!",
+        display_name="Sports Alpha",
+        role_code="sports_manager",
+        profile_type="staff",
+    )
+    await db_session.commit()
+
+    alpha_token = await login(
+        client,
+        alpha_manager["user"].email,
+        alpha_manager["password"],
+        tenant_slug=alpha["tenant"].slug,
+    )
+    beta_token = await login(
+        client,
+        beta["user"].email,
+        beta["password"],
+        tenant_slug=beta["tenant"].slug,
+    )
+
+    created = await client.post(
+        "/api/v1/sports/events",
+        headers={"Authorization": f"Bearer {alpha_token}"},
+        json={
+            "title": "Alpha Sports Session",
+            "start_at": "2026-12-01T10:00:00Z",
+            "end_at": "2026-12-01T12:00:00Z",
+            "visibility_scope": "members_only",
+            "status": "published",
+            "metadata_json": {"sport_type": "training"},
+        },
+    )
+    assert created.status_code == 201, created.text
+    assert created.json()["metadata_json"]["workspace"] == "sports"
+
+    beta_list = await client.get(
+        "/api/v1/sports/events",
+        headers={"Authorization": f"Bearer {beta_token}"},
+    )
+    assert beta_list.status_code == 200, beta_list.text
+    assert len(beta_list.json()) == 0
 
 
 # ── Announcements ───────────────────────────────────────────────────────────────

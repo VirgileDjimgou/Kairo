@@ -50,11 +50,11 @@
               {{ errorMessage }}
             </div>
 
-            <div v-else-if="!result" class="empty-state">
-              <i class="bi bi-chat-dots display-6 text-secondary"></i>
-              <p class="mb-1 fw-semibold">No answer yet</p>
-              <p class="text-muted mb-0">
-                Submit a question to retrieve and cite authorized sources.
+              <div v-else-if="!result" class="empty-state">
+                <i class="bi bi-chat-dots display-6 text-secondary"></i>
+                <p class="mb-1 fw-semibold">No answer yet</p>
+                <p class="text-muted mb-0">
+                  Submit a question to retrieve and cite authorized sources.
               </p>
             </div>
 
@@ -76,6 +76,21 @@
                 <span v-if="result.refusal_reason" class="ms-2 small text-muted">
                   {{ result.refusal_reason }}
                 </span>
+              </div>
+
+              <div v-if="result.source_types.length" class="mb-3">
+                <div class="small text-uppercase text-muted fw-semibold mb-1">
+                  Source types
+                </div>
+                <div class="d-flex flex-wrap gap-2">
+                  <span
+                    v-for="sourceType in result.source_types"
+                    :key="sourceType"
+                    class="badge rounded-pill text-bg-light text-dark border"
+                  >
+                    {{ formatSourceType(sourceType) }}
+                  </span>
+                </div>
               </div>
 
               <div v-if="result.citations.length" class="vstack gap-2">
@@ -120,6 +135,13 @@ async function submitQuestion() {
   } finally {
     loading.value = false;
   }
+}
+
+function formatSourceType(sourceType: string): string {
+  return sourceType
+    .replace(/^structured:/, "structured ")
+    .replace(/_/g, " ")
+    .replace(/\b\w/g, (character) => character.toUpperCase());
 }
 </script>
 

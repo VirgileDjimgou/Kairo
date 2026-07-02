@@ -70,7 +70,7 @@ async def get_event(
 ) -> EventResponse:
     """Get a specific event."""
     service = EventService(db)
-    return await service.get_event(current.tenant_id, event_id)
+    return await service.get_event(current.tenant_id, event_id, current=current)
 
 
 @router.post("/", response_model=EventResponse, status_code=201)

@@ -6,103 +6,21 @@
         <span class="fw-bold" :style="{ color: textColor }">{{ tenantStore.currentTenantName }}</span>
       </div>
 
-      <nav class="nav flex-column gap-1">
-        <RouterLink
-          to="/dashboard"
-          class="nav-link sidebar-link rounded"
-          active-class="active"
-        >
-          <i class="bi bi-grid-1x2 me-2"></i>Dashboard
-        </RouterLink>
-        <RouterLink
-          v-if="modules.chat"
-          to="/chat"
-          class="nav-link sidebar-link rounded"
-          active-class="active"
-        >
-          <i class="bi bi-chat-dots me-2"></i>Chat
-        </RouterLink>
-        <RouterLink
-          v-if="modules.membership"
-          to="/members/profile"
-          class="nav-link sidebar-link rounded"
-          active-class="active"
-        >
-          <i class="bi bi-person-badge me-2"></i>My Profile
-        </RouterLink>
-        <RouterLink
-          to="/account/security"
-          class="nav-link sidebar-link rounded"
-          active-class="active"
-        >
-          <i class="bi bi-shield-check me-2"></i>Account Security
-        </RouterLink>
-        <RouterLink
-          v-if="modules.policies"
-          to="/policies"
-          class="nav-link sidebar-link rounded"
-          active-class="active"
-        >
-          <i class="bi bi-journal-text me-2"></i>Policies
-        </RouterLink>
-        <RouterLink
-          v-if="modules.disciplinary"
-          to="/disciplinary"
-          class="nav-link sidebar-link rounded"
-          active-class="active"
-        >
-          <i class="bi bi-shield-check me-2"></i>Disciplinary
-        </RouterLink>
-        <RouterLink
-          v-if="showFinanceWorkspace"
-          to="/finance"
-          class="nav-link sidebar-link rounded"
-          active-class="active"
-        >
-          <i class="bi bi-cash-coin me-2"></i>Finance
-        </RouterLink>
-        <RouterLink
-          v-if="showFinanceAuditWorkspace"
-          to="/finance-audit"
-          class="nav-link sidebar-link rounded"
-          active-class="active"
-        >
-          <i class="bi bi-clipboard-data me-2"></i>Finance Audit
-        </RouterLink>
-        <RouterLink
-          v-if="showSecretaryWorkspace"
-          to="/secretary"
-          class="nav-link sidebar-link rounded"
-          active-class="active"
-        >
-          <i class="bi bi-journal-richtext me-2"></i>Secretary
-        </RouterLink>
-        <RouterLink
-          v-if="isAdmin"
-          to="/admin"
-          class="nav-link sidebar-link rounded"
-          active-class="active"
-        >
-          <i class="bi bi-shield-lock me-2"></i>Admin
-        </RouterLink>
-        <hr class="my-2" />
-        <div class="small text-muted px-2 mb-1 fw-semibold text-uppercase">Organization</div>
-        <RouterLink
-          v-if="modules.events"
-          to="/events"
-          class="nav-link sidebar-link rounded"
-          active-class="active"
-        >
-          <i class="bi bi-calendar-event me-2"></i>Events
-        </RouterLink>
-        <RouterLink
-          v-if="modules.announcements"
-          to="/announcements"
-          class="nav-link sidebar-link rounded"
-          active-class="active"
-        >
-          <i class="bi bi-megaphone me-2"></i>Announcements
-        </RouterLink>
+      <nav class="vstack gap-3">
+        <section v-for="section in appNavigation" :key="section.label">
+          <div class="small text-muted px-2 mb-1 fw-semibold text-uppercase">{{ section.label }}</div>
+          <div class="nav flex-column gap-1">
+            <RouterLink
+              v-for="item in section.items"
+              :key="item.to"
+              :to="item.to"
+              class="nav-link sidebar-link rounded"
+              active-class="active"
+            >
+              <i class="me-2" :class="`bi ${item.icon}`"></i>{{ item.label }}
+            </RouterLink>
+          </div>
+        </section>
       </nav>
 
       <div class="mt-auto pt-3 border-top">
@@ -117,10 +35,7 @@
             </div>
           </div>
         </div>
-        <button
-          class="btn btn-outline-secondary btn-sm w-100"
-          @click="handleLogout"
-        >
+        <button class="btn btn-outline-secondary btn-sm w-100" @click="handleLogout">
           <i class="bi bi-box-arrow-right me-1"></i>Sign out
         </button>
       </div>
@@ -139,116 +54,23 @@
         </span>
         <button class="btn-close" data-bs-dismiss="offcanvas" aria-label="Close"></button>
       </div>
-      <div class="offcanvas-body p-3">
-        <nav class="nav flex-column gap-1">
-          <RouterLink
-            to="/dashboard"
-            class="nav-link sidebar-link rounded"
-            active-class="active"
-            data-bs-dismiss="offcanvas"
-          >
-            <i class="bi bi-grid-1x2 me-2"></i>Dashboard
-          </RouterLink>
-          <RouterLink
-            v-if="modules.chat"
-            to="/chat"
-            class="nav-link sidebar-link rounded"
-            active-class="active"
-            data-bs-dismiss="offcanvas"
-          >
-            <i class="bi bi-chat-dots me-2"></i>Chat
-          </RouterLink>
-          <RouterLink
-            v-if="modules.membership"
-            to="/members/profile"
-            class="nav-link sidebar-link rounded"
-            active-class="active"
-            data-bs-dismiss="offcanvas"
-          >
-            <i class="bi bi-person-badge me-2"></i>My Profile
-          </RouterLink>
-          <RouterLink
-            to="/account/security"
-            class="nav-link sidebar-link rounded"
-            active-class="active"
-            data-bs-dismiss="offcanvas"
-          >
-            <i class="bi bi-shield-check me-2"></i>Account Security
-          </RouterLink>
-          <RouterLink
-            v-if="modules.policies"
-            to="/policies"
-            class="nav-link sidebar-link rounded"
-            active-class="active"
-            data-bs-dismiss="offcanvas"
-          >
-            <i class="bi bi-journal-text me-2"></i>Policies
-          </RouterLink>
-          <RouterLink
-            v-if="modules.disciplinary"
-            to="/disciplinary"
-            class="nav-link sidebar-link rounded"
-            active-class="active"
-            data-bs-dismiss="offcanvas"
-          >
-            <i class="bi bi-shield-check me-2"></i>Disciplinary
-          </RouterLink>
-          <RouterLink
-            v-if="showFinanceWorkspace"
-            to="/finance"
-            class="nav-link sidebar-link rounded"
-            active-class="active"
-            data-bs-dismiss="offcanvas"
-          >
-            <i class="bi bi-cash-coin me-2"></i>Finance
-          </RouterLink>
-          <RouterLink
-            v-if="showFinanceAuditWorkspace"
-            to="/finance-audit"
-            class="nav-link sidebar-link rounded"
-            active-class="active"
-            data-bs-dismiss="offcanvas"
-          >
-            <i class="bi bi-clipboard-data me-2"></i>Finance Audit
-          </RouterLink>
-          <RouterLink
-            v-if="showSecretaryWorkspace"
-            to="/secretary"
-            class="nav-link sidebar-link rounded"
-            active-class="active"
-            data-bs-dismiss="offcanvas"
-          >
-            <i class="bi bi-journal-richtext me-2"></i>Secretary
-          </RouterLink>
-          <RouterLink
-            v-if="isAdmin"
-            to="/admin"
-            class="nav-link sidebar-link rounded"
-            active-class="active"
-            data-bs-dismiss="offcanvas"
-          >
-            <i class="bi bi-shield-lock me-2"></i>Admin
-          </RouterLink>
-          <hr class="my-2" />
-          <div class="small text-muted px-2 mb-1 fw-semibold text-uppercase">Organization</div>
-          <RouterLink
-            v-if="modules.events"
-            to="/events"
-            class="nav-link sidebar-link rounded"
-            active-class="active"
-            data-bs-dismiss="offcanvas"
-          >
-            <i class="bi bi-calendar-event me-2"></i>Events
-          </RouterLink>
-          <RouterLink
-            v-if="modules.announcements"
-            to="/announcements"
-            class="nav-link sidebar-link rounded"
-            active-class="active"
-            data-bs-dismiss="offcanvas"
-          >
-            <i class="bi bi-megaphone me-2"></i>Announcements
-          </RouterLink>
+      <div class="offcanvas-body p-3 d-flex flex-column">
+        <nav class="vstack gap-3">
+          <section v-for="section in appNavigation" :key="section.label">
+            <div class="small text-muted px-2 mb-1 fw-semibold text-uppercase">{{ section.label }}</div>
+            <div class="nav flex-column gap-1">
+              <RouterLink
+                v-for="item in section.items"
+                :key="item.to"
+                :to="item.to"
+                class="nav-link sidebar-link rounded"
+                active-class="active"
+                data-bs-dismiss="offcanvas"
+              >
+                <i class="me-2" :class="`bi ${item.icon}`"></i>{{ item.label }}
+              </RouterLink>
+            </div>
+          </section>
         </nav>
 
         <div class="mt-auto pt-3 border-top">
@@ -263,10 +85,7 @@
               </div>
             </div>
           </div>
-          <button
-            class="btn btn-outline-secondary btn-sm w-100"
-            @click="handleLogout"
-          >
+          <button class="btn btn-outline-secondary btn-sm w-100" @click="handleLogout">
             <i class="bi bi-box-arrow-right me-1"></i>Sign out
           </button>
         </div>
@@ -275,12 +94,10 @@
 
     <main class="flex-grow-1 overflow-auto">
       <header class="topbar sticky-top border-bottom" :style="{ backgroundColor: headerBg }">
-        <div
-          class="d-flex align-items-center justify-content-between gap-3 px-3 px-lg-4 py-3"
-        >
+        <div class="d-flex align-items-center justify-content-between gap-3 px-3 px-lg-4 py-3">
           <div>
             <div class="small text-uppercase fw-semibold" :style="{ color: mutedColor }">
-              Organization portal
+              {{ appHomeLabel }}
             </div>
             <div class="fw-semibold" :style="{ color: textColor }">
               {{ tenantStore.currentTenantName }}
@@ -308,10 +125,7 @@
               </button>
               <ul class="dropdown-menu dropdown-menu-end shadow-sm">
                 <li v-for="membership in tenantStore.memberships" :key="membership.tenant_id">
-                  <button
-                    class="dropdown-item"
-                    @click="switchTenant(membership.tenant_id)"
-                  >
+                  <button class="dropdown-item" @click="switchTenant(membership.tenant_id)">
                     <div class="fw-medium">{{ membership.name }}</div>
                     <div class="small text-muted">{{ membership.slug }}</div>
                   </button>
@@ -320,34 +134,20 @@
             </div>
 
             <div class="dropdown">
-              <button
-                class="btn btn-primary btn-sm dropdown-toggle"
-                type="button"
-                data-bs-toggle="dropdown"
-              >
-                <i class="bi bi-person-circle me-1"></i
-                >{{ authStore.user?.display_name || "Account" }}
+              <button class="btn btn-primary btn-sm dropdown-toggle" type="button" data-bs-toggle="dropdown">
+                <i class="bi bi-person-circle me-1"></i>{{ authStore.user?.display_name || "Account" }}
               </button>
               <ul class="dropdown-menu dropdown-menu-end shadow-sm">
                 <li><h6 class="dropdown-header">Signed in as</h6></li>
                 <li>
-                  <span class="dropdown-item-text small text-muted">{{
-                    authStore.user?.email
-                  }}</span>
+                  <span class="dropdown-item-text small text-muted">{{ authStore.user?.email }}</span>
                 </li>
                 <li><hr class="dropdown-divider" /></li>
                 <li>
-                  <RouterLink to="/account/security" class="dropdown-item">
-                    Account security
-                  </RouterLink>
+                  <RouterLink to="/account/security" class="dropdown-item">Account security</RouterLink>
                 </li>
                 <li>
-                  <button
-                    class="dropdown-item text-danger"
-                    @click="handleLogout"
-                  >
-                    Sign out
-                  </button>
+                  <button class="dropdown-item text-danger" @click="handleLogout">Sign out</button>
                 </li>
               </ul>
             </div>
@@ -366,53 +166,15 @@
 import { computed } from "vue";
 import { RouterLink, RouterView, useRouter } from "vue-router";
 import { useAuthStore } from "@/stores/auth.store";
+import { useRoleNavigation } from "@/composables/useRoleNavigation";
 import { useTenantStore } from "@/stores/tenant.store";
 
 const router = useRouter();
 const authStore = useAuthStore();
 const tenantStore = useTenantStore();
+const { appNavigation, appHomeLabel } = useRoleNavigation();
 
-const modules = computed(() => ({
-  membership: tenantStore.isModuleEnabled("membership"),
-  contributions: tenantStore.isModuleEnabled("contributions"),
-  policies: tenantStore.isModuleEnabled("policies"),
-  disciplinary: tenantStore.isModuleEnabled("disciplinary"),
-  events: tenantStore.isModuleEnabled("events"),
-  announcements: tenantStore.isModuleEnabled("announcements"),
-  chat: tenantStore.isModuleEnabled("chat"),
-  notifications: tenantStore.isModuleEnabled("notifications"),
-}));
-
-const showFinanceWorkspace = computed(() => {
-  return (
-    authStore.hasAnyRole(["admin", "treasurer", "principal_admin"]).value &&
-    modules.value.membership &&
-    modules.value.contributions
-  );
-});
-
-const showFinanceAuditWorkspace = computed(() => {
-  return (
-    authStore.hasAnyRole(["auditor", "president", "principal_admin", "admin"]).value &&
-    modules.value.membership &&
-    modules.value.contributions
-  );
-});
-
-const showSecretaryWorkspace = computed(() => {
-  return (
-    authStore.hasAnyRole(["secretary_general", "principal_admin"]).value &&
-    modules.value.policies &&
-    modules.value.announcements
-  );
-});
-
-const isAdmin = computed(() => authStore.hasRole("admin").value);
-
-const primaryColor = computed(() => {
-  return tenantStore.currentTenant?.branding.primary_color || "#1f4f8f";
-});
-
+const primaryColor = computed(() => tenantStore.currentTenant?.branding.primary_color || "#1f4f8f");
 const textColor = computed(() => "#1f2937");
 const mutedColor = computed(() => "#6c757d");
 const headerBg = computed(() => "#ffffff");
@@ -436,11 +198,7 @@ async function handleLogout() {
 
 <style scoped>
 .shell-bg {
-  background: linear-gradient(
-    180deg,
-    rgba(245, 247, 251, 1) 0%,
-    rgba(245, 247, 251, 0.92) 100%
-  );
+  background: linear-gradient(180deg, rgba(245, 247, 251, 1) 0%, rgba(245, 247, 251, 0.92) 100%);
 }
 
 .sidebar {

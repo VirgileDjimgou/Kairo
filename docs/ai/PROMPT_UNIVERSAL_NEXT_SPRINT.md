@@ -6,9 +6,10 @@ Use the portable handoff prompt in `prompts/KAIRO_CONTINUE_UNIVERSAL.md`.
 
 Current state:
 
-- the roadmap is active again
-- the professional association maturity track now runs from Sprint 41 through Sprint 52
-- the next sprint to execute is defined in `docs/ai/NEXT_SPRINT.md` and `PROJECT_STATUS.md`
+- the historical professional association maturity track is complete
+- Sprint 52 closed the release-candidate hardening pass
+- a new short post-release hardening roadmap is now defined
+- the next sprint is Sprint 53 - Production Communications And Identity Delivery
 
 Before implementation, always keep these files aligned:
 

@@ -23,6 +23,7 @@ class ChatCitationResponse(BaseModel):
 class ChatQueryResponse(BaseModel):
     answer: str
     citations: list[ChatCitationResponse] = Field(default_factory=list)
+    source_types: list[str] = Field(default_factory=list)
     confidence: float = Field(ge=0.0, le=1.0)
     refused: bool = False
     refusal_reason: str | None = None
@@ -38,4 +39,5 @@ class ChatQueryLogResponse(BaseModel):
     refusal_reason: str | None
     confidence: float
     citations_json: str
+    source_types_json: str
     created_at: datetime

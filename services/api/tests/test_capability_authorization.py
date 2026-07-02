@@ -149,7 +149,7 @@ async def test_secretary_general_can_manage_documents_policies_and_announcements
     assert disciplinary_mutation.status_code == 403, disciplinary_mutation.text
 
 
-async def test_sports_manager_can_manage_events_but_not_announcements(
+async def test_sports_manager_can_manage_sports_events_but_not_general_events_or_announcements(
     client: AsyncClient,
     db_session: AsyncSession,
 ) -> None:
@@ -172,8 +172,8 @@ async def test_sports_manager_can_manage_events_but_not_announcements(
         admin["tenant"].slug,
     )
 
-    event = await client.post(
-        "/api/v1/events/",
+    sports_event = await client.post(
+        "/api/v1/sports/events",
         headers={"Authorization": f"Bearer {manager_token}"},
         json={
             "title": "Interclub Tournament",
@@ -181,9 +181,24 @@ async def test_sports_manager_can_manage_events_but_not_announcements(
             "end_at": "2026-08-10T18:00:00Z",
             "visibility_scope": "members_only",
             "status": "published",
+            "metadata_json": {"sport_type": "tournament"},
         },
     )
-    assert event.status_code == 201, event.text
+    assert sports_event.status_code == 201, sports_event.text
+    assert sports_event.json()["metadata_json"]["workspace"] == "sports"
+
+    general_event = await client.post(
+        "/api/v1/events/",
+        headers={"Authorization": f"Bearer {manager_token}"},
+        json={
+            "title": "General Event",
+            "start_at": "2026-08-11T09:00:00Z",
+            "end_at": "2026-08-11T18:00:00Z",
+            "visibility_scope": "members_only",
+            "status": "published",
+        },
+    )
+    assert general_event.status_code == 403, general_event.text
 
     announcement = await client.post(
         "/api/v1/announcements/",
@@ -351,6 +366,37 @@ async def test_censor_can_manage_disciplinary_records_and_treasurer_cannot(
         },
     )
     assert allowed.status_code == 201, allowed.text
+    disciplinary_id = allowed.json()["id"]
+
+    visible_records = await client.get(
+        "/api/v1/disciplinary/",
+        headers={"Authorization": f"Bearer {censor_token}"},
+    )
+    assert visible_records.status_code == 200, visible_records.text
+    assert len(visible_records.json()) == 1
+
+    updated = await client.patch(
+        f"/api/v1/disciplinary/{disciplinary_id}",
+        headers={"Authorization": f"Bearer {censor_token}"},
+        json={
+            "status": "resolved",
+            "description": "Reviewed and closed by censor",
+        },
+    )
+    assert updated.status_code == 200, updated.text
+    assert updated.json()["status"] == "resolved"
+
+    deleted = await client.delete(
+        f"/api/v1/disciplinary/{disciplinary_id}",
+        headers={"Authorization": f"Bearer {censor_token}"},
+    )
+    assert deleted.status_code == 204, deleted.text
+
+    blocked_list = await client.get(
+        "/api/v1/disciplinary/",
+        headers={"Authorization": f"Bearer {treasurer_token}"},
+    )
+    assert blocked_list.status_code == 403, blocked_list.text
 
     blocked = await client.post(
         "/api/v1/disciplinary/",
@@ -364,6 +410,26 @@ async def test_censor_can_manage_disciplinary_records_and_treasurer_cannot(
         },
     )
     assert blocked.status_code == 403, blocked.text
+
+    audit_events = await client.get(
+        "/api/v1/admin/audit/events",
+        headers={"Authorization": f"Bearer {admin_token}"},
+        params={
+            "entity_type": "disciplinary_record",
+            "module_key": "disciplinary",
+        },
+    )
+    assert audit_events.status_code == 200, audit_events.text
+    events = audit_events.json()
+    assert {event["action"] for event in events} == {"create", "update", "delete"}
+
+    create_event = next(event for event in events if event["action"] == "create")
+    update_event = next(event for event in events if event["action"] == "update")
+    delete_event = next(event for event in events if event["action"] == "delete")
+
+    assert create_event["details"]["membership_profile_id"] == profile["id"]
+    assert update_event["details"]["changes"]["status"] == "resolved"
+    assert delete_event["details"]["membership_profile_id"] == profile["id"]
 
 
 async def test_principal_admin_keeps_tenant_administration_access(

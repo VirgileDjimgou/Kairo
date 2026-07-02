@@ -36,7 +36,8 @@ The product can be presented in two simple packaging modes:
 5. [Feature Matrix](./feature-matrix.md)
 6. [Commercialization Notes](./commercialization-notes.md)
 7. [Demo To Production Checklist](./demo-to-production-checklist.md)
-8. [Maturity Review](./maturity-review.md)
+8. [Professional Release Candidate Checklist](./professional-release-candidate-checklist.md)
+9. [Maturity Review](./maturity-review.md)
 
 ## Outcome Of The Initial Commercial Packaging Phase
 

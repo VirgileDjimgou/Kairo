@@ -35,6 +35,7 @@ export function useTenantOnboarding() {
   const lastRefreshedAt = ref<string | null>(null)
 
   const isAdmin = computed(() => authStore.user?.roles.includes('admin') ?? false)
+  const isPrincipalAdmin = computed(() => authStore.user?.roles.includes('principal_admin') ?? false)
   const isTreasurer = computed(() => authStore.user?.roles.includes('treasurer') ?? false)
   const isSetupMode = computed(() => {
     const docs = documentCount.value ?? 0
@@ -132,7 +133,7 @@ export function useTenantOnboarding() {
       })
     }
 
-    return steps.filter((step) => !step.adminOnly || isAdmin.value)
+    return steps.filter((step) => !step.adminOnly || isAdmin.value || isPrincipalAdmin.value)
   })
 
   const completedCount = computed(() => checklist.value.filter((step) => step.completed).length)
@@ -203,7 +204,7 @@ export function useTenantOnboarding() {
         ? listPublicEvents().catch(() => [])
         : Promise.resolve([])
       const memberPromise =
-        isAdmin.value && tenantStore.isModuleEnabled('membership')
+        (isAdmin.value || isPrincipalAdmin.value) && tenantStore.isModuleEnabled('membership')
           ? listMembers().catch(() => [])
           : Promise.resolve([])
 

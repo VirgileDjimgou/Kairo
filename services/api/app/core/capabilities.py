@@ -21,6 +21,7 @@ CAP_DISCIPLINARY_TENANT_READ = "disciplinary:tenant_read"
 CAP_DISCIPLINARY_WRITE = "disciplinary:write"
 CAP_EVENTS_READ = "events:read"
 CAP_EVENTS_WRITE = "events:write"
+CAP_EVENTS_SPORTS_WRITE = "events:sports_write"
 CAP_ANNOUNCEMENTS_READ = "announcements:read"
 CAP_ANNOUNCEMENTS_WRITE = "announcements:write"
 CAP_CHAT_USE = "chat:use"
@@ -48,6 +49,7 @@ CAPABILITY_ORDER = (
     CAP_DISCIPLINARY_WRITE,
     CAP_EVENTS_READ,
     CAP_EVENTS_WRITE,
+    CAP_EVENTS_SPORTS_WRITE,
     CAP_ANNOUNCEMENTS_READ,
     CAP_ANNOUNCEMENTS_WRITE,
     CAP_CHAT_USE,
