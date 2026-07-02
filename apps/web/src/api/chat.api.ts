@@ -17,6 +17,7 @@ export interface ChatCitationResponse {
 export interface ChatQueryResponse {
   answer: string;
   citations: ChatCitationResponse[];
+  source_types: string[];
   confidence: number;
   refused: boolean;
   refusal_reason: string | null;

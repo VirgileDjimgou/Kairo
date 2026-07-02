@@ -9,6 +9,7 @@ from httpx import AsyncClient
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from helpers import create_tenant_with_user, login
+from helpers import create_user_for_tenant
 from test_events_announcements import _create_linked_member
 
 
@@ -77,6 +78,46 @@ async def test_admin_can_send_simulated_multi_channel_notification(
     assert all(item["status"] == "simulated" for item in results)
     assert all(item["delivered"] is False for item in results)
     assert all(item["simulation_only"] is True for item in results)
+
+
+@pytest.mark.asyncio
+async def test_principal_admin_can_list_and_send_notification_channels(
+    client: AsyncClient,
+    db_session: AsyncSession,
+) -> None:
+    ctx = await create_tenant_with_user(db_session, f"notif-principal-{_uuid.uuid4().hex[:6]}")
+    principal = await create_user_for_tenant(
+        db_session,
+        tenant_id=ctx["tenant"].id,
+        email=f"principal-notif-{_uuid.uuid4().hex[:6]}@test.org",
+        password="PrincipalPass1!",
+        display_name="Principal Admin",
+        role_code="principal_admin",
+        profile_type="admin",
+    )
+    await db_session.commit()
+
+    token = await login(client, principal["user"].email, principal["password"], tenant_slug=ctx["tenant"].slug)
+
+    response = await client.get(
+        "/api/v1/notifications/channels",
+        headers={"Authorization": f"Bearer {token}"},
+    )
+    assert response.status_code == 200, response.text
+    channels = response.json()
+    assert [channel["channel"] for channel in channels] == ["email", "telegram", "whatsapp"]
+
+    sent = await client.post(
+        "/api/v1/notifications/test",
+        headers={"Authorization": f"Bearer {token}"},
+        json={
+            "channels": ["email"],
+            "recipient": "ops@example.org",
+            "subject": "Principal admin check",
+            "body": "Tenant control plane dry-run.",
+        },
+    )
+    assert sent.status_code == 200, sent.text
 
 
 @pytest.mark.asyncio

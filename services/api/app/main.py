@@ -31,6 +31,7 @@ from app.modules.contributions.router import router as contributions_router
 from app.modules.policies.router import router as policies_router
 from app.modules.disciplinary.router import router as disciplinary_router
 from app.modules.events.router import router as events_router
+from app.modules.events.sports_router import router as sports_router
 from app.modules.announcements.router import router as announcements_router
 from app.modules.notifications.router import router as notifications_router
 
@@ -86,6 +87,7 @@ app.include_router(contributions_router, prefix=API_PREFIX)
 app.include_router(policies_router, prefix=API_PREFIX)
 app.include_router(disciplinary_router, prefix=API_PREFIX)
 app.include_router(events_router, prefix=API_PREFIX)
+app.include_router(sports_router, prefix=API_PREFIX)
 app.include_router(announcements_router, prefix=API_PREFIX)
 app.include_router(notifications_router, prefix=API_PREFIX)
 

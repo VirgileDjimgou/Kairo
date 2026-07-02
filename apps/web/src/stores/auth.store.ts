@@ -69,6 +69,13 @@ export const useAuthStore = defineStore('auth', () => {
   }
 
   async function restoreSession() {
+    if (!token.value) {
+      const storedToken = localStorage.getItem('access_token')
+      if (storedToken) {
+        token.value = storedToken
+      }
+    }
+
     if (token.value && !user.value) {
       await fetchMe()
     }

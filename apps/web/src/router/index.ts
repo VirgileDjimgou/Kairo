@@ -1,4 +1,5 @@
 import { createRouter, createWebHistory } from 'vue-router'
+import { nextTick } from 'vue'
 import { useAuthStore } from '@/stores/auth.store'
 import { useTenantStore } from '@/stores/tenant.store'
 
@@ -77,6 +78,32 @@ const router = createRouter({
           name: 'my-disciplinary',
           component: () => import('@/views/disciplinary/MyDisciplinaryView.vue'),
           meta: { module: 'disciplinary' },
+        },
+        {
+          path: 'censor',
+          name: 'censor-workspace',
+          component: () => import('@/views/disciplinary/CensorWorkspaceView.vue'),
+          meta: {
+            module: 'disciplinary',
+            allowedRoles: ['censor', 'president', 'principal_admin', 'admin'],
+          },
+        },
+        {
+          path: 'sports',
+          name: 'sports-workspace',
+          component: () => import('@/views/sports/SportsWorkspaceView.vue'),
+          meta: {
+            module: 'events',
+            allowedRoles: ['sports_manager', 'principal_admin', 'admin'],
+          },
+        },
+        {
+          path: 'governance',
+          name: 'governance-cockpit',
+          component: () => import('@/views/governance/GovernanceCockpitView.vue'),
+          meta: {
+            allowedRoles: ['president', 'vice_president', 'principal_admin', 'admin'],
+          },
         },
         {
           path: 'events',
@@ -235,9 +262,12 @@ router.beforeEach(async (to) => {
     return { name: 'login', query: { redirect: to.fullPath } }
   }
 
-  if (auth.isAuthenticated && !auth.user) {
+  if ((auth.isAuthenticated || localStorage.getItem('access_token')) && !auth.user) {
     await auth.restoreSession()
+    await nextTick()
   }
+
+  const currentRoles = auth.user?.roles ?? []
 
   if (to.meta.requiresGuest && auth.isAuthenticated) {
     return { name: 'dashboard' }
@@ -247,14 +277,14 @@ router.beforeEach(async (to) => {
     to.path.startsWith('/admin') &&
     auth.isAuthenticated &&
     auth.user &&
-    !auth.hasRole('admin').value
+    !currentRoles.some((role) => ['admin', 'principal_admin'].includes(role))
   ) {
     return { name: 'dashboard' }
   }
 
   if (to.meta.allowedRoles && auth.isAuthenticated && auth.user) {
     const allowedRoles = to.meta.allowedRoles as string[]
-    const hasAllowedRole = allowedRoles.some((role) => auth.user?.roles?.includes(role))
+    const hasAllowedRole = allowedRoles.some((role) => currentRoles.includes(role))
     if (!hasAllowedRole) {
       return { name: 'dashboard' }
     }
@@ -264,7 +294,7 @@ router.beforeEach(async (to) => {
     to.meta.requiresFinanceWorkspace &&
     auth.isAuthenticated &&
     auth.user &&
-    !auth.hasAnyRole(['admin', 'treasurer', 'principal_admin']).value
+    !['admin', 'treasurer', 'principal_admin'].some((role) => currentRoles.includes(role))
   ) {
     return { name: 'dashboard' }
   }

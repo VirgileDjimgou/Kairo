@@ -158,6 +158,7 @@ export interface ChatQueryLogResponse {
   refusal_reason: string | null
   confidence: number
   citations_json: string
+  source_types_json: string
   created_at: string
 }
 

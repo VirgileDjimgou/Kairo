@@ -56,6 +56,7 @@ async def list_chat_queries(
             refusal_reason=log.refusal_reason,
             confidence=log.confidence,
             citations_json=log.citations_json,
+            source_types_json=log.source_types_json,
             created_at=log.created_at,
         )
         for log in result.scalars().all()

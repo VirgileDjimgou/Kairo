@@ -10,6 +10,7 @@ export interface EventResponse {
   location: string | null
   visibility_scope: string
   status: string
+  metadata_json: Record<string, unknown>
   created_by: string | null
   created_at: string
   updated_at: string
@@ -23,6 +24,7 @@ export interface CreateEventPayload {
   location?: string | null
   visibility_scope?: string
   status?: string
+  metadata_json?: Record<string, unknown>
 }
 
 export interface UpdateEventPayload {
@@ -33,6 +35,7 @@ export interface UpdateEventPayload {
   location?: string | null
   visibility_scope?: string
   status?: string
+  metadata_json?: Record<string, unknown>
 }
 
 export async function listPublicEvents(): Promise<EventResponse[]> {
@@ -68,4 +71,26 @@ export async function deleteEvent(eventId: string): Promise<void> {
 export async function exportEventsCsv(): Promise<Blob> {
   const response = await http.get('/events/export', { responseType: 'blob' })
   return response.data
+}
+
+export async function listSportsEvents(): Promise<EventResponse[]> {
+  const response = await http.get<EventResponse[]>('/sports/events')
+  return response.data
+}
+
+export async function createSportsEvent(payload: CreateEventPayload): Promise<EventResponse> {
+  const response = await http.post<EventResponse>('/sports/events', payload)
+  return response.data
+}
+
+export async function updateSportsEvent(
+  eventId: string,
+  payload: UpdateEventPayload,
+): Promise<EventResponse> {
+  const response = await http.patch<EventResponse>(`/sports/events/${eventId}`, payload)
+  return response.data
+}
+
+export async function deleteSportsEvent(eventId: string): Promise<void> {
+  await http.delete(`/sports/events/${eventId}`)
 }

@@ -1,9 +1,11 @@
 from __future__ import annotations
 
+import json
 from datetime import datetime
+from typing import Any
 from uuid import UUID
 
-from pydantic import BaseModel, Field, model_validator
+from pydantic import BaseModel, Field, field_validator, model_validator
 
 from app.modules.events.models import EventStatus, EventVisibility
 
@@ -16,6 +18,7 @@ class EventCreate(BaseModel):
     location: str | None = Field(default=None, max_length=255)
     visibility_scope: EventVisibility = EventVisibility.members_only
     status: EventStatus = EventStatus.published
+    metadata_json: dict[str, Any] = Field(default_factory=dict)
 
     @model_validator(mode="after")
     def _validate_dates(self) -> EventCreate:
@@ -32,6 +35,7 @@ class EventUpdate(BaseModel):
     location: str | None = Field(default=None, max_length=255)
     visibility_scope: EventVisibility | None = None
     status: EventStatus | None = None
+    metadata_json: dict[str, Any] | None = None
 
 
 class EventResponse(BaseModel):
@@ -44,8 +48,24 @@ class EventResponse(BaseModel):
     location: str | None
     visibility_scope: str
     status: str
+    metadata_json: dict[str, Any] = Field(default_factory=dict)
     created_by: UUID | None
     created_at: datetime
     updated_at: datetime
 
     model_config = {"from_attributes": True}
+
+    @field_validator("metadata_json", mode="before")
+    @classmethod
+    def _parse_metadata_json(cls, value: Any) -> dict[str, Any]:
+        if value in (None, ""):
+            return {}
+        if isinstance(value, str):
+            try:
+                parsed = json.loads(value)
+            except json.JSONDecodeError:
+                return {}
+            return parsed if isinstance(parsed, dict) else {}
+        if isinstance(value, dict):
+            return value
+        return {}

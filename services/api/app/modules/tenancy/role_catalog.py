@@ -12,6 +12,7 @@ from app.core.capabilities import (
     CAP_DOCUMENTS_WRITE,
     CAP_EVENTS_READ,
     CAP_EVENTS_WRITE,
+    CAP_EVENTS_SPORTS_WRITE,
     CAP_EXPORT_SENSITIVE,
     CAP_FINANCE_AUDIT,
     CAP_FINANCE_SELF_READ,
@@ -191,7 +192,7 @@ ROLE_DEFINITIONS: tuple[RoleDefinition, ...] = (
         capabilities=(
             CAP_MEMBERSHIP_SELF_READ,
             CAP_EVENTS_READ,
-            CAP_EVENTS_WRITE,
+            CAP_EVENTS_SPORTS_WRITE,
             CAP_ANNOUNCEMENTS_READ,
             CAP_CHAT_USE,
         ),

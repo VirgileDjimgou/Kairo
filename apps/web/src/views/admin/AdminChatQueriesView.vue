@@ -129,6 +129,21 @@
               <div class="text-muted">{{ query.refusal_reason }}</div>
             </div>
 
+            <div v-if="parseSourceTypes(query.source_types_json).length" class="mb-3">
+              <div class="small text-uppercase text-muted fw-semibold mb-1">
+                Source types
+              </div>
+              <div class="d-flex flex-wrap gap-2">
+                <span
+                  v-for="sourceType in parseSourceTypes(query.source_types_json)"
+                  :key="sourceType"
+                  class="badge rounded-pill text-bg-light text-dark border"
+                >
+                  {{ formatSourceType(sourceType) }}
+                </span>
+              </div>
+            </div>
+
             <details>
               <summary class="small text-uppercase text-muted fw-semibold">
                 Citations JSON
@@ -193,6 +208,22 @@ function shortUser(userId: string): string {
 
 function formatConfidence(value: number): string {
   return `${Math.round(value * 100)}%`;
+}
+
+function parseSourceTypes(raw: string): string[] {
+  try {
+    const parsed = JSON.parse(raw);
+    return Array.isArray(parsed) ? parsed.map((value) => String(value)) : [];
+  } catch {
+    return [];
+  }
+}
+
+function formatSourceType(sourceType: string): string {
+  return sourceType
+    .replace(/^structured:/, "structured ")
+    .replace(/_/g, " ")
+    .replace(/\b\w/g, (character) => character.toUpperCase());
 }
 
 onMounted(async () => {

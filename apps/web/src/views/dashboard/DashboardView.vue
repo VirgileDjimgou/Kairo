@@ -3,12 +3,11 @@
     <div class="d-flex flex-column flex-lg-row align-items-lg-end justify-content-between gap-3 mb-4">
       <div>
         <div class="text-uppercase small fw-semibold text-secondary mb-2">
-          Tenant overview
+          {{ dashboardKicker }}
         </div>
         <h1 class="h4 fw-bold mb-1">Welcome back, {{ authStore.user?.display_name }}</h1>
         <p class="text-muted mb-0">
-          Your current tenant is <strong>{{ tenantStore.currentTenantName }}</strong>.
-          The dashboard now highlights the next steps that matter most for a first-run setup.
+          {{ dashboardLead }}
         </p>
       </div>
       <span
@@ -213,12 +212,18 @@ import { useTenantOnboarding } from '@/composables/useTenantOnboarding'
 
 const authStore = useAuthStore()
 const tenantStore = useTenantStore()
-const isAdmin = computed(() => authStore.user?.roles.includes('admin') ?? false)
-const isTreasurer = computed(() => authStore.user?.roles.includes('treasurer') ?? false)
-const isSecretaryGeneral = computed(() => authStore.user?.roles.includes('secretary_general') ?? false)
-const isAuditor = computed(() => authStore.user?.roles.includes('auditor') ?? false)
-const isPresident = computed(() => authStore.user?.roles.includes('president') ?? false)
-const isPrincipalAdmin = computed(() => authStore.user?.roles.includes('principal_admin') ?? false)
+const userRoles = computed(() => authStore.user?.roles ?? [])
+const isAdmin = computed(() => userRoles.value.includes('admin'))
+const isPrincipalAdmin = computed(() => userRoles.value.includes('principal_admin'))
+const isTreasurer = computed(() => userRoles.value.includes('treasurer'))
+const isMemberOnly = computed(() => userRoles.value.includes('member') && userRoles.value.length === 1)
+const isSecretaryGeneral = computed(() => userRoles.value.includes('secretary_general'))
+const isCensor = computed(() => userRoles.value.includes('censor'))
+const isSportsManager = computed(() => userRoles.value.includes('sports_manager'))
+const isPresidentRole = computed(() => userRoles.value.includes('president'))
+const isVicePresidentRole = computed(() => userRoles.value.includes('vice_president'))
+const isAuditor = computed(() => userRoles.value.includes('auditor'))
+const isPresident = computed(() => userRoles.value.includes('president'))
 const {
   loading,
   error,
@@ -236,8 +241,23 @@ const {
 const quickActions = computed(() => {
   const actions: Array<{ label: string; to: string; icon: string }> = []
 
-  if (isAdmin.value) {
-    actions.push({ label: 'Review tenant settings', to: '/admin/settings', icon: 'bi bi-sliders' })
+  if (isMemberOnly.value) {
+    actions.push({ label: 'Open my profile', to: '/members/profile', icon: 'bi bi-person-badge' })
+    if (tenantStore.isModuleEnabled('chat')) {
+      actions.push({ label: 'Ask the assistant', to: '/chat', icon: 'bi bi-chat-dots' })
+    }
+    if (tenantStore.isModuleEnabled('events')) {
+      actions.push({ label: 'Review events', to: '/events', icon: 'bi bi-calendar-event' })
+    }
+    if (tenantStore.isModuleEnabled('announcements')) {
+      actions.push({ label: 'Read announcements', to: '/announcements', icon: 'bi bi-megaphone' })
+    }
+  } else if (isAdmin.value || isPrincipalAdmin.value) {
+    actions.push({
+      label: isPrincipalAdmin.value ? 'Open principal admin control plane' : 'Review tenant settings',
+      to: '/admin/settings',
+      icon: 'bi bi-sliders',
+    })
     actions.push({ label: 'Upload documents', to: '/admin/documents', icon: 'bi bi-file-earmark-text' })
     if (tenantStore.isModuleEnabled('membership')) {
       actions.push({ label: 'Import members', to: '/admin/members', icon: 'bi bi-people' })
@@ -260,19 +280,42 @@ const quickActions = computed(() => {
     }
   }
 
+  if (tenantStore.isModuleEnabled('disciplinary') && (isCensor.value || isPresident.value || isPrincipalAdmin.value || isAdmin.value)) {
+    actions.push({
+      label: isCensor.value ? 'Manage disciplinary records' : 'Review disciplinary oversight',
+      to: '/censor',
+      icon: 'bi bi-shield-lock',
+    })
+  }
+
   if (tenantStore.isModuleEnabled('announcements')) {
     actions.push({
-      label: isAdmin.value || isSecretaryGeneral.value ? 'Publish announcement' : 'Review announcements',
-      to: isAdmin.value ? '/admin/announcements' : isSecretaryGeneral.value ? '/secretary/announcements' : '/announcements',
+      label: isAdmin.value || isPrincipalAdmin.value || isSecretaryGeneral.value ? 'Publish announcement' : 'Review announcements',
+      to: isAdmin.value || isPrincipalAdmin.value ? '/admin/announcements' : isSecretaryGeneral.value ? '/secretary/announcements' : '/announcements',
       icon: 'bi bi-megaphone',
     })
   }
 
   if (tenantStore.isModuleEnabled('events')) {
+    if (isSportsManager.value || isPrincipalAdmin.value || isAdmin.value) {
+      actions.push({
+        label: 'Open sports workspace',
+        to: '/sports',
+        icon: 'bi bi-trophy',
+      })
+    }
     actions.push({
-      label: isAdmin.value ? 'Schedule event' : 'Review events',
-      to: isAdmin.value ? '/admin/events' : '/events',
+      label: isAdmin.value || isPrincipalAdmin.value ? 'Schedule event' : 'Review events',
+      to: isAdmin.value || isPrincipalAdmin.value ? '/admin/events' : '/events',
       icon: 'bi bi-calendar-event',
+    })
+  }
+
+  if (isPresidentRole.value || isVicePresidentRole.value || isPrincipalAdmin.value || isAdmin.value) {
+    actions.push({
+      label: 'Open governance cockpit',
+      to: '/governance',
+      icon: 'bi bi-diagram-3',
     })
   }
 
@@ -281,6 +324,46 @@ const quickActions = computed(() => {
 
 const isSetupMode = computed(() => {
   return progressPercent.value < 100 && completedCount.value === 0
+})
+
+const dashboardKicker = computed(() => {
+  if (isMemberOnly.value) return 'Member portal'
+  if (isTreasurer.value) return 'Finance workspace'
+  if (isSecretaryGeneral.value) return 'Secretary workspace'
+  if (isAuditor.value) return 'Finance audit'
+  if (isCensor.value) return 'Disciplinary console'
+  if (isSportsManager.value) return 'Sports workspace'
+  if (isPresidentRole.value || isVicePresidentRole.value) return 'Governance cockpit'
+  if (isPrincipalAdmin.value) return 'Principal admin control plane'
+  return 'Tenant overview'
+})
+
+const dashboardLead = computed(() => {
+  if (isMemberOnly.value) {
+    return `Your current tenant is ${tenantStore.currentTenantName}. Review your personal profile, contribution statement, and read-only association updates.`
+  }
+  if (isTreasurer.value) {
+    return `Your current tenant is ${tenantStore.currentTenantName}. Review finance tasks, member balances, and payment activity from the dedicated workspace.`
+  }
+  if (isSecretaryGeneral.value) {
+    return `Your current tenant is ${tenantStore.currentTenantName}. Keep documents, policies, and announcements tidy from the secretary workspace.`
+  }
+  if (isAuditor.value) {
+    return `Your current tenant is ${tenantStore.currentTenantName}. Inspect finance totals and audit-ready records without mutation controls.`
+  }
+  if (isCensor.value) {
+    return `Your current tenant is ${tenantStore.currentTenantName}. Work inside the disciplinary console with privacy boundaries preserved.`
+  }
+  if (isSportsManager.value) {
+    return `Your current tenant is ${tenantStore.currentTenantName}. Manage sports events in a focused workspace with no extra noise.`
+  }
+  if (isPresidentRole.value || isVicePresidentRole.value) {
+    return `Your current tenant is ${tenantStore.currentTenantName}. Use the governance cockpit for focused oversight across the association.`
+  }
+  if (isPrincipalAdmin.value) {
+    return `Your current tenant is ${tenantStore.currentTenantName}. Use the control plane for tenant-wide administration without breaking isolation.`
+  }
+  return `Your current tenant is ${tenantStore.currentTenantName}. The dashboard highlights the next steps that matter most.`
 })
 
 function stepIcon(stepId: string): string {

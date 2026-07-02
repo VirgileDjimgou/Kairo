@@ -2,12 +2,12 @@
   <div class="p-4 p-lg-5">
     <div class="d-flex flex-column flex-xl-row justify-content-between gap-3 mb-4">
       <div>
-        <div class="text-uppercase small fw-semibold text-secondary mb-2">
-          Admin operations hub
+        <div class="text-uppercase small fw-semibold text-secondary mb-2" data-testid="admin-overview-hub-label">
+          {{ hubLabel }}
         </div>
-        <h1 class="h4 fw-bold mb-1">Admin overview</h1>
+        <h1 class="h4 fw-bold mb-1" data-testid="admin-overview-title">{{ overviewTitle }}</h1>
         <p class="text-muted mb-0">
-          A single screen for tenant readiness, operational signals, and the next action that deserves attention.
+          {{ overviewSubtitle }}
         </p>
       </div>
       <div class="d-flex align-items-start gap-2">
@@ -219,10 +219,21 @@
 <script setup lang="ts">
 import { computed, onMounted } from 'vue'
 import { RouterLink } from 'vue-router'
+import { useAuthStore } from '@/stores/auth.store'
 import { useTenantStore } from '@/stores/tenant.store'
 import { useAdminOverview } from '@/composables/useAdminOverview'
 
+const authStore = useAuthStore()
 const tenantStore = useTenantStore()
+const userRoles = computed(() => authStore.user?.roles ?? [])
+const isPrincipalAdmin = computed(() => userRoles.value.includes('principal_admin'))
+const hubLabel = computed(() => (isPrincipalAdmin.value ? 'Principal administration' : 'Administration'))
+const overviewTitle = computed(() => (isPrincipalAdmin.value ? 'Principal admin overview' : 'Admin overview'))
+const overviewSubtitle = computed(() =>
+  isPrincipalAdmin.value
+    ? 'A tenant-wide control plane for role assignments, settings, module toggles, and sensitive review.'
+    : 'A single screen for tenant readiness, operational signals, and the next action that deserves attention.',
+)
 const {
   loading,
   error,

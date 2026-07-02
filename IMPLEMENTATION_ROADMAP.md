@@ -2138,7 +2138,7 @@ Implementation notes:
 
 ## Sprint 46 - Censor Discipline Workspace
 
-Status: Planned
+Status: Completed
 
 Goal:
 Create a dedicated disciplinary governance area for the censor role with privacy, traceability, and clear limits.
@@ -2163,9 +2163,15 @@ Acceptance criteria:
 - treasurer and unrelated office roles cannot browse disciplinary records without explicit permission
 - all sanction mutations are audited
 
+Validation:
+
+- backend capability and audit tests pass for disciplinary record management
+- frontend builds clean with the dedicated censor workspace route and labels
+- Playwright validates censor create/edit/delete flows and treasurer denial
+
 ## Sprint 47 - Sports Operations Workspace
 
-Status: Planned
+Status: Completed
 
 Goal:
 Introduce a focused workspace for the sports affairs lead to manage sports events without broad administrative power.
@@ -2189,9 +2195,24 @@ Acceptance criteria:
 - the sports manager cannot manage finance, sanctions, or tenant administration
 - members continue to consume events in simple read-only mode
 
+Delivered:
+
+- Added a dedicated sports workspace route and sidebar/dashboard entry points for sports managers and authorized administrators
+- Introduced sports-tagged event storage and a dedicated backend sports-events router with workspace isolation
+- Added sports event metadata support to the shared event schemas and API client
+- Seeded a sports training event in the demo tenant for immediate validation
+- Added backend authorization tests for sports-manager write boundaries and tenant isolation
+- Added browser coverage for sports workspace creation/editing and route denial for unrelated roles
+
+Validation:
+
+- backend capability and tenant-isolation tests passed for events, announcements, governance, and sports boundaries
+- frontend production build passed
+- Playwright validated dashboard sports quick action and sports workspace create/edit flows
+
 ## Sprint 48 - President And Vice President Governance Cockpit
 
-Status: Planned
+Status: Completed
 
 Goal:
 Provide executive workspaces for strategic oversight, cross-module visibility, and limited governance actions.
@@ -2219,9 +2240,21 @@ Acceptance criteria:
 - the vice president has a narrower but still useful executive view
 - executive roles do not automatically bypass principal-admin controls
 
+Delivered:
+
+- Added a dedicated governance cockpit route with role-aware navigation entry points for president, vice president, and authorized principal-admin compatibility roles
+- Built a cross-module executive cockpit with documents, member directory, announcements, events, finance balance, and audit trail snapshots
+- Kept governance actions limited to backend-authorized surfaces such as finance audit and audit trail review
+- Added browser validation for president, vice president, and denied-role scenarios
+
+Validation:
+
+- frontend production build passed
+- Playwright dashboard and governance cockpit validation passed
+
 ## Sprint 49 - Principal Admin Global Control Plane
 
-Status: Planned
+Status: Completed
 
 Goal:
 Separate true platform-style tenant administration from ordinary office work by formalizing the `principal_admin` role.
@@ -2250,9 +2283,22 @@ Acceptance criteria:
 - tenant isolation is still preserved everywhere
 - office roles no longer depend on generic `admin` semantics for their day-to-day work
 
+Delivered:
+
+- Replaced literal `admin` gating in notification diagnostics and test-dispatch endpoints with tenant-administration capability checks so `principal_admin` can use them safely
+- Updated the app shell, dashboard, and admin overview to present an explicit principal-admin control plane label and quick-action path
+- Allowed `principal_admin` to access the `/admin` control plane in the frontend routing guard while preserving tenant isolation
+- Added regression coverage for principal-admin notification access, dashboard shortcuts, and admin-overview labeling
+
+Validation:
+
+- backend targeted authorization tests passed
+- frontend production build passed
+- Playwright dashboard and admin overview validation passed
+
 ## Sprint 50 - Role-Aware Chat And Structured Knowledge Boundaries
 
-Status: Planned
+Status: Completed
 
 Goal:
 Turn the chatbot into a role-aware assistant that can answer from authorized documents and approved structured data without leaking anything across members or roles.
@@ -2282,9 +2328,17 @@ Acceptance criteria:
 - the chatbot remains backend-governed and never self-decides permissions
 - refusals are clear whenever evidence is missing or unauthorized
 
+Delivered:
+
+- Structured chat context adapters added for personal contribution balance and tenant finance summary queries
+- Backend refusal guards now block other-member personal finance requests before prompt assembly or LLM use
+- Prompt assembly now separates structured facts from retrieved document sources and records source types in chat traces
+- Frontend chat and audit views now surface source-type metadata alongside citations and refusal reasons
+- Backend regression tests now cover self-balance, finance-summary, traceability, and refusal-before-LLM behavior
+
 ## Sprint 51 - Role-Specific Navigation And UX Simplification
 
-Status: Planned
+Status: Completed
 
 Goal:
 Make the interface feel sober, elegant, and professional for each role by reducing noise and clarifying what matters first.
@@ -2308,9 +2362,17 @@ Acceptance criteria:
 - office roles land in the right workspace without hunting through admin-heavy menus
 - the interface remains professional, clear, and not overloaded
 
+Delivered:
+
+- Added a shared role-navigation composable that groups personal, workspace, and governance links into shorter sections
+- Simplified the member shell so the sidebar foregrounds profile, security, chat, and read-only association links
+- Simplified the admin shell with grouped operations, governance, and settings sections
+- Updated the dashboard hero and quick actions to speak in member, office, and principal-admin language
+- Added browser coverage proving the member sidebar stays compact while office workspace navigation remains intact
+
 ## Sprint 52 - Full Regression Matrix And Professional Release Candidate
 
-Status: Planned
+Status: Completed
 
 Goal:
 Close the track with release-level hardening, realistic end-to-end verification, and a clean handoff state.
@@ -2337,9 +2399,166 @@ Deliverables:
 - Updated README, status, roadmap, and handoff docs
 - Release-candidate checklist for a professional association deployment
 
+Delivered:
+
+- Added a release-candidate backend regression matrix that validates the major role boundaries and the principal-admin tenant boundary
+- Added a release-candidate browser regression matrix for the major role landing surfaces and guarded redirects
+- Expanded the demo seed with the canonical association role set and dedicated demo credentials for office personas
+- Updated the demo walkthrough and commercial release-candidate checklist to match the expanded role model
+- Marked the roadmap, project status, and AI handoff docs as complete for the current professionalization track
+
 Acceptance criteria:
 
 - critical role flows pass end-to-end
 - no known tenant-isolation or role-leak regression remains open
 - documentation is current enough for Codex, Cursor, or Copilot to continue without hidden context
 - the repository is ready for a professional release candidate review
+
+## Post-Release Improvement Track
+
+This follow-up track was defined after the 2026-07-02 product audit.
+
+The goal is not to replace the completed Sprint 41 through Sprint 52 association maturity work. The goal is to close the remaining gap between:
+
+- a strong professional release candidate that is safe and demonstrable
+- a more turnkey production product for real association operations and customer handoff
+
+## Sprint 53 - Production Communications And Identity Delivery
+
+Status: Planned
+
+Goal:
+Replace simulation-first delivery paths with production-grade transactional delivery for invitations, password recovery, and operator notifications.
+
+Why this sprint next:
+
+- The current product is already strong in permissions, role workspaces, and tenant isolation.
+- The biggest credibility gap for a real go-live is still outbound delivery that can remain in placeholder or manual-fallback mode.
+- This sprint unlocks the later member-reminder and operational-notification work without weakening backend authority.
+
+Deliverables:
+
+- Production SMTP-backed invite and password-reset delivery flow
+- Delivery result handling that hides secure links from the UI when real delivery succeeds
+- Clear audit visibility for delivery attempts, failure states, and manual fallback
+- Hardened retry and error handling for delivery failures
+- Regression tests for real-delivery mode, simulation mode, and secure fallback behavior
+
+Acceptance criteria:
+
+- a tenant admin can invite a teammate without exposing the raw acceptance link in normal production delivery mode
+- password recovery works through a real delivery provider path
+- delivery failures are explicit, auditable, and never bypass backend policy
+- simulation mode remains available for local demos without becoming the default production posture
+
+## Sprint 54 - Member Renewal, Reminder, And Collections Automation
+
+Status: Planned
+
+Goal:
+Give treasurers practical day-to-day collections tooling on top of the existing contribution and statement foundations.
+
+Why this sprint next:
+
+- Contribution records, balances, and statements already exist.
+- What is still missing is the operational layer that helps treasurers follow up at scale without leaking data or overusing manual exports.
+- This sprint creates immediate product value for real associations while preserving the read-first member experience.
+
+Deliverables:
+
+- Due-date aware contribution reminder workflows
+- Treasurer-safe reminder dispatch for individuals and filtered cohorts
+- Reminder status and audit traceability tied to contribution records
+- Member-facing reminder wording that never exposes another member's data
+- Focused browser and backend tests for authorized reminder operations and member privacy boundaries
+
+Acceptance criteria:
+
+- treasurers can trigger reminders only for the current tenant and only through backend-enforced operations
+- ordinary members never see another member's reminder or finance state
+- reminder history is reviewable for support and audit use
+- the existing statement and balance surfaces stay simple for members
+
+## Sprint 55 - Multi-Tenant Provisioning And Demo Operations
+
+Status: Planned
+
+Goal:
+Turn multi-tenancy from a supported runtime capability into a reproducible operational and demonstration workflow.
+
+Why this sprint next:
+
+- Tenant switching already exists in the product and tests prove cross-tenant isolation.
+- The current shipped seed and demo story are still centered on one tenant, which makes product evaluation less convincing than the backend architecture actually is.
+- This sprint improves sales demos, QA, and operator confidence without introducing a tenant-breaking super-admin model.
+
+Deliverables:
+
+- Operator-safe multi-tenant demo seed or provisioning helper
+- Reproducible second-tenant capture and walkthrough assets
+- Stronger browser coverage for tenant picker and tenant switch flows
+- Documentation for provisioning a second tenant without weakening isolation rules
+- Explicit boundaries that keep tenant administration inside tenant scope only
+
+Acceptance criteria:
+
+- a reproducible local demo can show at least two isolated tenants
+- tenant switching remains explicit and safe for users with multiple memberships
+- no new cross-tenant administration surface is introduced into normal tenant workspaces
+- docs, screenshots, and handoff material all reflect the multi-tenant story accurately
+
+## Sprint 56 - Operations Evidence And Recovery Automation
+
+Status: Planned
+
+Goal:
+Promote backup, restore, and alert posture from documentation-only evidence into repeatable operational proof.
+
+Why this sprint next:
+
+- Kairo already documents health checks, metrics, backup scripts, and restore drills.
+- The remaining gap is operator evidence: knowing from the product and the handoff state whether those safeguards are truly active and recent.
+- This sprint improves production trust without broadening access rights.
+
+Deliverables:
+
+- Admin-safe operational evidence surface for last backup, last restore drill, and alert posture
+- Explicit retention and scheduling guidance aligned with the current deployment scripts
+- Clear warning states when evidence is stale or missing
+- Validation scripts or checks that fit the existing self-hosted deployment model
+- Regression coverage for the new evidence endpoints and UI states
+
+Acceptance criteria:
+
+- an operator can verify recent recovery evidence without reading raw infrastructure logs first
+- missing or stale backup evidence is visible as a warning
+- operational evidence never leaks across tenants
+- the deployment guide, production checklist, and UI signals stay aligned
+
+## Sprint 57 - Role-Aware Chat Expansion For Office Roles
+
+Status: Planned
+
+Goal:
+Extend the chatbot from safe finance boundaries into additional approved role-specific workflows while preserving backend-first authorization.
+
+Why this sprint next:
+
+- The chatbot already handles member balance and tenant finance-summary requests safely.
+- Real office-role value now depends on expanding into more approved structured domains, not by loosening access controls.
+- This sprint adds practical assistant value only where the backend can prove authorization before prompt assembly.
+
+Deliverables:
+
+- Additional structured context adapters for approved domains such as governance summaries, official event schedules, or secretary-safe publication context
+- Per-role refusal coverage for unsupported or unauthorized questions
+- Traceability updates that distinguish structured role-safe answers from document-only answers
+- Regression tests proving unauthorized data never reaches the LLM, logs, exports, or UI
+- Updated role walkthroughs and screenshots for the expanded assistant behavior
+
+Acceptance criteria:
+
+- each office role gains at least one meaningful new assistant capability inside its allowed boundary
+- unauthorized requests are refused before any LLM call
+- source-type traceability remains visible for review
+- tenant isolation and private-member boundaries remain intact

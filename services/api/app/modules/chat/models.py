@@ -29,6 +29,7 @@ class ChatQueryLog(Base):
     refusal_reason: Mapped[str | None] = mapped_column(Text, nullable=True)
     confidence: Mapped[float] = mapped_column(Float, nullable=False, server_default="0.0")
     citations_json: Mapped[str] = mapped_column(Text, nullable=False, server_default="[]")
+    source_types_json: Mapped[str] = mapped_column(Text, nullable=False, server_default="[]")
     created_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True), nullable=False, server_default=sql_text("CURRENT_TIMESTAMP")
     )

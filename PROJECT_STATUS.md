@@ -1,23 +1,25 @@
 # Project Status
 
-Last updated: 2026-07-01
+Last updated: 2026-07-02
 
 ## Current Sprint
 
-Sprint 45 - Treasurer And Auditor Finance Console
+No sprint currently in progress.
 
-Status: Completed
+Status: Roadmap reopened after the 2026-07-02 product audit
 
 ## Official Next Sprint
 
-Sprint 46 - Censor Discipline Workspace
+Sprint 53 - Production Communications And Identity Delivery
+
+Status: Planned
 
 ## Active Delivery Frame
 
 - Target outcome: a stable, professional, mature association-management product with secure role-aware workspaces and a trustworthy chatbot
 - Intended operational scope: usable by an association or organization of about 200 members with differentiated office roles
-- Remaining planned execution window: 7 additional professionalization sprints from Sprint 46 through Sprint 52
-- Delivery status: roadmap reopened after Sprint 40 to expand Kairo from a strong open-source base into a role-complete association product
+- Remaining planned execution window: 5
+- Delivery status: Sprint 52 closed the historical release-candidate track, and a short post-release hardening roadmap is now defined to move from strong release candidate to more turnkey production posture
 
 ## Source Of Truth
 
@@ -28,16 +30,27 @@ Sprint 46 - Censor Discipline Workspace
 
 ## Professionalization Assessment
 
-- Estimated additional sprints required from the current state: 7
+- Estimated additional sprints required from the current state: 5
 - Current strengths:
   - multi-tenant auth and role resolution
   - secure document RAG with citations and prompt-injection defenses
+  - role-aware structured chat boundaries for member balances and tenant finance summaries
   - membership, contributions, events, announcements, disciplinary, audit, and onboarding foundations
-  - autonomous test posture and role-aware dashboard, secretary, and finance oversight improvements
+  - dedicated secretary, treasurer, auditor, censor, sports, executive governance, and principal admin workspaces
+  - role-specific navigation simplification for members and office roles, including member PDF statements
+  - autonomous test posture and role-aware dashboard, secretary, finance, sports, governance, and principal-admin improvements
+  - release-candidate regression matrix, professional handoff checklist, and a reproducible role-and-tenant screenshot gallery
 - Main gaps before the target product is mature:
-  - dedicated workspaces still need to be completed for censor, sports manager, president, vice president, and principal administrator
-  - the chatbot is secure for document RAG but not yet a complete role-aware assistant over authorized structured data
-  - office-role workspaces and structured-data chat access still need to be aligned around the capability matrix
+  - invitation, password-reset, and optional outbound delivery still retain placeholder or simulation-oriented behavior
+  - contribution reminder and collections follow-up automation are still missing for treasurer day-to-day operations
+  - multi-tenant UX exists, but reproducible multi-tenant provisioning and demo operations are still thinner than the backend capability
+  - backup, restore, and alert posture are documented, but first-class in-product operational evidence is still limited
+  - chatbot role-aware structured coverage remains narrow outside personal balance and tenant finance-summary boundaries
+
+## Production Verdict
+
+- Kairo is usable as a controlled production release candidate for disciplined self-hosting or pilot deployments.
+- Kairo is not yet a fully turnkey, broadly productized production offer until the new short roadmap closes the delivery, operations, and role-aware assistant gaps above.
 
 ## Completed
 
@@ -218,7 +231,7 @@ Sprint 46 - Censor Discipline Workspace
   - Browser validation covers the authenticated admin hub through autonomous Playwright mocks
 - Completed Sprint 29 Team Invitations And Access Operations Console:
   - Admin access console added at `/admin/access` for tenant-scoped invitations and access rollout
- - Completed Sprint 45 Treasurer And Auditor Finance Console, including:
+- Completed Sprint 45 Treasurer And Auditor Finance Console, including:
   - tenant-wide payment listing and finance report export endpoints with backend capability enforcement
   - enriched treasurer workspace with recent payment activity and stronger day-to-day finance visibility
   - new read-only auditor finance workspace for `auditor`, `president`, `principal_admin`, and `admin`
@@ -230,6 +243,46 @@ Sprint 46 - Censor Discipline Workspace
   - Admin overview quick actions now link directly into access operations
   - Frontend admin-route restore behavior was hardened so session restoration does not wrongly eject valid admins
   - Backend invitation and tenant-role tests pass, and autonomous Playwright browser coverage now validates invite creation and cancellation
+- Completed Sprint 46 Censor Discipline Workspace, including:
+  - dedicated censor workspace route and sidebar/dashboard entry points for censor and authorized executive roles
+  - explicit privacy boundaries around disciplinary record browsing and mutation
+  - backend audit coverage proving create, update, and delete actions are captured for disciplinary records
+  - accessibility improvements for the censor form controls so labels bind correctly to inputs
+  - browser validation for censor create/edit/delete flows and role-based denial for treasurer access
+- Completed Sprint 47 Sports Operations Workspace, including:
+  - dedicated sports workspace route and sidebar/dashboard entry points for sports managers and authorized administrators
+  - sports-tagged event management with backend-enforced workspace isolation
+  - role-specific write boundaries keeping sports operations separate from generic event administration
+  - browser validation for sports create/edit flows and route denial for unrelated roles
+- Completed Sprint 48 President And Vice President Governance Cockpit, including:
+  - dedicated governance cockpit route and navigation entry points for president and vice president sessions
+  - cross-module oversight cards for documents, member directory, announcements, events, finance balance, and audit trail
+  - limited executive quick actions that stay subordinate to backend capability enforcement
+  - browser validation for president, vice president, and denial paths from unrelated roles
+- Completed Sprint 49 Principal Admin Global Control Plane, including:
+  - backend tenant-administration surfaces now recognize `principal_admin` as a capability-driven tenant control role
+  - notification diagnostics and test dispatch now honor tenant administration capabilities rather than literal `admin`
+  - the admin shell and dashboard now present a principal-admin control plane label and quick action path for `principal_admin`
+  - browser validation covers the principal-admin dashboard shortcut and admin overview shell labeling
+- Completed Sprint 50 Role-Aware Chat And Structured Knowledge Boundaries, including:
+  - structured chat context adapters for personal contribution balance and tenant finance summary questions
+  - backend refusal guards that block another member's personal finance requests before any LLM call
+  - prompt assembly that separates structured context from retrieved document sources
+  - chat trace updates that record source types alongside citations and refusal reasons
+  - frontend chat and audit views that surface source-type metadata
+  - backend chat regression tests proving self-balance, finance-summary, refusal, and traceability behavior
+- Completed Sprint 51 Role-Specific Navigation And UX Simplification, including:
+  - a shared role-navigation composable that groups member essentials, office workspaces, and admin governance into shorter sections
+  - a simplified member shell that foregrounds profile, security, chat, and read-only association links while hiding bureau clutter
+  - a simplified admin shell with grouped operations and governance sections
+  - a role-aware dashboard that now speaks in member, office, and principal-admin language
+  - browser coverage proving the member sidebar stays compact while office and executive pathways remain intact
+- Completed Sprint 52 Full Regression Matrix And Professional Release Candidate, including:
+  - a release-candidate backend regression matrix covering member, secretary general, treasurer, auditor, censor, sports manager, president, vice president, and principal admin flows
+  - a release-candidate browser matrix validating each major role's landing surface and guarded redirects
+  - an expanded demo seed with the canonical association role set and corresponding demo credentials
+  - an updated demo walkthrough and professional release-candidate checklist for handoff and validation
+  - final roadmap, status, and AI handoff updates indicating the current professionalization track is complete
 - Completed Sprint 30 Account Security And Identity Self-Service:
   - Authenticated `Account Security` view added at `/account/security` for MFA status, enrollment, verification, disablement, and password recovery launch
   - Backend now exposes a minimal MFA status endpoint without leaking secrets
@@ -374,7 +427,7 @@ Sprint 46 - Censor Discipline Workspace
 - Redis and Celery ingestion worker flow.
 - Parsers for TXT, Markdown, CSV, PDF, DOCX, WhatsApp exports, and OCR for image documents.
 - Ollama embedding provider and Qdrant indexing provider.
-- First RAG chat surface with permission-aware retrieval, no-source refusal, citations, and LLM provider abstraction.
+- First RAG chat surface with permission-aware retrieval, structured authorization boundaries, no-source refusal, citations, and LLM provider abstraction.
 - Admin document access controls, admin reindex endpoint, and admin chat query traceability endpoint.
 - Membership profiles with CRUD, tenant isolation, and self-view.
 - Contribution records with balance calculation and payment recording.
@@ -415,7 +468,7 @@ Sprint 46 - Censor Discipline Workspace
 ## Known Risks
 
 - The backend capability layer is now wired into the major association modules, but frontend navigation and surfaces do not yet reflect the finer-grained role model.
-- The current chatbot is strong on document RAG, but it is not yet a complete role-aware assistant over approved structured association data.
+- The current chatbot is now stronger on structured member-finance boundaries, but broader role-aware coverage for other approved domains still needs work.
 - Dedicated workspaces for secretary general, auditor, censor, sports manager, president, vice president, and principal administrator are still roadmap work, not completed product surface.
 - `allowed_role_ids` naming still reflects the upload/API contract and should be revisited if we want UUID-backed role targeting later.
 - The login and dashboard Playwright coverage now runs autonomously, but broader end-to-end admin/business flows still need a live API stack. See `apps/web/e2e/`.
@@ -429,7 +482,7 @@ Sprint 46 - Censor Discipline Workspace
 - Only the email channel is wired for real identity delivery today; Telegram and WhatsApp remain simulated extension placeholders.
 - Identity emails currently use a plain-text branded baseline template and do not yet provide rich HTML theming or provider-side webhook reconciliation.
 - The original open-source stabilization target ended at Sprint 37; the product is now entering a second track focused on professional association role coverage and maturity.
-- The new execution path is explicit: Sprint 43 through Sprint 52 define the remaining professionalization plan and should be followed one sprint at a time.
+- The new execution path is explicit: Sprint 51 through Sprint 52 define the remaining professionalization plan and should be followed one sprint at a time.
 - Sprint 26 has been completed with the public entry commercial surface.
 - Sprint 27 has been completed with guided onboarding for new tenant admins.
 - Sprint 28 has been completed with a real admin operations hub.
