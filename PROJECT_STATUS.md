@@ -10,7 +10,7 @@ Status: Roadmap reopened after the 2026-07-02 product audit
 
 ## Official Next Sprint
 
-Sprint 53 - Production Communications And Identity Delivery
+Sprint 54 - Member Renewal, Reminder, And Collections Automation
 
 Status: Planned
 
@@ -18,8 +18,8 @@ Status: Planned
 
 - Target outcome: a stable, professional, mature association-management product with secure role-aware workspaces and a trustworthy chatbot
 - Intended operational scope: usable by an association or organization of about 200 members with differentiated office roles
-- Remaining planned execution window: 5
-- Delivery status: Sprint 52 closed the historical release-candidate track, and a short post-release hardening roadmap is now defined to move from strong release candidate to more turnkey production posture
+- Remaining planned execution window: 4
+- Delivery status: Sprint 53 closed the outbound communications gap, and the short post-release hardening roadmap now continues with collections automation, multi-tenant operations, recovery evidence, and broader role-aware chat coverage
 
 ## Source Of Truth
 
@@ -30,7 +30,7 @@ Status: Planned
 
 ## Professionalization Assessment
 
-- Estimated additional sprints required from the current state: 5
+- Estimated additional sprints required from the current state: 4
 - Current strengths:
   - multi-tenant auth and role resolution
   - secure document RAG with citations and prompt-injection defenses
@@ -39,9 +39,9 @@ Status: Planned
   - dedicated secretary, treasurer, auditor, censor, sports, executive governance, and principal admin workspaces
   - role-specific navigation simplification for members and office roles, including member PDF statements
   - autonomous test posture and role-aware dashboard, secretary, finance, sports, governance, and principal-admin improvements
+  - production-grade invite and password-reset delivery with tenant-aware provider context and explicit fallback handling
   - release-candidate regression matrix, professional handoff checklist, and a reproducible role-and-tenant screenshot gallery
 - Main gaps before the target product is mature:
-  - invitation, password-reset, and optional outbound delivery still retain placeholder or simulation-oriented behavior
   - contribution reminder and collections follow-up automation are still missing for treasurer day-to-day operations
   - multi-tenant UX exists, but reproducible multi-tenant provisioning and demo operations are still thinner than the backend capability
   - backup, restore, and alert posture are documented, but first-class in-product operational evidence is still limited
@@ -50,7 +50,7 @@ Status: Planned
 ## Production Verdict
 
 - Kairo is usable as a controlled production release candidate for disciplined self-hosting or pilot deployments.
-- Kairo is not yet a fully turnkey, broadly productized production offer until the new short roadmap closes the delivery, operations, and role-aware assistant gaps above.
+- Kairo is not yet a fully turnkey, broadly productized production offer until the remaining collections, operations, and role-aware assistant gaps above are closed.
 
 ## Completed
 

@@ -48,6 +48,7 @@ async def test_invite_hides_raw_token_when_email_is_sent_in_production(
     assert body["delivery_status"] == "sent"
     assert body["delivery_simulation_only"] is False
     assert body["invite_token"] is None
+    assert provider.calls[0]["tenant_id"] == str(data["tenant"].id)
     assert provider.calls[0]["recipient"] == "live-delivery@example.org"
 
 
@@ -92,6 +93,7 @@ async def test_invite_keeps_manual_fallback_when_delivery_fails(
     assert body["delivery_simulation_only"] is False
     assert body["invite_token"] is not None
     assert len(body["invite_token"]) > 20
+    assert provider.calls[0]["tenant_id"] == str(data["tenant"].id)
 
 
 @pytest.mark.asyncio
@@ -124,6 +126,7 @@ async def test_forgot_password_hides_token_when_email_is_sent_in_production(
     assert response.status_code == 200, response.text
     body = response.json()
     assert body["reset_token"] is None
+    assert provider.calls[0]["tenant_id"] == str(data["tenant"].id)
     assert provider.calls[0]["recipient"] == data["user"].email
 
 
@@ -158,3 +161,4 @@ async def test_forgot_password_keeps_token_in_simulation_mode(
     body = response.json()
     assert body["reset_token"] is not None
     assert len(body["reset_token"]) > 20
+    assert provider.calls[0]["tenant_id"] == str(data["tenant"].id)

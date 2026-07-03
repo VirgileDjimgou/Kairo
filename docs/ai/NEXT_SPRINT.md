@@ -2,35 +2,35 @@
 
 ## Sprint To Execute
 
-Sprint 53 - Production Communications And Identity Delivery
+Sprint 54 - Member Renewal, Reminder, And Collections Automation
 
 Status: Planned
 
 ## Why This Sprint Was Next
 
-- Sprint 52 closed the historical release-candidate hardening track successfully.
-- The strongest remaining gap after the 2026-07-02 audit is no longer core authorization or workspace scope; it is production-grade outbound delivery for invites, recovery, and operator notifications.
-- This sprint unlocks the most practical next layer of production trust without weakening backend authority or tenant isolation.
+- Sprint 53 is now complete and verified in code.
+- The strongest remaining product gap after the 2026-07-02 audit is practical collections automation for treasurers, not core authorization or identity delivery.
+- This sprint unlocks immediate day-to-day value for associations while preserving the read-first member experience and backend-only access control.
 
 ## Sprint Goal
 
-Replace simulation-first delivery paths with production-grade transactional delivery for invitations, password recovery, and operator notifications.
+Give treasurers practical reminder and collections tooling on top of the existing contribution and statement foundations.
 
 ## Deliverables
 
-- Production SMTP-backed invite and password-reset delivery flow
-- Delivery result handling that hides raw secure links from the UI when real delivery succeeds
-- Clear audit visibility for delivery attempts, failure states, and fallback
-- Hardened retry and error handling for delivery failures
-- Updated docs, role walkthrough notes, and regression coverage for production and simulation modes
+- Due-date aware contribution reminder workflows
+- Treasurer-safe reminder dispatch for individuals and filtered cohorts
+- Reminder status and audit traceability tied to contribution records
+- Member-facing reminder wording that never exposes another member's data
+- Focused browser and backend tests for authorized reminder operations and member privacy boundaries
 
 ## Acceptance Criteria
 
-- a tenant admin can invite a teammate without exposing the raw acceptance link in normal production delivery mode
-- password recovery works through a real provider path
-- delivery failures are explicit, auditable, and never bypass backend policy
-- simulation mode remains available for local demos without becoming the default production posture
+- treasurers can trigger reminders only for the current tenant and only through backend-enforced operations
+- ordinary members never see another member's reminder or finance state
+- reminder history is reviewable for support and audit use
+- the existing statement and balance surfaces stay simple for members
 
 ## Current State
 
-Kairo is a strong professional release candidate, and a short post-release hardening roadmap is now defined to move it toward a more turnkey production posture.
+Kairo is a strong professional release candidate, and the post-release hardening roadmap now continues with collections automation, multi-tenant operations, recovery evidence, and broader role-aware chat coverage.

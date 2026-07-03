@@ -9,7 +9,8 @@ Current state:
 - the historical professional association maturity track is complete
 - Sprint 52 closed the release-candidate hardening pass
 - a new short post-release hardening roadmap is now defined
-- the next sprint is Sprint 53 - Production Communications And Identity Delivery
+- Sprint 53 - Production Communications And Identity Delivery is complete
+- the next sprint is Sprint 54 - Member Renewal, Reminder, And Collections Automation
 
 Before implementation, always keep these files aligned:
 

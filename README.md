@@ -201,7 +201,7 @@ Kairo is currently a strong professional release candidate for association workf
 
 - suitable for controlled pilot deployments and disciplined self-hosting
 - technically mature on tenant isolation, backend-enforced permissions, auditability, onboarding, and role-scoped workspaces
-- not yet a fully turnkey broad-market product, because outbound delivery remains partly placeholder-based and business/legal packaging is not fully finalized
+- not yet a fully turnkey broad-market product, because collections automation, reproducible multi-tenant provisioning, operational evidence, and broader role-aware assistant coverage still need work
 
 See [`docs/commercial/maturity-review.md`](docs/commercial/maturity-review.md) and [`docs/commercial/demo-to-production-checklist.md`](docs/commercial/demo-to-production-checklist.md).
 
