@@ -23,7 +23,7 @@ The repository now enters a new professionalization track aimed at a mature asso
 
 ## Main Gaps To Close
 
-- Invite, password-reset, and optional outbound delivery still retain placeholder or simulation-oriented behavior
+- Contribution reminder and collections follow-up automation are still missing for treasurer day-to-day operations
 - Multi-tenant UX exists in the runtime, but reproducible multi-tenant provisioning and demo operations still lag behind the backend capability
 - Backup, restore, and alert posture are documented, but first-class in-product operational evidence is still limited
 - The chatbot now handles member balance and tenant finance-summary boundaries safely, but broader role-aware coverage for other approved domains still needs work
@@ -32,8 +32,8 @@ The repository now enters a new professionalization track aimed at a mature asso
 
 - Historical roadmap track completed: Sprint 41 through Sprint 52
 - New post-release hardening track: Sprint 53 through Sprint 57
-- Estimated additional sprints required from the current state: 5
-- Next sprint: Sprint 53 - Production Communications And Identity Delivery
+- Estimated additional sprints required from the current state: 4
+- Next sprint: Sprint 54 - Member Renewal, Reminder, And Collections Automation
 
 ## Current State
 
@@ -49,6 +49,7 @@ The repository now enters a new professionalization track aimed at a mature asso
 - **Member shell**: the ordinary member experience now keeps the sidebar compact and focused on personal essentials
 - **Validation status**: targeted backend chat, prompt-safety, retrieval, and release-candidate matrix checks, plus frontend build and refreshed screenshot gallery generation, all passed on 2026-07-02
 - **Commercial posture**: strong professional release candidate, usable for controlled self-hosted deployments but not yet a fully turnkey production offer
+- **Communications posture**: production-grade invite and password-reset delivery now uses tenant-aware provider context with explicit fallback handling
 - **License**: MIT
 
 ## Continuity Rule

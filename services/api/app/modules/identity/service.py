@@ -460,6 +460,7 @@ class AuthService:
             expires_at=expires_at,
         )
         delivery = await self._send_identity_email(
+            tenant_id=request.tenant_id,
             recipient=request.email,
             subject=f"You're invited to join {tenant.name} on {settings.app_name}",
             body=self._build_invitation_message(
@@ -980,7 +981,9 @@ class AuthService:
             token_hash=token_hash_value,
             expires_at=expires_at,
         )
+        tenant_id = await self._first_tenant_id_for_user(user.id)
         delivery = await self._send_identity_email(
+            tenant_id=tenant_id if tenant_id is not None else UUID(int=0),
             recipient=user.email,
             subject=f"Reset your {settings.app_name} password",
             body=self._build_password_reset_message(raw_token=raw_token),
@@ -1213,6 +1216,7 @@ class AuthService:
     async def _send_identity_email(
         self,
         *,
+        tenant_id: UUID,
         recipient: str,
         subject: str,
         body: str,
@@ -1231,7 +1235,7 @@ class AuthService:
             )
 
         return await provider.send_message(
-            tenant_id=UUID(int=0),
+            tenant_id=tenant_id,
             actor_user_id=None,
             recipient=recipient,
             subject=subject,
