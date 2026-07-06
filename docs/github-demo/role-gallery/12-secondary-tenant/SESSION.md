@@ -3,3 +3,4 @@
 - Purpose: Second organization selected with distinct branding and tenant-scoped data.
 - Route: `/dashboard`
 - Capture: `01-secondary-tenant-dashboard.png`
+- Video: `docs/github-demo/role-videos/12-secondary-tenant.webm`

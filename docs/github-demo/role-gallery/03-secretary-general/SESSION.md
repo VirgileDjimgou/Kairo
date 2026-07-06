@@ -3,3 +3,4 @@
 - Purpose: Dedicated communication and records workspace without finance access.
 - Route: `/secretary`
 - Capture: `01-secretary-overview.png`
+- Video: `docs/github-demo/role-videos/03-secretary-general.webm`

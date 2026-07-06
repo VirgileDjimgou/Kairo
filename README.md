@@ -36,7 +36,29 @@ Upload internal documents, manage members and permissions, and run a private AI 
   DB    Queue   Storage  Vector  Worker  Local LLM
 ```
 
+### Architecture Diagram (Mermaid)
+
+```mermaid
+flowchart TB
+  UI[Frontend\nVue 3 + TypeScript + Pinia + Bootstrap] -->|REST| API[Backend\nFastAPI Modular Monolith]
+
+  API --> AUTH[Auth + Tenancy]
+  API --> DOCS[Documents + Ingestion]
+  API --> MEMBERS[Membership + Contributions]
+  API --> GOV[Policies + Discipline + Governance]
+  API --> OPS[Events + Announcements + Notifications]
+  API --> RAG[Chat + RAG Retrieval]
+
+  AUTH --> PG[(PostgreSQL)]
+  DOCS --> MINIO[(MinIO)]
+  DOCS --> REDIS[(Redis)]
+  DOCS --> CELERY[Celery Worker]
+  RAG --> QDRANT[(Qdrant)]
+  RAG --> OLLAMA[(Ollama)]
+```
+
 **Key design decisions:**
+
 - **Backend enforces all permissions** — the LLM never decides access control
 - **Tenant isolation** on every DB query (every request carries `tenant_id`)
 - **RAG retrieval** is filtered by tenant and access scope before the LLM sees anything
@@ -84,19 +106,19 @@ Then access the app:
 
 ### Demo Credentials
 
-| Role | Email | Password |
-| --- | --- | --- |
-| Admin | `admin@demo.org` | `Admin123!` |
-| Member | `alice@demo.org` | `Member123!` |
-| Member | `bob@demo.org` | `Member123!` |
-| Treasurer | `treasurer@demo.org` | `Treasurer123!` |
-| Secretary General | `secretary@demo.org` | `Secretary123!` |
-| Auditor | `auditor@demo.org` | `Auditor123!` |
-| Censor | `censor@demo.org` | `Censor123!` |
-| Sports Manager | `sports@demo.org` | `Sports123!` |
-| President | `president@demo.org` | `President123!` |
-| Vice President | `vice-president@demo.org` | `VicePresident123!` |
-| Principal Admin | `principal@demo.org` | `Principal123!` |
+| Role              | Email                     | Password            |
+| ----------------- | ------------------------- | ------------------- |
+| Admin             | `admin@demo.org`          | `Admin123!`         |
+| Member            | `alice@demo.org`          | `Member123!`        |
+| Member            | `bob@demo.org`            | `Member123!`        |
+| Treasurer         | `treasurer@demo.org`      | `Treasurer123!`     |
+| Secretary General | `secretary@demo.org`      | `Secretary123!`     |
+| Auditor           | `auditor@demo.org`        | `Auditor123!`       |
+| Censor            | `censor@demo.org`         | `Censor123!`        |
+| Sports Manager    | `sports@demo.org`         | `Sports123!`        |
+| President         | `president@demo.org`      | `President123!`     |
+| Vice President    | `vice-president@demo.org` | `VicePresident123!` |
+| Principal Admin   | `principal@demo.org`      | `Principal123!`     |
 
 ## Project Structure
 
@@ -110,7 +132,7 @@ kairo/
 │   │   │                events, announcements)
 │   │   ├── db/          Session, migrations, seed scripts
 │   │   └── core/        Security, logging, provider abstractions
-│   └── tests/           181+ integration tests (SQLite, no infra needed)
+│   └── tests/           212 integration tests (SQLite, no infra needed)
 ├── infra/               Infrastructure config samples (nginx, caddy, cloudflare)
 ├── docs/                Architecture docs, ADRs, sprint notes, deployment guide
 ├── orgmind_prompt_pack/ Source-of-truth product documentation
@@ -144,6 +166,7 @@ The repository includes two reusable browser-driven screenshot packs:
 
 - Seeded full-stack sessions: [`docs/github-demo/sessions/`](docs/github-demo/sessions/)
 - Role and tenant gallery: [`docs/github-demo/role-gallery/`](docs/github-demo/role-gallery/)
+- Role demo videos (WEBM): [`docs/github-demo/role-videos/`](docs/github-demo/role-videos/)
 - Full-stack capture script: [`scripts/capture-github-demo.mjs`](scripts/capture-github-demo.mjs)
 - Role-gallery capture script: [`scripts/capture-readme-gallery.mjs`](scripts/capture-readme-gallery.mjs)
 - Multi-tenant provisioning helper: [`seed/seed-multi-tenant.sh`](seed/seed-multi-tenant.sh)
@@ -202,11 +225,33 @@ The role gallery below is generated from the current application routes and role
 
 ![Secondary tenant shell](docs/github-demo/role-gallery/12-secondary-tenant/01-secondary-tenant-dashboard.png)
 
+## Role Video Gallery
+
+Short role demonstrations are generated in WEBM format and can be opened directly from GitHub.
+
+| Role Surface           | Video                                                                |
+| ---------------------- | -------------------------------------------------------------------- |
+| Public entry           | [Watch WEBM](docs/github-demo/role-videos/00-public-entry.webm)      |
+| Tenant picker          | [Watch WEBM](docs/github-demo/role-videos/01-tenant-picker.webm)     |
+| Member portal          | [Watch WEBM](docs/github-demo/role-videos/02-member.webm)            |
+| Secretary general      | [Watch WEBM](docs/github-demo/role-videos/03-secretary-general.webm) |
+| Treasurer              | [Watch WEBM](docs/github-demo/role-videos/04-treasurer.webm)         |
+| Auditor                | [Watch WEBM](docs/github-demo/role-videos/05-auditor.webm)           |
+| Censor                 | [Watch WEBM](docs/github-demo/role-videos/06-censor.webm)            |
+| Sports manager         | [Watch WEBM](docs/github-demo/role-videos/07-sports-manager.webm)    |
+| President              | [Watch WEBM](docs/github-demo/role-videos/08-president.webm)         |
+| Vice president         | [Watch WEBM](docs/github-demo/role-videos/09-vice-president.webm)    |
+| Principal admin        | [Watch WEBM](docs/github-demo/role-videos/10-principal-admin.webm)   |
+| Tenant switcher        | [Watch WEBM](docs/github-demo/role-videos/11-tenant-switcher.webm)   |
+| Secondary tenant shell | [Watch WEBM](docs/github-demo/role-videos/12-secondary-tenant.webm)  |
+
 To regenerate the role gallery locally:
 
 ```bash
 node scripts/capture-readme-gallery.mjs
 ```
+
+This command now generates both screenshots and short role videos.
 
 If you already have the frontend running elsewhere, set `KAIRO_DEMO_BASE_URL` first.
 
@@ -222,14 +267,18 @@ On Windows PowerShell:
 .\seed\seed-multi-tenant.ps1
 ```
 
-## Delivery Status
+## Delivery Status (Validated 2026-07-06)
 
-Kairo is currently a strong professional release candidate for association workflows:
+- Current sprint: **Sprint 61 completed** (Onboarding Wizard, Demo Seed, and First-Run Setup)
+- Official next sprint: **Sprint 62** (Privacy, Audit, and Export Hardening)
+- Backend validation run: **212 tests executed**, **211 passed**, **1 failed**
+  - failing test: `tests/test_import_export.py::TestExports::test_export_members_accessible_to_auth_user`
+  - observed behavior: export endpoint returns `403` for an authenticated member profile
+- Frontend validation run: `npm run build` passed (`vue-tsc --noEmit` + Vite production build)
+- Role simulation run: 18 Playwright role-focused scenarios passed (finance, auditor, censor, sports, governance, secretary, tenant operations/switching, admin overview)
+- Demo assets refreshed: 13 screenshot sessions + 13 short role videos (WEBM)
 
-- suitable for controlled pilot deployments and disciplined self-hosting
-- technically mature on tenant isolation, backend-enforced permissions, auditability, onboarding, and role-scoped workspaces
-- not yet a fully turnkey broad-market product, because the productization track still needs to finish privacy hardening, deployment packaging, and commercial handoff work beyond the current release-candidate scope; the new health center already surfaces recovery evidence and dependency status for operators
-- the new onboarding wizard now gives admins a first-run setup path and demo seed guidance, while the productization track still needs to finish privacy/export hardening, deployment packaging, and commercial handoff work beyond the current release-candidate scope
+Kairo remains a strong professional release candidate for association workflows, suitable for controlled pilot deployments and disciplined self-hosting. The remaining productization track is still centered on privacy/export hardening, deployment packaging, and commercial handoff completion.
 
 See [`docs/commercial/maturity-review.md`](docs/commercial/maturity-review.md) and [`docs/commercial/demo-to-production-checklist.md`](docs/commercial/demo-to-production-checklist.md).
 

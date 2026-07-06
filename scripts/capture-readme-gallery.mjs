@@ -7,10 +7,13 @@ import { chromium } from "../apps/web/node_modules/playwright/index.mjs";
 const repoRoot = process.cwd();
 const appRoot = path.join(repoRoot, "apps", "web");
 const outputRoot = path.join(repoRoot, "docs", "github-demo", "role-gallery");
+const videoRoot = path.join(repoRoot, "docs", "github-demo", "role-videos");
 const galleryPort = process.env.KAIRO_DEMO_PORT || "4173";
 const baseUrl = process.env.KAIRO_DEMO_BASE_URL || `http://127.0.0.1:${galleryPort}`;
 const shouldStartWeb = !process.env.KAIRO_DEMO_BASE_URL;
 const npmCommand = process.platform === "win32" ? "npm.cmd" : "npm";
+const captureVideos = process.env.KAIRO_CAPTURE_VIDEOS !== "0";
+const videoDurationMs = Number(process.env.KAIRO_VIDEO_DURATION_MS || "3500");
 
 const modules = {
   membership: true,
@@ -731,13 +734,14 @@ async function ensureDir(dir) {
   await fs.mkdir(dir, { recursive: true });
 }
 
-async function writeManifest(dir, session) {
+async function writeManifest(dir, session, videoPath) {
   const content = [
     `# ${session.title}`,
     "",
     `- Purpose: ${session.note}`,
     `- Route: \`${session.route}\``,
     `- Capture: \`${session.file}\``,
+    ...(videoPath ? [`- Video: \`${videoPath}\``] : []),
     "",
   ].join("\n");
   await fs.writeFile(path.join(dir, "SESSION.md"), content, "utf8");
@@ -953,10 +957,22 @@ async function captureSession(browser, session) {
   const sessionDir = path.join(outputRoot, session.folder);
   await ensureDir(sessionDir);
 
-  const context = await browser.newContext({
-    viewport: { width: 1440, height: 1100 },
-  });
+  const context = await browser.newContext(
+    captureVideos
+      ? {
+          viewport: { width: 1440, height: 1100 },
+          recordVideo: {
+            dir: videoRoot,
+            size: { width: 1440, height: 900 },
+          },
+        }
+      : {
+          viewport: { width: 1440, height: 1100 },
+        },
+  );
   const page = await context.newPage();
+  const video = page.video();
+  let videoPath;
 
   try {
     await session.setup(page);
@@ -973,14 +989,32 @@ async function captureSession(browser, session) {
       path: path.join(sessionDir, session.file),
       fullPage: true,
     });
-    await writeManifest(sessionDir, session);
+
+    if (captureVideos) {
+      await page.mouse.wheel(0, 700);
+      await delay(700);
+      await page.mouse.wheel(0, -700);
+      await delay(Math.max(videoDurationMs - 1400, 0));
+    }
   } finally {
     await context.close();
+
+    if (captureVideos && video) {
+      const rawVideoPath = await video.path();
+      const targetVideoPath = path.join(videoRoot, `${session.folder}.webm`);
+      await fs.copyFile(rawVideoPath, targetVideoPath);
+      videoPath = path.relative(repoRoot, targetVideoPath).replaceAll("\\", "/");
+    }
   }
+
+  await writeManifest(sessionDir, session, videoPath);
 }
 
 async function run() {
   await ensureDir(outputRoot);
+  if (captureVideos) {
+    await ensureDir(videoRoot);
+  }
   let webServer;
 
   if (shouldStartWeb) {
