@@ -11,10 +11,14 @@ from app.core.capabilities import (
     CAP_FINANCE_WRITE,
     CAP_TENANT_ADMINISTRATION,
 )
-from app.core.dependencies import AuthDep, DbDep
+from app.core.dependencies import AuthDep, DbDep, NotificationsDep
 from app.core.import_export import ImportResult
 from app.core.module_guard import require_module
 from app.modules.contributions.schemas import (
+    ContributionReminderBatchRequest,
+    ContributionReminderBatchResponse,
+    ContributionReminderResponse,
+    ContributionReminderSendRequest,
     ContributionRecordCreate,
     ContributionRecordResponse,
     ContributionRecordUpdate,
@@ -86,6 +90,54 @@ async def list_tenant_payments(
     )
     service = ContributionService(db)
     return await service.list_tenant_payments(current.tenant_id)
+
+
+@router.get("/reminders", response_model=list[ContributionReminderResponse])
+async def list_contribution_reminders(
+    current: AuthDep,
+    db: DbDep,
+    year: int | None = None,
+    profile_id: UUID | None = None,
+    limit: int = Query(20, ge=1, le=100),
+) -> list[ContributionReminderResponse]:
+    """List reminder history for finance support and audit review."""
+    require_capability(
+        current,
+        CAP_FINANCE_TENANT_READ,
+        detail="Finance read capability required",
+    )
+    service = ContributionService(db)
+    return await service.list_reminders(
+        current.tenant_id,
+        year=year,
+        profile_id=profile_id,
+        limit=limit,
+    )
+
+
+@router.post(
+    "/reminders/send",
+    response_model=ContributionReminderBatchResponse,
+    dependencies=[require_module("notifications")],
+)
+async def send_batch_contribution_reminders(
+    payload: ContributionReminderBatchRequest,
+    current: AuthDep,
+    db: DbDep,
+    notifications: NotificationsDep,
+) -> ContributionReminderBatchResponse:
+    """Send reminder messages to a filtered cohort of outstanding contributions."""
+    require_capability(
+        current,
+        CAP_FINANCE_WRITE,
+        detail="Finance write capability required",
+    )
+    service = ContributionService(db).with_notification_providers(notifications)
+    return await service.send_batch_reminders(
+        current.tenant_id,
+        payload,
+        actor_user_id=current.user.id,
+    )
 
 
 @router.get("/by-member/{profile_id}", response_model=list[ContributionRecordResponse])
@@ -223,6 +275,33 @@ async def record_payment(
     service = ContributionService(db)
     return await service.record_payment(
         current.tenant_id, data, actor_user_id=current.user.id
+    )
+
+
+@router.post(
+    "/{contribution_id}/reminders/send",
+    response_model=ContributionReminderResponse,
+    dependencies=[require_module("notifications")],
+)
+async def send_contribution_reminder(
+    contribution_id: UUID,
+    payload: ContributionReminderSendRequest,
+    current: AuthDep,
+    db: DbDep,
+    notifications: NotificationsDep,
+) -> ContributionReminderResponse:
+    """Send a reminder for a single contribution record."""
+    require_capability(
+        current,
+        CAP_FINANCE_WRITE,
+        detail="Finance write capability required",
+    )
+    service = ContributionService(db).with_notification_providers(notifications)
+    return await service.send_reminder(
+        current.tenant_id,
+        contribution_id,
+        payload,
+        actor_user_id=current.user.id,
     )
 
 

@@ -60,7 +60,26 @@ Validation criteria:
 - the application boots after restoration
 - tenant-scoped data remains intact
 
-## 4. Security Hardening Checks
+## 4. Recovery Evidence Capture
+
+After every successful backup or restore drill, record the evidence inside the tenant settings screen or via the tenant operations command center; the new admin health center can then surface the same evidence alongside live dependency checks for quick operational review.
+
+Record at least:
+
+- last backup timestamp
+- backup status and archive reference
+- last restore drill timestamp
+- restore drill status
+- alert posture and whether contacts are configured
+- a short note describing the latest drill outcome
+
+Use the admin health center or the admin overview to confirm the recovery evidence status:
+
+- `healthy` means the evidence is current and the alert posture is configured
+- `warning` means the evidence exists but is aging or incomplete
+- `critical` means the tenant has no usable recovery proof or the alert posture is not configured
+
+## 5. Security Hardening Checks
 
 - confirm `APP_DEBUG=false` in production
 - confirm `/docs` and `/redoc` are disabled in production
@@ -68,7 +87,7 @@ Validation criteria:
 - confirm the API rate limits the most sensitive auth flows
 - confirm internal services are not exposed on public ports
 
-## 5. Upgrade Notes
+## 6. Upgrade Notes
 
 - Always run Alembic migrations before starting the new release.
 - Capture backup evidence before applying a schema change.
@@ -79,6 +98,7 @@ Validation criteria:
 - compose config output
 - build logs
 - restore drill summary
+- tenant recovery evidence record
 - `/health` output
 - `/metrics` output
 - any deviations or known gaps

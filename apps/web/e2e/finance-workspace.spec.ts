@@ -101,6 +101,28 @@ async function mockFinanceWorkspace(page: Page) {
     },
   ]
 
+  let reminders = [
+    {
+      id: 'reminder-seed-1',
+      tenant_id: 'tenant-demo-1',
+      contribution_record_id: 'contrib-1',
+      membership_profile_id: 'member-1',
+      member_display_name: 'Alice Example',
+      member_code: 'M001',
+      balance_snapshot: '80.00',
+      due_date_snapshot: '2026-01-31T00:00:00Z',
+      channel: 'email',
+      delivery_status: 'sent',
+      recipient: 'alice@example.org',
+      subject: 'Contribution reminder for 2026',
+      body: 'Reminder body',
+      provider_message: 'Reminder email accepted by fake provider.',
+      reminded_by: 'user-treasurer-1',
+      sent_at: '2026-03-18T10:00:00Z',
+      created_at: '2026-03-18T10:00:00Z',
+    },
+  ]
+
   function buildSummary(year?: number) {
     const scoped = contributions.filter((item) => !year || item.year === year)
     const totalExpected = scoped.reduce((sum, item) => sum + Number(item.expected_amount), 0)
@@ -242,6 +264,88 @@ async function mockFinanceWorkspace(page: Page) {
     })
   })
 
+  await page.route(/http:\/\/localhost:8000\/api\/v1\/contributions\/reminders(?:\?.*)?$/, async (route) => {
+    await route.fulfill({
+      status: 200,
+      contentType: 'application/json',
+      body: JSON.stringify(reminders),
+    })
+  })
+
+  await page.route(/http:\/\/localhost:8000\/api\/v1\/contributions\/reminders\/send$/, async (route) => {
+    const payload = route.request().postDataJSON() as {
+      year?: number
+      due_scope?: string
+      limit?: number
+    }
+    const selected = contributions
+      .filter((item) => Number(item.balance) > 0 && (!payload.year || item.year === payload.year))
+      .slice(0, payload.limit || 25)
+      .map((item, index) => {
+        const member = members.find((entry) => entry.id === item.membership_profile_id)
+        return {
+          id: `reminder-batch-${index + 1}`,
+          tenant_id: 'tenant-demo-1',
+          contribution_record_id: item.id,
+          membership_profile_id: item.membership_profile_id,
+          member_display_name: member?.display_name || 'Unknown member',
+          member_code: member?.member_code || 'N/A',
+          balance_snapshot: item.balance,
+          due_date_snapshot: item.due_date,
+          channel: 'email',
+          delivery_status: 'sent',
+          recipient: member?.email || 'missing@example.org',
+          subject: `Contribution reminder for ${item.year}`,
+          body: 'Batch reminder body',
+          provider_message: 'Reminder email accepted by fake provider.',
+          reminded_by: 'user-treasurer-1',
+          sent_at: '2026-06-30T13:00:00Z',
+          created_at: '2026-06-30T13:00:00Z',
+        }
+      })
+    reminders = [...selected, ...reminders]
+    await route.fulfill({
+      status: 200,
+      contentType: 'application/json',
+      body: JSON.stringify({
+        attempted_count: selected.length,
+        reminder_count: selected.length,
+        reminders: selected,
+      }),
+    })
+  })
+
+  await page.route(/http:\/\/localhost:8000\/api\/v1\/contributions\/([^/]+)\/reminders\/send$/, async (route) => {
+    const contributionId = route.request().url().match(/contributions\/([^/]+)\/reminders\/send$/)?.[1] || 'unknown'
+    const contribution = contributions.find((item) => item.id === contributionId)
+    const member = members.find((entry) => entry.id === contribution?.membership_profile_id)
+    const created = {
+      id: `reminder-${reminders.length + 1}`,
+      tenant_id: 'tenant-demo-1',
+      contribution_record_id: contributionId,
+      membership_profile_id: contribution?.membership_profile_id || 'member-1',
+      member_display_name: member?.display_name || 'Unknown member',
+      member_code: member?.member_code || 'N/A',
+      balance_snapshot: contribution?.balance || '0.00',
+      due_date_snapshot: contribution?.due_date || null,
+      channel: 'email',
+      delivery_status: 'sent',
+      recipient: member?.email || 'missing@example.org',
+      subject: `Contribution reminder for ${contribution?.year || 2026}`,
+      body: 'Single reminder body',
+      provider_message: 'Reminder email accepted by fake provider.',
+      reminded_by: 'user-treasurer-1',
+      sent_at: '2026-06-30T12:30:00Z',
+      created_at: '2026-06-30T12:30:00Z',
+    }
+    reminders = [created, ...reminders]
+    await route.fulfill({
+      status: 200,
+      contentType: 'application/json',
+      body: JSON.stringify(created),
+    })
+  })
+
   await page.route(/http:\/\/localhost:8000\/api\/v1\/contributions\/?(?:\?.*)?$/, async (route) => {
     const request = route.request()
     const url = new URL(request.url())
@@ -335,5 +439,21 @@ test.describe('Finance workspace', () => {
 
     await expect(page.getByRole('cell', { name: 'Bob Example (M002)' }).first()).toBeVisible()
     await expect(page.getByRole('cell', { name: '150.00' }).first()).toBeVisible()
+  })
+
+  test('sends reminder workflows and shows reminder history', async ({ page }) => {
+    await mockFinanceWorkspace(page)
+    await page.goto('/dashboard')
+    await financeNavLink(page).click()
+
+    await expect(page.getByRole('heading', { name: 'Collections reminders' })).toBeVisible()
+    await expect(page.getByTestId('finance-reminder-history')).toContainText('Alice Example')
+
+    await page.getByRole('button', { name: 'Remind' }).first().click()
+    await expect(page.getByRole('status')).toContainText('Sent reminder for Alice Example.')
+    await expect(page.getByTestId('finance-reminder-history')).toContainText('Contribution reminder for 2026')
+
+    await page.getByRole('button', { name: 'Send batch' }).click()
+    await expect(page.getByRole('status')).toContainText('Processed 1 reminder target(s).')
   })
 })

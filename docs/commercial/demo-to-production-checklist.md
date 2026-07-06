@@ -10,6 +10,7 @@ Use this checklist when moving from the demo tenant to a real customer deploymen
 - [ ] Confirm backup storage is available
 - [ ] Confirm the production `.env` file has unique secrets
 - [ ] Confirm module toggles match the customer scope
+- [ ] Review the onboarding wizard and decide whether the demo seed helper should be used for staging only
 
 ## Data Preparation
 
@@ -18,6 +19,7 @@ Use this checklist when moving from the demo tenant to a real customer deploymen
 - [ ] Prepare policies, documents, events, and announcements
 - [ ] Remove demo-only content
 - [ ] Review tenant branding and contact information
+- [ ] If a reproducible second tenant is needed for demos, run `./seed/seed-multi-tenant.sh` or `.\seed\seed-multi-tenant.ps1`
 
 ## Infrastructure Cutover
 

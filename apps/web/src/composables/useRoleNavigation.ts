@@ -141,7 +141,12 @@ export function useRoleNavigation() {
     const sections: NavSection[] = [
       {
         label: 'Overview',
-        items: [{ label: 'Overview', to: '/admin', icon: 'bi-speedometer2' }],
+        items: [
+          { label: 'Overview', to: '/admin', icon: 'bi-speedometer2' },
+          { label: 'Onboarding wizard', to: '/admin/onboarding', icon: 'bi-stars' },
+          { label: 'Health center', to: '/admin/health', icon: 'bi-heart-pulse' },
+          { label: 'Tenant operations', to: '/admin/tenants', icon: 'bi-diagram-3' },
+        ],
       },
     ]
 

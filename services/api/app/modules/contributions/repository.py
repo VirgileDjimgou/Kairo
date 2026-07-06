@@ -5,7 +5,11 @@ from uuid import UUID
 from sqlalchemy import select, func
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.modules.contributions.models import ContributionRecord, PaymentRecord
+from app.modules.contributions.models import (
+    ContributionRecord,
+    ContributionReminder,
+    PaymentRecord,
+)
 
 
 def _normalize_decimal(value: Decimal) -> Decimal:
@@ -131,6 +135,39 @@ class ContributionRepository:
         await self._db.delete(record)
         await self._db.flush()
         return True
+
+    async def create_reminder(self, tenant_id: UUID, data: dict) -> ContributionReminder:
+        data["tenant_id"] = tenant_id
+        record = ContributionReminder(**data)
+        self._db.add(record)
+        await self._db.flush()
+        await self._db.refresh(record)
+        return record
+
+    async def list_reminders_by_tenant(
+        self,
+        tenant_id: UUID,
+        *,
+        year: int | None = None,
+        profile_id: UUID | None = None,
+        limit: int = 50,
+    ) -> list[ContributionReminder]:
+        query = select(ContributionReminder).where(
+            ContributionReminder.tenant_id == tenant_id
+        )
+        if profile_id is not None:
+            query = query.where(ContributionReminder.membership_profile_id == profile_id)
+        if year is not None:
+            query = query.join(
+                ContributionRecord,
+                ContributionRecord.id == ContributionReminder.contribution_record_id,
+            ).where(ContributionRecord.year == year)
+        query = query.order_by(
+            ContributionReminder.sent_at.desc(),
+            ContributionReminder.created_at.desc(),
+        ).limit(limit)
+        result = await self._db.execute(query)
+        return list(result.scalars().all())
 
     async def get_tenant_contribution_summary(
         self, tenant_id: UUID, year: int | None = None

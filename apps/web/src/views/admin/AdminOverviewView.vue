@@ -11,6 +11,15 @@
         </p>
       </div>
       <div class="d-flex align-items-start gap-2">
+        <RouterLink to="/admin/onboarding" class="btn btn-outline-secondary" data-testid="admin-overview-onboarding-button">
+          <i class="bi bi-stars me-1"></i>Onboarding wizard
+        </RouterLink>
+        <RouterLink to="/admin/health" class="btn btn-outline-secondary" data-testid="admin-overview-health-button">
+          <i class="bi bi-heart-pulse me-1"></i>Health center
+        </RouterLink>
+        <RouterLink to="/admin/tenants" class="btn btn-outline-secondary">
+          <i class="bi bi-diagram-3 me-1"></i>Tenant operations
+        </RouterLink>
         <RouterLink to="/admin/settings" class="btn btn-outline-secondary">
           <i class="bi bi-gear me-1"></i>Settings
         </RouterLink>
@@ -180,6 +189,7 @@
                 :key="action.id"
                 :to="action.to"
                 class="quick-action"
+                :data-testid="`admin-quick-action-${action.id}`"
               >
                 <div class="fw-semibold">{{ action.label }}</div>
                 <div class="small text-muted">{{ action.description }}</div>

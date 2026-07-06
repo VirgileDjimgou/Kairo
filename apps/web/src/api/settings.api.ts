@@ -5,6 +5,26 @@ export interface BrandingConfig {
   logo_url: string
 }
 
+export interface RecoveryEvidenceConfig {
+  last_backup_at: string | null
+  last_backup_status: string
+  last_backup_reference: string
+  last_restore_drill_at: string | null
+  last_restore_drill_status: string
+  alert_posture: string
+  alert_contacts_configured: boolean
+  backup_retention_days: number | null
+  notes: string
+}
+
+export interface RecoveryEvidenceResponse extends RecoveryEvidenceConfig {
+  backup_is_stale: boolean
+  restore_drill_is_stale: boolean
+  alert_is_healthy: boolean
+  overall_status: 'healthy' | 'warning' | 'critical'
+  status_message: string
+}
+
 export interface ModuleToggles {
   membership: boolean
   contributions: boolean
@@ -23,6 +43,7 @@ export interface TenantSettingsResponse {
   default_language: string
   branding: BrandingConfig
   modules: ModuleToggles
+  operations: RecoveryEvidenceResponse
   updated_at: string
 }
 
@@ -31,6 +52,7 @@ export interface TenantSettingsUpdate {
   default_language?: string
   branding?: Partial<BrandingConfig>
   modules?: Partial<ModuleToggles>
+  operations?: Partial<RecoveryEvidenceConfig>
 }
 
 export interface RoleResponse {

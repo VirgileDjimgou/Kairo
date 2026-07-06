@@ -36,6 +36,7 @@ The `role-gallery/` folder contains the current README gallery for the professio
 - principal admin
 - tenant switcher
 - secondary tenant shell
+- tenant operations command center
 
 These captures are browser-driven and deterministic. They validate the live frontend routes and role matrix without requiring a Dockerized multi-tenant demo stack.
 
@@ -46,3 +47,19 @@ node scripts/capture-readme-gallery.mjs
 ```
 
 If your frontend is already running on a different local URL, set `KAIRO_DEMO_BASE_URL` before either command.
+
+## Multi-Tenant Demo Stack
+
+When you want a live stack with two isolated tenants for manual browser checks or screenshots, seed the base demo tenant first and then add the second tenant with:
+
+```bash
+./seed/seed-multi-tenant.sh
+```
+
+On Windows PowerShell:
+
+```powershell
+.\seed\seed-multi-tenant.ps1
+```
+
+This helper provisions the second organization, a cross-tenant demo account, and the tenant-switching data used by the browser gallery and the multi-tenant walkthrough.

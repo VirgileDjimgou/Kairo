@@ -198,6 +198,11 @@ const router = createRouter({
           component: () => import('@/views/admin/AuditTrailView.vue'),
         },
         {
+          path: 'tenants',
+          name: 'admin-tenants',
+          component: () => import('@/views/admin/TenantOperationsView.vue'),
+        },
+        {
           path: 'members',
           name: 'admin-members',
           component: () => import('@/views/members/AdminMembersView.vue'),
@@ -244,6 +249,32 @@ const router = createRouter({
           name: 'admin-settings',
           component: () => import('@/views/admin/AdminSettingsView.vue'),
         },
+        {
+          path: 'onboarding',
+          name: 'admin-onboarding',
+          component: () => import('@/views/admin/AdminOnboardingWizardView.vue'),
+          meta: {
+            allowedRoles: ['admin', 'principal_admin'],
+          },
+        },
+        {
+          path: 'health',
+          name: 'admin-health-center',
+          component: () => import('@/views/admin/AdminHealthCenterView.vue'),
+          meta: {
+            allowedRoles: [
+              'admin',
+              'principal_admin',
+              'president',
+              'vice_president',
+              'secretary_general',
+              'treasurer',
+              'auditor',
+              'censor',
+              'sports_manager',
+            ],
+          },
+        },
       ],
     },
     {
@@ -275,6 +306,7 @@ router.beforeEach(async (to) => {
 
   if (
     to.path.startsWith('/admin') &&
+    to.name !== 'admin-health-center' &&
     auth.isAuthenticated &&
     auth.user &&
     !currentRoles.some((role) => ['admin', 'principal_admin'].includes(role))

@@ -63,6 +63,47 @@ function makePrincipalAdminResponse(modules: ModuleToggles) {
   }
 }
 
+function makeTenantSettings(overrides?: Partial<Record<string, unknown>>) {
+  return {
+    tenant_id: 'tenant-demo-1',
+    name: 'Demo Organization',
+    slug: 'demo',
+    default_language: 'en',
+    branding: {
+      primary_color: '#1f4f8f',
+      logo_url: '',
+    },
+    modules: {
+      membership: true,
+      contributions: true,
+      policies: true,
+      disciplinary: true,
+      events: true,
+      announcements: true,
+      chat: true,
+      notifications: true,
+    },
+    operations: {
+      last_backup_at: '2026-07-02T03:00:00Z',
+      last_backup_status: 'completed',
+      last_backup_reference: 'kairo-backup-20260702_030000.tar.gz',
+      last_restore_drill_at: '2026-06-28T12:00:00Z',
+      last_restore_drill_status: 'passed',
+      alert_posture: 'healthy',
+      alert_contacts_configured: true,
+      backup_retention_days: 30,
+      notes: 'Latest drill completed with a clean restore.',
+      backup_is_stale: false,
+      restore_drill_is_stale: false,
+      alert_is_healthy: true,
+      overall_status: 'healthy',
+      status_message: 'Recovery evidence looks current and healthy.',
+    },
+    updated_at: '2026-07-04T12:00:00Z',
+    ...overrides,
+  }
+}
+
 async function mockAdminOverview(page: Page, modules: ModuleToggles) {
   await page.addInitScript(() => {
     window.localStorage.setItem('access_token', 'playwright-admin-token')
@@ -130,6 +171,14 @@ async function mockAdminOverview(page: Page, modules: ModuleToggles) {
         retried_count: 1,
         recent_failures: [],
       }),
+    })
+  })
+
+  await page.route('http://localhost:8000/api/v1/tenants/tenant-demo-1/settings', async (route) => {
+    await route.fulfill({
+      status: 200,
+      contentType: 'application/json',
+      body: JSON.stringify(makeTenantSettings()),
     })
   })
 
@@ -322,6 +371,14 @@ async function mockPrincipalAdminOverview(page: Page, modules: ModuleToggles) {
     })
   })
 
+  await page.route('http://localhost:8000/api/v1/tenants/tenant-demo-1/settings', async (route) => {
+    await route.fulfill({
+      status: 200,
+      contentType: 'application/json',
+      body: JSON.stringify(makeTenantSettings()),
+    })
+  })
+
   await page.route('http://localhost:8000/api/v1/memberships/', async (route) => {
     await route.fulfill({
       status: 200,
@@ -463,7 +520,14 @@ test.describe('Admin overview', () => {
     await expect(page.getByTestId('admin-overview-metrics')).toContainText('Open balance')
     await expect(page.getByText('Operational watchlist')).toBeVisible()
     await expect(page.getByText('Launch readiness')).toBeVisible()
+    await expect(page.getByRole('link', { name: /Recovery evidence healthy/i })).toBeVisible()
+    await expect(page.getByTestId('admin-overview-onboarding-button')).toHaveAttribute('href', '/admin/onboarding')
+    await expect(page.getByTestId('admin-overview-health-button')).toHaveAttribute('href', '/admin/health')
+    await expect(page.getByTestId('admin-quick-action-health-center')).toHaveAttribute('href', '/admin/health')
+    await expect(page.getByTestId('admin-quick-action-onboarding-wizard')).toHaveAttribute('href', '/admin/onboarding')
+    await expect(page.getByTestId('admin-overview-quick-actions')).toContainText('Tenant operations')
     await expect(page.getByTestId('admin-overview-quick-actions')).toContainText('Tenant settings')
+    await expect(page.getByTestId('admin-overview-quick-actions')).toContainText('Onboarding wizard')
     await expect(page.getByText('Ingestion health')).toBeVisible()
   })
 
@@ -487,6 +551,7 @@ test.describe('Admin overview', () => {
     await expect(page.getByTestId('admin-overview-metrics')).not.toContainText('Upcoming events')
     await expect(page.getByTestId('admin-overview-quick-actions')).not.toContainText('Channels')
     await expect(page.getByTestId('admin-overview-quick-actions')).not.toContainText('Members')
+    await expect(page.getByTestId('admin-overview-metrics')).toContainText('Recovery evidence')
   })
 
   test('renders the principal admin control plane label for principal admins', async ({ page }) => {

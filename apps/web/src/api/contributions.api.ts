@@ -28,6 +28,26 @@ export interface PaymentRecordResponse {
   created_at: string
 }
 
+export interface ContributionReminderResponse {
+  id: string
+  tenant_id: string
+  contribution_record_id: string
+  membership_profile_id: string
+  member_display_name: string
+  member_code: string
+  balance_snapshot: string
+  due_date_snapshot: string | null
+  channel: 'email'
+  delivery_status: 'sent' | 'simulated' | 'failed' | 'skipped'
+  recipient: string
+  subject: string
+  body: string
+  provider_message: string | null
+  reminded_by: string | null
+  sent_at: string
+  created_at: string
+}
+
 export interface CreateContributionPayload {
   membership_profile_id: string
   year: number
@@ -60,6 +80,24 @@ export interface ContributionSummary {
   total_expected: string
   total_paid: string
   total_balance: string
+}
+
+export interface SendContributionReminderPayload {
+  channel?: 'email'
+}
+
+export interface SendContributionReminderBatchPayload {
+  channel?: 'email'
+  year?: number
+  status?: string
+  due_scope?: 'all_outstanding' | 'overdue' | 'due_soon'
+  limit?: number
+}
+
+export interface ContributionReminderBatchResponse {
+  attempted_count: number
+  reminder_count: number
+  reminders: ContributionReminderResponse[]
 }
 
 export async function listContributions(year?: number): Promise<ContributionRecordResponse[]> {
@@ -104,6 +142,39 @@ export async function listPayments(contributionId: string): Promise<PaymentRecor
 
 export async function listTenantPayments(): Promise<PaymentRecordResponse[]> {
   const response = await http.get<PaymentRecordResponse[]>('/contributions/payments')
+  return response.data
+}
+
+export async function listContributionReminders(year?: number): Promise<ContributionReminderResponse[]> {
+  const params = year ? { year } : {}
+  const response = await http.get<ContributionReminderResponse[]>('/contributions/reminders', { params })
+  return response.data
+}
+
+export async function sendContributionReminder(
+  contributionId: string,
+  payload: SendContributionReminderPayload = {},
+): Promise<ContributionReminderResponse> {
+  const response = await http.post<ContributionReminderResponse>(
+    `/contributions/${contributionId}/reminders/send`,
+    { channel: payload.channel || 'email' },
+  )
+  return response.data
+}
+
+export async function sendContributionReminderBatch(
+  payload: SendContributionReminderBatchPayload,
+): Promise<ContributionReminderBatchResponse> {
+  const response = await http.post<ContributionReminderBatchResponse>(
+    '/contributions/reminders/send',
+    {
+      channel: payload.channel || 'email',
+      year: payload.year,
+      status: payload.status,
+      due_scope: payload.due_scope || 'overdue',
+      limit: payload.limit || 25,
+    },
+  )
   return response.data
 }
 

@@ -121,6 +121,41 @@ async function installBaseRoutes(page: Page, caseItem: RoleCase) {
       body: JSON.stringify([]),
     })
   })
+
+  await page.route('**/api/v1/tenants/tenant-demo-1/settings', async (route) => {
+    await route.fulfill({
+      status: 200,
+      contentType: 'application/json',
+      body: JSON.stringify({
+        tenant_id: 'tenant-demo-1',
+        name: 'Demo Organization',
+        slug: 'demo',
+        default_language: 'en',
+        branding: {
+          primary_color: '#1f4f8f',
+          logo_url: '',
+        },
+        modules,
+        operations: {
+          last_backup_at: '2026-07-02T03:00:00Z',
+          last_backup_status: 'completed',
+          last_backup_reference: 'kairo-backup-20260702_030000.tar.gz',
+          last_restore_drill_at: '2026-06-28T12:00:00Z',
+          last_restore_drill_status: 'passed',
+          alert_posture: 'healthy',
+          alert_contacts_configured: true,
+          backup_retention_days: 30,
+          notes: 'Latest drill completed with a clean restore.',
+          backup_is_stale: false,
+          restore_drill_is_stale: false,
+          alert_is_healthy: true,
+          overall_status: 'healthy',
+          status_message: 'Recovery evidence looks current and healthy.',
+        },
+        updated_at: '2026-07-04T12:00:00Z',
+      }),
+    })
+  })
 }
 
 async function installRoleRoutes(page: Page, caseItem: RoleCase) {

@@ -40,18 +40,23 @@ async def _create_contribution(
     token: str,
     *,
     membership_profile_id: str,
+    due_date: str | None = None,
 ) -> dict:
+    payload = {
+        "membership_profile_id": membership_profile_id,
+        "year": 2026,
+        "expected_amount": "120.00",
+        "paid_amount": "20.00",
+        "currency": "EUR",
+        "status": "partial",
+    }
+    if due_date is not None:
+        payload["due_date"] = due_date
+
     response = await client.post(
         "/api/v1/contributions/",
         headers={"Authorization": f"Bearer {token}"},
-        json={
-            "membership_profile_id": membership_profile_id,
-            "year": 2026,
-            "expected_amount": "120.00",
-            "paid_amount": "20.00",
-            "currency": "EUR",
-            "status": "partial",
-        },
+        json=payload,
     )
     assert response.status_code == 201, response.text
     return response.json()
@@ -430,6 +435,112 @@ async def test_censor_can_manage_disciplinary_records_and_treasurer_cannot(
     assert create_event["details"]["membership_profile_id"] == profile["id"]
     assert update_event["details"]["changes"]["status"] == "resolved"
     assert delete_event["details"]["membership_profile_id"] == profile["id"]
+
+
+async def test_treasurer_can_send_reminders_and_member_cannot_read_reminder_history(
+    client: AsyncClient,
+    db_session: AsyncSession,
+) -> None:
+    from app.core.dependencies import get_notification_providers
+    from app.main import app
+
+    from fakes import FakeEmailNotificationProvider
+
+    admin = await create_tenant_with_user(db_session, f"reminder-admin-{_uuid.uuid4().hex[:6]}")
+    treasurer = await create_user_for_tenant(
+        db_session,
+        tenant_id=admin["tenant"].id,
+        email=f"treasurer-reminder-{_uuid.uuid4().hex[:6]}@test.org",
+        password="TreasurerPass3!",
+        display_name="Treasurer Reminder",
+        role_code="treasurer",
+        profile_type="staff",
+    )
+    member = await create_user_for_tenant(
+        db_session,
+        tenant_id=admin["tenant"].id,
+        email=f"member-reminder-{_uuid.uuid4().hex[:6]}@test.org",
+        password="MemberPass3!",
+        display_name="Reminder Member",
+        role_code="member",
+        profile_type="member",
+        member_code="RM-001",
+    )
+    await db_session.commit()
+
+    admin_token = await login(client, admin["user"].email, admin["password"], admin["tenant"].slug)
+    treasurer_token = await login(client, treasurer["user"].email, treasurer["password"], admin["tenant"].slug)
+    member_token = await login(client, member["user"].email, member["password"], admin["tenant"].slug)
+
+    contribution = await _create_contribution(
+        client,
+        admin_token,
+        membership_profile_id=str(member["profile"].id),
+        due_date="2026-01-31T00:00:00Z",
+    )
+
+    provider = FakeEmailNotificationProvider(
+        status="sent",
+        delivered=True,
+        simulation_only=False,
+        message="Reminder email accepted by fake provider.",
+    )
+    app.dependency_overrides[get_notification_providers] = lambda: [provider]
+
+    try:
+        single = await client.post(
+            f"/api/v1/contributions/{contribution['id']}/reminders/send",
+            headers={"Authorization": f"Bearer {treasurer_token}"},
+            json={"channel": "email"},
+        )
+        batch = await client.post(
+            "/api/v1/contributions/reminders/send",
+            headers={"Authorization": f"Bearer {treasurer_token}"},
+            json={
+                "channel": "email",
+                "year": 2026,
+                "due_scope": "all_outstanding",
+                "limit": 10,
+            },
+        )
+    finally:
+        app.dependency_overrides.pop(get_notification_providers, None)
+
+    assert single.status_code == 200, single.text
+    single_body = single.json()
+    assert single_body["delivery_status"] == "sent"
+    assert single_body["recipient"] == member["user"].email
+
+    assert batch.status_code == 200, batch.text
+    batch_body = batch.json()
+    assert batch_body["attempted_count"] == 1
+    assert batch_body["reminder_count"] == 1
+    assert provider.calls[0]["recipient"] == member["user"].email
+    assert provider.calls[0]["tenant_id"] == str(admin["tenant"].id)
+
+    history = await client.get(
+        "/api/v1/contributions/reminders?year=2026",
+        headers={"Authorization": f"Bearer {treasurer_token}"},
+    )
+    assert history.status_code == 200, history.text
+    history_rows = history.json()
+    assert len(history_rows) == 2
+    assert all(row["membership_profile_id"] == str(member["profile"].id) for row in history_rows)
+    assert all(row["delivery_status"] == "sent" for row in history_rows)
+
+    member_history = await client.get(
+        "/api/v1/contributions/reminders",
+        headers={"Authorization": f"Bearer {member_token}"},
+    )
+    assert member_history.status_code == 403, member_history.text
+
+    audit = await client.get(
+        "/api/v1/admin/audit/events",
+        headers={"Authorization": f"Bearer {admin_token}"},
+        params={"entity_type": "contribution_reminder"},
+    )
+    assert audit.status_code == 200, audit.text
+    assert any(row["action"] == "reminder_sent" for row in audit.json())
 
 
 async def test_principal_admin_keeps_tenant_administration_access(

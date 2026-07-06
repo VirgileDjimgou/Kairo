@@ -8,6 +8,7 @@ import { listPublicEvents } from '@/api/events.api'
 import { listAuditEvents } from '@/api/audit.api'
 import { listNotificationChannels } from '@/api/notifications.api'
 import { getIngestionJobsHealth, type IngestionJobHealthResponse } from '@/api/admin.api'
+import { getTenantSettings, type RecoveryEvidenceResponse } from '@/api/settings.api'
 import { useTenantOnboarding } from '@/composables/useTenantOnboarding'
 
 export interface AdminOverviewMetric {
@@ -54,6 +55,7 @@ export function useAdminOverview() {
     total_balance: string
   } | null>(null)
   const ingestionHealth = ref<IngestionJobHealthResponse | null>(null)
+  const recoveryEvidence = ref<RecoveryEvidenceResponse | null>(null)
 
   const modules = computed(() => ({
     membership: tenantStore.isModuleEnabled('membership'),
@@ -144,6 +146,31 @@ export function useAdminOverview() {
       })
     }
 
+    if (recoveryEvidence.value) {
+      metrics.push({
+        id: 'recovery',
+        label: 'Recovery evidence',
+        value: recoveryEvidence.value.overall_status,
+        hint: recoveryEvidence.value.status_message,
+        tone:
+          recoveryEvidence.value.overall_status === 'healthy'
+            ? 'success'
+            : recoveryEvidence.value.overall_status === 'warning'
+              ? 'warning'
+              : 'danger',
+        to: '/admin/settings',
+      })
+    } else {
+      metrics.push({
+        id: 'recovery',
+        label: 'Recovery evidence',
+        value: 'unrecorded',
+        hint: 'Backup and restore proof not yet recorded',
+        tone: 'warning',
+        to: '/admin/settings',
+      })
+    }
+
     return metrics
   })
 
@@ -194,6 +221,17 @@ export function useAdminOverview() {
       })
     }
 
+    if (recoveryEvidence.value && recoveryEvidence.value.overall_status !== 'healthy') {
+      risks.push({
+        id: 'recovery-evidence',
+        title: 'Recovery evidence needs refresh',
+        description: recoveryEvidence.value.status_message,
+        tone: recoveryEvidence.value.overall_status === 'critical' ? 'danger' : 'warning',
+        to: '/admin/settings',
+        actionLabel: 'Update evidence',
+      })
+    }
+
     if (risks.length === 0) {
       risks.push({
         id: 'healthy',
@@ -210,6 +248,24 @@ export function useAdminOverview() {
 
   const quickActions = computed<AdminQuickAction[]>(() => {
     const actions: AdminQuickAction[] = [
+      {
+        id: 'health-center',
+        label: 'Health center',
+        description: 'Review dependency status and recovery evidence',
+        to: '/admin/health',
+      },
+      {
+        id: 'onboarding-wizard',
+        label: 'Onboarding wizard',
+        description: 'Walk through the first-run setup sequence',
+        to: '/admin/onboarding',
+      },
+      {
+        id: 'tenant-operations',
+        label: 'Tenant operations',
+        description: 'Inspect memberships and switch context explicitly',
+        to: '/admin/tenants',
+      },
       {
         id: 'settings',
         label: 'Tenant settings',
@@ -281,6 +337,7 @@ export function useAdminOverview() {
 
     try {
       await onboarding.refresh()
+      const tenantId = tenantStore.currentTenant?.tenant_id
 
       const work: Promise<unknown>[] = [
         listDocuments().then((docs) => {
@@ -344,6 +401,16 @@ export function useAdminOverview() {
         configuredChannelCount.value = 0
       }
 
+      if (tenantId) {
+        work.push(
+          getTenantSettings(tenantId).then((settings) => {
+            recoveryEvidence.value = settings.operations
+          }),
+        )
+      } else {
+        recoveryEvidence.value = null
+      }
+
       await Promise.all(work)
     } catch (err: unknown) {
       error.value = (err as { message?: string })?.message || 'Could not load the admin overview.'
@@ -362,6 +429,7 @@ export function useAdminOverview() {
     onboarding,
     ingestionHealth,
     contributionSummary,
+    recoveryEvidence,
     refresh,
   }
 }
