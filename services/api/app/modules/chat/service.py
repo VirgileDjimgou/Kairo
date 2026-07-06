@@ -3,24 +3,36 @@ from __future__ import annotations
 import json
 import re
 from dataclasses import dataclass
+from datetime import datetime, timezone
 from textwrap import dedent
 from uuid import UUID
 
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core.capabilities import (
+    CAP_ANNOUNCEMENTS_WRITE,
+    CAP_DOCUMENTS_WRITE,
+    CAP_DISCIPLINARY_TENANT_READ,
+    CAP_DISCIPLINARY_WRITE,
+    CAP_EVENTS_SPORTS_WRITE,
     CAP_FINANCE_AUDIT,
     CAP_FINANCE_SELF_READ,
     CAP_FINANCE_TENANT_READ,
+    CAP_POLICIES_WRITE,
     CAP_TENANT_ADMINISTRATION,
 )
 from app.core.capabilities import capabilities_for_roles
+from app.modules.announcements.repository import AnnouncementRepository
 from app.modules.chat.models import ChatQueryLog
 from app.modules.chat.schemas import ChatCitationResponse, ChatQueryRequest, ChatQueryResponse
+from app.modules.disciplinary.repository import DisciplinaryRepository
+from app.modules.events.repository import EventRepository
 from app.modules.contributions.service import ContributionService
 from app.modules.documents.models import Document, DocumentChunk
 from app.modules.documents.repository import DocumentRepository
+from app.modules.events.models import Event
 from app.modules.membership.service import MembershipService
+from app.modules.policies.service import PolicyService
 from app.modules.rag.retrieval import build_access_policy
 
 
@@ -69,6 +81,50 @@ _OTHER_MEMBER_FINANCE_PATTERNS = (
     r"\b(balance|dues|fee|fees|contribution|contributions|owed|owing)\b.*\b(of|for)\b.*\b(member|user|profile)\b",
 )
 
+_GOVERNANCE_SUMMARY_PATTERNS = (
+    r"\bgovernance summary\b",
+    r"\borganization summary\b",
+    r"\borganization overview\b",
+    r"\btenant overview\b",
+    r"\bexecutive overview\b",
+    r"\bboard overview\b",
+    r"\bmember directory overview\b",
+    r"\bmember count\b",
+    r"\bdocument count\b",
+    r"\bannouncement count\b",
+    r"\bevent count\b",
+    r"\bpolicy count\b",
+)
+
+_PUBLICATION_CONTEXT_PATTERNS = (
+    r"\bpublication context\b",
+    r"\bofficial publication\b",
+    r"\bofficial publications\b",
+    r"\bpublication status\b",
+    r"\bannouncement status\b",
+    r"\bwhat should i publish\b",
+    r"\bwhat needs to be published\b",
+    r"\bofficial notices\b",
+)
+
+_DISCIPLINARY_SUMMARY_PATTERNS = (
+    r"\bdisciplinary summary\b",
+    r"\bsanctions overview\b",
+    r"\bcompliance overview\b",
+    r"\bopen cases\b",
+    r"\bcase summary\b",
+)
+
+_SPORTS_SCHEDULE_PATTERNS = (
+    r"\bsports schedule\b",
+    r"\bsports calendar\b",
+    r"\btraining schedule\b",
+    r"\bfixture schedule\b",
+    r"\bupcoming sports events\b",
+    r"\bnext sports event\b",
+    r"\bsports plan\b",
+)
+
 
 class ChatService:
     def __init__(
@@ -83,6 +139,10 @@ class ChatService:
         self._repo = DocumentRepository(db)
         self._membership_service = MembershipService(db)
         self._contribution_service = ContributionService(db)
+        self._announcement_repo = AnnouncementRepository(db)
+        self._disciplinary_repo = DisciplinaryRepository(db)
+        self._event_repo = EventRepository(db)
+        self._policy_service = PolicyService(db)
         self._embedding = embedding_provider
         self._vector_store = vector_store_provider
         self._llm = llm_provider
@@ -268,7 +328,215 @@ class ChatService:
                 )
             )
 
+        governance_context, refusal = await self._build_governance_summary_context(
+            tenant_id=tenant_id,
+            capabilities=capabilities,
+            normalized_question=normalized,
+        )
+        if refusal:
+            return [], refusal
+        if governance_context:
+            contexts.append(governance_context)
+
+        publication_context, refusal = await self._build_publication_context(
+            tenant_id=tenant_id,
+            capabilities=capabilities,
+            normalized_question=normalized,
+        )
+        if refusal:
+            return [], refusal
+        if publication_context:
+            contexts.append(publication_context)
+
+        disciplinary_context, refusal = await self._build_disciplinary_summary_context(
+            tenant_id=tenant_id,
+            capabilities=capabilities,
+            normalized_question=normalized,
+        )
+        if refusal:
+            return [], refusal
+        if disciplinary_context:
+            contexts.append(disciplinary_context)
+
+        sports_context, refusal = await self._build_sports_schedule_context(
+            tenant_id=tenant_id,
+            capabilities=capabilities,
+            normalized_question=normalized,
+        )
+        if refusal:
+            return [], refusal
+        if sports_context:
+            contexts.append(sports_context)
+
         return contexts, None
+
+    async def _build_governance_summary_context(
+        self,
+        *,
+        tenant_id: UUID,
+        capabilities: tuple[str, ...],
+        normalized_question: str,
+    ) -> tuple[StructuredContext | None, str | None]:
+        if not _question_mentions_any(normalized_question, _GOVERNANCE_SUMMARY_PATTERNS):
+            return None, None
+        if not _can_view_governance_summary(capabilities):
+            return None, "Your role cannot access governance summaries through chat."
+
+        documents = await self._repo.list_documents(tenant_id)
+        members = await self._membership_service.list_profiles(tenant_id)
+        policies = await self._policy_service.list_public(tenant_id)
+        announcements = await self._announcement_repo.list_visible_active_by_tenant(tenant_id)
+        events = await self._event_repo.list_visible_by_tenant(tenant_id)
+        upcoming_events = [event for event in events if _is_future_datetime(event.start_at)]
+        summary_lines = [
+            f"Members in tenant: {len(members)}",
+            f"Documents available: {len(documents)}",
+            f"Published policies: {len(policies)}",
+            f"Active announcements: {len(announcements)}",
+            f"Upcoming events: {len(upcoming_events)}",
+        ]
+        if policies:
+            summary_lines.append("Recent policies:")
+            summary_lines.extend(
+                f"- {policy.title} ({policy.status})" for policy in policies[:3]
+            )
+        if announcements:
+            summary_lines.append("Recent announcements:")
+            summary_lines.extend(
+                f"- {announcement.title} ({_format_datetime(announcement.published_at)})"
+                for announcement in announcements[:3]
+            )
+
+        return (
+            StructuredContext(
+                source_type="structured:governance_summary",
+                title="Tenant governance summary",
+                content="\n".join(summary_lines),
+            ),
+            None,
+        )
+
+    async def _build_publication_context(
+        self,
+        *,
+        tenant_id: UUID,
+        capabilities: tuple[str, ...],
+        normalized_question: str,
+    ) -> tuple[StructuredContext | None, str | None]:
+        if not _question_mentions_any(normalized_question, _PUBLICATION_CONTEXT_PATTERNS):
+            return None, None
+        if not _can_view_publication_context(capabilities):
+            return None, "Your role cannot access publication context through chat."
+
+        policies = await self._policy_service.list_all(tenant_id)
+        announcements = await self._announcement_repo.list_visible_active_by_tenant(tenant_id)
+        policy_counts = {"published": 0, "draft": 0, "archived": 0}
+        for policy in policies:
+            policy_counts[policy.status] = policy_counts.get(policy.status, 0) + 1
+
+        summary_lines = [
+            f"Policies in workspace: {len(policies)}",
+            f"Published policies: {policy_counts['published']}",
+            f"Draft policies: {policy_counts['draft']}",
+            f"Archived policies: {policy_counts['archived']}",
+            f"Active announcements: {len(announcements)}",
+        ]
+        if announcements:
+            summary_lines.append("Recent active announcements:")
+            summary_lines.extend(
+                f"- {announcement.title} ({_format_datetime(announcement.published_at)})"
+                for announcement in announcements[:3]
+            )
+        if policies:
+            summary_lines.append("Recent policies:")
+            summary_lines.extend(
+                f"- {policy.title} ({policy.status})" for policy in policies[:3]
+            )
+
+        return (
+            StructuredContext(
+                source_type="structured:publication_context",
+                title="Official publication context",
+                content="\n".join(summary_lines),
+            ),
+            None,
+        )
+
+    async def _build_disciplinary_summary_context(
+        self,
+        *,
+        tenant_id: UUID,
+        capabilities: tuple[str, ...],
+        normalized_question: str,
+    ) -> tuple[StructuredContext | None, str | None]:
+        if not _question_mentions_any(normalized_question, _DISCIPLINARY_SUMMARY_PATTERNS):
+            return None, None
+        if not _can_view_disciplinary_summary(capabilities):
+            return None, "Your role cannot access disciplinary summaries through chat."
+
+        records = await self._disciplinary_repo.list_by_tenant(tenant_id)
+        status_counts = {"open": 0, "under_review": 0, "resolved": 0, "waived": 0}
+        for record in records:
+            status_counts[record.status] = status_counts.get(record.status, 0) + 1
+
+        summary_lines = [
+            f"Disciplinary cases: {len(records)}",
+            f"Open cases: {status_counts['open']}",
+            f"Under review: {status_counts['under_review']}",
+            f"Resolved: {status_counts['resolved']}",
+            f"Waived: {status_counts['waived']}",
+        ]
+
+        return (
+            StructuredContext(
+                source_type="structured:disciplinary_summary",
+                title="Disciplinary summary",
+                content="\n".join(summary_lines),
+            ),
+            None,
+        )
+
+    async def _build_sports_schedule_context(
+        self,
+        *,
+        tenant_id: UUID,
+        capabilities: tuple[str, ...],
+        normalized_question: str,
+    ) -> tuple[StructuredContext | None, str | None]:
+        if not _question_mentions_any(normalized_question, _SPORTS_SCHEDULE_PATTERNS):
+            return None, None
+        if not _can_view_sports_schedule(capabilities):
+            return None, "Your role cannot access sports schedules through chat."
+
+        events = await self._event_repo.list_by_tenant(tenant_id)
+        sports_events = [event for event in events if self._is_sports_event(event)]
+        upcoming_events = [
+            event
+            for event in sports_events
+            if event.status == "published" and _is_future_datetime(event.start_at)
+        ]
+        summary_lines = [
+            f"Sports events in tenant: {len(sports_events)}",
+            f"Upcoming sports events: {len(upcoming_events)}",
+        ]
+        if upcoming_events:
+            summary_lines.append("Next sports events:")
+            summary_lines.extend(
+                (
+                    f"- {event.title} ({_format_datetime(event.start_at)})"
+                    + (f" at {event.location}" if event.location else "")
+                )
+                for event in upcoming_events[:3]
+            )
+
+        return (
+            StructuredContext(
+                source_type="structured:sports_schedule",
+                title="Sports schedule",
+                content="\n".join(summary_lines),
+            ),
+            None,
+        )
 
     def _collect_source_types(
         self,
@@ -299,6 +567,21 @@ class ChatService:
     def _compute_confidence(self, structured_count: int, citation_count: int) -> float:
         confidence = 0.45 + (0.2 * structured_count) + (0.1 * citation_count)
         return min(1.0, confidence)
+
+    def _parse_metadata(self, value: str | dict | None) -> dict[str, object]:
+        if value in (None, ""):
+            return {}
+        if isinstance(value, dict):
+            return dict(value)
+        try:
+            parsed = json.loads(value)
+        except json.JSONDecodeError:
+            return {}
+        return parsed if isinstance(parsed, dict) else {}
+
+    def _is_sports_event(self, event: Event) -> bool:
+        metadata = self._parse_metadata(event.metadata_json)
+        return metadata.get("workspace") == "sports"
 
     async def _load_and_filter_results(
         self,
@@ -385,6 +668,74 @@ def _can_view_tenant_finance(capabilities: tuple[str, ...]) -> bool:
             CAP_TENANT_ADMINISTRATION,
         )
     )
+
+
+def _question_mentions_any(question: str, patterns: tuple[str, ...]) -> bool:
+    return any(re.search(pattern, question) for pattern in patterns)
+
+
+def _can_view_governance_summary(capabilities: tuple[str, ...]) -> bool:
+    return any(
+        capability in capabilities
+        for capability in (
+            CAP_FINANCE_TENANT_READ,
+            CAP_FINANCE_AUDIT,
+            CAP_TENANT_ADMINISTRATION,
+        )
+    )
+
+
+def _can_view_publication_context(capabilities: tuple[str, ...]) -> bool:
+    return any(
+        capability in capabilities
+        for capability in (
+            CAP_DOCUMENTS_WRITE,
+            CAP_POLICIES_WRITE,
+            CAP_ANNOUNCEMENTS_WRITE,
+            CAP_TENANT_ADMINISTRATION,
+        )
+    )
+
+
+def _can_view_disciplinary_summary(capabilities: tuple[str, ...]) -> bool:
+    return any(
+        capability in capabilities
+        for capability in (
+            CAP_DISCIPLINARY_TENANT_READ,
+            CAP_DISCIPLINARY_WRITE,
+            CAP_TENANT_ADMINISTRATION,
+        )
+    )
+
+
+def _can_view_sports_schedule(capabilities: tuple[str, ...]) -> bool:
+    return any(
+        capability in capabilities
+        for capability in (
+            CAP_EVENTS_SPORTS_WRITE,
+            CAP_TENANT_ADMINISTRATION,
+        )
+    )
+
+
+def _format_datetime(value: datetime | None) -> str:
+    if value is None:
+        return "unknown date"
+    if value.tzinfo is None:
+        normalized = value.replace(tzinfo=timezone.utc)
+    else:
+        normalized = value.astimezone(timezone.utc)
+    return normalized.strftime("%Y-%m-%d %H:%M UTC")
+
+
+def _is_future_datetime(value: datetime | None) -> bool:
+    if value is None:
+        return False
+    if value.tzinfo is None:
+        normalized = value.replace(tzinfo=timezone.utc)
+    else:
+        normalized = value.astimezone(timezone.utc)
+    return normalized >= datetime.now(timezone.utc)
 
 
 def _excerpt(text: str, limit: int = 220) -> str:

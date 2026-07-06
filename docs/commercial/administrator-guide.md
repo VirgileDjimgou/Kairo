@@ -19,6 +19,11 @@ This guide is for tenant administrators who operate Kairo after go-live.
 ## Monthly Tasks
 
 - Review backups and restore evidence.
+- Open the tenant settings page and refresh the recovery evidence timestamps after a real backup or restore drill.
+- Watch for the recovery evidence badge in the admin overview:
+  - `healthy` means the evidence is current and the alert posture is configured
+  - `warning` means the proof is aging or incomplete
+  - `critical` means backup or restore proof is missing, or alert contacts are not configured
 - Rotate credentials where policy requires it.
 - Validate module toggles against current business use.
 - Review support questions and recurring operational issues.

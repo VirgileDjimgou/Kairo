@@ -63,11 +63,24 @@ docker compose up --build
 
 # 5. In another terminal, seed demo data
 docker compose exec api python -m app.db.seed
-
-# 6. Access the app
-#    Frontend:  http://localhost:5173
-#    API docs:  http://localhost:8000/docs
 ```
+
+Optional: add a second tenant for multi-tenant demos
+
+```bash
+./seed/seed-multi-tenant.sh
+```
+
+On Windows PowerShell:
+
+```powershell
+.\seed\seed-multi-tenant.ps1
+```
+
+Then access the app:
+
+- Frontend: `http://localhost:5173`
+- API docs: `http://localhost:8000/docs`
 
 ### Demo Credentials
 
@@ -113,16 +126,17 @@ See [`docs/demo-script.md`](docs/demo-script.md) for a complete walkthrough cove
 
 1. **Admin login** — browse members, manage documents, view policies, configure tenant settings & module toggles
 2. **Member login** — view profile, download a personal PDF statement, check balance, and read association updates
-3. **RAG chat** — ask questions about bylaws and policies with cited answers
+3. **RAG chat** — ask questions about bylaws, policies, governance summaries, publication context, and sports or disciplinary role work with cited answers
 4. **AI safety** — prompt injection resistance, no-source refusal
 5. **Secretary workspace** — manage documents, policies, and announcements without finance powers
-6. **Treasurer finance workspace** — review member balances, create contribution records, and record payments
+6. **Treasurer finance workspace** — review member balances, create contribution records, record payments, and send contribution reminders
 7. **Auditor finance oversight** — inspect balances, exports, and payment activity in read-only mode
 8. **Censor workspace** — manage disciplinary records inside explicit privacy boundaries
 9. **Sports operations workspace** — manage sports events from a dedicated role-scoped surface
 10. **Governance cockpit** — review cross-module executive oversight from president and vice president views
 11. **Principal admin control plane** — manage tenant-wide settings, access, and high-sensitivity operations
-12. **Multi-tenant UX** — validate the tenant picker and tenant switcher through the browser gallery harness
+12. **Tenant operations command center** — inspect memberships, review the current tenant posture, and switch context explicitly
+13. **Multi-tenant UX** — validate the tenant picker and tenant switcher through the browser gallery harness
 
 ## Demo Gallery
 
@@ -132,6 +146,7 @@ The repository includes two reusable browser-driven screenshot packs:
 - Role and tenant gallery: [`docs/github-demo/role-gallery/`](docs/github-demo/role-gallery/)
 - Full-stack capture script: [`scripts/capture-github-demo.mjs`](scripts/capture-github-demo.mjs)
 - Role-gallery capture script: [`scripts/capture-readme-gallery.mjs`](scripts/capture-readme-gallery.mjs)
+- Multi-tenant provisioning helper: [`seed/seed-multi-tenant.sh`](seed/seed-multi-tenant.sh)
 
 The role gallery below is generated from the current application routes and role matrix. It is deterministic and reproducible even when the local demo seed remains single-tenant.
 
@@ -195,13 +210,26 @@ node scripts/capture-readme-gallery.mjs
 
 If you already have the frontend running elsewhere, set `KAIRO_DEMO_BASE_URL` first.
 
+To reproduce the live multi-tenant demo stack locally, seed the base tenant first and then run:
+
+```bash
+./seed/seed-multi-tenant.sh
+```
+
+On Windows PowerShell:
+
+```powershell
+.\seed\seed-multi-tenant.ps1
+```
+
 ## Delivery Status
 
 Kairo is currently a strong professional release candidate for association workflows:
 
 - suitable for controlled pilot deployments and disciplined self-hosting
 - technically mature on tenant isolation, backend-enforced permissions, auditability, onboarding, and role-scoped workspaces
-- not yet a fully turnkey broad-market product, because collections automation, reproducible multi-tenant provisioning, operational evidence, and broader role-aware assistant coverage still need work
+- not yet a fully turnkey broad-market product, because the productization track still needs to finish privacy hardening, deployment packaging, and commercial handoff work beyond the current release-candidate scope; the new health center already surfaces recovery evidence and dependency status for operators
+- the new onboarding wizard now gives admins a first-run setup path and demo seed guidance, while the productization track still needs to finish privacy/export hardening, deployment packaging, and commercial handoff work beyond the current release-candidate scope
 
 See [`docs/commercial/maturity-review.md`](docs/commercial/maturity-review.md) and [`docs/commercial/demo-to-production-checklist.md`](docs/commercial/demo-to-production-checklist.md).
 

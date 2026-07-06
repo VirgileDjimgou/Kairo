@@ -86,6 +86,89 @@
               </div>
             </div>
           </div>
+
+          <div class="card shadow-sm border-0 mb-4">
+            <div class="card-body p-4">
+              <div class="d-flex flex-column flex-md-row justify-content-between gap-2 mb-3">
+                <div>
+                  <h5 class="fw-semibold mb-1">Recovery evidence</h5>
+                  <p class="small text-muted mb-0">
+                    Record the latest backup and restore drill evidence so operators can see whether recovery posture is fresh.
+                  </p>
+                </div>
+                <span class="badge text-bg-light border align-self-start text-capitalize">
+                  {{ settings?.operations.overall_status || 'unknown' }}
+                </span>
+              </div>
+
+              <div v-if="settings?.operations.status_message" class="alert" :class="recoveryAlertClass(settings.operations.overall_status)">
+                {{ settings.operations.status_message }}
+              </div>
+
+              <div class="row g-3">
+                <div class="col-sm-6">
+                  <label class="form-label small fw-semibold text-muted">Last backup at</label>
+                  <input v-model="form.operations.last_backup_at" type="datetime-local" class="form-control" />
+                </div>
+                <div class="col-sm-6">
+                  <label class="form-label small fw-semibold text-muted">Backup status</label>
+                  <select v-model="form.operations.last_backup_status" class="form-select">
+                    <option value="unknown">Unknown</option>
+                    <option value="scheduled">Scheduled</option>
+                    <option value="completed">Completed</option>
+                    <option value="failed">Failed</option>
+                  </select>
+                </div>
+                <div class="col-sm-6">
+                  <label class="form-label small fw-semibold text-muted">Backup reference</label>
+                  <input v-model="form.operations.last_backup_reference" type="text" class="form-control" placeholder="kairo-backup-20260704_030000.tar.gz" />
+                </div>
+                <div class="col-sm-6">
+                  <label class="form-label small fw-semibold text-muted">Retention days</label>
+                  <input v-model.number="form.operations.backup_retention_days" type="number" min="1" class="form-control" placeholder="30" />
+                </div>
+                <div class="col-sm-6">
+                  <label class="form-label small fw-semibold text-muted">Last restore drill at</label>
+                  <input v-model="form.operations.last_restore_drill_at" type="datetime-local" class="form-control" />
+                </div>
+                <div class="col-sm-6">
+                  <label class="form-label small fw-semibold text-muted">Restore drill status</label>
+                  <select v-model="form.operations.last_restore_drill_status" class="form-select">
+                    <option value="unknown">Unknown</option>
+                    <option value="not_run">Not run</option>
+                    <option value="passed">Passed</option>
+                    <option value="failed">Failed</option>
+                  </select>
+                </div>
+                <div class="col-sm-6">
+                  <label class="form-label small fw-semibold text-muted">Alert posture</label>
+                  <select v-model="form.operations.alert_posture" class="form-select">
+                    <option value="unknown">Unknown</option>
+                    <option value="healthy">Healthy</option>
+                    <option value="warning">Warning</option>
+                    <option value="critical">Critical</option>
+                  </select>
+                </div>
+                <div class="col-sm-6 d-flex align-items-end">
+                  <div class="form-check mt-4">
+                    <input
+                      id="alert-contacts-configured"
+                      v-model="form.operations.alert_contacts_configured"
+                      type="checkbox"
+                      class="form-check-input"
+                    />
+                    <label class="form-check-label" for="alert-contacts-configured">
+                      Alert contacts configured
+                    </label>
+                  </div>
+                </div>
+                <div class="col-12">
+                  <label class="form-label small fw-semibold text-muted">Notes</label>
+                  <textarea v-model="form.operations.notes" rows="3" class="form-control" placeholder="Add a short note about the latest recovery drill or backup handoff."></textarea>
+                </div>
+              </div>
+            </div>
+          </div>
         </div>
 
         <div class="col-lg-5">
@@ -126,7 +209,15 @@
 <script setup lang="ts">
 import { onMounted, reactive, ref, computed } from "vue";
 import { useAuthStore } from "@/stores/auth.store";
-import { getTenantSettings, updateTenantSettings, checkModuleHasData, type TenantSettingsResponse, type ModuleToggles, type BrandingConfig } from "../../api/settings.api";
+import {
+  getTenantSettings,
+  updateTenantSettings,
+  checkModuleHasData,
+  type TenantSettingsResponse,
+  type ModuleToggles,
+  type BrandingConfig,
+  type RecoveryEvidenceConfig,
+} from "../../api/settings.api";
 
 const auth = useAuthStore();
 const loading = ref(true);
@@ -141,6 +232,17 @@ const form = reactive<{
   default_language: string;
   branding: BrandingConfig;
   modules: ModuleToggles;
+  operations: {
+    last_backup_at: string;
+    last_backup_status: string;
+    last_backup_reference: string;
+    last_restore_drill_at: string;
+    last_restore_drill_status: string;
+    alert_posture: string;
+    alert_contacts_configured: boolean;
+    backup_retention_days: number | null;
+    notes: string;
+  };
 }>({
   name: "",
   default_language: "en",
@@ -154,6 +256,17 @@ const form = reactive<{
     announcements: true,
     chat: true,
     notifications: true,
+  },
+  operations: {
+    last_backup_at: "",
+    last_backup_status: "unknown",
+    last_backup_reference: "",
+    last_restore_drill_at: "",
+    last_restore_drill_status: "unknown",
+    alert_posture: "unknown",
+    alert_contacts_configured: false,
+    backup_retention_days: null,
+    notes: "",
   },
 });
 
@@ -189,6 +302,17 @@ async function loadSettings() {
     form.default_language = settings.value.default_language;
     form.branding = { ...settings.value.branding };
     form.modules = { ...settings.value.modules };
+    form.operations = {
+      last_backup_at: toDateTimeLocal(settings.value.operations.last_backup_at),
+      last_backup_status: settings.value.operations.last_backup_status || "unknown",
+      last_backup_reference: settings.value.operations.last_backup_reference || "",
+      last_restore_drill_at: toDateTimeLocal(settings.value.operations.last_restore_drill_at),
+      last_restore_drill_status: settings.value.operations.last_restore_drill_status || "unknown",
+      alert_posture: settings.value.operations.alert_posture || "unknown",
+      alert_contacts_configured: settings.value.operations.alert_contacts_configured,
+      backup_retention_days: settings.value.operations.backup_retention_days,
+      notes: settings.value.operations.notes || "",
+    };
   } catch (err: unknown) {
     error.value = "Failed to load settings. Make sure you are logged in as admin.";
   } finally {
@@ -223,8 +347,20 @@ async function saveSettings() {
       default_language: form.default_language !== settings.value?.default_language ? form.default_language : undefined,
       branding: form.branding,
       modules: form.modules,
+      operations: buildOperationsPayload(),
     });
     settings.value = result;
+    form.operations = {
+      last_backup_at: toDateTimeLocal(result.operations.last_backup_at),
+      last_backup_status: result.operations.last_backup_status || "unknown",
+      last_backup_reference: result.operations.last_backup_reference || "",
+      last_restore_drill_at: toDateTimeLocal(result.operations.last_restore_drill_at),
+      last_restore_drill_status: result.operations.last_restore_drill_status || "unknown",
+      alert_posture: result.operations.alert_posture || "unknown",
+      alert_contacts_configured: result.operations.alert_contacts_configured,
+      backup_retention_days: result.operations.backup_retention_days,
+      notes: result.operations.notes || "",
+    };
     saved.value = true;
     setTimeout(() => { saved.value = false; }, 3000);
   } catch (err: unknown) {
@@ -237,4 +373,38 @@ async function saveSettings() {
 onMounted(() => {
   loadSettings();
 });
+
+function toDateTimeLocal(value: string | null): string {
+  if (!value) return "";
+  const date = new Date(value);
+  if (Number.isNaN(date.getTime())) return "";
+  const pad = (n: number) => String(n).padStart(2, "0");
+  return `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())}T${pad(date.getHours())}:${pad(date.getMinutes())}`;
+}
+
+function toIsoOrNull(value: string): string | null {
+  if (!value) return null;
+  const date = new Date(value);
+  return Number.isNaN(date.getTime()) ? null : date.toISOString();
+}
+
+function buildOperationsPayload(): Partial<RecoveryEvidenceConfig> {
+  return {
+    last_backup_at: toIsoOrNull(form.operations.last_backup_at),
+    last_backup_status: form.operations.last_backup_status,
+    last_backup_reference: form.operations.last_backup_reference,
+    last_restore_drill_at: toIsoOrNull(form.operations.last_restore_drill_at),
+    last_restore_drill_status: form.operations.last_restore_drill_status,
+    alert_posture: form.operations.alert_posture,
+    alert_contacts_configured: form.operations.alert_contacts_configured,
+    backup_retention_days: form.operations.backup_retention_days ?? undefined,
+    notes: form.operations.notes,
+  };
+}
+
+function recoveryAlertClass(status: string): string {
+  if (status === "healthy") return "alert-success";
+  if (status === "critical") return "alert-danger";
+  return "alert-warning";
+}
 </script>

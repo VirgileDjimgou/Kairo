@@ -1,4 +1,5 @@
 import json
+from datetime import datetime, timezone, timedelta
 from uuid import UUID
 
 from fastapi import HTTPException, status
@@ -18,10 +19,15 @@ from app.modules.tenancy.schemas import (
     BrandingConfig,
     ModuleToggles,
     RoleResponse,
+    RecoveryEvidenceConfig,
+    RecoveryEvidenceResponse,
     TenantResponse,
     TenantSettingsResponse,
     TenantSettingsUpdate,
 )
+
+_BACKUP_STALE_AFTER_DAYS = 7
+_RESTORE_DRILL_STALE_AFTER_DAYS = 90
 
 
 class TenancyService:
@@ -123,6 +129,7 @@ class TenancyService:
 
         module_toggles = parse_module_toggles(settings_raw)
         branding = BrandingConfig(**branding_raw) if branding_raw else BrandingConfig()
+        operations = self._build_recovery_evidence(settings_raw)
 
         return TenantSettingsResponse(
             tenant_id=tenant.id,
@@ -131,6 +138,7 @@ class TenancyService:
             default_language=tenant.default_language,
             branding=branding,
             modules=ModuleToggles(**module_toggles),
+            operations=operations,
             updated_at=tenant.updated_at,
         )
 
@@ -180,6 +188,12 @@ class TenancyService:
                 **default_module_toggles(),
                 **settings.modules.model_dump(exclude_unset=True),
             }
+        if settings.operations is not None:
+            operations_raw = current_settings_raw.get("operations", {})
+            if not isinstance(operations_raw, dict):
+                operations_raw = {}
+            operations_raw["recovery"] = settings.operations.model_dump(mode="json", exclude_unset=True)
+            current_settings_raw["operations"] = operations_raw
 
         branding_json = json.dumps(current_branding_raw)
         settings_json = json.dumps(current_settings_raw)
@@ -209,6 +223,7 @@ class TenancyService:
                 "default_language": updated.default_language,
                 "branding_changed": settings.branding is not None,
                 "modules_changed": settings.modules is not None,
+                "operations_changed": settings.operations is not None,
             },
         )
         await self._db.commit()
@@ -217,6 +232,9 @@ class TenancyService:
             json.loads(settings_json) if settings_json else {}
         )
         branding = BrandingConfig(**current_branding_raw)
+        operations = self._build_recovery_evidence(
+            json.loads(settings_json) if settings_json else {}
+        )
 
         return TenantSettingsResponse(
             tenant_id=updated.id,
@@ -225,5 +243,89 @@ class TenancyService:
             default_language=updated.default_language,
             branding=branding,
             modules=ModuleToggles(**module_toggles),
+            operations=operations,
             updated_at=updated.updated_at,
+        )
+
+    def _build_recovery_evidence(self, settings_raw: dict) -> RecoveryEvidenceResponse:
+        operations_raw = settings_raw.get("operations", {})
+        if not isinstance(operations_raw, dict):
+            operations_raw = {}
+        recovery_raw = operations_raw.get("recovery", {})
+        if not isinstance(recovery_raw, dict):
+            recovery_raw = {}
+
+        config = RecoveryEvidenceConfig(**recovery_raw)
+        now = datetime.now(timezone.utc)
+
+        backup_is_stale = True
+        if config.last_backup_at is not None:
+            backup_is_stale = now - config.last_backup_at > timedelta(days=_BACKUP_STALE_AFTER_DAYS)
+
+        restore_drill_is_stale = True
+        if config.last_restore_drill_at is not None:
+            restore_drill_is_stale = (
+                now - config.last_restore_drill_at > timedelta(days=_RESTORE_DRILL_STALE_AFTER_DAYS)
+            )
+
+        backup_state = config.last_backup_status.lower().strip() if config.last_backup_status else "unknown"
+        restore_state = (
+            config.last_restore_drill_status.lower().strip() if config.last_restore_drill_status else "unknown"
+        )
+        alert_state = config.alert_posture.lower().strip() if config.alert_posture else "unknown"
+
+        notes: list[str] = []
+        if config.last_backup_at is None:
+            notes.append("No backup has been recorded yet.")
+        elif backup_is_stale:
+            notes.append("The latest backup evidence is older than the recommended 7-day threshold.")
+        elif backup_state not in {"completed", "ok", "success"}:
+            notes.append("The latest backup is not marked as completed.")
+
+        if config.last_restore_drill_at is None:
+            notes.append("No restore drill has been recorded yet.")
+        elif restore_drill_is_stale:
+            notes.append("The latest restore drill evidence is older than the recommended 90-day threshold.")
+        elif restore_state not in {"passed", "ok", "success"}:
+            notes.append("The latest restore drill is not marked as passed.")
+
+        if not config.alert_contacts_configured:
+            notes.append("Alert contacts are not configured.")
+        elif alert_state not in {"healthy", "ok", "green"}:
+            notes.append("The alert posture is not marked healthy.")
+
+        if notes:
+            if (
+                config.last_backup_at is None
+                or config.last_restore_drill_at is None
+                or not config.alert_contacts_configured
+                or alert_state in {"critical", "disabled", "failed"}
+                or backup_state in {"failed", "error"}
+                or restore_state in {"failed", "error"}
+            ):
+                overall_status = "critical"
+            else:
+                overall_status = "warning"
+            status_message = " ".join(notes)
+        else:
+            overall_status = "healthy"
+            status_message = "Recovery evidence looks current and healthy."
+
+        alert_is_healthy = config.alert_contacts_configured and alert_state in {"healthy", "ok", "green"}
+
+        return RecoveryEvidenceResponse(
+            last_backup_at=config.last_backup_at,
+            last_backup_status=config.last_backup_status,
+            last_backup_reference=config.last_backup_reference,
+            last_restore_drill_at=config.last_restore_drill_at,
+            last_restore_drill_status=config.last_restore_drill_status,
+            alert_posture=config.alert_posture,
+            alert_contacts_configured=config.alert_contacts_configured,
+            backup_retention_days=config.backup_retention_days,
+            notes=config.notes,
+            backup_is_stale=backup_is_stale,
+            restore_drill_is_stale=restore_drill_is_stale,
+            alert_is_healthy=alert_is_healthy,
+            overall_status=overall_status,
+            status_message=status_message,
         )

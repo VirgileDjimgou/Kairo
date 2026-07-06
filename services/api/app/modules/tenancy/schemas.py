@@ -58,6 +58,26 @@ class BrandingConfig(BaseModel):
     logo_url: str = ""
 
 
+class RecoveryEvidenceConfig(BaseModel):
+    last_backup_at: datetime | None = None
+    last_backup_status: str = "unknown"
+    last_backup_reference: str = ""
+    last_restore_drill_at: datetime | None = None
+    last_restore_drill_status: str = "unknown"
+    alert_posture: str = "unknown"
+    alert_contacts_configured: bool = False
+    backup_retention_days: int | None = None
+    notes: str = ""
+
+
+class RecoveryEvidenceResponse(RecoveryEvidenceConfig):
+    backup_is_stale: bool
+    restore_drill_is_stale: bool
+    alert_is_healthy: bool
+    overall_status: str
+    status_message: str
+
+
 class TenantSettingsResponse(BaseModel):
     tenant_id: UUID
     name: str
@@ -65,6 +85,13 @@ class TenantSettingsResponse(BaseModel):
     default_language: str
     branding: BrandingConfig
     modules: ModuleToggles
+    operations: RecoveryEvidenceResponse = Field(default_factory=lambda: RecoveryEvidenceResponse(
+        backup_is_stale=True,
+        restore_drill_is_stale=True,
+        alert_is_healthy=False,
+        overall_status="warning",
+        status_message="No recovery evidence has been recorded yet.",
+    ))
     updated_at: datetime
 
 
@@ -73,3 +100,4 @@ class TenantSettingsUpdate(BaseModel):
     default_language: str | None = None
     branding: BrandingConfig | None = None
     modules: ModuleToggles | None = None
+    operations: RecoveryEvidenceConfig | None = None

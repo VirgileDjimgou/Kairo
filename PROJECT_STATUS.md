@@ -1,25 +1,23 @@
 # Project Status
 
-Last updated: 2026-07-02
+Last updated: 2026-07-06
 
 ## Current Sprint
 
-No sprint currently in progress.
+Sprint 61 - Onboarding Wizard, Demo Seed, And First-Run Setup
 
-Status: Roadmap reopened after the 2026-07-02 product audit
+Status: Completed
 
 ## Official Next Sprint
 
-Sprint 54 - Member Renewal, Reminder, And Collections Automation
-
-Status: Planned
+Sprint 62 - Privacy, Audit, And Export Hardening.
 
 ## Active Delivery Frame
 
 - Target outcome: a stable, professional, mature association-management product with secure role-aware workspaces and a trustworthy chatbot
 - Intended operational scope: usable by an association or organization of about 200 members with differentiated office roles
-- Remaining planned execution window: 4
-- Delivery status: Sprint 53 closed the outbound communications gap, and the short post-release hardening roadmap now continues with collections automation, multi-tenant operations, recovery evidence, and broader role-aware chat coverage
+- Remaining planned execution window: 3
+- Delivery status: Sprint 61 closed the onboarding and first-run setup gap, and the productization track now continues with Sprint 62
 
 ## Source Of Truth
 
@@ -30,27 +28,31 @@ Status: Planned
 
 ## Professionalization Assessment
 
-- Estimated additional sprints required from the current state: 4
+- Estimated additional sprints required from the current state: 3
 - Current strengths:
   - multi-tenant auth and role resolution
   - secure document RAG with citations and prompt-injection defenses
-  - role-aware structured chat boundaries for member balances and tenant finance summaries
+  - role-aware structured chat boundaries for member balances, tenant finance summaries, governance summaries, publication context, disciplinary summaries, and sports schedules
   - membership, contributions, events, announcements, disciplinary, audit, and onboarding foundations
   - dedicated secretary, treasurer, auditor, censor, sports, executive governance, and principal admin workspaces
   - role-specific navigation simplification for members and office roles, including member PDF statements
+  - treasurer-safe reminder history and collections follow-up workflows tied directly to contribution records
   - autonomous test posture and role-aware dashboard, secretary, finance, sports, governance, and principal-admin improvements
+  - refined dashboard workspace focus cards that point each role to the right workspace immediately
+  - dedicated admin health center that combines live dependency checks with tenant recovery evidence
+  - dedicated onboarding wizard that provides a concise first-run setup path and demo seed guidance
+  - tenant operations command center with explicit membership inventory, current-tenant posture, and confirmation-based tenant switching
   - production-grade invite and password-reset delivery with tenant-aware provider context and explicit fallback handling
   - release-candidate regression matrix, professional handoff checklist, and a reproducible role-and-tenant screenshot gallery
 - Main gaps before the target product is mature:
-  - contribution reminder and collections follow-up automation are still missing for treasurer day-to-day operations
-  - multi-tenant UX exists, but reproducible multi-tenant provisioning and demo operations are still thinner than the backend capability
-  - backup, restore, and alert posture are documented, but first-class in-product operational evidence is still limited
-  - chatbot role-aware structured coverage remains narrow outside personal balance and tenant finance-summary boundaries
+- multi-tenant UX exists, and the remaining focus now shifts to privacy/export hardening, deployment packaging, and commercial handoff polish
+- backup, restore, and alert posture are now visible in-product through the new health center and settings surfaces
+- privacy/export hardening, deployment packaging, and commercial handoff still leave room for the next planned sprint track
 
 ## Production Verdict
 
 - Kairo is usable as a controlled production release candidate for disciplined self-hosting or pilot deployments.
-- Kairo is not yet a fully turnkey, broadly productized production offer until the remaining collections, operations, and role-aware assistant gaps above are closed.
+- Kairo is not yet a fully turnkey, broadly productized production offer until the Sprint 62 through Sprint 64 productization track is closed.
 
 ## Completed
 
@@ -283,6 +285,18 @@ Status: Planned
   - an expanded demo seed with the canonical association role set and corresponding demo credentials
   - an updated demo walkthrough and professional release-candidate checklist for handoff and validation
   - final roadmap, status, and AI handoff updates indicating the current professionalization track is complete
+- Completed Sprint 54 Member Renewal, Reminder, And Collections Automation:
+  - Added backend reminder history tied directly to contribution records with tenant-scoped reminder logs and audit events
+  - Added treasurer-safe reminder dispatch for single contributions and filtered outstanding cohorts through the backend notification-provider layer
+  - Added collections reminder controls and recent reminder history to the finance workspace without changing the simple member-facing self-service surface
+  - Preserved member privacy boundaries so ordinary members still cannot access tenant-wide reminder or finance history
+  - Targeted backend tests, frontend production build validation, and finance browser coverage passed on 2026-07-03
+- Completed Sprint 55 Multi-Tenant Provisioning And Demo Operations:
+  - Added an operator-safe multi-tenant demo provisioning helper that seeds a second isolated tenant on top of the base demo stack
+  - Added a cross-tenant demo user and secondary-tenant admin data so the tenant picker and switcher can be reproduced on a live stack
+  - Added browser coverage proving the header tenant switcher updates the active workspace and persists the new tenant selection
+  - Updated the README and demo asset documentation so the live multi-tenant walkthrough is reproducible for future agents
+  - Validation passed on 2026-07-04: Python helper import check, frontend build, and Playwright tenant-switching coverage
 - Completed Sprint 30 Account Security And Identity Self-Service:
   - Authenticated `Account Security` view added at `/account/security` for MFA status, enrollment, verification, disablement, and password recovery launch
   - Backend now exposes a minimal MFA status endpoint without leaking secrets
@@ -482,7 +496,7 @@ Status: Planned
 - Only the email channel is wired for real identity delivery today; Telegram and WhatsApp remain simulated extension placeholders.
 - Identity emails currently use a plain-text branded baseline template and do not yet provide rich HTML theming or provider-side webhook reconciliation.
 - The original open-source stabilization target ended at Sprint 37; the product is now entering a second track focused on professional association role coverage and maturity.
-- The new execution path is explicit: Sprint 51 through Sprint 52 define the remaining professionalization plan and should be followed one sprint at a time.
+- The new execution path is explicit: Sprint 59 through Sprint 64 define the remaining productization plan and should be followed one sprint at a time.
 - Sprint 26 has been completed with the public entry commercial surface.
 - Sprint 27 has been completed with guided onboarding for new tenant admins.
 - Sprint 28 has been completed with a real admin operations hub.
@@ -496,7 +510,8 @@ Status: Planned
 - Sprint 38 has been completed with treasurer workspace activation and finance permission hardening.
 - Sprint 39 has been completed with role-aware dashboard and action-surface hardening.
 - Sprint 40 has been completed with demo gallery and handoff polish.
-- A new 12-sprint professional association maturity track is now defined from Sprint 41 through Sprint 52.
+- Sprint 58 has been completed with the tenant operations command center, explicit membership inventory, and confirmation-based tenant switching.
+- A new 6-sprint productization track is now defined from Sprint 59 through Sprint 64.
 
 ## Next Session Rule
 

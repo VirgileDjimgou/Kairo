@@ -24,6 +24,11 @@
       <button type="button" class="btn-close py-2" @click="error = ''"></button>
     </div>
 
+    <div v-if="notice" class="alert alert-success alert-dismissible small py-2 mb-4" role="status">
+      <i class="bi bi-check-circle me-1"></i>{{ notice }}
+      <button type="button" class="btn-close py-2" @click="notice = ''"></button>
+    </div>
+
     <div v-if="summary" class="row g-3 mb-4">
       <div class="col-md-4">
         <div class="card shadow-sm border-0 bg-primary-subtle">
@@ -172,6 +177,69 @@
           </div>
         </div>
 
+        <div v-if="remindersEnabled" class="card shadow-sm border-0 mb-4">
+          <div class="card-body p-4">
+            <div class="d-flex align-items-center justify-content-between mb-3">
+              <div>
+                <h2 class="h6 fw-bold mb-0">Collections reminders</h2>
+                <p class="text-muted small mb-0">Send targeted payment reminders without exposing another member's data.</p>
+              </div>
+              <span class="badge text-bg-light border text-dark">{{ reminderHistory.length }} recent</span>
+            </div>
+
+            <form class="row g-3 align-items-end mb-4" @submit.prevent="handleBatchReminder">
+              <div class="col-md-4">
+                <label for="finance-reminder-scope" class="form-label small fw-medium">Due scope</label>
+                <select id="finance-reminder-scope" v-model="reminderBatchForm.due_scope" class="form-select">
+                  <option value="overdue">Overdue only</option>
+                  <option value="due_soon">Due soon</option>
+                  <option value="all_outstanding">All outstanding</option>
+                </select>
+              </div>
+              <div class="col-md-4">
+                <label for="finance-reminder-status" class="form-label small fw-medium">Contribution status</label>
+                <select id="finance-reminder-status" v-model="reminderBatchForm.status" class="form-select">
+                  <option value="">Any outstanding</option>
+                  <option value="pending">Pending</option>
+                  <option value="partial">Partial</option>
+                  <option value="overdue">Overdue</option>
+                </select>
+              </div>
+              <div class="col-md-2">
+                <label for="finance-reminder-limit" class="form-label small fw-medium">Limit</label>
+                <input id="finance-reminder-limit" v-model.number="reminderBatchForm.limit" type="number" min="1" max="100" class="form-control" />
+              </div>
+              <div class="col-md-2 d-grid">
+                <button class="btn btn-outline-primary" type="submit" :disabled="sendingBatchReminders">
+                  {{ sendingBatchReminders ? 'Sending...' : 'Send batch' }}
+                </button>
+              </div>
+            </form>
+
+            <div v-if="reminderHistory.length === 0" class="text-muted small mb-0">
+              No reminder has been recorded yet for this financial year.
+            </div>
+
+            <div v-else class="list-group list-group-flush" data-testid="finance-reminder-history">
+              <div v-for="reminder in reminderHistory" :key="reminder.id" class="list-group-item px-0">
+                <div class="d-flex justify-content-between gap-3">
+                  <div>
+                    <div class="fw-medium">{{ reminder.member_display_name }} ({{ reminder.member_code }})</div>
+                    <div class="small text-muted">{{ reminder.subject }}</div>
+                    <div class="small text-muted">
+                      {{ reminder.balance_snapshot }} EUR · {{ reminderStatusLabel(reminder.delivery_status) }}
+                    </div>
+                  </div>
+                  <div class="text-end small text-muted">
+                    <div>{{ formatDate(reminder.sent_at) }}</div>
+                    <div>{{ reminder.provider_message || reminder.recipient }}</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
         <div class="card shadow-sm border-0 mb-4">
           <div class="card-body p-4">
             <div class="d-flex align-items-center justify-content-between mb-3">
@@ -264,9 +332,20 @@
                     </td>
                     <td class="small">{{ formatDate(contribution.updated_at) }}</td>
                     <td class="text-end pe-4">
-                      <button class="btn btn-sm btn-outline-primary" type="button" @click="selectPaymentTarget(contribution)">
-                        Record payment
-                      </button>
+                      <div class="d-flex justify-content-end gap-2">
+                        <button class="btn btn-sm btn-outline-primary" type="button" @click="selectPaymentTarget(contribution)">
+                          Record payment
+                        </button>
+                        <button
+                          v-if="remindersEnabled && Number(contribution.balance) > 0"
+                          class="btn btn-sm btn-outline-secondary"
+                          type="button"
+                          :disabled="sendingSingleReminderId === contribution.id"
+                          @click="handleSingleReminder(contribution)"
+                        >
+                          {{ sendingSingleReminderId === contribution.id ? 'Sending...' : 'Remind' }}
+                        </button>
+                      </div>
                     </td>
                   </tr>
                 </tbody>
@@ -284,8 +363,12 @@ import {
   createContribution,
   getContributionSummary,
   listContributions,
+  listContributionReminders,
   listTenantPayments,
   recordPayment,
+  sendContributionReminder,
+  sendContributionReminderBatch,
+  type ContributionReminderResponse,
   type ContributionRecordResponse,
   type ContributionSummary,
   type PaymentRecordResponse,
@@ -296,12 +379,16 @@ import {
   type MemberBalanceResponse,
   type MembershipProfileResponse,
 } from '@/api/membership.api'
+import { useTenantStore } from '@/stores/tenant.store'
 import { computed, onMounted, ref } from 'vue'
 
 const loading = ref(true)
 const error = ref('')
+const notice = ref('')
 const savingContribution = ref(false)
 const savingPayment = ref(false)
+const sendingSingleReminderId = ref('')
+const sendingBatchReminders = ref(false)
 
 const members = ref<MembershipProfileResponse[]>([])
 const contributions = ref<ContributionRecordResponse[]>([])
@@ -310,10 +397,13 @@ const selectedMemberBalance = ref<MemberBalanceResponse | null>(null)
 const selectedMemberId = ref('')
 const paymentTarget = ref<ContributionRecordResponse | null>(null)
 const recentPayments = ref<PaymentRecordResponse[]>([])
+const reminderHistory = ref<ContributionReminderResponse[]>([])
+const tenantStore = useTenantStore()
 
 const currentYear = new Date().getFullYear()
 const years = [currentYear - 1, currentYear, currentYear + 1]
 const selectedYear = ref(currentYear)
+const remindersEnabled = computed(() => tenantStore.isModuleEnabled('notifications'))
 
 const createForm = ref({
   membership_profile_id: '',
@@ -326,6 +416,12 @@ const paymentForm = ref({
   amount: '',
   payment_method: 'bank_transfer',
   reference: '',
+})
+
+const reminderBatchForm = ref({
+  due_scope: 'overdue' as 'all_outstanding' | 'overdue' | 'due_soon',
+  status: '',
+  limit: 25,
 })
 
 const membersById = computed(() =>
@@ -351,6 +447,16 @@ function formatPaymentMethod(value: string): string {
   return value.replace('_', ' ')
 }
 
+function reminderStatusLabel(value: ContributionReminderResponse['delivery_status']): string {
+  const map = {
+    sent: 'Sent',
+    simulated: 'Simulated',
+    failed: 'Failed',
+    skipped: 'Skipped',
+  }
+  return map[value] || value
+}
+
 function statusBadgeClass(status: string): string {
   const map: Record<string, string> = {
     pending: 'bg-secondary-subtle text-secondary',
@@ -369,14 +475,17 @@ function paymentMemberLabel(contributionId: string): string {
 }
 
 async function refreshFinanceData() {
-  const [contributionRows, summaryData, paymentRows] = await Promise.all([
+  const reminderPromise = remindersEnabled.value ? listContributionReminders(selectedYear.value) : Promise.resolve([])
+  const [contributionRows, summaryData, paymentRows, reminderRows] = await Promise.all([
     listContributions(selectedYear.value),
     getContributionSummary(selectedYear.value),
     listTenantPayments(),
+    reminderPromise,
   ])
   contributions.value = contributionRows
   summary.value = summaryData
   recentPayments.value = paymentRows.slice(0, 8)
+  reminderHistory.value = reminderRows.slice(0, 8)
 }
 
 async function loadSelectedMemberBalance() {
@@ -400,6 +509,41 @@ async function refreshAll() {
     error.value = err instanceof Error ? err.message : 'Unable to load finance workspace.'
   } finally {
     loading.value = false
+  }
+}
+
+async function handleSingleReminder(contribution: ContributionRecordResponse) {
+  sendingSingleReminderId.value = contribution.id
+  error.value = ''
+  notice.value = ''
+  try {
+    const result = await sendContributionReminder(contribution.id)
+    notice.value = `${reminderStatusLabel(result.delivery_status)} reminder for ${result.member_display_name}.`
+    await refreshFinanceData()
+  } catch (err) {
+    error.value = err instanceof Error ? err.message : 'Unable to send the reminder.'
+  } finally {
+    sendingSingleReminderId.value = ''
+  }
+}
+
+async function handleBatchReminder() {
+  sendingBatchReminders.value = true
+  error.value = ''
+  notice.value = ''
+  try {
+    const result = await sendContributionReminderBatch({
+      year: selectedYear.value,
+      due_scope: reminderBatchForm.value.due_scope,
+      status: reminderBatchForm.value.status || undefined,
+      limit: reminderBatchForm.value.limit,
+    })
+    notice.value = `Processed ${result.attempted_count} reminder target(s).`
+    await refreshFinanceData()
+  } catch (err) {
+    error.value = err instanceof Error ? err.message : 'Unable to send reminder batch.'
+  } finally {
+    sendingBatchReminders.value = false
   }
 }
 

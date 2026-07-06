@@ -27,6 +27,7 @@ from app.modules.tenancy.models import (  # noqa: F401
 from app.modules.membership.models import MembershipProfile  # noqa: F401
 from app.modules.contributions.models import (  # noqa: F401
     ContributionRecord,
+    ContributionReminder,
     PaymentRecord,
 )
 from app.modules.policies.models import PolicyRecord  # noqa: F401

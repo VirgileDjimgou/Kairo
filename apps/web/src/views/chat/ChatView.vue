@@ -7,7 +7,7 @@
         </div>
         <h1 class="h4 fw-bold mb-1">Grounded organizational assistant</h1>
         <p class="text-muted mb-0">
-          Ask a question and get answers grounded in authorized documents only.
+          Ask a question and get answers grounded in authorized documents and role-safe structured facts.
         </p>
       </div>
     </div>
@@ -32,6 +32,23 @@
                 {{ loading ? "Thinking..." : "Ask question" }}
               </button>
             </form>
+
+            <div v-if="suggestedPrompts.length" class="mt-4">
+              <div class="small text-uppercase text-muted fw-semibold mb-2">
+                Suggested prompts for your role
+              </div>
+              <div class="d-flex flex-wrap gap-2">
+                <button
+                  v-for="prompt in suggestedPrompts"
+                  :key="prompt"
+                  class="btn btn-sm btn-outline-secondary rounded-pill"
+                  type="button"
+                  @click="setQuestion(prompt)"
+                >
+                  {{ prompt }}
+                </button>
+              </div>
+            </div>
           </div>
         </div>
       </div>
@@ -50,11 +67,11 @@
               {{ errorMessage }}
             </div>
 
-              <div v-else-if="!result" class="empty-state">
-                <i class="bi bi-chat-dots display-6 text-secondary"></i>
-                <p class="mb-1 fw-semibold">No answer yet</p>
-                <p class="text-muted mb-0">
-                  Submit a question to retrieve and cite authorized sources.
+            <div v-else-if="!result" class="empty-state">
+              <i class="bi bi-chat-dots display-6 text-secondary"></i>
+              <p class="mb-1 fw-semibold">No answer yet</p>
+              <p class="text-muted mb-0">
+                Submit a question to retrieve and cite authorized sources.
               </p>
             </div>
 
@@ -115,13 +132,73 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from "vue";
+import { computed, ref } from "vue";
 import { queryChat, type ChatQueryResponse } from "@/api/chat.api";
+import { useAuthStore } from "@/stores/auth.store";
 
+const authStore = useAuthStore();
 const question = ref("");
 const loading = ref(false);
 const errorMessage = ref("");
 const result = ref<ChatQueryResponse | null>(null);
+const roles = computed(() => authStore.user?.roles ?? []);
+
+const suggestedPrompts = computed(() => {
+  if (roles.value.includes("principal_admin") || roles.value.includes("admin")) {
+    return [
+      "Give me a governance summary.",
+      "Show the official publication context.",
+      "Give me a disciplinary summary.",
+      "Show the sports schedule.",
+    ];
+  }
+
+  if (roles.value.includes("president") || roles.value.includes("vice_president")) {
+    return [
+      "Give me a governance summary.",
+      "How many members are active?",
+      "What is the current organization overview?",
+    ];
+  }
+
+  if (roles.value.includes("secretary_general")) {
+    return [
+      "Show the official publication context.",
+      "What announcements are active?",
+      "Which policies are ready to publish?",
+    ];
+  }
+
+  if (roles.value.includes("auditor")) {
+    return [
+      "Give me the tenant finance summary.",
+      "What is the outstanding balance?",
+      "What is the collection rate?",
+    ];
+  }
+
+  if (roles.value.includes("censor")) {
+    return [
+      "Give me a disciplinary summary.",
+      "How many cases are open?",
+      "What is the sanctions overview?",
+    ];
+  }
+
+  if (roles.value.includes("sports_manager")) {
+    return [
+      "Show the sports schedule.",
+      "What is the next sports event?",
+      "Which training sessions are upcoming?",
+    ];
+  }
+
+  return [
+    "What is my balance?",
+    "What announcements are active?",
+    "What events are visible to me?",
+  ];
+});
 
 async function submitQuestion() {
   loading.value = true;
@@ -135,6 +212,10 @@ async function submitQuestion() {
   } finally {
     loading.value = false;
   }
+}
+
+function setQuestion(prompt: string) {
+  question.value = prompt;
 }
 
 function formatSourceType(sourceType: string): string {

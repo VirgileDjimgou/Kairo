@@ -630,6 +630,7 @@ async def test_member_role_cannot_access_staff_membership_and_contribution_endpo
         (f"/api/v1/memberships/{profile_id}/balance", {}),
         ("/api/v1/contributions/", {}),
         ("/api/v1/contributions/summary", {}),
+        ("/api/v1/contributions/reminders", {}),
         (f"/api/v1/contributions/by-member/{profile_id}", {}),
     ]
     for path, params in requests:

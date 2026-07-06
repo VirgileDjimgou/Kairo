@@ -2460,7 +2460,7 @@ Completed work:
 
 ## Sprint 54 - Member Renewal, Reminder, And Collections Automation
 
-Status: Planned
+Status: Completed
 
 Goal:
 Give treasurers practical day-to-day collections tooling on top of the existing contribution and statement foundations.
@@ -2486,9 +2486,16 @@ Acceptance criteria:
 - reminder history is reviewable for support and audit use
 - the existing statement and balance surfaces stay simple for members
 
+Implementation notes:
+
+- Added contribution reminder history records tied directly to contribution records with audit events for sent, failed, and skipped reminder outcomes
+- Added backend reminder dispatch for single contributions and filtered outstanding cohorts through the existing notification provider abstraction
+- Extended the treasurer finance workspace with collections reminder controls and recent reminder history without widening ordinary member visibility
+- Added targeted backend authorization coverage plus browser validation for reminder dispatch and privacy boundaries
+
 ## Sprint 55 - Multi-Tenant Provisioning And Demo Operations
 
-Status: Planned
+Status: Completed
 
 Goal:
 Turn multi-tenancy from a supported runtime capability into a reproducible operational and demonstration workflow.
@@ -2514,9 +2521,17 @@ Acceptance criteria:
 - no new cross-tenant administration surface is introduced into normal tenant workspaces
 - docs, screenshots, and handoff material all reflect the multi-tenant story accurately
 
+Implementation notes:
+
+- Added `seed/seed-multi-tenant.sh` and `seed/seed-multi-tenant.ps1` so the base demo tenant can be extended with a second isolated tenant on demand
+- Added `services/api/app/db/seed_multi_tenant.py` to provision the second tenant, a cross-tenant demo user, and secondary-tenant demo content on top of the base seed
+- Added browser coverage for the authenticated tenant switcher to prove the workspace updates and persisted tenant selection behave correctly
+- Updated the README and GitHub demo documentation so future agents can reproduce the multi-tenant walkthrough without inventing the flow from memory
+- Validation passed on 2026-07-04 with Python import checks, frontend build validation, and Playwright tenant-switching coverage
+
 ## Sprint 56 - Operations Evidence And Recovery Automation
 
-Status: Planned
+Status: Completed
 
 Goal:
 Promote backup, restore, and alert posture from documentation-only evidence into repeatable operational proof.
@@ -2542,9 +2557,17 @@ Acceptance criteria:
 - operational evidence never leaks across tenants
 - the deployment guide, production checklist, and UI signals stay aligned
 
+Implementation notes:
+
+- Extended tenant settings with a tenant-scoped recovery evidence record covering the last backup, restore drill, alert posture, and operator notes
+- Added recovery evidence warnings and summary visibility in the admin overview so operators can see stale or missing proof at a glance
+- Added editable recovery evidence fields to the tenant settings page so operators can record the latest backup and restore drill without leaving the product
+- Added backend regression tests proving round-trip persistence, freshness warnings, and tenant-scoped visibility
+- Added Playwright coverage for the admin overview and release-candidate principal-admin flows, and updated production-readiness documentation
+
 ## Sprint 57 - Role-Aware Chat Expansion For Office Roles
 
-Status: Planned
+Status: Completed
 
 Goal:
 Extend the chatbot from safe finance boundaries into additional approved role-specific workflows while preserving backend-first authorization.
@@ -2569,3 +2592,264 @@ Acceptance criteria:
 - unauthorized requests are refused before any LLM call
 - source-type traceability remains visible for review
 - tenant isolation and private-member boundaries remain intact
+
+## Post-Release Productization And Launch Readiness Track
+
+The historical association maturity track is complete through Sprint 57.
+
+The new roadmap begins here and focuses on turning the current release candidate into a more turnkey, operator-friendly product for association deployments.
+
+This track keeps the same non-negotiable constraints:
+
+- backend-first authorization
+- tenant-scoped queries everywhere
+- no unauthorized data to the LLM, UI, export, or logs
+- small vertical slices only
+
+## Sprint 58 - Multi-Tenant Operations Command Center
+
+Status: Completed
+
+Goal:
+Make tenant provisioning, tenant switching, and operator-safe multi-tenant oversight explicit and reproducible in-product.
+
+Why this sprint next:
+
+- The backend already supports multi-tenant isolation and tenant switching.
+- The remaining gap is operational clarity: operators still need a more obvious command center for preparing, inspecting, and switching tenants safely.
+- This is the highest-leverage step before broader productization because it strengthens every later demo, onboarding, and support workflow.
+
+Deliverables:
+
+- tenant inventory and lifecycle surface for operators
+- clearer tenant-switch confirmation and current-tenant context
+- safe demo provisioning or tenant-preparation helper flows
+- explicit multi-tenant operational warnings and audit trail visibility
+- browser coverage for operator tenant-switch and provisioning flows
+
+Acceptance criteria:
+
+- an authorized operator can inspect and switch tenants without ambiguity
+- tenant provisioning helpers remain tenant-safe and do not introduce cross-tenant admin shortcuts
+- the UI clearly shows which tenant is active at all times
+- browser and backend tests prove the new flows preserve isolation
+
+Implementation notes:
+
+- Added a dedicated admin tenant operations command center with an explicit tenant inventory, current-tenant context, recovery posture, and safe demo helper notes
+- Added explicit tenant-switch confirmation and success feedback so the active tenant change is easy to understand during operator workflows
+- Exposed the command center from the admin overview and the admin navigation to keep the multi-tenant control surface discoverable
+- Added browser coverage proving the command center inventory, confirmation flow, and tenant context update behave correctly
+
+## Sprint 59 - Role Workspace Completion And Navigation Polish
+
+Status: Completed
+
+Goal:
+Finish and simplify the role-specific workspaces so each office role lands in the right place with minimal clutter.
+
+Why this sprint next:
+
+- The product already has role-aware surfaces for the major office personas.
+- The remaining gap is consistency: every role should have a focused, easy-to-scan landing experience that feels intentional rather than assembled.
+- This sprint raises usability without expanding permissions.
+
+Deliverables:
+
+- dedicated landing pages or refined hub sections for `principal_admin`, `president`, `vice_president`, `secretary_general`, `treasurer`, `auditor`, `censor`, `sports_manager`, and `member`
+- tighter role-specific navigation and quick actions
+- compact member-first layout simplification
+- consistent workspace labels and empty states across office roles
+- browser QA for the major role landing surfaces
+
+Acceptance criteria:
+
+- ordinary members keep a simple read-first experience
+- office roles land in a clearly targeted workspace without hunting through generic admin menus
+- the principal admin remains tenant-scoped while retaining the broadest in-tenant authority
+- no role gains access to data outside its backend-approved boundary
+
+Implementation notes:
+
+- Added a dashboard workspace focus card that routes each role to the right workspace with a clean, role-specific summary
+- Simplified the dashboard entry path for member, secretary, finance, disciplinary, sports, governance, and principal-admin sessions
+- Kept the member experience compact and read-first while leaving the workspace-specific quick actions intact
+- Added dashboard browser coverage and updated the secretary route test so the new focus card and quick actions remain unambiguous
+
+## Sprint 60 - Recovery Evidence, Health Center, And Incident Readiness
+
+Status: Completed
+
+Goal:
+Bring recovery posture, dependency health, and incident evidence into first-class in-product surfaces.
+
+Why this sprint next:
+
+- Backup, restore, and dependency checks are already documented or partially exposed.
+- The missing step is operator evidence that can be reviewed quickly without scraping infrastructure logs.
+- This sprint improves confidence for self-hosted operators and support teams.
+
+Deliverables:
+
+- in-app health center or operations panel for last-known service status
+- backup, restore, and alert evidence summaries with freshness warnings
+- tenant-scoped incident notes or operational annotations
+- dependency status visibility that stays read-only and safe for office roles
+- regression coverage for stale and missing evidence states
+
+Acceptance criteria:
+
+- operators can verify current recovery evidence without leaving the product
+- stale or missing evidence is visible as a warning
+- health and recovery signals remain tenant-scoped
+- no new sensitive infrastructure detail is exposed to ordinary members
+
+Implementation notes:
+
+- Added a dedicated admin health center with live `/health` dependency checks, recovery evidence summaries, and incident annotations
+- Exposed the health center in the admin overview, the admin navigation, and the role-aware quick actions
+- Kept the panel read-only and tenant-scoped, with freshness warnings for stale or missing recovery signals
+- Added browser coverage for healthy and stale evidence states and confirmed the admin overview continues to link into the health center
+
+## Sprint 61 - Onboarding Wizard, Demo Seed, And First-Run Setup
+
+Status: Completed
+
+Goal:
+Make a new tenant easier to initialize, demonstrate, and hand over with a guided first-run path.
+
+Why this sprint next:
+
+- The repository already has strong demo data and provisioning helpers.
+- The next step is reducing the number of manual decisions a new operator must make before the first useful login.
+- This sprint supports both sales demos and real onboarding.
+
+Deliverables:
+
+- guided first-run setup flow for new tenant operators
+- demo-vs-production seed guidance inside the product or handoff docs
+- role and member import or provisioning helpers where appropriate
+- onboarding checklist and first-week success criteria
+- validation paths for a clean initial tenant experience
+
+Implementation notes:
+
+- Added a dedicated admin onboarding wizard with checklist, launch guidance, seed commands, and success criteria
+- Reused the live tenant onboarding state in the wizard, dashboard, and admin overview so the first-run path stays consistent
+- Added dashboard, admin overview, and admin navigation entry points for the wizard
+- Updated onboarding and demo handoff documentation to explain the first-run flow and multi-tenant seed helpers
+- Validated the wizard, admin overview, and dashboard entries with browser coverage after a clean frontend build
+
+Acceptance criteria:
+
+- a new operator can reach a usable tenant configuration with fewer external instructions
+- demo and production setup remain clearly separated
+- onboarding never weakens tenant isolation or backend authority
+- first-run guidance remains concise and professional
+
+## Sprint 62 - Privacy, Audit, And Export Hardening
+
+Status: Planned
+
+Goal:
+Tighten privacy boundaries across logs, exports, traces, and admin review surfaces.
+
+Why this sprint next:
+
+- The chatbot, reporting, and office workflows are already powerful enough to deserve a stricter privacy review pass.
+- The product should now focus on minimizing accidental exposure and making audit review safer.
+- This sprint reduces the chance of subtle disclosure regressions before wider adoption.
+
+Deliverables:
+
+- export scope review and stricter role-sensitive export boundaries
+- redacted or minimized AI traces where full content is not necessary
+- audit review filters that keep private member data protected
+- regression tests for logs, exports, and traces
+- updated guidance for privacy-sensitive operational review
+
+Acceptance criteria:
+
+- unauthorized data does not appear in logs, exports, or AI traces
+- auditors and office roles can still review what they are allowed to see
+- member-private and cross-tenant data remain protected by backend checks
+- privacy regression tests remain autonomous and repeatable
+
+## Sprint 63 - Deployment Packaging, Upgrade, And Rollback Automation
+
+Status: Planned
+
+Goal:
+Make the self-hosted deployment path easier to install, verify, upgrade, and roll back.
+
+Why this sprint next:
+
+- The product already has a deployment guide and production assets.
+- The remaining gap is packaging the deployment story into a simpler operator workflow.
+- This sprint turns the existing operational knowledge into a cleaner release path.
+
+Deliverables:
+
+- preflight validation or deployment helper scripts
+- explicit upgrade and rollback procedures
+- smoke-test or post-deploy verification flow
+- environment validation for production readiness
+- documentation aligned with the supported deployment path
+
+Acceptance criteria:
+
+- an operator can validate a target environment before cutover
+- upgrade and rollback steps are documented and testable
+- deployment verification remains compatible with the current self-hosted model
+- the product remains safe to run without exposing private infrastructure endpoints
+
+## Sprint 64 - Commercial Offer Pack, Support Boundaries, And Market-Facing Docs
+
+Status: Planned
+
+Goal:
+Close the gap between the strong release candidate and a clearly packaged offer that an association can adopt with confidence.
+
+Why this sprint next:
+
+- The codebase is already mature enough to support a credible commercial presentation.
+- The remaining gap is packaging: support scope, market-facing wording, and final handoff clarity.
+- This sprint keeps the engineering surface stable while making adoption easier for humans.
+
+Deliverables:
+
+- market-facing offer and support-boundary documentation
+- final demo gallery or screenshot pack aligned with the current product surface
+- updated release notes, handoff notes, and first-contact materials
+- clear guidance on what is supported, what is optional, and what remains customer-specific
+- any final documentation polish needed for a professional external review
+
+Acceptance criteria:
+
+- a new operator or buyer can understand the support boundary quickly
+- the docs match the verified runtime surface
+- the product story is consistent across README, status files, and handoff material
+- no roadmap ambiguity remains for the next agent session
+
+## Roadmap Status
+
+The historical track through Sprint 57 is complete.
+
+Sprint 61 is now complete.
+
+Sprint 62 is now the next planned sprint.
+
+Estimated additional sprints required from the current state: 3.
+
+Planned execution window:
+
+- Sprint 62 through Sprint 64
+
+Validation after this track should cover:
+
+- operator-safe tenant provisioning and switching
+- role workspace consistency
+- recovery and health evidence
+- privacy and export hardening
+- deployment packaging
+- commercial handoff and support documentation

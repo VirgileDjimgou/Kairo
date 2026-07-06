@@ -131,7 +131,8 @@ test.describe('Secretary workspace', () => {
 
     await expect(page).toHaveURL(/\/dashboard$/)
     await expect(page.getByText('Quick actions')).toBeVisible()
-    await expect(page.getByRole('link', { name: 'Open secretary workspace' })).toBeVisible()
+    await expect(page.getByTestId('dashboard-workspace-focus').getByRole('link', { name: 'Open secretary workspace' })).toHaveAttribute('href', '/secretary')
+    await expect(page.getByRole('link', { name: /Open secretary workspace/ })).toHaveCount(2)
     await expect(page.getByRole('link', { name: 'Go to finance workspace' })).toHaveCount(0)
   })
 })

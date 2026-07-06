@@ -764,6 +764,14 @@
         "documentation": {}
     },
     {
+        "label": "NotificationsDep",
+        "importPath": "app.core.dependencies",
+        "description": "app.core.dependencies",
+        "isExtraImport": true,
+        "detail": "app.core.dependencies",
+        "documentation": {}
+    },
+    {
         "label": "AuthDep",
         "importPath": "app.core.dependencies",
         "description": "app.core.dependencies",
@@ -1493,6 +1501,14 @@
     },
     {
         "label": "Any",
+        "importPath": "typing",
+        "description": "typing",
+        "isExtraImport": true,
+        "detail": "typing",
+        "documentation": {}
+    },
+    {
+        "label": "Literal",
         "importPath": "typing",
         "description": "typing",
         "isExtraImport": true,
@@ -2558,6 +2574,22 @@
         "documentation": {}
     },
     {
+        "label": "AsyncSession",
+        "importPath": "sqlalchemy.ext.asyncio",
+        "description": "sqlalchemy.ext.asyncio",
+        "isExtraImport": true,
+        "detail": "sqlalchemy.ext.asyncio",
+        "documentation": {}
+    },
+    {
+        "label": "AsyncSession",
+        "importPath": "sqlalchemy.ext.asyncio",
+        "description": "sqlalchemy.ext.asyncio",
+        "isExtraImport": true,
+        "detail": "sqlalchemy.ext.asyncio",
+        "documentation": {}
+    },
+    {
         "label": "decode_access_token",
         "importPath": "app.core.security",
         "description": "app.core.security",
@@ -2766,6 +2798,14 @@
         "documentation": {}
     },
     {
+        "label": "async_session_factory",
+        "importPath": "app.db.session",
+        "description": "app.db.session",
+        "isExtraImport": true,
+        "detail": "app.db.session",
+        "documentation": {}
+    },
+    {
         "label": "LLMProvider",
         "importPath": "app.providers.llm.base",
         "description": "app.providers.llm.base",
@@ -2822,6 +2862,22 @@
         "documentation": {}
     },
     {
+        "label": "NotificationDispatchResult",
+        "importPath": "app.providers.notifications.base",
+        "description": "app.providers.notifications.base",
+        "isExtraImport": true,
+        "detail": "app.providers.notifications.base",
+        "documentation": {}
+    },
+    {
+        "label": "NotificationProvider",
+        "importPath": "app.providers.notifications.base",
+        "description": "app.providers.notifications.base",
+        "isExtraImport": true,
+        "detail": "app.providers.notifications.base",
+        "documentation": {}
+    },
+    {
         "label": "NotificationProvider",
         "importPath": "app.providers.notifications.base",
         "description": "app.providers.notifications.base",
@@ -2859,6 +2915,22 @@
         "description": "app.providers.notifications.base",
         "isExtraImport": true,
         "detail": "app.providers.notifications.base",
+        "documentation": {}
+    },
+    {
+        "label": "annotations",
+        "importPath": "__future__",
+        "description": "__future__",
+        "isExtraImport": true,
+        "detail": "__future__",
+        "documentation": {}
+    },
+    {
+        "label": "annotations",
+        "importPath": "__future__",
+        "description": "__future__",
+        "isExtraImport": true,
+        "detail": "__future__",
         "documentation": {}
     },
     {
@@ -3665,6 +3737,22 @@
         "documentation": {}
     },
     {
+        "label": "AsyncClient",
+        "importPath": "httpx",
+        "description": "httpx",
+        "isExtraImport": true,
+        "detail": "httpx",
+        "documentation": {}
+    },
+    {
+        "label": "AsyncClient",
+        "importPath": "httpx",
+        "description": "httpx",
+        "isExtraImport": true,
+        "detail": "httpx",
+        "documentation": {}
+    },
+    {
         "label": "structlog",
         "kind": 6,
         "isExtraImport": true,
@@ -3724,6 +3812,14 @@
     },
     {
         "label": "pool",
+        "importPath": "sqlalchemy",
+        "description": "sqlalchemy",
+        "isExtraImport": true,
+        "detail": "sqlalchemy",
+        "documentation": {}
+    },
+    {
+        "label": "select",
         "importPath": "sqlalchemy",
         "description": "sqlalchemy",
         "isExtraImport": true,
@@ -4974,6 +5070,38 @@
         "documentation": {}
     },
     {
+        "label": "DocumentChunk",
+        "importPath": "app.modules.documents.models",
+        "description": "app.modules.documents.models",
+        "isExtraImport": true,
+        "detail": "app.modules.documents.models",
+        "documentation": {}
+    },
+    {
+        "label": "DocumentStatus",
+        "importPath": "app.modules.documents.models",
+        "description": "app.modules.documents.models",
+        "isExtraImport": true,
+        "detail": "app.modules.documents.models",
+        "documentation": {}
+    },
+    {
+        "label": "DocumentVersion",
+        "importPath": "app.modules.documents.models",
+        "description": "app.modules.documents.models",
+        "isExtraImport": true,
+        "detail": "app.modules.documents.models",
+        "documentation": {}
+    },
+    {
+        "label": "Document",
+        "importPath": "app.modules.documents.models",
+        "description": "app.modules.documents.models",
+        "isExtraImport": true,
+        "detail": "app.modules.documents.models",
+        "documentation": {}
+    },
+    {
         "label": "IngestionJob",
         "importPath": "app.modules.documents.models",
         "description": "app.modules.documents.models",
@@ -5320,6 +5448,30 @@
         "documentation": {}
     },
     {
+        "label": "timedelta",
+        "importPath": "datetime",
+        "description": "datetime",
+        "isExtraImport": true,
+        "detail": "datetime",
+        "documentation": {}
+    },
+    {
+        "label": "timezone",
+        "importPath": "datetime",
+        "description": "datetime",
+        "isExtraImport": true,
+        "detail": "datetime",
+        "documentation": {}
+    },
+    {
+        "label": "datetime",
+        "importPath": "datetime",
+        "description": "datetime",
+        "isExtraImport": true,
+        "detail": "datetime",
+        "documentation": {}
+    },
+    {
         "label": "datetime",
         "importPath": "datetime",
         "description": "datetime",
@@ -5416,6 +5568,14 @@
         "documentation": {}
     },
     {
+        "label": "timezone",
+        "importPath": "datetime",
+        "description": "datetime",
+        "isExtraImport": true,
+        "detail": "datetime",
+        "documentation": {}
+    },
+    {
         "label": "datetime",
         "importPath": "datetime",
         "description": "datetime",
@@ -5425,6 +5585,38 @@
     },
     {
         "label": "datetime",
+        "importPath": "datetime",
+        "description": "datetime",
+        "isExtraImport": true,
+        "detail": "datetime",
+        "documentation": {}
+    },
+    {
+        "label": "datetime",
+        "importPath": "datetime",
+        "description": "datetime",
+        "isExtraImport": true,
+        "detail": "datetime",
+        "documentation": {}
+    },
+    {
+        "label": "datetime",
+        "importPath": "datetime",
+        "description": "datetime",
+        "isExtraImport": true,
+        "detail": "datetime",
+        "documentation": {}
+    },
+    {
+        "label": "timedelta",
+        "importPath": "datetime",
+        "description": "datetime",
+        "isExtraImport": true,
+        "detail": "datetime",
+        "documentation": {}
+    },
+    {
+        "label": "timezone",
         "importPath": "datetime",
         "description": "datetime",
         "isExtraImport": true,
@@ -5689,6 +5881,70 @@
     },
     {
         "label": "datetime",
+        "importPath": "datetime",
+        "description": "datetime",
+        "isExtraImport": true,
+        "detail": "datetime",
+        "documentation": {}
+    },
+    {
+        "label": "timezone",
+        "importPath": "datetime",
+        "description": "datetime",
+        "isExtraImport": true,
+        "detail": "datetime",
+        "documentation": {}
+    },
+    {
+        "label": "timedelta",
+        "importPath": "datetime",
+        "description": "datetime",
+        "isExtraImport": true,
+        "detail": "datetime",
+        "documentation": {}
+    },
+    {
+        "label": "datetime",
+        "importPath": "datetime",
+        "description": "datetime",
+        "isExtraImport": true,
+        "detail": "datetime",
+        "documentation": {}
+    },
+    {
+        "label": "timezone",
+        "importPath": "datetime",
+        "description": "datetime",
+        "isExtraImport": true,
+        "detail": "datetime",
+        "documentation": {}
+    },
+    {
+        "label": "datetime",
+        "importPath": "datetime",
+        "description": "datetime",
+        "isExtraImport": true,
+        "detail": "datetime",
+        "documentation": {}
+    },
+    {
+        "label": "timezone",
+        "importPath": "datetime",
+        "description": "datetime",
+        "isExtraImport": true,
+        "detail": "datetime",
+        "documentation": {}
+    },
+    {
+        "label": "datetime",
+        "importPath": "datetime",
+        "description": "datetime",
+        "isExtraImport": true,
+        "detail": "datetime",
+        "documentation": {}
+    },
+    {
+        "label": "timedelta",
         "importPath": "datetime",
         "description": "datetime",
         "isExtraImport": true,
@@ -5833,11 +6089,27 @@
         "documentation": {}
     },
     {
+        "label": "op",
+        "importPath": "alembic",
+        "description": "alembic",
+        "isExtraImport": true,
+        "detail": "alembic",
+        "documentation": {}
+    },
+    {
         "label": "context",
         "importPath": "alembic",
         "description": "alembic",
         "isExtraImport": true,
         "detail": "alembic",
+        "documentation": {}
+    },
+    {
+        "label": "postgresql",
+        "importPath": "sqlalchemy.dialects",
+        "description": "sqlalchemy.dialects",
+        "isExtraImport": true,
+        "detail": "sqlalchemy.dialects",
         "documentation": {}
     },
     {
@@ -6242,6 +6514,14 @@
         "documentation": {}
     },
     {
+        "label": "User",
+        "importPath": "app.modules.identity.models",
+        "description": "app.modules.identity.models",
+        "isExtraImport": true,
+        "detail": "app.modules.identity.models",
+        "documentation": {}
+    },
+    {
         "label": "Invitation",
         "importPath": "app.modules.identity.models",
         "description": "app.modules.identity.models",
@@ -6450,6 +6730,30 @@
         "documentation": {}
     },
     {
+        "label": "user_roles",
+        "importPath": "app.modules.tenancy.models",
+        "description": "app.modules.tenancy.models",
+        "isExtraImport": true,
+        "detail": "app.modules.tenancy.models",
+        "documentation": {}
+    },
+    {
+        "label": "Role",
+        "importPath": "app.modules.tenancy.models",
+        "description": "app.modules.tenancy.models",
+        "isExtraImport": true,
+        "detail": "app.modules.tenancy.models",
+        "documentation": {}
+    },
+    {
+        "label": "Tenant",
+        "importPath": "app.modules.tenancy.models",
+        "description": "app.modules.tenancy.models",
+        "isExtraImport": true,
+        "detail": "app.modules.tenancy.models",
+        "documentation": {}
+    },
+    {
         "label": "TenantUser",
         "importPath": "app.modules.tenancy.models",
         "description": "app.modules.tenancy.models",
@@ -6623,6 +6927,22 @@
         "description": "app.modules.tenancy.models",
         "isExtraImport": true,
         "detail": "app.modules.tenancy.models",
+        "documentation": {}
+    },
+    {
+        "label": "MembershipProfile",
+        "importPath": "app.modules.membership.models",
+        "description": "app.modules.membership.models",
+        "isExtraImport": true,
+        "detail": "app.modules.membership.models",
+        "documentation": {}
+    },
+    {
+        "label": "MembershipProfile",
+        "importPath": "app.modules.membership.models",
+        "description": "app.modules.membership.models",
+        "isExtraImport": true,
+        "detail": "app.modules.membership.models",
         "documentation": {}
     },
     {
@@ -6690,6 +7010,14 @@
         "documentation": {}
     },
     {
+        "label": "MembershipProfile",
+        "importPath": "app.modules.membership.models",
+        "description": "app.modules.membership.models",
+        "isExtraImport": true,
+        "detail": "app.modules.membership.models",
+        "documentation": {}
+    },
+    {
         "label": "# noqa: F401\n    ContributionRecord",
         "importPath": "app.modules.contributions.models",
         "description": "app.modules.contributions.models",
@@ -6698,15 +7026,7 @@
         "documentation": {}
     },
     {
-        "label": "PaymentRecord",
-        "importPath": "app.modules.contributions.models",
-        "description": "app.modules.contributions.models",
-        "isExtraImport": true,
-        "detail": "app.modules.contributions.models",
-        "documentation": {}
-    },
-    {
-        "label": "ContributionRecord",
+        "label": "ContributionReminder",
         "importPath": "app.modules.contributions.models",
         "description": "app.modules.contributions.models",
         "isExtraImport": true,
@@ -6723,6 +7043,38 @@
     },
     {
         "label": "ContributionRecord",
+        "importPath": "app.modules.contributions.models",
+        "description": "app.modules.contributions.models",
+        "isExtraImport": true,
+        "detail": "app.modules.contributions.models",
+        "documentation": {}
+    },
+    {
+        "label": "PaymentRecord",
+        "importPath": "app.modules.contributions.models",
+        "description": "app.modules.contributions.models",
+        "isExtraImport": true,
+        "detail": "app.modules.contributions.models",
+        "documentation": {}
+    },
+    {
+        "label": "ContributionRecord",
+        "importPath": "app.modules.contributions.models",
+        "description": "app.modules.contributions.models",
+        "isExtraImport": true,
+        "detail": "app.modules.contributions.models",
+        "documentation": {}
+    },
+    {
+        "label": "ContributionRecord",
+        "importPath": "app.modules.contributions.models",
+        "description": "app.modules.contributions.models",
+        "isExtraImport": true,
+        "detail": "app.modules.contributions.models",
+        "documentation": {}
+    },
+    {
+        "label": "ContributionReminder",
         "importPath": "app.modules.contributions.models",
         "description": "app.modules.contributions.models",
         "isExtraImport": true,
@@ -6754,6 +7106,22 @@
         "documentation": {}
     },
     {
+        "label": "ReminderDeliveryStatus",
+        "importPath": "app.modules.contributions.models",
+        "description": "app.modules.contributions.models",
+        "isExtraImport": true,
+        "detail": "app.modules.contributions.models",
+        "documentation": {}
+    },
+    {
+        "label": "ReminderDeliveryStatus",
+        "importPath": "app.modules.contributions.models",
+        "description": "app.modules.contributions.models",
+        "isExtraImport": true,
+        "detail": "app.modules.contributions.models",
+        "documentation": {}
+    },
+    {
         "label": "ContributionRecord",
         "importPath": "app.modules.contributions.models",
         "description": "app.modules.contributions.models",
@@ -6771,6 +7139,22 @@
     },
     {
         "label": "PolicyRecord",
+        "importPath": "app.modules.policies.models",
+        "description": "app.modules.policies.models",
+        "isExtraImport": true,
+        "detail": "app.modules.policies.models",
+        "documentation": {}
+    },
+    {
+        "label": "PolicyRecord",
+        "importPath": "app.modules.policies.models",
+        "description": "app.modules.policies.models",
+        "isExtraImport": true,
+        "detail": "app.modules.policies.models",
+        "documentation": {}
+    },
+    {
+        "label": "PolicyStatus",
         "importPath": "app.modules.policies.models",
         "description": "app.modules.policies.models",
         "isExtraImport": true,
@@ -6850,6 +7234,30 @@
         "documentation": {}
     },
     {
+        "label": "DisciplinaryRecord",
+        "importPath": "app.modules.disciplinary.models",
+        "description": "app.modules.disciplinary.models",
+        "isExtraImport": true,
+        "detail": "app.modules.disciplinary.models",
+        "documentation": {}
+    },
+    {
+        "label": "Event",
+        "importPath": "app.modules.events.models",
+        "description": "app.modules.events.models",
+        "isExtraImport": true,
+        "detail": "app.modules.events.models",
+        "documentation": {}
+    },
+    {
+        "label": "Event",
+        "importPath": "app.modules.events.models",
+        "description": "app.modules.events.models",
+        "isExtraImport": true,
+        "detail": "app.modules.events.models",
+        "documentation": {}
+    },
+    {
         "label": "Event",
         "importPath": "app.modules.events.models",
         "description": "app.modules.events.models",
@@ -6898,6 +7306,38 @@
         "documentation": {}
     },
     {
+        "label": "Event",
+        "importPath": "app.modules.events.models",
+        "description": "app.modules.events.models",
+        "isExtraImport": true,
+        "detail": "app.modules.events.models",
+        "documentation": {}
+    },
+    {
+        "label": "EventStatus",
+        "importPath": "app.modules.events.models",
+        "description": "app.modules.events.models",
+        "isExtraImport": true,
+        "detail": "app.modules.events.models",
+        "documentation": {}
+    },
+    {
+        "label": "EventVisibility",
+        "importPath": "app.modules.events.models",
+        "description": "app.modules.events.models",
+        "isExtraImport": true,
+        "detail": "app.modules.events.models",
+        "documentation": {}
+    },
+    {
+        "label": "Announcement",
+        "importPath": "app.modules.announcements.models",
+        "description": "app.modules.announcements.models",
+        "isExtraImport": true,
+        "detail": "app.modules.announcements.models",
+        "documentation": {}
+    },
+    {
         "label": "Announcement",
         "importPath": "app.modules.announcements.models",
         "description": "app.modules.announcements.models",
@@ -6938,6 +7378,14 @@
         "documentation": {}
     },
     {
+        "label": "Announcement",
+        "importPath": "app.modules.announcements.models",
+        "description": "app.modules.announcements.models",
+        "isExtraImport": true,
+        "detail": "app.modules.announcements.models",
+        "documentation": {}
+    },
+    {
         "label": "setup_logging",
         "importPath": "app.core.logging",
         "description": "app.core.logging",
@@ -6951,6 +7399,22 @@
         "description": "app.core.logging",
         "isExtraImport": true,
         "detail": "app.core.logging",
+        "documentation": {}
+    },
+    {
+        "label": "setup_logging",
+        "importPath": "app.core.logging",
+        "description": "app.core.logging",
+        "isExtraImport": true,
+        "detail": "app.core.logging",
+        "documentation": {}
+    },
+    {
+        "label": "canonical_role_definitions",
+        "importPath": "app.modules.tenancy.role_catalog",
+        "description": "app.modules.tenancy.role_catalog",
+        "isExtraImport": true,
+        "detail": "app.modules.tenancy.role_catalog",
         "documentation": {}
     },
     {
@@ -6975,6 +7439,14 @@
         "description": "app.modules.tenancy.role_catalog",
         "isExtraImport": true,
         "detail": "app.modules.tenancy.role_catalog",
+        "documentation": {}
+    },
+    {
+        "label": "seed",
+        "importPath": "app.db",
+        "description": "app.db",
+        "isExtraImport": true,
+        "detail": "app.db",
         "documentation": {}
     },
     {
@@ -7106,6 +7578,46 @@
         "documentation": {}
     },
     {
+        "label": "CAP_ANNOUNCEMENTS_WRITE",
+        "importPath": "app.core.capabilities",
+        "description": "app.core.capabilities",
+        "isExtraImport": true,
+        "detail": "app.core.capabilities",
+        "documentation": {}
+    },
+    {
+        "label": "CAP_DOCUMENTS_WRITE",
+        "importPath": "app.core.capabilities",
+        "description": "app.core.capabilities",
+        "isExtraImport": true,
+        "detail": "app.core.capabilities",
+        "documentation": {}
+    },
+    {
+        "label": "CAP_DISCIPLINARY_TENANT_READ",
+        "importPath": "app.core.capabilities",
+        "description": "app.core.capabilities",
+        "isExtraImport": true,
+        "detail": "app.core.capabilities",
+        "documentation": {}
+    },
+    {
+        "label": "CAP_DISCIPLINARY_WRITE",
+        "importPath": "app.core.capabilities",
+        "description": "app.core.capabilities",
+        "isExtraImport": true,
+        "detail": "app.core.capabilities",
+        "documentation": {}
+    },
+    {
+        "label": "CAP_EVENTS_SPORTS_WRITE",
+        "importPath": "app.core.capabilities",
+        "description": "app.core.capabilities",
+        "isExtraImport": true,
+        "detail": "app.core.capabilities",
+        "documentation": {}
+    },
+    {
         "label": "CAP_FINANCE_AUDIT",
         "importPath": "app.core.capabilities",
         "description": "app.core.capabilities",
@@ -7123,6 +7635,14 @@
     },
     {
         "label": "CAP_FINANCE_TENANT_READ",
+        "importPath": "app.core.capabilities",
+        "description": "app.core.capabilities",
+        "isExtraImport": true,
+        "detail": "app.core.capabilities",
+        "documentation": {}
+    },
+    {
+        "label": "CAP_POLICIES_WRITE",
         "importPath": "app.core.capabilities",
         "description": "app.core.capabilities",
         "isExtraImport": true,
@@ -8242,11 +8762,11 @@
         "documentation": {}
     },
     {
-        "label": "AuditEventResponse",
-        "importPath": "app.modules.audit.schemas",
-        "description": "app.modules.audit.schemas",
+        "label": "AnnouncementRepository",
+        "importPath": "app.modules.announcements.repository",
+        "description": "app.modules.announcements.repository",
         "isExtraImport": true,
-        "detail": "app.modules.audit.schemas",
+        "detail": "app.modules.announcements.repository",
         "documentation": {}
     },
     {
@@ -8258,6 +8778,86 @@
         "documentation": {}
     },
     {
+        "label": "AuditEventResponse",
+        "importPath": "app.modules.audit.schemas",
+        "description": "app.modules.audit.schemas",
+        "isExtraImport": true,
+        "detail": "app.modules.audit.schemas",
+        "documentation": {}
+    },
+    {
+        "label": "Decimal",
+        "importPath": "decimal",
+        "description": "decimal",
+        "isExtraImport": true,
+        "detail": "decimal",
+        "documentation": {}
+    },
+    {
+        "label": "Decimal",
+        "importPath": "decimal",
+        "description": "decimal",
+        "isExtraImport": true,
+        "detail": "decimal",
+        "documentation": {}
+    },
+    {
+        "label": "Decimal",
+        "importPath": "decimal",
+        "description": "decimal",
+        "isExtraImport": true,
+        "detail": "decimal",
+        "documentation": {}
+    },
+    {
+        "label": "ROUND_HALF_UP",
+        "importPath": "decimal",
+        "description": "decimal",
+        "isExtraImport": true,
+        "detail": "decimal",
+        "documentation": {}
+    },
+    {
+        "label": "Decimal",
+        "importPath": "decimal",
+        "description": "decimal",
+        "isExtraImport": true,
+        "detail": "decimal",
+        "documentation": {}
+    },
+    {
+        "label": "ROUND_HALF_UP",
+        "importPath": "decimal",
+        "description": "decimal",
+        "isExtraImport": true,
+        "detail": "decimal",
+        "documentation": {}
+    },
+    {
+        "label": "Decimal",
+        "importPath": "decimal",
+        "description": "decimal",
+        "isExtraImport": true,
+        "detail": "decimal",
+        "documentation": {}
+    },
+    {
+        "label": "Decimal",
+        "importPath": "decimal",
+        "description": "decimal",
+        "isExtraImport": true,
+        "detail": "decimal",
+        "documentation": {}
+    },
+    {
+        "label": "Decimal",
+        "importPath": "decimal",
+        "description": "decimal",
+        "isExtraImport": true,
+        "detail": "decimal",
+        "documentation": {}
+    },
+    {
         "label": "Decimal",
         "importPath": "decimal",
         "description": "decimal",
@@ -8291,70 +8891,6 @@
     },
     {
         "label": "Decimal",
-        "importPath": "decimal",
-        "description": "decimal",
-        "isExtraImport": true,
-        "detail": "decimal",
-        "documentation": {}
-    },
-    {
-        "label": "ROUND_HALF_UP",
-        "importPath": "decimal",
-        "description": "decimal",
-        "isExtraImport": true,
-        "detail": "decimal",
-        "documentation": {}
-    },
-    {
-        "label": "Decimal",
-        "importPath": "decimal",
-        "description": "decimal",
-        "isExtraImport": true,
-        "detail": "decimal",
-        "documentation": {}
-    },
-    {
-        "label": "Decimal",
-        "importPath": "decimal",
-        "description": "decimal",
-        "isExtraImport": true,
-        "detail": "decimal",
-        "documentation": {}
-    },
-    {
-        "label": "Decimal",
-        "importPath": "decimal",
-        "description": "decimal",
-        "isExtraImport": true,
-        "detail": "decimal",
-        "documentation": {}
-    },
-    {
-        "label": "Decimal",
-        "importPath": "decimal",
-        "description": "decimal",
-        "isExtraImport": true,
-        "detail": "decimal",
-        "documentation": {}
-    },
-    {
-        "label": "Decimal",
-        "importPath": "decimal",
-        "description": "decimal",
-        "isExtraImport": true,
-        "detail": "decimal",
-        "documentation": {}
-    },
-    {
-        "label": "Decimal",
-        "importPath": "decimal",
-        "description": "decimal",
-        "isExtraImport": true,
-        "detail": "decimal",
-        "documentation": {}
-    },
-    {
-        "label": "ROUND_HALF_UP",
         "importPath": "decimal",
         "description": "decimal",
         "isExtraImport": true,
@@ -8411,6 +8947,38 @@
         "documentation": {}
     },
     {
+        "label": "DisciplinaryRepository",
+        "importPath": "app.modules.disciplinary.repository",
+        "description": "app.modules.disciplinary.repository",
+        "isExtraImport": true,
+        "detail": "app.modules.disciplinary.repository",
+        "documentation": {}
+    },
+    {
+        "label": "DisciplinaryRepository",
+        "importPath": "app.modules.disciplinary.repository",
+        "description": "app.modules.disciplinary.repository",
+        "isExtraImport": true,
+        "detail": "app.modules.disciplinary.repository",
+        "documentation": {}
+    },
+    {
+        "label": "EventRepository",
+        "importPath": "app.modules.events.repository",
+        "description": "app.modules.events.repository",
+        "isExtraImport": true,
+        "detail": "app.modules.events.repository",
+        "documentation": {}
+    },
+    {
+        "label": "EventRepository",
+        "importPath": "app.modules.events.repository",
+        "description": "app.modules.events.repository",
+        "isExtraImport": true,
+        "detail": "app.modules.events.repository",
+        "documentation": {}
+    },
+    {
         "label": "ContributionService",
         "importPath": "app.modules.contributions.service",
         "description": "app.modules.contributions.service",
@@ -8472,6 +9040,22 @@
         "description": "app.modules.membership.service",
         "isExtraImport": true,
         "detail": "app.modules.membership.service",
+        "documentation": {}
+    },
+    {
+        "label": "PolicyService",
+        "importPath": "app.modules.policies.service",
+        "description": "app.modules.policies.service",
+        "isExtraImport": true,
+        "detail": "app.modules.policies.service",
+        "documentation": {}
+    },
+    {
+        "label": "PolicyService",
+        "importPath": "app.modules.policies.service",
+        "description": "app.modules.policies.service",
+        "isExtraImport": true,
+        "detail": "app.modules.policies.service",
         "documentation": {}
     },
     {
@@ -8480,6 +9064,38 @@
         "description": "app.modules.rag.retrieval",
         "isExtraImport": true,
         "detail": "app.modules.rag.retrieval",
+        "documentation": {}
+    },
+    {
+        "label": "ContributionReminderBatchRequest",
+        "importPath": "app.modules.contributions.schemas",
+        "description": "app.modules.contributions.schemas",
+        "isExtraImport": true,
+        "detail": "app.modules.contributions.schemas",
+        "documentation": {}
+    },
+    {
+        "label": "ContributionReminderBatchResponse",
+        "importPath": "app.modules.contributions.schemas",
+        "description": "app.modules.contributions.schemas",
+        "isExtraImport": true,
+        "detail": "app.modules.contributions.schemas",
+        "documentation": {}
+    },
+    {
+        "label": "ContributionReminderResponse",
+        "importPath": "app.modules.contributions.schemas",
+        "description": "app.modules.contributions.schemas",
+        "isExtraImport": true,
+        "detail": "app.modules.contributions.schemas",
+        "documentation": {}
+    },
+    {
+        "label": "ContributionReminderSendRequest",
+        "importPath": "app.modules.contributions.schemas",
+        "description": "app.modules.contributions.schemas",
+        "isExtraImport": true,
+        "detail": "app.modules.contributions.schemas",
         "documentation": {}
     },
     {
@@ -8516,6 +9132,38 @@
     },
     {
         "label": "PaymentRecordResponse",
+        "importPath": "app.modules.contributions.schemas",
+        "description": "app.modules.contributions.schemas",
+        "isExtraImport": true,
+        "detail": "app.modules.contributions.schemas",
+        "documentation": {}
+    },
+    {
+        "label": "ContributionReminderBatchRequest",
+        "importPath": "app.modules.contributions.schemas",
+        "description": "app.modules.contributions.schemas",
+        "isExtraImport": true,
+        "detail": "app.modules.contributions.schemas",
+        "documentation": {}
+    },
+    {
+        "label": "ContributionReminderBatchResponse",
+        "importPath": "app.modules.contributions.schemas",
+        "description": "app.modules.contributions.schemas",
+        "isExtraImport": true,
+        "detail": "app.modules.contributions.schemas",
+        "documentation": {}
+    },
+    {
+        "label": "ContributionReminderResponse",
+        "importPath": "app.modules.contributions.schemas",
+        "description": "app.modules.contributions.schemas",
+        "isExtraImport": true,
+        "detail": "app.modules.contributions.schemas",
+        "documentation": {}
+    },
+    {
+        "label": "ContributionReminderSendRequest",
         "importPath": "app.modules.contributions.schemas",
         "description": "app.modules.contributions.schemas",
         "isExtraImport": true,
@@ -8680,14 +9328,6 @@
         "description": "app.modules.disciplinary.service",
         "isExtraImport": true,
         "detail": "app.modules.disciplinary.service",
-        "documentation": {}
-    },
-    {
-        "label": "DisciplinaryRepository",
-        "importPath": "app.modules.disciplinary.repository",
-        "description": "app.modules.disciplinary.repository",
-        "isExtraImport": true,
-        "detail": "app.modules.disciplinary.repository",
         "documentation": {}
     },
     {
@@ -8952,14 +9592,6 @@
         "description": "app.modules.events.service",
         "isExtraImport": true,
         "detail": "app.modules.events.service",
-        "documentation": {}
-    },
-    {
-        "label": "EventRepository",
-        "importPath": "app.modules.events.repository",
-        "description": "app.modules.events.repository",
-        "isExtraImport": true,
-        "detail": "app.modules.events.repository",
         "documentation": {}
     },
     {
@@ -9555,6 +10187,22 @@
         "documentation": {}
     },
     {
+        "label": "RecoveryEvidenceConfig",
+        "importPath": "app.modules.tenancy.schemas",
+        "description": "app.modules.tenancy.schemas",
+        "isExtraImport": true,
+        "detail": "app.modules.tenancy.schemas",
+        "documentation": {}
+    },
+    {
+        "label": "RecoveryEvidenceResponse",
+        "importPath": "app.modules.tenancy.schemas",
+        "description": "app.modules.tenancy.schemas",
+        "isExtraImport": true,
+        "detail": "app.modules.tenancy.schemas",
+        "documentation": {}
+    },
+    {
         "label": "TenantResponse",
         "importPath": "app.modules.tenancy.schemas",
         "description": "app.modules.tenancy.schemas",
@@ -9897,14 +10545,6 @@
         "description": "app.modules.policies.schemas",
         "isExtraImport": true,
         "detail": "app.modules.policies.schemas",
-        "documentation": {}
-    },
-    {
-        "label": "PolicyService",
-        "importPath": "app.modules.policies.service",
-        "description": "app.modules.policies.service",
-        "isExtraImport": true,
-        "detail": "app.modules.policies.service",
         "documentation": {}
     },
     {
@@ -10312,6 +10952,30 @@
         "documentation": {}
     },
     {
+        "label": "create_user_for_tenant",
+        "importPath": "helpers",
+        "description": "helpers",
+        "isExtraImport": true,
+        "detail": "helpers",
+        "documentation": {}
+    },
+    {
+        "label": "login",
+        "importPath": "helpers",
+        "description": "helpers",
+        "isExtraImport": true,
+        "detail": "helpers",
+        "documentation": {}
+    },
+    {
+        "label": "create_tenant_with_user",
+        "importPath": "helpers",
+        "description": "helpers",
+        "isExtraImport": true,
+        "detail": "helpers",
+        "documentation": {}
+    },
+    {
         "label": "login",
         "importPath": "helpers",
         "description": "helpers",
@@ -10441,6 +11105,22 @@
     },
     {
         "label": "create_user_for_tenant",
+        "importPath": "helpers",
+        "description": "helpers",
+        "isExtraImport": true,
+        "detail": "helpers",
+        "documentation": {}
+    },
+    {
+        "label": "create_tenant_with_user",
+        "importPath": "helpers",
+        "description": "helpers",
+        "isExtraImport": true,
+        "detail": "helpers",
+        "documentation": {}
+    },
+    {
+        "label": "login",
         "importPath": "helpers",
         "description": "helpers",
         "isExtraImport": true,
@@ -12043,6 +12723,60 @@
         "documentation": {}
     },
     {
+        "label": "upgrade",
+        "kind": 2,
+        "importPath": "services.api.app.db.migrations.versions.0012_contribution_reminders",
+        "description": "services.api.app.db.migrations.versions.0012_contribution_reminders",
+        "peekOfCode": "def upgrade() -> None:\n    op.create_table(\n        \"contribution_reminders\",\n        sa.Column(\"id\", postgresql.UUID(as_uuid=True), primary_key=True),\n        sa.Column(\n            \"tenant_id\",\n            postgresql.UUID(as_uuid=True),\n            sa.ForeignKey(\"tenants.id\", ondelete=\"CASCADE\"),\n            nullable=False,\n        ),",
+        "detail": "services.api.app.db.migrations.versions.0012_contribution_reminders",
+        "documentation": {}
+    },
+    {
+        "label": "downgrade",
+        "kind": 2,
+        "importPath": "services.api.app.db.migrations.versions.0012_contribution_reminders",
+        "description": "services.api.app.db.migrations.versions.0012_contribution_reminders",
+        "peekOfCode": "def downgrade() -> None:\n    op.drop_index(\"ix_contribution_reminders_membership_profile_id\", table_name=\"contribution_reminders\")\n    op.drop_index(\"ix_contribution_reminders_contribution_record_id\", table_name=\"contribution_reminders\")\n    op.drop_index(\"ix_contribution_reminders_tenant_id\", table_name=\"contribution_reminders\")\n    op.drop_table(\"contribution_reminders\")",
+        "detail": "services.api.app.db.migrations.versions.0012_contribution_reminders",
+        "documentation": {}
+    },
+    {
+        "label": "revision",
+        "kind": 5,
+        "importPath": "services.api.app.db.migrations.versions.0012_contribution_reminders",
+        "description": "services.api.app.db.migrations.versions.0012_contribution_reminders",
+        "peekOfCode": "revision = \"0012_contribution_reminders\"\ndown_revision = \"0011_chat_query_source_types\"\nbranch_labels = None\ndepends_on = None\ndef upgrade() -> None:\n    op.create_table(\n        \"contribution_reminders\",\n        sa.Column(\"id\", postgresql.UUID(as_uuid=True), primary_key=True),\n        sa.Column(\n            \"tenant_id\",",
+        "detail": "services.api.app.db.migrations.versions.0012_contribution_reminders",
+        "documentation": {}
+    },
+    {
+        "label": "down_revision",
+        "kind": 5,
+        "importPath": "services.api.app.db.migrations.versions.0012_contribution_reminders",
+        "description": "services.api.app.db.migrations.versions.0012_contribution_reminders",
+        "peekOfCode": "down_revision = \"0011_chat_query_source_types\"\nbranch_labels = None\ndepends_on = None\ndef upgrade() -> None:\n    op.create_table(\n        \"contribution_reminders\",\n        sa.Column(\"id\", postgresql.UUID(as_uuid=True), primary_key=True),\n        sa.Column(\n            \"tenant_id\",\n            postgresql.UUID(as_uuid=True),",
+        "detail": "services.api.app.db.migrations.versions.0012_contribution_reminders",
+        "documentation": {}
+    },
+    {
+        "label": "branch_labels",
+        "kind": 5,
+        "importPath": "services.api.app.db.migrations.versions.0012_contribution_reminders",
+        "description": "services.api.app.db.migrations.versions.0012_contribution_reminders",
+        "peekOfCode": "branch_labels = None\ndepends_on = None\ndef upgrade() -> None:\n    op.create_table(\n        \"contribution_reminders\",\n        sa.Column(\"id\", postgresql.UUID(as_uuid=True), primary_key=True),\n        sa.Column(\n            \"tenant_id\",\n            postgresql.UUID(as_uuid=True),\n            sa.ForeignKey(\"tenants.id\", ondelete=\"CASCADE\"),",
+        "detail": "services.api.app.db.migrations.versions.0012_contribution_reminders",
+        "documentation": {}
+    },
+    {
+        "label": "depends_on",
+        "kind": 5,
+        "importPath": "services.api.app.db.migrations.versions.0012_contribution_reminders",
+        "description": "services.api.app.db.migrations.versions.0012_contribution_reminders",
+        "peekOfCode": "depends_on = None\ndef upgrade() -> None:\n    op.create_table(\n        \"contribution_reminders\",\n        sa.Column(\"id\", postgresql.UUID(as_uuid=True), primary_key=True),\n        sa.Column(\n            \"tenant_id\",\n            postgresql.UUID(as_uuid=True),\n            sa.ForeignKey(\"tenants.id\", ondelete=\"CASCADE\"),\n            nullable=False,",
+        "detail": "services.api.app.db.migrations.versions.0012_contribution_reminders",
+        "documentation": {}
+    },
+    {
         "label": "run_migrations_offline",
         "kind": 2,
         "importPath": "services.api.app.db.migrations.env",
@@ -12367,6 +13101,87 @@
         "documentation": {}
     },
     {
+        "label": "logger",
+        "kind": 5,
+        "importPath": "services.api.app.db.seed_multi_tenant",
+        "description": "services.api.app.db.seed_multi_tenant",
+        "peekOfCode": "logger = structlog.get_logger(__name__)\nSECONDARY_TENANT_SLUG = \"riverdale\"\nSECONDARY_TENANT_NAME = \"Riverdale Sports Union\"\nSECONDARY_BRANDING = {\"primary_color\": \"#2f6f55\", \"logo_url\": \"\"}\nSECONDARY_SETTINGS = {\n    \"locale\": \"en\",\n    \"timezone\": \"UTC\",\n    \"modules\": {\n        \"membership\": True,\n        \"contributions\": True,",
+        "detail": "services.api.app.db.seed_multi_tenant",
+        "documentation": {}
+    },
+    {
+        "label": "SECONDARY_TENANT_SLUG",
+        "kind": 5,
+        "importPath": "services.api.app.db.seed_multi_tenant",
+        "description": "services.api.app.db.seed_multi_tenant",
+        "peekOfCode": "SECONDARY_TENANT_SLUG = \"riverdale\"\nSECONDARY_TENANT_NAME = \"Riverdale Sports Union\"\nSECONDARY_BRANDING = {\"primary_color\": \"#2f6f55\", \"logo_url\": \"\"}\nSECONDARY_SETTINGS = {\n    \"locale\": \"en\",\n    \"timezone\": \"UTC\",\n    \"modules\": {\n        \"membership\": True,\n        \"contributions\": True,\n        \"policies\": True,",
+        "detail": "services.api.app.db.seed_multi_tenant",
+        "documentation": {}
+    },
+    {
+        "label": "SECONDARY_TENANT_NAME",
+        "kind": 5,
+        "importPath": "services.api.app.db.seed_multi_tenant",
+        "description": "services.api.app.db.seed_multi_tenant",
+        "peekOfCode": "SECONDARY_TENANT_NAME = \"Riverdale Sports Union\"\nSECONDARY_BRANDING = {\"primary_color\": \"#2f6f55\", \"logo_url\": \"\"}\nSECONDARY_SETTINGS = {\n    \"locale\": \"en\",\n    \"timezone\": \"UTC\",\n    \"modules\": {\n        \"membership\": True,\n        \"contributions\": True,\n        \"policies\": True,\n        \"disciplinary\": True,",
+        "detail": "services.api.app.db.seed_multi_tenant",
+        "documentation": {}
+    },
+    {
+        "label": "SECONDARY_BRANDING",
+        "kind": 5,
+        "importPath": "services.api.app.db.seed_multi_tenant",
+        "description": "services.api.app.db.seed_multi_tenant",
+        "peekOfCode": "SECONDARY_BRANDING = {\"primary_color\": \"#2f6f55\", \"logo_url\": \"\"}\nSECONDARY_SETTINGS = {\n    \"locale\": \"en\",\n    \"timezone\": \"UTC\",\n    \"modules\": {\n        \"membership\": True,\n        \"contributions\": True,\n        \"policies\": True,\n        \"disciplinary\": True,\n        \"events\": True,",
+        "detail": "services.api.app.db.seed_multi_tenant",
+        "documentation": {}
+    },
+    {
+        "label": "SECONDARY_SETTINGS",
+        "kind": 5,
+        "importPath": "services.api.app.db.seed_multi_tenant",
+        "description": "services.api.app.db.seed_multi_tenant",
+        "peekOfCode": "SECONDARY_SETTINGS = {\n    \"locale\": \"en\",\n    \"timezone\": \"UTC\",\n    \"modules\": {\n        \"membership\": True,\n        \"contributions\": True,\n        \"policies\": True,\n        \"disciplinary\": True,\n        \"events\": True,\n        \"announcements\": True,",
+        "detail": "services.api.app.db.seed_multi_tenant",
+        "documentation": {}
+    },
+    {
+        "label": "MULTI_TENANT_EMAIL",
+        "kind": 5,
+        "importPath": "services.api.app.db.seed_multi_tenant",
+        "description": "services.api.app.db.seed_multi_tenant",
+        "peekOfCode": "MULTI_TENANT_EMAIL = \"switcher@demo.org\"\nMULTI_TENANT_PASSWORD = \"Switcher123!\"\nSECONDARY_ADMIN_EMAIL = \"riverdale-admin@demo.org\"\nSECONDARY_ADMIN_PASSWORD = \"RiverdaleAdmin123!\"\nasync def _get_or_create_tenant(db, slug: str, name: str, *, branding: dict, settings: dict) -> Tenant:\n    existing = await db.execute(select(Tenant).where(Tenant.slug == slug))\n    tenant = existing.scalar_one_or_none()\n    if tenant is None:\n        tenant = Tenant(\n            id=uuid.uuid4(),",
+        "detail": "services.api.app.db.seed_multi_tenant",
+        "documentation": {}
+    },
+    {
+        "label": "MULTI_TENANT_PASSWORD",
+        "kind": 5,
+        "importPath": "services.api.app.db.seed_multi_tenant",
+        "description": "services.api.app.db.seed_multi_tenant",
+        "peekOfCode": "MULTI_TENANT_PASSWORD = \"Switcher123!\"\nSECONDARY_ADMIN_EMAIL = \"riverdale-admin@demo.org\"\nSECONDARY_ADMIN_PASSWORD = \"RiverdaleAdmin123!\"\nasync def _get_or_create_tenant(db, slug: str, name: str, *, branding: dict, settings: dict) -> Tenant:\n    existing = await db.execute(select(Tenant).where(Tenant.slug == slug))\n    tenant = existing.scalar_one_or_none()\n    if tenant is None:\n        tenant = Tenant(\n            id=uuid.uuid4(),\n            slug=slug,",
+        "detail": "services.api.app.db.seed_multi_tenant",
+        "documentation": {}
+    },
+    {
+        "label": "SECONDARY_ADMIN_EMAIL",
+        "kind": 5,
+        "importPath": "services.api.app.db.seed_multi_tenant",
+        "description": "services.api.app.db.seed_multi_tenant",
+        "peekOfCode": "SECONDARY_ADMIN_EMAIL = \"riverdale-admin@demo.org\"\nSECONDARY_ADMIN_PASSWORD = \"RiverdaleAdmin123!\"\nasync def _get_or_create_tenant(db, slug: str, name: str, *, branding: dict, settings: dict) -> Tenant:\n    existing = await db.execute(select(Tenant).where(Tenant.slug == slug))\n    tenant = existing.scalar_one_or_none()\n    if tenant is None:\n        tenant = Tenant(\n            id=uuid.uuid4(),\n            slug=slug,\n            name=name,",
+        "detail": "services.api.app.db.seed_multi_tenant",
+        "documentation": {}
+    },
+    {
+        "label": "SECONDARY_ADMIN_PASSWORD",
+        "kind": 5,
+        "importPath": "services.api.app.db.seed_multi_tenant",
+        "description": "services.api.app.db.seed_multi_tenant",
+        "peekOfCode": "SECONDARY_ADMIN_PASSWORD = \"RiverdaleAdmin123!\"\nasync def _get_or_create_tenant(db, slug: str, name: str, *, branding: dict, settings: dict) -> Tenant:\n    existing = await db.execute(select(Tenant).where(Tenant.slug == slug))\n    tenant = existing.scalar_one_or_none()\n    if tenant is None:\n        tenant = Tenant(\n            id=uuid.uuid4(),\n            slug=slug,\n            name=name,\n            type=\"association\",",
+        "detail": "services.api.app.db.seed_multi_tenant",
+        "documentation": {}
+    },
+    {
         "label": "engine",
         "kind": 5,
         "importPath": "services.api.app.db.session",
@@ -12641,7 +13456,43 @@
         "kind": 5,
         "importPath": "services.api.app.modules.chat.service",
         "description": "services.api.app.modules.chat.service",
-        "peekOfCode": "_OTHER_MEMBER_FINANCE_PATTERNS = (\n    r\"\\banother member\\b.*\\b(balance|dues|fee|fees|contribution|contributions|owed|owing)\\b\",\n    r\"\\b(other|another|their|his|her)\\b.*\\b(balance|dues|fee|fees|contribution|contributions|owed|owing)\\b\",\n    r\"\\b(balance|dues|fee|fees|contribution|contributions|owed|owing)\\b.*\\b(of|for)\\b.*\\b(member|user|profile)\\b\",\n)\nclass ChatService:\n    def __init__(\n        self,\n        db: AsyncSession,\n        *,",
+        "peekOfCode": "_OTHER_MEMBER_FINANCE_PATTERNS = (\n    r\"\\banother member\\b.*\\b(balance|dues|fee|fees|contribution|contributions|owed|owing)\\b\",\n    r\"\\b(other|another|their|his|her)\\b.*\\b(balance|dues|fee|fees|contribution|contributions|owed|owing)\\b\",\n    r\"\\b(balance|dues|fee|fees|contribution|contributions|owed|owing)\\b.*\\b(of|for)\\b.*\\b(member|user|profile)\\b\",\n)\n_GOVERNANCE_SUMMARY_PATTERNS = (\n    r\"\\bgovernance summary\\b\",\n    r\"\\borganization summary\\b\",\n    r\"\\borganization overview\\b\",\n    r\"\\btenant overview\\b\",",
+        "detail": "services.api.app.modules.chat.service",
+        "documentation": {}
+    },
+    {
+        "label": "_GOVERNANCE_SUMMARY_PATTERNS",
+        "kind": 5,
+        "importPath": "services.api.app.modules.chat.service",
+        "description": "services.api.app.modules.chat.service",
+        "peekOfCode": "_GOVERNANCE_SUMMARY_PATTERNS = (\n    r\"\\bgovernance summary\\b\",\n    r\"\\borganization summary\\b\",\n    r\"\\borganization overview\\b\",\n    r\"\\btenant overview\\b\",\n    r\"\\bexecutive overview\\b\",\n    r\"\\bboard overview\\b\",\n    r\"\\bmember directory overview\\b\",\n    r\"\\bmember count\\b\",\n    r\"\\bdocument count\\b\",",
+        "detail": "services.api.app.modules.chat.service",
+        "documentation": {}
+    },
+    {
+        "label": "_PUBLICATION_CONTEXT_PATTERNS",
+        "kind": 5,
+        "importPath": "services.api.app.modules.chat.service",
+        "description": "services.api.app.modules.chat.service",
+        "peekOfCode": "_PUBLICATION_CONTEXT_PATTERNS = (\n    r\"\\bpublication context\\b\",\n    r\"\\bofficial publication\\b\",\n    r\"\\bofficial publications\\b\",\n    r\"\\bpublication status\\b\",\n    r\"\\bannouncement status\\b\",\n    r\"\\bwhat should i publish\\b\",\n    r\"\\bwhat needs to be published\\b\",\n    r\"\\bofficial notices\\b\",\n)",
+        "detail": "services.api.app.modules.chat.service",
+        "documentation": {}
+    },
+    {
+        "label": "_DISCIPLINARY_SUMMARY_PATTERNS",
+        "kind": 5,
+        "importPath": "services.api.app.modules.chat.service",
+        "description": "services.api.app.modules.chat.service",
+        "peekOfCode": "_DISCIPLINARY_SUMMARY_PATTERNS = (\n    r\"\\bdisciplinary summary\\b\",\n    r\"\\bsanctions overview\\b\",\n    r\"\\bcompliance overview\\b\",\n    r\"\\bopen cases\\b\",\n    r\"\\bcase summary\\b\",\n)\n_SPORTS_SCHEDULE_PATTERNS = (\n    r\"\\bsports schedule\\b\",\n    r\"\\bsports calendar\\b\",",
+        "detail": "services.api.app.modules.chat.service",
+        "documentation": {}
+    },
+    {
+        "label": "_SPORTS_SCHEDULE_PATTERNS",
+        "kind": 5,
+        "importPath": "services.api.app.modules.chat.service",
+        "description": "services.api.app.modules.chat.service",
+        "peekOfCode": "_SPORTS_SCHEDULE_PATTERNS = (\n    r\"\\bsports schedule\\b\",\n    r\"\\bsports calendar\\b\",\n    r\"\\btraining schedule\\b\",\n    r\"\\bfixture schedule\\b\",\n    r\"\\bupcoming sports events\\b\",\n    r\"\\bnext sports event\\b\",\n    r\"\\bsports plan\\b\",\n)\nclass ChatService:",
         "detail": "services.api.app.modules.chat.service",
         "documentation": {}
     },
@@ -12659,7 +13510,16 @@
         "kind": 6,
         "importPath": "services.api.app.modules.contributions.models",
         "description": "services.api.app.modules.contributions.models",
-        "peekOfCode": "class PaymentMethod(str, Enum):\n    cash = \"cash\"\n    bank_transfer = \"bank_transfer\"\n    card = \"card\"\n    check = \"check\"\n    other = \"other\"\nclass ContributionRecord(Base):\n    \"\"\"\n    Expected and paid contribution for a member in a specific year/period.\n    Balance is calculated as expected_amount - paid_amount.",
+        "peekOfCode": "class PaymentMethod(str, Enum):\n    cash = \"cash\"\n    bank_transfer = \"bank_transfer\"\n    card = \"card\"\n    check = \"check\"\n    other = \"other\"\nclass ReminderDeliveryStatus(str, Enum):\n    sent = \"sent\"\n    simulated = \"simulated\"\n    failed = \"failed\"",
+        "detail": "services.api.app.modules.contributions.models",
+        "documentation": {}
+    },
+    {
+        "label": "ReminderDeliveryStatus",
+        "kind": 6,
+        "importPath": "services.api.app.modules.contributions.models",
+        "description": "services.api.app.modules.contributions.models",
+        "peekOfCode": "class ReminderDeliveryStatus(str, Enum):\n    sent = \"sent\"\n    simulated = \"simulated\"\n    failed = \"failed\"\n    skipped = \"skipped\"\nclass ContributionRecord(Base):\n    \"\"\"\n    Expected and paid contribution for a member in a specific year/period.\n    Balance is calculated as expected_amount - paid_amount.\n    \"\"\"",
         "detail": "services.api.app.modules.contributions.models",
         "documentation": {}
     },
@@ -12678,6 +13538,15 @@
         "importPath": "services.api.app.modules.contributions.models",
         "description": "services.api.app.modules.contributions.models",
         "peekOfCode": "class PaymentRecord(Base):\n    \"\"\"\n    Individual payment toward a contribution record.\n    \"\"\"\n    __tablename__ = \"payment_records\"\n    id: Mapped[uuid.UUID] = mapped_column(\n        UUID(as_uuid=True), primary_key=True, default=uuid.uuid4\n    )\n    tenant_id: Mapped[uuid.UUID] = mapped_column(\n        UUID(as_uuid=True),",
+        "detail": "services.api.app.modules.contributions.models",
+        "documentation": {}
+    },
+    {
+        "label": "ContributionReminder",
+        "kind": 6,
+        "importPath": "services.api.app.modules.contributions.models",
+        "description": "services.api.app.modules.contributions.models",
+        "peekOfCode": "class ContributionReminder(Base):\n    \"\"\"Reminder dispatch history for outstanding contribution follow-up.\"\"\"\n    __tablename__ = \"contribution_reminders\"\n    id: Mapped[uuid.UUID] = mapped_column(\n        UUID(as_uuid=True), primary_key=True, default=uuid.uuid4\n    )\n    tenant_id: Mapped[uuid.UUID] = mapped_column(\n        UUID(as_uuid=True),\n        ForeignKey(\"tenants.id\", ondelete=\"CASCADE\"),\n        nullable=False,",
         "detail": "services.api.app.modules.contributions.models",
         "documentation": {}
     },
@@ -12745,11 +13614,47 @@
         "documentation": {}
     },
     {
+        "label": "ContributionReminderSendRequest",
+        "kind": 6,
+        "importPath": "services.api.app.modules.contributions.schemas",
+        "description": "services.api.app.modules.contributions.schemas",
+        "peekOfCode": "class ContributionReminderSendRequest(BaseModel):\n    channel: Literal[\"email\"] = \"email\"\nclass ContributionReminderBatchRequest(BaseModel):\n    channel: Literal[\"email\"] = \"email\"\n    year: int | None = Field(default=None, ge=2000, le=2100)\n    status: ContributionStatus | None = None\n    due_scope: Literal[\"all_outstanding\", \"overdue\", \"due_soon\"] = \"overdue\"\n    limit: int = Field(default=25, ge=1, le=100)\nclass ContributionReminderResponse(BaseModel):\n    id: UUID",
+        "detail": "services.api.app.modules.contributions.schemas",
+        "documentation": {}
+    },
+    {
+        "label": "ContributionReminderBatchRequest",
+        "kind": 6,
+        "importPath": "services.api.app.modules.contributions.schemas",
+        "description": "services.api.app.modules.contributions.schemas",
+        "peekOfCode": "class ContributionReminderBatchRequest(BaseModel):\n    channel: Literal[\"email\"] = \"email\"\n    year: int | None = Field(default=None, ge=2000, le=2100)\n    status: ContributionStatus | None = None\n    due_scope: Literal[\"all_outstanding\", \"overdue\", \"due_soon\"] = \"overdue\"\n    limit: int = Field(default=25, ge=1, le=100)\nclass ContributionReminderResponse(BaseModel):\n    id: UUID\n    tenant_id: UUID\n    contribution_record_id: UUID",
+        "detail": "services.api.app.modules.contributions.schemas",
+        "documentation": {}
+    },
+    {
+        "label": "ContributionReminderResponse",
+        "kind": 6,
+        "importPath": "services.api.app.modules.contributions.schemas",
+        "description": "services.api.app.modules.contributions.schemas",
+        "peekOfCode": "class ContributionReminderResponse(BaseModel):\n    id: UUID\n    tenant_id: UUID\n    contribution_record_id: UUID\n    membership_profile_id: UUID\n    member_display_name: str\n    member_code: str\n    balance_snapshot: Decimal\n    due_date_snapshot: datetime | None\n    channel: str",
+        "detail": "services.api.app.modules.contributions.schemas",
+        "documentation": {}
+    },
+    {
+        "label": "ContributionReminderBatchResponse",
+        "kind": 6,
+        "importPath": "services.api.app.modules.contributions.schemas",
+        "description": "services.api.app.modules.contributions.schemas",
+        "peekOfCode": "class ContributionReminderBatchResponse(BaseModel):\n    attempted_count: int\n    reminder_count: int\n    reminders: list[ContributionReminderResponse]",
+        "detail": "services.api.app.modules.contributions.schemas",
+        "documentation": {}
+    },
+    {
         "label": "ContributionService",
         "kind": 6,
         "importPath": "services.api.app.modules.contributions.service",
         "description": "services.api.app.modules.contributions.service",
-        "peekOfCode": "class ContributionService:\n    def __init__(self, db: AsyncSession) -> None:\n        self._db = db\n        self._repo = ContributionRepository(db)\n        self._audit = AuditService(db)\n    async def create_contribution(\n        self,\n        tenant_id: UUID,\n        data: ContributionRecordCreate,\n        *,",
+        "peekOfCode": "class ContributionService:\n    def __init__(self, db: AsyncSession) -> None:\n        self._db = db\n        self._repo = ContributionRepository(db)\n        self._audit = AuditService(db)\n        self._notification_providers: list[NotificationProvider] = []\n    def with_notification_providers(\n        self, providers: list[NotificationProvider]\n    ) -> \"ContributionService\":\n        self._notification_providers = providers",
         "detail": "services.api.app.modules.contributions.service",
         "documentation": {}
     },
@@ -13991,7 +14896,25 @@
         "kind": 6,
         "importPath": "services.api.app.modules.tenancy.schemas",
         "description": "services.api.app.modules.tenancy.schemas",
-        "peekOfCode": "class BrandingConfig(BaseModel):\n    primary_color: str = \"#1f4f8f\"\n    logo_url: str = \"\"\nclass TenantSettingsResponse(BaseModel):\n    tenant_id: UUID\n    name: str\n    slug: str\n    default_language: str\n    branding: BrandingConfig\n    modules: ModuleToggles",
+        "peekOfCode": "class BrandingConfig(BaseModel):\n    primary_color: str = \"#1f4f8f\"\n    logo_url: str = \"\"\nclass RecoveryEvidenceConfig(BaseModel):\n    last_backup_at: datetime | None = None\n    last_backup_status: str = \"unknown\"\n    last_backup_reference: str = \"\"\n    last_restore_drill_at: datetime | None = None\n    last_restore_drill_status: str = \"unknown\"\n    alert_posture: str = \"unknown\"",
+        "detail": "services.api.app.modules.tenancy.schemas",
+        "documentation": {}
+    },
+    {
+        "label": "RecoveryEvidenceConfig",
+        "kind": 6,
+        "importPath": "services.api.app.modules.tenancy.schemas",
+        "description": "services.api.app.modules.tenancy.schemas",
+        "peekOfCode": "class RecoveryEvidenceConfig(BaseModel):\n    last_backup_at: datetime | None = None\n    last_backup_status: str = \"unknown\"\n    last_backup_reference: str = \"\"\n    last_restore_drill_at: datetime | None = None\n    last_restore_drill_status: str = \"unknown\"\n    alert_posture: str = \"unknown\"\n    alert_contacts_configured: bool = False\n    backup_retention_days: int | None = None\n    notes: str = \"\"",
+        "detail": "services.api.app.modules.tenancy.schemas",
+        "documentation": {}
+    },
+    {
+        "label": "RecoveryEvidenceResponse",
+        "kind": 6,
+        "importPath": "services.api.app.modules.tenancy.schemas",
+        "description": "services.api.app.modules.tenancy.schemas",
+        "peekOfCode": "class RecoveryEvidenceResponse(RecoveryEvidenceConfig):\n    backup_is_stale: bool\n    restore_drill_is_stale: bool\n    alert_is_healthy: bool\n    overall_status: str\n    status_message: str\nclass TenantSettingsResponse(BaseModel):\n    tenant_id: UUID\n    name: str\n    slug: str",
         "detail": "services.api.app.modules.tenancy.schemas",
         "documentation": {}
     },
@@ -14000,7 +14923,7 @@
         "kind": 6,
         "importPath": "services.api.app.modules.tenancy.schemas",
         "description": "services.api.app.modules.tenancy.schemas",
-        "peekOfCode": "class TenantSettingsResponse(BaseModel):\n    tenant_id: UUID\n    name: str\n    slug: str\n    default_language: str\n    branding: BrandingConfig\n    modules: ModuleToggles\n    updated_at: datetime\nclass TenantSettingsUpdate(BaseModel):\n    name: str | None = None",
+        "peekOfCode": "class TenantSettingsResponse(BaseModel):\n    tenant_id: UUID\n    name: str\n    slug: str\n    default_language: str\n    branding: BrandingConfig\n    modules: ModuleToggles\n    operations: RecoveryEvidenceResponse = Field(default_factory=lambda: RecoveryEvidenceResponse(\n        backup_is_stale=True,\n        restore_drill_is_stale=True,",
         "detail": "services.api.app.modules.tenancy.schemas",
         "documentation": {}
     },
@@ -14009,7 +14932,7 @@
         "kind": 6,
         "importPath": "services.api.app.modules.tenancy.schemas",
         "description": "services.api.app.modules.tenancy.schemas",
-        "peekOfCode": "class TenantSettingsUpdate(BaseModel):\n    name: str | None = None\n    default_language: str | None = None\n    branding: BrandingConfig | None = None\n    modules: ModuleToggles | None = None",
+        "peekOfCode": "class TenantSettingsUpdate(BaseModel):\n    name: str | None = None\n    default_language: str | None = None\n    branding: BrandingConfig | None = None\n    modules: ModuleToggles | None = None\n    operations: RecoveryEvidenceConfig | None = None",
         "detail": "services.api.app.modules.tenancy.schemas",
         "documentation": {}
     },
@@ -14019,6 +14942,24 @@
         "importPath": "services.api.app.modules.tenancy.service",
         "description": "services.api.app.modules.tenancy.service",
         "peekOfCode": "class TenancyService:\n    def __init__(self, db: AsyncSession) -> None:\n        self._db = db\n        self._repo = TenancyRepository(db)\n        self._audit = AuditService(db)\n    async def get_user_tenants(self, user_id: UUID) -> list[TenantResponse]:\n        memberships = await self._repo.get_user_active_memberships(user_id)\n        tenants = []\n        for membership in memberships:\n            tenant = await self._repo.get_tenant_by_id(membership.tenant_id)",
+        "detail": "services.api.app.modules.tenancy.service",
+        "documentation": {}
+    },
+    {
+        "label": "_BACKUP_STALE_AFTER_DAYS",
+        "kind": 5,
+        "importPath": "services.api.app.modules.tenancy.service",
+        "description": "services.api.app.modules.tenancy.service",
+        "peekOfCode": "_BACKUP_STALE_AFTER_DAYS = 7\n_RESTORE_DRILL_STALE_AFTER_DAYS = 90\nclass TenancyService:\n    def __init__(self, db: AsyncSession) -> None:\n        self._db = db\n        self._repo = TenancyRepository(db)\n        self._audit = AuditService(db)\n    async def get_user_tenants(self, user_id: UUID) -> list[TenantResponse]:\n        memberships = await self._repo.get_user_active_memberships(user_id)\n        tenants = []",
+        "detail": "services.api.app.modules.tenancy.service",
+        "documentation": {}
+    },
+    {
+        "label": "_RESTORE_DRILL_STALE_AFTER_DAYS",
+        "kind": 5,
+        "importPath": "services.api.app.modules.tenancy.service",
+        "description": "services.api.app.modules.tenancy.service",
+        "peekOfCode": "_RESTORE_DRILL_STALE_AFTER_DAYS = 90\nclass TenancyService:\n    def __init__(self, db: AsyncSession) -> None:\n        self._db = db\n        self._repo = TenancyRepository(db)\n        self._audit = AuditService(db)\n    async def get_user_tenants(self, user_id: UUID) -> list[TenantResponse]:\n        memberships = await self._repo.get_user_active_memberships(user_id)\n        tenants = []\n        for membership in memberships:",
         "detail": "services.api.app.modules.tenancy.service",
         "documentation": {}
     },
@@ -14695,6 +15636,15 @@
         "description": "services.api.tests.test_qdrant_provider",
         "peekOfCode": "def test_search_chunk_vectors_uses_query_points(monkeypatch) -> None:\n    tenant_id = uuid4()\n    captured: dict[str, object] = {}\n    class FakeClient:\n        def query_points(self, **kwargs):\n            captured.update(kwargs)\n            return SimpleNamespace(\n                points=[\n                    SimpleNamespace(\n                        id=\"chunk-1\",",
         "detail": "services.api.tests.test_qdrant_provider",
+        "documentation": {}
+    },
+    {
+        "label": "pytestmark",
+        "kind": 5,
+        "importPath": "services.api.tests.test_recovery_evidence",
+        "description": "services.api.tests.test_recovery_evidence",
+        "peekOfCode": "pytestmark = pytest.mark.integration\ndef _iso(days_ago: int) -> str:\n    return (datetime.now(timezone.utc) - timedelta(days=days_ago)).isoformat()\n@pytest.mark.asyncio\nasync def test_recovery_evidence_round_trip_and_health_flags(\n    client: AsyncClient, db_session: AsyncSession\n) -> None:\n    data = await create_tenant_with_user(db_session, f\"recovery-{datetime.now().strftime('%H%M%S')}\")\n    token = await login(client, data[\"user\"].email, data[\"password\"], data[\"tenant\"].slug)\n    payload = {",
+        "detail": "services.api.tests.test_recovery_evidence",
         "documentation": {}
     },
     {

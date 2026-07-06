@@ -575,12 +575,15 @@ test.describe('Dashboard onboarding', () => {
     await page.goto('/dashboard')
 
     await expect(page.getByRole('heading', { name: 'Welcome back, Treasurer User' })).toBeVisible()
+    await expect(page.getByTestId('dashboard-workspace-focus')).toBeVisible()
+    await expect(page.getByRole('heading', { name: 'Balances, contribution records, and payments' })).toBeVisible()
+    await expect(page.getByTestId('dashboard-workspace-focus').getByRole('link', { name: 'Go to finance workspace' })).toHaveAttribute('href', '/finance')
     await expect(page.getByText('Quick actions')).toBeVisible()
-    await expect(page.getByRole('link', { name: 'Go to finance workspace' })).toBeVisible()
+    await expect(page.getByRole('link', { name: /Go to finance workspace/ })).toHaveCount(2)
     await expect(page.getByRole('link', { name: 'Review tenant settings' })).toHaveCount(0)
     await expect(page.getByRole('link', { name: 'Upload documents' })).toHaveCount(0)
     await expect(page.getByRole('link', { name: 'Import members' })).toHaveCount(0)
-    await expect(page.getByText('Review the finance workspace', { exact: true })).toBeVisible()
+    await expect(page.getByText('Use the finance workspace to review balances, payment activity, and the member records needed for treasury follow-up.')).toBeVisible()
   })
 
   test('shows the disciplinary workspace quick action for censor sessions', async ({ page }) => {
@@ -589,8 +592,8 @@ test.describe('Dashboard onboarding', () => {
 
     await expect(page.getByRole('heading', { name: 'Welcome back, Censor User' })).toBeVisible()
     await expect(page.getByText('Quick actions')).toBeVisible()
-    await expect(page.getByRole('link', { name: 'Manage disciplinary records' })).toBeVisible()
-    await expect(page.getByRole('link', { name: 'Manage disciplinary records' })).toHaveAttribute('href', '/censor')
+    await expect(page.getByTestId('dashboard-workspace-focus').getByRole('link', { name: 'Manage disciplinary records' })).toHaveAttribute('href', '/censor')
+    await expect(page.getByRole('link', { name: /Manage disciplinary records/ })).toHaveCount(2)
   })
 
   test('shows the sports workspace quick action for sports managers', async ({ page }) => {
@@ -598,8 +601,8 @@ test.describe('Dashboard onboarding', () => {
     await page.goto('/dashboard')
 
     await expect(page.getByRole('heading', { name: 'Welcome back, Sports Manager' })).toBeVisible()
-    await expect(page.getByRole('link', { name: 'Open sports workspace' })).toBeVisible()
-    await expect(page.getByRole('link', { name: 'Open sports workspace' })).toHaveAttribute('href', '/sports')
+    await expect(page.getByTestId('dashboard-workspace-focus').getByRole('link', { name: 'Open sports workspace' })).toHaveAttribute('href', '/sports')
+    await expect(page.getByRole('link', { name: /Open sports workspace/ })).toHaveCount(2)
   })
 
   test('shows the governance cockpit quick action for president sessions', async ({ page }) => {
@@ -607,8 +610,8 @@ test.describe('Dashboard onboarding', () => {
     await page.goto('/dashboard')
 
     await expect(page.getByRole('heading', { name: 'Welcome back, President User' })).toBeVisible()
-    await expect(page.getByRole('link', { name: 'Open governance cockpit' })).toBeVisible()
-    await expect(page.getByRole('link', { name: 'Open governance cockpit' })).toHaveAttribute('href', '/governance')
+    await expect(page.getByTestId('dashboard-workspace-focus').getByRole('link', { name: 'Open governance cockpit' })).toHaveAttribute('href', '/governance')
+    await expect(page.getByRole('link', { name: /Open governance cockpit/ })).toHaveCount(2)
   })
 
   test('shows the principal admin control plane quick action for principal admins', async ({ page }) => {
@@ -616,8 +619,12 @@ test.describe('Dashboard onboarding', () => {
     await page.goto('/dashboard')
 
     await expect(page.getByRole('heading', { name: 'Welcome back, Principal Admin User' })).toBeVisible()
-    await expect(page.getByRole('link', { name: 'Open principal admin control plane' })).toBeVisible()
-    await expect(page.getByRole('link', { name: 'Open principal admin control plane' })).toHaveAttribute('href', '/admin/settings')
+    await expect(page.getByTestId('dashboard-workspace-focus')).toBeVisible()
+    await expect(page.getByRole('heading', { name: 'Tenant operations, settings, and sensitive review' })).toBeVisible()
+    await expect(page.getByTestId('dashboard-workspace-focus').getByRole('link', { name: 'Open principal admin control plane' })).toHaveAttribute('href', '/admin/settings')
+    await expect(page.getByRole('link', { name: /Open principal admin control plane/ })).toHaveCount(2)
+    await expect(page.getByRole('link', { name: 'Open onboarding wizard' })).toHaveCount(1)
+    await expect(page.getByRole('link', { name: 'Tenant operations' })).toHaveAttribute('href', '/admin/tenants')
   })
 
   test('keeps the member sidebar compact and personal', async ({ page }) => {

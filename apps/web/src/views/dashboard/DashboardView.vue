@@ -35,7 +35,37 @@
       <i class="bi bi-exclamation-triangle me-2"></i>{{ error }}
     </div>
 
-    <div v-else class="row g-4">
+    <div v-else class="card shadow-sm border-0 mb-4" data-testid="dashboard-workspace-focus">
+      <div class="card-body p-4">
+        <div class="d-flex flex-column flex-lg-row justify-content-between gap-3">
+          <div>
+            <div class="text-uppercase small fw-semibold text-secondary mb-2">
+              {{ workspaceFocus.kicker }}
+            </div>
+            <h2 class="h5 fw-bold mb-1">{{ workspaceFocus.title }}</h2>
+            <p class="text-muted mb-0">
+              {{ workspaceFocus.description }}
+            </p>
+          </div>
+          <RouterLink :to="workspaceFocus.primary.to" class="btn btn-primary align-self-start">
+            {{ workspaceFocus.primary.label }}
+          </RouterLink>
+        </div>
+
+        <div class="d-flex flex-wrap gap-2 mt-3">
+          <RouterLink
+            v-for="action in workspaceFocus.links"
+            :key="action.to + action.label"
+            :to="action.to"
+            class="btn btn-outline-secondary btn-sm"
+          >
+            {{ action.label }}
+          </RouterLink>
+        </div>
+      </div>
+    </div>
+
+    <div class="row g-4">
       <div class="col-xl-8">
         <div class="card shadow-sm border-0 onboarding-card h-100" data-testid="tenant-onboarding">
           <div class="card-body p-4 p-xl-5">
@@ -210,6 +240,19 @@ import { useAuthStore } from '@/stores/auth.store'
 import { useTenantStore } from '@/stores/tenant.store'
 import { useTenantOnboarding } from '@/composables/useTenantOnboarding'
 
+type WorkspaceFocusLink = {
+  label: string
+  to: string
+}
+
+type WorkspaceFocus = {
+  kicker: string
+  title: string
+  description: string
+  primary: WorkspaceFocusLink
+  links: WorkspaceFocusLink[]
+}
+
 const authStore = useAuthStore()
 const tenantStore = useTenantStore()
 const userRoles = computed(() => authStore.user?.roles ?? [])
@@ -238,6 +281,132 @@ const {
   refresh,
 } = useTenantOnboarding()
 
+const workspaceFocus = computed<WorkspaceFocus>(() => {
+  if (isPrincipalAdmin.value) {
+    return {
+      kicker: 'Principal admin control plane',
+      title: 'Tenant operations, settings, and sensitive review',
+      description:
+        'Use the control plane for tenant-wide administration while keeping isolation, review paths, and settings in one place.',
+      primary: { label: 'Open principal admin control plane', to: '/admin/settings' },
+      links: [
+        { label: 'Tenant operations', to: '/admin/tenants' },
+        { label: 'Manage access', to: '/admin/access' },
+      ],
+    }
+  }
+
+  if (isMemberOnly.value) {
+    return {
+      kicker: 'Read-only member portal',
+      title: 'My profile, balance, and member updates',
+      description:
+        'Open the member portal for your own profile, contribution summary, and the latest association updates you are allowed to read.',
+      primary: { label: 'Open my profile', to: '/members/profile' },
+      links: [
+        { label: 'Ask the assistant', to: '/chat' },
+        { label: 'Review events', to: '/events' },
+      ],
+    }
+  }
+
+  if (isTreasurer.value) {
+    return {
+      kicker: 'Treasury workspace',
+      title: 'Balances, contribution records, and payments',
+      description:
+        'Use the finance workspace to review balances, payment activity, and the member records needed for treasury follow-up.',
+      primary: { label: 'Go to finance workspace', to: '/finance' },
+      links: [
+        { label: 'Review member profile', to: '/members/profile' },
+        { label: 'Open finance audit', to: '/finance-audit' },
+      ],
+    }
+  }
+
+  if (isSecretaryGeneral.value) {
+    return {
+      kicker: 'Secretary workspace',
+      title: 'Documents, policies, and announcements',
+      description:
+        'Stay inside the secretary workspace to update documents, maintain policies, and publish association announcements.',
+      primary: { label: 'Open secretary workspace', to: '/secretary' },
+      links: [
+        { label: 'Review documents', to: '/secretary/documents' },
+        { label: 'Review policies', to: '/secretary/policies' },
+      ],
+    }
+  }
+
+  if (isAuditor.value) {
+    return {
+      kicker: 'Finance audit',
+      title: 'Read-only oversight and audit-ready records',
+      description:
+        'Inspect finance totals and audit-ready records without mutation controls or unnecessary workspace clutter.',
+      primary: { label: 'Open finance audit', to: '/finance-audit' },
+      links: [
+        { label: 'Review member directory', to: '/members/profile' },
+        { label: 'Review finance workspace', to: '/finance' },
+      ],
+    }
+  }
+
+  if (isCensor.value) {
+    return {
+      kicker: 'Disciplinary console',
+      title: 'Privacy-safe record review',
+      description:
+        'Work inside the disciplinary console with strict privacy boundaries so only authorized records stay visible.',
+      primary: { label: 'Manage disciplinary records', to: '/censor' },
+      links: [
+        { label: 'Review policies', to: '/policies' },
+        { label: 'Ask the assistant', to: '/chat' },
+      ],
+    }
+  }
+
+  if (isSportsManager.value) {
+    return {
+      kicker: 'Sports workspace',
+      title: 'Training sessions, fixtures, and club activity',
+      description:
+        'Manage sports events from a focused workspace that keeps fixtures, updates, and community activity in one place.',
+      primary: { label: 'Open sports workspace', to: '/sports' },
+      links: [
+        { label: 'Review events', to: '/events' },
+        { label: 'Ask the assistant', to: '/chat' },
+      ],
+    }
+  }
+
+  if (isPresidentRole.value || isVicePresidentRole.value) {
+    return {
+      kicker: 'Executive oversight',
+      title: 'Governance, member visibility, and coordination',
+      description:
+        'Use the governance cockpit for oversight, coordination, and a clean path to the association spaces that matter most.',
+      primary: { label: 'Open governance cockpit', to: '/governance' },
+      links: [
+        { label: 'Review finance audit', to: '/finance-audit' },
+        { label: 'Read announcements', to: '/announcements' },
+      ],
+    }
+  }
+
+  return {
+    kicker: 'Tenant overview',
+    title: 'The next step that matters most',
+    description:
+      'Use the dashboard to jump into the next workspace that matters most for your role and the current tenant state.',
+    primary: { label: 'Open dashboard', to: '/dashboard' },
+    links: [
+      { label: 'Admin settings', to: '/admin/settings' },
+      { label: 'Ask the assistant', to: '/chat' },
+    ],
+  }
+})
+
 const quickActions = computed(() => {
   const actions: Array<{ label: string; to: string; icon: string }> = []
 
@@ -258,6 +427,7 @@ const quickActions = computed(() => {
       to: '/admin/settings',
       icon: 'bi bi-sliders',
     })
+    actions.push({ label: 'Open onboarding wizard', to: '/admin/onboarding', icon: 'bi bi-stars' })
     actions.push({ label: 'Upload documents', to: '/admin/documents', icon: 'bi bi-file-earmark-text' })
     if (tenantStore.isModuleEnabled('membership')) {
       actions.push({ label: 'Import members', to: '/admin/members', icon: 'bi bi-people' })
@@ -278,6 +448,24 @@ const quickActions = computed(() => {
     if (tenantStore.isModuleEnabled('membership')) {
       actions.push({ label: 'Review member directory', to: '/members/profile', icon: 'bi bi-person-badge' })
     }
+  }
+
+  if (
+    isAuditor.value ||
+    isPresidentRole.value ||
+    isVicePresidentRole.value ||
+    isSecretaryGeneral.value ||
+    isTreasurer.value ||
+    isCensor.value ||
+    isSportsManager.value ||
+    isPrincipalAdmin.value ||
+    isAdmin.value
+  ) {
+    actions.push({
+      label: 'Open health center',
+      to: '/admin/health',
+      icon: 'bi bi-heart-pulse',
+    })
   }
 
   if (tenantStore.isModuleEnabled('disciplinary') && (isCensor.value || isPresident.value || isPrincipalAdmin.value || isAdmin.value)) {
@@ -327,6 +515,7 @@ const isSetupMode = computed(() => {
 })
 
 const dashboardKicker = computed(() => {
+  if (isPrincipalAdmin.value) return 'Principal admin control plane'
   if (isMemberOnly.value) return 'Member portal'
   if (isTreasurer.value) return 'Finance workspace'
   if (isSecretaryGeneral.value) return 'Secretary workspace'
@@ -334,11 +523,13 @@ const dashboardKicker = computed(() => {
   if (isCensor.value) return 'Disciplinary console'
   if (isSportsManager.value) return 'Sports workspace'
   if (isPresidentRole.value || isVicePresidentRole.value) return 'Governance cockpit'
-  if (isPrincipalAdmin.value) return 'Principal admin control plane'
   return 'Tenant overview'
 })
 
 const dashboardLead = computed(() => {
+  if (isPrincipalAdmin.value) {
+    return `Your current tenant is ${tenantStore.currentTenantName}. Use the control plane for tenant-wide administration without breaking isolation.`
+  }
   if (isMemberOnly.value) {
     return `Your current tenant is ${tenantStore.currentTenantName}. Review your personal profile, contribution statement, and read-only association updates.`
   }
@@ -359,9 +550,6 @@ const dashboardLead = computed(() => {
   }
   if (isPresidentRole.value || isVicePresidentRole.value) {
     return `Your current tenant is ${tenantStore.currentTenantName}. Use the governance cockpit for focused oversight across the association.`
-  }
-  if (isPrincipalAdmin.value) {
-    return `Your current tenant is ${tenantStore.currentTenantName}. Use the control plane for tenant-wide administration without breaking isolation.`
   }
   return `Your current tenant is ${tenantStore.currentTenantName}. The dashboard highlights the next steps that matter most.`
 })
