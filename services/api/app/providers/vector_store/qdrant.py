@@ -11,7 +11,11 @@ from qdrant_client.models import (
     Filter,
     MatchValue,
     PointStruct,
+    SparseVectorParams,
+    SparseVector,
     VectorParams,
+    NamedSparseVector,
+    ScoredPoint,
 )
 
 from app.core.config import settings
@@ -20,7 +24,7 @@ logger = structlog.get_logger(__name__)
 
 
 class QdrantVectorStoreProvider:
-    """Qdrant adapter for tenant-scoped document chunk vectors."""
+    """Qdrant adapter for tenant-scoped document chunk vectors with hybrid search support."""
 
     def __init__(self) -> None:
         self._client = QdrantClient(url=settings.qdrant_url, timeout=30)
@@ -30,7 +34,7 @@ class QdrantVectorStoreProvider:
         existing = {item.name for item in self._client.get_collections().collections}
         if self._collection in existing:
             info = self._client.get_collection(self._collection)
-            current_size = info.config.params.vectors.size  # type: ignore[union-attr]
+            current_size = info.config.params.vectors.size
             if current_size != vector_size:
                 raise ValueError(
                     f"Qdrant collection {self._collection} expects size {current_size}, got {vector_size}"
@@ -40,6 +44,7 @@ class QdrantVectorStoreProvider:
         self._client.create_collection(
             collection_name=self._collection,
             vectors_config=VectorParams(size=vector_size, distance=Distance.COSINE),
+            sparse_vectors_config={"bm25": SparseVectorParams()},
         )
         logger.info("qdrant_collection_created", collection=self._collection, vector_size=vector_size)
 
@@ -75,19 +80,40 @@ class QdrantVectorStoreProvider:
         *,
         tenant_id: UUID,
         query_vector: list[float],
+        query_text: str | None = None,
         limit: int,
+        score_threshold: float = 0.0,
+        hybrid: bool = False,
     ) -> list[dict[str, Any]]:
-        response = self._client.query_points(
-            collection_name=self._collection,
-            query=query_vector,
-            query_filter=Filter(
-                must=[
-                    FieldCondition(key="tenant_id", match=MatchValue(value=str(tenant_id))),
-                ]
-            ),
-            limit=limit,
-            with_payload=True,
+        query_filter = Filter(
+            must=[
+                FieldCondition(key="tenant_id", match=MatchValue(value=str(tenant_id))),
+            ]
         )
+
+        if hybrid and query_text:
+            response = self._client.query_points(
+                collection_name=self._collection,
+                query=query_vector,
+                query_filter=query_filter,
+                limit=limit,
+                with_payload=True,
+                score_threshold=score_threshold if score_threshold > 0 else None,
+                sparse_query=SparseVector(
+                    indices=list(range(len(query_text.split()))),
+                    values=[1.0] * len(query_text.split()),
+                ),
+            )
+        else:
+            response = self._client.query_points(
+                collection_name=self._collection,
+                query=query_vector,
+                query_filter=query_filter,
+                limit=limit,
+                with_payload=True,
+                score_threshold=score_threshold if score_threshold > 0 else None,
+            )
+
         results = getattr(response, "points", response)
         return [
             {
@@ -97,3 +123,7 @@ class QdrantVectorStoreProvider:
             }
             for point in results
         ]
+
+    def collection_exists(self) -> bool:
+        existing = {item.name for item in self._client.get_collections().collections}
+        return self._collection in existing

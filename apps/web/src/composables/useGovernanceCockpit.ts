@@ -7,6 +7,7 @@ import { listPublicEvents, type EventResponse } from '@/api/events.api'
 import { listAuditEvents, type AuditEventResponse } from '@/api/audit.api'
 import { useTenantStore } from '@/stores/tenant.store'
 import { useAuthStore } from '@/stores/auth.store'
+import { useLocaleStore } from '@/stores/locale.store'
 
 export interface GovernanceCard {
   id: string
@@ -27,6 +28,7 @@ export interface GovernanceAction {
 export function useGovernanceCockpit() {
   const authStore = useAuthStore()
   const tenantStore = useTenantStore()
+  const localeStore = useLocaleStore()
 
   const loading = ref(false)
   const error = ref('')
@@ -48,10 +50,10 @@ export function useGovernanceCockpit() {
   )
 
   const heading = computed(() => {
-    if (isPresident.value) return 'President governance cockpit'
-    if (isVicePresident.value) return 'Vice president governance cockpit'
-    if (isPrincipalAdmin.value || isAdmin.value) return 'Executive governance cockpit'
-    return 'Governance cockpit'
+    if (isPresident.value) return localeStore.currentLocale === 'de' ? 'Governance-Cockpit des Praesidenten' : localeStore.currentLocale === 'en' ? 'President governance cockpit' : 'Cockpit de gouvernance du président'
+    if (isVicePresident.value) return localeStore.currentLocale === 'de' ? 'Governance-Cockpit des Vizepraesidenten' : localeStore.currentLocale === 'en' ? 'Vice president governance cockpit' : 'Cockpit de gouvernance du vice-président'
+    if (isPrincipalAdmin.value || isAdmin.value) return localeStore.currentLocale === 'de' ? 'Exekutives Governance-Cockpit' : localeStore.currentLocale === 'en' ? 'Executive governance cockpit' : 'Cockpit de gouvernance exécutive'
+    return localeStore.currentLocale === 'de' ? 'Governance-Cockpit' : localeStore.currentLocale === 'en' ? 'Governance cockpit' : 'Cockpit de gouvernance'
   })
 
   const subtitle = computed(() => {
@@ -59,33 +61,33 @@ export function useGovernanceCockpit() {
       return 'Cross-module oversight for strategic governance, with audit visibility and limited actions.'
     }
     if (isVicePresident.value) {
-      return 'Deputy executive oversight focused on clear visibility, not broad system control.'
+      return localeStore.currentLocale === 'de' ? 'Stellvertretende Aufsicht mit klarer Sichtbarkeit und ohne breite Systemkontrolle.' : localeStore.currentLocale === 'en' ? 'Deputy executive oversight focused on clear visibility, not broad system control.' : 'Supervision exécutive adjointe centrée sur une visibilité claire, sans contrôle global du système.'
     }
-    return 'Executive oversight for roles that need a mature association-wide view without principal-admin power.'
+    return localeStore.currentLocale === 'de' ? 'Exekutive Aufsicht fuer Rollen, die eine reife vereinsweite Sicht ohne Hauptadmin-Rechte benoetigen.' : localeStore.currentLocale === 'en' ? 'Executive oversight for roles that need a mature association-wide view without principal-admin power.' : "Supervision exécutive pour les rôles qui ont besoin d'une vue globale mature de l'association sans droits de principal admin."
   })
 
   const cards = computed<GovernanceCard[]>(() => {
     const rows: GovernanceCard[] = [
       {
         id: 'documents',
-        label: 'Documents',
+        label: localeStore.currentLocale === 'de' ? 'Dokumente' : localeStore.currentLocale === 'en' ? 'Documents' : 'Documents',
         value: String(documents.value.length),
-        hint: 'Governance references available to the tenant',
+        hint: localeStore.currentLocale === 'de' ? 'Referenzdokumente der gouvernance du tenant' : localeStore.currentLocale === 'en' ? 'Governance references available to the tenant' : 'Références de gouvernance disponibles pour le tenant',
         tone: documents.value.length === 0 ? 'warning' : 'neutral',
       },
       {
         id: 'announcements',
-        label: 'Active announcements',
+        label: localeStore.currentLocale === 'de' ? 'Annonces actives' : localeStore.currentLocale === 'en' ? 'Active announcements' : 'Annonces actives',
         value: String(announcements.value.length),
-        hint: 'Published member-facing notices',
+        hint: localeStore.currentLocale === 'de' ? 'Publizierte Mitteilungen fuer Mitglieder' : localeStore.currentLocale === 'en' ? 'Published member-facing notices' : 'Annonces publiées visibles par les membres',
         tone: announcements.value.length === 0 ? 'warning' : 'neutral',
         to: '/announcements',
       },
       {
         id: 'events',
-        label: 'Upcoming events',
+        label: localeStore.currentLocale === 'de' ? 'Bevorstehende Veranstaltungen' : localeStore.currentLocale === 'en' ? 'Upcoming events' : 'Événements à venir',
         value: String(events.value.length),
-        hint: 'Visible scheduled association activity',
+        hint: localeStore.currentLocale === 'de' ? 'Sichtbare geplante Vereinsaktivitaeten' : localeStore.currentLocale === 'en' ? 'Visible scheduled association activity' : "Activité planifiée visible de l'association",
         tone: events.value.length === 0 ? 'warning' : 'neutral',
         to: '/events',
       },
@@ -94,9 +96,9 @@ export function useGovernanceCockpit() {
     if (tenantStore.isModuleEnabled('membership')) {
       rows.push({
         id: 'members',
-        label: 'Member directory',
+        label: localeStore.currentLocale === 'de' ? 'Mitgliederverzeichnis' : localeStore.currentLocale === 'en' ? 'Member directory' : 'Répertoire des membres',
         value: String(members.value.length),
-        hint: 'Active profiles in the tenant',
+        hint: localeStore.currentLocale === 'de' ? 'Aktive Profile im Tenant' : localeStore.currentLocale === 'en' ? 'Active profiles in the tenant' : 'Profils actifs dans le tenant',
         tone: members.value.length === 0 ? 'warning' : 'neutral',
       })
     }
@@ -105,9 +107,9 @@ export function useGovernanceCockpit() {
       const balance = Number(contributionSummary.value.total_balance)
       rows.push({
         id: 'finance',
-        label: 'Contribution balance',
+        label: localeStore.currentLocale === 'de' ? 'Beitragssaldo' : localeStore.currentLocale === 'en' ? 'Contribution balance' : 'Solde des cotisations',
         value: `${contributionSummary.value.total_balance} EUR`,
-        hint: `${contributionSummary.value.total_count} contribution record(s)`,
+        hint: localeStore.currentLocale === 'de' ? `${contributionSummary.value.total_count} Beitragsenregistrements` : localeStore.currentLocale === 'en' ? `${contributionSummary.value.total_count} contribution record(s)` : `${contributionSummary.value.total_count} enregistrement(s) de cotisation`,
         tone: balance > 0 ? 'warning' : 'success',
         to: '/finance-audit',
       })
@@ -116,9 +118,9 @@ export function useGovernanceCockpit() {
     if (hasAuditAccess.value) {
       rows.push({
         id: 'audit',
-        label: 'Audit trail',
+        label: localeStore.currentLocale === 'de' ? 'Audit-Protokoll' : localeStore.currentLocale === 'en' ? 'Audit trail' : "Journal d'audit",
         value: String(auditEvents.value.length),
-        hint: 'Recent sensitive actions',
+        hint: localeStore.currentLocale === 'de' ? 'Kuerzlich sensible Aktionen' : localeStore.currentLocale === 'en' ? 'Recent sensitive actions' : 'Actions sensibles récentes',
         tone: auditEvents.value.length === 0 ? 'warning' : 'neutral',
         to: '/admin/audit',
       })
@@ -131,20 +133,20 @@ export function useGovernanceCockpit() {
     const actions: GovernanceAction[] = [
       {
         id: 'events',
-        label: 'Review events',
-        description: 'Check the current association schedule',
+        label: localeStore.currentLocale === 'de' ? 'Veranstaltungen prüfen' : localeStore.currentLocale === 'en' ? 'Review events' : 'Consulter les événements',
+        description: localeStore.currentLocale === 'de' ? 'Aktuellen Vereinskalender prüfen' : localeStore.currentLocale === 'en' ? 'Check the current association schedule' : "Vérifier le calendrier actuel de l'association",
         to: '/events',
       },
       {
         id: 'announcements',
-        label: 'Open announcements',
-        description: 'Review active member communications',
+        label: localeStore.currentLocale === 'de' ? 'Annonces öffnen' : localeStore.currentLocale === 'en' ? 'Open announcements' : 'Ouvrir les annonces',
+        description: localeStore.currentLocale === 'de' ? 'Aktive Mitgliederkommunikation prüfen' : localeStore.currentLocale === 'en' ? 'Review active member communications' : 'Consulter les communications actives vers les membres',
         to: '/announcements',
       },
       {
         id: 'policies',
-        label: 'Open policies',
-        description: 'Inspect governance rules and references',
+        label: localeStore.currentLocale === 'de' ? 'Regeln öffnen' : localeStore.currentLocale === 'en' ? 'Open policies' : 'Ouvrir les règlements',
+        description: localeStore.currentLocale === 'de' ? 'Regeln und références prüfen' : localeStore.currentLocale === 'en' ? 'Inspect governance rules and references' : 'Consulter les règles et références de gouvernance',
         to: '/policies',
       },
     ]
@@ -152,8 +154,8 @@ export function useGovernanceCockpit() {
     if (hasAuditAccess.value) {
       actions.unshift({
         id: 'audit',
-        label: 'Review audit trail',
-        description: 'Inspect recent sensitive actions',
+        label: localeStore.currentLocale === 'de' ? 'Audit-Protokoll prüfen' : localeStore.currentLocale === 'en' ? 'Review audit trail' : "Consulter le journal d'audit",
+        description: localeStore.currentLocale === 'de' ? 'Kuerzliche sensible Aktionen prüfen' : localeStore.currentLocale === 'en' ? 'Inspect recent sensitive actions' : 'Consulter les actions sensibles récentes',
         to: '/admin/audit',
       })
     }
@@ -161,8 +163,8 @@ export function useGovernanceCockpit() {
     if (isPresident.value || isPrincipalAdmin.value || isAdmin.value) {
       actions.splice(1, 0, {
         id: 'finance',
-        label: 'Open finance audit',
-        description: 'Review contribution totals and balances',
+        label: localeStore.currentLocale === 'de' ? 'Finanzaudit öffnen' : localeStore.currentLocale === 'en' ? 'Open finance audit' : "Ouvrir l'audit finances",
+        description: localeStore.currentLocale === 'de' ? 'Beitragssummen und Salden prüfen' : localeStore.currentLocale === 'en' ? 'Review contribution totals and balances' : 'Consulter les totaux et soldes de cotisation',
         to: '/finance-audit',
       })
     }
@@ -205,7 +207,7 @@ export function useGovernanceCockpit() {
 
       await Promise.all(work)
     } catch (err: unknown) {
-      error.value = (err as { message?: string })?.message || 'Could not load the governance cockpit.'
+      error.value = (err as { message?: string })?.message || (localeStore.currentLocale === 'de' ? 'Le cockpit de gouvernance n’a pas pu être chargé.' : localeStore.currentLocale === 'en' ? 'Could not load the governance cockpit.' : "Le cockpit de gouvernance n'a pas pu être chargé.")
     } finally {
       loading.value = false
     }

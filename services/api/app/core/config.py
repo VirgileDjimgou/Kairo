@@ -11,7 +11,7 @@ class Settings(BaseSettings):
     )
 
     # App
-    app_name: str = "OrgMind AI"
+    app_name: str = "Combis Sport Verein"
     app_env: str = "development"
     app_debug: bool = True
 
@@ -52,8 +52,8 @@ class Settings(BaseSettings):
 
     # Ollama
     ollama_base_url: str = "http://ollama:11434"
-    ollama_llm_model: str = "qwen2.5:7b-instruct"
-    ollama_embedding_model: str = "nomic-embed-text"
+    ollama_llm_model: str = "qwen2.5:14b"
+    ollama_embedding_model: str = "bge-m3"
 
     # Optional notification channel placeholders
     smtp_host: str | None = None
@@ -68,7 +68,7 @@ class Settings(BaseSettings):
 
     # Upload
     max_upload_mb: int = 50
-    allowed_upload_extensions: str = "pdf,docx,txt,md,csv,png,jpg,jpeg,webp"
+    allowed_upload_extensions: str = "pdf,docx,txt,md,csv,xlsx,png,jpg,jpeg,webp"
 
     # Ingestion
     ingestion_chunk_size: int = 800
@@ -76,9 +76,25 @@ class Settings(BaseSettings):
     ingestion_auto_enqueue: bool = True
 
     # Embeddings / Qdrant
-    embedding_dimensions: int = 768
+    embedding_dimensions: int = 1024
     embedding_request_timeout_seconds: int = 120
     indexing_auto_enabled: bool = True
+
+    # LLM tuning
+    llm_temperature: float = 0.3
+    llm_top_p: float = 0.9
+    llm_max_tokens: int = 2048
+
+    # RAG tuning
+    rag_top_k: int = 6
+    rag_score_threshold: float = 0.65
+    rag_rerank_enabled: bool = True
+    rag_rerank_top_k: int = 10
+    rag_hybrid_search: bool = True
+
+    # Conversation
+    conversation_max_history: int = 20
+    conversation_retention_days: int = 30
 
     @property
     def allowed_extensions_list(self) -> list[str]:

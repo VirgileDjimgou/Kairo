@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from typing import Any
+from typing import Any, AsyncGenerator
 from uuid import UUID
 
 from app.providers.notifications.base import (
@@ -50,7 +50,10 @@ class FakeVectorStoreProvider:
         *,
         tenant_id: UUID,
         query_vector: list[float],
+        query_text: str | None = None,
         limit: int,
+        score_threshold: float = 0.0,
+        hybrid: bool = False,
     ) -> list[dict[str, Any]]:
         results: list[dict[str, Any]] = []
         for vector, payload in self.points.values():
@@ -66,9 +69,30 @@ class FakeLlmProvider:
     def __init__(self) -> None:
         self.calls: list[dict[str, str]] = []
 
-    async def generate(self, *, system_prompt: str, user_prompt: str) -> str:
+    async def generate(
+        self,
+        *,
+        system_prompt: str,
+        user_prompt: str,
+        temperature: float = 0.3,
+        top_p: float = 0.9,
+        max_tokens: int = 2048,
+    ) -> str:
         self.calls.append({"system_prompt": system_prompt, "user_prompt": user_prompt})
         return "Grounded answer from authorized sources."
+
+    async def generate_stream(
+        self,
+        *,
+        system_prompt: str,
+        user_prompt: str,
+        temperature: float = 0.3,
+        top_p: float = 0.9,
+        max_tokens: int = 2048,
+    ) -> AsyncGenerator[str, None]:
+        self.calls.append({"system_prompt": system_prompt, "user_prompt": user_prompt})
+        for token in ["Grounded ", "answer ", "from ", "authorized ", "sources."]:
+            yield token
 
 
 class FakeEmailNotificationProvider:

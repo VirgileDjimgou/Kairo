@@ -14,7 +14,7 @@ from app.modules.documents.models import (  # noqa: F401
     DocumentVersion,
     IngestionJob,
 )
-from app.modules.chat.models import ChatQueryLog  # noqa: F401
+from app.modules.chat.models import ChatConversation, ChatMessage, ChatQueryLog  # noqa: F401
 from app.modules.audit.models import AuditEvent  # noqa: F401
 from app.modules.tenancy.models import (  # noqa: F401
     Permission,

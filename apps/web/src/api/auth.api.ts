@@ -42,6 +42,7 @@ export interface TenantMembershipResponse {
   tenant_id: string
   slug: string
   name: string
+  default_language: string
   roles: string[]
   branding: BrandingConfig
   modules: ModuleToggles
@@ -52,6 +53,7 @@ export interface UserResponse {
   id: string
   email: string
   display_name: string
+  preferred_language: string | null
   status: string
   tenant_id: string
   roles: string[]
@@ -120,6 +122,14 @@ export interface SwitchTenantResponse {
   tenant_id: string
   user_id: string
   memberships: TenantMembershipResponse[]
+}
+
+export interface UpdateLanguagePreferenceRequest {
+  preferred_language: string
+}
+
+export interface LanguagePreferenceResponse {
+  preferred_language: string
 }
 
 // ── Invitation types ──────────────────────────────────────────────────────────
@@ -282,6 +292,13 @@ export async function revokeManagedUserSessions(userId: string): Promise<Managed
 
 export async function switchTenant(payload: SwitchTenantRequest): Promise<SwitchTenantResponse> {
   const response = await http.post<SwitchTenantResponse>('/auth/switch-tenant', payload)
+  return response.data
+}
+
+export async function updateLanguagePreference(
+  payload: UpdateLanguagePreferenceRequest,
+): Promise<LanguagePreferenceResponse> {
+  const response = await http.patch<LanguagePreferenceResponse>('/auth/me/preferences/language', payload)
   return response.data
 }
 

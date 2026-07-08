@@ -10,9 +10,9 @@
           <p class="mb-0">{{ message }}</p>
         </div>
         <div class="modal-footer border-0 pt-0">
-          <button type="button" class="btn btn-sm btn-secondary" data-bs-dismiss="modal" @click="$emit('cancel')">Cancel</button>
+          <button type="button" class="btn btn-sm btn-secondary" data-bs-dismiss="modal" @click="$emit('cancel')">{{ cancelLabel }}</button>
           <button type="button" class="btn btn-sm btn-danger" @click="handleConfirm" :disabled="busy">
-            {{ busy ? 'Deleting...' : 'Delete' }}
+            {{ busy ? deletingLabel : deleteLabel }}
           </button>
         </div>
       </div>
@@ -21,8 +21,9 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted } from 'vue'
+import { computed, ref, onMounted } from 'vue'
 import * as bootstrap from 'bootstrap'
+import { useLocaleStore } from '@/stores/locale.store'
 
 const props = defineProps<{
   title: string
@@ -34,9 +35,22 @@ const emit = defineEmits<{
   cancel: []
 }>()
 
+const localeStore = useLocaleStore()
 const busy = ref(false)
 const modalRef = ref<HTMLElement | null>(null)
 let modalInstance: bootstrap.Modal | null = null
+
+const cancelLabel = computed(() =>
+  localeStore.currentLocale === 'de' ? 'Abbrechen' : localeStore.currentLocale === 'en' ? 'Cancel' : 'Annuler',
+)
+
+const deleteLabel = computed(() =>
+  localeStore.currentLocale === 'de' ? 'Loeschen' : localeStore.currentLocale === 'en' ? 'Delete' : 'Supprimer',
+)
+
+const deletingLabel = computed(() =>
+  localeStore.currentLocale === 'de' ? 'Loeschen...' : localeStore.currentLocale === 'en' ? 'Deleting...' : 'Suppression...',
+)
 
 onMounted(() => {
   if (modalRef.value) {

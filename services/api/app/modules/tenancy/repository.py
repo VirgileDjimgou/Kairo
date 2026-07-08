@@ -63,7 +63,7 @@ class TenancyRepository:
         slug: str,
         name: str,
         tenant_type: str = "association",
-        default_language: str = "en",
+        default_language: str = "fr",
     ) -> Tenant:
         tenant = Tenant(
             slug=slug.lower().strip(),

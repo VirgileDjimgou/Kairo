@@ -10,6 +10,7 @@ from uuid import UUID
 
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from app.core.privacy import redact_nested_data
 from app.modules.audit.models import AuditEvent
 from app.modules.audit.repository import AuditRepository
 from app.modules.audit.schemas import AuditEventResponse
@@ -149,7 +150,11 @@ class AuditService:
                     "action": row.action,
                     "entity_type": row.entity_type,
                     "entity_id": row.entity_id or "",
-                    "details_json": json.dumps(row.details, ensure_ascii=False, default=str),
+                    "details_json": json.dumps(
+                        redact_nested_data(row.details),
+                        ensure_ascii=False,
+                        default=str,
+                    ),
                     "created_at": row.created_at.isoformat(),
                 }
             )
@@ -164,7 +169,7 @@ class AuditService:
             action=event.action,
             entity_type=event.entity_type,
             entity_id=event.entity_id,
-            details=self._load_details(event.details_json),
+            details=redact_nested_data(self._load_details(event.details_json)),
             created_at=event.created_at,
         )
 
@@ -188,4 +193,3 @@ class AuditService:
         if isinstance(value, datetime):
             return value.isoformat()
         return str(value)
-

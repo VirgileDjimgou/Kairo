@@ -36,7 +36,7 @@
           </div>
         </div>
         <button class="btn btn-outline-secondary btn-sm w-100" @click="handleLogout">
-          <i class="bi bi-box-arrow-right me-1"></i>Sign out
+          <i class="bi bi-box-arrow-right me-1"></i>{{ localeStore.t('layout.signOut') }}
         </button>
       </div>
     </aside>
@@ -52,7 +52,7 @@
           <i class="bi bi-building-fill-gear me-1" :style="{ color: primaryColor }"></i>
           {{ tenantStore.currentTenantName }}
         </span>
-        <button class="btn-close" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+        <button class="btn-close" data-bs-dismiss="offcanvas" :aria-label="localeStore.t('layout.close')"></button>
       </div>
       <div class="offcanvas-body p-3 d-flex flex-column">
         <nav class="vstack gap-3">
@@ -86,7 +86,7 @@
             </div>
           </div>
           <button class="btn btn-outline-secondary btn-sm w-100" @click="handleLogout">
-            <i class="bi bi-box-arrow-right me-1"></i>Sign out
+            <i class="bi bi-box-arrow-right me-1"></i>{{ localeStore.t('layout.signOut') }}
           </button>
         </div>
       </div>
@@ -109,10 +109,12 @@
               class="btn btn-link d-md-none p-1 text-dark"
               data-bs-toggle="offcanvas"
               data-bs-target="#appMobileSidebar"
-              aria-label="Toggle navigation"
+              :aria-label="localeStore.t('layout.toggleNavigation')"
             >
               <i class="bi bi-list fs-4"></i>
             </button>
+
+            <LanguageSelector :show-label="false" />
 
             <div v-if="tenantStore.hasMultipleTenants" class="dropdown tenant-switcher">
               <button
@@ -135,19 +137,19 @@
 
             <div class="dropdown">
               <button class="btn btn-primary btn-sm dropdown-toggle" type="button" data-bs-toggle="dropdown">
-                <i class="bi bi-person-circle me-1"></i>{{ authStore.user?.display_name || "Account" }}
+                <i class="bi bi-person-circle me-1"></i>{{ authStore.user?.display_name || localeStore.t('layout.account') }}
               </button>
               <ul class="dropdown-menu dropdown-menu-end shadow-sm">
-                <li><h6 class="dropdown-header">Signed in as</h6></li>
+                <li><h6 class="dropdown-header">{{ localeStore.t('layout.signedInAs') }}</h6></li>
                 <li>
                   <span class="dropdown-item-text small text-muted">{{ authStore.user?.email }}</span>
                 </li>
                 <li><hr class="dropdown-divider" /></li>
                 <li>
-                  <RouterLink to="/account/security" class="dropdown-item">Account security</RouterLink>
+                  <RouterLink to="/account/security" class="dropdown-item">{{ localeStore.t('layout.accountSecurity') }}</RouterLink>
                 </li>
                 <li>
-                  <button class="dropdown-item text-danger" @click="handleLogout">Sign out</button>
+                  <button class="dropdown-item text-danger" @click="handleLogout">{{ localeStore.t('layout.signOut') }}</button>
                 </li>
               </ul>
             </div>
@@ -168,10 +170,13 @@ import { RouterLink, RouterView, useRouter } from "vue-router";
 import { useAuthStore } from "@/stores/auth.store";
 import { useRoleNavigation } from "@/composables/useRoleNavigation";
 import { useTenantStore } from "@/stores/tenant.store";
+import { useLocaleStore } from "@/stores/locale.store";
+import LanguageSelector from "@/components/LanguageSelector.vue";
 
 const router = useRouter();
 const authStore = useAuthStore();
 const tenantStore = useTenantStore();
+const localeStore = useLocaleStore();
 const { appNavigation, appHomeLabel } = useRoleNavigation();
 
 const primaryColor = computed(() => tenantStore.currentTenant?.branding.primary_color || "#1f4f8f");

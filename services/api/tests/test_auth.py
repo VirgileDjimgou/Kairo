@@ -128,6 +128,27 @@ async def test_get_me(
     assert body["email"] == data["user"].email
     assert body["tenant_id"] == str(data["tenant"].id)
     assert "admin" in body["roles"]
+    assert "preferred_language" in body
+
+
+@pytest.mark.asyncio
+async def test_update_language_preference(
+    client: AsyncClient, seeded_tenant_and_admin: dict
+) -> None:
+    data = seeded_tenant_and_admin
+    login = await client.post(
+        "/api/v1/auth/login",
+        json={"email": data["user"].email, "password": data["password"]},
+    )
+    token = login.json()["access_token"]
+
+    response = await client.patch(
+        "/api/v1/auth/me/preferences/language",
+        headers={"Authorization": f"Bearer {token}"},
+        json={"preferred_language": "de"},
+    )
+    assert response.status_code == 200, response.text
+    assert response.json()["preferred_language"] == "de"
 
 
 @pytest.mark.asyncio

@@ -1,6 +1,7 @@
 import { computed } from 'vue'
 import { useAuthStore } from '@/stores/auth.store'
 import { useTenantStore } from '@/stores/tenant.store'
+import { useLocaleStore } from '@/stores/locale.store'
 
 type NavItem = {
   label: string
@@ -16,6 +17,7 @@ type NavSection = {
 export function useRoleNavigation() {
   const authStore = useAuthStore()
   const tenantStore = useTenantStore()
+  const localeStore = useLocaleStore()
   const roles = computed(() => authStore.user?.roles ?? [])
 
   const isMember = computed(() => roles.value.includes('member') && roles.value.length === 1)
@@ -64,23 +66,23 @@ export function useRoleNavigation() {
   const appNavigation = computed<NavSection[]>(() => {
     const sections: NavSection[] = [
       {
-        label: 'Personal',
+        label: localeStore.t('layout.personal'),
         items: [
-          { label: 'Dashboard', to: '/dashboard', icon: 'bi-grid-1x2' },
-          { label: 'My profile', to: '/members/profile', icon: 'bi-person-badge' },
-          { label: 'Account security', to: '/account/security', icon: 'bi-shield-check' },
-          { label: 'Chat', to: '/chat', icon: 'bi-chat-dots' },
+          { label: localeStore.t('nav.dashboard'), to: '/dashboard', icon: 'bi-grid-1x2' },
+          { label: localeStore.t('nav.myProfile'), to: '/members/profile', icon: 'bi-person-badge' },
+          { label: localeStore.t('nav.accountSecurity'), to: '/account/security', icon: 'bi-shield-check' },
+          { label: localeStore.t('nav.chat'), to: '/chat', icon: 'bi-chat-dots' },
         ].filter((item) => item.to !== '/chat' || tenantStore.isModuleEnabled('chat')),
       },
     ]
 
     if (isMember.value) {
       sections.push({
-        label: 'Read',
+        label: localeStore.t('layout.read'),
         items: [
-          { label: 'Events', to: '/events', icon: 'bi-calendar-event' },
-          { label: 'Announcements', to: '/announcements', icon: 'bi-megaphone' },
-          { label: 'Policies', to: '/policies', icon: 'bi-journal-text' },
+          { label: localeStore.t('nav.events'), to: '/events', icon: 'bi-calendar-event' },
+          { label: localeStore.t('nav.announcements'), to: '/announcements', icon: 'bi-megaphone' },
+          { label: localeStore.t('nav.policies'), to: '/policies', icon: 'bi-journal-text' },
         ].filter((item) => tenantStore.isModuleEnabled(item.to.slice(1))),
       })
       return sections
@@ -89,26 +91,26 @@ export function useRoleNavigation() {
     const workspaceItems: NavItem[] = []
 
     if (showSecretaryWorkspace.value) {
-      workspaceItems.push({ label: 'Secretary workspace', to: '/secretary', icon: 'bi-journal-richtext' })
+      workspaceItems.push({ label: localeStore.t('nav.secretaryWorkspace'), to: '/secretary', icon: 'bi-journal-richtext' })
     }
     if (showFinanceWorkspace.value) {
-      workspaceItems.push({ label: 'Finance workspace', to: '/finance', icon: 'bi-cash-coin' })
+      workspaceItems.push({ label: localeStore.t('nav.financeWorkspace'), to: '/finance', icon: 'bi-cash-coin' })
     }
     if (showFinanceAuditWorkspace.value) {
-      workspaceItems.push({ label: 'Finance audit', to: '/finance-audit', icon: 'bi-clipboard-data' })
+      workspaceItems.push({ label: localeStore.t('nav.financeAudit'), to: '/finance-audit', icon: 'bi-clipboard-data' })
     }
     if (showGovernanceCockpit.value) {
-      workspaceItems.push({ label: 'Governance cockpit', to: '/governance', icon: 'bi-diagram-3' })
+      workspaceItems.push({ label: localeStore.t('nav.governanceCockpit'), to: '/governance', icon: 'bi-diagram-3' })
     }
     if (showCensorWorkspace.value) {
-      workspaceItems.push({ label: 'Disciplinary console', to: '/censor', icon: 'bi-shield-lock' })
+      workspaceItems.push({ label: localeStore.t('nav.disciplinaryConsole'), to: '/censor', icon: 'bi-shield-lock' })
     }
     if (showSportsWorkspace.value) {
-      workspaceItems.push({ label: 'Sports workspace', to: '/sports', icon: 'bi-trophy' })
+      workspaceItems.push({ label: localeStore.t('nav.sportsWorkspace'), to: '/sports', icon: 'bi-trophy' })
     }
     if (isPrincipalAdmin.value || isAdmin.value) {
       workspaceItems.push({
-        label: isPrincipalAdmin.value ? 'Principal admin control plane' : 'Admin plane',
+        label: isPrincipalAdmin.value ? localeStore.t('nav.principalAdminPlane') : localeStore.t('nav.adminPlane'),
         to: '/admin',
         icon: 'bi-shield-lock',
       })
@@ -116,20 +118,20 @@ export function useRoleNavigation() {
 
     if (workspaceItems.length) {
       sections.push({
-        label: 'Workspaces',
+        label: localeStore.t('layout.workspaces'),
         items: workspaceItems,
       })
     }
 
     const communityItems: NavItem[] = [
-      { label: 'Events', to: '/events', icon: 'bi-calendar-event' },
-      { label: 'Announcements', to: '/announcements', icon: 'bi-megaphone' },
-      { label: 'Policies', to: '/policies', icon: 'bi-journal-text' },
+      { label: localeStore.t('nav.events'), to: '/events', icon: 'bi-calendar-event' },
+      { label: localeStore.t('nav.announcements'), to: '/announcements', icon: 'bi-megaphone' },
+      { label: localeStore.t('nav.policies'), to: '/policies', icon: 'bi-journal-text' },
     ].filter((item) => tenantStore.isModuleEnabled(item.to.slice(1)))
 
     if (communityItems.length) {
       sections.push({
-        label: 'Community',
+        label: localeStore.t('layout.community'),
         items: communityItems,
       })
     }
@@ -140,69 +142,69 @@ export function useRoleNavigation() {
   const adminNavigation = computed<NavSection[]>(() => {
     const sections: NavSection[] = [
       {
-        label: 'Overview',
+        label: localeStore.t('layout.overview'),
         items: [
-          { label: 'Overview', to: '/admin', icon: 'bi-speedometer2' },
-          { label: 'Onboarding wizard', to: '/admin/onboarding', icon: 'bi-stars' },
-          { label: 'Health center', to: '/admin/health', icon: 'bi-heart-pulse' },
-          { label: 'Tenant operations', to: '/admin/tenants', icon: 'bi-diagram-3' },
+          { label: localeStore.t('nav.overview'), to: '/admin', icon: 'bi-speedometer2' },
+          { label: localeStore.t('nav.onboardingWizard'), to: '/admin/onboarding', icon: 'bi-stars' },
+          { label: localeStore.t('nav.healthCenter'), to: '/admin/health', icon: 'bi-heart-pulse' },
+          { label: localeStore.t('nav.tenantOperations'), to: '/admin/tenants', icon: 'bi-diagram-3' },
         ],
       },
     ]
 
     const operations: NavItem[] = []
     if (tenantStore.isModuleEnabled('membership')) {
-      operations.push({ label: 'Members', to: '/admin/members', icon: 'bi-people' })
+      operations.push({ label: localeStore.t('nav.members'), to: '/admin/members', icon: 'bi-people' })
     }
     if (tenantStore.isModuleEnabled('contributions')) {
-      operations.push({ label: 'Contributions', to: '/admin/contributions', icon: 'bi-cash-stack' })
+      operations.push({ label: localeStore.t('nav.contributions'), to: '/admin/contributions', icon: 'bi-cash-stack' })
     }
     if (tenantStore.isModuleEnabled('policies')) {
-      operations.push({ label: 'Policies', to: '/admin/policies', icon: 'bi-journal-text' })
+      operations.push({ label: localeStore.t('nav.policies'), to: '/admin/policies', icon: 'bi-journal-text' })
     }
     if (tenantStore.isModuleEnabled('disciplinary')) {
-      operations.push({ label: 'Disciplinary', to: '/admin/disciplinary', icon: 'bi-shield-lock' })
+      operations.push({ label: localeStore.t('nav.disciplinary'), to: '/admin/disciplinary', icon: 'bi-shield-lock' })
     }
-    operations.push({ label: 'Access', to: '/admin/access', icon: 'bi-person-plus' })
-    operations.push({ label: 'Documents', to: '/admin/documents', icon: 'bi-file-earmark-text' })
+    operations.push({ label: localeStore.t('nav.access'), to: '/admin/access', icon: 'bi-person-plus' })
+    operations.push({ label: localeStore.t('nav.documents'), to: '/admin/documents', icon: 'bi-file-earmark-text' })
 
     if (operations.length) {
-      sections.push({ label: 'Operations', items: operations })
+      sections.push({ label: localeStore.t('layout.operations'), items: operations })
     }
 
-    const governance: NavItem[] = [{ label: 'Audit trail', to: '/admin/audit', icon: 'bi-shield-check' }]
+    const governance: NavItem[] = [{ label: localeStore.t('nav.auditTrail'), to: '/admin/audit', icon: 'bi-shield-check' }]
     if (tenantStore.isModuleEnabled('chat')) {
-      governance.push({ label: 'Chat audit', to: '/admin/chat-queries', icon: 'bi-journal-text' })
+      governance.push({ label: localeStore.t('nav.chatAudit'), to: '/admin/chat-queries', icon: 'bi-journal-text' })
     }
     if (tenantStore.isModuleEnabled('events')) {
-      governance.push({ label: 'Events', to: '/admin/events', icon: 'bi-calendar-event' })
+      governance.push({ label: localeStore.t('nav.events'), to: '/admin/events', icon: 'bi-calendar-event' })
     }
     if (tenantStore.isModuleEnabled('announcements')) {
-      governance.push({ label: 'Announcements', to: '/admin/announcements', icon: 'bi-megaphone' })
+      governance.push({ label: localeStore.t('nav.announcements'), to: '/admin/announcements', icon: 'bi-megaphone' })
     }
     if (tenantStore.isModuleEnabled('notifications')) {
-      governance.push({ label: 'Channels', to: '/admin/notifications', icon: 'bi-broadcast-pin' })
+      governance.push({ label: localeStore.t('nav.channels'), to: '/admin/notifications', icon: 'bi-broadcast-pin' })
     }
 
-    sections.push({ label: 'Governance', items: governance })
-    sections.push({ label: 'Settings', items: [{ label: 'Settings', to: '/admin/settings', icon: 'bi-gear' }] })
+    sections.push({ label: localeStore.t('layout.governance'), items: governance })
+    sections.push({ label: localeStore.t('layout.settings'), items: [{ label: localeStore.t('nav.settings'), to: '/admin/settings', icon: 'bi-gear' }] })
 
     return sections
   })
 
   const appHomeLabel = computed(() => {
-    if (isMember.value) return 'Member portal'
-    if (isSecretaryGeneral.value) return 'Secretary workspace'
-    if (isTreasurer.value) return 'Finance workspace'
-    if (isAuditor.value) return 'Finance audit'
-    if (isCensor.value) return 'Disciplinary console'
-    if (isSportsManager.value) return 'Sports workspace'
-    if (showGovernanceCockpit.value) return 'Governance cockpit'
-    return isPrincipalAdmin.value ? 'Principal admin control plane' : 'Organization portal'
+    if (isMember.value) return localeStore.t('home.memberPortal')
+    if (isSecretaryGeneral.value) return localeStore.t('home.secretaryWorkspace')
+    if (isTreasurer.value) return localeStore.t('home.financeWorkspace')
+    if (isAuditor.value) return localeStore.t('home.financeAudit')
+    if (isCensor.value) return localeStore.t('home.disciplinaryConsole')
+    if (isSportsManager.value) return localeStore.t('home.sportsWorkspace')
+    if (showGovernanceCockpit.value) return localeStore.t('home.governanceCockpit')
+    return isPrincipalAdmin.value ? localeStore.t('home.principalAdminPlane') : localeStore.t('home.organizationPortal')
   })
 
   const adminConsoleLabel = computed(() =>
-    isPrincipalAdmin.value ? 'Principal Admin Control Plane' : 'Admin Console',
+    isPrincipalAdmin.value ? localeStore.t('layout.principalAdminConsole') : localeStore.t('layout.adminConsole'),
   )
 
   return {

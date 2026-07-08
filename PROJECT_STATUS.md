@@ -1,23 +1,23 @@
 # Project Status
 
-Last updated: 2026-07-06
+Last updated: 2026-07-07
 
 ## Current Sprint
 
-Sprint 61 - Onboarding Wizard, Demo Seed, And First-Run Setup
+Sprint 64 - Deployment Packaging, Upgrade, And Rollback Automation
 
-Status: Completed
+Status: Planned
 
 ## Official Next Sprint
 
-Sprint 62 - Privacy, Audit, And Export Hardening.
+Sprint 64 - Deployment Packaging, Upgrade, And Rollback Automation.
 
 ## Active Delivery Frame
 
 - Target outcome: a stable, professional, mature association-management product with secure role-aware workspaces and a trustworthy chatbot
 - Intended operational scope: usable by an association or organization of about 200 members with differentiated office roles
 - Remaining planned execution window: 3
-- Delivery status: Sprint 61 closed the onboarding and first-run setup gap, and the productization track now continues with Sprint 62
+- Delivery status: Sprint 63 closed the multilingual Combis demo foundation, and Sprint 64 is now the next packaging-focused sprint to execute
 
 ## Source Of Truth
 
@@ -44,15 +44,19 @@ Sprint 62 - Privacy, Audit, And Export Hardening.
   - tenant operations command center with explicit membership inventory, current-tenant posture, and confirmation-based tenant switching
   - production-grade invite and password-reset delivery with tenant-aware provider context and explicit fallback handling
   - release-candidate regression matrix, professional handoff checklist, and a reproducible role-and-tenant screenshot gallery
+  - French-first interface foundation with persistent user language preference and English/German alternates
+  - Combis Sport Verein demo branding and a larger fictional member roster aligned with the association use case
+- language-aware chat requests plus a safer archive import base for the provided association documents
+- post-Sprint-63 stabilization now keeps the login language choice across the authenticated session, extends chat finance/privacy guards to French and German phrasing, and includes refreshed role screenshots under `apps/web/artifacts/manual-role-checks/2026-07-07/`
 - Main gaps before the target product is mature:
-- multi-tenant UX exists, and the remaining focus now shifts to privacy/export hardening, deployment packaging, and commercial handoff polish
+- multi-tenant UX and language preference foundations now exist, and the remaining focus shifts to deployment packaging, end-to-end archive import validation, and final handoff polish
 - backup, restore, and alert posture are now visible in-product through the new health center and settings surfaces
-- privacy/export hardening, deployment packaging, and commercial handoff still leave room for the next planned sprint track
+- deployment packaging, archive-import validation, and commercial handoff still leave room for the next planned sprint track
 
 ## Production Verdict
 
 - Kairo is usable as a controlled production release candidate for disciplined self-hosting or pilot deployments.
-- Kairo is not yet a fully turnkey, broadly productized production offer until the Sprint 62 through Sprint 64 productization track is closed.
+- Kairo is not yet a fully turnkey, broadly productized production offer until the Sprint 64 through Sprint 65 productization track is closed.
 
 ## Completed
 
