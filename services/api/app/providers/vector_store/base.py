@@ -19,5 +19,8 @@ class VectorStoreProvider(Protocol):
         *,
         tenant_id: UUID,
         query_vector: list[float],
+        query_text: str | None = None,
         limit: int,
+        score_threshold: float = 0.0,
+        hybrid: bool = False,
     ) -> list[dict[str, Any]]: ...

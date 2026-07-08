@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import csv
 import io
+import json
 import uuid as _uuid
 
 import pytest
@@ -117,6 +118,7 @@ async def test_audit_trail_logs_sensitive_actions_and_filters_by_entity(
     assert len(filtered_events) == 1
     assert filtered_events[0]["entity_id"] == member["id"]
     assert filtered_events[0]["details"]["member_code"] == member["member_code"]
+    assert filtered_events[0]["details"]["display_name"] == "[redacted]"
 
     export_resp = await client.get(
         "/api/v1/admin/audit/events/export",
@@ -131,6 +133,11 @@ async def test_audit_trail_logs_sensitive_actions_and_filters_by_entity(
     assert len(rows) >= 3
     assert any(row["entity_type"] == "contribution_record" for row in rows)
     assert any(row["entity_id"] == contribution["id"] for row in rows)
+    member_rows = [row for row in rows if row["entity_type"] == "membership_profile" and row["action"] == "create"]
+    assert member_rows
+    member_details = json.loads(member_rows[0]["details_json"])
+    assert member_details["member_code"] == member["member_code"]
+    assert member_details["display_name"] == "[redacted]"
 
 
 async def test_audit_trail_is_tenant_scoped(
@@ -163,4 +170,3 @@ async def test_audit_trail_is_tenant_scoped(
     assert isinstance(body, list)
     for event in body:
         assert event["action"] != "member_profile_created"
-

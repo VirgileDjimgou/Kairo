@@ -70,6 +70,16 @@ class UserRepository:
             )
         )
 
+    async def update_preferred_language(self, user_id: UUID, preferred_language: str) -> None:
+        await self._db.execute(
+            update(User)
+            .where(User.id == user_id)
+            .values(
+                preferred_language=preferred_language,
+                updated_at=datetime.now(timezone.utc),
+            )
+        )
+
     async def set_totp_secret(self, user_id: UUID, secret: str) -> None:
         await self._db.execute(
             update(User)

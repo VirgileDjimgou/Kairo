@@ -38,7 +38,7 @@
           <i class="bi bi-shield-lock me-1" :style="{ color: primaryColor }"></i>
           {{ consoleTitle }}
         </span>
-        <button class="btn-close" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+        <button class="btn-close" data-bs-dismiss="offcanvas" :aria-label="localeStore.t('layout.close')"></button>
       </div>
       <div class="offcanvas-body p-3 d-flex flex-column">
         <nav class="vstack gap-3">
@@ -76,10 +76,11 @@
               class="btn btn-link d-lg-none p-1 text-dark"
               data-bs-toggle="offcanvas"
               data-bs-target="#adminMobileSidebar"
-              aria-label="Toggle navigation"
+              :aria-label="localeStore.t('layout.toggleNavigation')"
             >
               <i class="bi bi-list fs-4"></i>
             </button>
+            <LanguageSelector :show-label="false" />
             <div class="badge bg-warning-subtle text-warning border border-warning-subtle px-3 py-2">
               {{ consoleBadge }}
             </div>
@@ -99,14 +100,21 @@ import { computed } from "vue";
 import { RouterLink, RouterView } from "vue-router";
 import { useRoleNavigation } from "@/composables/useRoleNavigation";
 import { useTenantStore } from "@/stores/tenant.store";
+import { useLocaleStore } from "@/stores/locale.store";
+import LanguageSelector from "@/components/LanguageSelector.vue";
 
 const tenantStore = useTenantStore();
+const localeStore = useLocaleStore();
 const { adminNavigation, isPrincipalAdmin } = useRoleNavigation();
 
 const primaryColor = computed(() => tenantStore.currentTenant?.branding.primary_color || "#1f4f8f");
 const textColor = computed(() => "#1f2937");
-const consoleTitle = computed(() => (isPrincipalAdmin.value ? "Principal Admin Control Plane" : "Admin Console"));
-const consoleSubtitle = computed(() => (isPrincipalAdmin.value ? "Tenant-wide governance control" : "Operational control center"));
+const consoleTitle = computed(() =>
+  isPrincipalAdmin.value ? localeStore.t('layout.principalAdminConsole') : localeStore.t('layout.adminConsole'),
+);
+const consoleSubtitle = computed(() =>
+  isPrincipalAdmin.value ? localeStore.t('layout.principalAdminSubtitle') : localeStore.t('layout.adminSubtitle'),
+);
 const consoleBadge = computed(() => (isPrincipalAdmin.value ? "principal_admin" : "admin"));
 </script>
 

@@ -35,6 +35,7 @@ ALLOWED_MIME_TYPES: dict[str, set[str]] = {
     "txt": {"text/plain"},
     "md": {"text/plain", "text/markdown"},
     "csv": {"text/csv", "application/csv", "text/plain"},
+    "xlsx": {"application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"},
     "png": {"image/png"},
     "jpg": {"image/jpeg"},
     "jpeg": {"image/jpeg"},

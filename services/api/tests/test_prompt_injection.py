@@ -224,7 +224,7 @@ async def test_injection_content_follows_access_control(
     assert response.status_code == 200
     body = response.json()
     assert body["refused"] is True
-    assert "No authorized source" in body["refusal_reason"]
+    assert "source autorisée" in body["refusal_reason"].lower() or "source autorisee" in body["refusal_reason"].lower()
 
 
 @pytest.mark.asyncio

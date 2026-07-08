@@ -74,7 +74,7 @@ class Tenant(Base):
         String(50), nullable=False, server_default="active"
     )
     default_language: Mapped[str] = mapped_column(
-        String(10), nullable=False, server_default="en"
+        String(10), nullable=False, server_default="fr"
     )
     branding_json: Mapped[dict] = mapped_column(
         Text, nullable=False, server_default=text("'{}'")

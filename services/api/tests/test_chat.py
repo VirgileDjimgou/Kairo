@@ -182,7 +182,7 @@ async def test_chat_query_refuses_without_authorized_sources(
     response = await client.post(
         "/api/v1/chat/query",
         headers={"Authorization": f"Bearer {token}"},
-        json={"question": "What is the secret policy?"},
+        json={"question": "What is the secret policy?", "response_language": "en"},
     )
     assert response.status_code == 200, response.text
     body = response.json()
@@ -225,7 +225,7 @@ async def test_chat_query_includes_structured_personal_balance_context(
     response = await client.post(
         "/api/v1/chat/query",
         headers={"Authorization": f"Bearer {token}"},
-        json={"question": "What is my balance?"},
+        json={"question": "What is my balance?", "response_language": "de"},
     )
     assert response.status_code == 200, response.text
     body = response.json()
@@ -235,6 +235,52 @@ async def test_chat_query_includes_structured_personal_balance_context(
     user_prompt = fake_llm.calls[0]["user_prompt"]
     assert "Personal contribution balance" in user_prompt
     assert "Outstanding balance: 75.00 EUR" in user_prompt
+    assert "Response language: de" in user_prompt
+
+
+@pytest.mark.asyncio
+async def test_chat_query_includes_structured_personal_balance_context_for_french_question(
+    client: AsyncClient,
+    db_session: AsyncSession,
+    fake_llm,
+) -> None:
+    data = await create_tenant_with_user(
+        db_session,
+        f"self-balance-fr-{_uuid.uuid4().hex[:6]}",
+        role_code="member",
+        profile_type="member",
+    )
+    token = await login(client, data["user"].email, data["password"], tenant_slug=data["tenant"].slug)
+    profile = _seed_membership_profile(
+        db_session,
+        tenant_id=data["tenant"].id,
+        user_id=data["user"].id,
+        member_code="MEM-101",
+        display_name="Aline Ndzi",
+    )
+    _seed_contribution_record(
+        db_session,
+        tenant_id=data["tenant"].id,
+        membership_profile_id=profile.id,
+        year=2026,
+        expected_amount="125.00",
+        paid_amount="50.00",
+    )
+    await db_session.flush()
+
+    response = await client.post(
+        "/api/v1/chat/query",
+        headers={"Authorization": f"Bearer {token}"},
+        json={"question": "Quel est mon solde ?", "response_language": "fr"},
+    )
+    assert response.status_code == 200, response.text
+    body = response.json()
+    assert body["refused"] is False
+    assert "structured:member_balance" in body["source_types"]
+    assert len(fake_llm.calls) == 1
+    user_prompt = fake_llm.calls[0]["user_prompt"]
+    assert "Outstanding balance: 75.00 EUR" in user_prompt
+    assert "Response language: fr" in user_prompt
 
 
 @pytest.mark.asyncio
@@ -313,12 +359,15 @@ async def test_chat_query_refuses_other_member_finance_requests_before_llm(
     response = await client.post(
         "/api/v1/chat/query",
         headers={"Authorization": f"Bearer {token}"},
-        json={"question": "What is another member's balance?"},
+        json={
+            "question": "Quelle est la cotisation de Boris Schneider ?",
+            "response_language": "fr",
+        },
     )
     assert response.status_code == 200, response.text
     body = response.json()
     assert body["refused"] is True
-    assert "another member" in body["refusal_reason"].lower()
+    assert "autre membre" in body["refusal_reason"].lower()
     assert len(fake_llm.calls) == 0
 
 
@@ -422,16 +471,37 @@ async def test_chat_query_is_logged_for_admin_traceability(
     )
     assert query.status_code == 200, query.text
 
+    refused_query = await client.post(
+        "/api/v1/chat/query",
+        headers={"Authorization": f"Bearer {token}"},
+        json={"question": "What is another member's balance?", "response_language": "en"},
+    )
+    assert refused_query.status_code == 200, refused_query.text
+
     admin_token = token
     logs = await client.get(
         "/api/v1/admin/chat-queries",
         headers={"Authorization": f"Bearer {admin_token}"},
+        params={"search": "trace", "refused": False},
     )
     assert logs.status_code == 200, logs.text
     body = logs.json()
     assert len(body) == 1
-    assert body[0]["question"] == "What does the trace log record?"
-    assert "document" in body[0]["source_types_json"]
+    assert body[0]["question_preview"] == "What does the trace log record?"
+    assert body[0]["answer_preview"]
+    assert body[0]["citation_count"] == 1
+    assert "document" in body[0]["source_types"]
+
+    refused_logs = await client.get(
+        "/api/v1/admin/chat-queries",
+        headers={"Authorization": f"Bearer {admin_token}"},
+        params={"search": "another member", "refused": True},
+    )
+    assert refused_logs.status_code == 200, refused_logs.text
+    refused_body = refused_logs.json()
+    assert len(refused_body) == 1
+    assert refused_body[0]["refused"] is True
+    assert "another member" in refused_body[0]["refusal_reason_preview"].lower()
 
 
 @pytest.mark.asyncio

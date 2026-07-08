@@ -152,19 +152,23 @@ export interface ChatQueryLogResponse {
   id: string
   tenant_id: string
   user_id: string
-  question: string
-  answer: string
+  question_preview: string
+  answer_preview: string
   refused: boolean
-  refusal_reason: string | null
+  refusal_reason_preview: string | null
   confidence: number
-  citations_json: string
-  source_types_json: string
+  citation_count: number
+  source_types: string[]
   created_at: string
 }
 
-export async function listChatQueries(limit = 20): Promise<ChatQueryLogResponse[]> {
+export async function listChatQueries(filters: {
+  limit?: number
+  search?: string
+  refused?: boolean
+} = {}): Promise<ChatQueryLogResponse[]> {
   const response = await http.get<ChatQueryLogResponse[]>('/admin/chat-queries', {
-    params: { limit },
+    params: filters,
   })
   return response.data
 }

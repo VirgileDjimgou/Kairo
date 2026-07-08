@@ -445,5 +445,5 @@ async def test_member_cannot_request_governance_summary_before_llm(
     assert response.status_code == 200, response.text
     body = response.json()
     assert body["refused"] is True
-    assert "cannot access governance summaries" in body["refusal_reason"].lower()
+    assert "résumé de gouvernance" in body["refusal_reason"].lower() or "gouvernance" in body["refusal_reason"].lower()
     assert len(fake_llm.calls) == 0

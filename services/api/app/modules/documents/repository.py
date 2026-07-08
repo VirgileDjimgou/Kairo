@@ -153,3 +153,22 @@ class DocumentRepository:
             )
         )
         return list(result.all())
+
+    async def flag_all_documents_for_reindex(self) -> int:
+        from sqlalchemy import update as sa_update
+        from app.modules.documents.models import IngestionJob
+
+        result = await self._db.execute(
+            select(IngestionJob.id).where(IngestionJob.status.in_(["completed", "failed"]))
+        )
+        job_ids = [row[0] for row in result.all()]
+        if not job_ids:
+            return 0
+        stmt = (
+            sa_update(IngestionJob)
+            .where(IngestionJob.id.in_(job_ids))
+            .values(status="pending")
+        )
+        await self._db.execute(stmt)
+        await self._db.commit()
+        return len(job_ids)

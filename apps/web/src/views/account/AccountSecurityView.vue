@@ -3,19 +3,19 @@
     <div class="d-flex flex-column flex-xl-row justify-content-between gap-3 mb-4">
       <div>
         <div class="text-uppercase small fw-semibold text-secondary mb-2">
-          Personal account security
+          {{ copy.personalAccountSecurity }}
         </div>
-        <h1 class="h4 fw-bold mb-1">Account security</h1>
+        <h1 class="h4 fw-bold mb-1">{{ copy.accountSecurity }}</h1>
         <p class="text-muted mb-0">
-          Review MFA, recover access safely, and keep your account ready for real tenant operations.
+          {{ copy.reviewLead }}
         </p>
       </div>
       <div class="d-flex gap-2 align-items-start">
         <RouterLink to="/dashboard" class="btn btn-outline-secondary">
-          <i class="bi bi-arrow-left me-1"></i>Back to dashboard
+          <i class="bi bi-arrow-left me-1"></i>{{ copy.backToDashboard }}
         </RouterLink>
         <button class="btn om-primary-btn" type="button" @click="loadSecurityState" :disabled="loading">
-          {{ loading ? 'Refreshing...' : 'Refresh' }}
+          {{ loading ? copy.refreshing : copy.refresh }}
         </button>
       </div>
     </div>
@@ -340,10 +340,43 @@ import {
   verifyMfa,
 } from '@/api/auth.api'
 import { useAuthStore } from '@/stores/auth.store'
+import { useLocaleStore } from '@/stores/locale.store'
 
 const authStore = useAuthStore()
 const router = useRouter()
+const localeStore = useLocaleStore()
 const isDev = import.meta.env.DEV
+
+const copy = computed(() => {
+  if (localeStore.currentLocale === 'de') {
+    return {
+      personalAccountSecurity: 'Persoenliche Kontosicherheit',
+      accountSecurity: 'Kontosicherheit',
+      reviewLead: 'Pruefen Sie MFA, stellen Sie sicheren Zugriff wieder her und halten Sie Ihr Konto fuer den echten Betrieb bereit.',
+      backToDashboard: 'Zurueck zum Dashboard',
+      refreshing: 'Aktualisierung...',
+      refresh: 'Aktualisieren',
+    }
+  }
+  if (localeStore.currentLocale === 'en') {
+    return {
+      personalAccountSecurity: 'Personal account security',
+      accountSecurity: 'Account security',
+      reviewLead: 'Review MFA, recover access safely, and keep your account ready for real tenant operations.',
+      backToDashboard: 'Back to dashboard',
+      refreshing: 'Refreshing...',
+      refresh: 'Refresh',
+    }
+  }
+  return {
+    personalAccountSecurity: 'Sécurité du compte personnel',
+    accountSecurity: 'Sécurité du compte',
+    reviewLead: 'Vérifiez la MFA, récupérez l’accès en toute sécurité et gardez votre compte prêt pour un usage réel du tenant.',
+    backToDashboard: 'Retour au tableau de bord',
+    refreshing: 'Actualisation...',
+    refresh: 'Actualiser',
+  }
+})
 
 const loading = ref(false)
 const loadingAction = ref(false)

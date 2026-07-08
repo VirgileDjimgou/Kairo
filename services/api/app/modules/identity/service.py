@@ -33,6 +33,7 @@ from app.modules.identity.schemas import (
     AcceptInviteRequest,
     AcceptInviteResponse,
     ActiveSessionResponse,
+    LanguagePreferenceResponse,
     ForgotPasswordRequest,
     ForgotPasswordResponse,
     InvitationStatusResponse,
@@ -60,11 +61,14 @@ from app.modules.identity.schemas import (
     SwitchTenantResponse,
     TenantMembershipResponse,
     TokenResponse,
+    UpdateLanguagePreferenceRequest,
 )
 from app.modules.tenancy.module_toggles import parse_module_toggles
 from app.modules.tenancy.repository import TenancyRepository
 from app.modules.tenancy.schemas import BrandingConfig, ModuleToggles
 from app.providers.notifications.base import NotificationDispatchResult, NotificationProvider
+
+SUPPORTED_INTERFACE_LANGUAGES = {"fr", "en", "de"}
 
 
 def _ensure_aware(dt: datetime) -> datetime:
@@ -322,6 +326,7 @@ class AuthService:
                     tenant_id=tenant.id,
                     slug=tenant.slug,
                     name=tenant.name,
+                    default_language=tenant.default_language,
                     roles=roles,
                     branding=branding,
                     modules=ModuleToggles(**module_toggles),
@@ -329,6 +334,22 @@ class AuthService:
                 )
             )
         return result
+
+    async def update_language_preference(
+        self,
+        *,
+        user_id: UUID,
+        request: UpdateLanguagePreferenceRequest,
+    ) -> LanguagePreferenceResponse:
+        preferred_language = request.preferred_language.strip().lower()
+        if preferred_language not in SUPPORTED_INTERFACE_LANGUAGES:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail="Supported languages are fr, en, and de",
+            )
+        await self._user_repo.update_preferred_language(user_id, preferred_language)
+        await self._db.commit()
+        return LanguagePreferenceResponse(preferred_language=preferred_language)
 
     async def switch_tenant(
         self,

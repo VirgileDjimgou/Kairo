@@ -4,11 +4,11 @@
       <div class="d-flex flex-column flex-lg-row justify-content-between gap-4">
         <div>
           <div class="text-uppercase small fw-semibold text-secondary mb-2">
-            Member self-service
+            {{ copy.kicker }}
           </div>
-          <h1 class="h3 fw-bold mb-2">My profile and contribution statement</h1>
+          <h1 class="h3 fw-bold mb-2">{{ copy.title }}</h1>
           <p class="text-muted mb-0 hero-copy">
-            Review your personal details, check your current balance, and download your own PDF statement.
+            {{ copy.lead }}
           </p>
         </div>
 
@@ -26,7 +26,7 @@
               aria-hidden="true"
             ></span>
             <i v-else class="bi bi-file-earmark-pdf me-2"></i>
-            {{ downloadingPdf ? 'Preparing PDF...' : 'Download my statement' }}
+            {{ downloadingPdf ? copy.preparingPdf : copy.downloadStatement }}
           </button>
         </div>
       </div>
@@ -36,8 +36,8 @@
       <div class="d-flex gap-3">
         <div class="spinner-border spinner-border-sm mt-1" role="status" aria-hidden="true"></div>
         <div>
-          <h6 class="alert-heading mb-1">Loading your member workspace</h6>
-          <p class="mb-0 small">We are fetching your personal profile and contribution history.</p>
+          <h6 class="alert-heading mb-1">{{ copy.loadingTitle }}</h6>
+          <p class="mb-0 small">{{ copy.loadingBody }}</p>
         </div>
       </div>
     </div>
@@ -64,29 +64,29 @@
               <hr />
 
               <dl class="row small mb-0 profile-grid">
-                <dt class="col-sm-5 text-muted">First name</dt>
+                <dt class="col-sm-5 text-muted">{{ copy.firstName }}</dt>
                 <dd class="col-sm-7">{{ statement.profile.first_name }}</dd>
 
-                <dt class="col-sm-5 text-muted">Last name</dt>
+                <dt class="col-sm-5 text-muted">{{ copy.lastName }}</dt>
                 <dd class="col-sm-7">{{ statement.profile.last_name }}</dd>
 
-                <dt class="col-sm-5 text-muted">Email</dt>
+                <dt class="col-sm-5 text-muted">{{ copy.email }}</dt>
                 <dd class="col-sm-7">{{ statement.profile.email || '—' }}</dd>
 
-                <dt class="col-sm-5 text-muted">Phone</dt>
+                <dt class="col-sm-5 text-muted">{{ copy.phone }}</dt>
                 <dd class="col-sm-7">{{ statement.profile.phone || '—' }}</dd>
 
-                <dt class="col-sm-5 text-muted">Status</dt>
+                <dt class="col-sm-5 text-muted">{{ copy.status }}</dt>
                 <dd class="col-sm-7">
                   <span class="badge rounded-pill text-bg-success" v-if="statement.profile.status === 'active'">
-                    Active
+                    {{ copy.active }}
                   </span>
                   <span class="badge rounded-pill text-bg-secondary" v-else>
-                    {{ statement.profile.status }}
+                    {{ formatStatus(statement.profile.status) }}
                   </span>
                 </dd>
 
-                <dt class="col-sm-5 text-muted">Joined</dt>
+                <dt class="col-sm-5 text-muted">{{ copy.joined }}</dt>
                 <dd class="col-sm-7">{{ formatDate(statement.profile.joined_at) }}</dd>
               </dl>
             </div>
@@ -97,7 +97,7 @@
           <div class="row g-3">
             <div class="col-md-4">
               <div class="metric-card metric-neutral h-100">
-                <div class="metric-label">Expected</div>
+                <div class="metric-label">{{ copy.expected }}</div>
                 <div class="metric-value">{{ statement.summary.total_expected }}</div>
                 <div class="metric-foot">EUR</div>
               </div>
@@ -105,7 +105,7 @@
 
             <div class="col-md-4">
               <div class="metric-card metric-success h-100">
-                <div class="metric-label">Paid</div>
+                <div class="metric-label">{{ copy.paid }}</div>
                 <div class="metric-value">{{ statement.summary.total_paid }}</div>
                 <div class="metric-foot">EUR</div>
               </div>
@@ -113,10 +113,10 @@
 
             <div class="col-md-4">
               <div class="metric-card h-100" :class="balanceToneClass">
-                <div class="metric-label">Outstanding balance</div>
+                <div class="metric-label">{{ copy.outstandingBalance }}</div>
                 <div class="metric-value">{{ statement.summary.total_balance }}</div>
                 <div class="metric-foot">
-                  {{ statement.summary.contribution_count }} contribution record<span v-if="statement.summary.contribution_count !== 1">s</span>
+                  {{ statement.summary.contribution_count }} {{ copy.contributionRecord }}
                 </div>
               </div>
             </div>
@@ -127,33 +127,33 @@
               <div class="d-flex flex-column flex-md-row justify-content-between gap-3 mb-3">
                 <div>
                   <div class="text-uppercase small fw-semibold text-secondary mb-1">
-                    Contribution history
+                    {{ copy.contributionHistory }}
                   </div>
-                  <h2 class="h6 fw-bold mb-0">Your personal records only</h2>
+                  <h2 class="h6 fw-bold mb-0">{{ copy.personalRecordsOnly }}</h2>
                 </div>
                 <div class="small text-muted">
-                  This area never exposes another member's financial data.
+                  {{ copy.boundaryNote }}
                 </div>
               </div>
 
               <div v-if="statement.contributions.length === 0" class="empty-state rounded-4 p-4 text-center">
                 <i class="bi bi-journal-text fs-3 d-block mb-2 text-secondary"></i>
-                <div class="fw-semibold mb-1">No contribution records yet</div>
+                <div class="fw-semibold mb-1">{{ copy.noContributionsTitle }}</div>
                 <p class="text-muted small mb-0">
-                  Your organization has not published personal contribution records for your account yet.
+                  {{ copy.noContributionsText }}
                 </p>
               </div>
 
               <div v-else class="table-responsive">
-                <table class="table align-middle mb-0" aria-label="Personal contribution history">
+                <table class="table align-middle mb-0" :aria-label="copy.contributionHistory">
                   <thead>
                     <tr>
-                      <th scope="col">Year</th>
-                      <th scope="col">Expected</th>
-                      <th scope="col">Paid</th>
-                      <th scope="col">Balance</th>
-                      <th scope="col">Status</th>
-                      <th scope="col">Due date</th>
+                      <th scope="col">{{ copy.year }}</th>
+                      <th scope="col">{{ copy.expected }}</th>
+                      <th scope="col">{{ copy.paid }}</th>
+                      <th scope="col">{{ copy.balance }}</th>
+                      <th scope="col">{{ copy.status }}</th>
+                      <th scope="col">{{ copy.dueDate }}</th>
                     </tr>
                   </thead>
                   <tbody>
@@ -189,11 +189,104 @@ import {
   getMyStatement,
   type MemberStatementResponse,
 } from '@/api/membership.api'
+import { useLocaleStore } from '@/stores/locale.store'
 
+const localeStore = useLocaleStore()
 const loading = ref(true)
 const downloadingPdf = ref(false)
 const error = ref<string | null>(null)
 const statement = ref<MemberStatementResponse | null>(null)
+
+const copy = computed(() => {
+  if (localeStore.currentLocale === 'de') {
+    return {
+      kicker: 'Mitgliederportal',
+      title: 'Mein Profil und meine Beitragsübersicht',
+      lead: 'Pruefen Sie Ihre persönlichen Daten, den aktuellen Saldo und laden Sie Ihre PDF-Bescheinigung herunter.',
+      preparingPdf: 'PDF wird vorbereitet...',
+      downloadStatement: 'Meine Bescheinigung herunterladen',
+      loadingTitle: 'Mitgliederbereich wird geladen',
+      loadingBody: 'Wir laden Ihr persönliches Profil und Ihre Beitragsgeschichte.',
+      firstName: 'Vorname',
+      lastName: 'Nachname',
+      email: 'E-Mail',
+      phone: 'Telefon',
+      status: 'Status',
+      active: 'Aktiv',
+      joined: 'Beigetreten',
+      expected: 'Erwartet',
+      paid: 'Bezahlt',
+      outstandingBalance: 'Offener Saldo',
+      contributionRecord: 'Beitragsdatensatz',
+      contributionHistory: 'Beitragsverlauf',
+      personalRecordsOnly: 'Nur Ihre persönlichen Einträge',
+      boundaryNote: 'Dieser Bereich zeigt niemals die Finanzdaten anderer Mitglieder.',
+      noContributionsTitle: 'Noch keine Beitragsdaten',
+      noContributionsText: 'Ihre Organisation hat fuer Ihr Konto noch keine persönlichen Beitragsdaten veröffentlicht.',
+      year: 'Jahr',
+      balance: 'Saldo',
+      dueDate: 'Fälligkeit',
+    }
+  }
+  if (localeStore.currentLocale === 'en') {
+    return {
+      kicker: 'Member self-service',
+      title: 'My profile and contribution statement',
+      lead: 'Review your personal details, check your current balance, and download your own PDF statement.',
+      preparingPdf: 'Preparing PDF...',
+      downloadStatement: 'Download my statement',
+      loadingTitle: 'Loading your member workspace',
+      loadingBody: 'We are fetching your personal profile and contribution history.',
+      firstName: 'First name',
+      lastName: 'Last name',
+      email: 'Email',
+      phone: 'Phone',
+      status: 'Status',
+      active: 'Active',
+      joined: 'Joined',
+      expected: 'Expected',
+      paid: 'Paid',
+      outstandingBalance: 'Outstanding balance',
+      contributionRecord: 'contribution record',
+      contributionHistory: 'Contribution history',
+      personalRecordsOnly: 'Your personal records only',
+      boundaryNote: "This area never exposes another member's financial data.",
+      noContributionsTitle: 'No contribution records yet',
+      noContributionsText: 'Your organization has not published personal contribution records for your account yet.',
+      year: 'Year',
+      balance: 'Balance',
+      dueDate: 'Due date',
+    }
+  }
+  return {
+    kicker: 'Espace membre',
+    title: 'Mon profil et mon relevé de cotisations',
+    lead: 'Consultez vos informations personnelles, vérifiez votre solde actuel et téléchargez votre relevé PDF.',
+    preparingPdf: 'Préparation du PDF...',
+    downloadStatement: 'Télécharger mon relevé',
+    loadingTitle: 'Chargement de votre espace membre',
+    loadingBody: 'Nous récupérons votre profil personnel et votre historique de cotisations.',
+    firstName: 'Prénom',
+    lastName: 'Nom',
+    email: 'E-mail',
+    phone: 'Téléphone',
+    status: 'Statut',
+    active: 'Actif',
+    joined: 'Inscrit le',
+    expected: 'Attendu',
+    paid: 'Payé',
+    outstandingBalance: 'Solde restant',
+    contributionRecord: 'dossier de cotisation',
+    contributionHistory: 'Historique des cotisations',
+    personalRecordsOnly: 'Uniquement vos dossiers personnels',
+    boundaryNote: "Cet espace n'expose jamais les données financières d'un autre membre.",
+    noContributionsTitle: 'Aucune cotisation pour le moment',
+    noContributionsText: "Votre association n'a pas encore publié de cotisation personnelle pour votre compte.",
+    year: 'Année',
+    balance: 'Solde',
+    dueDate: 'Échéance',
+  }
+})
 
 const balanceToneClass = computed(() => {
   if (!statement.value) {
@@ -203,7 +296,7 @@ const balanceToneClass = computed(() => {
 })
 
 function formatDate(dateStr: string): string {
-  return new Date(dateStr).toLocaleDateString(undefined, {
+  return new Date(dateStr).toLocaleDateString(localeStore.currentLocale === 'fr' ? 'fr-FR' : localeStore.currentLocale === 'de' ? 'de-DE' : 'en-US', {
     year: 'numeric',
     month: 'short',
     day: 'numeric',
@@ -211,7 +304,16 @@ function formatDate(dateStr: string): string {
 }
 
 function formatStatus(status: string): string {
-  return status.replace('_', ' ').replace(/\b\w/g, (char) => char.toUpperCase())
+  const labels: Record<string, string> = {
+    active: copy.value.active,
+    inactive: localeStore.currentLocale === 'de' ? 'Inaktiv' : localeStore.currentLocale === 'en' ? 'Inactive' : 'Inactif',
+    pending: localeStore.currentLocale === 'de' ? 'Ausstehend' : localeStore.currentLocale === 'en' ? 'Pending' : 'En attente',
+    overdue: localeStore.currentLocale === 'de' ? 'Überfällig' : localeStore.currentLocale === 'en' ? 'Overdue' : 'En retard',
+    paid: localeStore.currentLocale === 'de' ? 'Bezahlt' : localeStore.currentLocale === 'en' ? 'Paid' : 'Payé',
+    partial: localeStore.currentLocale === 'de' ? 'Teilweise' : localeStore.currentLocale === 'en' ? 'Partial' : 'Partiel',
+    waived: localeStore.currentLocale === 'de' ? 'Erlassen' : localeStore.currentLocale === 'en' ? 'Waived' : 'Annulé',
+  }
+  return labels[status] || status
 }
 
 function statusBadgeClass(status: string): string {
@@ -233,7 +335,7 @@ async function loadStatement() {
     statement.value = await getMyStatement()
     error.value = null
   } catch (err: any) {
-    error.value = err?.response?.data?.detail || 'Could not load your personal statement'
+    error.value = err?.response?.data?.detail || (localeStore.currentLocale === 'en' ? 'Could not load your personal statement' : localeStore.currentLocale === 'de' ? 'Ihr persönliches Dokument konnte nicht geladen werden' : 'Impossible de charger votre relevé personnel')
   } finally {
     loading.value = false
   }
@@ -257,7 +359,7 @@ async function handleDownloadPdf() {
     document.body.removeChild(link)
     window.URL.revokeObjectURL(url)
   } catch (err: any) {
-    error.value = err?.response?.data?.detail || 'Could not download your PDF statement'
+    error.value = err?.response?.data?.detail || (localeStore.currentLocale === 'en' ? 'Could not download your PDF statement' : localeStore.currentLocale === 'de' ? 'Ihr PDF-Relevanz konnte nicht heruntergeladen werden' : 'Impossible de télécharger votre relevé PDF')
   } finally {
     downloadingPdf.value = false
   }

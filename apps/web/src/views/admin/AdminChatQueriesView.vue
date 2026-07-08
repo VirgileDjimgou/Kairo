@@ -7,7 +7,7 @@
         </div>
         <h1 class="h4 fw-bold mb-1">Chat traceability</h1>
         <p class="text-muted mb-0">
-          Review recent RAG questions, answers, refusal reasons, and citation payloads.
+          Review minimized RAG traces, refusal reasons, source types, and citation counts.
         </p>
       </div>
       <button
@@ -86,7 +86,7 @@
           Loading query log...
         </div>
 
-        <div v-else-if="filteredQueries.length === 0" class="empty-state">
+        <div v-else-if="queries.length === 0" class="empty-state">
           <i class="bi bi-journal-text display-6 text-secondary"></i>
           <p class="mb-1 fw-semibold">No matching queries</p>
           <p class="text-muted mb-0">
@@ -95,10 +95,10 @@
         </div>
 
         <div v-else class="vstack gap-3">
-          <article v-for="query in filteredQueries" :key="query.id" class="audit-card">
+          <article v-for="query in queries" :key="query.id" class="audit-card">
             <div class="d-flex justify-content-between gap-3 flex-wrap mb-2">
               <div>
-                <div class="fw-semibold">{{ query.question }}</div>
+                <div class="fw-semibold">{{ query.question_preview }}</div>
                 <div class="small text-muted">
                   {{ formatDate(query.created_at) }} · {{ shortUser(query.user_id) }}
                 </div>
@@ -119,23 +119,23 @@
               <div class="small text-uppercase text-muted fw-semibold mb-1">
                 Answer
               </div>
-              <div class="query-answer">{{ query.answer }}</div>
+              <div class="query-answer">{{ query.answer_preview }}</div>
             </div>
 
-            <div v-if="query.refusal_reason" class="mb-3">
+            <div v-if="query.refusal_reason_preview" class="mb-3">
               <div class="small text-uppercase text-muted fw-semibold mb-1">
                 Refusal reason
               </div>
-              <div class="text-muted">{{ query.refusal_reason }}</div>
+              <div class="text-muted">{{ query.refusal_reason_preview }}</div>
             </div>
 
-            <div v-if="parseSourceTypes(query.source_types_json).length" class="mb-3">
+            <div v-if="query.source_types.length" class="mb-3">
               <div class="small text-uppercase text-muted fw-semibold mb-1">
                 Source types
               </div>
               <div class="d-flex flex-wrap gap-2">
                 <span
-                  v-for="sourceType in parseSourceTypes(query.source_types_json)"
+                  v-for="sourceType in query.source_types"
                   :key="sourceType"
                   class="badge rounded-pill text-bg-light text-dark border"
                 >
@@ -144,12 +144,9 @@
               </div>
             </div>
 
-            <details>
-              <summary class="small text-uppercase text-muted fw-semibold">
-                Citations JSON
-              </summary>
-              <pre class="json-block mt-2 mb-0">{{ query.citations_json }}</pre>
-            </details>
+            <div class="small text-muted">
+              Citations referenced: {{ query.citation_count }}
+            </div>
           </article>
         </div>
       </div>
@@ -167,18 +164,6 @@ const searchText = ref("");
 const statusFilter = ref("all");
 const limit = ref(20);
 
-const filteredQueries = computed(() => {
-  return queries.value.filter((q) => {
-    if (statusFilter.value === "answered" && q.refused) return false;
-    if (statusFilter.value === "refused" && !q.refused) return false;
-    if (searchText.value) {
-      const text = searchText.value.toLowerCase();
-      if (!q.question.toLowerCase().includes(text)) return false;
-    }
-    return true;
-  });
-});
-
 const stats = computed(() => {
   const total = queries.value.length;
   const refused = queries.value.filter((q) => q.refused).length;
@@ -188,13 +173,20 @@ const stats = computed(() => {
 async function refreshQueries() {
   loading.value = true;
   try {
-    queries.value = await listChatQueries(limit.value);
+    queries.value = await listChatQueries({
+      limit: limit.value,
+      search: searchText.value || undefined,
+      refused:
+        statusFilter.value === "all"
+          ? undefined
+          : statusFilter.value === "refused",
+    });
   } finally {
     loading.value = false;
   }
 }
 
-watch(limit, () => {
+watch([limit, searchText, statusFilter], () => {
   refreshQueries();
 });
 
@@ -208,15 +200,6 @@ function shortUser(userId: string): string {
 
 function formatConfidence(value: number): string {
   return `${Math.round(value * 100)}%`;
-}
-
-function parseSourceTypes(raw: string): string[] {
-  try {
-    const parsed = JSON.parse(raw);
-    return Array.isArray(parsed) ? parsed.map((value) => String(value)) : [];
-  } catch {
-    return [];
-  }
 }
 
 function formatSourceType(sourceType: string): string {
@@ -243,11 +226,4 @@ onMounted(async () => {
   white-space: pre-wrap;
 }
 
-.json-block {
-  white-space: pre-wrap;
-  background: #f8fafc;
-  border-radius: 0.75rem;
-  padding: 0.75rem;
-  font-size: 0.8125rem;
-}
 </style>

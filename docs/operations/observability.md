@@ -30,6 +30,12 @@ This document explains the operational visibility available in Kairo after Sprin
   - ingestion retry counts from the audit trail
   - chat query and refused query totals
 
+## Privacy-Safe Review Surfaces
+
+- Admin chat traceability now shows minimized question and answer previews, refusal previews, source types, and citation counts.
+- Audit event review and CSV export redact sensitive member-facing detail fields before they are shown or exported.
+- Filtering happens server-side for audit events and chat traces, so operators can narrow review windows without fetching unnecessary data.
+
 ## Correlation IDs
 
 - Every response includes `X-Request-ID`.
@@ -57,6 +63,7 @@ When diagnosing an incident:
 2. Check `/metrics` for growth in failed requests, ingestion backlog, or retry spikes.
 3. Check `/api/v1/admin/ingestion-jobs/health` for document pipeline state.
 4. Use the request ID from any failing response to correlate logs.
+5. Review admin chat traceability and audit exports through the privacy-safe summaries, not raw private payloads.
 
 ## Alerting Guidance
 

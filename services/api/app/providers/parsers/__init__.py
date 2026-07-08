@@ -5,6 +5,7 @@ from pathlib import Path
 from app.providers.parsers.image_ocr import parse_image_bytes
 from app.providers.parsers.pdf_docx import parse_docx_bytes, parse_pdf_bytes
 from app.providers.parsers.whatsapp import parse_whatsapp_export
+from app.providers.parsers.xlsx_xml import parse_xlsx_bytes
 
 TEXT_EXTENSIONS = {"txt", "md", "csv"}
 WHATSAPP_EXTENSIONS = {"whatsapp.txt"}
@@ -20,6 +21,8 @@ def parse_document_bytes(file_bytes: bytes, file_name: str) -> str:
         return parse_pdf_bytes(file_bytes)
     if extension == "docx":
         return parse_docx_bytes(file_bytes)
+    if extension == "xlsx":
+        return parse_xlsx_bytes(file_bytes)
     if extension in WHATSAPP_EXTENSIONS or _looks_like_whatsapp_export(file_name, file_bytes):
         return parse_whatsapp_export(file_bytes)
     if extension in IMAGE_EXTENSIONS:

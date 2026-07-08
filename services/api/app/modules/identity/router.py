@@ -14,6 +14,7 @@ from app.modules.identity.schemas import (
     InvitationStatusResponse,
     InviteRequest,
     InviteResponse,
+    LanguagePreferenceResponse,
     LoginRequest,
     ManagedTenantUserActionResponse,
     ManagedTenantUserRolesUpdateRequest,
@@ -35,6 +36,7 @@ from app.modules.identity.schemas import (
     SwitchTenantRequest,
     SwitchTenantResponse,
     TokenResponse,
+    UpdateLanguagePreferenceRequest,
     UserResponse,
     UserWithMembershipsResponse,
 )
@@ -107,11 +109,25 @@ async def get_me(current: AuthDep, db: DbDep) -> UserWithMembershipsResponse:
         id=current.user.id,
         email=current.user.email,
         display_name=current.user.display_name,
+        preferred_language=current.user.preferred_language,
         status=current.user.status,
         tenant_id=current.tenant_id,
         roles=current.roles,
         last_login_at=current.user.last_login_at,
         memberships=memberships,
+    )
+
+
+@router.patch("/me/preferences/language", response_model=LanguagePreferenceResponse)
+async def update_language_preference(
+    request: UpdateLanguagePreferenceRequest,
+    current: AuthDep,
+    db: DbDep,
+) -> LanguagePreferenceResponse:
+    service = AuthService(db)
+    return await service.update_language_preference(
+        user_id=current.user.id,
+        request=request,
     )
 
 

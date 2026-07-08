@@ -1,9 +1,10 @@
 from __future__ import annotations
 
+import json
 from typing import Annotated
 
 from fastapi import APIRouter, Query
-from sqlalchemy import func, select
+from sqlalchemy import func, or_, select
 
 from app.core.authorization import require_capability
 from app.core.capabilities import (
@@ -31,6 +32,8 @@ async def list_chat_queries(
     current: AuthDep,
     db: DbDep,
     limit: Annotated[int, Query(ge=1, le=100)] = 20,
+    search: Annotated[str | None, Query(max_length=200)] = None,
+    refused: Annotated[bool | None, Query()] = None,
     _chat_guard: None = require_module("chat"),
 ) -> list[ChatQueryLogResponse]:
     require_capability(
@@ -39,24 +42,35 @@ async def list_chat_queries(
         detail="Audit read capability required",
     )
 
+    query = select(ChatQueryLog).where(ChatQueryLog.tenant_id == current.tenant_id)
+    if refused is not None:
+        query = query.where(ChatQueryLog.refused == refused)
+    if search:
+        pattern = f"%{search.lower()}%"
+        query = query.where(
+            or_(
+                func.lower(ChatQueryLog.question).like(pattern),
+                func.lower(ChatQueryLog.answer).like(pattern),
+                func.lower(func.coalesce(ChatQueryLog.refusal_reason, "")).like(pattern),
+                func.lower(func.coalesce(ChatQueryLog.citations_json, "")).like(pattern),
+                func.lower(func.coalesce(ChatQueryLog.source_types_json, "")).like(pattern),
+            )
+        )
     result = await db.execute(
-        select(ChatQueryLog)
-        .where(ChatQueryLog.tenant_id == current.tenant_id)
-        .order_by(ChatQueryLog.created_at.desc())
-        .limit(limit)
+        query.order_by(ChatQueryLog.created_at.desc(), ChatQueryLog.id.desc()).limit(limit)
     )
     return [
         ChatQueryLogResponse(
             id=log.id,
             tenant_id=log.tenant_id,
             user_id=log.user_id,
-            question=log.question,
-            answer=log.answer,
+            question_preview=log.question,
+            answer_preview=log.answer,
             refused=log.refused,
-            refusal_reason=log.refusal_reason,
+            refusal_reason_preview=log.refusal_reason,
             confidence=log.confidence,
-            citations_json=log.citations_json,
-            source_types_json=log.source_types_json,
+            citation_count=len(json.loads(log.citations_json)) if log.citations_json else 0,
+            source_types=json.loads(log.source_types_json) if log.source_types_json else [],
             created_at=log.created_at,
         )
         for log in result.scalars().all()

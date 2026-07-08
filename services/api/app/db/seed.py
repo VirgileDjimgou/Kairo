@@ -5,7 +5,7 @@ Run once after migrations:
     docker compose exec api python -m app.db.seed
 
 Creates:
-  - Tenant:    slug="demo", name="Acme Community Organization"
+  - Tenant:    slug="demo", name="Combis Sport Verein"
   - Users:     admin@demo.org, alice@demo.org, bob@demo.org, treasurer@demo.org,
                secretary@demo.org, auditor@demo.org, censor@demo.org,
                sports@demo.org, president@demo.org, vice-president@demo.org,
@@ -13,7 +13,7 @@ Creates:
   - Roles:     admin (system), member, treasurer, secretary_general, auditor,
                censor, sports_manager, president, vice_president, principal_admin
   - Permissions for each role
-  - Membership profiles for Alice, Bob, and the office role demo accounts
+  - Membership profiles for the core demo accounts plus a larger fictional member roster
   - Sample documents with versions and chunks (bylaws, meeting minutes)
   - Sample policies (fee policy, attendance policy, code of conduct)
   - Sample contributions and payments
@@ -148,15 +148,20 @@ async def _get_or_create_tenant(db):
         tenant = Tenant(
             id=uuid.uuid4(),
             slug=DEMO_TENANT_SLUG,
-            name="Acme Community Organization",
+            name="Combis Sport Verein",
             type="association",
-            default_language="en",
+            default_language="fr",
             branding_json='{"primary_color": "#1f4f8f", "logo_url": ""}',
-            settings_json='{"locale": "en", "timezone": "UTC", "modules": {"membership": true, "contributions": true, "policies": true, "disciplinary": true, "events": true, "announcements": true, "chat": true, "notifications": true}}',
+            settings_json='{"locale": "fr", "timezone": "Europe/Berlin", "modules": {"membership": true, "contributions": true, "policies": true, "disciplinary": true, "events": true, "announcements": true, "chat": true, "notifications": true}}',
         )
         db.add(tenant)
         await db.flush()
         logger.info("Created tenant", slug=DEMO_TENANT_SLUG)
+    else:
+        tenant.name = "Combis Sport Verein"
+        tenant.default_language = "fr"
+        tenant.branding_json = '{"primary_color": "#1f4f8f", "logo_url": ""}'
+        tenant.settings_json = '{"locale": "fr", "timezone": "Europe/Berlin", "modules": {"membership": true, "contributions": true, "policies": true, "disciplinary": true, "events": true, "announcements": true, "chat": true, "notifications": true}}'
     return tenant
 
 
@@ -197,7 +202,7 @@ async def _get_or_create_role(db, tenant_id, code, name, description, is_system_
     return role
 
 
-async def _get_or_create_user(db, email, password, display_name):
+async def _get_or_create_user(db, email, password, display_name, preferred_language="fr"):
     from sqlalchemy import select
 
     existing = await db.execute(select(User).where(User.email == email))
@@ -208,12 +213,20 @@ async def _get_or_create_user(db, email, password, display_name):
             email=email,
             password_hash=hash_password(password),
             display_name=display_name,
+            preferred_language=preferred_language,
             status="active",
         )
         db.add(user)
         await db.flush()
         logger.info("Created user", email=email)
+    else:
+        user.display_name = display_name
+        user.preferred_language = preferred_language
     return user
+
+
+def _email_local(first_name: str, last_name: str) -> str:
+    return f"{first_name.lower()}.{last_name.lower()}".replace(" ", "-")
 
 
 async def _get_or_create_tenant_user(db, tenant_id, user_id, profile_type, membership_status="active"):
@@ -315,33 +328,56 @@ async def seed_database() -> None:
                 )
 
             # ── Users ──────────────────────────────────────────────────────
-            admin_user = await _get_or_create_user(db, ADMIN_EMAIL, ADMIN_PASSWORD, "Admin User")
-            member_1 = await _get_or_create_user(db, MEMBER_1_EMAIL, MEMBER_PASSWORD, "Alice Johnson")
-            member_2 = await _get_or_create_user(db, MEMBER_2_EMAIL, MEMBER_PASSWORD, "Bob Smith")
+            admin_user = await _get_or_create_user(db, ADMIN_EMAIL, ADMIN_PASSWORD, "Claude Mvondo")
+            member_1 = await _get_or_create_user(db, MEMBER_1_EMAIL, MEMBER_PASSWORD, "Aline Ndzi")
+            member_2 = await _get_or_create_user(db, MEMBER_2_EMAIL, MEMBER_PASSWORD, "Boris Schneider")
             treasurer_user = await _get_or_create_user(
-                db, TREASURER_EMAIL, TREASURER_PASSWORD, "Carol Williams"
+                db, TREASURER_EMAIL, TREASURER_PASSWORD, "Heike Schneider"
             )
             secretary_user = await _get_or_create_user(
-                db, SECRETARY_EMAIL, SECRETARY_PASSWORD, "Dana Secretary"
+                db, SECRETARY_EMAIL, SECRETARY_PASSWORD, "Mireille Tchoumi"
             )
             auditor_user = await _get_or_create_user(
-                db, AUDITOR_EMAIL, AUDITOR_PASSWORD, "Evan Auditor"
+                db, AUDITOR_EMAIL, AUDITOR_PASSWORD, "Markus Weber"
             )
             censor_user = await _get_or_create_user(
-                db, CENSOR_EMAIL, CENSOR_PASSWORD, "Fiona Censor"
+                db, CENSOR_EMAIL, CENSOR_PASSWORD, "Arlette Ndzi"
             )
             sports_user = await _get_or_create_user(
-                db, SPORTS_EMAIL, SPORTS_PASSWORD, "Gabe Sports"
+                db, SPORTS_EMAIL, SPORTS_PASSWORD, "Pascal Nsame"
             )
             president_user = await _get_or_create_user(
-                db, PRESIDENT_EMAIL, PRESIDENT_PASSWORD, "Hana President"
+                db, PRESIDENT_EMAIL, PRESIDENT_PASSWORD, "Jean-Paul Fouda"
             )
             vice_president_user = await _get_or_create_user(
-                db, VICE_PRESIDENT_EMAIL, VICE_PRESIDENT_PASSWORD, "Iris Vice President"
+                db, VICE_PRESIDENT_EMAIL, VICE_PRESIDENT_PASSWORD, "Sabine Keller"
             )
             principal_admin_user = await _get_or_create_user(
-                db, PRINCIPAL_ADMIN_EMAIL, PRINCIPAL_ADMIN_PASSWORD, "Jordan Principal"
+                db, PRINCIPAL_ADMIN_EMAIL, PRINCIPAL_ADMIN_PASSWORD, "Thomas Becker"
             )
+
+            extra_member_name_defs = [
+                ("Cedric", "Nkoum"), ("Brigitte", "Essomba"), ("Patrick", "Mbarga"), ("Estelle", "Nana"),
+                ("Roger", "Tchana"), ("Solange", "Mbianda"), ("Armand", "Fouelefack"), ("Nadine", "Kemta"),
+                ("Blaise", "Moukoko"), ("Micheline", "Ngassam"), ("Wilfried", "Ngono"), ("Carine", "Tchounga"),
+                ("Jonas", "Mebenga"), ("Diane", "Minko"), ("Kevin", "Abega"), ("Prisca", "Moundi"),
+                ("Lukas", "Schneider"), ("Anna", "Mueller"), ("Jonas", "Weber"), ("Leonie", "Fischer"),
+                ("Felix", "Wagner"), ("Sophie", "Becker"), ("Tim", "Hoffmann"), ("Clara", "Schulz"),
+                ("Paul", "Richter"), ("Mia", "Klein"), ("Jan", "Hartmann"), ("Laura", "Zimmermann"),
+                ("Noah", "Krause"), ("Emma", "Krueger"), ("David", "Wolf"), ("Hannah", "Neumann"),
+                ("Simon", "Braun"), ("Lisa", "Werner"), ("Nico", "Schmid"), ("Julia", "Schubert"),
+            ]
+            extra_member_users: list[tuple[User, str, str, str]] = []
+            for first_name, last_name in extra_member_name_defs:
+                email = f"{_email_local(first_name, last_name)}@combis-demo.org"
+                display_name = f"{first_name} {last_name}"
+                user = await _get_or_create_user(
+                    db,
+                    email,
+                    MEMBER_PASSWORD,
+                    display_name,
+                )
+                extra_member_users.append((user, email, first_name, last_name))
 
             # ── TenantUser ─────────────────────────────────────────────────
             admin_tu = await _get_or_create_tenant_user(db, tenant.id, admin_user.id, "admin")
@@ -367,6 +403,11 @@ async def seed_database() -> None:
             principal_admin_tu = await _get_or_create_tenant_user(
                 db, tenant.id, principal_admin_user.id, "admin"
             )
+            extra_member_tus = []
+            for user, _, _, _ in extra_member_users:
+                extra_member_tus.append(
+                    await _get_or_create_tenant_user(db, tenant.id, user.id, "member")
+                )
 
             # ── UserRole assignments ───────────────────────────────────────
             await _assign_role_if_not_exists(db, admin_tu.id, admin_role.id)
@@ -386,24 +427,26 @@ async def seed_database() -> None:
             await _assign_role_if_not_exists(
                 db, principal_admin_tu.id, principal_admin_role.id
             )
+            for tenant_user in extra_member_tus:
+                await _assign_role_if_not_exists(db, tenant_user.id, member_role.id)
 
             # ── Membership Profiles ────────────────────────────────────────
             member_defs = [
-                (member_1, MEMBER_1_EMAIL, "MEM-001", "Alice", "Johnson", "+1-555-0101",
+                (member_1, MEMBER_1_EMAIL, "MEM-001", "Aline", "Ndzi", "+49-151-0101",
                  '{"department": "events"}'),
-                (member_2, MEMBER_2_EMAIL, "MEM-002", "Bob", "Smith", "+1-555-0102", "{}"),
-                (treasurer_user, TREASURER_EMAIL, "TRE-001", "Carol", "Williams", None, "{}"),
-                (secretary_user, SECRETARY_EMAIL, "SEC-001", "Dana", "Secretary", None, "{}"),
-                (auditor_user, AUDITOR_EMAIL, "AUD-001", "Evan", "Auditor", None, "{}"),
-                (censor_user, CENSOR_EMAIL, "CEN-001", "Fiona", "Censor", None, "{}"),
-                (sports_user, SPORTS_EMAIL, "SPT-001", "Gabe", "Sports", None, "{}"),
-                (president_user, PRESIDENT_EMAIL, "PRE-001", "Hana", "President", None, "{}"),
+                (member_2, MEMBER_2_EMAIL, "MEM-002", "Boris", "Schneider", "+49-151-0102", "{}"),
+                (treasurer_user, TREASURER_EMAIL, "TRE-001", "Heike", "Schneider", None, "{}"),
+                (secretary_user, SECRETARY_EMAIL, "SEC-001", "Mireille", "Tchoumi", None, "{}"),
+                (auditor_user, AUDITOR_EMAIL, "AUD-001", "Markus", "Weber", None, "{}"),
+                (censor_user, CENSOR_EMAIL, "CEN-001", "Arlette", "Ndzi", None, "{}"),
+                (sports_user, SPORTS_EMAIL, "SPT-001", "Pascal", "Nsame", None, "{}"),
+                (president_user, PRESIDENT_EMAIL, "PRE-001", "Jean-Paul", "Fouda", None, "{}"),
                 (
                     vice_president_user,
                     VICE_PRESIDENT_EMAIL,
                     "VPR-001",
-                    "Iris",
-                    "Vice President",
+                    "Sabine",
+                    "Keller",
                     None,
                     "{}",
                 ),
@@ -411,12 +454,24 @@ async def seed_database() -> None:
                     principal_admin_user,
                     PRINCIPAL_ADMIN_EMAIL,
                     "PAD-001",
-                    "Jordan",
-                    "Principal Admin",
+                    "Thomas",
+                    "Becker",
                     None,
                     "{}",
                 ),
             ]
+            for index, (user_obj, email, first_name, last_name) in enumerate(extra_member_users, start=3):
+                member_defs.append(
+                    (
+                        user_obj,
+                        email,
+                        f"MEM-{index:03d}",
+                        first_name,
+                        last_name,
+                        None,
+                        "{}",
+                    )
+                )
             for user_obj, email, code, first, last, phone, meta in member_defs:
                 existing = await db.execute(
                     select(MembershipProfile).where(
@@ -452,41 +507,109 @@ async def seed_database() -> None:
             # ── Documents with Versions and Chunks ─────────────────────────
             doc_defs = [
                 (
-                    "Community Association Bylaws",
-                    "Official bylaws governing the community association",
+                    "Statuts Combis Sport Verein (FR)",
+                    "Version française des statuts et règles de gouvernance de l'association",
                     "members_only",
+                    "fr",
                     [
-                        "The association shall have a Board of Directors consisting of 7 "
-                        "members elected by the general assembly for a term of 2 years.",
-                        "Annual membership fees shall be determined by the Board of Directors "
-                        "and ratified by the general assembly at the annual general meeting.",
-                        "All members in good standing are eligible to vote at the general "
-                        "assembly. A member is in good standing if all fees are paid and no "
-                        "disciplinary sanctions are pending.",
-                        "The Board of Directors shall meet at least once per quarter. Special "
-                        "meetings may be called by the President or by a majority of the Board.",
-                        "Amendments to these bylaws require a two-thirds majority vote of the "
-                        "members present at the annual general meeting, provided that notice of "
-                        "the proposed amendment was given at least 30 days in advance.",
+                        "Combis Sport Verein est une association sportive et communautaire. "
+                        "Le bureau comprend le président, le vice-président, le secrétaire général, "
+                        "le trésorier, le censeur et le commissaire aux comptes.",
+                        "Les cotisations annuelles sont validées en assemblée générale. Un membre "
+                        "est considéré à jour lorsqu'il a réglé sa cotisation annuelle et ne fait "
+                        "pas l'objet d'une suspension disciplinaire active.",
+                        "Les assemblées générales ordinaires ont lieu au moins une fois par an. "
+                        "Les convocations doivent être communiquées au moins trente jours à l'avance.",
+                        "Les documents officiels de fonctionnement, les annonces générales et les "
+                        "règles sportives peuvent être consultés par l'ensemble des membres.",
                     ],
                 ),
                 (
-                    "Meeting Minutes - Q1 2026",
-                    "Minutes from the first quarter board meeting",
+                    "Combis Sport Verein Bylaws (EN)",
+                    "English reference version of the association bylaws",
                     "members_only",
+                    "en",
                     [
-                        "The Q1 2026 board meeting was held on January 15, 2026. Present: "
-                        "President Alice Johnson, Treasurer Carol Williams, Secretary Bob Smith.",
-                        "The treasurer reported that the association has a current balance of "
-                        "$12,450. Annual membership fee collection is at 72% of target.",
-                        "The board approved a budget of $3,500 for the annual summer barbecue "
-                        "event, scheduled for July 2026.",
-                        "A motion to update the parking policy was tabled until the Q2 meeting "
-                        "pending further community input.",
+                        "Combis Sport Verein operates as a sports and mutual-support association. "
+                        "Its office roles include president, vice president, secretary general, "
+                        "treasurer, censor, and auditor.",
+                        "Annual contributions are approved by the general assembly. A member in "
+                        "good standing has paid the current annual fee and is not under an active sanction.",
+                        "Official governance notices must be communicated in advance and remain "
+                        "available to members through the organization workspace.",
+                        "The principal administrator manages platform configuration but does not "
+                        "override tenant isolation or backend authorization rules.",
+                    ],
+                ),
+                (
+                    "Satzung Combis Sport Verein (DE)",
+                    "Deutsche Referenzfassung der Satzung und Vereinsordnung",
+                    "members_only",
+                    "de",
+                    [
+                        "Combis Sport Verein ist ein Sport- und Gemeinschaftsverein. "
+                        "Zum Vorstand gehoeren Praesident, Vizepraesident, Generalsekretaer, "
+                        "Schatzmeister, Zensor und Kassenpruefer.",
+                        "Jahresbeitraege werden in der Mitgliederversammlung bestaetigt. "
+                        "Ein Mitglied gilt als ordnungsgemaess, wenn der Beitrag bezahlt ist "
+                        "und keine aktive disziplinarische Sperre besteht.",
+                        "Offizielle Vereinsdokumente, allgemeine Mitteilungen und Sportordnungen "
+                        "stehen allen Mitgliedern im dafuer vorgesehenen Bereich zur Verfuegung.",
+                    ],
+                ),
+                (
+                    "Guide des cotisations et obligations membres (FR)",
+                    "Guide pratique pour les membres sur les cotisations et les droits d'accès",
+                    "members_only",
+                    "fr",
+                    [
+                        "La cotisation annuelle 2026 est fixée à 150 EUR pour les membres ordinaires. "
+                        "Elle peut être réglée par virement bancaire ou en deux versements validés par le trésorier.",
+                        "Un membre ordinaire dispose d'un accès en lecture à son profil, à ses cotisations, "
+                        "aux annonces, aux documents publics de l'association et aux événements visibles.",
+                        "Le chatbot peut rappeler au membre ses propres informations autorisées, mais ne peut "
+                        "jamais divulguer les cotisations, sanctions ou données privées d'un autre adhérent.",
+                    ],
+                ),
+                (
+                    "Office Operations Handbook (EN)",
+                    "Role summary for the office and committee members",
+                    "tenant_public",
+                    "en",
+                    [
+                        "The secretary general maintains statutes, protocols, and official announcements. "
+                        "The treasurer manages contribution records and payment reconciliation.",
+                        "The auditor has read-only finance oversight. The censor manages disciplinary cases "
+                        "within explicit privacy limits. The sports manager maintains sports events and schedules.",
+                        "Every privileged action remains enforced by the backend and recorded in the audit trail.",
+                    ],
+                ),
+                (
+                    "Leitfaden Sportbetrieb und Veranstaltungen (DE)",
+                    "Sportkalender, Trainingsprinzipien und Veranstaltungsorganisation",
+                    "tenant_public",
+                    "de",
+                    [
+                        "Der Sportverantwortliche pflegt Trainings, Turniere und Spieltage im System. "
+                        "Allgemeine Veranstaltungshinweise koennen fuer alle Mitglieder sichtbar veroeffentlicht werden.",
+                        "Sportbezogene Regeln, Teilnahmebedingungen und Ansprechpersonen muessen klar "
+                        "kommuniziert und fuer Mitglieder leicht auffindbar sein.",
+                    ],
+                ),
+                (
+                    "Proces-verbal Bureau T1 2026 (FR)",
+                    "Synthèse interne du bureau pour le premier trimestre 2026",
+                    "role_restricted",
+                    "fr",
+                    [
+                        "Le bureau réuni en janvier 2026 a validé le calendrier sportif du premier semestre "
+                        "et la publication d'un rappel général de cotisation aux membres en retard.",
+                        "Le trésorier a présenté un taux de recouvrement de 72 pour cent sur les cotisations attendues. "
+                        "Le secrétaire général a confirmé la mise à jour des documents de gouvernance.",
                     ],
                 ),
             ]
-            for title, desc, access_scope, chunks_text in doc_defs:
+            for title, desc, access_scope, language, chunks_text in doc_defs:
                 existing = await db.execute(
                     select(Document).where(
                         Document.tenant_id == tenant.id,
@@ -502,7 +625,7 @@ async def seed_database() -> None:
                     title=title,
                     description=desc,
                     source_type="upload",
-                    language="en",
+                    language=language,
                     access_scope=access_scope,
                     status="ready",
                     created_by=admin_user.id,
@@ -536,7 +659,7 @@ async def seed_database() -> None:
                         document_version_id=version.id,
                         chunk_index=i,
                         text=text,
-                        language="en",
+                        language=language,
                         token_count=len(text.split()),
                     )
                     db.add(chunk)
@@ -548,32 +671,32 @@ async def seed_database() -> None:
                 select(Document).where(Document.tenant_id == tenant.id)
             )
             docs_by_title = {d.title: d for d in doc_result.scalars().all()}
-            bylaws_doc = docs_by_title.get("Community Association Bylaws")
+            bylaws_doc = docs_by_title.get("Statuts Combis Sport Verein (FR)")
 
             # ── Policies ───────────────────────────────────────────────────
             policy_defs = [
                 (
-                    "Annual Membership Fee Policy",
+                    "Politique de cotisation annuelle",
                     "financial",
-                    "Annual membership fees are due by January 31 each year. Late payments "
-                    "incur a $25 penalty. Members with unpaid fees beyond 90 days may have "
-                    "their voting rights suspended.",
+                    "La cotisation annuelle est exigible au plus tard le 31 janvier. Les retards "
+                    "importants peuvent déclencher un rappel formel et une restriction temporaire "
+                    "des droits de vote jusqu'à régularisation.",
                     bylaws_doc.id if bylaws_doc else None,
                 ),
                 (
-                    "Meeting Attendance Policy",
+                    "Politique de participation aux assemblées",
                     "governance",
-                    "Members are expected to attend at least 50% of general assemblies per "
-                    "year. Unexcused absences may result in a written warning after three "
-                    "consecutive missed meetings.",
+                    "Les membres sont encouragés à participer régulièrement aux assemblées et aux "
+                    "réunions importantes. Des absences répétées non justifiées peuvent entraîner "
+                    "un avertissement écrit.",
                     None,
                 ),
                 (
-                    "Code of Conduct",
+                    "Code de conduite associatif",
                     "conduct",
-                    "All members shall treat fellow members with respect. Harassment, "
-                    "discrimination, or disruptive behavior at association events may result "
-                    "in disciplinary action including suspension or expulsion.",
+                    "Tout membre doit respecter les autres adhérents, les responsables et les invités "
+                    "de l'association. Les comportements injurieux, discriminatoires ou violents peuvent "
+                    "entraîner des sanctions allant de l'avertissement à l'exclusion.",
                     None,
                 ),
             ]
@@ -611,7 +734,7 @@ async def seed_database() -> None:
                     ContributionRecord.year == 2026,
                 )
             )
-            if existing_contrib.scalar_one_or_none() is None:
+            if existing_contrib.scalars().first() is None:
                 if alice_profile:
                     contrib1 = ContributionRecord(
                         id=uuid.uuid4(),
@@ -663,15 +786,15 @@ async def seed_database() -> None:
             existing_disc = await db.execute(
                 select(DisciplinaryRecord).where(
                     DisciplinaryRecord.tenant_id == tenant.id,
-                    DisciplinaryRecord.title == "Late fee - missed AGM",
+                    DisciplinaryRecord.title == "Avertissement - absence à l'assemblée générale",
                 )
             )
-            if existing_disc.scalar_one_or_none() is None and bob_profile is not None:
+            if existing_disc.scalars().first() is None and bob_profile is not None:
                 # Find attendance policy for linking
                 pol_result = await db.execute(
                     select(PolicyRecord).where(
                         PolicyRecord.tenant_id == tenant.id,
-                        PolicyRecord.title == "Meeting Attendance Policy",
+                        PolicyRecord.title == "Politique de participation aux assemblées",
                     )
                 )
                 attendance_policy = pol_result.scalar_one_or_none()
@@ -681,10 +804,10 @@ async def seed_database() -> None:
                     tenant_id=tenant.id,
                     membership_profile_id=bob_profile.id,
                     policy_record_id=attendance_policy.id if attendance_policy else None,
-                    title="Late fee - missed AGM",
-                    description="Bob Smith missed the Annual General Meeting on March 1, "
-                    "2026 without prior notice. A $25 late fee has been applied "
-                    "per the attendance policy.",
+                    title="Avertissement - absence à l'assemblée générale",
+                    description="Boris Schneider a manqué l'assemblée générale du 1 mars 2026 "
+                    "sans information préalable. Un avertissement écrit a été enregistré "
+                    "conformément à la politique de participation.",
                     amount=25.00,
                     currency="EUR",
                     status="open",

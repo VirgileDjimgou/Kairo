@@ -15,6 +15,7 @@ from app.providers.embeddings.base import EmbeddingProvider
 from app.providers.vector_store.base import VectorStoreProvider
 from app.providers.object_storage.base import ObjectStorageProvider
 from app.providers.notifications.base import NotificationProvider
+from app.providers.reranker.interface import RerankerProvider
 
 _bearer_scheme = HTTPBearer(auto_error=True)
 
@@ -180,3 +181,13 @@ def get_notification_providers() -> list[NotificationProvider]:
 
 
 NotificationsDep = Annotated[list[NotificationProvider], Depends(get_notification_providers)]
+
+
+@lru_cache(maxsize=1)
+def get_reranker_provider() -> RerankerProvider:
+    from app.providers.reranker.sentence_transformers import SentenceTransformersReranker
+
+    return SentenceTransformersReranker()
+
+
+RerankerDep = Annotated[RerankerProvider, Depends(get_reranker_provider)]

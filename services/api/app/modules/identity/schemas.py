@@ -41,6 +41,7 @@ class TenantMembershipResponse(BaseModel):
     tenant_id: UUID
     slug: str
     name: str
+    default_language: str
     roles: list[str]
     branding: BrandingConfig
     modules: ModuleToggles
@@ -51,6 +52,7 @@ class UserResponse(BaseModel):
     id: UUID
     email: str
     display_name: str
+    preferred_language: str | None = None
     status: str
     tenant_id: UUID
     roles: list[str]
@@ -61,6 +63,14 @@ class UserResponse(BaseModel):
 
 class UserWithMembershipsResponse(UserResponse):
     memberships: list[TenantMembershipResponse]
+
+
+class UpdateLanguagePreferenceRequest(BaseModel):
+    preferred_language: str = Field(min_length=2, max_length=10)
+
+
+class LanguagePreferenceResponse(BaseModel):
+    preferred_language: str
 
 
 class ActiveSessionResponse(BaseModel):

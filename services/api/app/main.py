@@ -11,6 +11,8 @@ from app._version import __version__
 from app.core.config import settings
 from app.core.dependencies import DbDep
 from app.core.metrics import build_runtime_metrics
+from app.db.session import async_session_factory
+from app.modules.rag.reindex import check_embedding_model_changed, persist_embedding_model
 from app.core.observability import (
     ObservabilityMiddleware,
     http_exception_handler,
@@ -42,6 +44,19 @@ logger = structlog.get_logger(__name__)
 @asynccontextmanager
 async def lifespan(app: FastAPI):  # type: ignore[type-arg]
     logger.info("Starting Kairo API", env=settings.app_env, version=__version__)
+
+    if settings.indexing_auto_enabled:
+        changed = check_embedding_model_changed()
+        if changed:
+            logger.warning("embedding_model_changed_triggering_reindex")
+            from app.modules.documents.repository import DocumentRepository
+
+            async with async_session_factory() as session:
+                repo = DocumentRepository(session)
+                await repo.flag_all_documents_for_reindex()
+            logger.info("reindex_triggered_all_documents")
+        persist_embedding_model()
+
     yield
     logger.info("Kairo API shutdown complete")
 

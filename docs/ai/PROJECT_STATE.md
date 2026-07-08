@@ -1,10 +1,10 @@
 # Project State
 
-Last verified against repository code on 2026-07-06.
+Last verified against repository code on 2026-07-07.
 
 ## Product Snapshot
 
-Kairo, also positioned as OrgMind AI, is a local-first multi-tenant RAG platform for organizations.
+Kairo, demonstrated here as Combis Sport Verein, is a local-first multi-tenant RAG platform for organizations.
 
 The repository now enters a new productization track aimed at a mature association product with:
 
@@ -26,7 +26,7 @@ The repository now enters a new productization track aimed at a mature associati
 
 ## Main Gaps To Close
 
-- The historical sprint track is complete through Sprint 61, and the next planned productization track now starts at Sprint 62
+- The historical sprint track is complete through Sprint 61, and Sprint 62 is now actively in progress
 
 ## Current Execution Plan
 
@@ -39,7 +39,7 @@ The repository now enters a new productization track aimed at a mature associati
 ## Current State
 
 - **Open-source release base**: strong and demonstrable
-- **Roadmap status**: historical professional association maturity track completed; the new productization track now continues with Sprint 62 after the 2026-07-02 audit
+- **Roadmap status**: historical professional association maturity track completed; Sprint 62 is now in progress after the 2026-07-02 audit
 - **Governance foundation**: canonical role catalog and backend capability matrix are now present
 - **Authorization state**: the major backend modules now enforce explicit capabilities instead of broad inline role checks
 - **Member self-service**: personal contribution history and member-only PDF statements are now in place
@@ -51,6 +51,8 @@ The repository now enters a new productization track aimed at a mature associati
 - **Member shell**: the ordinary member experience now keeps the sidebar compact and focused on personal essentials
 - **Multi-tenant operations**: reproducible second-tenant provisioning, second-tenant captures, tenant-switch browser coverage, and the tenant operations command center now exist for live demo stacks
 - **Validation status**: targeted backend reminder authorization tests, frontend build validation, finance browser regression coverage, Python seed helper import validation, tenant-switch browser coverage, backend recovery evidence tests, admin overview browser coverage, tenant operations browser coverage, release-candidate browser coverage, dashboard role-focus coverage, admin health center coverage, and onboarding wizard coverage passed on 2026-07-06
+- **Localization and privacy stabilization**: the authenticated session now preserves the language chosen at login, member finance questions are recognized in French and German, cross-member finance requests are refused before the LLM, and fresh visual captures live under `apps/web/artifacts/manual-role-checks/2026-07-07/`
+- **Privacy hardening status**: chat query traces now use minimized previews in the admin review surface, audit exports redact sensitive detail fields, and browser coverage verifies the minimized chat trace UI
 - **Commercial posture**: strong professional release candidate, with a new productization track planned to move toward a more turnkey association deployment
 - **Communications posture**: production-grade invite and password-reset delivery now uses tenant-aware provider context with explicit fallback handling
 - **License**: MIT

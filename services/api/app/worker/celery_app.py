@@ -8,7 +8,15 @@ celery_app = Celery(
     backend=settings.redis_url,
     include=[
         "app.worker.tasks.ingestion",
+        "app.worker.tasks.chat_cleanup",
     ],
+    beat_schedule={
+        "cleanup-old-conversations": {
+            "task": "chat.cleanup_old_conversations",
+            "schedule": 86400.0,  # daily
+            "kwargs": {"days": 30},
+        },
+    },
 )
 
 celery_app.conf.update(

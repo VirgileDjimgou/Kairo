@@ -43,6 +43,7 @@ async def test_get_me_includes_memberships(
     membership = body["memberships"][0]
     assert membership["tenant_id"] == str(data["tenant"].id)
     assert membership["slug"] == data["tenant"].slug
+    assert membership["default_language"] in {"en", "fr", "de"}
     assert "roles" in membership
     assert "branding" in membership
     assert "modules" in membership

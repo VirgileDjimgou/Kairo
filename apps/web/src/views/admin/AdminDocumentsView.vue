@@ -18,7 +18,7 @@
         @click="refreshDocuments"
         :disabled="loading"
       >
-        {{ loading ? "Refreshing..." : "Refresh list" }}
+        {{ loading ? copy.refreshing : copy.refreshList }}
       </button>
     </div>
 
@@ -364,29 +364,79 @@ import {
   type DocumentListItemResponse,
   type UploadDocumentResponse,
 } from "../../api/documents.api";
+import { useLocaleStore } from "@/stores/locale.store";
 
 const route = useRoute();
+const localeStore = useLocaleStore();
 const isSecretaryWorkspace = computed(() => route.path.startsWith("/secretary"));
+const copy = computed(() => {
+  if (localeStore.currentLocale === "de") {
+    return {
+      secretaryDocuments: "Sekretariatsdokumente",
+      documents: "Dokumente",
+      officialDocumentGovernance: "Offizielle Dokumentenverwaltung",
+      documentIntake: "Dokumentenaufnahme",
+      secretaryWorkspaceDescription: "Laden Sie Statuten, Protokolle, Mitteilungen und andere offizielle Vereinsdokumente hoch und verwalten Sie sie.",
+      adminWorkspaceDescription: "Laden Sie Tenant-Dokumente in den Speicher und pruefen Sie die neuesten Versionsmetadaten.",
+      reviewPolicies: "Regelwerke prüfen",
+      reviewSettings: "Einstellungen prüfen",
+      prepareAnnouncements: "Ankündigungen vorbereiten",
+      addMembersFirst: "Zuerst Mitglieder anlegen",
+      refreshing: "Aktualisierung...",
+      refreshList: "Liste aktualisieren",
+    };
+  }
+  if (localeStore.currentLocale === "en") {
+    return {
+      secretaryDocuments: "Secretary documents",
+      documents: "Documents",
+      officialDocumentGovernance: "Official document governance",
+      documentIntake: "Document intake",
+      secretaryWorkspaceDescription: "Upload and govern statutes, protocols, notices, and other official organization records.",
+      adminWorkspaceDescription: "Upload tenant documents into object storage and review the latest version metadata.",
+      reviewPolicies: "Review policies",
+      reviewSettings: "Review settings",
+      prepareAnnouncements: "Prepare announcements",
+      addMembersFirst: "Add members first",
+      refreshing: "Refreshing...",
+      refreshList: "Refresh list",
+    };
+  }
+  return {
+    secretaryDocuments: "Documents du secrétariat",
+    documents: "Documents",
+    officialDocumentGovernance: "Gouvernance documentaire officielle",
+    documentIntake: "Réception documentaire",
+    secretaryWorkspaceDescription: "Importez et gouvernez les statuts, procès-verbaux, annonces et autres documents officiels de l'association.",
+    adminWorkspaceDescription: "Importez les documents du tenant dans le stockage et consultez les métadonnées de la dernière version.",
+    reviewPolicies: "Consulter les règlements",
+    reviewSettings: "Consulter les réglages",
+    prepareAnnouncements: "Préparer les annonces",
+    addMembersFirst: "Ajouter d'abord les membres",
+    refreshing: "Actualisation...",
+    refreshList: "Actualiser la liste",
+  };
+});
 const workspaceLabel = computed(() =>
-  isSecretaryWorkspace.value ? "Secretary documents" : "Documents"
+  isSecretaryWorkspace.value ? copy.value.secretaryDocuments : copy.value.documents
 );
 const workspaceTitle = computed(() =>
-  isSecretaryWorkspace.value ? "Official document governance" : "Document intake"
+  isSecretaryWorkspace.value ? copy.value.officialDocumentGovernance : copy.value.documentIntake
 );
 const workspaceDescription = computed(() =>
   isSecretaryWorkspace.value
-    ? "Upload and govern statutes, protocols, notices, and other official organization records."
-    : "Upload tenant documents into object storage and review the latest version metadata."
+    ? copy.value.secretaryWorkspaceDescription
+    : copy.value.adminWorkspaceDescription
 );
 const emptyStatePrimaryLink = computed(() =>
   isSecretaryWorkspace.value
-    ? { to: "/secretary/policies", label: "Review policies" }
-    : { to: "/admin/settings", label: "Review settings" }
+    ? { to: "/secretary/policies", label: copy.value.reviewPolicies }
+    : { to: "/admin/settings", label: copy.value.reviewSettings }
 );
 const emptyStateSecondaryLink = computed(() =>
   isSecretaryWorkspace.value
-    ? { to: "/secretary/announcements", label: "Prepare announcements" }
-    : { to: "/admin/members", label: "Add members first" }
+    ? { to: "/secretary/announcements", label: copy.value.prepareAnnouncements }
+    : { to: "/admin/members", label: copy.value.addMembersFirst }
 );
 
 const documents = ref<DocumentListItemResponse[]>([]);

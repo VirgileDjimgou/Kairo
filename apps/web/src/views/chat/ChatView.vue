@@ -1,234 +1,229 @@
 <template>
-  <div class="p-4 p-lg-5">
-    <div class="d-flex flex-column flex-lg-row justify-content-between gap-3 mb-4">
-      <div>
-        <div class="text-uppercase small fw-semibold text-secondary mb-2">
-          AI chat
-        </div>
-        <h1 class="h4 fw-bold mb-1">Grounded organizational assistant</h1>
-        <p class="text-muted mb-0">
-          Ask a question and get answers grounded in authorized documents and role-safe structured facts.
+  <div class="chat-view d-flex h-100">
+    <ChatSidebar
+      :conversations="chatStore.conversations"
+      :active-id="chatStore.activeConversationId"
+      @new="handleNewConversation"
+      @select="handleSelectConversation"
+      @delete="handleDeleteConversation"
+    />
+    <div class="chat-main d-flex flex-column flex-grow-1">
+      <div v-if="chatStore.messages.length || chatStore.streamingContent" class="messages-area flex-grow-1 overflow-auto p-4">
+        <ChatMessage
+          v-for="(msg, i) in chatStore.messages"
+          :key="i"
+          :role="msg.role"
+          :content="msg.content"
+          :citations="msg.citations"
+        />
+        <ChatMessage
+          v-if="chatStore.streamingContent"
+          role="assistant"
+          :content="chatStore.streamingContent"
+          :is-streaming="true"
+        />
+        <FollowUpChips
+          v-if="chatStore.messages.length && !chatStore.loading"
+          :suggestions="suggestedPrompts.slice(0, 3)"
+          @select="handleFollowUp"
+        />
+      </div>
+      <div v-else class="empty-state flex-grow-1 d-flex flex-column align-items-center justify-content-center p-4">
+        <i class="bi bi-chat-dots display-1 text-secondary mb-3"></i>
+        <h2 class="h5 fw-bold mb-1">{{ localeStore.t('chat.title') }}</h2>
+        <p class="text-muted mb-4 text-center" style="max-width: 400px;">
+          {{ localeStore.t('chat.noAnswerText') }}
         </p>
-      </div>
-    </div>
-
-    <div class="row g-4">
-      <div class="col-lg-5">
-        <div class="card shadow-sm border-0 h-100">
-          <div class="card-body p-4">
-            <h2 class="h6 fw-bold mb-3">Ask a question</h2>
-            <form class="vstack gap-3" @submit.prevent="submitQuestion">
-              <div>
-                <label class="form-label">Question</label>
-                <textarea
-                  v-model.trim="question"
-                  class="form-control"
-                  rows="6"
-                  placeholder="What is the membership fee due date?"
-                  required
-                />
-              </div>
-              <button class="btn om-primary-btn" type="submit" :disabled="loading || !question">
-                {{ loading ? "Thinking..." : "Ask question" }}
-              </button>
-            </form>
-
-            <div v-if="suggestedPrompts.length" class="mt-4">
-              <div class="small text-uppercase text-muted fw-semibold mb-2">
-                Suggested prompts for your role
-              </div>
-              <div class="d-flex flex-wrap gap-2">
-                <button
-                  v-for="prompt in suggestedPrompts"
-                  :key="prompt"
-                  class="btn btn-sm btn-outline-secondary rounded-pill"
-                  type="button"
-                  @click="setQuestion(prompt)"
-                >
-                  {{ prompt }}
-                </button>
-              </div>
-            </div>
-          </div>
+        <div class="d-flex flex-wrap gap-2 justify-content-center">
+          <button
+            v-for="prompt in suggestedPrompts"
+            :key="prompt"
+            class="btn btn-sm btn-outline-secondary rounded-pill"
+            type="button"
+            @click="handleFollowUp(prompt)"
+          >
+            {{ prompt }}
+          </button>
         </div>
       </div>
-
-      <div class="col-lg-7">
-        <div class="card shadow-sm border-0 h-100">
-          <div class="card-body p-4">
-            <div class="d-flex align-items-center justify-content-between mb-3">
-              <h2 class="h6 fw-bold mb-0">Answer</h2>
-              <span class="badge bg-light text-dark">
-                Confidence {{ result?.confidence.toFixed(2) ?? "0.00" }}
-              </span>
-            </div>
-
-            <div v-if="errorMessage" class="alert alert-danger">
-              {{ errorMessage }}
-            </div>
-
-            <div v-else-if="!result" class="empty-state">
-              <i class="bi bi-chat-dots display-6 text-secondary"></i>
-              <p class="mb-1 fw-semibold">No answer yet</p>
-              <p class="text-muted mb-0">
-                Submit a question to retrieve and cite authorized sources.
-              </p>
-            </div>
-
-            <template v-else>
-              <div class="answer-box rounded-3 p-3 mb-3">
-                <div class="small text-uppercase text-muted fw-semibold mb-2">
-                  {{ result.refused ? "Refused" : "Answer" }}
-                </div>
-                <p class="mb-0">{{ result.answer }}</p>
-              </div>
-
-              <div class="mb-2">
-                <span
-                  class="badge"
-                  :class="result.refused ? 'bg-warning-subtle text-warning border border-warning-subtle' : 'bg-success-subtle text-success border border-success-subtle'"
-                >
-                  {{ result.refused ? "No source found" : "Sources found" }}
-                </span>
-                <span v-if="result.refusal_reason" class="ms-2 small text-muted">
-                  {{ result.refusal_reason }}
-                </span>
-              </div>
-
-              <div v-if="result.source_types.length" class="mb-3">
-                <div class="small text-uppercase text-muted fw-semibold mb-1">
-                  Source types
-                </div>
-                <div class="d-flex flex-wrap gap-2">
-                  <span
-                    v-for="sourceType in result.source_types"
-                    :key="sourceType"
-                    class="badge rounded-pill text-bg-light text-dark border"
-                  >
-                    {{ formatSourceType(sourceType) }}
-                  </span>
-                </div>
-              </div>
-
-              <div v-if="result.citations.length" class="vstack gap-2">
-                <div
-                  v-for="citation in result.citations"
-                  :key="citation.chunk_id"
-                  class="border rounded-3 p-3"
-                >
-                  <div class="fw-semibold">{{ citation.document_title }}</div>
-                  <div class="small text-muted mb-2">
-                    Score {{ citation.score.toFixed(2) }} · Chunk {{ citation.chunk_id.slice(0, 8) }}
-                  </div>
-                  <div>{{ citation.excerpt }}</div>
-                </div>
-              </div>
-            </template>
-          </div>
-        </div>
+      <div class="input-area p-3 border-top bg-white">
+        <form class="d-flex gap-2" @submit.prevent="handleSubmit">
+          <textarea
+            v-model.trim="question"
+            class="form-control chat-input"
+            rows="2"
+            :placeholder="localeStore.t('chat.questionPlaceholder')"
+            required
+            @keydown.enter.exact.prevent="handleSubmit"
+          />
+          <button class="btn om-primary-btn flex-shrink-0" type="submit" :disabled="chatStore.loading || !question">
+            <i v-if="chatStore.loading" class="bi bi-arrow-repeat spin me-1"></i>
+            <i v-else class="bi bi-send me-1"></i>
+            {{ chatStore.loading ? localeStore.t('chat.thinking') : localeStore.t('chat.ask') }}
+          </button>
+        </form>
       </div>
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
-import { computed, ref } from "vue";
-import { queryChat, type ChatQueryResponse } from "@/api/chat.api";
+import { computed, onMounted, ref } from "vue";
+import ChatSidebar from "@/components/chat/ChatSidebar.vue";
+import ChatMessage from "@/components/chat/ChatMessage.vue";
+import FollowUpChips from "@/components/chat/FollowUpChips.vue";
+import { useChatStore } from "@/stores/chat.store";
 import { useAuthStore } from "@/stores/auth.store";
+import { useLocaleStore } from "@/stores/locale.store";
 
+const chatStore = useChatStore();
 const authStore = useAuthStore();
+const localeStore = useLocaleStore();
+
 const question = ref("");
-const loading = ref(false);
-const errorMessage = ref("");
-const result = ref<ChatQueryResponse | null>(null);
 const roles = computed(() => authStore.user?.roles ?? []);
 
 const suggestedPrompts = computed(() => {
+  const prompts = {
+    fr: {
+      governanceSummary: "Donne-moi un résumé de gouvernance.",
+      officialPublication: "Montre-moi le contexte officiel de publication.",
+      disciplinarySummary: "Donne-moi un résumé disciplinaire.",
+      sportsCalendar: "Montre-moi le calendrier sportif.",
+      activeMembers: "Combien de membres sont actifs ?",
+      orgOverview: "Quel est l'aperçu actuel de l'organisation ?",
+      activeAnnouncements: "Quelles annonces sont actives ?",
+      readyDocuments: "Quels documents sont prêts à être publiés ?",
+      financeSummary: "Donne-moi le résumé financier du tenant.",
+      remainingBalance: "Quel est le solde restant ?",
+      collectionRate: "Quel est le taux de recouvrement ?",
+      openCases: "Combien de dossiers sont ouverts ?",
+      sanctionsOverview: "Quel est l'aperçu des sanctions ?",
+      nextSportsEvent: "Quel est le prochain événement sportif ?",
+      nextTrainings: "Quelles séances d'entraînement arrivent ?",
+      myBalance: "Quel est mon solde ?",
+      visibleEvents: "Quels événements sont visibles pour moi ?",
+    },
+    en: {
+      governanceSummary: "Give me a governance summary.",
+      officialPublication: "Show me the official publication context.",
+      disciplinarySummary: "Give me a disciplinary summary.",
+      sportsCalendar: "Show me the sports calendar.",
+      activeMembers: "How many members are active?",
+      orgOverview: "What is the current organization overview?",
+      activeAnnouncements: "Which announcements are active?",
+      readyDocuments: "Which documents are ready to be published?",
+      financeSummary: "Give me the tenant finance summary.",
+      remainingBalance: "What is the remaining balance?",
+      collectionRate: "What is the collection rate?",
+      openCases: "How many cases are open?",
+      sanctionsOverview: "What is the sanctions overview?",
+      nextSportsEvent: "What is the next sports event?",
+      nextTrainings: "Which training sessions are coming up?",
+      myBalance: "What is my balance?",
+      visibleEvents: "Which events are visible to me?",
+    },
+    de: {
+      governanceSummary: "Gib mir eine Governance-Zusammenfassung.",
+      officialPublication: "Zeige mir den offiziellen Publikationskontext.",
+      disciplinarySummary: "Gib mir eine disziplinarische Zusammenfassung.",
+      sportsCalendar: "Zeige mir den Sportkalender.",
+      activeMembers: "Wie viele Mitglieder sind aktiv?",
+      orgOverview: "Wie sieht der aktuelle Vereinsueberblick aus?",
+      activeAnnouncements: "Welche Ankuendigungen sind aktiv?",
+      readyDocuments: "Welche Dokumente sind zur Veroeffentlichung bereit?",
+      financeSummary: "Gib mir die Finanzzusammenfassung des Tenants.",
+      remainingBalance: "Wie hoch ist der Restsaldo?",
+      collectionRate: "Wie hoch ist die Einzugsquote?",
+      openCases: "Wie viele Faelle sind offen?",
+      sanctionsOverview: "Wie sieht die Sanktionsuebersicht aus?",
+      nextSportsEvent: "Was ist das naechste Sportereignis?",
+      nextTrainings: "Welche Trainingseinheiten kommen als naechstes?",
+      myBalance: "Wie hoch ist mein Saldo?",
+      visibleEvents: "Welche Veranstaltungen sind fuer mich sichtbar?",
+    },
+  }[localeStore.currentLocale];
+
   if (roles.value.includes("principal_admin") || roles.value.includes("admin")) {
-    return [
-      "Give me a governance summary.",
-      "Show the official publication context.",
-      "Give me a disciplinary summary.",
-      "Show the sports schedule.",
-    ];
+    return [prompts.governanceSummary, prompts.officialPublication, prompts.disciplinarySummary, prompts.sportsCalendar];
   }
-
   if (roles.value.includes("president") || roles.value.includes("vice_president")) {
-    return [
-      "Give me a governance summary.",
-      "How many members are active?",
-      "What is the current organization overview?",
-    ];
+    return [prompts.governanceSummary, prompts.activeMembers, prompts.orgOverview];
   }
-
   if (roles.value.includes("secretary_general")) {
-    return [
-      "Show the official publication context.",
-      "What announcements are active?",
-      "Which policies are ready to publish?",
-    ];
+    return [prompts.officialPublication, prompts.activeAnnouncements, prompts.readyDocuments];
   }
-
   if (roles.value.includes("auditor")) {
-    return [
-      "Give me the tenant finance summary.",
-      "What is the outstanding balance?",
-      "What is the collection rate?",
-    ];
+    return [prompts.financeSummary, prompts.remainingBalance, prompts.collectionRate];
   }
-
   if (roles.value.includes("censor")) {
-    return [
-      "Give me a disciplinary summary.",
-      "How many cases are open?",
-      "What is the sanctions overview?",
-    ];
+    return [prompts.disciplinarySummary, prompts.openCases, prompts.sanctionsOverview];
   }
-
   if (roles.value.includes("sports_manager")) {
-    return [
-      "Show the sports schedule.",
-      "What is the next sports event?",
-      "Which training sessions are upcoming?",
-    ];
+    return [prompts.sportsCalendar, prompts.nextSportsEvent, prompts.nextTrainings];
   }
-
-  return [
-    "What is my balance?",
-    "What announcements are active?",
-    "What events are visible to me?",
-  ];
+  return [prompts.myBalance, prompts.activeAnnouncements, prompts.visibleEvents];
 });
 
-async function submitQuestion() {
-  loading.value = true;
-  errorMessage.value = "";
+onMounted(() => {
+  chatStore.loadConversations();
+});
 
-  try {
-    result.value = await queryChat({ question: question.value, top_k: 4 });
-  } catch (error) {
-    errorMessage.value = "Chat query failed. Please try again.";
-    throw error;
-  } finally {
-    loading.value = false;
+async function handleSubmit() {
+  const q = question.value;
+  if (!q.trim()) {
+    return;
   }
+  question.value = "";
+
+  if (!chatStore.activeConversationId) {
+    await chatStore.createConversation(localeStore.t('chat.newConversationTitle'));
+  }
+
+  await chatStore.sendMessage(q);
 }
 
-function setQuestion(prompt: string) {
-  question.value = prompt;
+function handleNewConversation() {
+  void chatStore.createConversation(localeStore.t('chat.newConversationTitle'));
 }
 
-function formatSourceType(sourceType: string): string {
-  return sourceType
-    .replace(/^structured:/, "structured ")
-    .replace(/_/g, " ")
-    .replace(/\b\w/g, (character) => character.toUpperCase());
+function handleSelectConversation(id: string) {
+  chatStore.selectConversation(id);
+}
+
+function handleDeleteConversation(id: string) {
+  chatStore.deleteConv(id);
+}
+
+function handleFollowUp(text: string) {
+  question.value = text;
 }
 </script>
 
 <style scoped>
-.answer-box {
-  background: rgba(31, 79, 143, 0.06);
-  border: 1px solid rgba(31, 79, 143, 0.12);
+.chat-view {
+  height: calc(100vh - 60px);
+}
+
+.messages-area {
+  background: #f8f9fa;
+}
+
+.input-area {
+  flex-shrink: 0;
+}
+
+.chat-input {
+  resize: none;
+  min-height: 72px;
+}
+
+.spin {
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
 }
 </style>

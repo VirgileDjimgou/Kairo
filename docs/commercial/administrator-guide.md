@@ -13,7 +13,8 @@ This guide is for tenant administrators who operate Kairo after go-live.
 
 - Review audit events for sensitive changes.
 - Check member records, contributions, and event schedules.
-- Verify chat usage and document citations are working.
+- Verify chat usage and document citations are working through minimized trace previews.
+- Review audit exports with the redacted detail view instead of expecting raw member-facing payloads.
 - Confirm disabled modules are still intentionally disabled.
 
 ## Monthly Tasks
@@ -57,6 +58,7 @@ Tenant administrators can now manage team onboarding from the admin console:
 - review the delivery outcome after each invitation; real email delivery now hides the secure link from the UI on successful production dispatch
 - securely share the acceptance URL only when the provider is in simulation mode or delivery failed and manual fallback is required
 - use the audit trail to review who created or cancelled invitations
+- use chat traceability for operational review, but rely on the minimized previews and source counts rather than raw query payloads
 
 ## User Lifecycle Controls
 

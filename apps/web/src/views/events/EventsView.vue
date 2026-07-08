@@ -2,19 +2,19 @@
   <div class="p-4 p-lg-5">
     <div class="d-flex align-items-center justify-content-between mb-4">
       <div>
-        <h1 class="h4 fw-bold mb-1">Upcoming events</h1>
-        <p class="text-muted mb-0 small">Calendar of scheduled organization events</p>
+        <h1 class="h4 fw-bold mb-1">{{ copy.title }}</h1>
+        <p class="text-muted mb-0 small">{{ copy.subtitle }}</p>
       </div>
     </div>
 
     <div v-if="loading" class="text-center py-5 text-muted">
-      Loading events...
+      {{ copy.loading }}
     </div>
 
     <div v-else-if="events.length === 0" class="empty-state">
       <i class="bi bi-calendar-event display-6 text-secondary"></i>
-      <p class="mb-1 fw-semibold">No upcoming events</p>
-      <p class="text-muted mb-0">Check back later for scheduled events.</p>
+      <p class="mb-1 fw-semibold">{{ copy.emptyTitle }}</p>
+      <p class="text-muted mb-0">{{ copy.emptyText }}</p>
     </div>
 
     <div v-else class="row g-3">
@@ -52,20 +52,29 @@
 <script setup lang="ts">
 import { onMounted, ref } from 'vue'
 import { listPublicEvents, type EventResponse } from '@/api/events.api'
+import { useLocaleStore } from '@/stores/locale.store'
 
 const loading = ref(true)
 const events = ref<EventResponse[]>([])
+const localeStore = useLocaleStore()
+const copy = {
+  title: localeStore.currentLocale === 'de' ? 'Kommende Veranstaltungen' : localeStore.currentLocale === 'en' ? 'Upcoming events' : 'Événements à venir',
+  subtitle: localeStore.currentLocale === 'de' ? 'Kalender der geplanten Vereinsveranstaltungen' : localeStore.currentLocale === 'en' ? 'Calendar of scheduled organization events' : "Calendrier des événements prévus de l'association",
+  loading: localeStore.currentLocale === 'de' ? 'Veranstaltungen werden geladen...' : localeStore.currentLocale === 'en' ? 'Loading events...' : 'Chargement des événements...',
+  emptyTitle: localeStore.currentLocale === 'de' ? 'Keine kommenden Veranstaltungen' : localeStore.currentLocale === 'en' ? 'No upcoming events' : 'Aucun événement à venir',
+  emptyText: localeStore.currentLocale === 'de' ? 'Schauen Sie später wieder vorbei.' : localeStore.currentLocale === 'en' ? 'Check back later for scheduled events.' : 'Revenez plus tard pour les prochains événements.',
+}
 
 function formatDay(dateStr: string): string {
   return new Date(dateStr).getDate().toString()
 }
 
 function formatMonth(dateStr: string): string {
-  return new Date(dateStr).toLocaleDateString('en-US', { month: 'short' })
+  return new Date(dateStr).toLocaleDateString(localeStore.currentLocale, { month: 'short' })
 }
 
 function formatTime(dateStr: string): string {
-  return new Date(dateStr).toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' })
+  return new Date(dateStr).toLocaleTimeString(localeStore.currentLocale, { hour: '2-digit', minute: '2-digit' })
 }
 
 onMounted(async () => {

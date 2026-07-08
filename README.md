@@ -225,6 +225,34 @@ The role gallery below is generated from the current application routes and role
 
 ![Secondary tenant shell](docs/github-demo/role-gallery/12-secondary-tenant/01-secondary-tenant-dashboard.png)
 
+### Live Visual Audit 2026-07-07
+
+The current local build was revalidated against the real demo seed with a SQLite-backed API, role-specific workspaces, and language persistence in French, English, and German.
+
+- Live audit manifests: [`apps/web/artifacts/manual-role-checks/2026-07-07-live-audit/`](apps/web/artifacts/manual-role-checks/2026-07-07-live-audit/)
+- Local audit launcher: [`scripts/run_local_demo_backend.py`](scripts/run_local_demo_backend.py)
+- Live audit capture script: [`scripts/capture-live-role-audit.mjs`](scripts/capture-live-role-audit.mjs)
+
+#### Language entry points
+
+![Login in French](apps/web/artifacts/manual-role-checks/2026-07-07-live-audit/00-login-fr/login-fr.png)
+
+![Login in English](apps/web/artifacts/manual-role-checks/2026-07-07-live-audit/01-login-en/login-en.png)
+
+![Login in German](apps/web/artifacts/manual-role-checks/2026-07-07-live-audit/02-login-de/login-de.png)
+
+#### Chat and role checks
+
+![Member chat in French](apps/web/artifacts/manual-role-checks/2026-07-07-live-audit/12-member-chat-fr/member-chat-fr.png)
+
+![Secretary workspace in German](apps/web/artifacts/manual-role-checks/2026-07-07-live-audit/08-secretary-de/secretary-workspace-de.png)
+
+![Secretary chat in German](apps/web/artifacts/manual-role-checks/2026-07-07-live-audit/13-secretary-chat-de/secretary-chat-de.png)
+
+![Principal admin overview in English](apps/web/artifacts/manual-role-checks/2026-07-07-live-audit/11-principal-admin-en/principal-admin-overview-en.png)
+
+![Principal admin chat in English](apps/web/artifacts/manual-role-checks/2026-07-07-live-audit/15-principal-admin-chat-en/principal-admin-chat-en.png)
+
 ## Role Video Gallery
 
 Short role demonstrations are generated in WEBM format and can be opened directly from GitHub.

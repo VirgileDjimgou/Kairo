@@ -13,26 +13,27 @@
                 </span>
                 <div>
                   <div class="text-uppercase fw-semibold small hero-kicker">
-                    Kairo / OrgMind AI
+                    {{ localeStore.t('app.name') }}
                   </div>
                   <div class="small text-secondary-emphasis">
-                    Commercial MVP ready for local-first organizations
+                    {{ localeStore.t('login.brandSubtitle') }}
                   </div>
+                </div>
+                <div class="ms-auto">
+                  <LanguageSelector />
                 </div>
               </div>
 
               <div class="mb-4" data-testid="commercial-hero">
-                <p class="eyebrow mb-2">Public entry surface</p>
+                <p class="eyebrow mb-2">{{ localeStore.t('login.kicker') }}</p>
                 <h1
                   data-testid="commercial-hero-title"
                   class="display-5 fw-bold lh-sm hero-title mb-3"
                 >
-                  Private AI for organizations that need control, citations, and tenant boundaries.
+                  {{ localeStore.t('login.heroTitle') }}
                 </h1>
                 <p class="lead hero-copy mb-4">
-                  Kairo helps associations, clubs, NGOs, and small businesses keep their
-                  documents local, answer questions with evidence, and operate members,
-                  contributions, events, and policies inside one secure tenant-aware stack.
+                  {{ localeStore.t('login.heroCopy') }}
                 </p>
 
                 <div class="d-flex flex-wrap gap-2 mb-4">
@@ -93,23 +94,23 @@
               <div class="brand-icon mb-3">
                 <i class="bi bi-shield-lock fs-1 text-primary"></i>
               </div>
-              <h2 class="h4 fw-bold mb-1">Sign in to your organization</h2>
+              <h2 class="h4 fw-bold mb-1">{{ localeStore.t('login.signInTitle') }}</h2>
               <p class="text-muted small mb-0">
-                Existing members and administrators can continue here.
+                {{ localeStore.t('login.signInSubtitle') }}
               </p>
             </div>
 
             <!-- Login form (hidden during MFA or tenant selection) -->
             <form v-if="!showTenantPicker && !needsMfa" @submit.prevent="handleLogin" novalidate>
               <div class="mb-3">
-                <label for="email" class="form-label fw-medium">Email address</label>
+                <label for="email" class="form-label fw-medium">{{ localeStore.t('login.email') }}</label>
                 <input
                   id="email"
                   v-model.trim="form.email"
                   type="email"
                   class="form-control"
                   :class="{ 'is-invalid': errors.email }"
-                  placeholder="you@organization.com"
+                  :placeholder="localeStore.t('login.emailPlaceholder')"
                   autocomplete="email"
                   required
                 />
@@ -119,7 +120,7 @@
               </div>
 
               <div class="mb-3">
-                <label for="password" class="form-label fw-medium">Password</label>
+                <label for="password" class="form-label fw-medium">{{ localeStore.t('login.password') }}</label>
                 <input
                   id="password"
                   v-model="form.password"
@@ -135,7 +136,7 @@
                 </div>
                 <div class="mt-1 text-end">
                   <router-link to="/forgot-password" class="small text-muted">
-                    Forgot password?
+                    {{ localeStore.t('login.forgotPassword') }}
                   </router-link>
                 </div>
               </div>
@@ -150,7 +151,7 @@
 
               <div class="alert alert-light border py-2 small" role="status">
                 <i class="bi bi-shield-check me-1"></i>
-                Need a stronger sign-in posture later? You can enable MFA from <strong>Account Security</strong> after login.
+                {{ localeStore.t('login.mfaHint') }}
               </div>
 
               <button
@@ -164,7 +165,7 @@
                   role="status"
                   aria-hidden="true"
                 ></span>
-                {{ loading ? "Signing in…" : "Sign in" }}
+                {{ loading ? localeStore.t('login.signingIn') : localeStore.t('login.signIn') }}
               </button>
             </form>
 
@@ -172,14 +173,14 @@
             <form v-else-if="needsMfa" @submit.prevent="handleMfa" novalidate>
               <div class="text-center mb-4">
                 <i class="bi bi-shield-lock fs-1 text-primary"></i>
-                <h3 class="h5 fw-bold mt-2 mb-1">Two-factor authentication</h3>
+                <h3 class="h5 fw-bold mt-2 mb-1">{{ localeStore.t('login.mfaTitle') }}</h3>
                 <p class="text-muted small mb-0">
-                  Enter the code from your authenticator app.
+                  {{ localeStore.t('login.mfaSubtitle') }}
                 </p>
               </div>
 
               <div class="mb-3">
-                <label for="mfa-code" class="form-label fw-medium">Authentication code</label>
+                <label for="mfa-code" class="form-label fw-medium">{{ localeStore.t('login.mfaCode') }}</label>
                 <input
                   id="mfa-code"
                   v-model="mfaCode"
@@ -215,7 +216,7 @@
                   role="status"
                   aria-hidden="true"
                 ></span>
-                {{ loading ? "Verifying…" : "Verify" }}
+                {{ loading ? localeStore.t('login.verifying') : localeStore.t('login.verify') }}
               </button>
 
               <button
@@ -223,7 +224,7 @@
                 class="btn btn-link btn-sm w-100 mt-2 text-muted"
                 @click="cancelMfa"
               >
-                Back to sign in
+                {{ localeStore.t('login.backToSignIn') }}
               </button>
             </form>
 
@@ -231,9 +232,9 @@
             <div v-else>
               <div class="text-center mb-4">
                 <i class="bi bi-building fs-1 text-primary"></i>
-                <h3 class="h5 fw-bold mt-2 mb-1">Choose organization</h3>
+                <h3 class="h5 fw-bold mt-2 mb-1">{{ localeStore.t('login.chooseOrganization') }}</h3>
                 <p class="text-muted small mb-0">
-                  You have access to multiple organizations. Select one to continue.
+                  {{ localeStore.t('login.chooseOrganizationSubtitle') }}
                 </p>
               </div>
 
@@ -258,7 +259,7 @@
                 class="btn btn-link btn-sm w-100 text-muted"
                 @click="handleLogout"
               >
-                Sign out and try a different account
+                {{ localeStore.t('login.signOutTryAnother') }}
               </button>
             </div>
 
@@ -268,7 +269,7 @@
               class="mt-4 p-3 rounded bg-light border border-dashed"
             >
               <p class="text-muted small mb-1 fw-medium">
-                <i class="bi bi-info-circle me-1"></i>Development credentials
+                <i class="bi bi-info-circle me-1"></i>{{ localeStore.t('login.devCredentials') }}
               </p>
               <code class="small d-block text-secondary">admin@demo.org</code>
               <code class="small d-block text-secondary">Admin123!</code>
@@ -278,7 +279,7 @@
                 class="btn btn-outline-secondary btn-sm mt-2"
                 @click="fillDemoCredentials"
               >
-                Fill demo credentials
+                {{ localeStore.t('login.fillDemoCredentials') }}
               </button>
             </div>
           </div>
@@ -289,47 +290,50 @@
 </template>
 
 <script setup lang="ts">
-import { reactive, ref } from "vue";
+import { computed, reactive, ref } from "vue";
 import { useRouter } from "vue-router";
 import { useAuthStore } from "@/stores/auth.store";
 import { useTenantStore } from "@/stores/tenant.store";
+import { useLocaleStore } from "@/stores/locale.store";
 import { getApiErrorDetail, mapLoginError, mapMfaError } from "@/utils/authErrors";
+import LanguageSelector from "@/components/LanguageSelector.vue";
 
 const router = useRouter();
 const authStore = useAuthStore();
 const tenantStore = useTenantStore();
+const localeStore = useLocaleStore();
 const isDev = import.meta.env.DEV;
 
-const commercialBadges = [
-  "Tenant isolation enforced by backend",
-  "Answers grounded in citations",
-  "Validated production build and restore flow",
-  "Self-hosted or managed-service ready",
-];
+const commercialBadges = computed(() => [
+  localeStore.t('login.badge1'),
+  localeStore.t('login.badge2'),
+  localeStore.t('login.badge3'),
+  localeStore.t('login.badge4'),
+]);
 
-const heroHighlights = [
+const heroHighlights = computed(() => [
   {
     icon: "bi bi-file-earmark-text",
-    title: "Document intelligence",
-    text: "Upload files, OCR images, and ask questions from sources your team can trust.",
+    title: localeStore.t('login.highlight1Title'),
+    text: localeStore.t('login.highlight1Text'),
   },
   {
     icon: "bi bi-people",
-    title: "Operational workflows",
-    text: "Manage members, contributions, events, policies, and audit trails in one place.",
+    title: localeStore.t('login.highlight2Title'),
+    text: localeStore.t('login.highlight2Text'),
   },
   {
     icon: "bi bi-shield-check",
-    title: "Production posture",
-    text: "Docker Compose, backups, restore drills, observability, and hardened auth.",
+    title: localeStore.t('login.highlight3Title'),
+    text: localeStore.t('login.highlight3Text'),
   },
-];
+]);
 
-const trustSignals = [
-  { label: "Architecture", value: "Local-first, modular monolith" },
-  { label: "Safety", value: "Backend-enforced permissions" },
-  { label: "Offer", value: "Self-hosted or managed service" },
-];
+const trustSignals = computed(() => [
+  { label: localeStore.t('login.trustArchitecture'), value: localeStore.t('login.trustArchitectureValue') },
+  { label: localeStore.t('login.trustSafety'), value: localeStore.t('login.trustSafetyValue') },
+  { label: localeStore.t('login.trustOffer'), value: localeStore.t('login.trustOfferValue') },
+]);
 
 const form = reactive({ email: "", password: "" });
 const errors = reactive({ email: "", password: "", mfaCode: "" });
@@ -349,11 +353,11 @@ function validate(): boolean {
   errors.email = "";
   errors.password = "";
   if (!form.email) {
-    errors.email = "Email is required";
+    errors.email = localeStore.t('login.errorEmailRequired');
     return false;
   }
   if (!form.password) {
-    errors.password = "Password is required";
+    errors.password = localeStore.t('login.errorPasswordRequired');
     return false;
   }
   return true;
@@ -386,7 +390,7 @@ async function handleLogin() {
 async function handleMfa() {
   errors.mfaCode = "";
   if (!mfaCode.value || mfaCode.value.length !== 6) {
-    errors.mfaCode = "Enter a 6-digit code";
+    errors.mfaCode = localeStore.t('login.errorMfaCode');
     return;
   }
 
@@ -396,7 +400,7 @@ async function handleMfa() {
   try {
     const ok = await authStore.completeMfa(mfaCode.value);
     if (!ok) {
-      errorMessage.value = "MFA session expired. Please sign in again.";
+      errorMessage.value = localeStore.t('login.errorExpiredMfa');
       cancelMfa();
       return;
     }
@@ -414,7 +418,7 @@ async function continueAfterAuthentication() {
   const redirect = (router.currentRoute.value.query.redirect as string) || "/dashboard";
 
   if (memberships.length === 0) {
-    errorMessage.value = "No active organization membership found.";
+    errorMessage.value = localeStore.t('login.errorNoMembership');
     authStore.logout();
     return;
   }

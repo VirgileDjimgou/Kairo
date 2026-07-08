@@ -2749,7 +2749,7 @@ Acceptance criteria:
 
 ## Sprint 62 - Privacy, Audit, And Export Hardening
 
-Status: Planned
+Status: In progress
 
 Goal:
 Tighten privacy boundaries across logs, exports, traces, and admin review surfaces.
@@ -2768,6 +2768,12 @@ Deliverables:
 - regression tests for logs, exports, and traces
 - updated guidance for privacy-sensitive operational review
 
+Work completed so far:
+
+- chat query traces now expose minimized previews instead of raw payloads in the admin review surface
+- audit event review and CSV export now redact sensitive detail fields before they are shown or exported
+- regression coverage now verifies the minimized chat trace UI and the redacted audit export output
+
 Acceptance criteria:
 
 - unauthorized data does not appear in logs, exports, or AI traces
@@ -2775,35 +2781,52 @@ Acceptance criteria:
 - member-private and cross-tenant data remain protected by backend checks
 - privacy regression tests remain autonomous and repeatable
 
-## Sprint 63 - Deployment Packaging, Upgrade, And Rollback Automation
+## Sprint 63 - Combis Localization, Language Persistence, And Association Archive Foundation
+
+Status: Completed
+
+Goal:
+Reframe the demo and runtime experience around a realistic association deployment with French-first UX, persistent user language selection, and a safer path for importing real association archives.
+
+Why this sprint next:
+
+- The target product now needs to feel credible for a real association before any broader packaging work.
+- The existing UI remained largely English-first and the seeded demo organization was still generic.
+- The chatbot and archive pipeline also needed a clear language contract and a safer import base before ingesting the provided `Combis Sport Verein` material.
+
+Deliverables:
+
+- persistent user language preference with `fr` default and `en` / `de` alternatives
+- entry-screen language selector and first-line `Combis Sport Verein` branding
+- language-aware chat request contract so answers follow the selected interface language
+- demo seed refresh with fictional Cameroonian and German member identities at larger scale
+- archive-import foundation for the provided association document set, including XLSX parsing support and role-aware import classification
+
+Acceptance criteria:
+
+- a user can choose French, English, or German from the public entry surface
+- the chosen language persists for the user after authentication until changed again
+- chat answers can be requested in the selected language without weakening backend authorization
+- the demo tenant looks and feels like `Combis Sport Verein` rather than a generic placeholder
+- the archive import base does not expose finance or disciplinary documents to ordinary members by default
+
+Implementation notes:
+
+- added a lightweight frontend localization layer with persistent locale storage and authenticated preference sync
+- updated the login surface, app shells, admin shell, navigation labels, and chat surface to use the new language layer
+- added backend support for `preferred_language` on users plus a new authenticated preference update endpoint
+- extended chat requests with `response_language` and instructed the LLM layer to answer only in the requested language
+- refreshed the demo seed to default the main tenant to French, rename it to `Combis Sport Verein`, and add a larger fictional member roster with Cameroonian and German names
+- added a standard-library XLSX parser and a role-aware `scripts/import_combis_demo_documents.py` helper for importing the provided association archive
+
+## Sprint 64 - Deployment Packaging, Upgrade, And Rollback Automation
 
 Status: Planned
 
 Goal:
 Make the self-hosted deployment path easier to install, verify, upgrade, and roll back.
 
-Why this sprint next:
-
-- The product already has a deployment guide and production assets.
-- The remaining gap is packaging the deployment story into a simpler operator workflow.
-- This sprint turns the existing operational knowledge into a cleaner release path.
-
-Deliverables:
-
-- preflight validation or deployment helper scripts
-- explicit upgrade and rollback procedures
-- smoke-test or post-deploy verification flow
-- environment validation for production readiness
-- documentation aligned with the supported deployment path
-
-Acceptance criteria:
-
-- an operator can validate a target environment before cutover
-- upgrade and rollback steps are documented and testable
-- deployment verification remains compatible with the current self-hosted model
-- the product remains safe to run without exposing private infrastructure endpoints
-
-## Sprint 64 - Commercial Offer Pack, Support Boundaries, And Market-Facing Docs
+## Sprint 65 - Commercial Offer Pack, Support Boundaries, And Market-Facing Docs
 
 Status: Planned
 
@@ -2837,13 +2860,15 @@ The historical track through Sprint 57 is complete.
 
 Sprint 61 is now complete.
 
-Sprint 62 is now the next planned sprint.
+Sprint 62 is now in progress.
+
+Sprint 63 is now complete.
 
 Estimated additional sprints required from the current state: 3.
 
 Planned execution window:
 
-- Sprint 62 through Sprint 64
+- Sprint 63 through Sprint 65
 
 Validation after this track should cover:
 
