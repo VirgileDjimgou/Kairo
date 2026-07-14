@@ -26,7 +26,7 @@ async def test_health_response_shape(client: AsyncClient) -> None:
 async def test_health_all_expected_services_present(client: AsyncClient) -> None:
     response = await client.get("/health")
     body = response.json()
-    required_services = {"database", "redis", "minio", "qdrant", "ollama"}
+    required_services = {"database", "redis", "minio", "qdrant", "llm_provider", "embedding_provider"}
     assert required_services.issubset(body["checks"].keys())
 
 
@@ -53,7 +53,7 @@ async def test_health_database_returns_ok(client: AsyncClient) -> None:
 async def test_health_external_services_report_unavailable_in_test(client: AsyncClient) -> None:
     response = await client.get("/health")
     body = response.json()
-    for svc in ("redis", "minio", "qdrant", "ollama"):
+    for svc in ("redis", "minio", "qdrant", "llm_provider", "embedding_provider"):
         check = body["checks"].get(svc)
         assert check is not None, f"{svc} missing from checks"
         assert check["status"] in ("unavailable", "error"), (

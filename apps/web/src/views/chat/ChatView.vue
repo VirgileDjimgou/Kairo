@@ -180,7 +180,7 @@ async function handleSubmit() {
     await chatStore.createConversation(localeStore.t('chat.newConversationTitle'));
   }
 
-  await chatStore.sendMessage(q);
+  await chatStore.sendMessage(q, () => undefined);
 }
 
 function handleNewConversation() {

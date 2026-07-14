@@ -46,7 +46,7 @@ export const useChatStore = defineStore("chat", () => {
       messages.value = detail.messages.map((m) => ({
         role: m.role,
         content: m.content,
-        citations: undefined,
+        citations: normalizeCitations(m.citations_json),
       }));
     } catch {
       messages.value = [];
@@ -82,21 +82,32 @@ export const useChatStore = defineStore("chat", () => {
           conversation_id: activeConversationId.value,
           response_language: localeStore.currentLocale,
         },
-        (token) => {
-          fullAnswer.push(token);
-          streamingContent.value = fullAnswer.join("");
-          onToken(token);
-        },
-        (conversationId) => {
-          messages.value.push({ role: "assistant", content: streamingContent.value });
+          (token) => {
+            fullAnswer.push(token);
+            streamingContent.value = fullAnswer.join("");
+            onToken(token);
+          },
+        (conversationId, _confidence, citations, _sourceTypes) => {
+          messages.value.push({
+            role: "assistant",
+            content: streamingContent.value,
+            citations,
+          });
           streamingContent.value = "";
           activeConversationId.value = conversationId;
           loading.value = false;
           loadConversations();
         },
-        () => {
+        (error) => {
+          streamingContent.value = "";
+          messages.value.push({
+            role: "assistant",
+            content: error || localeStore.t("chat.error"),
+          });
           loading.value = false;
         },
+        undefined,
+        localeStore.t("chat.error"),
       );
     } else {
       // Non-streaming path
@@ -119,7 +130,7 @@ export const useChatStore = defineStore("chat", () => {
 
         loadConversations();
       } catch {
-        messages.value.push({ role: "assistant", content: "Une erreur est survenue." });
+        messages.value.push({ role: "assistant", content: localeStore.t("chat.error") });
       } finally {
         loading.value = false;
       }
@@ -140,3 +151,21 @@ export const useChatStore = defineStore("chat", () => {
     sendMessage,
   };
 });
+
+function normalizeCitations(raw: Array<Record<string, unknown> | ChatCitationResponse> | undefined): ChatCitationResponse[] {
+  if (!raw?.length) {
+    return [];
+  }
+
+  return raw.map((item) => {
+    const record = item as Record<string, unknown>;
+    return {
+      chunk_id: String(record.chunk_id ?? record.chunkId ?? crypto.randomUUID()),
+      document_id: String(record.document_id ?? record.documentId ?? crypto.randomUUID()),
+      document_version_id: String(record.document_version_id ?? record.documentVersionId ?? crypto.randomUUID()),
+      document_title: String(record.document_title ?? record.documentTitle ?? ""),
+      excerpt: String(record.excerpt ?? ""),
+      score: Number(record.score ?? 0),
+    };
+  });
+}

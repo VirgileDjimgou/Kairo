@@ -9,6 +9,7 @@ from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core.security import decode_access_token
+from app.core.config import settings
 from app.db.session import async_session_factory
 from app.providers.llm.base import LLMProvider
 from app.providers.embeddings.base import EmbeddingProvider
@@ -139,6 +140,13 @@ ObjectStorageDep = Annotated[ObjectStorageProvider, Depends(get_object_storage_p
 
 @lru_cache(maxsize=1)
 def get_embedding_provider() -> EmbeddingProvider:
+    if settings.embedding_provider_kind == "openai_compatible":
+        from app.providers.embeddings.openai_compatible import (
+            OpenAICompatibleEmbeddingProvider,
+        )
+
+        return OpenAICompatibleEmbeddingProvider()
+
     from app.providers.embeddings.ollama import OllamaEmbeddingProvider
 
     return OllamaEmbeddingProvider()
@@ -157,6 +165,11 @@ VectorStoreDep = Annotated[VectorStoreProvider, Depends(get_vector_store_provide
 
 @lru_cache(maxsize=1)
 def get_llm_provider() -> LLMProvider:
+    if settings.llm_provider_kind == "openai_compatible":
+        from app.providers.llm.openai_compatible import OpenAICompatibleLLMProvider
+
+        return OpenAICompatibleLLMProvider()
+
     from app.providers.llm.ollama import OllamaLLMProvider
 
     return OllamaLLMProvider()

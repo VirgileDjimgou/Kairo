@@ -93,19 +93,49 @@ async def _check_qdrant() -> dict:
         return {"status": "unavailable", "latency_ms": elapsed}
 
 
-async def _check_ollama() -> dict:
+async def _check_llm_provider() -> dict:
     start = time.monotonic()
     try:
-        async with httpx.AsyncClient(
-            base_url=settings.ollama_base_url, timeout=5
-        ) as c:
-            resp = await c.get("/api/tags")
+        if settings.llm_provider_kind == "openai_compatible":
+            async with httpx.AsyncClient(
+                base_url=settings.openai_compatible_base_url,
+                timeout=5,
+            ) as c:
+                resp = await c.get("/models")
+        else:
+            async with httpx.AsyncClient(
+                base_url=settings.ollama_base_url, timeout=5
+            ) as c:
+                resp = await c.get("/api/tags")
             resp.raise_for_status()
         elapsed = int((time.monotonic() - start) * 1000)
         return {"status": "ok", "latency_ms": elapsed}
     except Exception as exc:
         elapsed = int((time.monotonic() - start) * 1000)
-        logger.warning("Ollama health probe failed", error=str(exc), latency_ms=elapsed)
+        logger.warning("LLM provider health probe failed", error=str(exc), latency_ms=elapsed)
+        return {"status": "unavailable", "latency_ms": elapsed}
+
+
+async def _check_embedding_provider() -> dict:
+    start = time.monotonic()
+    try:
+        if settings.embedding_provider_kind == "openai_compatible":
+            async with httpx.AsyncClient(
+                base_url=settings.openai_compatible_base_url,
+                timeout=5,
+            ) as c:
+                resp = await c.get("/models")
+        else:
+            async with httpx.AsyncClient(
+                base_url=settings.ollama_base_url, timeout=5
+            ) as c:
+                resp = await c.get("/api/tags")
+        resp.raise_for_status()
+        elapsed = int((time.monotonic() - start) * 1000)
+        return {"status": "ok", "latency_ms": elapsed}
+    except Exception as exc:
+        elapsed = int((time.monotonic() - start) * 1000)
+        logger.warning("Embedding provider health probe failed", error=str(exc), latency_ms=elapsed)
         return {"status": "unavailable", "latency_ms": elapsed}
 
 
@@ -115,7 +145,8 @@ async def run_all_checks(db: AsyncSession) -> dict[str, dict]:
         "redis": _check_redis(),
         "minio": _check_minio(),
         "qdrant": _check_qdrant(),
-        "ollama": _check_ollama(),
+        "llm_provider": _check_llm_provider(),
+        "embedding_provider": _check_embedding_provider(),
     }
     results = await asyncio.gather(*checks.values(), return_exceptions=True)
     output = {}

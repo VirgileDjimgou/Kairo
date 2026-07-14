@@ -1,6 +1,6 @@
 # Project Status
 
-Last updated: 2026-07-07
+Last updated: 2026-07-14
 
 ## Current Sprint
 
@@ -45,6 +45,10 @@ Sprint 64 - Deployment Packaging, Upgrade, And Rollback Automation.
   - production-grade invite and password-reset delivery with tenant-aware provider context and explicit fallback handling
   - release-candidate regression matrix, professional handoff checklist, and a reproducible role-and-tenant screenshot gallery
   - French-first interface foundation with persistent user language preference and English/German alternates
+  - configurable AI provider selection for Ollama or OpenAI-compatible local servers such as LM Studio
+  - retrieval query rewriting that expands multilingual search hints before vector lookup
+  - streaming chat citation persistence and restored citations when reopening a conversation
+  - direct-backend SSE chat streaming from the browser, with authenticated fetches and committed conversation creation
   - Combis Sport Verein demo branding and a larger fictional member roster aligned with the association use case
 - language-aware chat requests plus a safer archive import base for the provided association documents
 - post-Sprint-63 stabilization now keeps the login language choice across the authenticated session, extends chat finance/privacy guards to French and German phrasing, and includes refreshed role screenshots under `apps/web/artifacts/manual-role-checks/2026-07-07/`

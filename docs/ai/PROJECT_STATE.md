@@ -1,6 +1,6 @@
 # Project State
 
-Last verified against repository code on 2026-07-07.
+Last verified against repository code on 2026-07-14.
 
 ## Product Snapshot
 
@@ -18,6 +18,10 @@ The repository now enters a new productization track aimed at a mature associati
 - Multi-tenant authentication, tenant switching, session governance, and identity hardening
 - Secure document RAG with citations, no-source refusal, prompt-injection defenses, structured chat boundaries, and audit traceability
 - Role-aware structured chat now covers member balances, tenant finance summaries, governance summaries, official publication context, disciplinary summaries, and sports schedules
+- Configurable AI provider selection now supports Ollama or OpenAI-compatible local servers such as LM Studio
+- Chat retrieval now rewrites queries before search and prefers same-language documents when available
+- Streaming chat now returns citations in the final SSE payload and restores them when a conversation is reopened
+- Browser chat streaming now targets the backend API directly, carries the bearer token, and commits new conversations before reuse
 - Membership, contributions, announcements, events, disciplinary records, document ingestion, and operational observability foundations
 - Guided onboarding, role-aware dashboard progress, secretary workspace, treasurer finance workspace with reminder automation, auditor oversight, censor workspace, sports workspace, executive governance cockpit, principal-admin control plane, member-focused navigation simplification, tenant operations command center, dashboard role-focus cards, demo gallery, and reproducible multi-tenant provisioning helpers
 - Guided onboarding wizard, role-aware dashboard progress, secretary workspace, treasurer finance workspace with reminder automation, auditor oversight, censor workspace, sports workspace, executive governance cockpit, principal-admin control plane, member-focused navigation simplification, tenant operations command center, dashboard role-focus cards, demo gallery, and reproducible multi-tenant provisioning helpers

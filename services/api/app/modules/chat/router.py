@@ -111,11 +111,13 @@ async def create_conversation(
     db: DbDep,
 ) -> ChatConversationResponse:
     service = ChatService(db)
-    return await service.create_conversation(
+    response = await service.create_conversation(
         tenant_id=current.tenant_id,
         user_id=current.user.id,
         title=request.title,
     )
+    await db.commit()
+    return response
 
 
 @router.get("/conversations/{conversation_id}", response_model=ChatConversationDetailResponse)
