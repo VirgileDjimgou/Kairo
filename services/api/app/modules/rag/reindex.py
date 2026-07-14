@@ -23,7 +23,11 @@ def _get_sentinel_path() -> str:
 def check_embedding_model_changed() -> bool:
     """Return True if the embedding model changed since last run."""
     sentinel_path = _get_sentinel_path()
-    current = settings.ollama_embedding_model
+    current = (
+        settings.openai_compatible_embedding_model
+        if settings.embedding_provider_kind == "openai_compatible"
+        else settings.ollama_embedding_model
+    )
     previous: str | None = None
 
     try:
@@ -48,5 +52,23 @@ def persist_embedding_model() -> None:
     sentinel_path = _get_sentinel_path()
     os.makedirs(os.path.dirname(sentinel_path), exist_ok=True)
     with open(sentinel_path, "w") as f:
-        json.dump({"model": settings.ollama_embedding_model}, f)
-    logger.info("embedding_model_persisted", model=settings.ollama_embedding_model)
+        json.dump(
+            {
+                "model": (
+                    settings.openai_compatible_embedding_model
+                    if settings.embedding_provider_kind == "openai_compatible"
+                    else settings.ollama_embedding_model
+                ),
+                "provider": settings.embedding_provider_kind,
+            },
+            f,
+        )
+    logger.info(
+        "embedding_model_persisted",
+        model=(
+            settings.openai_compatible_embedding_model
+            if settings.embedding_provider_kind == "openai_compatible"
+            else settings.ollama_embedding_model
+        ),
+        provider=settings.embedding_provider_kind,
+    )

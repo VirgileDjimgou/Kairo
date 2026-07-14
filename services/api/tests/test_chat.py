@@ -24,6 +24,7 @@ def _seed_document_and_chunk(
     title: str,
     text: str,
     access_scope: str = "tenant_public",
+    language: str = "en",
     allowed_role_ids_json: str | None = None,
 ) -> DocumentChunk:
     document_id = _uuid.uuid4()
@@ -35,7 +36,7 @@ def _seed_document_and_chunk(
         tenant_id=tenant_id,
         title=title,
         source_type="upload",
-        language="en",
+        language=language,
         access_scope=access_scope,
         owner_user_id=owner_user_id,
         status=DocumentStatus.ready.value,
@@ -61,7 +62,7 @@ def _seed_document_and_chunk(
         document_version_id=version_id,
         chunk_index=0,
         text=text,
-        language="en",
+        language=language,
         token_count=len(text.split()),
     )
     db.add(document)
@@ -169,6 +170,103 @@ async def test_chat_query_returns_answer_with_citations(
     assert body["citations"][0]["chunk_id"] == str(chunk.id)
     assert "document" in body["source_types"]
 
+    conversation = await client.get(
+        f"/api/v1/chat/conversations/{body['conversation_id']}",
+        headers={"Authorization": f"Bearer {token}"},
+    )
+    assert conversation.status_code == 200, conversation.text
+    conversation_body = conversation.json()
+    assert conversation_body["messages"][1]["citations_json"]
+    assert conversation_body["messages"][1]["citations_json"][0]["document_title"] == "Finance Policy"
+
+
+@pytest.mark.asyncio
+async def test_chat_query_works_after_explicit_conversation_creation(
+    client: AsyncClient,
+    db_session: AsyncSession,
+    fake_vector_store,
+) -> None:
+    data = await create_tenant_with_user(db_session, f"chat-create-{_uuid.uuid4().hex[:6]}")
+    token = await login(client, data["user"].email, data["password"], tenant_slug=data["tenant"].slug)
+
+    chunk = _seed_document_and_chunk(
+        db_session,
+        tenant_id=data["tenant"].id,
+        owner_user_id=data["user"].id,
+        title="Governance Charter",
+        text="The internal regulation is detailed in the charter and conduct code.",
+    )
+    await db_session.flush()
+    fake_vector_store.upsert_chunk_vectors(
+        [
+            (
+                chunk.id,
+                [0.2] * 8,
+                {
+                    "tenant_id": str(data["tenant"].id),
+                    "document_id": str(chunk.document_id),
+                    "document_version_id": str(chunk.document_version_id),
+                    "chunk_id": str(chunk.id),
+                    "access_scope": "tenant_public",
+                    "owner_user_id": str(data["user"].id),
+                    "allowed_role_ids": [],
+                    "language": "en",
+                    "source_type": "upload",
+                    "created_at": "2026-06-28T00:00:00Z",
+                },
+            )
+        ]
+    )
+
+    created = await client.post(
+        "/api/v1/chat/conversations",
+        headers={"Authorization": f"Bearer {token}"},
+        json={"title": "Nouvelle conversation"},
+    )
+    assert created.status_code == 201, created.text
+    conversation_id = created.json()["id"]
+
+    response = await client.post(
+        "/api/v1/chat/query",
+        headers={"Authorization": f"Bearer {token}"},
+        json={
+            "conversation_id": conversation_id,
+            "question": "Which documents mention the internal regulation?",
+            "response_language": "en",
+        },
+    )
+    assert response.status_code == 200, response.text
+    body = response.json()
+    assert body["conversation_id"] == conversation_id
+    assert body["answer"]
+    assert body["citations"]
+
+
+@pytest.mark.asyncio
+async def test_chat_list_conversations_after_creation(
+    client: AsyncClient,
+    db_session: AsyncSession,
+) -> None:
+    data = await create_tenant_with_user(db_session, f"chat-list-{_uuid.uuid4().hex[:6]}")
+    token = await login(client, data["user"].email, data["password"], tenant_slug=data["tenant"].slug)
+
+    created = await client.post(
+        "/api/v1/chat/conversations",
+        headers={"Authorization": f"Bearer {token}"},
+        json={"title": "Nouvelle conversation"},
+    )
+    assert created.status_code == 201, created.text
+
+    listed = await client.get(
+        "/api/v1/chat/conversations",
+        headers={"Authorization": f"Bearer {token}"},
+    )
+    assert listed.status_code == 200, listed.text
+    conversations = listed.json()
+    assert len(conversations) == 1
+    assert conversations[0]["title"] == "Nouvelle conversation"
+    assert conversations[0]["message_count"] == 0
+
 
 @pytest.mark.asyncio
 async def test_chat_query_refuses_without_authorized_sources(
@@ -236,6 +334,8 @@ async def test_chat_query_includes_structured_personal_balance_context(
     assert "Personal contribution balance" in user_prompt
     assert "Outstanding balance: 75.00 EUR" in user_prompt
     assert "Response language: de" in user_prompt
+    assert "Role profile: member" in user_prompt
+    assert "Use this structure when a full answer is appropriate" in user_prompt
 
 
 @pytest.mark.asyncio
@@ -424,6 +524,158 @@ async def test_chat_query_includes_tenant_finance_summary_for_auditor(
     assert "Tenant contribution summary" in user_prompt
     assert "Total expected: 220.00 EUR" in user_prompt
     assert "Outstanding balance: 75.00 EUR" in user_prompt
+    assert "Role profile: auditor" in user_prompt
+    assert "numbers first" in user_prompt or "numbers and items" in user_prompt
+
+
+@pytest.mark.asyncio
+async def test_chat_stream_emits_citations_and_source_types(
+    client: AsyncClient,
+    db_session: AsyncSession,
+    fake_vector_store,
+    fake_llm,
+) -> None:
+    data = await create_tenant_with_user(db_session, f"stream-{_uuid.uuid4().hex[:6]}")
+    token = await login(client, data["user"].email, data["password"], tenant_slug=data["tenant"].slug)
+
+    chunk = _seed_document_and_chunk(
+        db_session,
+        tenant_id=data["tenant"].id,
+        owner_user_id=data["user"].id,
+        title="Streaming Policy",
+        text="Streaming answers should preserve citations.",
+    )
+    await db_session.flush()
+    fake_vector_store.upsert_chunk_vectors(
+        [
+            (
+                chunk.id,
+                [0.25] * 8,
+                {
+                    "tenant_id": str(data["tenant"].id),
+                    "document_id": str(chunk.document_id),
+                    "document_version_id": str(chunk.document_version_id),
+                    "chunk_id": str(chunk.id),
+                    "access_scope": "tenant_public",
+                    "owner_user_id": str(data["user"].id),
+                    "allowed_role_ids": [],
+                    "language": "en",
+                    "source_type": "upload",
+                    "created_at": "2026-06-28T00:00:00Z",
+                },
+            )
+        ]
+    )
+
+    async with client.stream(
+        "POST",
+        "/api/v1/chat/query-stream",
+        headers={"Authorization": f"Bearer {token}"},
+        json={"question": "What does the streaming policy say?"},
+    ) as response:
+        status = response.status_code
+        body = await response.aread()
+        assert status == 200, body
+
+    text = body.decode()
+    assert '"type": "done"' in text
+    assert '"citations"' in text
+    assert '"source_types"' in text
+    assert len(fake_llm.calls) == 1
+    assert "Answer in the requested response language only." in fake_llm.calls[0]["user_prompt"]
+
+
+@pytest.mark.asyncio
+async def test_chat_query_prefers_documents_in_user_language(
+    client: AsyncClient,
+    db_session: AsyncSession,
+    fake_llm,
+    fake_vector_store,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    from app.core.dependencies import get_reranker_provider
+    from app.main import app
+
+    app.dependency_overrides[get_reranker_provider] = lambda: None
+    try:
+        data = await create_tenant_with_user(db_session, f"lang-{_uuid.uuid4().hex[:6]}")
+        token = await login(client, data["user"].email, data["password"], tenant_slug=data["tenant"].slug)
+
+        owner_user_id = data["user"].id
+
+        fr_chunk = _seed_document_and_chunk(
+            db_session,
+            tenant_id=data["tenant"].id,
+            owner_user_id=owner_user_id,
+            title="Règlement intérieur",
+            text="Les cotisations doivent être payées avant le 10 de chaque mois.",
+            access_scope="tenant_public",
+            language="fr",
+        )
+        en_chunk = _seed_document_and_chunk(
+            db_session,
+            tenant_id=data["tenant"].id,
+            owner_user_id=owner_user_id,
+            title="Bylaws",
+            text="Contributions must be paid before the 10th day of each month.",
+            access_scope="tenant_public",
+        )
+        await db_session.flush()
+        captured_search_kwargs: dict[str, object] = {}
+
+        def _fake_search_chunk_vectors(**kwargs):
+            captured_search_kwargs.update(kwargs)
+            return [
+                {
+                    "id": str(en_chunk.id),
+                    "score": 0.93,
+                    "payload": {
+                        "tenant_id": str(data["tenant"].id),
+                        "document_id": str(en_chunk.document_id),
+                        "document_version_id": str(en_chunk.document_version_id),
+                        "chunk_id": str(en_chunk.id),
+                        "access_scope": "tenant_public",
+                        "owner_user_id": str(owner_user_id),
+                        "allowed_role_ids": [],
+                        "language": "en",
+                        "source_type": "upload",
+                        "created_at": "2026-06-28T00:00:00Z",
+                    },
+                },
+                {
+                    "id": str(fr_chunk.id),
+                    "score": 0.93,
+                    "payload": {
+                        "tenant_id": str(data["tenant"].id),
+                        "document_id": str(fr_chunk.document_id),
+                        "document_version_id": str(fr_chunk.document_version_id),
+                        "chunk_id": str(fr_chunk.id),
+                        "access_scope": "tenant_public",
+                        "owner_user_id": str(owner_user_id),
+                        "allowed_role_ids": [],
+                        "language": "fr",
+                        "source_type": "upload",
+                        "created_at": "2026-06-28T00:00:00Z",
+                    },
+                },
+            ]
+
+        monkeypatch.setattr(fake_vector_store, "search_chunk_vectors", _fake_search_chunk_vectors)
+
+        response = await client.post(
+            "/api/v1/chat/query",
+            headers={"Authorization": f"Bearer {token}"},
+            json={"question": "Quels documents parlent des règlements ?", "response_language": "fr"},
+        )
+        assert response.status_code == 200, response.text
+        body = response.json()
+        assert body["citations"][0]["document_title"] == "Règlement intérieur"
+        assert fake_llm.calls[0]["system_prompt"].startswith("You are a grounded assistant")
+        assert "query_text" in captured_search_kwargs
+        assert "français" in str(captured_search_kwargs["query_text"]).lower()
+        assert "document" in str(captured_search_kwargs["query_text"]).lower()
+    finally:
+        app.dependency_overrides.pop(get_reranker_provider, None)
 
 
 @pytest.mark.asyncio

@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from uuid import UUID
 
-from sqlalchemy import select
+from sqlalchemy import func, select
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import joinedload
 
@@ -108,6 +108,11 @@ class ChatRepository:
         )
         result = await self._db.execute(stmt)
         return list(result.scalars().all())
+
+    async def count_messages_for_conversation(self, *, conversation_id: UUID) -> int:
+        stmt = select(func.count(ChatMessage.id)).where(ChatMessage.conversation_id == conversation_id)
+        result = await self._db.execute(stmt)
+        return int(result.scalar_one() or 0)
 
     async def get_old_conversations(self, *, days: int) -> list[ChatConversation]:
         from datetime import datetime, timedelta, timezone

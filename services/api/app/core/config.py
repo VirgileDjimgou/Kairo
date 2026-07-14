@@ -1,3 +1,5 @@
+from typing import Literal
+
 from pydantic import field_validator
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
@@ -24,6 +26,11 @@ class Settings(BaseSettings):
         if isinstance(v, str):
             return [origin.strip() for origin in v.split(",") if origin.strip()]
         return v
+
+    @field_validator("llm_provider_kind", "embedding_provider_kind", mode="before")
+    @classmethod
+    def normalize_provider_kind(cls, v: str) -> str:
+        return v.strip().lower() if isinstance(v, str) else v
 
     # Security — MUST be changed in production
     jwt_secret_key: str = "change-me-in-production-use-a-long-random-string"
@@ -55,6 +62,14 @@ class Settings(BaseSettings):
     ollama_llm_model: str = "qwen2.5:14b"
     ollama_embedding_model: str = "bge-m3"
 
+    # OpenAI-compatible local providers (LM Studio, OpenRouter-compatible mocks, etc.)
+    llm_provider_kind: Literal["ollama", "openai_compatible"] = "ollama"
+    embedding_provider_kind: Literal["ollama", "openai_compatible"] = "ollama"
+    openai_compatible_base_url: str = "http://127.0.0.1:1234/v1"
+    openai_compatible_api_key: str = "lm-studio"
+    openai_compatible_llm_model: str = "zai-org/glm-4.7-flash"
+    openai_compatible_embedding_model: str = "text-embedding-nomic-embed-text-v1.5"
+
     # Optional notification channel placeholders
     smtp_host: str | None = None
     smtp_port: int = 587
@@ -81,13 +96,16 @@ class Settings(BaseSettings):
     indexing_auto_enabled: bool = True
 
     # LLM tuning
+    llm_request_timeout_seconds: int = 120
     llm_temperature: float = 0.3
     llm_top_p: float = 0.9
-    llm_max_tokens: int = 2048
+    llm_max_tokens: int = 1024
 
     # RAG tuning
     rag_top_k: int = 6
     rag_score_threshold: float = 0.65
+    rag_candidate_multiplier: int = 5
+    rag_language_boost: float = 0.15
     rag_rerank_enabled: bool = True
     rag_rerank_top_k: int = 10
     rag_hybrid_search: bool = True

@@ -54,7 +54,7 @@ flowchart TB
   DOCS --> REDIS[(Redis)]
   DOCS --> CELERY[Celery Worker]
   RAG --> QDRANT[(Qdrant)]
-  RAG --> OLLAMA[(Ollama)]
+  RAG --> OLLAMA[(Ollama / LM Studio via OpenAI-compatible API)]
 ```
 
 **Key design decisions:**
@@ -62,7 +62,7 @@ flowchart TB
 - **Backend enforces all permissions** — the LLM never decides access control
 - **Tenant isolation** on every DB query (every request carries `tenant_id`)
 - **RAG retrieval** is filtered by tenant and access scope before the LLM sees anything
-- **Provider pattern** — all infrastructure behind interfaces (swap Ollama → OpenAI, Qdrant → Pinecone, etc.)
+- **Provider pattern** — all infrastructure behind interfaces (swap Ollama or LM Studio OpenAI-compatible endpoints, Qdrant → Pinecone, etc.)
 - **Autonomous tests** default to SQLite — portable on any machine or agentic IDE
 
 ## Quick Start
@@ -71,7 +71,7 @@ flowchart TB
 # 1. Prerequisites
 #    - Docker & Docker Compose
 #    - Git
-#    - ~8 GB free RAM (for Ollama + Qdrant + services)
+#    - ~8 GB free RAM (for Ollama or LM Studio + Qdrant + services)
 
 # 2. Clone and enter the repo
 git clone <repo-url> kairo
@@ -103,6 +103,26 @@ Then access the app:
 
 - Frontend: `http://localhost:5173`
 - API docs: `http://localhost:8000/docs`
+
+### AI Provider Configuration
+
+Kairo can use either:
+
+- `ollama` for local self-hosted models, or
+- an OpenAI-compatible local server such as LM Studio.
+
+To switch to LM Studio, set:
+
+```bash
+LLM_PROVIDER_KIND=openai_compatible
+EMBEDDING_PROVIDER_KIND=openai_compatible
+OPENAI_COMPATIBLE_BASE_URL=http://127.0.0.1:1234/v1
+OPENAI_COMPATIBLE_API_KEY=lm-studio
+OPENAI_COMPATIBLE_LLM_MODEL=zai-org/glm-4.7-flash
+OPENAI_COMPATIBLE_EMBEDDING_MODEL=text-embedding-nomic-embed-text-v1.5
+```
+
+Keep the `OLLAMA_*` values if you want to continue using Ollama.
 
 ### Demo Credentials
 

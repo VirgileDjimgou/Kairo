@@ -278,7 +278,8 @@ const serviceRows = computed<ServiceRow[]>(() => {
     redis: 'Redis cache',
     minio: 'Object storage',
     qdrant: 'Vector store',
-    ollama: 'LLM provider',
+    llm_provider: 'LLM provider',
+    embedding_provider: 'Embedding provider',
   }
 
   return Object.entries(checks).map(([name, check]) => ({

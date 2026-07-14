@@ -5,11 +5,13 @@ from uuid import UUID
 
 from pydantic import BaseModel, Field
 
+from app.core.config import settings
+
 
 class ChatQueryRequest(BaseModel):
     question: str = Field(min_length=1, max_length=4000)
     conversation_id: UUID | None = None
-    top_k: int = Field(default=4, ge=1, le=10)
+    top_k: int = Field(default=settings.rag_top_k, ge=1, le=10)
     response_language: str = Field(default="fr", min_length=2, max_length=10)
 
 

@@ -10,7 +10,7 @@ from app.core.config import settings
 
 class OllamaLLMProvider:
     def __init__(self) -> None:
-        self._timeout = settings.embedding_request_timeout_seconds
+        self._timeout = settings.llm_request_timeout_seconds
 
     async def generate(
         self,

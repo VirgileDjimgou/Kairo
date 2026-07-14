@@ -148,7 +148,8 @@ async def test_health_reports_degraded_dependency(monkeypatch, client: AsyncClie
             "redis": {"status": "unavailable", "latency_ms": 2},
             "minio": {"status": "ok", "latency_ms": 3},
             "qdrant": {"status": "ok", "latency_ms": 4},
-            "ollama": {"status": "ok", "latency_ms": 5},
+            "llm_provider": {"status": "ok", "latency_ms": 5},
+            "embedding_provider": {"status": "ok", "latency_ms": 6},
         }
 
     monkeypatch.setattr("app.main.run_all_checks", fake_checks)

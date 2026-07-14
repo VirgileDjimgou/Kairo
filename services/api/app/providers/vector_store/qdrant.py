@@ -12,10 +12,7 @@ from qdrant_client.models import (
     MatchValue,
     PointStruct,
     SparseVectorParams,
-    SparseVector,
     VectorParams,
-    NamedSparseVector,
-    ScoredPoint,
 )
 
 from app.core.config import settings
@@ -91,28 +88,18 @@ class QdrantVectorStoreProvider:
             ]
         )
 
-        if hybrid and query_text:
-            response = self._client.query_points(
-                collection_name=self._collection,
-                query=query_vector,
-                query_filter=query_filter,
-                limit=limit,
-                with_payload=True,
-                score_threshold=score_threshold if score_threshold > 0 else None,
-                sparse_query=SparseVector(
-                    indices=list(range(len(query_text.split()))),
-                    values=[1.0] * len(query_text.split()),
-                ),
-            )
-        else:
-            response = self._client.query_points(
-                collection_name=self._collection,
-                query=query_vector,
-                query_filter=query_filter,
-                limit=limit,
-                with_payload=True,
-                score_threshold=score_threshold if score_threshold > 0 else None,
-            )
+        # The qdrant-client version bundled with the current stack does not
+        # expose the sparse_query keyword on query_points(). We keep the hybrid
+        # flag for compatibility, but fall back to dense retrieval so chat
+        # remains functional across local and containerized environments.
+        response = self._client.query_points(
+            collection_name=self._collection,
+            query=query_vector,
+            query_filter=query_filter,
+            limit=limit,
+            with_payload=True,
+            score_threshold=score_threshold if score_threshold > 0 else None,
+        )
 
         results = getattr(response, "points", response)
         return [
