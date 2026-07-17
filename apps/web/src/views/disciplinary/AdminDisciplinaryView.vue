@@ -3,15 +3,15 @@
     <div class="d-flex flex-column flex-lg-row justify-content-between gap-3 mb-4">
       <div>
         <div class="text-uppercase small fw-semibold text-secondary mb-2">
-          Discipline
+          {{ t('disciplinary.kicker') }}
         </div>
-        <h1 class="h4 fw-bold mb-1">Disciplinary administration</h1>
+        <h1 class="h4 fw-bold mb-1">{{ t('disciplinary.adminTitle') }}</h1>
         <p class="text-muted mb-0">
-          Track open, under review, resolved, and waived records for tenant members.
+          {{ t('disciplinary.adminSubtitle') }}
         </p>
       </div>
       <button class="btn om-primary-btn align-self-start" type="button" @click="resetForm">
-        New record
+        {{ t('disciplinary.newRecord') }}
       </button>
     </div>
 
@@ -21,16 +21,16 @@
           <div class="card-body p-4">
             <div class="d-flex align-items-center justify-content-between mb-3">
               <h2 class="h6 fw-bold mb-0">
-                {{ editingId ? 'Edit record' : 'Create record' }}
+                {{ editingId ? t('disciplinary.editRecord') : t('disciplinary.createRecord') }}
               </h2>
-              <span class="badge text-bg-light text-dark border">{{ records.length }} records</span>
+              <span class="badge text-bg-light text-dark border">{{ records.length }} {{ t('common.records') }}</span>
             </div>
 
             <form class="vstack gap-3" @submit.prevent="saveRecord">
               <div>
-                <label class="form-label">Member</label>
+                <label class="form-label">{{ t('common.member') }}</label>
                 <select v-model="form.membership_profile_id" class="form-select" required>
-                  <option value="" disabled>Select member</option>
+                  <option value="" disabled>{{ t('disciplinary.selectMember') }}</option>
                   <option v-for="member in members" :key="member.id" :value="member.id">
                     {{ member.display_name }} ({{ member.member_code }})
                   </option>
@@ -38,9 +38,9 @@
               </div>
 
               <div>
-                <label class="form-label">Policy</label>
+                <label class="form-label">{{ t('policies.kicker') }}</label>
                 <select v-model="form.policy_record_id" class="form-select">
-                  <option value="">No linked policy</option>
+                  <option value="">{{ t('disciplinary.noPolicy') }}</option>
                   <option v-for="policy in policies" :key="policy.id" :value="policy.id">
                     {{ policy.title }} · {{ policy.category }}
                   </option>
@@ -48,42 +48,42 @@
               </div>
 
               <div>
-                <label class="form-label">Title</label>
+                <label class="form-label">{{ t('common.title') }}</label>
                 <input v-model.trim="form.title" class="form-control" type="text" required />
               </div>
 
               <div>
-                <label class="form-label">Description</label>
+                <label class="form-label">{{ t('common.description') }}</label>
                 <textarea v-model.trim="form.description" class="form-control" rows="4" />
               </div>
 
               <div class="row g-2">
                 <div class="col-7">
-                  <label class="form-label">Amount</label>
+                  <label class="form-label">{{ t('common.amount') }}</label>
                   <input v-model="form.amount" class="form-control" type="number" step="0.01" min="0" />
                 </div>
                 <div class="col-5">
-                  <label class="form-label">Currency</label>
+                  <label class="form-label">{{ t('common.currency') }}</label>
                   <input v-model.trim="form.currency" class="form-control" type="text" maxlength="3" />
                 </div>
               </div>
 
               <div>
-                <label class="form-label">Status</label>
+                <label class="form-label">{{ t('common.status') }}</label>
                 <select v-model="form.status" class="form-select">
-                  <option value="open">Open</option>
-                  <option value="under_review">Under review</option>
-                  <option value="resolved">Resolved</option>
-                  <option value="waived">Waived</option>
+                  <option value="open">{{ t('disciplinary.open') }}</option>
+                  <option value="under_review">{{ t('disciplinary.underReview') }}</option>
+                  <option value="resolved">{{ t('disciplinary.resolved') }}</option>
+                  <option value="waived">{{ t('disciplinary.waived') }}</option>
                 </select>
               </div>
 
               <div class="d-flex gap-2">
                 <button class="btn btn-primary" type="submit" :disabled="saving">
-                  {{ saving ? 'Saving...' : editingId ? 'Update record' : 'Create record' }}
+                  {{ saving ? t('common.saving') : editingId ? t('disciplinary.updateRecord') : t('disciplinary.createRecord') }}
                 </button>
                 <button class="btn btn-outline-secondary" type="button" @click="resetForm">
-                  Reset
+                  {{ t('common.reset') }}
                 </button>
               </div>
             </form>
@@ -95,14 +95,14 @@
         <div class="card shadow-sm border-0">
           <div class="card-body p-4">
             <div v-if="loading" class="text-muted py-5 text-center">
-              Loading disciplinary records...
+              {{ t('disciplinary.loadingRecords') }}
             </div>
 
             <div v-else-if="records.length === 0" class="empty-state">
               <i class="bi bi-shield-lock display-6 text-secondary"></i>
-              <p class="mb-1 fw-semibold">No records yet</p>
+              <p class="mb-1 fw-semibold">{{ t('disciplinary.noRecords') }}</p>
               <p class="text-muted mb-0">
-                Create the first disciplinary or waiver record for this tenant.
+                {{ t('disciplinary.noRecordsHint') }}
               </p>
             </div>
 
@@ -110,13 +110,13 @@
               <table class="table align-middle">
                 <thead>
                   <tr>
-                    <th>Member</th>
-                    <th>Title</th>
-                    <th>Policy</th>
-                    <th>Amount</th>
-                    <th>Status</th>
+                    <th>{{ t('common.member') }}</th>
+                    <th>{{ t('common.title') }}</th>
+                    <th>{{ t('policies.kicker') }}</th>
+                    <th>{{ t('common.amount') }}</th>
+                    <th>{{ t('common.status') }}</th>
                     <th>Recorded</th>
-                    <th class="text-end">Actions</th>
+                    <th class="text-end">{{ t('common.actions') }}</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -138,10 +138,10 @@
                     <td class="text-end">
                       <div class="btn-group btn-group-sm">
                         <button class="btn btn-outline-primary" type="button" @click="editRecord(record)">
-                          Edit
+                          {{ t('common.edit') }}
                         </button>
                         <button class="btn btn-outline-danger" type="button" @click="removeRecord(record)">
-                          Delete
+                          {{ t('common.delete') }}
                         </button>
                       </div>
                     </td>
@@ -156,8 +156,8 @@
   </div>
 
   <ConfirmModal v-if="showDeleteModal && deletingItem"
-    title="Delete disciplinary record"
-    :message="`Delete disciplinary record &quot;${deletingItem.title}&quot;?`"
+    :title="t('disciplinary.deleteRecordTitle')"
+    :message="`${t('disciplinary.deleteRecordMessage')} &quot;${deletingItem.title}&quot;?`"
     @confirm="handleDelete"
     @cancel="showDeleteModal = false; deletingItem = null"
   />
@@ -177,6 +177,10 @@ import {
   type DisciplinaryRecordResponse,
   type UpdateDisciplinaryPayload,
 } from '@/api/disciplinary.api'
+import { useLocaleStore } from '@/stores/locale.store'
+
+const localeStore = useLocaleStore()
+const t = (key: string) => localeStore.t(key)
 
 const loading = ref(true)
 const saving = ref(false)

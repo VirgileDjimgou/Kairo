@@ -43,16 +43,29 @@ Then open http://localhost:5173. See [README.md](README.md) for details.
 
 ## Test Coverage
 
-181 backend integration tests (SQLite, no external infrastructure required).
-Frontend builds clean (TypeScript-checked, 234 modules).
+239 backend integration tests (SQLite, no external infrastructure required).
+Frontend type-check (`npm run type-check`) and production build (`npm run build`) pass.
+Localization E2E pack (`npm run test:e2e:locale`) passes on Chromium.
+
+## Roles And Boundaries
+
+- **Member**: read-first self-service only (profile, balance, personal contribution
+  history, personal PDF statement). Never sees another member's data.
+- **Office roles**: targeted write scopes by role — treasurer (finance), secretary
+  general (documents/policies/announcements), censor (discipline), sports manager
+  (sports events), president/vice president (governance oversight), auditor
+  (read-only finance), principal admin (broadest tenant administration).
+- **Backend-only enforcement**: tenant isolation and permissions are enforced by
+  the backend; the LLM never decides access and never receives unauthorized chunks.
 
 ## Known Limitations
 
-- Only email is wired for real identity delivery (Telegram/WhatsApp are simulated)
-- LLM responses depend on Ollama model availability
+- Only email is wired for real identity delivery (Telegram/WhatsApp are simulated placeholders)
+- LLM responses depend on a locally available model (Ollama or an OpenAI-compatible server such as LM Studio)
 - No SSO/SAML/OIDC integration
-- No mobile app
-- Production deployment requires Docker Compose on a Linux host (see deployment guide)
+- No mobile app (the web UI is responsive)
+- Production Docker path is validated through build and smoke checks; a full multi-host runbook is operational guidance rather than a certified deployment
+- Demo tenant is fictional (Combis Sport Verein / `demo` slug) and must not be confused with a real organization
 
 ## License
 

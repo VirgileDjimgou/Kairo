@@ -23,9 +23,9 @@ Use this checklist when moving from the demo tenant to a real customer deploymen
 
 ## Infrastructure Cutover
 
-- [ ] Build production images
-- [ ] Apply database migrations on the target environment
-- [ ] Start the stack
+- [ ] Run `bash scripts/deploy_release.sh preflight`
+- [ ] Build or deploy through the documented release helper path
+- [ ] Apply the target upgrade path with a recorded backup
 - [ ] Run `/health`
 - [ ] Run `/metrics`
 - [ ] Run the production smoke script

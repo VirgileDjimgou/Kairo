@@ -11,6 +11,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core.config import settings
 from app.modules.audit.service import AuditService
+from app.modules.documents.metadata import infer_document_language_from_upload
 from app.modules.documents.models import (
     Document,
     DocumentAccessScope,
@@ -91,13 +92,20 @@ class DocumentService:
         except ValueError as exc:
             raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Invalid access scope") from exc
 
+        document_language = infer_document_language_from_upload(
+            file_name=file.filename,
+            title=title,
+            description=description,
+            file_bytes=file_bytes,
+        )
+
         document = Document(
             id=document_id,
             tenant_id=tenant_id,
             title=title.strip(),
             description=description.strip() if description else None,
             source_type="upload",
-            language="en",
+            language=document_language,
             access_scope=document_scope,
             allowed_role_ids_json=json.dumps(sorted(set(allowed_role_ids or [])))
             if allowed_role_ids

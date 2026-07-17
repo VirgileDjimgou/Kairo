@@ -8,7 +8,7 @@
           <p class="text-muted mb-0 hero-copy" data-testid="governance-cockpit-subtitle">{{ subtitle }}</p>
         </div>
         <div class="d-flex gap-2 align-items-start">
-          <button class="btn btn-outline-secondary btn-sm" type="button" @click="refresh" :disabled="loading">
+          <button class="btn btn-outline-secondary btn-sm" type="button" @click="refresh" :disabled="loading || isRecovering">
             <span v-if="loading" class="spinner-border spinner-border-sm me-1" aria-hidden="true"></span>
             {{ copy.refresh }}
           </button>
@@ -48,9 +48,20 @@
       </div>
     </div>
 
-    <div v-if="error" class="alert alert-danger alert-dismissible small py-2 mb-4" role="alert">
-      <i class="bi bi-exclamation-triangle me-1"></i>{{ error }}
-      <button type="button" class="btn-close py-2" @click="error = ''"></button>
+    <div v-if="error" class="alert alert-warning border-0 shadow-sm mb-4" role="alert">
+      <div class="d-flex flex-column flex-md-row justify-content-between gap-3">
+        <div>
+          <div class="fw-semibold">
+            <i class="bi bi-exclamation-triangle me-2"></i>{{ t('governance.workspaceErrorTitle') }}
+          </div>
+          <p class="small mb-0 mt-2">{{ error }}</p>
+          <p class="mb-0 small text-muted mt-1">{{ t('common.recoveryHint') }}</p>
+        </div>
+        <button class="btn btn-outline-secondary btn-sm align-self-start" type="button" @click="retryRefresh" :disabled="isRecovering">
+          <span v-if="isRecovering" class="spinner-border spinner-border-sm me-1" aria-hidden="true"></span>
+          {{ isRecovering ? t('common.loading') : t('common.retry') }}
+        </button>
+      </div>
     </div>
 
     <div class="row g-4">
@@ -212,14 +223,17 @@ import { useLocaleStore } from '@/stores/locale.store'
 const authStore = useAuthStore()
 const tenantStore = useTenantStore()
 const localeStore = useLocaleStore()
+const t = (key: string) => localeStore.t(key)
 const {
   loading,
   error,
+  isRecovering,
   heading,
   subtitle,
   cards,
   quickActions,
   refresh,
+  retryRefresh,
   isPresident,
   isVicePresident,
   isPrincipalAdmin,

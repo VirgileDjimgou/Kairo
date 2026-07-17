@@ -2749,7 +2749,7 @@ Acceptance criteria:
 
 ## Sprint 62 - Privacy, Audit, And Export Hardening
 
-Status: In progress
+Status: Completed
 
 Goal:
 Tighten privacy boundaries across logs, exports, traces, and admin review surfaces.
@@ -2821,14 +2821,46 @@ Implementation notes:
 
 ## Sprint 64 - Deployment Packaging, Upgrade, And Rollback Automation
 
-Status: Planned
+Status: Completed
 
 Goal:
 Make the self-hosted deployment path easier to install, verify, upgrade, and roll back.
 
+Why this sprint next:
+
+- The product already had deployment documentation plus backup and restore helpers, but operators still had to reconstruct the actual release workflow manually.
+- The production packaging story was not yet coherent end to end: preflight validation, smoke checks, and rollback were described in different places and did not fully match the runtime edge configuration.
+- This sprint closes that operator gap without widening the application permission surface.
+
+Deliverables:
+
+- shared operations helper for production-oriented compose execution and environment loading
+- release helper for preflight, first install, and upgrade flows
+- rollback helper that restores a known-good backup and reruns smoke validation
+- production smoke check aligned with the real gateway surface
+- gateway hardening so docs and OpenAPI are blocked on the public production surface
+- updated production environment template and deployment runbooks
+
+Acceptance criteria:
+
+- an operator can run a single documented command for production preflight
+- an operator can perform a first install and a routine upgrade with a repeatable scripted path
+- a rollback path exists and revalidates the stack after restore
+- the production smoke check matches the real nginx and Caddy surface
+- deployment, rollback, and validation docs no longer contradict the shipped runtime
+
+Implementation notes:
+
+- Added `scripts/lib/kairo_ops.sh` as the shared operational helper for loading `.env`, selecting development versus production Compose files, and validating production-oriented settings
+- Added `scripts/deploy_release.sh` with `preflight`, `install`, and `upgrade` entry points, plus optional demo seeding and controllable backup behavior
+- Added `scripts/rollback_release.sh` to wrap restore plus smoke validation in a single rollback flow
+- Updated `scripts/backup.sh`, `scripts/restore.sh`, and `scripts/production_smoke.sh` to use the shared helper and the production compose path consistently
+- Updated the production nginx and Caddy routing so `/metrics` is reachable for operational checks while `/docs`, `/redoc`, and `/openapi.json` remain blocked on the public surface
+- Added `docs/operations/deployment-runbook.md` and refreshed deployment/readiness documentation to use the new scripted operator workflow
+
 ## Sprint 65 - Commercial Offer Pack, Support Boundaries, And Market-Facing Docs
 
-Status: Planned
+Status: Completed
 
 Goal:
 Close the gap between the strong release candidate and a clearly packaged offer that an association can adopt with confidence.
@@ -2854,27 +2886,717 @@ Acceptance criteria:
 - the product story is consistent across README, status files, and handoff material
 - no roadmap ambiguity remains for the next agent session
 
+Implementation notes:
+
+- Added a short commercial offer pack for first-contact and board-level product positioning
+- Added a buyer FAQ with simple, non-technical answers about roles, hosting, AI boundaries, and current product limits
+- Updated the commercial README reading order so evaluators can start with the shortest high-signal materials
+- Corrected the feature matrix so SMTP-backed identity email delivery is presented as included while Telegram and WhatsApp remain explicit placeholders
+- Strengthened the support playbook and commercialization notes to distinguish product scope from service work and to clarify self-hosted versus managed-service responsibility splits
+- Updated the demo-to-production checklist, maturity review, README, and continuity files so the final commercial packaging story matches the verified runtime surface
+
+## Sprint 66 - Access Policy Parity, RAG Safety Hardening, And Locale Contract
+
+Status: Completed
+
+Goal:
+Close the remaining trust gaps between the canonical role model, document access scopes, chat retrieval boundaries, and the supported interface-language contract.
+
+Why this sprint next:
+
+- The audit found a probable mismatch between the product role catalog and the RAG access policy behavior for high-authority roles.
+- French-first UX is now part of the product promise, but some office and admin surfaces still drift into hardcoded English or unsupported locale options.
+- No additional product expansion should happen until the access and language foundations are explicitly verified and hardened.
+
+Deliverables:
+
+- explicit alignment between canonical roles, backend capabilities, and document/chat access scopes
+- regression tests for `tenant_public`, `members_only`, `role_restricted`, `user_private`, and `admin_only` across `member`, `secretary_general`, `treasurer`, `auditor`, `president`, `vice_president`, `sports_manager`, `censor`, and `principal_admin`
+- hardened refusal behavior for cross-member or cross-scope chatbot queries before any LLM prompt assembly
+- removal of unsupported locale drift from settings and entry flows, keeping `fr`, `en`, and `de` as the supported contract
+- updated handoff and security notes that explain the exact authority model in plain terms
+
+Acceptance criteria:
+
+- no role gains broader document or chat access than the backend policy explicitly allows
+- `principal_admin` authority is explicit, tenant-scoped, and covered by automated tests
+- the selected interface language remains consistent through login, dashboard, workspaces, chat errors, and admin settings
+- unsupported locales do not appear in the active UI contract without a deliberate roadmap decision
+
+Implementation notes:
+
+- Hardened `AccessPolicy` so privileged tenant operators keep explicit document access parity across `admin_only`, `user_private`, and `role_restricted` scopes
+- Preserved backward compatibility for the legacy `admin` role while bringing `principal_admin` to the same privileged document-access tier inside the tenant
+- Added backend regression coverage for privileged document access and principal-admin chat retrieval over privileged document scopes
+- Removed `nl` from the active admin settings language contract and switched the tenant settings form default back to `fr`
+- Localized the tenant settings and admin documents surfaces so the selected FR, EN, or DE session language is respected on those high-visibility admin screens
+- Added browser coverage proving that French-first tenant settings no longer expose unsupported locale options and that the admin documents workspace renders in French for a principal admin
+
+## Sprint 67 - Translation Completion, Frontend Copy Governance, And Error-State Consistency
+
+Status: Planned
+
+Goal:
+Finish the French-first, English-second, German-third interface experience and make future copy changes maintainable.
+
+Why this sprint next:
+
+- The current i18n foundation is real, but the audit confirmed that several admin and workspace routes still contain hardcoded English strings.
+- Product trust for ordinary members and office roles depends on language consistency, especially in warnings, confirmations, and error recovery states.
+- Completing translation coverage before broader UX polish prevents duplicate cleanup work later in the track.
+
+Deliverables:
+
+- extraction of remaining hardcoded user-facing strings into the supported i18n dictionaries
+- localized loading, empty, success, warning, and error states across admin, finance, secretary, disciplinary, events, and document surfaces
+- translation coverage checks or focused browser tests for the critical FR, EN, and DE role journeys
+- copy normalization for imports, exports, document actions, chat streaming errors, and role-specific quick actions
+- documentation of the translation governance rule so new UI work stays locale-safe by default
+
+Acceptance criteria:
+
+- no primary member, office, or admin route shows unintended English while the session locale is French
+- English and German remain complete enough for the same critical workflows
+- localized errors and success states are consistent across document, finance, chat, and settings workflows
+- future UI copy additions have an obvious home and validation path
+
+## Sprint 68 - Quality Gates, Test Reproducibility, And CI Baseline Recovery
+
+Status: Completed
+
+Goal:
+Restore confidence in automated validation so future sprints ship on a predictable and reproducible engineering base.
+
+Why this sprint next:
+
+- Backend runtime quality is stronger than the current validation pipeline, which now lags behind the actual product state.
+- The audit found root-level backend test ergonomics issues, Playwright drift after the French-first shift, a large Ruff backlog, and a non-operational Mypy baseline.
+- Without this sprint, every later improvement becomes slower, riskier, and harder to verify.
+
+Deliverables:
+
+- root-level backend test execution that works without path hacks
+- updated Playwright expectations and session setup aligned with the current localization and authentication flows
+- a realistic Ruff cleanup baseline, with blocking rules at least for touched files and key modules
+- a working Mypy entry point or a clearly scoped initial type-check target
+- a documented validation command set for backend, frontend, and browser checks
+
+Acceptance criteria:
+
+- the documented backend test command works from the repository root
+- the selected browser regression pack is green against the current FR-first product behavior
+- Ruff is usable as an active guardrail rather than a permanently ignored report
+- Mypy is operational on at least a defined subset of the backend
+
+Completion notes:
+
+- the repository root now supports `python -m pytest services/api/tests -q` as the documented backend test entry point
+- the active backend quality baseline is documented under `docs/operations/validation-baseline.md`
+- Playwright now launches with `npm.cmd` on Windows and `npm` on non-Windows systems, making the selected browser pack CI-safe
+- the initial blocking Ruff subset now covers shared auth, RAG policy, and the key chat/governance regression tests
+- the initial Mypy subset now runs with `--explicit-package-bases` against the shared authorization and RAG policy path
+
+## Sprint 69 - Chat Service Modularization, Policy Extraction, And Evaluation Harness
+
+Status: Completed
+
+Goal:
+Reduce chatbot orchestration complexity while preserving security boundaries, API behavior, and multilingual response quality.
+
+Why this sprint next:
+
+- The audit identified the chat service as one of the largest and riskiest concentration points in the codebase.
+- This sprint turns a working but oversized implementation into a maintainable subsystem before adding more intelligence layers.
+- Evaluation quality becomes much easier once policy, retrieval, prompt assembly, and response formatting are isolated.
+
+Deliverables:
+
+- decomposition of chat orchestration into smaller policy, retrieval, structured-context, and response-formatting units
+- extraction of role-style guidance, follow-up suggestions, and refusal messaging into clearer seams
+- regression coverage for streaming responses, citation persistence, and conversation reopening
+- role-and-language evaluation scenarios covering `member`, `treasurer`, `auditor`, `secretary_general`, `president`, and `principal_admin`
+- preserved API contracts for `/chat/query`, `/chat/query-stream`, and conversation history
+
+Acceptance criteria:
+
+- chat behavior remains API-compatible for the frontend
+- the main chat orchestration file is materially smaller and easier to reason about
+- role-specific safety behavior is covered by focused tests rather than only broad end-to-end flows
+- multilingual answer-format expectations remain deterministic and documented
+
+Completion notes:
+
+- extracted prompt construction, role guidance, and retrieval-query shaping into `services/api/app/modules/chat/prompting.py`
+- extracted retrieved-chunk, structured-context, citation, and turn-preparation payload helpers into `services/api/app/modules/chat/payloads.py`
+- unified `query` and `query-stream` through a shared preparation path so policy refusals, no-source refusals, citations, confidence, and prompt assembly stay aligned
+- preserved the existing `/chat/query`, `/chat/query-stream`, and conversation-history contracts while reducing duplicated orchestration logic
+- added focused chat regression coverage for prompt helper seams and the streaming no-authorized-source refusal path
+
+## Sprint 70 - Document Language Intelligence, Ingestion Normalization, And Archive Safety
+
+Status: Completed
+
+Goal:
+Make document metadata trustworthy at ingestion time so retrieval quality, language-aware ranking, and archive imports rely on stable foundations.
+
+Why this sprint next:
+
+- The audit found that document language still defaults too eagerly to English, which weakens the French-first product contract and same-language retrieval preference.
+- The archive-import path is strategically valuable for real association use cases, but it needs stronger metadata normalization before the repository can claim mature ingestion behavior.
+- Fixing ingestion metadata before retrieval tuning prevents bad data from contaminating later quality work.
+
+Deliverables:
+
+- improved language assignment or detection strategy for uploaded and imported documents
+- normalized ingestion metadata for access scope, owner, role restriction payloads, document type, and language
+- safer classification rules for association archive imports, especially for finance, governance, and disciplinary materials
+- multilingual ingestion and reindex regression coverage for FR, EN, and DE documents
+- reindex guidance for legacy documents created before the stronger metadata rules
+
+Acceptance criteria:
+
+- documents no longer fall back blindly to English when a better language signal is available
+- same-language retrieval has reliable metadata to work from
+- archive imports classify sensitive material conservatively by default
+- ingestion changes do not weaken tenant isolation or document access boundaries
+
+Completed work:
+
+- centralized document metadata inference in `services/api/app/modules/documents/metadata.py` so uploads and archive imports use the same backend-owned language and archive-classification rules
+- replaced the document-upload hardcoded `language="en"` fallback with filename/title/description/text-sample inference that normalizes to `fr`, `en`, `de`, or `und`
+- strengthened archive-import sensitivity detection for finance, governance, and disciplinary materials before any downstream indexing or retrieval use
+- added regression coverage in `services/api/tests/test_documents.py` and `services/api/tests/test_ingestion_unit.py` for multilingual upload metadata, ambiguous-language handling, and conservative archive classification
+- verified the document and ingestion suites with SQLite-first targeted pytest runs
+
+## Sprint 71 - Retrieval Quality, Real Hybrid Search, And Ranking Control Maturity
+
+Status: Completed
+
+Goal:
+Bring retrieval behavior in line with the product story through measurable ranking improvements and an honest, explicit search contract.
+
+Why this sprint next:
+
+- The audit confirmed that the current vector-store implementation keeps a hybrid-search flag but falls back to dense retrieval.
+- Retrieval quality is central to the perceived intelligence of the chatbot, especially once multilingual archives and structured association data are in play.
+- This sprint should either deliver real hybrid behavior or replace the current promise with a documented and validated alternative.
+
+Deliverables:
+
+- real hybrid retrieval support if the stack can safely provide it, or an explicit product downgrade to a supported dense-plus-rerank strategy
+- configurable top-k, threshold, language boost, and rerank behavior validated against role-specific scenarios
+- better fusion between structured data answers and document-backed answers where both are relevant
+- retrieval-quality observability for hit counts, score patterns, and fallback behavior
+- scenario-based evaluation results for member, treasurer, auditor, secretary, president, and principal-admin questions
+
+Acceptance criteria:
+
+- retrieval mode is documented honestly and matches the shipped behavior
+- measurable answer-quality improvement is shown on the maintained evaluation scenarios
+- no unauthorized chunk reaches prompt assembly
+- ranking controls are configuration-driven rather than buried in hardcoded logic
+
+Completed work:
+
+- made the retrieval contract explicit around the currently supported backend strategy: dense vector retrieval with language-aware ordering, lexical keyword-match boosting, and optional reranking
+- added `rag_keyword_match_boost` as a backend-controlled ranking knob alongside the existing top-k, threshold, language-boost, and rerank settings
+- added backend retrieval observability through structured `chat_retrieval_summary` logs that record retrieval mode, candidate counts, authorized counts, returned counts, and active ranking controls
+- updated the Qdrant provider to report dense retrieval mode explicitly instead of silently implying real hybrid behavior
+- added regression coverage for keyword-overlap ranking, dense retrieval mode payloads, and chat ranking behavior under close-score scenarios
+
+## Sprint 72 - Role Journey Polish, Workspace Clarity, And Recovery-Oriented UX
+
+Status: Completed
+
+Goal:
+Turn the current feature-rich product into a calmer and more professional day-to-day experience for both ordinary members and office roles.
+
+Why this sprint next:
+
+- Once security, localization, testing, and retrieval foundations are hardened, the best remaining leverage is role-journey clarity.
+- The audit confirmed that Kairo already has the right workspace strategy, but some paths still feel more engineered than productized.
+- This sprint concentrates on lowering friction without broadening scope.
+
+Deliverables:
+
+- tighter role landing flows for `member`, `secretary_general`, `treasurer`, `auditor`, `censor`, `sports_manager`, `president`, `vice_president`, and `principal_admin`
+- simplified admin and document forms where technical implementation details currently leak into the UI
+- clearer read-only boundaries for members and clearer write scopes for office roles
+- polished loading, recovery, and empty states in the highest-traffic workspaces
+- responsive and accessibility cleanup for the most important role journeys
+
+Acceptance criteria:
+
+- each target role can reach its primary task path in a minimal number of steps
+- the member experience stays simple and read-first
+- office workspaces feel targeted rather than generic
+- UX polish does not weaken backend-enforced permissions or tenant isolation
+
+Completed implementation:
+
+- Added a shared `useRecoveryState` composable (`apps/web/src/composables/useRecoveryState.ts`) that centralizes loading, error, and retry behavior for role workspaces
+- Member self-service view (`apps/web/src/views/members/MyProfileView.vue`) now shows a coherent recovery alert with a localized retry control and a privacy-safe recovery hint after a failed load
+- Treasurer finance workspace (`apps/web/src/views/finance/FinanceWorkspaceView.vue`) now uses the same recovery contract, replacing the dismissible error with a retry-oriented alert that keeps the workspace state protected
+- Added `common.retry` and `common.recoveryHint` i18n keys across the French-first, English-second, and German-third locales, plus `finance.workspaceErrorTitle`
+- Frontend type-check and production build pass
+- New autonomous Playwright coverage proves the member recovery state appears on load failure and the retry control recovers the workspace
+- Backend suite (239 tests) remains green; changes are frontend-only and preserve tenant isolation and backend-enforced permissions
+
+## Sprint 73 - Open-Source Release Readiness, Publication Pack, And Post-Track Handoff
+
+Status: Completed
+
+Goal:
+Finish a credible open-source release candidate with honest documentation, reproducible setup, and a clean handoff into the next planning cycle.
+
+Why this sprint next:
+
+- The target state for this new track is a mature, stable, and usable open-source association product rather than a broader commercial expansion.
+- The repository already contains strong demo and operations material, but the publication story should be revalidated after the hardening track.
+- This sprint closes the loop by making the delivered state easy to understand, run, audit, and continue.
+
+Deliverables:
+
+- final open-source release checklist aligned with the verified runtime and demo path
+- refreshed README, architecture, security, deployment, and handoff notes to match the hardened product state
+- validated demo seed, screenshot path, and role walkthrough references
+- contribution and issue-reporting guidance appropriate for a public repository
+- explicit known-limits and next-roadmap notes so future contributors do not over-assume product completeness
+
+Acceptance criteria:
+
+- the repository can be presented publicly with honest and consistent documentation
+- a new contributor can start the stack and understand the intended role model without hidden tribal knowledge
+- the main known limits are clearly documented
+- the next roadmap question is smaller and more strategic than the current stabilization backlog
+
+Completed implementation:
+
+- Created `docs/OPEN_SOURCE_RELEASE.md`: honest verified baseline, open-source release checklist, explicit known limits, product boundaries that must not regress, and a next-planning-cycle section
+- Extended `CONTRIBUTING.md` with issue/PR reporting guidance, a private security-disclosure path, and a pointer to the known-limits document
+- Refreshed `RELEASE_NOTES.md` with the verified test/type-check/build/E2E baseline, the role model and boundaries, and honest known limitations
+- Corrected the backend test count in `README.md` (239 integration tests, SQLite)
+- Verified the documented baseline: backend suite (239 passed, SQLite), `npm run type-check`, `npm run build`, and the localization E2E pack (7 passed) all green
+- Updated `PROJECT_STATUS.md`, `docs/ai/NEXT_SPRINT.md`, and `docs/ai/PROJECT_STATE.md` to close the stabilization track and point at the next planning cycle
+
+## Sprint 74 - Broader Recovery UX Rollout (Censor + Sports)
+
+Status: Completed
+
+Goal:
+Extend the shared recovery-UX pattern established in Sprint 72 to two more role workspaces (Censor and Sports), reducing bespoke error handling and improving failure resilience across the desktop surface.
+
+Why this sprint next:
+
+- `docs/OPEN_SOURCE_RELEASE.md` lists "broader recovery UX rollout" as the first recommended theme for the new planning cycle.
+- The Censor and Sports workspaces still used inline `error`/`loading` refs with ad-hoc dismiss buttons instead of the shared recovery alert.
+- Standardizing them lowers maintenance cost and keeps the recovery narrative consistent for office roles.
+
+Deliverables:
+
+- migrate `CensorWorkspaceView.vue` and `SportsWorkspaceView.vue` to `useRecoveryState`
+- replace bespoke error blocks with the standard recovery alert (title + message + recovery hint + retry with spinner)
+- add `censor.workspaceErrorTitle` and `sports.workspaceErrorTitle` i18n keys across FR/EN/DE
+- add automated recovery E2E coverage for both workspaces
+
+Acceptance criteria:
+
+- both workspaces show a localized recovery alert on load failure with a working retry control
+- no workspace reintroduces an inline dismiss-only error block
+- frontend type-check, build, and recovery E2E pass
+- tenant isolation and backend-enforced permissions remain untouched (frontend-only change)
+
+Completed implementation:
+
+- Migrated `apps/web/src/views/disciplinary/CensorWorkspaceView.vue` and `apps/web/src/views/sports/SportsWorkspaceView.vue` to the shared `useRecoveryState` composable (`loading`, `error`, `isRecovering`, `run`, `retry`, `clearError`)
+- Replaced the bespoke inline error blocks with the standardized recovery alert: `censor.workspaceErrorTitle` / `sports.workspaceErrorTitle`, the localized message, `common.recoveryHint`, and a `common.retry` button showing `common.loading` while recovering
+- Added `censor.workspaceErrorTitle` ("L'espace disciplinaire est indisponible" / "Disciplinary workspace unavailable" / "Disziplinarbereich nicht verfügbar") and `sports.workspaceErrorTitle` ("L'espace sport est indisponible" / "Sports workspace unavailable" / "Sportbereich nicht verfügbar") to `apps/web/src/i18n/messages.ts`
+- Added E2E recovery tests: censor (fr) and sports (de) retry-after-failure flows in `apps/web/e2e/language-coverage.spec.ts`
+- Verified: backend suite (239 passed, SQLite), `npm run type-check`, `npm run build`, and the localization E2E pack (9 passed) all green
+
+## Sprint 75 - Broader Recovery UX Rollout (Auditor + Governance)
+
+Status: Completed
+
+Goal:
+Extend the shared recovery-UX pattern to the auditor workspace and the governance cockpit so executive and audit roles keep the same calm, retry-oriented failure handling already introduced for member, treasurer, censor, and sports surfaces.
+
+Why this sprint next:
+
+- `PROJECT_STATUS.md`, `docs/ai/NEXT_SPRINT.md`, and `docs/OPEN_SOURCE_RELEASE.md` all pointed to continuing the broader recovery UX rollout after Sprint 74.
+- The real codebase still showed bespoke inline error handling in `AuditorFinanceView.vue` and `GovernanceCockpitView.vue` / `useGovernanceCockpit.ts`.
+- Standardizing these role workspaces reduces UX inconsistency without changing backend authorization, tenant isolation, or data contracts.
+
+Deliverables:
+
+- migrate `AuditorFinanceView.vue` to fully use the shared recovery alert pattern for load failures
+- migrate `useGovernanceCockpit.ts` and `GovernanceCockpitView.vue` to `useRecoveryState`
+- add `auditor.workspaceErrorTitle` and `governance.workspaceErrorTitle` i18n keys across FR/EN/DE
+- add automated E2E recovery coverage for auditor and governance
+
+Acceptance criteria:
+
+- the auditor workspace shows a localized recovery alert on load failure and can retry safely
+- the governance cockpit shows the same localized recovery alert and can retry safely
+- no backend permission or tenant-isolation rule changes are required for this frontend-only increment
+- frontend type-check, build, and localization E2E all pass
+
+Completed implementation:
+
+- Updated `apps/web/src/views/finance/AuditorFinanceView.vue` to use the shared recovery UX for loading failures, including localized workspace title, recovery hint, and retry action while preserving export behavior separately
+- Updated `apps/web/src/composables/useGovernanceCockpit.ts` to use `useRecoveryState` (`loading`, `error`, `isRecovering`, `run`, `retry`, `clearError`) instead of bespoke inline error/loading refs
+- Updated `apps/web/src/views/governance/GovernanceCockpitView.vue` to replace the dismiss-only inline error with the standard recovery alert and retry control
+- Added `auditor.workspaceErrorTitle` and `governance.workspaceErrorTitle` to `apps/web/src/i18n/messages.ts` for French, English, and German
+- Added E2E recovery tests for auditor (fr) and governance (fr) retry-after-failure flows in `apps/web/e2e/language-coverage.spec.ts`
+- Verified: `npm run type-check`, `npm run build`, and the localization E2E pack (11 passed) all green; changes remain frontend-only and preserve backend-enforced permissions plus tenant isolation
+
+## Sprint 76 - Broader Recovery UX Rollout (Secretary Documents + Principal Admin Overview)
+
+Status: Completed
+
+Goal:
+Extend the shared recovery-UX pattern to the secretary document workspace and the principal-admin overview so the remaining high-visibility office and tenant-control surfaces keep the same retry-oriented behavior as the other role workspaces.
+
+Why this sprint next:
+
+- `PROJECT_STATUS.md` and `docs/ai/NEXT_SPRINT.md` explicitly pointed to continuing the recovery rollout for secretary and principal-admin surfaces after Sprint 75.
+- The real codebase showed that `/secretary/documents` still depended on bespoke loading without a standardized recovery alert, and `/admin` still used a plain inline warning with custom loading/error refs in `useAdminOverview.ts`.
+- This slice stays small, frontend-only, and architecture-safe while covering two important role entry points.
+
+Deliverables:
+
+- migrate the document workspace used by `/secretary/documents` to the shared recovery contract
+- migrate `useAdminOverview.ts` and `AdminOverviewView.vue` to `useRecoveryState`
+- add E2E recovery coverage for secretary documents and principal-admin overview
+- update continuity docs to point to the remaining recovery rollout surfaces
+
+Acceptance criteria:
+
+- secretary documents show a localized recovery alert on load failure and can retry safely
+- principal-admin overview shows the same localized recovery alert and can retry safely
+- the change remains frontend-only and does not weaken backend authorization or tenant isolation
+- frontend type-check, build, and localization E2E all pass
+
+Completed implementation:
+
+- Updated `apps/web/src/views/admin/AdminDocumentsView.vue` so the document workspace shared by admin and secretary routes now uses `useRecoveryState` for list loading failures, with a role-aware localized workspace error title, recovery hint, and retry action
+- Updated `apps/web/src/composables/useAdminOverview.ts` to use `useRecoveryState` (`loading`, `error`, `isRecovering`, `run`, `retry`, `clearError`) instead of bespoke inline overview state
+- Updated `apps/web/src/views/admin/AdminOverviewView.vue` to replace the plain warning block with the standardized recovery alert and retry control
+- Added E2E recovery tests for secretary documents (fr) and principal-admin overview (fr) retry-after-failure flows in `apps/web/e2e/language-coverage.spec.ts`
+- Verified: `npm run type-check`, `npm run build`, and the localization E2E pack (13 passed) all green; changes remain frontend-only and preserve backend-enforced permissions plus tenant isolation
+
+## Sprint 77 - Broader Recovery UX Rollout (Secretary Announcements + Tenant Operations)
+
+Status: Completed
+
+Goal:
+Extend the shared recovery-UX pattern to the remaining secretary announcements surface and the tenant operations command center so another secretary workspace and another principal-admin/admin control-plane entry point recover safely without losing tenant boundaries.
+
+Why this sprint next:
+
+- `PROJECT_STATUS.md` and `docs/ai/NEXT_SPRINT.md` explicitly pointed to continuing the recovery rollout on the remaining secretary and principal-admin surfaces after Sprint 76.
+- The verified frontend code still showed bespoke inline loading and error handling in `apps/web/src/views/announcements/AdminAnnouncementsView.vue` and `apps/web/src/views/admin/TenantOperationsView.vue`.
+- This slice stayed small, frontend-only, and architecture-safe while covering one more secretary route and one more tenant-control route.
+
+Deliverables:
+
+- migrate `/secretary/announcements` to the shared recovery contract while preserving local action errors for save/delete/export flows
+- migrate `/admin/tenants` to the shared recovery contract while keeping tenant switching explicit and backend-governed
+- add E2E recovery coverage for secretary announcements and tenant operations
+- update continuity docs to point to the remaining recovery rollout surfaces
+
+Acceptance criteria:
+
+- secretary announcements show a localized recovery alert on load failure and can retry safely
+- tenant operations show the same localized recovery alert and can retry safely without weakening tenant switching boundaries
+- the change remains frontend-only and does not weaken backend authorization or tenant isolation
+- frontend type-check, build, and localization E2E all pass
+
+Completed implementation:
+
+- Updated `apps/web/src/views/announcements/AdminAnnouncementsView.vue` to use `useRecoveryState` for list loading failures, with a localized workspace error title, recovery hint, retry control, and separate local action-error handling for create/update/delete/export flows
+- Updated `apps/web/src/views/admin/TenantOperationsView.vue` to use `useRecoveryState` for current-tenant context loading, with a localized workspace error title, recovery hint, retry control, and separate tenant-switch action errors
+- Added E2E recovery tests for secretary announcements (fr) and tenant operations (fr) retry-after-failure flows in `apps/web/e2e/language-coverage.spec.ts`
+- Verified: `npm run type-check`, `npm run build`, and the localization E2E pack (15 passed) all green; changes remain frontend-only and preserve backend-enforced permissions plus tenant isolation
+
+## Sprint 78 - Broader Recovery UX Rollout (Secretary Policies + Admin Health/Onboarding/Settings)
+
+Status: Completed
+
+Goal:
+Finish the currently identified recovery-UX rollout across the remaining secretary and principal-admin/admin workspaces that still relied on bespoke inline load-failure handling.
+
+Why this sprint next:
+
+- `PROJECT_STATUS.md`, `docs/ai/NEXT_SPRINT.md`, and `docs/ai/PROJECT_STATE.md` all explicitly pointed to `secretary/policies`, `admin/health`, `admin/onboarding`, and `admin/settings` as the next recovery surfaces to normalize after Sprint 77.
+- The verified frontend code still mixed custom `loading` / `error` refs and one-off warning alerts on these routes, which broke the calm, retry-oriented workspace pattern established from Sprint 72 through Sprint 77.
+- This slice stayed frontend-only, small, and architecture-safe while closing the documented recovery-UX backlog before moving to a new product theme.
+
+Deliverables:
+
+- migrate `AdminPoliciesView.vue` to the shared recovery contract for the secretary policy workspace while preserving separate mutation errors
+- migrate `AdminHealthCenterView.vue` to the shared recovery contract for health-context loading
+- migrate `useTenantOnboarding.ts` and `AdminOnboardingWizardView.vue` to the shared recovery contract
+- migrate `AdminSettingsView.vue` to the shared recovery contract for initial tenant-settings loading while preserving separate save errors
+- extend the localization Playwright pack with recovery tests for secretary policies, admin health, admin onboarding, and admin settings
+
+Acceptance criteria:
+
+- each remaining workspace shows the standardized localized recovery alert on load failure with a working retry control
+- mutation/save errors remain separate from initial load failures where needed
+- the change remains frontend-only and does not alter backend authorization, tenant isolation, or LLM data boundaries
+- `npm run type-check`, `npm run build`, and the localization E2E pack all pass
+
+Completed implementation:
+
+- Updated `apps/web/src/views/policies/AdminPoliciesView.vue` to use `useRecoveryState` for list/bootstrap loading failures and added localized action-error handling for save/delete flows
+- Added `policies.deletePolicy` and `policies.workspaceErrorTitle` to `apps/web/src/i18n/messages.ts` across French, English, and German so the policy workspace can render the standard recovery alert without hardcoded strings
+- Updated `apps/web/src/views/admin/AdminHealthCenterView.vue` to use the shared recovery alert and retry flow for tenant health and recovery-evidence loading
+- Updated `apps/web/src/composables/useTenantOnboarding.ts` and `apps/web/src/views/admin/AdminOnboardingWizardView.vue` so onboarding now uses the shared recovery contract and keeps the same localized retry narrative as the other office/admin workspaces
+- Updated `apps/web/src/views/admin/AdminSettingsView.vue` so initial tenant-settings loading now uses the shared recovery contract while save/module-disable errors remain separate local action failures
+- Added localization Playwright recovery tests for secretary policies, admin onboarding, admin health center, and admin settings in `apps/web/e2e/language-coverage.spec.ts`
+- Verified: `npm run type-check`, `npm run build`, and the localization E2E pack (19 passed) all green; changes remain frontend-only and preserve backend-enforced permissions plus tenant isolation
+
+## Sprint 79 - Real Notification Channel Integrations Baseline
+
+Status: Completed
+
+Goal:
+Move the notification extension story from placeholders toward one real operator-usable integration path without widening the core permission surface.
+
+Why this sprint next:
+
+- The documented recovery-UX rollout across the currently identified secretary and admin surfaces is now complete.
+- `docs/OPEN_SOURCE_RELEASE.md` lists real notification channel integrations as one of the next planning-cycle themes once calmer role journeys are in place.
+- Identity delivery already proves the repository can send email safely; extending that operational maturity into the notification module is the next smallest productization step with clear user value.
+
+Deliverables:
+
+- one real notification channel path for tenant communications with backend-owned permission checks
+- clear configured-versus-simulated state in the notification admin workspace
+- focused backend and frontend regression coverage for the real channel flow
+- updated operator and continuity documentation that explains the supported notification baseline honestly
+
+Acceptance criteria:
+
+- tenant admins and principal admins can trigger one real notification path through the notifications module when the provider is configured
+- simulation-only channels remain explicit and cannot be used as if they were live
+- dry-run behavior remains available for multi-channel diagnostics
+- backend tests, frontend build, and browser coverage confirm the supported contract
+
+Completed implementation:
+
+- Added backend live dispatch support under `POST /api/v1/notifications/dispatch` with tenant-administration capability checks, audit logging, and strict rejection of unknown, unconfigured, or simulation-only channels
+- Extended `NotificationService` with a dedicated live-dispatch path that uses provider-owned `send_message()` while preserving the existing multi-channel dry-run flow
+- Kept Telegram and WhatsApp simulation-only, while exposing the already available SMTP-backed email provider as the first real operator-usable notification channel
+- Updated `apps/web/src/views/admin/AdminNotificationsView.vue` so the notifications console is localized (FR/EN/DE), distinguishes simulation from live delivery clearly, and offers a separate live email action only when a live-capable channel is configured
+- Added frontend API support for the live dispatch route in `apps/web/src/api/notifications.api.ts`
+- Added backend regression coverage in `services/api/tests/test_notifications.py` for live email dispatch, simulation-only rejection, and principal-admin access
+- Added browser coverage in `apps/web/e2e/language-coverage.spec.ts` for the French notifications console, including simulation/live state visibility and live email dispatch
+- Updated continuity and product documentation so the repository now describes notifications honestly as: real SMTP-backed email operator dispatch plus simulated Telegram/WhatsApp placeholders
+- Verified: `python -m pytest services/api/tests/test_notifications.py -q` (8 passed), `npm run type-check`, `npm run build`, and the localization E2E pack (20 passed) all green
+
+## Sprint 80 - Operational Dashboards And Observability Packaging Baseline
+
+Status: Completed
+
+Goal:
+Turn the existing health and metrics foundations into a reusable operator dashboard package that a disciplined self-hosted association can actually adopt.
+
+Why this sprint next:
+
+- The recovery-UX rollout is complete and the notification module now has one real operator-usable channel, so the next smallest maturity gain is operator visibility rather than another communication surface.
+- Kairo already exposes `/health`, `/metrics`, request IDs, ingestion summaries, and admin health views, but the repo still lacks a packaged dashboard baseline for day-to-day operations.
+- `docs/OPEN_SOURCE_RELEASE.md` names operational dashboards as one of the next planning-cycle themes after recovery UX and channel realism.
+
+Deliverables:
+
+- reusable Grafana/Prometheus example assets or equivalent operator dashboard packaging
+- documentation that maps existing Kairo health and metrics signals to the dashboard views
+- focused validation showing the packaged dashboard artifacts match the current runtime endpoints
+
+Completed implementation:
+
+- Added a versioned monitoring package under `infra/monitoring/` with a Prometheus scrape baseline, a Grafana provisioning baseline, and an operator overview dashboard wired to the existing `/metrics` endpoint
+- Added `docs/operations/observability-dashboard-package.md` so disciplined self-hosted operators have one concrete startup path, one metric mapping table, and one explicit boundary for what the package does and does not expose
+- Extended the operations docs to point at the packaged monitoring baseline from the existing observability and production-readiness guides
+- Added backend regression coverage in `services/api/tests/test_observability_dashboard_package.py` to ensure the packaged dashboard only references `kairo_*` metrics that `/metrics` actually emits and that the bundled Prometheus config targets the API metrics endpoint
+- Verified the Grafana dashboard JSON parses cleanly and the targeted observability and health test suites pass without requiring a local PostgreSQL instance
+
+## Sprint 81 - Broader Real Notification Channel Integrations
+
+Status: Completed
+
+Goal:
+Extend the notification module from the current SMTP-backed email baseline toward at least one additional operator-usable real channel while preserving backend-owned authorization, tenant isolation, and honest delivery-state visibility.
+
+Why this sprint next:
+
+- Sprint 79 made the notifications module partially real through SMTP-backed email, and Sprint 80 packaged the operational monitoring needed to support real-world operators.
+- The next most coherent productization step is to extend channel realism inside the same module rather than branching into a new unrelated surface.
+- `docs/OPEN_SOURCE_RELEASE.md` still lists broader real channel integrations as an explicit remaining planning-cycle theme.
+
+Deliverables:
+
+- at least one additional real notification provider path beyond SMTP-backed email
+- explicit configured, live, failed, and simulated visibility in the admin notification workspace
+- targeted backend regression coverage for provider capability boundaries and delivery-state handling
+- operator documentation updated to describe supported live-versus-simulated channels honestly
+
+Completed implementation:
+
+- Promoted Telegram from a configured placeholder to a real live-capable notification provider when `TELEGRAM_BOT_TOKEN` is set, using the Telegram Bot API while preserving the existing backend-owned authorization flow
+- Kept `POST /api/v1/notifications/test` as a dry-run path while allowing `POST /api/v1/notifications/dispatch` to route real delivery through either SMTP-backed email or Telegram depending on the selected configured channel
+- Updated the admin notifications workspace so its localized copy now reflects multiple live-capable channels instead of implying that only email can ever be real
+- Added backend coverage for the Telegram provider contract, live Telegram dispatch by tenant admin and principal admin, and retained the existing simulation-only guard for channels such as WhatsApp
+- Updated environment examples and product documentation so the repo now describes the notifications surface honestly as: SMTP-backed email and Telegram live operator delivery, WhatsApp still placeholder-only
+- Verified: `python -m pytest services/api/tests/test_notifications.py -q` (12 passed), `npm run type-check`, `npm run build`, and the localization E2E pack (20 passed) all green
+
+## Sprint 82 - WhatsApp Delivery Gateway Baseline
+
+Status: Completed
+
+Goal:
+Extend the notifications module from the current SMTP-plus-Telegram baseline toward one final operator-usable gateway-backed messaging path while preserving explicit backend control, tenant isolation, and truthful delivery-state reporting.
+
+Why this sprint next:
+
+- Sprint 81 completed the smallest coherent second live channel by activating Telegram from already-present configuration seams.
+- WhatsApp is now the last notifications channel still described everywhere as placeholder-only, making it the next most logical continuation of the same module theme.
+- Keeping the next sprint inside notifications avoids spreading work across unrelated surfaces before the multi-channel delivery story is complete.
+
+Deliverables:
+
+- one gateway-backed live WhatsApp provider path or a well-scoped gateway contract baseline
+- explicit delivery-state visibility for WhatsApp alongside the current email and Telegram states
+- targeted backend and frontend regression coverage for the new live path
+- operator and commercial documentation updated to describe supported WhatsApp scope honestly
+
+Completed implementation:
+
+- Promoted WhatsApp from placeholder-only to a live-capable gateway-backed notification provider when `WHATSAPP_API_BASE_URL` and `WHATSAPP_API_TOKEN` are configured
+- Kept backend-owned authorization unchanged by reusing the existing live dispatch route and provider abstraction instead of adding any client-side permission logic
+- Updated the admin notifications workspace copy so it now reflects SMTP, Telegram, and WhatsApp as potentially real operator channels when configured
+- Added backend regression coverage for the WhatsApp provider contract plus live WhatsApp dispatch for tenant admins and principal admins
+- Updated environment examples and commercial/open-source docs so the repository now describes notifications honestly as: SMTP-backed email, Telegram, and gateway-backed WhatsApp live operator delivery
+- Verified: `python -m pytest services/api/tests/test_notifications.py -q` (16 passed), `npm run type-check`, `npm run build`, and the localization E2E pack (20 passed) all green
+
+## Sprint 83 - Notification Delivery Reconciliation And Audit Baseline
+
+Status: Completed
+
+Goal:
+Improve the newly live multi-channel notification surface with stronger delivery-state evidence, audit clarity, and provider-reconciliation seams while preserving strict backend control and tenant isolation.
+
+Why this sprint next:
+
+- Sprint 79 through Sprint 82 made email, Telegram, and WhatsApp operator-usable, but the current status model still reflects dispatch acceptance more than downstream reconciliation.
+- `docs/OPEN_SOURCE_RELEASE.md` now points at delivery reconciliation as the next honest maturity step for the live channels.
+- This keeps the work inside the same bounded module and improves operator trust without widening end-user permissions.
+
+Deliverables:
+
+- richer live-delivery status vocabulary or persistence baseline for notification dispatches
+- explicit audit and operator visibility improvements for live notification outcomes
+- provider-reconciliation seam(s) for future callbacks, polling, or webhook state updates
+- targeted regression coverage and documentation for the new delivery-state contract
+
+Completed implementation:
+
+- Extended the notification dispatch contract with backend-owned delivery evidence fields: `delivery_stage`, `reconciliation_status`, `reconciliation_supported`, and `provider_reference`
+- Promoted the provider abstraction so SMTP, Telegram, and WhatsApp can return acceptance references that the backend persists without letting the frontend infer permissions or delivery truth on its own
+- Added `GET /api/v1/notifications/history` for tenant-admin and principal-admin users, backed by the existing tenant-scoped audit trail and filtered strictly by backend capability checks
+- Split dry-run audit recording into per-channel notification events so operators can review simulation versus live history with clearer channel-level evidence
+- Updated `apps/web/src/views/admin/AdminNotificationsView.vue` so the admin console now reloads audited server history, shows delivery-stage and reconciliation badges, and surfaces provider references when available
+- Added backend regression coverage for history retrieval plus reconciliation metadata persistence and extended the localized Playwright notifications scenario to cover the new audited-history UX
+- Verified: `python -m pytest services/api/tests/test_notifications.py -q` (17 passed), `npm run type-check`, `npm run build`, and the localization E2E pack (20 passed) all green
+
+## Sprint 84 - Notification Provider Callback And Final-State Reconciliation Baseline
+
+Status: Completed
+
+Goal:
+Move the notification module from acceptance-level evidence toward provider-updated final-state reconciliation without weakening backend authority, tenant isolation, or log safety.
+
+Why this sprint next:
+
+- Sprint 83 added a truthful acceptance and audit baseline, but live channels still stop at `pending` reconciliation unless a later provider update arrives.
+- The next smallest coherent increment is to add one explicit backend seam for provider callbacks or controlled polling rather than spreading into unrelated product areas.
+- This continues the same bounded notifications theme while improving operator trust and post-dispatch supportability.
+
+Deliverables:
+
+- a backend-owned reconciliation update endpoint or polling seam for provider status callbacks
+- signature/token validation and tenant-safe correlation rules for any provider update path
+- transition rules from `pending` toward stronger final states such as delivered or failed where the provider can confirm them
+- targeted regression coverage plus operator documentation for the callback/reconciliation contract
+
+Completed implementation:
+
+- Added a dedicated backend callback endpoint at `POST /api/v1/notifications/reconciliation/callback`, separate from user-authenticated admin routes and protected by a shared secret header
+- Added `NOTIFICATION_RECONCILIATION_CALLBACK_TOKEN` configuration so gateway bridges can report final notification outcomes without relying on frontend state or human operators
+- Enforced tenant-safe correlation by requiring `tenant_id`, `channel`, and `provider_reference`, then matching callbacks only to existing live dispatch audit records for the same tenant
+- Reused backend module-toggle enforcement for callback traffic so a disabled notifications module still rejects reconciliation writes
+- Merged reconciliation updates back into `GET /api/v1/notifications/history`, allowing live dispatches to progress from `pending` acceptance to final states such as `delivered` or `failed`
+- Updated the admin notifications workspace so localized history cards now render final delivered states cleanly in addition to accepted, failed, and simulated flows
+- Added backend regression coverage for successful provider callbacks and invalid callback-token rejection, plus refreshed the localized Playwright notifications scenario to show a delivered final state
+- Verified: `python -m pytest services/api/tests/test_notifications.py -q` (19 passed), `npm run type-check`, `npm run build`, and the localization E2E pack (20 passed) all green
+
+## Sprint 85 - Notification Reconciliation Polling And Replay-Safety Baseline
+
+Status: Planned
+
+Goal:
+Harden the new reconciliation seam with replay-safe update rules and one controlled polling path for providers or gateways that cannot push trustworthy callbacks reliably.
+
+Why this sprint next:
+
+- Sprint 84 added a secure callback seam and final-state history merging, but it still assumes a trusted bridge and does not yet provide explicit replay protection or an operator-safe polling fallback.
+- Some delivery providers expose status lookup APIs more naturally than callbacks, so the next logical step is to support that path without weakening tenant boundaries or backend ownership.
+- This remains a small continuation inside the same notifications module, preserving architectural focus and testability.
+
+Deliverables:
+
+- idempotent or replay-safe reconciliation handling for repeated provider updates
+- one backend-owned polling seam for providers that support status lookup instead of callbacks
+- targeted operator visibility for stale pending deliveries that may need refresh
+- regression coverage and documentation for replay safety plus controlled polling behavior
+
 ## Roadmap Status
 
 The historical track through Sprint 57 is complete.
 
 Sprint 61 is now complete.
 
-Sprint 62 is now in progress.
+Sprint 62 is now complete.
 
 Sprint 63 is now complete.
 
-Estimated additional sprints required from the current state: 3.
+Sprint 64 is now complete.
 
-Planned execution window:
+Sprint 65 is now complete.
 
-- Sprint 63 through Sprint 65
+Sprint 66 is now complete.
+
+Sprint 67 is now complete.
+
+Sprint 68 is now complete.
+
+Sprint 69 is now complete.
+
+Sprint 72, Sprint 73, Sprint 74, Sprint 75, Sprint 76, Sprint 77, Sprint 78, Sprint 79, Sprint 80, Sprint 81, Sprint 82, Sprint 83, and Sprint 84 are now complete. Sprint 72 and Sprint 73 closed the stabilization and open-source maturity track; Sprint 74 through Sprint 78 completed the broader recovery UX rollout, Sprint 79 started the next theme by making the notifications module partially real through SMTP-backed email dispatch, Sprint 80 packaged the existing observability signals into a reusable operator monitoring baseline, Sprint 81 added Telegram as a second real operator-usable notification channel, Sprint 82 added a gateway-backed WhatsApp live path, Sprint 83 added the acceptance-level reconciliation and audit baseline, and Sprint 84 added a secure provider callback seam with final-state history merging for the live multi-channel notification surface.
+
+Execution window:
+
+- Sprint 72 through Sprint 84.
+
+Estimated additional sprints required from the current state: 0 for the stabilization track; the new planning cycle now moves from recovery UX and live notification channels to the remaining `docs/OPEN_SOURCE_RELEASE.md` themes, continuing with replay-safe and pollable final-state reconciliation.
 
 Validation after this track should cover:
 
-- operator-safe tenant provisioning and switching
-- role workspace consistency
-- recovery and health evidence
-- privacy and export hardening
-- deployment packaging
-- commercial handoff and support documentation
+- access-policy parity across roles, document scopes, and RAG retrieval
+- full French, English, and German coverage for the primary member, office, and admin journeys
+- reproducible backend, frontend, lint, typing, and browser validation commands
+- modular chat orchestration and role-based evaluation scenarios
+- language-aware document ingestion, archive safety, and retrieval quality validation
+- workspace clarity, recovery-oriented UX, and open-source publication readiness

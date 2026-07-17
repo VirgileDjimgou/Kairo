@@ -8,15 +8,15 @@ from fastapi import Depends, HTTPException, Request, status
 from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.core.security import decode_access_token
 from app.core.config import settings
+from app.core.security import decode_access_token
 from app.db.session import async_session_factory
-from app.providers.llm.base import LLMProvider
 from app.providers.embeddings.base import EmbeddingProvider
-from app.providers.vector_store.base import VectorStoreProvider
-from app.providers.object_storage.base import ObjectStorageProvider
+from app.providers.llm.base import LLMProvider
 from app.providers.notifications.base import NotificationProvider
+from app.providers.object_storage.base import ObjectStorageProvider
 from app.providers.reranker.interface import RerankerProvider
+from app.providers.vector_store.base import VectorStoreProvider
 
 _bearer_scheme = HTTPBearer(auto_error=True)
 
@@ -81,8 +81,8 @@ async def get_current_user(
         session_id = UUID(session_id_str)
         roles: list[str] = payload.get("roles", [])
 
-    except (jwt.PyJWTError, ValueError):
-        raise unauthorized
+    except (jwt.PyJWTError, ValueError) as err:
+        raise unauthorized from err
 
     # Import locally to break circular dependency
     from app.modules.identity.repository import UserRepository, UserSessionRepository

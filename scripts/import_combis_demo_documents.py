@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+# ruff: noqa: E402
 import asyncio
 import hashlib
 import json
@@ -12,18 +13,32 @@ ROOT = Path(__file__).resolve().parents[1]
 API_ROOT = ROOT / "services" / "api"
 sys.path.insert(0, str(API_ROOT))
 
-from sqlalchemy import select
-
 from app.core.config import settings
-from app.core.dependencies import get_embedding_provider, get_object_storage_provider, get_vector_store_provider
+from app.core.dependencies import (
+    get_embedding_provider,
+    get_object_storage_provider,
+    get_vector_store_provider,
+)
 from app.db.session import async_session_factory
-from app.modules.documents.models import Document, DocumentStatus, DocumentVersion, IngestionJob
+from app.modules.documents.metadata import (
+    classify_archive_access,
+    infer_document_language,
+)
+from app.modules.documents.models import (
+    Document,
+    DocumentStatus,
+    DocumentVersion,
+    IngestionJob,
+)
 from app.modules.documents.repository import DocumentRepository
 from app.modules.identity.models import User
 from app.modules.ingestion.service import IngestionService
 from app.modules.tenancy.models import Role, Tenant
+from sqlalchemy import select
 
-ARCHIVE_DIR = Path(os.getenv("COMBIS_ARCHIVE_DIR", str(ROOT / "Combis Sport Verein")))
+ARCHIVE_DIR = Path(
+    os.getenv("COMBIS_ARCHIVE_DIR", str(ROOT / "Combis Sport Verein"))
+)
 TARGET_TENANT_SLUG = os.getenv("COMBIS_TARGET_TENANT", "demo")
 
 
@@ -45,7 +60,9 @@ async def main() -> None:
             vector_store_provider=vector_store_provider,
         )
 
-        tenant = await db.scalar(select(Tenant).where(Tenant.slug == TARGET_TENANT_SLUG))
+        tenant = await db.scalar(
+            select(Tenant).where(Tenant.slug == TARGET_TENANT_SLUG)
+        )
         if tenant is None:
             raise RuntimeError("Demo tenant not found. Run the seed first.")
 
@@ -57,7 +74,11 @@ async def main() -> None:
 
         roles = {
             role.code: str(role.id)
-            for role in (await db.execute(select(Role).where(Role.tenant_id == tenant.id))).scalars().all()
+            for role in (
+                await db.execute(select(Role).where(Role.tenant_id == tenant.id))
+            )
+            .scalars()
+            .all()
         }
 
         imported = 0
@@ -66,19 +87,34 @@ async def main() -> None:
             if not path.is_file():
                 continue
             extension = path.suffix.lower().lstrip(".")
-            if extension not in {"pdf", "docx", "txt", "md", "csv", "xlsx", "png", "jpg", "jpeg", "webp"}:
+            if extension not in {
+                "pdf",
+                "docx",
+                "txt",
+                "md",
+                "csv",
+                "xlsx",
+                "png",
+                "jpg",
+                "jpeg",
+                "webp",
+            }:
                 skipped += 1
                 continue
 
             file_bytes = path.read_bytes()
             checksum = hashlib.sha256(file_bytes).hexdigest()
-            duplicate = await repo.get_duplicate_document_by_checksum(tenant.id, checksum, path.name)
+            duplicate = await repo.get_duplicate_document_by_checksum(
+                tenant.id,
+                checksum,
+                path.name,
+            )
             if duplicate is not None:
                 skipped += 1
                 continue
 
-            access_scope, allowed_role_ids = classify_access(path.name, roles)
-            language = infer_language(path.name)
+            access_scope, allowed_role_ids = classify_archive_access(path.name, roles)
+            language = infer_document_language(file_name=path.name, title=path.stem)
 
             document_id = uuid.uuid4()
             version_id = uuid.uuid4()
@@ -99,7 +135,9 @@ async def main() -> None:
                 source_type="association_archive",
                 language=language,
                 access_scope=access_scope,
-                allowed_role_ids_json=json.dumps(allowed_role_ids) if allowed_role_ids else None,
+                allowed_role_ids_json=(
+                    json.dumps(allowed_role_ids) if allowed_role_ids else None
+                ),
                 owner_user_id=owner.id,
                 status=DocumentStatus.uploaded.value,
                 current_version_id=None,
@@ -138,38 +176,12 @@ async def main() -> None:
         print(f"Done. Imported={imported} Skipped={skipped}")
 
 
-def infer_language(file_name: str) -> str:
-    lower = file_name.lower()
-    if any(token in lower for token in ["_de", "satzung", "verhaltenskodex", "anerkennung", "fußball", "sponsoringanfrage"]):
-        return "de"
-    if any(token in lower for token in ["_en", "financial report", "semi annual", "review of activities"]):
-        return "en"
-    return "fr"
-
-
-def classify_access(file_name: str, roles: dict[str, str]) -> tuple[str, list[str]]:
-    lower = file_name.lower()
-    finance_roles = _role_ids(roles, "treasurer", "auditor", "president", "vice_president", "principal_admin", "admin")
-    discipline_roles = _role_ids(roles, "censor", "president", "vice_president", "principal_admin", "admin")
-    governance_roles = _role_ids(roles, "secretary_general", "president", "vice_president", "principal_admin", "admin")
-
-    if any(token in lower for token in ["sanction", "avertissement", "mise_en_demeure", "cahier des sanctions"]):
-        return "role_restricted", discipline_roles
-    if any(token in lower for token in ["bilan", "financial report", "rapport financier", "cotisations", "synthese", "contributions"]):
-        return "role_restricted", finance_roles
-    if any(token in lower for token in ["vorstand", "plan d'action", "programme d'assistance", "catalogue des compétences"]):
-        return "role_restricted", governance_roles
-    return "tenant_public", []
-
-
-def _role_ids(roles: dict[str, str], *role_codes: str) -> list[str]:
-    return [roles[code] for code in role_codes if code in roles]
-
-
 def guess_content_type(extension: str) -> str:
     mapping = {
         "pdf": "application/pdf",
-        "docx": "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+        "docx": (
+            "application/vnd.openxmlformats-officedocument.wordprocessingml.document"
+        ),
         "txt": "text/plain",
         "md": "text/markdown",
         "csv": "text/csv",

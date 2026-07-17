@@ -411,7 +411,7 @@ class TestExports:
         assert resp.status_code == 200
         assert "text/csv" in resp.headers["content-type"]
 
-    async def test_export_members_accessible_to_auth_user(self, client, db_session):
+    async def test_export_members_forbidden_for_plain_member(self, client, db_session):
         tenant = await _create_tenant(db_session)
         from app.core.security import hash_password
         from app.modules.identity.models import User
@@ -434,4 +434,4 @@ class TestExports:
         headers = {"Authorization": f"Bearer {token}"}
 
         resp = await client.get("/api/v1/memberships/export", headers=headers)
-        assert resp.status_code == 200
+        assert resp.status_code == 403

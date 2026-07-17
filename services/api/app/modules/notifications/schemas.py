@@ -1,5 +1,9 @@
 from __future__ import annotations
 
+from datetime import datetime
+from typing import Literal
+from uuid import UUID
+
 from pydantic import BaseModel, Field
 
 
@@ -19,12 +23,56 @@ class NotificationTestRequest(BaseModel):
     body: str = Field(min_length=1, max_length=4000)
 
 
+class NotificationDispatchRequest(BaseModel):
+    channel: str = Field(min_length=1, max_length=50)
+    recipient: str = Field(min_length=1, max_length=255)
+    subject: str | None = Field(default=None, max_length=255)
+    body: str = Field(min_length=1, max_length=4000)
+
+
 class NotificationDispatchResponse(BaseModel):
     channel: str
     status: str
     message: str
     delivered: bool
     simulation_only: bool
+    delivery_stage: str
+    reconciliation_status: str
+    reconciliation_supported: bool
+    provider_reference: str | None = None
+
+
+class NotificationHistoryEntry(BaseModel):
+    id: UUID
+    action: str
+    channel: str
+    recipient: str
+    status: str
+    message: str
+    delivered: bool
+    simulation_only: bool
+    delivery_stage: str
+    reconciliation_status: str
+    reconciliation_supported: bool
+    provider_reference: str | None = None
+    created_at: datetime
+
+
+class NotificationReconciliationCallbackRequest(BaseModel):
+    tenant_id: UUID
+    channel: str = Field(min_length=1, max_length=50)
+    provider_reference: str = Field(min_length=1, max_length=255)
+    delivery_stage: Literal["delivered", "failed"]
+    provider_message: str | None = Field(default=None, max_length=4000)
+    external_status: str | None = Field(default=None, max_length=100)
+
+
+class NotificationReconciliationCallbackResponse(BaseModel):
+    channel: str
+    provider_reference: str
+    delivery_stage: str
+    reconciliation_status: str
+    updated: bool
 
 
 class NotificationTestResponse(BaseModel):

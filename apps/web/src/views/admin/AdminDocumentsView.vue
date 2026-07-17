@@ -16,42 +16,58 @@
         class="btn om-primary-btn align-self-start"
         type="button"
         @click="refreshDocuments"
-        :disabled="loading"
+        :disabled="loading || isRecovering"
       >
         {{ loading ? copy.refreshing : copy.refreshList }}
       </button>
+    </div>
+
+    <div v-if="error" class="alert alert-warning border-0 shadow-sm mb-4" role="alert">
+      <div class="d-flex flex-column flex-md-row justify-content-between gap-3">
+        <div>
+          <div class="fw-semibold">
+            <i class="bi bi-exclamation-triangle me-2"></i>{{ workspaceErrorTitle }}
+          </div>
+          <p class="small mb-0 mt-2">{{ error }}</p>
+          <p class="mb-0 small text-muted mt-1">{{ t('common.recoveryHint') }}</p>
+        </div>
+        <button class="btn btn-outline-secondary btn-sm align-self-start" type="button" @click="retryRefreshDocuments" :disabled="isRecovering">
+          <span v-if="isRecovering" class="spinner-border spinner-border-sm me-1" aria-hidden="true"></span>
+          {{ isRecovering ? t('common.loading') : t('common.retry') }}
+        </button>
+      </div>
     </div>
 
     <div class="row g-4">
       <div class="col-lg-5">
         <div class="card shadow-sm border-0 h-100">
           <div class="card-body p-4">
-            <h2 class="h6 fw-bold mb-3">Upload a document</h2>
+            <h2 class="h6 fw-bold mb-3">{{ copy.uploadDocumentTitle }}</h2>
 
             <form class="vstack gap-3" @submit.prevent="submitUpload">
               <div>
-                <label class="form-label">Title</label>
+                <label class="form-label">{{ copy.titleLabel }}</label>
                 <input
                   v-model.trim="title"
                   class="form-control"
                   type="text"
-                  placeholder="Tenant policy"
+                  :placeholder="copy.titlePlaceholder"
                   required
                 />
               </div>
 
               <div>
-                <label class="form-label">Description</label>
+                <label class="form-label">{{ copy.descriptionLabel }}</label>
                 <textarea
                   v-model.trim="description"
                   class="form-control"
                   rows="3"
-                  placeholder="Optional context for reviewers"
+                  :placeholder="copy.descriptionPlaceholder"
                 />
               </div>
 
               <div>
-                <label class="form-label">File</label>
+                <label class="form-label">{{ copy.fileLabel }}</label>
                 <input
                   class="form-control"
                   type="file"
@@ -60,18 +76,18 @@
                   required
                 />
                 <div class="form-text">
-                  Allowed: PDF, DOCX, TXT, MD, CSV, PNG, JPG, JPEG, WEBP.
+                  {{ copy.allowedFileTypes }}
                 </div>
               </div>
 
               <div>
-                <label class="form-label">Access scope</label>
+                <label class="form-label">{{ copy.accessScopeLabel }}</label>
                 <select v-model="accessScope" class="form-select">
-                  <option value="tenant_public">Tenant public</option>
-                  <option value="members_only">Members only</option>
-                  <option value="role_restricted">Role restricted</option>
-                  <option value="user_private">User private</option>
-                  <option value="admin_only">Admin only</option>
+                  <option value="tenant_public">{{ copy.accessTenantPublic }}</option>
+                  <option value="members_only">{{ copy.accessMembersOnly }}</option>
+                  <option value="role_restricted">{{ copy.accessRoleRestricted }}</option>
+                  <option value="user_private">{{ copy.accessUserPrivate }}</option>
+                  <option value="admin_only">{{ copy.accessAdminOnly }}</option>
                 </select>
               </div>
 
@@ -81,14 +97,14 @@
                   type="submit"
                   :disabled="uploading || !selectedFile"
                 >
-                  {{ uploading ? "Uploading..." : "Upload document" }}
+                  {{ uploading ? copy.uploading : copy.uploadDocument }}
                 </button>
                 <button
                   class="btn btn-outline-secondary"
                   type="button"
                   @click="resetForm"
                 >
-                  Reset
+                  {{ copy.reset }}
                 </button>
               </div>
 
@@ -99,10 +115,10 @@
 
             <hr class="my-4" />
 
-            <h2 class="h6 fw-bold mb-3">Bulk upload</h2>
+            <h2 class="h6 fw-bold mb-3">{{ copy.bulkUploadTitle }}</h2>
             <form class="vstack gap-3" @submit.prevent="submitBulkUpload">
               <div>
-                <label class="form-label">Files</label>
+                <label class="form-label">{{ copy.filesLabel }}</label>
                 <input
                   class="form-control"
                   type="file"
@@ -112,12 +128,12 @@
                 />
               </div>
               <div>
-                <label class="form-label">Title prefix</label>
+                <label class="form-label">{{ copy.titlePrefixLabel }}</label>
                 <input
                   v-model.trim="bulkTitlePrefix"
                   class="form-control"
                   type="text"
-                  placeholder="Migration"
+                  :placeholder="copy.titlePrefixPlaceholder"
                 />
               </div>
               <div class="d-flex gap-2">
@@ -126,14 +142,14 @@
                   type="submit"
                   :disabled="bulkUploading || bulkFiles.length === 0"
                 >
-                  {{ bulkUploading ? "Uploading..." : "Bulk upload" }}
+                  {{ bulkUploading ? copy.uploading : copy.bulkUpload }}
                 </button>
                 <button
                   class="btn btn-outline-secondary"
                   type="button"
                   @click="clearBulkSelection"
                 >
-                  Clear
+                  {{ copy.clear }}
                 </button>
               </div>
               <div v-if="bulkStatusMessage" class="alert alert-info mb-0">
@@ -142,7 +158,7 @@
             </form>
             <div v-if="bulkResults.length > 0" class="mt-3">
               <div class="small text-uppercase text-muted fw-semibold mb-2">
-                Bulk result
+                {{ copy.bulkResult }}
               </div>
               <div class="vstack gap-2">
                 <div
@@ -162,10 +178,9 @@
                     {{ item.error }}
                   </div>
                   <div v-else-if="item.document" class="small text-muted mt-2">
-                    Document {{ item.document.title }} queued as
-                    {{ item.document.ingestion_job_id }}
+                    {{ copy.documentQueuedAs.replace("{title}", item.document.title).replace("{jobId}", String(item.document.ingestion_job_id)) }}
                     <span v-if="item.document.duplicate_of_document_id">
-                      · duplicate of {{ item.document.duplicate_of_document_id }}
+                      · {{ copy.duplicateOf.replace("{documentId}", String(item.document.duplicate_of_document_id)) }}
                     </span>
                   </div>
                 </div>
@@ -179,22 +194,21 @@
         <div class="card shadow-sm border-0 h-100">
           <div class="card-body p-4">
             <div class="d-flex align-items-center justify-content-between mb-3">
-              <h2 class="h6 fw-bold mb-0">Latest documents</h2>
+              <h2 class="h6 fw-bold mb-0">{{ copy.latestDocuments }}</h2>
               <span class="badge bg-light text-dark"
-                >{{ documents.length }} items</span
+                >{{ documents.length }} {{ copy.items }}</span
               >
             </div>
 
             <div v-if="loading" class="text-muted py-5 text-center">
-              Loading documents...
+              {{ copy.loadingDocuments }}
             </div>
 
             <div v-else-if="documents.length === 0" class="empty-state">
               <i class="bi bi-file-earmark-text display-6 text-secondary"></i>
-              <p class="mb-1 fw-semibold">No documents yet</p>
+              <p class="mb-1 fw-semibold">{{ copy.noDocumentsYet }}</p>
               <p class="text-muted mb-3">
-                Start with a welcome guide, policy, or operating document.
-                Once the first file is uploaded, the tenant begins to feel real.
+                {{ copy.noDocumentsHint }}
               </p>
               <div class="d-flex flex-wrap justify-content-center gap-2">
                 <RouterLink :to="emptyStatePrimaryLink.to" class="btn btn-outline-secondary btn-sm">
@@ -210,13 +224,13 @@
               <table class="table align-middle">
                 <thead>
                   <tr>
-                    <th>Title</th>
-                    <th>Status</th>
-                    <th>Access</th>
-                    <th>Ingestion</th>
-                    <th>File</th>
-                    <th>Size</th>
-                    <th>Actions</th>
+                    <th>{{ copy.titleLabel }}</th>
+                    <th>{{ copy.statusLabel }}</th>
+                    <th>{{ copy.accessLabel }}</th>
+                    <th>{{ copy.ingestionLabel }}</th>
+                    <th>{{ copy.fileLabel }}</th>
+                    <th>{{ copy.sizeLabel }}</th>
+                    <th>{{ copy.actionsLabel }}</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -224,14 +238,14 @@
                     <td>
                       <div class="fw-semibold">{{ document.title }}</div>
                       <div class="small text-muted">
-                        {{ document.description || "No description" }}
+                        {{ document.description || copy.noDescription }}
                       </div>
                     </td>
                     <td>
                       <span
                         class="badge text-bg-success-subtle text-success border border-success-subtle"
                       >
-                        {{ document.status }}
+                        {{ formatStatusToken(document.status) }}
                       </span>
                     </td>
                     <td>
@@ -240,19 +254,19 @@
                           v-model="draftAccessScopeByDocument[document.id]"
                           class="form-select form-select-sm"
                         >
-                          <option value="tenant_public">Tenant public</option>
-                          <option value="members_only">Members only</option>
+                          <option value="tenant_public">{{ copy.accessTenantPublic }}</option>
+                          <option value="members_only">{{ copy.accessMembersOnly }}</option>
                           <option value="role_restricted">
-                            Role restricted
+                            {{ copy.accessRoleRestricted }}
                           </option>
-                          <option value="user_private">User private</option>
-                          <option value="admin_only">Admin only</option>
+                          <option value="user_private">{{ copy.accessUserPrivate }}</option>
+                          <option value="admin_only">{{ copy.accessAdminOnly }}</option>
                         </select>
                         <input
                           v-model="draftAllowedRolesByDocument[document.id]"
                           class="form-control form-control-sm"
                           type="text"
-                          placeholder="admin, member"
+                          :placeholder="copy.allowedRolesPlaceholder"
                           :disabled="
                             draftAccessScopeByDocument[document.id] !==
                             'role_restricted'
@@ -275,11 +289,11 @@
                     </td>
                     <td>
                       <div class="fw-semibold">
-                        {{ document.current_version?.file_name || "N/A" }}
+                        {{ document.current_version?.file_name || copy.notAvailable }}
                       </div>
                       <div class="small text-muted">
                         {{
-                          document.current_version?.mime_type || "unknown type"
+                          document.current_version?.mime_type || copy.unknownType
                         }}
                       </div>
                     </td>
@@ -298,7 +312,7 @@
                           @click="saveAccess(document.id)"
                           :disabled="busyDocumentId === document.id"
                         >
-                          Save access
+                          {{ copy.saveAccess }}
                         </button>
                         <button
                           class="btn btn-sm btn-outline-secondary"
@@ -306,7 +320,7 @@
                           @click="queueReindex(document.id)"
                           :disabled="busyDocumentId === document.id || document.status === 'archived'"
                         >
-                          Reindex
+                          {{ copy.reindex }}
                         </button>
                         <button
                           v-if="document.status !== 'archived'"
@@ -315,7 +329,7 @@
                           @click="archive(document.id)"
                           :disabled="busyDocumentId === document.id"
                         >
-                          Archive
+                          {{ copy.archive }}
                         </button>
                         <button
                           v-else
@@ -324,7 +338,7 @@
                           @click="unarchive(document.id)"
                           :disabled="busyDocumentId === document.id"
                         >
-                          Restore
+                          {{ copy.restore }}
                         </button>
                         <button
                           v-if="formatIngestionStatus(document.id) === 'failed'"
@@ -333,7 +347,7 @@
                           @click="retryJob(document.id)"
                           :disabled="busyDocumentId === document.id"
                         >
-                          Retry job
+                          {{ copy.retryJob }}
                         </button>
                       </div>
                     </td>
@@ -364,10 +378,12 @@ import {
   type DocumentListItemResponse,
   type UploadDocumentResponse,
 } from "../../api/documents.api";
+import { useRecoveryState } from "@/composables/useRecoveryState";
 import { useLocaleStore } from "@/stores/locale.store";
 
 const route = useRoute();
 const localeStore = useLocaleStore();
+const t = (key: string) => localeStore.t(key);
 const isSecretaryWorkspace = computed(() => route.path.startsWith("/secretary"));
 const copy = computed(() => {
   if (localeStore.currentLocale === "de") {
@@ -378,12 +394,82 @@ const copy = computed(() => {
       documentIntake: "Dokumentenaufnahme",
       secretaryWorkspaceDescription: "Laden Sie Statuten, Protokolle, Mitteilungen und andere offizielle Vereinsdokumente hoch und verwalten Sie sie.",
       adminWorkspaceDescription: "Laden Sie Tenant-Dokumente in den Speicher und pruefen Sie die neuesten Versionsmetadaten.",
+      documentsWorkspaceErrorTitle: "Dokumentenbereich nicht verfügbar",
+      secretaryWorkspaceErrorTitle: "Dokumentenbereich des Sekretariats nicht verfügbar",
       reviewPolicies: "Regelwerke prüfen",
       reviewSettings: "Einstellungen prüfen",
       prepareAnnouncements: "Ankündigungen vorbereiten",
       addMembersFirst: "Zuerst Mitglieder anlegen",
       refreshing: "Aktualisierung...",
       refreshList: "Liste aktualisieren",
+      uploadDocumentTitle: "Dokument hochladen",
+      titleLabel: "Titel",
+      titlePlaceholder: "Mandantenrichtlinie",
+      descriptionLabel: "Beschreibung",
+      descriptionPlaceholder: "Optionaler Kontext für Prüfer",
+      fileLabel: "Datei",
+      allowedFileTypes: "Erlaubt: PDF, DOCX, TXT, MD, CSV, PNG, JPG, JPEG, WEBP.",
+      accessScopeLabel: "Zugriffsbereich",
+      accessTenantPublic: "Tenant-weit sichtbar",
+      accessMembersOnly: "Nur Mitglieder",
+      accessRoleRestricted: "Auf Rollen beschränkt",
+      accessUserPrivate: "Benutzerprivat",
+      accessAdminOnly: "Nur Admin",
+      uploading: "Hochladen...",
+      uploadDocument: "Dokument hochladen",
+      reset: "Zurücksetzen",
+      bulkUploadTitle: "Mehrfach-Upload",
+      filesLabel: "Dateien",
+      titlePrefixLabel: "Titelpräfix",
+      titlePrefixPlaceholder: "Migration",
+      bulkUpload: "Mehrfach hochladen",
+      clear: "Leeren",
+      bulkResult: "Mehrfachergebnis",
+      documentQueuedAs: "Dokument {title} wurde als {jobId} eingereiht",
+      duplicateOf: "Duplikat von {documentId}",
+      latestDocuments: "Neueste Dokumente",
+      items: "Einträge",
+      loadingDocuments: "Dokumente werden geladen...",
+      noDocumentsYet: "Noch keine Dokumente",
+      noDocumentsHint: "Beginnen Sie mit einem Begrüßungsleitfaden, einer Richtlinie oder einem Betriebsdokument. Sobald die erste Datei hochgeladen ist, wirkt der Tenant realer.",
+      statusLabel: "Status",
+      accessLabel: "Zugriff",
+      ingestionLabel: "Ingestion",
+      sizeLabel: "Größe",
+      actionsLabel: "Aktionen",
+      noDescription: "Keine Beschreibung",
+      allowedRolesPlaceholder: "principal_admin, member",
+      notAvailable: "Nicht verfügbar",
+      unknownType: "unbekannter Typ",
+      saveAccess: "Zugriff speichern",
+      reindex: "Neu indexieren",
+      archive: "Archivieren",
+      restore: "Wiederherstellen",
+      retryJob: "Job erneut starten",
+      draftRoles: "Entwurfsrollen: {roles}",
+      noRolesSelectedYet: "Noch keine Rollen ausgewählt",
+      noRoleRestriction: "Keine Rollenbeschränkung",
+      allowedRoles: "Erlaubte Rollen: {roles}",
+      statusUnknown: "unbekannt",
+      statusPending: "ausstehend",
+      statusProcessing: "in Bearbeitung",
+      statusCompleted: "abgeschlossen",
+      statusUploaded: "hochgeladen",
+      statusReady: "bereit",
+      statusArchived: "archiviert",
+      statusFailedLong: "fehlgeschlagen",
+      indexedSuffix: "indiziert",
+      accessUpdated: "Zugriff für {title} aktualisiert.",
+      reindexQueued: "Neuindexierung für Dokument {documentId} eingereiht.",
+      archivedMessage: "{title} archiviert.",
+      restoredMessage: "{title} wiederhergestellt.",
+      noJobFound: "Kein Job für dieses Dokument gefunden.",
+      retriedJob: "Ingestion-Job {jobId} erneut gestartet.",
+      chooseFileBeforeUpload: "Wählen Sie vor dem Hochladen eine Datei aus.",
+      uploadQueued: "Dokument hochgeladen. Ingestion-Job {jobId} eingereiht.",
+      uploadFailed: "Upload fehlgeschlagen. Prüfen Sie Dateityp und Größe.",
+      selectAtLeastOneFile: "Wählen Sie mindestens eine Datei aus.",
+      bulkSummary: "{success} hochgeladen, {failure} fehlgeschlagen.",
     };
   }
   if (localeStore.currentLocale === "en") {
@@ -394,12 +480,82 @@ const copy = computed(() => {
       documentIntake: "Document intake",
       secretaryWorkspaceDescription: "Upload and govern statutes, protocols, notices, and other official organization records.",
       adminWorkspaceDescription: "Upload tenant documents into object storage and review the latest version metadata.",
+      documentsWorkspaceErrorTitle: "Document workspace unavailable",
+      secretaryWorkspaceErrorTitle: "Secretary document workspace unavailable",
       reviewPolicies: "Review policies",
       reviewSettings: "Review settings",
       prepareAnnouncements: "Prepare announcements",
       addMembersFirst: "Add members first",
       refreshing: "Refreshing...",
       refreshList: "Refresh list",
+      uploadDocumentTitle: "Upload a document",
+      titleLabel: "Title",
+      titlePlaceholder: "Tenant policy",
+      descriptionLabel: "Description",
+      descriptionPlaceholder: "Optional context for reviewers",
+      fileLabel: "File",
+      allowedFileTypes: "Allowed: PDF, DOCX, TXT, MD, CSV, PNG, JPG, JPEG, WEBP.",
+      accessScopeLabel: "Access scope",
+      accessTenantPublic: "Tenant public",
+      accessMembersOnly: "Members only",
+      accessRoleRestricted: "Role restricted",
+      accessUserPrivate: "User private",
+      accessAdminOnly: "Admin only",
+      uploading: "Uploading...",
+      uploadDocument: "Upload document",
+      reset: "Reset",
+      bulkUploadTitle: "Bulk upload",
+      filesLabel: "Files",
+      titlePrefixLabel: "Title prefix",
+      titlePrefixPlaceholder: "Migration",
+      bulkUpload: "Bulk upload",
+      clear: "Clear",
+      bulkResult: "Bulk result",
+      documentQueuedAs: "Document {title} queued as {jobId}",
+      duplicateOf: "duplicate of {documentId}",
+      latestDocuments: "Latest documents",
+      items: "items",
+      loadingDocuments: "Loading documents...",
+      noDocumentsYet: "No documents yet",
+      noDocumentsHint: "Start with a welcome guide, policy, or operating document. Once the first file is uploaded, the tenant begins to feel real.",
+      statusLabel: "Status",
+      accessLabel: "Access",
+      ingestionLabel: "Ingestion",
+      sizeLabel: "Size",
+      actionsLabel: "Actions",
+      noDescription: "No description",
+      allowedRolesPlaceholder: "principal_admin, member",
+      notAvailable: "N/A",
+      unknownType: "unknown type",
+      saveAccess: "Save access",
+      reindex: "Reindex",
+      archive: "Archive",
+      restore: "Restore",
+      retryJob: "Retry job",
+      draftRoles: "Draft roles: {roles}",
+      noRolesSelectedYet: "No roles selected yet",
+      noRoleRestriction: "No role restriction",
+      allowedRoles: "Allowed roles: {roles}",
+      statusUnknown: "unknown",
+      statusPending: "pending",
+      statusProcessing: "processing",
+      statusCompleted: "completed",
+      statusUploaded: "uploaded",
+      statusReady: "ready",
+      statusArchived: "archived",
+      statusFailedLong: "failed",
+      indexedSuffix: "indexed",
+      accessUpdated: "Updated access for {title}.",
+      reindexQueued: "Reindex queued for document {documentId}.",
+      archivedMessage: "Archived {title}.",
+      restoredMessage: "Restored {title}.",
+      noJobFound: "No job found for this document.",
+      retriedJob: "Retried ingestion job {jobId}.",
+      chooseFileBeforeUpload: "Choose a file before uploading.",
+      uploadQueued: "Document uploaded. Ingestion job {jobId} queued.",
+      uploadFailed: "Upload failed. Check the file type and size.",
+      selectAtLeastOneFile: "Select at least one file.",
+      bulkSummary: "{success} uploaded, {failure} failed.",
     };
   }
   return {
@@ -409,12 +565,82 @@ const copy = computed(() => {
     documentIntake: "Réception documentaire",
     secretaryWorkspaceDescription: "Importez et gouvernez les statuts, procès-verbaux, annonces et autres documents officiels de l'association.",
     adminWorkspaceDescription: "Importez les documents du tenant dans le stockage et consultez les métadonnées de la dernière version.",
+    documentsWorkspaceErrorTitle: "L'espace documentaire est indisponible",
+    secretaryWorkspaceErrorTitle: "L'espace documentaire du secrétariat est indisponible",
     reviewPolicies: "Consulter les règlements",
     reviewSettings: "Consulter les réglages",
     prepareAnnouncements: "Préparer les annonces",
     addMembersFirst: "Ajouter d'abord les membres",
     refreshing: "Actualisation...",
     refreshList: "Actualiser la liste",
+    uploadDocumentTitle: "Importer un document",
+    titleLabel: "Titre",
+    titlePlaceholder: "Règlement du tenant",
+    descriptionLabel: "Description",
+    descriptionPlaceholder: "Contexte optionnel pour les relecteurs",
+    fileLabel: "Fichier",
+    allowedFileTypes: "Autorisés : PDF, DOCX, TXT, MD, CSV, PNG, JPG, JPEG, WEBP.",
+    accessScopeLabel: "Portée d'accès",
+    accessTenantPublic: "Public au tenant",
+    accessMembersOnly: "Membres uniquement",
+    accessRoleRestricted: "Restreint à certains rôles",
+    accessUserPrivate: "Privé à l'utilisateur",
+    accessAdminOnly: "Admin uniquement",
+    uploading: "Import en cours...",
+    uploadDocument: "Importer le document",
+    reset: "Réinitialiser",
+    bulkUploadTitle: "Import multiple",
+    filesLabel: "Fichiers",
+    titlePrefixLabel: "Préfixe du titre",
+    titlePrefixPlaceholder: "Migration",
+    bulkUpload: "Importer en lot",
+    clear: "Effacer",
+    bulkResult: "Résultat du lot",
+    documentQueuedAs: "Le document {title} a été mis en file sous {jobId}",
+    duplicateOf: "doublon de {documentId}",
+    latestDocuments: "Derniers documents",
+    items: "éléments",
+    loadingDocuments: "Chargement des documents...",
+    noDocumentsYet: "Aucun document pour le moment",
+    noDocumentsHint: "Commencez par un guide d'accueil, un règlement ou un document d'exploitation. Dès que le premier fichier est importé, le tenant devient plus concret.",
+    statusLabel: "Statut",
+    accessLabel: "Accès",
+    ingestionLabel: "Ingestion",
+    sizeLabel: "Taille",
+    actionsLabel: "Actions",
+    noDescription: "Aucune description",
+    allowedRolesPlaceholder: "principal_admin, member",
+    notAvailable: "N/D",
+    unknownType: "type inconnu",
+    saveAccess: "Enregistrer l'accès",
+    reindex: "Réindexer",
+    archive: "Archiver",
+    restore: "Restaurer",
+    retryJob: "Relancer le job",
+    draftRoles: "Rôles en brouillon : {roles}",
+    noRolesSelectedYet: "Aucun rôle sélectionné pour le moment",
+    noRoleRestriction: "Aucune restriction de rôle",
+    allowedRoles: "Rôles autorisés : {roles}",
+    statusUnknown: "inconnu",
+    statusPending: "en attente",
+    statusProcessing: "en traitement",
+    statusCompleted: "terminé",
+    statusUploaded: "importé",
+    statusReady: "prêt",
+    statusArchived: "archivé",
+    statusFailedLong: "échoué",
+    indexedSuffix: "indexés",
+    accessUpdated: "Accès mis à jour pour {title}.",
+    reindexQueued: "Réindexation mise en file pour le document {documentId}.",
+    archivedMessage: "{title} a été archivé.",
+    restoredMessage: "{title} a été restauré.",
+    noJobFound: "Aucun job trouvé pour ce document.",
+    retriedJob: "Job d'ingestion {jobId} relancé.",
+    chooseFileBeforeUpload: "Choisissez un fichier avant l'import.",
+    uploadQueued: "Document importé. Job d'ingestion {jobId} mis en file.",
+    uploadFailed: "Échec de l'import. Vérifiez le type et la taille du fichier.",
+    selectAtLeastOneFile: "Sélectionnez au moins un fichier.",
+    bulkSummary: "{success} importés, {failure} en échec.",
   };
 });
 const workspaceLabel = computed(() =>
@@ -438,9 +664,14 @@ const emptyStateSecondaryLink = computed(() =>
     ? { to: "/secretary/announcements", label: copy.value.prepareAnnouncements }
     : { to: "/admin/members", label: copy.value.addMembersFirst }
 );
+const workspaceErrorTitle = computed(() =>
+  isSecretaryWorkspace.value
+    ? copy.value.secretaryWorkspaceErrorTitle
+    : copy.value.documentsWorkspaceErrorTitle
+);
 
+const { loading, error, isRecovering, run, retry, clearError } = useRecoveryState();
 const documents = ref<DocumentListItemResponse[]>([]);
-const loading = ref(false);
 const uploading = ref(false);
 const title = ref("");
 const description = ref("");
@@ -464,12 +695,12 @@ function formatIngestionStatus(documentId: string): string {
   const status = ingestionStatusByDocument.value[documentId];
   const detail = ingestionDetailByDocument.value[documentId];
   if (!status) {
-    return "unknown";
+    return copy.value.statusUnknown;
   }
   if (detail && status === "completed") {
-    return `${status} (${detail.indexed}/${detail.chunks} indexed)`;
+    return `${copy.value.statusCompleted} (${detail.indexed}/${detail.chunks} ${copy.value.indexedSuffix})`;
   }
-  return status;
+  return formatStatusToken(status);
 }
 
 const ingestionDetailByDocument = ref<
@@ -477,14 +708,20 @@ const ingestionDetailByDocument = ref<
 >({});
 
 async function refreshDocuments() {
-  loading.value = true;
-  try {
+  clearError();
+  await run(async () => {
     documents.value = await listDocuments();
     syncDocumentDrafts();
     await refreshIngestionStatuses();
-  } finally {
-    loading.value = false;
-  }
+  });
+}
+
+async function retryRefreshDocuments() {
+  await retry(async () => {
+    documents.value = await listDocuments();
+    syncDocumentDrafts();
+    await refreshIngestionStatuses();
+  });
 }
 
 function syncDocumentDrafts() {
@@ -543,14 +780,39 @@ function formatAllowedRoles(roles: string[] | null, documentId: string): string 
   const draftRoles = draftAllowedRolesByDocument.value[documentId]?.trim();
 
   if (draftScope === "role_restricted") {
-    return draftRoles ? `Draft roles: ${draftRoles}` : "No roles selected yet";
+    return draftRoles
+      ? copy.value.draftRoles.replace("{roles}", draftRoles)
+      : copy.value.noRolesSelectedYet;
   }
 
   if (!roles || roles.length === 0) {
-    return "No role restriction";
+    return copy.value.noRoleRestriction;
   }
 
-  return `Allowed roles: ${roles.join(", ")}`;
+  return copy.value.allowedRoles.replace("{roles}", roles.join(", "));
+}
+
+function formatStatusToken(status: string): string {
+  switch (status) {
+    case "unknown":
+      return copy.value.statusUnknown;
+    case "pending":
+      return copy.value.statusPending;
+    case "processing":
+      return copy.value.statusProcessing;
+    case "completed":
+      return copy.value.statusCompleted;
+    case "uploaded":
+      return copy.value.statusUploaded;
+    case "ready":
+      return copy.value.statusReady;
+    case "archived":
+      return copy.value.statusArchived;
+    case "failed":
+      return copy.value.statusFailedLong;
+    default:
+      return status;
+  }
 }
 
 function parseAllowedRoles(documentId: string): string[] {
@@ -575,7 +837,7 @@ async function saveAccess(documentId: string) {
       doc.id === documentId ? updated : doc
     );
     syncDocumentDrafts();
-    statusMessage.value = `Updated access for ${updated.title}.`;
+    statusMessage.value = copy.value.accessUpdated.replace("{title}", updated.title);
   } finally {
     busyDocumentId.value = null;
   }
@@ -587,7 +849,7 @@ async function queueReindex(documentId: string) {
     const job = await reindexDocument(documentId);
     ingestionJobByDocument.value[documentId] = job.id;
     ingestionStatusByDocument.value[documentId] = job.status;
-    statusMessage.value = `Reindex queued for document ${documentId}.`;
+    statusMessage.value = copy.value.reindexQueued.replace("{documentId}", documentId);
     await refreshDocuments();
   } finally {
     busyDocumentId.value = null;
@@ -601,7 +863,7 @@ async function archive(documentId: string) {
     documents.value = documents.value.map((doc) =>
       doc.id === documentId ? updated : doc
     );
-    statusMessage.value = `Archived ${updated.title}.`;
+    statusMessage.value = copy.value.archivedMessage.replace("{title}", updated.title);
   } finally {
     busyDocumentId.value = null;
   }
@@ -614,7 +876,7 @@ async function unarchive(documentId: string) {
     documents.value = documents.value.map((doc) =>
       doc.id === documentId ? updated : doc
     );
-    statusMessage.value = `Restored ${updated.title}.`;
+    statusMessage.value = copy.value.restoredMessage.replace("{title}", updated.title);
   } finally {
     busyDocumentId.value = null;
   }
@@ -623,14 +885,14 @@ async function unarchive(documentId: string) {
 async function retryJob(documentId: string) {
   const jobId = ingestionJobByDocument.value[documentId];
   if (!jobId) {
-    statusMessage.value = "No job found for this document.";
+    statusMessage.value = copy.value.noJobFound;
     return;
   }
   busyDocumentId.value = documentId;
   try {
     const result = await retryIngestionJob(jobId);
     ingestionStatusByDocument.value[documentId] = result.job.status;
-    statusMessage.value = `Retried ingestion job ${jobId}.`;
+    statusMessage.value = copy.value.retriedJob.replace("{jobId}", jobId);
     await refreshDocuments();
   } finally {
     busyDocumentId.value = null;
@@ -639,7 +901,7 @@ async function retryJob(documentId: string) {
 
 async function submitUpload() {
   if (!selectedFile.value) {
-    statusMessage.value = "Choose a file before uploading.";
+    statusMessage.value = copy.value.chooseFileBeforeUpload;
     return;
   }
 
@@ -655,11 +917,11 @@ async function submitUpload() {
     });
     ingestionJobByDocument.value[uploaded.id] = uploaded.ingestion_job_id;
     ingestionStatusByDocument.value[uploaded.id] = "pending";
-    statusMessage.value = `Document uploaded. Ingestion job ${uploaded.ingestion_job_id} queued.`;
+    statusMessage.value = copy.value.uploadQueued.replace("{jobId}", String(uploaded.ingestion_job_id));
     resetForm();
     await refreshDocuments();
   } catch (error) {
-    statusMessage.value = "Upload failed. Check the file type and size.";
+    statusMessage.value = copy.value.uploadFailed;
     throw error;
   } finally {
     uploading.value = false;
@@ -668,7 +930,7 @@ async function submitUpload() {
 
 async function submitBulkUpload() {
   if (bulkFiles.value.length === 0) {
-    bulkStatusMessage.value = "Select at least one file.";
+    bulkStatusMessage.value = copy.value.selectAtLeastOneFile;
     return;
   }
 
@@ -687,7 +949,9 @@ async function submitBulkUpload() {
       document: item.document,
       error: item.error,
     }));
-    bulkStatusMessage.value = `${result.success_count} uploaded, ${result.failure_count} failed.`;
+    bulkStatusMessage.value = copy.value.bulkSummary
+      .replace("{success}", String(result.success_count))
+      .replace("{failure}", String(result.failure_count));
     await refreshDocuments();
   } finally {
     bulkUploading.value = false;

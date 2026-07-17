@@ -45,9 +45,20 @@
       </div>
     </div>
 
-    <div v-if="error" class="alert alert-danger alert-dismissible small py-2 mb-4" role="alert">
-      <i class="bi bi-exclamation-triangle me-1"></i>{{ error }}
-      <button type="button" class="btn-close py-2" @click="error = ''"></button>
+    <div v-if="error" class="alert alert-danger border-0 shadow-sm mb-4" role="alert">
+      <div class="d-flex flex-column flex-md-row align-items-md-center justify-content-between gap-3">
+        <div>
+          <div class="fw-semibold mb-1">
+            <i class="bi bi-exclamation-triangle me-2"></i>{{ t('sports.workspaceErrorTitle') }}
+          </div>
+          <p class="mb-0 small">{{ error }}</p>
+          <p class="mb-0 small text-muted mt-1">{{ t('common.recoveryHint') }}</p>
+        </div>
+        <button class="btn btn-outline-secondary btn-sm flex-shrink-0" type="button" @click="retryLoad" :disabled="isRecovering">
+          <span v-if="isRecovering" class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
+          {{ isRecovering ? t('common.loading') : t('common.retry') }}
+        </button>
+      </div>
     </div>
 
     <div class="row g-4">
@@ -191,6 +202,7 @@
 import { computed, onMounted, ref } from 'vue'
 import ConfirmModal from '@/components/ConfirmModal.vue'
 import { useLocaleStore } from '@/stores/locale.store'
+import { useRecoveryState } from '@/composables/useRecoveryState'
 import {
   createSportsEvent,
   deleteSportsEvent,
@@ -210,13 +222,14 @@ type SportsEventForm = {
   sport_type: string
 }
 
-const loading = ref(true)
+const { loading, error, isRecovering, run, retry, clearError } = useRecoveryState()
 const saving = ref(false)
-const error = ref('')
 const events = ref<EventResponse[]>([])
 const editingId = ref<string | null>(null)
 const showDeleteModal = ref(false)
 const deletingEvent = ref<EventResponse | null>(null)
+
+const t = (key: string) => localeStore.t(key)
 
 const form = ref<SportsEventForm>({
   title: '',
@@ -457,24 +470,24 @@ function confirmDelete(event: EventResponse) {
 }
 
 async function loadEvents() {
-  try {
+  await run(async () => {
     events.value = await listSportsEvents()
-  } catch (err) {
-    error.value = err instanceof Error ? err.message : 'Unable to load sports events.'
-  } finally {
-    loading.value = false
-  }
+  })
+}
+
+async function retryLoad() {
+  await retry(async () => {
+    events.value = await listSportsEvents()
+  })
 }
 
 async function refresh() {
-  loading.value = true
-  error.value = ''
   await loadEvents()
 }
 
 async function handleSubmit() {
   saving.value = true
-  error.value = ''
+  clearError()
   try {
     const payload = {
       title: form.value.title.trim(),

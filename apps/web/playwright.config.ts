@@ -2,6 +2,7 @@ import { defineConfig, devices } from '@playwright/test'
 
 const webPort = process.env.PLAYWRIGHT_WEB_PORT || '5173'
 const webUrl = process.env.PLAYWRIGHT_WEB_URL || `http://localhost:${webPort}`
+const npmCommand = process.platform === 'win32' ? 'npm.cmd' : 'npm'
 
 export default defineConfig({
   testDir: './e2e',
@@ -11,7 +12,7 @@ export default defineConfig({
   workers: 1,
   reporter: 'html',
   webServer: {
-    command: `npm.cmd run dev -- --host 0.0.0.0 --port ${webPort}`,
+    command: `${npmCommand} run dev -- --host 0.0.0.0 --port ${webPort}`,
     url: webUrl,
     reuseExistingServer: !process.env.CI,
     timeout: 120_000,

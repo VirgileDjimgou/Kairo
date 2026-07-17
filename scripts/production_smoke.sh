@@ -2,17 +2,17 @@
 # ───────────────────────────────────────────────────────────────────────────────
 # Kairo — Production Smoke Check
 # ───────────────────────────────────────────────────────────────────────────────
-# Validates that the Kairo application stack is reachable and returning
-# expected responses. Run after deployment or restore.
-#
-# Usage:
-#   ./scripts/production_smoke.sh                    # default http://localhost
-#   ./scripts/production_smoke.sh https://kairo.example.com
-# ───────────────────────────────────────────────────────────────────────────────
 
 set -euo pipefail
 
-BASE_URL="${1:-http://localhost}"
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+# shellcheck disable=SC1091
+. "${SCRIPT_DIR}/lib/kairo_ops.sh"
+
+require_commands curl grep
+load_env_file
+
+BASE_URL="${1:-${APP_BASE_URL:-http://localhost}}"
 PASS=0
 FAIL=0
 
@@ -52,8 +52,9 @@ echo ""
 check "Health endpoint"               "${BASE_URL}/health"              200 "\"status\""
 check "Metrics endpoint"              "${BASE_URL}/metrics"             200 "# HELP"
 check "Root page"                     "${BASE_URL}/"                    200
-check "API docs"                      "${BASE_URL}/docs"               302
-check "API redoc"                     "${BASE_URL}/redoc"              302
+check "API docs blocked"              "${BASE_URL}/docs"                404
+check "API redoc blocked"             "${BASE_URL}/redoc"               404
+check "OpenAPI blocked"               "${BASE_URL}/openapi.json"        404
 
 echo ""
 echo "--- Results: ${PASS} passed, ${FAIL} failed ---"

@@ -2,29 +2,17 @@
 # ───────────────────────────────────────────────────────────────────────────────
 # Kairo — Local Restore Script
 # ───────────────────────────────────────────────────────────────────────────────
-# Restores all persistent Docker volumes from a backup archive created by
-# scripts/backup.sh.
-#
-# Usage:
-#   chmod +x scripts/restore.sh
-#   ./scripts/restore.sh /path/to/kairo-backup-YYYYMMDD_HHMMSS.tar.gz
-#
-# What gets restored:
-#   - PostgreSQL database (SQL dump)
-#   - Redis data (RDB snapshot)
-#   - Qdrant vector store
-#   - MinIO object storage
-#   - Ollama model data
-#
-# Prerequisites:
-#   - The full Docker stack must be running (docker compose up -d)
-#   - The script will restart affected services after restoring data
-# ───────────────────────────────────────────────────────────────────────────────
 
 set -euo pipefail
 
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+# shellcheck disable=SC1091
+. "${SCRIPT_DIR}/lib/kairo_ops.sh"
+
+require_commands docker tar find mktemp
+load_env_file
+
 RESTORE_ARCHIVE="${1:-}"
-COMPOSE_PROJECT="${COMPOSE_PROJECT:-kairo}"
 
 if [ -z "${RESTORE_ARCHIVE}" ]; then
     echo "Usage: $0 /path/to/kairo-backup-YYYYMMDD_HHMMSS.tar.gz"
@@ -39,6 +27,11 @@ fi
 echo "--- Kairo Restore ---"
 echo "Archive: ${RESTORE_ARCHIVE}"
 echo "Project: ${COMPOSE_PROJECT}"
+echo "Mode:    ${KAIRO_DEPLOY_MODE}"
+echo ""
+
+echo "Starting restore dependencies..."
+compose_cmd up -d postgres redis qdrant minio ollama
 echo ""
 
 # Extract to a temp directory
@@ -60,7 +53,7 @@ echo ""
 POSTGRES_DUMP="${BACKUP_CONTENT_DIR}/postgres.sql"
 if [ -f "${POSTGRES_DUMP}" ]; then
     echo "[1/5] Restoring PostgreSQL database..."
-    docker compose -p "${COMPOSE_PROJECT}" exec -T postgres \
+    compose_cmd exec -T postgres \
         psql -U "${POSTGRES_USER:-orgmind}" -d "${POSTGRES_DB:-orgmind}" \
         < "${POSTGRES_DUMP}"
     echo "      -> PostgreSQL restore complete"
@@ -72,11 +65,11 @@ fi
 REDIS_RDB="${BACKUP_CONTENT_DIR}/redis.rdb"
 if [ -f "${REDIS_RDB}" ]; then
     echo "[2/5] Restoring Redis RDB..."
-    REDIS_CONTAINER=$(docker compose -p "${COMPOSE_PROJECT}" ps -q redis 2>/dev/null)
+    REDIS_CONTAINER=$(compose_cmd ps -q redis 2>/dev/null)
     if [ -n "${REDIS_CONTAINER}" ]; then
         docker cp "${REDIS_RDB}" "${REDIS_CONTAINER}:/data/dump.rdb"
         # Restart redis to reload the RDB
-        docker compose -p "${COMPOSE_PROJECT}" restart redis
+        compose_cmd restart redis
         echo "      -> Redis RDB restored and container restarted"
     else
         echo "      -> (Redis container not running — skipped)"
@@ -89,11 +82,11 @@ fi
 QDRANT_STORAGE="${BACKUP_CONTENT_DIR}/qdrant_storage"
 if [ -d "${QDRANT_STORAGE}" ]; then
     echo "[3/5] Restoring Qdrant storage..."
-    QDRANT_CONTAINER=$(docker compose -p "${COMPOSE_PROJECT}" ps -q qdrant 2>/dev/null)
+    QDRANT_CONTAINER=$(compose_cmd ps -q qdrant 2>/dev/null)
     if [ -n "${QDRANT_CONTAINER}" ]; then
-        docker compose -p "${COMPOSE_PROJECT}" stop qdrant
+        compose_cmd stop qdrant
         docker cp "${QDRANT_STORAGE}" "${QDRANT_CONTAINER}:/qdrant/storage"
-        docker compose -p "${COMPOSE_PROJECT}" start qdrant
+        compose_cmd start qdrant
         echo "      -> Qdrant storage restored and container restarted"
     else
         echo "      -> (Qdrant container not running — skipped)"
@@ -106,11 +99,11 @@ fi
 MINIO_DATA="${BACKUP_CONTENT_DIR}/minio_data"
 if [ -d "${MINIO_DATA}" ]; then
     echo "[4/5] Restoring MinIO data..."
-    MINIO_CONTAINER=$(docker compose -p "${COMPOSE_PROJECT}" ps -q minio 2>/dev/null)
+    MINIO_CONTAINER=$(compose_cmd ps -q minio 2>/dev/null)
     if [ -n "${MINIO_CONTAINER}" ]; then
-        docker compose -p "${COMPOSE_PROJECT}" stop minio
+        compose_cmd stop minio
         docker cp "${MINIO_DATA}" "${MINIO_CONTAINER}:/data"
-        docker compose -p "${COMPOSE_PROJECT}" start minio
+        compose_cmd start minio
         echo "      -> MinIO data restored and container restarted"
     else
         echo "      -> (MinIO container not running — skipped)"
@@ -123,11 +116,11 @@ fi
 OLLAMA_DATA="${BACKUP_CONTENT_DIR}/ollama_data"
 if [ -d "${OLLAMA_DATA}" ]; then
     echo "[5/5] Restoring Ollama models..."
-    OLLAMA_CONTAINER=$(docker compose -p "${COMPOSE_PROJECT}" ps -q ollama 2>/dev/null)
+    OLLAMA_CONTAINER=$(compose_cmd ps -q ollama 2>/dev/null)
     if [ -n "${OLLAMA_CONTAINER}" ]; then
-        docker compose -p "${COMPOSE_PROJECT}" stop ollama
+        compose_cmd stop ollama
         docker cp "${OLLAMA_DATA}" "${OLLAMA_CONTAINER}:/root/.ollama"
-        docker compose -p "${COMPOSE_PROJECT}" start ollama
+        compose_cmd start ollama
         echo "      -> Ollama models restored and container restarted"
     else
         echo "      -> (Ollama container not running — skipped)"
@@ -140,6 +133,9 @@ fi
 echo ""
 echo "Cleaning up..."
 rm -rf "${RESTORE_DIR}"
+
+echo "Starting application services..."
+compose_cmd up -d api worker web
 
 echo ""
 echo "--- Restore complete ---"

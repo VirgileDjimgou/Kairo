@@ -78,7 +78,7 @@ services:
       context: ./services/api
       target: development
     env_file:
-      - .env
+      - ${KAIRO_ENV_FILE:-.env}
     ports:
       - "8000:8000"
     depends_on:
@@ -106,7 +106,7 @@ services:
       target: development
     command: celery -A app.worker.celery_app worker --loglevel=info --concurrency=2
     env_file:
-      - .env
+      - ${KAIRO_ENV_FILE:-.env}
     depends_on:
       postgres:
         condition: service_healthy
@@ -133,7 +133,7 @@ services:
       context: ./apps/web
       target: development
     env_file:
-      - .env
+      - ${KAIRO_ENV_FILE:-.env}
     ports:
       - "5173:5173"
     volumes:
@@ -154,7 +154,7 @@ services:
     image: cloudflare/cloudflared:latest
     command: tunnel --no-autoupdate run --token ${CLOUDFLARE_TUNNEL_TOKEN}
     env_file:
-      - .env
+      - ${KAIRO_ENV_FILE:-.env}
     depends_on:
       - web
       - api

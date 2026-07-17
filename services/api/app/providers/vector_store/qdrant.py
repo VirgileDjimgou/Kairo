@@ -21,7 +21,7 @@ logger = structlog.get_logger(__name__)
 
 
 class QdrantVectorStoreProvider:
-    """Qdrant adapter for tenant-scoped document chunk vectors with hybrid search support."""
+    """Qdrant adapter for tenant-scoped dense retrieval over document chunks."""
 
     def __init__(self) -> None:
         self._client = QdrantClient(url=settings.qdrant_url, timeout=30)
@@ -34,7 +34,8 @@ class QdrantVectorStoreProvider:
             current_size = info.config.params.vectors.size
             if current_size != vector_size:
                 raise ValueError(
-                    f"Qdrant collection {self._collection} expects size {current_size}, got {vector_size}"
+                    "Qdrant collection "
+                    f"{self._collection} expects size {current_size}, got {vector_size}"
                 )
             return
 
@@ -43,7 +44,11 @@ class QdrantVectorStoreProvider:
             vectors_config=VectorParams(size=vector_size, distance=Distance.COSINE),
             sparse_vectors_config={"bm25": SparseVectorParams()},
         )
-        logger.info("qdrant_collection_created", collection=self._collection, vector_size=vector_size)
+        logger.info(
+            "qdrant_collection_created",
+            collection=self._collection,
+            vector_size=vector_size,
+        )
 
     def delete_vectors_for_version(self, tenant_id: UUID, document_version_id: UUID) -> None:
         self._client.delete(
@@ -88,10 +93,13 @@ class QdrantVectorStoreProvider:
             ]
         )
 
-        # The qdrant-client version bundled with the current stack does not
-        # expose the sparse_query keyword on query_points(). We keep the hybrid
-        # flag for compatibility, but fall back to dense retrieval so chat
-        # remains functional across local and containerized environments.
+        if hybrid:
+            logger.info(
+                "qdrant_dense_retrieval_mode",
+                collection=self._collection,
+                hybrid_requested=True,
+                reason="dense_vectors_only",
+            )
         response = self._client.query_points(
             collection_name=self._collection,
             query=query_vector,
@@ -107,6 +115,7 @@ class QdrantVectorStoreProvider:
                 "id": str(point.id),
                 "score": float(point.score or 0.0),
                 "payload": point.payload or {},
+                "retrieval_mode": "dense",
             }
             for point in results
         ]

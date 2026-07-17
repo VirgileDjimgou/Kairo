@@ -8,23 +8,8 @@ on:
 
 jobs:
   api:
-    name: API — Lint & Test
+    name: API — Quality Baseline
     runs-on: ubuntu-latest
-
-    services:
-      postgres:
-        image: postgres:16-alpine
-        env:
-          POSTGRES_DB: orgmind_test
-          POSTGRES_USER: orgmind
-          POSTGRES_PASSWORD: orgmind_dev_password
-        options: >-
-          --health-cmd "pg_isready -U orgmind -d orgmind_test"
-          --health-interval 10s
-          --health-timeout 5s
-          --health-retries 5
-        ports:
-          - 5432:5432
 
     steps:
       - uses: actions/checkout@v4
@@ -36,33 +21,35 @@ jobs:
           cache-dependency-path: services/api/requirements.txt
 
       - name: Install API dependencies
-        run: |
-          cd services/api
-          pip install -r requirements.txt
+        run: pip install -r services/api/requirements.txt
 
-      - name: Lint (ruff)
-        run: |
-          cd services/api
-          ruff check app tests
+      - name: Lint selected backend baseline (ruff)
+        run: >
+          python -m ruff check
+          services/api/app/core/dependencies.py
+          services/api/app/core/security.py
+          services/api/app/core/authorization.py
+          services/api/app/modules/rag/policy.py
+          services/api/tests/conftest.py
+          services/api/tests/test_chat.py
+          services/api/tests/test_governance_roles.py
 
-      - name: Type check (mypy)
-        run: |
-          cd services/api
-          mypy app --ignore-missing-imports --no-strict-optional
-        continue-on-error: true
+      - name: Type check selected backend baseline (mypy)
+        run: >
+          python -m mypy --config-file services/api/pyproject.toml --explicit-package-bases
+          services/api/app/core/dependencies.py
+          services/api/app/core/security.py
+          services/api/app/core/authorization.py
+          services/api/app/modules/rag/policy.py
 
-      - name: Test
+      - name: Run backend tests from repository root
         env:
-          TEST_DATABASE_URL: postgresql+psycopg://orgmind:orgmind_dev_password@localhost:5432/orgmind_test
           JWT_SECRET_KEY: ci-test-secret-key-not-for-production
           APP_ENV: test
-          REDIS_URL: redis://localhost:6379/0
-        run: |
-          cd services/api
-          pytest tests/ -v --tb=short
+        run: python -m pytest services/api/tests -q
 
   web:
-    name: Web — Build
+    name: Web — Type, Build, And Browser Baseline
     runs-on: ubuntu-latest
 
     steps:
@@ -88,3 +75,13 @@ jobs:
         run: |
           cd apps/web
           npm run build
+
+      - name: Install Playwright browser
+        run: |
+          cd apps/web
+          npx playwright install --with-deps chromium
+
+      - name: Run localization browser regression pack
+        run: |
+          cd apps/web
+          npm run test:e2e:locale

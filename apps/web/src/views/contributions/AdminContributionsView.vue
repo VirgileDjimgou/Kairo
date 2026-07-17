@@ -2,8 +2,8 @@
   <div class="p-4">
     <div class="d-flex align-items-center justify-content-between mb-4">
       <div>
-        <h1 class="h4 fw-bold mb-0">Contributions</h1>
-        <p class="text-muted small mb-0">Manage member contributions and payments</p>
+        <h1 class="h4 fw-bold mb-0">{{ t('contributions.title') }}</h1>
+        <p class="text-muted small mb-0">{{ t('contributions.subtitle') }}</p>
       </div>
       <div class="d-flex gap-2 align-items-center">
         <select v-model="selectedYear" class="form-select form-select-sm" style="width: auto" @change="loadData">
@@ -11,13 +11,13 @@
         </select>
         <button class="btn btn-outline-secondary btn-sm" @click="exportContributions" :disabled="exporting">
           <i v-if="exporting" class="spinner-border spinner-border-sm me-1"></i>
-          <i v-else class="bi bi-download me-1"></i>Export CSV
+          <i v-else class="bi bi-download me-1"></i>{{ t('common.exportCsv') }}
         </button>
         <button class="btn btn-outline-primary btn-sm" data-bs-toggle="modal" data-bs-target="#importContributionModal">
-          <i class="bi bi-upload me-1"></i>Import CSV
+          <i class="bi bi-upload me-1"></i>{{ t('common.importCsv') }}
         </button>
         <button class="btn btn-primary btn-sm" data-bs-toggle="modal" data-bs-target="#createContributionModal">
-          <i class="bi bi-plus-circle me-1"></i>Add contribution
+          <i class="bi bi-plus-circle me-1"></i>{{ t('contributions.addContribution') }}
         </button>
       </div>
     </div>
@@ -32,7 +32,7 @@
       <div class="col-md-4">
         <div class="card shadow-sm border-0 bg-primary-subtle">
           <div class="card-body text-center py-3">
-            <div class="text-muted small">Expected</div>
+            <div class="text-muted small">{{ t('contributions.expected') }}</div>
             <div class="fw-bold fs-4">{{ summary.total_expected }} EUR</div>
           </div>
         </div>
@@ -40,7 +40,7 @@
       <div class="col-md-4">
         <div class="card shadow-sm border-0 bg-success-subtle">
           <div class="card-body text-center py-3">
-            <div class="text-muted small">Paid</div>
+            <div class="text-muted small">{{ t('contributions.paid') }}</div>
             <div class="fw-bold fs-4">{{ summary.total_paid }} EUR</div>
           </div>
         </div>
@@ -49,7 +49,7 @@
         <div class="card shadow-sm border-0"
           :class="Number(summary.total_balance) > 0 ? 'bg-danger-subtle' : 'bg-success-subtle'">
           <div class="card-body text-center py-3">
-            <div class="text-muted small">Balance</div>
+            <div class="text-muted small">{{ t('contributions.balance') }}</div>
             <div class="fw-bold fs-4">{{ summary.total_balance }} EUR</div>
           </div>
         </div>
@@ -59,7 +59,7 @@
     <!-- Loading -->
     <div v-if="loading" class="text-center py-5">
       <div class="spinner-border text-primary" role="status">
-        <span class="visually-hidden">Loading...</span>
+        <span class="visually-hidden">{{ t('common.loading') }}</span>
       </div>
     </div>
 
@@ -69,14 +69,14 @@
         <table class="table table-hover mb-0 align-middle" aria-label="Contributions list">
           <thead class="table-light">
             <tr>
-              <th class="ps-4" scope="col">Year</th>
-              <th scope="col">Member</th>
-              <th scope="col">Expected</th>
-              <th scope="col">Paid</th>
-              <th scope="col">Balance</th>
-              <th scope="col">Status</th>
-              <th scope="col">Due</th>
-              <th class="text-end pe-4" scope="col">Actions</th>
+              <th class="ps-4" scope="col">{{ t('common.year') }}</th>
+              <th scope="col">{{ t('common.member') }}</th>
+              <th scope="col">{{ t('contributions.expected') }}</th>
+              <th scope="col">{{ t('contributions.paid') }}</th>
+              <th scope="col">{{ t('contributions.balance') }}</th>
+              <th scope="col">{{ t('common.status') }}</th>
+              <th scope="col">{{ t('contributions.due') }}</th>
+              <th class="text-end pe-4" scope="col">{{ t('common.actions') }}</th>
             </tr>
           </thead>
           <tbody>
@@ -94,11 +94,11 @@
               </td>
               <td class="small">{{ c.due_date ? formatDate(c.due_date) : '—' }}</td>
               <td class="text-end pe-4">
-                <button class="btn btn-sm btn-outline-primary me-1" aria-label="Record payment"
+                <button class="btn btn-sm btn-outline-primary me-1" :aria-label="t('contributions.recordPayment')"
                   @click="openPaymentModal(c)">
                   <i class="bi bi-cash"></i>
                 </button>
-                <button class="btn btn-sm btn-outline-danger" aria-label="Delete contribution"
+                <button class="btn btn-sm btn-outline-danger" :aria-label="t('contributions.deleteContribution')"
                   @click="confirmDeleteContribution(c)">
                   <i class="bi bi-trash"></i>
                 </button>
@@ -110,12 +110,12 @@
     </div>
     <div v-else class="empty-state">
       <i class="bi bi-cash-stack display-6 text-secondary"></i>
-      <p class="mb-1 fw-semibold">No contribution records for {{ selectedYear }}</p>
-      <p class="text-muted mb-0">Add contribution records manually or import them from a CSV file.</p>
+      <p class="mb-1 fw-semibold">{{ t('contributions.noRecords').replace('{year}', String(selectedYear)) }}</p>
+      <p class="text-muted mb-0">{{ t('contributions.noRecordsHint') }}</p>
     </div>
 
     <ConfirmModal v-if="showDeleteModal && deletingContribution"
-      title="Delete contribution"
+      :title="t('contributions.deleteContribution')"
       :message="`Delete contribution record for ${deletingContribution.year}?`"
       @confirm="handleDeleteContribution"
       @cancel="showDeleteModal = false; deletingContribution = null"
@@ -126,30 +126,30 @@
       <div class="modal-dialog modal-lg">
         <div class="modal-content">
           <div class="modal-header">
-            <h5 class="modal-title" id="importContributionModalLabel">Import contributions from CSV</h5>
+            <h5 class="modal-title" id="importContributionModalLabel">{{ t('contributions.importTitle') }}</h5>
             <button type="button" class="btn-close" data-bs-dismiss="modal" @click="resetContribImport"></button>
           </div>
           <div class="modal-body">
             <div class="mb-3">
-              <label class="form-label small fw-medium">CSV file</label>
+              <label class="form-label small fw-medium">{{ t('common.csvFile') }}</label>
               <input ref="contribImportFileInput" class="form-control form-control-sm" type="file" accept=".csv" @change="onContribImportFileChange" />
-              <div class="form-text small">Required columns: <code>member_code</code>, <code>year</code>, <code>expected_amount</code>. Optional: <code>paid_amount</code>, <code>status</code>.</div>
+              <div class="form-text small">{{ t('contributions.requiredColumns') }}</div>
             </div>
             <div class="form-check mb-3">
               <input id="contribImportDryRun" v-model="contribImportDryRun" type="checkbox" class="form-check-input" />
-              <label for="contribImportDryRun" class="form-check-label small">Dry run (validate only, no changes saved)</label>
+              <label for="contribImportDryRun" class="form-check-label small">{{ t('common.dryRun') }}</label>
             </div>
             <div v-if="contribImportResult" class="mt-3">
               <hr />
               <div class="d-flex gap-3 mb-3">
-                <span class="badge bg-secondary">Total: {{ contribImportResult.total }}</span>
-                <span class="badge bg-success">Success: {{ contribImportResult.success_count }}</span>
-                <span class="badge" :class="contribImportResult.error_count > 0 ? 'bg-danger' : 'bg-success'">Errors: {{ contribImportResult.error_count }}</span>
+                <span class="badge bg-secondary">{{ t('common.total') }}: {{ contribImportResult.total }}</span>
+                <span class="badge bg-success">{{ t('common.successCount') }}: {{ contribImportResult.success_count }}</span>
+                <span class="badge" :class="contribImportResult.error_count > 0 ? 'bg-danger' : 'bg-success'">{{ t('common.errorCount') }}: {{ contribImportResult.error_count }}</span>
               </div>
               <div v-if="contribImportResult.errors.length > 0" class="mb-3">
-                <h6 class="small fw-bold text-danger">Validation errors</h6>
+                <h6 class="small fw-bold text-danger">{{ t('common.validationErrors') }}</h6>
                 <table class="table table-sm small mb-0">
-                  <thead><tr><th>Row</th><th>Error</th></tr></thead>
+                  <thead><tr><th>{{ t('common.row') }}</th><th>{{ t('common.errorColumn') }}</th></tr></thead>
                   <tbody>
                     <tr v-for="err in contribImportResult.errors" :key="err.row">
                       <td>{{ err.row }}</td>
@@ -159,17 +159,17 @@
                 </table>
               </div>
               <div v-if="contribImportResult.error_count === 0 && !contribImportDryRun" class="alert alert-success small py-2 mb-0">
-                Successfully imported {{ contribImportResult.success_count }} contributions.
+                {{ t('contributions.importSuccess').replace('{count}', String(contribImportResult.success_count)) }}
               </div>
             </div>
           </div>
           <div class="modal-footer">
-            <button type="button" class="btn btn-sm btn-secondary" data-bs-dismiss="modal" @click="resetContribImport">Cancel</button>
+            <button type="button" class="btn btn-sm btn-secondary" data-bs-dismiss="modal" @click="resetContribImport">{{ t('common.cancel') }}</button>
             <button v-if="contribImportDryRun && contribImportResult && contribImportResult.error_count === 0" type="button" class="btn btn-sm btn-primary" @click="confirmContribImport" :disabled="contribImporting">
-              {{ contribImporting ? 'Importing...' : 'Confirm import' }}
+              {{ contribImporting ? t('common.importing') : t('common.confirmImport') }}
             </button>
             <button v-else type="button" class="btn btn-sm btn-primary" @click="handleContribImport" :disabled="contribImporting || !contribImportSelectedFile">
-              {{ contribImporting ? 'Importing...' : contribImportDryRun ? 'Validate' : 'Import' }}
+              {{ contribImporting ? t('common.importing') : contribImportDryRun ? t('common.validate') : t('common.import') }}
             </button>
           </div>
         </div>
@@ -181,29 +181,29 @@
       <div class="modal-dialog">
         <div class="modal-content">
           <div class="modal-header">
-            <h5 class="modal-title" id="createContributionModalLabel">Add contribution</h5>
+            <h5 class="modal-title" id="createContributionModalLabel">{{ t('contributions.addContribution') }}</h5>
             <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
           </div>
           <div class="modal-body">
             <div class="mb-3">
-              <label class="form-label small fw-medium">Member</label>
+              <label class="form-label small fw-medium">{{ t('common.member') }}</label>
               <select v-model="contribForm.membership_profile_id" class="form-select form-select-sm" required>
-                <option value="" disabled>Select member</option>
+                <option value="" disabled>{{ t('finance.selectMember') }}</option>
                 <option v-for="m in members" :key="m.id" :value="m.id">
                   {{ m.display_name }} ({{ m.member_code }})
                 </option>
               </select>
             </div>
             <div class="mb-3">
-              <label class="form-label small fw-medium">Year</label>
+              <label class="form-label small fw-medium">{{ t('common.year') }}</label>
               <input v-model.number="contribForm.year" type="number" class="form-control form-control-sm" required />
             </div>
             <div class="mb-3">
-              <label class="form-label small fw-medium">Expected amount (EUR)</label>
+              <label class="form-label small fw-medium">{{ t('contributions.expectedAmount') }}</label>
               <input v-model="contribForm.expected_amount" type="number" step="0.01" class="form-control form-control-sm" />
             </div>
             <div class="mb-3">
-              <label class="form-label small fw-medium">Status</label>
+              <label class="form-label small fw-medium">{{ t('common.status') }}</label>
               <select v-model="contribForm.status" class="form-select form-select-sm">
                 <option value="pending">Pending</option>
                 <option value="paid">Paid</option>
@@ -213,9 +213,9 @@
             </div>
           </div>
           <div class="modal-footer">
-            <button type="button" class="btn btn-sm btn-secondary" data-bs-dismiss="modal">Cancel</button>
+            <button type="button" class="btn btn-sm btn-secondary" data-bs-dismiss="modal">{{ t('common.cancel') }}</button>
             <button type="button" class="btn btn-sm btn-primary" @click="handleCreateContribution" :disabled="saving">
-              {{ saving ? 'Saving...' : 'Save' }}
+              {{ saving ? t('common.saving') : t('common.save') }}
             </button>
           </div>
         </div>
@@ -227,33 +227,33 @@
       <div class="modal-dialog modal-sm">
         <div class="modal-content">
           <div class="modal-header">
-            <h5 class="modal-title" id="paymentModalLabel">Record payment</h5>
+            <h5 class="modal-title" id="paymentModalLabel">{{ t('contributions.recordPayment') }}</h5>
             <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
           </div>
           <div class="modal-body">
             <div class="mb-3">
-              <label class="form-label small fw-medium">Amount (EUR)</label>
+              <label class="form-label small fw-medium">{{ t('contributions.amountEur') }}</label>
               <input v-model="paymentForm.amount" type="number" step="0.01" class="form-control form-control-sm" />
             </div>
             <div class="mb-3">
-              <label class="form-label small fw-medium">Method</label>
+              <label class="form-label small fw-medium">{{ t('contributions.paymentMethod') }}</label>
               <select v-model="paymentForm.payment_method" class="form-select form-select-sm">
-                <option value="cash">Cash</option>
-                <option value="bank_transfer">Bank transfer</option>
-                <option value="card">Card</option>
-                <option value="check">Check</option>
-                <option value="other">Other</option>
+                <option value="cash">{{ t('contributions.cash') }}</option>
+                <option value="bank_transfer">{{ t('contributions.bankTransfer') }}</option>
+                <option value="card">{{ t('contributions.card') }}</option>
+                <option value="check">{{ t('contributions.check') }}</option>
+                <option value="other">{{ t('contributions.other') }}</option>
               </select>
             </div>
             <div class="mb-3">
-              <label class="form-label small fw-medium">Reference</label>
+              <label class="form-label small fw-medium">{{ t('contributions.reference') }}</label>
               <input v-model="paymentForm.reference" class="form-control form-control-sm" />
             </div>
           </div>
           <div class="modal-footer">
-            <button type="button" class="btn btn-sm btn-secondary" data-bs-dismiss="modal">Cancel</button>
+            <button type="button" class="btn btn-sm btn-secondary" data-bs-dismiss="modal">{{ t('common.cancel') }}</button>
             <button type="button" class="btn btn-sm btn-primary" @click="handleRecordPayment" :disabled="saving">
-              {{ saving ? 'Saving...' : 'Save' }}
+              {{ saving ? t('common.saving') : t('common.save') }}
             </button>
           </div>
         </div>
@@ -271,6 +271,10 @@ import { listMembers } from '@/api/membership.api'
 import type { ContributionRecordResponse, ContributionSummary, ImportResult } from '@/api/contributions.api'
 import type { MembershipProfileResponse } from '@/api/membership.api'
 import { useCsvExport } from '@/composables/useCsvExport'
+import { useLocaleStore } from '@/stores/locale.store'
+
+const localeStore = useLocaleStore()
+const t = (key: string) => localeStore.t(key)
 
 const loading = ref(true)
 const error = ref('')

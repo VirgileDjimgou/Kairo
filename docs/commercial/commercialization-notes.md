@@ -37,6 +37,17 @@ This is a structure, not a final price list:
 - Core product features are not confused with service work.
 - Support SLAs, infrastructure responsibilities, and data ownership are explicit.
 - Optional channels and future connectors are not sold as already integrated.
+- Identity email delivery can be presented as available, and operator notifications can now be presented as available through SMTP, Telegram, and a gateway-backed WhatsApp path. Provider-side reconciliation and final-state guarantees must still be presented as future work.
+
+## First-Contact Materials
+
+For a first discussion with an association, prepare:
+
+- the short offer pack
+- the buyer FAQ
+- the feature matrix
+- the demo-to-production checklist
+- the support playbook
 
 ## Business Decisions Still Needed
 

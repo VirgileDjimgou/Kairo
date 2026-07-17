@@ -80,3 +80,17 @@ A sprint increment is done only when:
 - permissions are enforced in the backend,
 - docs are updated,
 - the feature is demonstrable in the current repo.
+
+## Translation Governance
+
+Kairo uses a French-first, English-second, German-third i18n contract.
+
+- All user-facing strings in Vue templates must use `localeStore.t('key')` or the `t()` helper.
+- Never add hardcoded English, French, or German strings directly in templates.
+- All new i18n keys must be added to all three locales (`fr`, `en`, `de`) in `apps/web/src/i18n/messages.ts`.
+- The `localeStore` is imported from `@/stores/locale.store`.
+- Views may use an inline `copy` computed pattern for view-specific strings, but this pattern must switch on `localeStore.currentLocale` and cover all three locales.
+- Backend enum values (status, scope, method) are not i18n strings — keep them as-is.
+- Run `node scripts/check-i18n-coverage.mjs` to scan for potential hardcoded strings.
+- Future UI copy additions must have an obvious home in `messages.ts` and a validation path.
+

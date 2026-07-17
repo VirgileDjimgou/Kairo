@@ -21,6 +21,7 @@ http://localhost:80 {
     # Proxy API requests to the backend
     reverse_proxy /api/* api:8000
     reverse_proxy /health api:8000
+    reverse_proxy /metrics api:8000
 
     # Security headers
     header {
@@ -51,6 +52,7 @@ http://localhost:80 {
 #
 #     reverse_proxy /api/* api:8000
 #     reverse_proxy /health api:8000
+#     reverse_proxy /metrics api:8000
 #
 #     header {
 #         X-Content-Type-Options "nosniff"

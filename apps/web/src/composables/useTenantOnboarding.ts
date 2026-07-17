@@ -6,6 +6,7 @@ import { listActiveAnnouncements } from '@/api/announcements.api'
 import { listPublicEvents } from '@/api/events.api'
 import { listDocuments } from '@/api/documents.api'
 import { listMembers } from '@/api/membership.api'
+import { useRecoveryState } from '@/composables/useRecoveryState'
 
 export interface OnboardingStep {
   id: string
@@ -28,8 +29,7 @@ export function useTenantOnboarding() {
   const tenantStore = useTenantStore()
   const localeStore = useLocaleStore()
 
-  const loading = ref(false)
-  const error = ref('')
+  const { loading, error, isRecovering, run, retry, clearError } = useRecoveryState()
   const documentCount = ref<number | null>(null)
   const memberCount = ref<number | null>(null)
   const eventCount = ref<number | null>(null)
@@ -193,45 +193,46 @@ export function useTenantOnboarding() {
 
   const nextStep = computed(() => checklist.value.find((step) => !step.completed) ?? null)
 
+  async function loadOnboarding() {
+    const documentPromise = listDocuments()
+    const announcementPromise = tenantStore.isModuleEnabled('announcements')
+      ? listActiveAnnouncements()
+      : Promise.resolve([])
+    const eventPromise = tenantStore.isModuleEnabled('events')
+      ? listPublicEvents()
+      : Promise.resolve([])
+    const memberPromise =
+      (isAdmin.value || isPrincipalAdmin.value) && tenantStore.isModuleEnabled('membership')
+        ? listMembers()
+        : Promise.resolve([])
+
+    const [documents, announcements, events, members] = await Promise.all([
+      documentPromise,
+      announcementPromise,
+      eventPromise,
+      memberPromise,
+    ])
+
+    documentCount.value = documents.length
+    announcementCount.value = announcements.length
+    eventCount.value = events.length
+    memberCount.value = members.length
+    lastRefreshedAt.value = new Date().toISOString()
+  }
+
   async function refresh() {
-    loading.value = true
-    error.value = ''
+    clearError()
+    await run(loadOnboarding)
+  }
 
-    try {
-      const documentPromise = listDocuments().catch(() => [])
-      const announcementPromise = tenantStore.isModuleEnabled('announcements')
-        ? listActiveAnnouncements().catch(() => [])
-        : Promise.resolve([])
-      const eventPromise = tenantStore.isModuleEnabled('events')
-        ? listPublicEvents().catch(() => [])
-        : Promise.resolve([])
-      const memberPromise =
-        (isAdmin.value || isPrincipalAdmin.value) && tenantStore.isModuleEnabled('membership')
-          ? listMembers().catch(() => [])
-          : Promise.resolve([])
-
-      const [documents, announcements, events, members] = await Promise.all([
-        documentPromise,
-        announcementPromise,
-        eventPromise,
-        memberPromise,
-      ])
-
-      documentCount.value = documents.length
-      announcementCount.value = announcements.length
-      eventCount.value = events.length
-      memberCount.value = members.length
-      lastRefreshedAt.value = new Date().toISOString()
-    } catch (err: unknown) {
-      error.value = (err as { message?: string })?.message || (localeStore.currentLocale === 'de' ? 'Der Onboarding-Leitfaden konnte nicht geladen werden.' : localeStore.currentLocale === 'en' ? 'Could not load onboarding guidance.' : "Le guide de démarrage n'a pas pu être chargé.")
-    } finally {
-      loading.value = false
-    }
+  async function retryRefresh() {
+    await retry(loadOnboarding)
   }
 
   return {
     loading,
     error,
+    isRecovering,
     documentCount,
     memberCount,
     eventCount,
@@ -245,5 +246,6 @@ export function useTenantOnboarding() {
     summaryMetrics,
     nextStep,
     refresh,
+    retryRefresh,
   }
 }

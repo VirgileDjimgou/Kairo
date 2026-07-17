@@ -1,23 +1,27 @@
 # Project Status
 
-Last updated: 2026-07-14
+Last updated: 2026-07-16
 
 ## Current Sprint
 
-Sprint 64 - Deployment Packaging, Upgrade, And Rollback Automation
+Sprint 84 - Notification Provider Callback And Final-State Reconciliation Baseline
 
-Status: Planned
+Status: Completed
 
 ## Official Next Sprint
 
-Sprint 64 - Deployment Packaging, Upgrade, And Rollback Automation.
+Sprint 85 - Notification Reconciliation Polling And Replay-Safety Baseline
+
+Harden the reconciliation seam with replay-safe update rules and one controlled polling path so providers without reliable callbacks can still progress live notifications beyond `pending` safely.
+
+Status: Planned
 
 ## Active Delivery Frame
 
-- Target outcome: a stable, professional, mature association-management product with secure role-aware workspaces and a trustworthy chatbot
+- Target outcome: a stable, professional, mature open-source association-management product with secure role-aware workspaces and a trustworthy chatbot
 - Intended operational scope: usable by an association or organization of about 200 members with differentiated office roles
-- Remaining planned execution window: 3
-- Delivery status: Sprint 63 closed the multilingual Combis demo foundation, and Sprint 64 is now the next packaging-focused sprint to execute
+- Remaining planned execution window: 1
+- Delivery status: Sprint 73 (open-source maturity track) complete; Sprint 74 through Sprint 78 completed the currently identified broader recovery UX rollout across the role workspaces, Sprint 79 added the first real operator-usable notification path, Sprint 80 packaged the existing observability signals into a reusable monitoring baseline, Sprint 81 added Telegram as a second real operator-usable notification channel, Sprint 82 added a gateway-backed WhatsApp live path, Sprint 83 added audited delivery-stage evidence plus a tenant-scoped notification history baseline, and Sprint 84 added a secure provider callback seam with final-state reconciliation updates
 
 ## Source Of Truth
 
@@ -28,7 +32,7 @@ Sprint 64 - Deployment Packaging, Upgrade, And Rollback Automation.
 
 ## Professionalization Assessment
 
-- Estimated additional sprints required from the current state: 3
+- Estimated additional sprints required from the current state: 1
 - Current strengths:
   - multi-tenant auth and role resolution
   - secure document RAG with citations and prompt-injection defenses
@@ -39,28 +43,43 @@ Sprint 64 - Deployment Packaging, Upgrade, And Rollback Automation.
   - treasurer-safe reminder history and collections follow-up workflows tied directly to contribution records
   - autonomous test posture and role-aware dashboard, secretary, finance, sports, governance, and principal-admin improvements
   - refined dashboard workspace focus cards that point each role to the right workspace immediately
-  - dedicated admin health center that combines live dependency checks with tenant recovery evidence
-  - dedicated onboarding wizard that provides a concise first-run setup path and demo seed guidance
+  - dedicated admin health center that combines live dependency checks with tenant recovery evidence and now follows the shared recovery alert pattern
+  - dedicated onboarding wizard that provides a concise first-run setup path and demo seed guidance and now follows the shared recovery alert pattern
   - tenant operations command center with explicit membership inventory, current-tenant posture, and confirmation-based tenant switching
   - production-grade invite and password-reset delivery with tenant-aware provider context and explicit fallback handling
+  - admin notification extensions console now distinguishes simulation from live delivery and can send a real SMTP-backed operator email, Telegram message, or gateway-backed WhatsApp message when configured
+  - notification dispatch responses and the admin notification console now expose backend-owned delivery-stage evidence, reconciliation status, provider references when available, and a tenant-scoped audited history endpoint
+  - the notification module now accepts backend-owned provider reconciliation callbacks through a shared-secret endpoint, correlates them to live dispatches by tenant and provider reference, and updates operator history toward final delivered or failed states
   - release-candidate regression matrix, professional handoff checklist, and a reproducible role-and-tenant screenshot gallery
   - French-first interface foundation with persistent user language preference and English/German alternates
+  - recovered validation baseline with root-level backend test execution, a portable Playwright browser pack, a scoped Ruff guardrail, and an operational initial Mypy target
+  - modularized chat seams for prompt assembly, retrieval-query shaping, citation/context payload assembly, and shared query/query-stream preparation
   - configurable AI provider selection for Ollama or OpenAI-compatible local servers such as LM Studio
   - retrieval query rewriting that expands multilingual search hints before vector lookup
   - streaming chat citation persistence and restored citations when reopening a conversation
   - direct-backend SSE chat streaming from the browser, with authenticated fetches and committed conversation creation
   - Combis Sport Verein demo branding and a larger fictional member roster aligned with the association use case
-- language-aware chat requests plus a safer archive import base for the provided association documents
-- post-Sprint-63 stabilization now keeps the login language choice across the authenticated session, extends chat finance/privacy guards to French and German phrasing, and includes refreshed role screenshots under `apps/web/artifacts/manual-role-checks/2026-07-07/`
+  - language-aware chat requests plus a safer archive import base for the provided association documents
+  - normalized document-language inference for uploads and archive imports, with conservative archive sensitivity classification for finance, governance, and disciplinary material
+  - explicit dense retrieval with lexical keyword boosting, language-aware ordering, optional reranking, and structured retrieval observability for chat flows
+  - explicit privileged document-access parity now covers both the legacy `admin` role and the canonical `principal_admin` role for RAG/document policy enforcement
+  - tenant settings, onboarding, health, policy, and admin document surfaces now respect the active FR, EN, or DE session language and keep a consistent retry-oriented recovery flow
+  - scripted production preflight, install, upgrade, backup, restore, rollback, and smoke-validation workflows for self-hosted operators
+  - production packaging now proxies `/metrics` explicitly and blocks `/docs`, `/redoc`, and `/openapi.json` on the public gateway surface
+  - packaged Prometheus and Grafana monitoring assets now exist under `infra/monitoring/`, with a regression guard that keeps the bundled dashboard aligned to the actual `/metrics` contract
+  - commercial offer pack, buyer FAQ, support-boundary guidance, and first-contact commercial reading order
+  - post-Sprint-63 stabilization now keeps the login language choice across the authenticated session, extends chat finance/privacy guards to French and German phrasing, and includes refreshed role screenshots under `apps/web/artifacts/manual-role-checks/2026-07-07/`
 - Main gaps before the target product is mature:
-- multi-tenant UX and language preference foundations now exist, and the remaining focus shifts to deployment packaging, end-to-end archive import validation, and final handoff polish
-- backup, restore, and alert posture are now visible in-product through the new health center and settings surfaces
-- deployment packaging, archive-import validation, and commercial handoff still leave room for the next planned sprint track
+- email, Telegram, and WhatsApp now expose callback-updated final-state evidence where a trusted bridge reports back, but replay safety and a controlled polling fallback still need a follow-up sprint
+  - chat orchestration is now safer to extend, but the newer seams still need broader rollout if we later split retrieval and policy evaluation further
+  - backup, restore, and alert posture are now visible in-product through the new health center and settings surfaces
+  - deployment packaging and commercial handoff are now documented, while archive-import validation evidence and any future positioning changes should be treated as a new planning cycle
 
 ## Production Verdict
 
 - Kairo is usable as a controlled production release candidate for disciplined self-hosting or pilot deployments.
-- Kairo is not yet a fully turnkey, broadly productized production offer until the Sprint 64 through Sprint 65 productization track is closed.
+- Kairo remains a strong association-focused pilot and disciplined self-hosted release candidate.
+- The next planned track is focused on stabilization, multilingual polish, quality gates, retrieval maturity, and open-source publication readiness rather than broad new feature expansion.
 
 ## Completed
 
@@ -344,6 +363,25 @@ Sprint 64 - Deployment Packaging, Upgrade, And Rollback Automation.
   - Hardened integration tests to prove a member sees only personal statement data and personal PDF content
   - Reworked the member self-service view into a cleaner workspace focused on profile, balance, contribution history, and statement download
   - Targeted backend tests passed and the frontend production build passed
+- Completed Sprint 72 Role Journey Polish, Workspace Clarity, And Recovery-Oriented UX:
+  - Added a shared `useRecoveryState` composable centralizing loading, error, and retry behavior for role workspaces
+  - Member self-service and treasurer finance workspaces now present a coherent recovery alert with a localized retry control and a privacy-safe recovery hint
+  - Added `common.retry` and `common.recoveryHint` i18n keys across FR/EN/DE plus `finance.workspaceErrorTitle`
+  - Frontend type-check, production build, and a new autonomous Playwright recovery test all pass
+  - Backend suite (239 tests) remains green; changes are frontend-only and preserve tenant isolation and backend-enforced permissions
+- Completed Sprint 73 Open-Source Release Readiness, Publication Pack, And Post-Track Handoff:
+  - Created `docs/OPEN_SOURCE_RELEASE.md` with a verified baseline, open-source release checklist, explicit known limits, non-regression boundaries, and next-planning-cycle themes
+  - Extended `CONTRIBUTING.md` with issue/PR reporting, private security disclosure, and a pointer to known limits
+  - Refreshed `RELEASE_NOTES.md` with the verified test/type-check/build/E2E baseline, the role model and boundaries, and honest limitations
+  - Corrected the backend test count in `README.md` (239 integration tests, SQLite)
+  - Verified the documented baseline: 239 backend tests pass, `npm run type-check` and `npm run build` pass, localization E2E (7 tests) passes
+  - Closed the stabilization and open-source maturity track; future work starts a new planning cycle
+- Completed Sprint 74 Broader Recovery UX Rollout (Censor + Sports):
+  - Migrated `CensorWorkspaceView.vue` and `SportsWorkspaceView.vue` to the shared `useRecoveryState` composable
+  - Replaced bespoke inline error blocks with the standardized recovery alert (title + message + recovery hint + retry button with spinner)
+  - Added `censor.workspaceErrorTitle` and `sports.workspaceErrorTitle` i18n keys across FR/EN/DE
+  - Added E2E recovery tests for censor (fr) and sports (de) retry-after-failure flows
+  - Verified: 239 backend tests pass, frontend type-check and build pass, localization E2E (9 tests) passes; changes are frontend-only and preserve tenant isolation and backend-enforced permissions
 - Completed Sprint 44 Secretary General Workspace And Document Governance:
   - Added a dedicated secretary workspace with role-scoped navigation and a focused overview surface
   - Reused the existing document, policy, and announcement management flows through secretary-only routes instead of forcing office staff into the admin console
@@ -456,7 +494,7 @@ Sprint 64 - Deployment Packaging, Upgrade, And Rollback Automation.
 - Public policy browsing and admin policy management.
 - Private disciplinary records with role-based staff management.
 - Events and announcements with visibility scoping and admin CRUD.
-- Optional multi-channel notification foundation with placeholder Email, Telegram, and WhatsApp providers.
+- Optional multi-channel notification foundation with a real SMTP-backed email path plus simulated Telegram and WhatsApp providers.
 - Hardened AI safety: prompt injection defenses in system prompt, untrusted source demarcation,
   access control enforcement before prompt assembly, no-source refusal behavior, citation verification
 - Enhanced admin audit view with search, status filter, and summary statistics
@@ -499,12 +537,12 @@ Sprint 64 - Deployment Packaging, Upgrade, And Rollback Automation.
 - Production Docker builds (web production target) have not been tested end-to-end with Docker; the nginx.conf is syntactically correct but needs a real Docker build to confirm.
 - Cloudflare Tunnel setup instructions are documented but not yet validated with a real tunnel integration test.
 - Backup script is a bash script and may need adaptation for non-Linux hosts (Docker Desktop on Windows/macOS paths).
-- Multi-channel providers are placeholders only; no real external gateway integration has been validated yet.
+- Telegram and WhatsApp remain placeholders only; no real external gateway integration has been validated yet beyond the SMTP-backed email path.
 - A deeper first-run wizard is still a future enhancement beyond the current guided checklist and action-oriented empty states.
-- Only the email channel is wired for real identity delivery today; Telegram and WhatsApp remain simulated extension placeholders.
+- Only the email channel is wired for real identity delivery and live operator dispatch today; Telegram and WhatsApp remain simulated extension placeholders.
 - Identity emails currently use a plain-text branded baseline template and do not yet provide rich HTML theming or provider-side webhook reconciliation.
 - The original open-source stabilization target ended at Sprint 37; the product is now entering a second track focused on professional association role coverage and maturity.
-- The new execution path is explicit: Sprint 59 through Sprint 64 define the remaining productization plan and should be followed one sprint at a time.
+- The new execution path is explicit: Sprint 65 was the final planned productization sprint in the current roadmap.
 - Sprint 26 has been completed with the public entry commercial surface.
 - Sprint 27 has been completed with guided onboarding for new tenant admins.
 - Sprint 28 has been completed with a real admin operations hub.
@@ -518,8 +556,12 @@ Sprint 64 - Deployment Packaging, Upgrade, And Rollback Automation.
 - Sprint 38 has been completed with treasurer workspace activation and finance permission hardening.
 - Sprint 39 has been completed with role-aware dashboard and action-surface hardening.
 - Sprint 40 has been completed with demo gallery and handoff polish.
+- Sprint 64 has been completed with scripted deployment packaging, upgrade, rollback, and smoke-validation automation.
+- Sprint 65 has been completed with the commercial offer pack, support-boundary clarification, buyer FAQ, and final market-facing documentation sync.
 - Sprint 58 has been completed with the tenant operations command center, explicit membership inventory, and confirmation-based tenant switching.
-- A new 6-sprint productization track is now defined from Sprint 59 through Sprint 64.
+- Sprint 66 has been completed with access-policy parity, RAG safety hardening, and locale contract enforcement.
+- Sprint 67 has been completed with French-first translation completion across all primary admin, finance, and workspace views, plus i18n governance rules.
+- The current stabilization roadmap remains active, with Sprint 68 through Sprint 73 still planned for execution.
 
 ## Next Session Rule
 

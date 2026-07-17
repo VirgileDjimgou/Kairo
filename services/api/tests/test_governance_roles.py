@@ -1,12 +1,14 @@
 import uuid
 
 import pytest
+from helpers import create_tenant_with_user, create_user_for_tenant, login
 from httpx import AsyncClient
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core.capabilities import CAP_ROLE_ASSIGN, CAP_TENANT_SETTINGS_WRITE
 from app.core.dependencies import CurrentUser
-from helpers import create_tenant_with_user, create_user_for_tenant, login
+from app.modules.documents.models import Document
+from app.modules.rag.policy import AccessPolicy
 
 
 @pytest.mark.asyncio
@@ -177,3 +179,52 @@ def test_current_user_capability_checks_support_legacy_and_canonical_roles() -> 
     assert current_admin.has_capability(CAP_ROLE_ASSIGN)
     assert current_admin.has_capability(CAP_TENANT_SETTINGS_WRITE)
     assert current_principal.has_capability(CAP_ROLE_ASSIGN)
+
+
+@pytest.mark.parametrize("roles", [("admin",), ("principal_admin",)])
+def test_access_policy_grants_privileged_document_access_to_legacy_and_canonical_admin_roles(
+    roles: tuple[str, ...],
+) -> None:
+    tenant_id = uuid.uuid4()
+    owner_user_id = uuid.uuid4()
+    viewer_user_id = uuid.uuid4()
+    policy = AccessPolicy(tenant_id=tenant_id, user_id=viewer_user_id, roles=roles)
+
+    admin_only_document = Document(
+        id=uuid.uuid4(),
+        tenant_id=tenant_id,
+        title="Admin scope",
+        source_type="upload",
+        language="fr",
+        access_scope="admin_only",
+        owner_user_id=owner_user_id,
+        status="ready",
+        current_version_id=uuid.uuid4(),
+    )
+    private_document = Document(
+        id=uuid.uuid4(),
+        tenant_id=tenant_id,
+        title="Private scope",
+        source_type="upload",
+        language="fr",
+        access_scope="user_private",
+        owner_user_id=owner_user_id,
+        status="ready",
+        current_version_id=uuid.uuid4(),
+    )
+    restricted_document = Document(
+        id=uuid.uuid4(),
+        tenant_id=tenant_id,
+        title="Restricted scope",
+        source_type="upload",
+        language="fr",
+        access_scope="role_restricted",
+        owner_user_id=owner_user_id,
+        status="ready",
+        current_version_id=uuid.uuid4(),
+        allowed_role_ids_json='["secretary_general"]',
+    )
+
+    assert policy.can_access(admin_only_document) is True
+    assert policy.can_access(private_document) is True
+    assert policy.can_access(restricted_document) is True

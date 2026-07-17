@@ -3,28 +3,40 @@
     <div class="d-flex flex-column flex-xl-row justify-content-between gap-3 mb-4">
       <div>
         <div class="text-uppercase small fw-semibold text-secondary mb-2">
-          Operator health center
+          {{ copy.kicker }}
         </div>
-        <h1 class="h4 fw-bold mb-1">Recovery evidence and dependency health</h1>
+        <h1 class="h4 fw-bold mb-1">{{ copy.title }}</h1>
         <p class="text-muted mb-0">
-          Review the current recovery posture, dependency status, and incident annotations without leaving the tenant.
+          {{ copy.lead }}
         </p>
       </div>
       <div class="d-flex flex-wrap align-items-start gap-2">
         <RouterLink to="/admin" class="btn btn-outline-secondary">
-          <i class="bi bi-arrow-left me-1"></i>Back to overview
+          <i class="bi bi-arrow-left me-1"></i>{{ copy.backToOverview }}
         </RouterLink>
         <RouterLink to="/admin/settings" class="btn btn-outline-secondary">
-          <i class="bi bi-gear me-1"></i>Tenant settings
+          <i class="bi bi-gear me-1"></i>{{ copy.tenantSettings }}
         </RouterLink>
-        <button class="btn om-primary-btn" type="button" @click="refresh" :disabled="loading">
-          {{ loading ? 'Refreshing...' : 'Refresh health' }}
+        <button class="btn om-primary-btn" type="button" @click="refresh" :disabled="loading || isRecovering">
+          {{ loading ? copy.refreshing : copy.refreshHealth }}
         </button>
       </div>
     </div>
 
-    <div v-if="error" class="alert alert-warning border-0 shadow-sm mb-4">
-      <i class="bi bi-exclamation-triangle me-2"></i>{{ error }}
+    <div v-if="error" class="alert alert-warning border-0 shadow-sm mb-4" role="alert">
+      <div class="d-flex flex-column flex-md-row justify-content-between gap-3">
+        <div>
+          <div class="fw-semibold">
+            <i class="bi bi-exclamation-triangle me-2"></i>{{ copy.workspaceErrorTitle }}
+          </div>
+          <p class="small mb-0 mt-2">{{ error }}</p>
+          <p class="mb-0 small text-muted mt-1">{{ localeStore.t('common.recoveryHint') }}</p>
+        </div>
+        <button class="btn btn-outline-secondary btn-sm align-self-start" type="button" @click="retryRefresh" :disabled="isRecovering">
+          <span v-if="isRecovering" class="spinner-border spinner-border-sm me-1" aria-hidden="true"></span>
+          {{ isRecovering ? localeStore.t('common.loading') : localeStore.t('common.retry') }}
+        </button>
+      </div>
     </div>
 
     <div class="row g-4">
@@ -34,15 +46,15 @@
             <div class="d-flex flex-column flex-md-row justify-content-between gap-3 mb-3">
               <div>
                 <div class="text-uppercase small fw-semibold text-secondary mb-2">
-                  Live dependency health
+                  {{ copy.liveDependencyHealth }}
                 </div>
-                <h2 class="h6 fw-bold mb-1">System status</h2>
+                <h2 class="h6 fw-bold mb-1">{{ copy.systemStatus }}</h2>
                 <p class="text-muted small mb-0">
-                  The backend health probe is read-only and shows the current service posture for the active tenant.
+                  {{ copy.systemStatusText }}
                 </p>
               </div>
               <span class="badge text-capitalize align-self-start" :class="statusBadgeClass(systemHealth?.status)">
-                {{ systemHealth?.status || 'unknown' }}
+                {{ formatStatus(systemHealth?.status) }}
               </span>
             </div>
 
@@ -60,9 +72,9 @@
               <table class="table align-middle">
                 <thead>
                   <tr>
-                    <th scope="col">Service</th>
-                    <th scope="col">Status</th>
-                    <th scope="col">Latency</th>
+                    <th scope="col">{{ copy.service }}</th>
+                    <th scope="col">{{ copy.status }}</th>
+                    <th scope="col">{{ copy.latency }}</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -87,49 +99,49 @@
             <div class="d-flex flex-column flex-md-row justify-content-between gap-3 mb-3">
               <div>
                 <div class="text-uppercase small fw-semibold text-secondary mb-2">
-                  Recovery evidence
+                  {{ copy.recoveryEvidence }}
                 </div>
-                <h2 class="h6 fw-bold mb-1">Backup, restore, and alert posture</h2>
+                <h2 class="h6 fw-bold mb-1">{{ copy.recoveryTitle }}</h2>
                 <p class="text-muted small mb-0">
-                  Freshness warnings stay visible so operators can see at a glance when evidence needs a refresh.
+                  {{ copy.recoveryLead }}
                 </p>
               </div>
               <span class="badge text-capitalize align-self-start" :class="recoveryBadgeClass(recoveryStatus)">
-                {{ recoveryStatus }}
+                {{ formatStatus(recoveryStatus) }}
               </span>
             </div>
 
             <div class="row g-3">
               <div class="col-md-6">
                 <div class="mini-stat h-100">
-                  <div class="small text-muted">Last backup</div>
+                  <div class="small text-muted">{{ copy.lastBackup }}</div>
                   <div class="fw-semibold">{{ formatDate(recovery?.last_backup_at) }}</div>
-                  <div class="small text-muted">{{ recovery?.last_backup_reference || 'No backup reference recorded' }}</div>
+                  <div class="small text-muted">{{ recovery?.last_backup_reference || copy.noBackupReference }}</div>
                 </div>
               </div>
               <div class="col-md-6">
                 <div class="mini-stat h-100">
-                  <div class="small text-muted">Restore drill</div>
+                  <div class="small text-muted">{{ copy.restoreDrill }}</div>
                   <div class="fw-semibold">{{ formatDate(recovery?.last_restore_drill_at) }}</div>
                   <div class="small text-muted text-capitalize">
-                    {{ recovery?.last_restore_drill_status || 'unknown' }}
+                    {{ formatStatus(recovery?.last_restore_drill_status) }}
                   </div>
                 </div>
               </div>
               <div class="col-md-6">
                 <div class="mini-stat h-100">
-                  <div class="small text-muted">Alert posture</div>
-                  <div class="fw-semibold text-capitalize">{{ recovery?.alert_posture || 'unknown' }}</div>
+                  <div class="small text-muted">{{ copy.alertPosture }}</div>
+                  <div class="fw-semibold text-capitalize">{{ formatStatus(recovery?.alert_posture) }}</div>
                   <div class="small text-muted">
-                    {{ recovery?.alert_contacts_configured ? 'Alert contacts configured' : 'Alert contacts missing' }}
+                    {{ recovery?.alert_contacts_configured ? copy.alertContactsConfigured : copy.alertContactsMissing }}
                   </div>
                 </div>
               </div>
               <div class="col-md-6">
                 <div class="mini-stat h-100">
-                  <div class="small text-muted">Freshness warnings</div>
+                  <div class="small text-muted">{{ copy.freshnessWarnings }}</div>
                   <div class="fw-semibold" data-testid="health-center-warning-count">{{ freshnessWarnings.length }}</div>
-                  <div class="small text-muted">Stale or missing signals that deserve attention</div>
+                  <div class="small text-muted">{{ copy.freshnessWarningsHint }}</div>
                 </div>
               </div>
             </div>
@@ -147,14 +159,14 @@
         <div class="card shadow-sm border-0 mb-4">
           <div class="card-body p-4">
             <div class="text-uppercase small fw-semibold text-secondary mb-2">
-              Incident annotations
+              {{ copy.incidentAnnotations }}
             </div>
-            <h2 class="h6 fw-bold mb-3">Current note</h2>
+            <h2 class="h6 fw-bold mb-3">{{ copy.currentNote }}</h2>
             <p class="text-muted small mb-3">
-              {{ recovery?.notes || 'No incident annotation recorded yet.' }}
+              {{ recovery?.notes || copy.noIncidentNote }}
             </p>
             <RouterLink to="/admin/settings" class="btn btn-outline-secondary btn-sm w-100">
-              Update recovery note
+              {{ copy.updateRecoveryNote }}
             </RouterLink>
           </div>
         </div>
@@ -162,23 +174,23 @@
         <div class="card shadow-sm border-0 mb-4">
           <div class="card-body p-4">
             <div class="text-uppercase small fw-semibold text-secondary mb-2">
-              Operational snapshot
+              {{ copy.operationalSnapshot }}
             </div>
             <div class="vstack gap-2 small">
               <div class="d-flex justify-content-between gap-3">
-                <span class="text-muted">Tenant</span>
+                <span class="text-muted">{{ copy.tenant }}</span>
                 <span class="fw-semibold text-end">{{ tenantStore.currentTenantName }}</span>
               </div>
               <div class="d-flex justify-content-between gap-3">
-                <span class="text-muted">Environment</span>
-                <span class="fw-semibold text-end text-capitalize">{{ systemHealth?.env || 'unknown' }}</span>
+                <span class="text-muted">{{ copy.environment }}</span>
+                <span class="fw-semibold text-end text-capitalize">{{ systemHealth?.env || copy.unknown }}</span>
               </div>
               <div class="d-flex justify-content-between gap-3">
-                <span class="text-muted">Version</span>
-                <span class="fw-semibold text-end">{{ systemHealth?.version || 'unknown' }}</span>
+                <span class="text-muted">{{ copy.version }}</span>
+                <span class="fw-semibold text-end">{{ systemHealth?.version || copy.unknown }}</span>
               </div>
               <div class="d-flex justify-content-between gap-3">
-                <span class="text-muted">Modules reported</span>
+                <span class="text-muted">{{ copy.modulesReported }}</span>
                 <span class="fw-semibold text-end">{{ systemHealth?.modules.length || 0 }}</span>
               </div>
             </div>
@@ -188,20 +200,20 @@
         <div class="card shadow-sm border-0">
           <div class="card-body p-4">
             <div class="text-uppercase small fw-semibold text-secondary mb-2">
-              Fast paths
+              {{ copy.fastPaths }}
             </div>
             <div class="vstack gap-2">
               <RouterLink to="/admin/settings" class="quick-action">
-                <div class="fw-semibold">Review tenant settings</div>
-                <div class="small text-muted">Inspect recovery evidence and notes.</div>
+                <div class="fw-semibold">{{ copy.reviewTenantSettings }}</div>
+                <div class="small text-muted">{{ copy.reviewTenantSettingsText }}</div>
               </RouterLink>
               <RouterLink to="/admin/tenants" class="quick-action">
-                <div class="fw-semibold">Tenant operations</div>
-                <div class="small text-muted">Switch tenant context explicitly.</div>
+                <div class="fw-semibold">{{ copy.tenantOperations }}</div>
+                <div class="small text-muted">{{ copy.tenantOperationsText }}</div>
               </RouterLink>
               <RouterLink to="/admin/audit" class="quick-action">
-                <div class="fw-semibold">Audit trail</div>
-                <div class="small text-muted">Review sensitive operational actions.</div>
+                <div class="fw-semibold">{{ copy.auditTrail }}</div>
+                <div class="small text-muted">{{ copy.auditTrailText }}</div>
               </RouterLink>
             </div>
           </div>
@@ -216,6 +228,8 @@ import { computed, onMounted, ref } from 'vue'
 import { RouterLink } from 'vue-router'
 import { getTenantSettings, type RecoveryEvidenceResponse } from '@/api/settings.api'
 import { getSystemHealth, type SystemHealthResponse } from '@/api/system.api'
+import { useRecoveryState } from '@/composables/useRecoveryState'
+import { useLocaleStore } from '@/stores/locale.store'
 import { useTenantStore } from '@/stores/tenant.store'
 
 type ServiceRow = {
@@ -226,48 +240,262 @@ type ServiceRow = {
   badgeClass: string
 }
 
+const localeStore = useLocaleStore()
 const tenantStore = useTenantStore()
-const loading = ref(false)
-const error = ref('')
+const { loading, error, isRecovering, run, retry, clearError } = useRecoveryState()
 const systemHealth = ref<SystemHealthResponse | null>(null)
 const recovery = ref<RecoveryEvidenceResponse | null>(null)
+
+const copy = computed(() => {
+  if (localeStore.currentLocale === 'de') {
+    return {
+      kicker: 'Betriebszustand',
+      title: 'Wiederherstellungsnachweise und Abhängigkeitsstatus',
+      lead: 'Prüfen Sie Wiederherstellungsstatus, Dienstzustand und Vorfallhinweise, ohne den aktiven Tenant zu verlassen.',
+      backToOverview: 'Zur Übersicht',
+      tenantSettings: 'Tenant-Einstellungen',
+      refreshing: 'Aktualisierung...',
+      refreshHealth: 'Status aktualisieren',
+      liveDependencyHealth: 'Live-Abhängigkeitsstatus',
+      systemStatus: 'Systemstatus',
+      systemStatusText: 'Die Backend-Prüfung ist schreibgeschützt und zeigt den aktuellen Dienstzustand des aktiven Tenants.',
+      service: 'Dienst',
+      status: 'Status',
+      latency: 'Latenz',
+      recoveryEvidence: 'Wiederherstellungsnachweise',
+      recoveryTitle: 'Backup-, Restore- und Alarmstatus',
+      recoveryLead: 'Warnhinweise zur Aktualität bleiben sichtbar, damit fehlende Nachweise sofort auffallen.',
+      lastBackup: 'Letztes Backup',
+      noBackupReference: 'Kein Backup-Verweis hinterlegt',
+      restoreDrill: 'Restore-Test',
+      alertPosture: 'Alarmstatus',
+      alertContactsConfigured: 'Alarmkontakte konfiguriert',
+      alertContactsMissing: 'Alarmkontakte fehlen',
+      freshnessWarnings: 'Aktualitätswarnungen',
+      freshnessWarningsHint: 'Veraltete oder fehlende Signale mit Handlungsbedarf',
+      incidentAnnotations: 'Vorfallhinweise',
+      currentNote: 'Aktuelle Notiz',
+      noIncidentNote: 'Noch kein Vorfallhinweis erfasst.',
+      updateRecoveryNote: 'Wiederherstellungsnotiz aktualisieren',
+      operationalSnapshot: 'Betriebssnapshot',
+      tenant: 'Tenant',
+      environment: 'Umgebung',
+      version: 'Version',
+      modulesReported: 'Gemeldete Module',
+      fastPaths: 'Schnellzugriffe',
+      reviewTenantSettings: 'Tenant-Einstellungen prüfen',
+      reviewTenantSettingsText: 'Wiederherstellungsnachweise und Hinweise einsehen.',
+      tenantOperations: 'Tenant-Operationen',
+      tenantOperationsText: 'Tenant-Kontext explizit wechseln.',
+      auditTrail: 'Audit-Protokoll',
+      auditTrailText: 'Sensible Betriebsaktionen prüfen.',
+      unknown: 'unbekannt',
+      statusLabels: {
+        unknown: 'unbekannt',
+        healthy: 'stabil',
+        warning: 'warnung',
+        critical: 'kritisch',
+        completed: 'abgeschlossen',
+        failed: 'fehlgeschlagen',
+        passed: 'bestanden',
+        ok: 'ok',
+        degraded: 'beeinträchtigt',
+        unavailable: 'nicht verfügbar',
+        error: 'fehler',
+      },
+      warningRecoveryNotLoaded: 'Wiederherstellungsnachweise wurden noch nicht geladen.',
+      warningBackupStale: 'Backup-Nachweise sind veraltet und sollten aktualisiert werden.',
+      warningRestoreStale: 'Restore-Test-Nachweise sind veraltet und sollten aktualisiert werden.',
+      warningAlertNeedsAttention: 'Alarmkontakte oder Alarmstatus benötigen Aufmerksamkeit.',
+      summaryOverallStatus: 'Gesamtstatus',
+      summaryFreshnessWarnings: 'Aktualitätswarnungen',
+      summaryFreshnessWarningsHint: 'Veraltete Signale bleiben in diesem Bereich sichtbar',
+      summaryReportedModules: 'Gemeldete Module',
+      summaryReportedModulesHint: 'Vom Health-Probe gemeldete Backend-Module',
+      summaryWaitingRecovery: 'Warte auf aktuelle Wiederherstellungsnachweise',
+      notRecorded: 'Nicht erfasst',
+      loadError: 'Health Center konnte nicht geladen werden',
+      workspaceErrorTitle: 'Health Center nicht verfügbar',
+    }
+  }
+  if (localeStore.currentLocale === 'en') {
+    return {
+      kicker: 'Operator health center',
+      title: 'Recovery evidence and dependency health',
+      lead: 'Review the current recovery posture, dependency status, and incident annotations without leaving the active tenant.',
+      backToOverview: 'Back to overview',
+      tenantSettings: 'Tenant settings',
+      refreshing: 'Refreshing...',
+      refreshHealth: 'Refresh health',
+      liveDependencyHealth: 'Live dependency health',
+      systemStatus: 'System status',
+      systemStatusText: 'The backend health probe is read-only and shows the current service posture for the active tenant.',
+      service: 'Service',
+      status: 'Status',
+      latency: 'Latency',
+      recoveryEvidence: 'Recovery evidence',
+      recoveryTitle: 'Backup, restore, and alert posture',
+      recoveryLead: 'Freshness warnings stay visible so operators can see at a glance when evidence needs a refresh.',
+      lastBackup: 'Last backup',
+      noBackupReference: 'No backup reference recorded',
+      restoreDrill: 'Restore drill',
+      alertPosture: 'Alert posture',
+      alertContactsConfigured: 'Alert contacts configured',
+      alertContactsMissing: 'Alert contacts missing',
+      freshnessWarnings: 'Freshness warnings',
+      freshnessWarningsHint: 'Stale or missing signals that deserve attention',
+      incidentAnnotations: 'Incident annotations',
+      currentNote: 'Current note',
+      noIncidentNote: 'No incident annotation recorded yet.',
+      updateRecoveryNote: 'Update recovery note',
+      operationalSnapshot: 'Operational snapshot',
+      tenant: 'Tenant',
+      environment: 'Environment',
+      version: 'Version',
+      modulesReported: 'Modules reported',
+      fastPaths: 'Fast paths',
+      reviewTenantSettings: 'Review tenant settings',
+      reviewTenantSettingsText: 'Inspect recovery evidence and notes.',
+      tenantOperations: 'Tenant operations',
+      tenantOperationsText: 'Switch tenant context explicitly.',
+      auditTrail: 'Audit trail',
+      auditTrailText: 'Review sensitive operational actions.',
+      unknown: 'unknown',
+      statusLabels: {
+        unknown: 'unknown',
+        healthy: 'healthy',
+        warning: 'warning',
+        critical: 'critical',
+        completed: 'completed',
+        failed: 'failed',
+        passed: 'passed',
+        ok: 'ok',
+        degraded: 'degraded',
+        unavailable: 'unavailable',
+        error: 'error',
+      },
+      warningRecoveryNotLoaded: 'Recovery evidence has not been loaded yet.',
+      warningBackupStale: 'Backup evidence is stale and should be refreshed.',
+      warningRestoreStale: 'Restore drill evidence is stale and should be refreshed.',
+      warningAlertNeedsAttention: 'Alert contacts or alert posture need attention.',
+      summaryOverallStatus: 'Overall status',
+      summaryFreshnessWarnings: 'Freshness warnings',
+      summaryFreshnessWarningsHint: 'Stale signals stay visible in this panel',
+      summaryReportedModules: 'Reported modules',
+      summaryReportedModulesHint: 'Backend modules exposed by the health probe',
+      summaryWaitingRecovery: 'Waiting for the latest recovery evidence',
+      notRecorded: 'Not recorded',
+      loadError: 'Failed to load health center',
+      workspaceErrorTitle: 'Health center unavailable',
+    }
+  }
+  return {
+    kicker: 'Centre de santé opérationnel',
+    title: 'Preuves de reprise et état des dépendances',
+    lead: 'Consultez l’état de reprise, la santé des dépendances et les annotations d’incident sans quitter le tenant actif.',
+    backToOverview: 'Retour à la vue d’ensemble',
+    tenantSettings: 'Réglages du tenant',
+    refreshing: 'Actualisation...',
+    refreshHealth: 'Actualiser la santé',
+    liveDependencyHealth: 'Santé des dépendances en direct',
+    systemStatus: 'État du système',
+    systemStatusText: 'La sonde backend est en lecture seule et affiche l’état actuel des services pour le tenant actif.',
+    service: 'Service',
+    status: 'Statut',
+    latency: 'Latence',
+    recoveryEvidence: 'Preuves de reprise',
+    recoveryTitle: 'Sauvegarde, restauration et posture d’alerte',
+    recoveryLead: 'Les alertes de fraîcheur restent visibles pour repérer immédiatement les preuves à remettre à jour.',
+    lastBackup: 'Dernière sauvegarde',
+    noBackupReference: 'Aucune référence de sauvegarde enregistrée',
+    restoreDrill: 'Exercice de restauration',
+    alertPosture: 'Posture d’alerte',
+    alertContactsConfigured: 'Contacts d’alerte configurés',
+    alertContactsMissing: 'Contacts d’alerte manquants',
+    freshnessWarnings: 'Alertes de fraîcheur',
+    freshnessWarningsHint: 'Signaux obsolètes ou manquants à surveiller',
+    incidentAnnotations: 'Annotations d’incident',
+    currentNote: 'Note actuelle',
+    noIncidentNote: 'Aucune annotation d’incident enregistrée pour le moment.',
+    updateRecoveryNote: 'Mettre à jour la note de reprise',
+    operationalSnapshot: 'Instantané opérationnel',
+    tenant: 'Tenant',
+    environment: 'Environnement',
+    version: 'Version',
+    modulesReported: 'Modules remontés',
+    fastPaths: 'Accès rapides',
+    reviewTenantSettings: 'Vérifier les réglages du tenant',
+    reviewTenantSettingsText: 'Consulter les preuves de reprise et les notes.',
+    tenantOperations: 'Opérations tenant',
+    tenantOperationsText: 'Changer explicitement de contexte tenant.',
+    auditTrail: 'Piste d’audit',
+    auditTrailText: 'Examiner les actions opérationnelles sensibles.',
+    unknown: 'inconnu',
+    statusLabels: {
+      unknown: 'inconnu',
+      healthy: 'sain',
+      warning: 'avertissement',
+      critical: 'critique',
+      completed: 'terminé',
+      failed: 'échoué',
+      passed: 'réussi',
+      ok: 'ok',
+      degraded: 'dégradé',
+      unavailable: 'indisponible',
+      error: 'erreur',
+    },
+    warningRecoveryNotLoaded: 'Les preuves de reprise ne sont pas encore chargées.',
+    warningBackupStale: 'Les preuves de sauvegarde sont obsolètes et doivent être actualisées.',
+    warningRestoreStale: 'Les preuves d’exercice de restauration sont obsolètes et doivent être actualisées.',
+    warningAlertNeedsAttention: 'Les contacts d’alerte ou la posture d’alerte demandent une attention particulière.',
+    summaryOverallStatus: 'Statut global',
+    summaryFreshnessWarnings: 'Alertes de fraîcheur',
+    summaryFreshnessWarningsHint: 'Les signaux obsolètes restent visibles dans ce panneau',
+    summaryReportedModules: 'Modules remontés',
+    summaryReportedModulesHint: 'Modules backend exposés par la sonde de santé',
+    summaryWaitingRecovery: 'En attente des dernières preuves de reprise',
+    notRecorded: 'Non enregistré',
+    loadError: 'Impossible de charger le centre de santé',
+    workspaceErrorTitle: 'Le centre de santé est indisponible',
+  }
+})
 
 const recoveryStatus = computed(() => recovery.value?.overall_status || 'unknown')
 
 const freshnessWarnings = computed(() => {
   const warnings: string[] = []
   if (!recovery.value) {
-    warnings.push('Recovery evidence has not been loaded yet.')
+    warnings.push(copy.value.warningRecoveryNotLoaded)
     return warnings
   }
 
   if (recovery.value.backup_is_stale) {
-    warnings.push('Backup evidence is stale and should be refreshed.')
+    warnings.push(copy.value.warningBackupStale)
   }
   if (recovery.value.restore_drill_is_stale) {
-    warnings.push('Restore drill evidence is stale and should be refreshed.')
+    warnings.push(copy.value.warningRestoreStale)
   }
   if (!recovery.value.alert_is_healthy) {
-    warnings.push('Alert contacts or alert posture need attention.')
+    warnings.push(copy.value.warningAlertNeedsAttention)
   }
   return warnings
 })
 
 const summaryCards = computed(() => [
   {
-    label: 'Overall status',
-    value: systemHealth.value?.status || 'unknown',
-    hint: recovery.value?.status_message || 'Waiting for the latest recovery evidence',
+    label: copy.value.summaryOverallStatus,
+    value: formatStatus(systemHealth.value?.status),
+    hint: recovery.value?.status_message || copy.value.summaryWaitingRecovery,
   },
   {
-    label: 'Freshness warnings',
+    label: copy.value.summaryFreshnessWarnings,
     value: String(freshnessWarnings.value.length),
-    hint: 'Stale signals stay visible in this panel',
+    hint: copy.value.summaryFreshnessWarningsHint,
   },
   {
-    label: 'Reported modules',
+    label: copy.value.summaryReportedModules,
     value: String(systemHealth.value?.modules.length || 0),
-    hint: 'Backend modules exposed by the health probe',
+    hint: copy.value.summaryReportedModulesHint,
   },
 ])
 
@@ -310,34 +538,40 @@ function recoveryBadgeClass(status?: string) {
   }[status || 'unknown'] || 'bg-light text-dark border'
 }
 
+function formatStatus(value?: string | null) {
+  if (!value) return copy.value.unknown
+  return copy.value.statusLabels[value as keyof typeof copy.value.statusLabels] || value
+}
+
 function formatDate(value?: string | null) {
-  if (!value) return 'Not recorded'
+  if (!value) return copy.value.notRecorded
   return new Date(value).toLocaleString(undefined, {
     dateStyle: 'medium',
     timeStyle: 'short',
   })
 }
 
-async function refresh() {
-  loading.value = true
-  error.value = ''
-  try {
-    const tenantId = tenantStore.currentTenant?.tenant_id
-    if (!tenantId) {
-      throw new Error('No active tenant selected')
-    }
-
-    const [health, settings] = await Promise.all([
-      getSystemHealth(),
-      getTenantSettings(tenantId),
-    ])
-    systemHealth.value = health
-    recovery.value = settings.operations
-  } catch (err) {
-    error.value = err instanceof Error ? err.message : 'Failed to load health center'
-  } finally {
-    loading.value = false
+async function loadHealthCenter() {
+  const tenantId = tenantStore.currentTenant?.tenant_id
+  if (!tenantId) {
+    throw new Error(copy.value.loadError)
   }
+
+  const [health, settings] = await Promise.all([
+    getSystemHealth(),
+    getTenantSettings(tenantId),
+  ])
+  systemHealth.value = health
+  recovery.value = settings.operations
+}
+
+async function refresh() {
+  clearError()
+  await run(loadHealthCenter)
+}
+
+async function retryRefresh() {
+  await retry(loadHealthCenter)
 }
 
 onMounted(refresh)

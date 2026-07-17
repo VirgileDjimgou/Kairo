@@ -1,6 +1,6 @@
 import hashlib
 import secrets
-from datetime import datetime, timedelta, timezone
+from datetime import UTC, datetime, timedelta
 from uuid import UUID
 
 import jwt
@@ -26,7 +26,7 @@ def create_access_token(
     roles: list[str],
     session_id: UUID,
 ) -> str:
-    now = datetime.now(timezone.utc)
+    now = datetime.now(UTC)
     payload: dict = {
         "sub": str(user_id),
         "tenant_id": str(tenant_id),
@@ -48,7 +48,7 @@ def decode_access_token(token: str) -> dict:
 
 
 def create_refresh_token(user_id: UUID, session_id: UUID) -> str:
-    now = datetime.now(timezone.utc)
+    now = datetime.now(UTC)
     payload: dict = {
         "sub": str(user_id),
         "sid": str(session_id),
@@ -60,7 +60,7 @@ def create_refresh_token(user_id: UUID, session_id: UUID) -> str:
 
 
 def create_mfa_token(user_id: UUID, tenant_id: UUID | None = None) -> str:
-    now = datetime.now(timezone.utc)
+    now = datetime.now(UTC)
     payload: dict = {
         "sub": str(user_id),
         "type": "mfa",
