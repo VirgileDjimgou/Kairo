@@ -69,19 +69,18 @@
 
 <script setup lang="ts">
 import { computed, onMounted, ref } from "vue";
+import { getChatDomainPolicy } from "@/api/chat.api";
 import ChatSidebar from "@/components/chat/ChatSidebar.vue";
 import ChatMessage from "@/components/chat/ChatMessage.vue";
 import FollowUpChips from "@/components/chat/FollowUpChips.vue";
 import { useChatStore } from "@/stores/chat.store";
-import { useAuthStore } from "@/stores/auth.store";
 import { useLocaleStore } from "@/stores/locale.store";
 
 const chatStore = useChatStore();
-const authStore = useAuthStore();
 const localeStore = useLocaleStore();
 
 const question = ref("");
-const roles = computed(() => authStore.user?.roles ?? []);
+const allowedDomains = ref<string[]>([]);
 
 const suggestedPrompts = computed(() => {
   const prompts = {
@@ -144,30 +143,46 @@ const suggestedPrompts = computed(() => {
     },
   }[localeStore.currentLocale];
 
-  if (roles.value.includes("principal_admin") || roles.value.includes("admin")) {
-    return [prompts.governanceSummary, prompts.officialPublication, prompts.disciplinarySummary, prompts.sportsCalendar];
+  const suggestions: string[] = [];
+
+  if (allowedDomains.value.includes("member_finance")) {
+    suggestions.push(prompts.myBalance);
   }
-  if (roles.value.includes("president") || roles.value.includes("vice_president")) {
-    return [prompts.governanceSummary, prompts.activeMembers, prompts.orgOverview];
+  if (allowedDomains.value.includes("tenant_finance")) {
+    suggestions.push(prompts.financeSummary, prompts.remainingBalance, prompts.collectionRate);
   }
-  if (roles.value.includes("secretary_general")) {
-    return [prompts.officialPublication, prompts.activeAnnouncements, prompts.readyDocuments];
+  if (allowedDomains.value.includes("governance")) {
+    suggestions.push(prompts.governanceSummary, prompts.activeMembers, prompts.orgOverview);
   }
-  if (roles.value.includes("auditor")) {
-    return [prompts.financeSummary, prompts.remainingBalance, prompts.collectionRate];
+  if (allowedDomains.value.includes("publication")) {
+    suggestions.push(prompts.officialPublication, prompts.activeAnnouncements);
   }
-  if (roles.value.includes("censor")) {
-    return [prompts.disciplinarySummary, prompts.openCases, prompts.sanctionsOverview];
+  if (allowedDomains.value.includes("disciplinary")) {
+    suggestions.push(prompts.disciplinarySummary, prompts.openCases, prompts.sanctionsOverview);
   }
-  if (roles.value.includes("sports_manager")) {
-    return [prompts.sportsCalendar, prompts.nextSportsEvent, prompts.nextTrainings];
+  if (allowedDomains.value.includes("sports")) {
+    suggestions.push(prompts.sportsCalendar, prompts.nextSportsEvent, prompts.nextTrainings);
   }
-  return [prompts.myBalance, prompts.activeAnnouncements, prompts.visibleEvents];
+  if (!suggestions.includes(prompts.visibleEvents)) {
+    suggestions.push(prompts.visibleEvents);
+  }
+
+  return suggestions.slice(0, 4);
 });
 
 onMounted(() => {
   chatStore.loadConversations();
+  void loadDomainPolicy();
 });
+
+async function loadDomainPolicy() {
+  try {
+    const response = await getChatDomainPolicy();
+    allowedDomains.value = response.allowed_domains;
+  } catch {
+    allowedDomains.value = [];
+  }
+}
 
 async function handleSubmit() {
   const q = question.value;

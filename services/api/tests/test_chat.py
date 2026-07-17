@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import json
 import uuid as _uuid
 from datetime import UTC, datetime
 from decimal import Decimal
@@ -117,6 +118,14 @@ def _seed_contribution_record(
     )
     db.add(record)
     return record
+
+
+def _disable_modules(tenant, **module_overrides: bool) -> None:
+    tenant.settings_json = json.dumps(
+        {
+            "modules": module_overrides,
+        }
+    )
 
 
 @pytest.mark.asyncio
@@ -620,6 +629,124 @@ async def test_chat_query_includes_tenant_finance_summary_for_auditor(
     assert "Outstanding balance: 75.00 EUR" in user_prompt
     assert "Role profile: auditor" in user_prompt
     assert "numbers first" in user_prompt or "numbers and items" in user_prompt
+
+
+@pytest.mark.asyncio
+async def test_chat_domain_policy_hides_publication_domain_when_related_modules_are_disabled(
+    client: AsyncClient,
+    db_session: AsyncSession,
+) -> None:
+    data = await create_tenant_with_user(
+        db_session,
+        f"chat-policy-{_uuid.uuid4().hex[:6]}",
+        role_code="secretary_general",
+        profile_type="staff",
+    )
+    _disable_modules(data["tenant"], policies=False, announcements=False)
+    await db_session.flush()
+    token = await login(client, data["user"].email, data["password"], tenant_slug=data["tenant"].slug)
+
+    response = await client.get(
+        "/api/v1/chat/domain-policy",
+        headers={"Authorization": f"Bearer {token}"},
+    )
+    assert response.status_code == 200, response.text
+    body = response.json()
+    assert "publication" not in body["allowed_domains"]
+
+
+@pytest.mark.asyncio
+async def test_chat_query_refuses_publication_context_when_publication_modules_are_disabled(
+    client: AsyncClient,
+    db_session: AsyncSession,
+    fake_llm,
+) -> None:
+    data = await create_tenant_with_user(
+        db_session,
+        f"chat-publication-off-{_uuid.uuid4().hex[:6]}",
+        role_code="secretary_general",
+        profile_type="staff",
+    )
+    _disable_modules(data["tenant"], policies=False, announcements=False)
+    await db_session.flush()
+    token = await login(client, data["user"].email, data["password"], tenant_slug=data["tenant"].slug)
+
+    response = await client.post(
+        "/api/v1/chat/query",
+        headers={"Authorization": f"Bearer {token}"},
+        json={
+            "question": "Montre-moi le contexte officiel de publication.",
+            "response_language": "fr",
+        },
+    )
+    assert response.status_code == 200, response.text
+    body = response.json()
+    assert body["refused"] is True
+    assert "publication" in body["refusal_reason"].lower()
+    assert len(fake_llm.calls) == 0
+
+
+@pytest.mark.asyncio
+async def test_chat_query_refuses_sports_schedule_when_events_module_is_disabled(
+    client: AsyncClient,
+    db_session: AsyncSession,
+    fake_llm,
+) -> None:
+    data = await create_tenant_with_user(
+        db_session,
+        f"chat-sports-off-{_uuid.uuid4().hex[:6]}",
+        role_code="sports_manager",
+        profile_type="staff",
+    )
+    _disable_modules(data["tenant"], events=False)
+    await db_session.flush()
+    token = await login(client, data["user"].email, data["password"], tenant_slug=data["tenant"].slug)
+
+    response = await client.post(
+        "/api/v1/chat/query",
+        headers={"Authorization": f"Bearer {token}"},
+        json={
+            "question": "Show me the sports calendar.",
+            "response_language": "en",
+        },
+    )
+    assert response.status_code == 200, response.text
+    body = response.json()
+    assert body["refused"] is True
+    assert "sports" in body["refusal_reason"].lower()
+    assert len(fake_llm.calls) == 0
+
+
+@pytest.mark.asyncio
+async def test_chat_stream_refuses_tenant_finance_when_contributions_module_is_disabled(
+    client: AsyncClient,
+    db_session: AsyncSession,
+    fake_llm,
+) -> None:
+    data = await create_tenant_with_user(
+        db_session,
+        f"chat-finance-stream-off-{_uuid.uuid4().hex[:6]}",
+        role_code="auditor",
+        profile_type="staff",
+    )
+    _disable_modules(data["tenant"], contributions=False)
+    await db_session.flush()
+    token = await login(client, data["user"].email, data["password"], tenant_slug=data["tenant"].slug)
+
+    async with client.stream(
+        "POST",
+        "/api/v1/chat/query-stream",
+        headers={"Authorization": f"Bearer {token}"},
+        json={"question": "Give me the contribution summary for the tenant.", "response_language": "en"},
+    ) as response:
+        status = response.status_code
+        body = await response.aread()
+        assert status == 200, body
+
+    text = body.decode()
+    assert '"type": "error"' in text
+    assert "finance summaries" in text.lower()
+    assert len(fake_llm.calls) == 0
 
 
 @pytest.mark.asyncio

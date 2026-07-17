@@ -34,6 +34,10 @@ class ChatQueryResponse(BaseModel):
     refusal_reason: str | None = None
 
 
+class ChatDomainPolicyResponse(BaseModel):
+    allowed_domains: list[str] = Field(default_factory=list)
+
+
 class ChatQueryLogResponse(BaseModel):
     id: UUID
     tenant_id: UUID

@@ -4,6 +4,7 @@ Module toggle utilities.
 Reads module enable/disable state from a tenant's settings_json.
 Defaults all modules to enabled if no configuration is stored.
 """
+import json
 from typing import Any
 
 ALL_MODULES = [
@@ -22,7 +23,7 @@ def default_module_toggles() -> dict[str, bool]:
     return {m: True for m in ALL_MODULES}
 
 
-def parse_module_toggles(settings_json: dict[str, Any] | None) -> dict[str, bool]:
+def parse_module_toggles(settings_json: dict[str, Any] | str | None) -> dict[str, bool]:
     """
     Extract module toggles from a tenant's settings_json.
 
@@ -30,6 +31,14 @@ def parse_module_toggles(settings_json: dict[str, Any] | None) -> dict[str, bool
     """
     if not settings_json:
         return default_module_toggles()
+    if isinstance(settings_json, str):
+        try:
+            parsed = json.loads(settings_json)
+        except json.JSONDecodeError:
+            return default_module_toggles()
+        if not isinstance(parsed, dict):
+            return default_module_toggles()
+        settings_json = parsed
     modules = settings_json.get("modules", {})
     if not isinstance(modules, dict):
         return default_module_toggles()

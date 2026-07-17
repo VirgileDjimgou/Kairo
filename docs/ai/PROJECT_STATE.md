@@ -24,13 +24,13 @@ association product with:
 - Scripted production preflight, install, upgrade, rollback, backup, restore, and smoke-validation flows
 - SQLite-first autonomous backend test posture
 - Live notification operator delivery through SMTP-backed email, Telegram, and gateway-backed WhatsApp
-- Tenant-scoped notification history with acceptance evidence, provider references, callback-based reconciliation, and now replay-safe reconciliation plus controlled polling support
+- Tenant-scoped notification history with acceptance evidence, provider references, callback-based reconciliation, replay-safe polling support, and now backend-owned triage plus retry eligibility
 
 ## Main Gaps To Close
 
-- Operators still need a clearer triage layer for stale pending or failed notification deliveries
-- Retry ergonomics for eligible failed deliveries are not yet exposed as a dedicated backend-safe workflow
 - Ruff and Mypy baselines remain intentionally scoped and can still expand as more legacy modules are cleaned
+- Browser automation still covers only selected high-value journeys and can broaden carefully
+- Some deeper frontend subflows may still need smaller parity cleanups beyond the dashboard-first pass completed in Sprint 87
 
 ## Current Execution Plan
 
@@ -38,13 +38,13 @@ association product with:
 - Post-release hardening track completed: Sprint 53 through Sprint 58
 - Productization track completed through Sprint 65
 - Stabilization and open-source maturity track completed: Sprint 72 and Sprint 73
-- New planning cycle status: Sprint 74 through Sprint 85 complete
-- Next sprint: `Sprint 86 - Notification Reconciliation Operations And Stale-Delivery Triage Baseline`
+- New planning cycle status: Sprint 74 through Sprint 88 complete
+- Next sprint: `Sprint 89 - Quality Gate Expansion And CI Hardening`
 
 ## Current State
 
 - **Open-source release base**: strong and demonstrable
-- **Roadmap status**: Sprint 72 through Sprint 85 complete; Sprint 85 added replay-safe notification reconciliation handling, a backend-owned polling endpoint, and operator refresh controls for pending live deliveries
+- **Roadmap status**: Sprint 72 through Sprint 88 complete; Sprint 87 aligned dashboard and workspace-entry visibility with actual role-allowed routes and kept secretary discovery intact when optional content modules are disabled, while Sprint 88 aligned chat domain affordances and structured-context guards with backend-owned capability plus tenant-module policy contracts
 - **Governance foundation**: canonical role catalog and backend capability matrix are present
 - **Authorization state**: major backend modules enforce explicit capabilities instead of broad inline role checks
 - **Member self-service**: personal contribution history and member-only PDF statements are in place
@@ -53,8 +53,8 @@ association product with:
 - **Executive oversight**: president and vice president have a dedicated cross-module governance cockpit with limited, backend-governed actions
 - **Principal admin control plane**: the broadest tenant administration surfaces recognize `principal_admin` explicitly
 - **Multi-tenant operations**: reproducible second-tenant provisioning, tenant-switch browser coverage, and the tenant operations command center exist
-- **Validation status**: `python -m pytest services/api/tests/test_notifications.py -q`, `npm run type-check`, and `npm run build` passed on 2026-07-17 for the current sprint increment
-- **Communications posture**: live notifications now support callback-updated final states, replay-safe updates, and controlled provider polling without trusting the frontend
+- **Validation status**: `python -m pytest services/api/tests/test_chat.py -q` (20 passed), `npm run type-check`, and `npm run build` passed on July 17, 2026 for the current sprint increment
+- **Communications posture**: live notifications now support callback-updated final states, replay-safe updates, controlled provider polling, and backend-enforced retry eligibility without trusting the frontend
 - **Commercial posture**: strong association-focused pilot and disciplined self-hosted release candidate
 - **License**: MIT
 

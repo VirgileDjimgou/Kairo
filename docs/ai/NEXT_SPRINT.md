@@ -2,44 +2,45 @@
 
 ## Status
 
-Sprint 73 (open-source maturity track) is complete. Sprint 74 through Sprint 85
+Sprint 73 (open-source maturity track) is complete. Sprint 74 through Sprint 86
 have been executed and documented as the first increments of the new planning cycle.
 
 ## What Was Done
 
-Sprint 85 - Notification Reconciliation Polling And Replay-Safety Baseline:
+Sprint 88 - Chat Authorization Surface And Domain Guard Expansion:
 
-- Added replay-safe reconciliation handling so duplicate final-state callbacks
-  for the same tenant, channel, and provider reference now return
-  `updated=false` instead of duplicating backend audit evidence
-- Added conflict protection so a mismatched second final-state update for an
-  already reconciled dispatch is rejected instead of overwriting trusted
-  notification history
-- Added `POST /api/v1/notifications/reconciliation/poll` for tenant-admin and
-  principal-admin users, keeping status lookup strictly backend-owned and
-  tenant-scoped
-- Extended the notification provider contract with a delivery-status lookup seam
-  and activated controlled polling for the gateway-backed WhatsApp path
-- Extended notification channel, dispatch, and history payloads with
-  `polling_supported`, then updated the admin notifications workspace so
-  operators can refresh still-pending deliveries directly from audited history
-  when a provider supports it
-- Added backend regression coverage for replay-safe callbacks, successful
-  polling to a final delivered state, and clean rejection for channels that do
-  not support polling
-- Verified: `python -m pytest services/api/tests/test_notifications.py -q`
-  (22 passed), `npm run type-check`, and `npm run build` pass
+- Centralized role-aware chat domain decisions in a backend-owned policy
+  contract so publication, sports, governance, disciplinary, personal-finance,
+  and tenant-finance assistant surfaces stay aligned with real capabilities and
+  tenant module toggles
+- Added `GET /api/v1/chat/domain-policy` so the frontend suggestion surface no
+  longer guesses assistant scope from roles alone
+- Updated chat structured-context preparation so protected structured data is
+  refused before prompt assembly whenever the role or tenant module contract
+  does not authorize that domain
+- Aligned the chat view suggested prompts with the backend domain-policy
+  response instead of static role heuristics
+- Added backend regressions for hidden publication domains, publication refusal,
+  sports refusal, and tenant-finance stream refusal when the corresponding
+  tenant modules are disabled
+- Tightened French publication-intent matching so “contexte officiel de
+  publication” now reaches the domain-specific refusal path
+- Verified: `python -m pytest services/api/tests/test_chat.py -q`
+  (20 passed), `npm run type-check`, and `npm run build` passed on
+  July 17, 2026
 
 ## Next Planning Cycle
 
-Sprint 74 through Sprint 85 now cover the broader recovery-UX rollout, the
+Sprint 74 through Sprint 88 now cover the broader recovery-UX rollout, the
 observability packaging baseline, the three currently live operator
 notification channels, the acceptance-level reconciliation/audit baseline, the
-secure provider callback seam, and the replay-safe plus pollable reconciliation
-baseline. The next agent session should execute
-`Sprint 86 - Notification Reconciliation Operations And Stale-Delivery Triage Baseline`,
-improving operator triage and safe retry ergonomics for stale pending or failed
-deliveries without widening permissions.
+secure provider callback seam, the replay-safe plus pollable reconciliation
+baseline, the operator triage/retry workflow on top of it, the frontend
+role-entry parity pass, and the backend-owned chat authorization-surface
+alignment. The next agent session should execute
+`Sprint 89 - Quality Gate Expansion And CI Hardening`, expanding validation
+coverage carefully across linting, typing, backend safety, and browser flows
+without destabilizing the current mature role and chat surfaces.
 
 ## Continuity Rule
 

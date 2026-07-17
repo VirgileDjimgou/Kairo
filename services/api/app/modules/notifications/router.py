@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import secrets
 
-from fastapi import APIRouter, Header, HTTPException, status
+from fastapi import APIRouter, Header, HTTPException, Query, status
 
 from app.core.capabilities import CAP_TENANT_ADMINISTRATION
 from app.core.config import settings
@@ -14,11 +14,13 @@ from app.modules.notifications.schemas import (
     NotificationChannelResponse,
     NotificationDispatchRequest,
     NotificationDispatchResponse,
-    NotificationHistoryEntry,
+    NotificationHistoryResponse,
     NotificationReconciliationCallbackRequest,
     NotificationReconciliationCallbackResponse,
     NotificationReconciliationPollRequest,
     NotificationReconciliationPollResponse,
+    NotificationRetryRequest,
+    NotificationRetryResponse,
     NotificationTestRequest,
     NotificationTestResponse,
 )
@@ -82,19 +84,31 @@ async def send_live_notification(
     )
 
 
-@router.get("/history", response_model=list[NotificationHistoryEntry])
+@router.get("/history", response_model=NotificationHistoryResponse)
 async def list_notification_history(
     current: AuthDep,
     db: DbDep,
     notifications: NotificationsDep,
-) -> list[NotificationHistoryEntry]:
+    status_filter: str = Query(
+        default="all",
+        alias="status",
+        pattern="^(all|pending|delivered|failed|simulated)$",
+    ),
+    stale_only: bool = Query(default=False),
+    limit: int = Query(default=20, ge=1, le=100),
+) -> NotificationHistoryResponse:
     require_capability(
         current,
         CAP_TENANT_ADMINISTRATION,
         detail="Tenant administration capability required",
     )
     service = NotificationService(notifications, db=db, audit=AuditService(db))
-    return await service.list_history(tenant_id=current.tenant_id)
+    return await service.list_history(
+        tenant_id=current.tenant_id,
+        limit=limit,
+        status_filter=status_filter,
+        stale_only=stale_only,
+    )
 
 
 @callback_router.post(
@@ -143,6 +157,29 @@ async def poll_notification_reconciliation(
     )
     service = NotificationService(notifications, db=db, audit=AuditService(db))
     return await service.poll_provider_reconciliation(
+        tenant_id=current.tenant_id,
+        actor_user_id=current.user.id,
+        payload=payload,
+    )
+
+
+@router.post(
+    "/retry",
+    response_model=NotificationRetryResponse,
+)
+async def retry_notification_dispatch(
+    payload: NotificationRetryRequest,
+    current: AuthDep,
+    db: DbDep,
+    notifications: NotificationsDep,
+) -> NotificationRetryResponse:
+    require_capability(
+        current,
+        CAP_TENANT_ADMINISTRATION,
+        detail="Tenant administration capability required",
+    )
+    service = NotificationService(notifications, db=db, audit=AuditService(db))
+    return await service.retry_failed_dispatch(
         tenant_id=current.tenant_id,
         actor_user_id=current.user.id,
         payload=payload,

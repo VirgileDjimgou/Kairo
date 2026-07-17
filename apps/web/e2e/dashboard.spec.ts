@@ -1,5 +1,13 @@
 import { test, expect } from '@playwright/test'
 
+const onboardingChecklistPattern = /First-run checklist|Checklist de premier démarrage|Erststart-Checkliste/
+const setupModePattern = /This tenant is still in setup mode|Ce tenant est encore en mode initialisation|Dieser Tenant ist noch im Einrichtungsmodus/
+const quickActionsPattern = /Quick actions|Actions rapides|Schnellaktionen/
+
+function welcomeBackPattern(name: string) {
+  return new RegExp(`^(Welcome back|Bon retour|Willkommen zurück), ${name}$`)
+}
+
 const meResponse = {
   id: 'user-admin-1',
   email: 'admin@demo.org',
@@ -91,6 +99,37 @@ const treasurerMeResponse = {
         notifications: true,
       },
       profile_type: 'treasurer',
+    },
+  ],
+}
+
+const auditorMeResponse = {
+  ...meResponse,
+  id: 'user-auditor-1',
+  email: 'auditor@demo.org',
+  display_name: 'Auditor User',
+  roles: ['auditor'],
+  memberships: [
+    {
+      tenant_id: 'tenant-demo-1',
+      slug: 'demo',
+      name: 'Demo Organization',
+      roles: ['auditor'],
+      branding: {
+        primary_color: '#1f4f8f',
+        logo_url: '',
+      },
+      modules: {
+        membership: true,
+        contributions: true,
+        policies: true,
+        disciplinary: true,
+        events: true,
+        announcements: true,
+        chat: true,
+        notifications: true,
+      },
+      profile_type: 'staff',
     },
   ],
 }
@@ -425,6 +464,44 @@ async function mockCensorDashboard(page: import('@playwright/test').Page) {
   })
 }
 
+async function mockAuditorDashboard(page: import('@playwright/test').Page) {
+  await page.addInitScript(() => {
+    window.localStorage.setItem('access_token', 'playwright-auditor-token')
+  })
+
+  await page.route('http://localhost:8000/api/v1/auth/me', async (route) => {
+    await route.fulfill({
+      status: 200,
+      contentType: 'application/json',
+      body: JSON.stringify(auditorMeResponse),
+    })
+  })
+
+  await page.route('http://localhost:8000/api/v1/documents', async (route) => {
+    await route.fulfill({
+      status: 200,
+      contentType: 'application/json',
+      body: JSON.stringify([]),
+    })
+  })
+
+  await page.route('http://localhost:8000/api/v1/announcements/active', async (route) => {
+    await route.fulfill({
+      status: 200,
+      contentType: 'application/json',
+      body: JSON.stringify([]),
+    })
+  })
+
+  await page.route('http://localhost:8000/api/v1/events/public', async (route) => {
+    await route.fulfill({
+      status: 200,
+      contentType: 'application/json',
+      body: JSON.stringify([]),
+    })
+  })
+}
+
 async function mockSportsDashboard(page: import('@playwright/test').Page) {
   await page.addInitScript(() => {
     window.localStorage.setItem('access_token', 'playwright-sports-token')
@@ -562,11 +639,11 @@ test.describe('Dashboard onboarding', () => {
 
     await expect(page).toHaveURL(/dashboard/)
     await expect(page.getByTestId('tenant-onboarding')).toBeVisible()
-    await expect(page.getByText('First-run checklist')).toBeVisible()
-    await expect(page.getByText('This tenant is still in setup mode')).toBeVisible()
-    await expect(page.getByText('Upload the first document')).toBeVisible()
-    await expect(page.getByText('Add or import members')).toBeVisible()
-    await expect(page.getByText('Quick actions')).toBeVisible()
+    await expect(page.getByText(onboardingChecklistPattern)).toBeVisible()
+    await expect(page.getByText(setupModePattern)).toBeVisible()
+    await expect(page.locator('a[href="/admin/documents"]').first()).toBeVisible()
+    await expect(page.locator('a[href="/admin/members"]').first()).toBeVisible()
+    await expect(page.getByText(quickActionsPattern)).toBeVisible()
     await expect(page.getByTestId('tenant-onboarding-progress')).toContainText('0%')
   })
 
@@ -574,57 +651,71 @@ test.describe('Dashboard onboarding', () => {
     await mockTreasurerDashboard(page)
     await page.goto('/dashboard')
 
-    await expect(page.getByRole('heading', { name: 'Welcome back, Treasurer User' })).toBeVisible()
+    await expect(page.getByRole('heading', { name: welcomeBackPattern('Treasurer User') })).toBeVisible()
     await expect(page.getByTestId('dashboard-workspace-focus')).toBeVisible()
-    await expect(page.getByRole('heading', { name: 'Balances, contribution records, and payments' })).toBeVisible()
-    await expect(page.getByTestId('dashboard-workspace-focus').getByRole('link', { name: 'Go to finance workspace' })).toHaveAttribute('href', '/finance')
-    await expect(page.getByText('Quick actions')).toBeVisible()
-    await expect(page.getByRole('link', { name: /Go to finance workspace/ })).toHaveCount(2)
-    await expect(page.getByRole('link', { name: 'Review tenant settings' })).toHaveCount(0)
-    await expect(page.getByRole('link', { name: 'Upload documents' })).toHaveCount(0)
-    await expect(page.getByRole('link', { name: 'Import members' })).toHaveCount(0)
-    await expect(page.getByText('Use the finance workspace to review balances, payment activity, and the member records needed for treasury follow-up.')).toBeVisible()
+    await expect(page.getByRole('heading', { name: /Balances, contribution records, and payments|Soldes, cotisations et paiements|Salden, Beitragsakten und Zahlungen/ })).toBeVisible()
+    await expect(page.getByTestId('dashboard-workspace-focus').locator('a[href="/finance"]').first()).toBeVisible()
+    await expect(page.getByText(quickActionsPattern)).toBeVisible()
+    await expect(page.locator('a[href="/finance"]').first()).toBeVisible()
+    await expect(page.getByRole('link', { name: /Open finance audit|Ouvrir l'audit financier|Finanzaudit öffnen/ })).toHaveCount(0)
+    await expect(page.locator('a[href="/admin/settings"]')).toHaveCount(0)
+    await expect(page.locator('a[href="/admin/documents"]')).toHaveCount(0)
+    await expect(page.locator('a[href="/admin/members"]')).toHaveCount(0)
+    await expect(page.getByText(/Use the finance workspace to review balances, payment activity, and the member records needed for treasury follow-up.|Utilisez l'espace finances pour suivre les soldes, les paiements et les dossiers membres utiles au trésorier.|Nutzen Sie den Finanzbereich, um Salden, Zahlungen und die fuer die Nachverfolgung noetigen Mitgliederdaten zu pruefen./)).toBeVisible()
+  })
+
+  test('keeps the auditor dashboard aligned with read-only routes', async ({ page }) => {
+    await mockAuditorDashboard(page)
+    await page.goto('/dashboard')
+
+    await expect(page.getByRole('heading', { name: welcomeBackPattern('Auditor User') })).toBeVisible()
+    await expect(page.getByTestId('dashboard-workspace-focus').locator('a[href="/finance-audit"]').first()).toBeVisible()
+    await expect(page.getByRole('link', { name: /Review finance workspace|Revoir l'espace finances|Finanzbereich prüfen/ })).toHaveCount(0)
+    await expect(page.getByRole('link', { name: /Review member directory|Consulter l'annuaire membre|Mitgliederverzeichnis prüfen/ })).toHaveCount(0)
+    await expect(page.locator('a[href="/policies"]').first()).toBeVisible()
+    await expect(page.locator('a[href="/admin/health"]').first()).toBeVisible()
+    await expect(page.locator('a[href="/finance"]')).toHaveCount(0)
   })
 
   test('shows the disciplinary workspace quick action for censor sessions', async ({ page }) => {
     await mockCensorDashboard(page)
     await page.goto('/dashboard')
 
-    await expect(page.getByRole('heading', { name: 'Welcome back, Censor User' })).toBeVisible()
-    await expect(page.getByText('Quick actions')).toBeVisible()
-    await expect(page.getByTestId('dashboard-workspace-focus').getByRole('link', { name: 'Manage disciplinary records' })).toHaveAttribute('href', '/censor')
-    await expect(page.getByRole('link', { name: /Manage disciplinary records/ })).toHaveCount(2)
+    await expect(page.getByRole('heading', { name: welcomeBackPattern('Censor User') })).toBeVisible()
+    await expect(page.getByText(quickActionsPattern)).toBeVisible()
+    await expect(page.getByTestId('dashboard-workspace-focus').locator('a[href="/censor"]').first()).toBeVisible()
+    await expect(page.locator('a[href="/censor"]').first()).toBeVisible()
   })
 
   test('shows the sports workspace quick action for sports managers', async ({ page }) => {
     await mockSportsDashboard(page)
     await page.goto('/dashboard')
 
-    await expect(page.getByRole('heading', { name: 'Welcome back, Sports Manager' })).toBeVisible()
-    await expect(page.getByTestId('dashboard-workspace-focus').getByRole('link', { name: 'Open sports workspace' })).toHaveAttribute('href', '/sports')
-    await expect(page.getByRole('link', { name: /Open sports workspace/ })).toHaveCount(2)
+    await expect(page.getByRole('heading', { name: welcomeBackPattern('Sports Manager') })).toBeVisible()
+    await expect(page.getByTestId('dashboard-workspace-focus').locator('a[href="/sports"]').first()).toBeVisible()
+    await expect(page.locator('a[href="/sports"]').first()).toBeVisible()
   })
 
   test('shows the governance cockpit quick action for president sessions', async ({ page }) => {
     await mockPresidentDashboard(page)
     await page.goto('/dashboard')
 
-    await expect(page.getByRole('heading', { name: 'Welcome back, President User' })).toBeVisible()
-    await expect(page.getByTestId('dashboard-workspace-focus').getByRole('link', { name: 'Open governance cockpit' })).toHaveAttribute('href', '/governance')
-    await expect(page.getByRole('link', { name: /Open governance cockpit/ })).toHaveCount(2)
+    await expect(page.getByRole('heading', { name: welcomeBackPattern('President User') })).toBeVisible()
+    await expect(page.getByTestId('dashboard-workspace-focus').locator('a[href="/governance"]').first()).toBeVisible()
+    await expect(page.locator('a[href="/governance"]').first()).toBeVisible()
   })
 
   test('shows the principal admin control plane quick action for principal admins', async ({ page }) => {
     await mockPrincipalAdminDashboard(page)
     await page.goto('/dashboard')
 
-    await expect(page.getByRole('heading', { name: 'Welcome back, Principal Admin User' })).toBeVisible()
+    await expect(page.getByRole('heading', { name: welcomeBackPattern('Principal Admin User') })).toBeVisible()
     await expect(page.getByTestId('dashboard-workspace-focus')).toBeVisible()
-    await expect(page.getByRole('heading', { name: 'Tenant operations, settings, and sensitive review' })).toBeVisible()
-    await expect(page.getByTestId('dashboard-workspace-focus').getByRole('link', { name: 'Open principal admin control plane' })).toHaveAttribute('href', '/admin/settings')
-    await expect(page.getByRole('link', { name: /Open principal admin control plane/ })).toHaveCount(2)
-    await expect(page.getByRole('link', { name: 'Open onboarding wizard' })).toHaveCount(1)
-    await expect(page.getByRole('link', { name: 'Tenant operations' })).toHaveAttribute('href', '/admin/tenants')
+    await expect(page.getByRole('heading', { name: /Tenant operations, settings, and sensitive review|Opérations du tenant, réglages et supervision sensible|Tenant-Betrieb, Einstellungen und sensible Kontrolle/ })).toBeVisible()
+    await expect(page.getByTestId('dashboard-workspace-focus').locator('a[href="/admin/settings"]').first()).toBeVisible()
+    await expect(page.locator('a[href="/admin/settings"]').first()).toBeVisible()
+    await expect(page.locator('a[href="/admin/onboarding"]').first()).toBeVisible()
+    await expect(page.locator('a[href="/admin/tenants"]').first()).toBeVisible()
   })
 
   test('keeps the member sidebar compact and personal', async ({ page }) => {
@@ -632,14 +723,14 @@ test.describe('Dashboard onboarding', () => {
     await page.goto('/dashboard')
 
     const sidebar = page.locator('aside.sidebar')
-    await expect(page.getByRole('heading', { name: 'Welcome back, Member User' })).toBeVisible()
-    await expect(sidebar.getByRole('link', { name: 'My profile' })).toBeVisible()
-    await expect(sidebar.getByRole('link', { name: 'Account security' })).toBeVisible()
-    await expect(sidebar.getByRole('link', { name: 'Chat' })).toBeVisible()
-    await expect(sidebar.getByRole('link', { name: 'Events' })).toBeVisible()
-    await expect(sidebar.getByRole('link', { name: 'Announcements' })).toBeVisible()
-    await expect(sidebar.getByRole('link', { name: 'Finance workspace' })).toHaveCount(0)
-    await expect(sidebar.getByRole('link', { name: 'Principal admin control plane' })).toHaveCount(0)
-    await expect(sidebar.getByRole('link', { name: 'Governance cockpit' })).toHaveCount(0)
+    await expect(page.getByRole('heading', { name: welcomeBackPattern('Member User') })).toBeVisible()
+    await expect(sidebar.locator('a[href="/members/profile"]')).toBeVisible()
+    await expect(sidebar.locator('a[href="/account/security"]')).toBeVisible()
+    await expect(sidebar.locator('a[href="/chat"]')).toBeVisible()
+    await expect(sidebar.locator('a[href="/events"]')).toBeVisible()
+    await expect(sidebar.locator('a[href="/announcements"]')).toBeVisible()
+    await expect(sidebar.locator('a[href="/finance"]')).toHaveCount(0)
+    await expect(sidebar.locator('a[href="/admin/settings"]')).toHaveCount(0)
+    await expect(sidebar.locator('a[href="/governance"]')).toHaveCount(0)
   })
 })

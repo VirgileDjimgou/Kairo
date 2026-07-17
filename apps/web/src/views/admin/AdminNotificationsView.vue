@@ -100,17 +100,32 @@
 
               <div class="col-md-6">
                 <label class="form-label fw-medium small">{{ copy.recipientLabel }}</label>
-                <input v-model.trim="form.recipient" class="form-control" type="text" :placeholder="copy.recipientPlaceholder" />
+                <input
+                  v-model.trim="form.recipient"
+                  class="form-control"
+                  type="text"
+                  :placeholder="copy.recipientPlaceholder"
+                />
               </div>
 
               <div class="col-md-6">
                 <label class="form-label fw-medium small">{{ copy.subjectLabel }}</label>
-                <input v-model.trim="form.subject" class="form-control" type="text" :placeholder="copy.subjectPlaceholder" />
+                <input
+                  v-model.trim="form.subject"
+                  class="form-control"
+                  type="text"
+                  :placeholder="copy.subjectPlaceholder"
+                />
               </div>
 
               <div class="col-12">
                 <label class="form-label fw-medium small">{{ copy.bodyLabel }}</label>
-                <textarea v-model.trim="form.body" class="form-control" rows="4" :placeholder="copy.simulationBodyPlaceholder" />
+                <textarea
+                  v-model.trim="form.body"
+                  class="form-control"
+                  rows="4"
+                  :placeholder="copy.simulationBodyPlaceholder"
+                />
               </div>
 
               <div class="col-12 d-flex gap-2">
@@ -175,6 +190,70 @@
           </div>
         </div>
 
+        <div class="card shadow-sm border-0 mb-4">
+          <div class="card-body p-4">
+            <div class="text-uppercase small fw-semibold text-secondary mb-3">
+              {{ copy.triageTitle }}
+            </div>
+            <div class="row g-2 mb-3">
+              <div class="col-6 col-md-4">
+                <div class="triage-metric">
+                  <div class="triage-metric__value">{{ historySummary.total }}</div>
+                  <div class="triage-metric__label">{{ copy.summaryTotal }}</div>
+                </div>
+              </div>
+              <div class="col-6 col-md-4">
+                <div class="triage-metric">
+                  <div class="triage-metric__value">{{ historySummary.pending }}</div>
+                  <div class="triage-metric__label">{{ copy.summaryPending }}</div>
+                </div>
+              </div>
+              <div class="col-6 col-md-4">
+                <div class="triage-metric">
+                  <div class="triage-metric__value">{{ historySummary.failed }}</div>
+                  <div class="triage-metric__label">{{ copy.summaryFailed }}</div>
+                </div>
+              </div>
+              <div class="col-6 col-md-4">
+                <div class="triage-metric">
+                  <div class="triage-metric__value">{{ historySummary.delivered }}</div>
+                  <div class="triage-metric__label">{{ copy.summaryDelivered }}</div>
+                </div>
+              </div>
+              <div class="col-6 col-md-4">
+                <div class="triage-metric">
+                  <div class="triage-metric__value">{{ historySummary.simulated }}</div>
+                  <div class="triage-metric__label">{{ copy.summarySimulated }}</div>
+                </div>
+              </div>
+              <div class="col-6 col-md-4">
+                <div class="triage-metric" :class="{ 'triage-metric--warning': historySummary.stale_pending > 0 }">
+                  <div class="triage-metric__value">{{ historySummary.stale_pending }}</div>
+                  <div class="triage-metric__label">{{ copy.summaryStale }}</div>
+                </div>
+              </div>
+            </div>
+
+            <div class="d-flex flex-wrap gap-2 mb-3">
+              <button
+                v-for="filter in historyFilters"
+                :key="filter.value"
+                class="btn btn-sm"
+                :class="historyFilter === filter.value ? 'btn-primary' : 'btn-outline-secondary'"
+                type="button"
+                @click="setHistoryFilter(filter.value)"
+              >
+                {{ filter.label }}
+              </button>
+            </div>
+
+            <label class="form-check d-inline-flex align-items-center gap-2">
+              <input v-model="staleOnly" class="form-check-input mt-0" type="checkbox" @change="refreshData" />
+              <span class="small text-muted">{{ copy.staleOnly }}</span>
+            </label>
+          </div>
+        </div>
+
         <div class="card shadow-sm border-0">
           <div class="card-body p-4">
             <div class="text-uppercase small fw-semibold text-secondary mb-2">
@@ -208,9 +287,13 @@
                   <span class="text-muted">{{ copy.historyReconciliation }}</span>
                   <span class="fw-medium text-end">{{ formatReconciliation(entry.reconciliation_status) }}</span>
                 </div>
+                <div v-if="entry.stale_pending" class="alert alert-warning border-0 py-2 px-3 small mb-2">
+                  {{ formatStale(entry) }}
+                </div>
                 <p class="small text-muted mb-2">{{ entry.message }}</p>
-                <div v-if="canPollEntry(entry)" class="mb-2">
+                <div class="d-flex flex-wrap gap-2 mb-2">
                   <button
+                    v-if="canPollEntry(entry)"
                     class="btn btn-sm btn-outline-secondary"
                     type="button"
                     :disabled="pollingReference === entry.provider_reference"
@@ -220,6 +303,19 @@
                       pollingReference === entry.provider_reference
                         ? copy.pollingStatus
                         : copy.pollStatus
+                    }}
+                  </button>
+                  <button
+                    v-if="canRetryEntry(entry)"
+                    class="btn btn-sm btn-outline-danger"
+                    type="button"
+                    :disabled="retryingReference === entry.provider_reference"
+                    @click="handleRetryEntry(entry)"
+                  >
+                    {{
+                      retryingReference === entry.provider_reference
+                        ? copy.retryingStatus
+                        : copy.retryAction
                     }}
                   </button>
                 </div>
@@ -245,22 +341,36 @@ import {
   listNotificationChannels,
   listNotificationHistory,
   pollNotificationReconciliation,
+  retryNotificationDispatch,
   sendNotificationDispatch,
   sendNotificationTest,
   type NotificationChannelResponse,
   type NotificationHistoryEntry,
+  type NotificationHistorySummary,
 } from '@/api/notifications.api'
 import { useLocaleStore } from '@/stores/locale.store'
 
 const localeStore = useLocaleStore()
+const defaultHistorySummary: NotificationHistorySummary = {
+  total: 0,
+  pending: 0,
+  delivered: 0,
+  failed: 0,
+  simulated: 0,
+  stale_pending: 0,
+}
 const loading = ref(true)
 const sendingTest = ref(false)
 const sendingLive = ref(false)
 const channels = ref<NotificationChannelResponse[]>([])
 const history = ref<NotificationHistoryEntry[]>([])
+const historySummary = ref<NotificationHistorySummary>({ ...defaultHistorySummary })
+const historyFilter = ref<'all' | 'pending' | 'delivered' | 'failed' | 'simulated'>('all')
+const staleOnly = ref(false)
 const selectedChannels = ref<string[]>(['email'])
 const selectedLiveChannel = ref('email')
 const pollingReference = ref<string | null>(null)
+const retryingReference = ref<string | null>(null)
 const error = ref('')
 const actionError = ref('')
 const successMessage = ref('')
@@ -275,7 +385,8 @@ const copy = computed(() => {
     return {
       kicker: 'Benachrichtigungen',
       title: 'Benachrichtigungserweiterungen',
-      subtitle: 'Pruefen Sie optionale Kanaele, erfassen Sie echte Zustellungsannahmen mit Audit-Spur und halten Sie die Rechte strikt im Backend.',
+      subtitle:
+        'Pruefen Sie optionale Kanaele, erfassen Sie echte Zustellungsannahmen mit Audit-Spur und halten Sie die Rechte strikt im Backend.',
       refreshing: 'Aktualisierung...',
       refreshChannels: 'Kanaele aktualisieren',
       configured: 'Konfiguriert',
@@ -285,7 +396,8 @@ const copy = computed(() => {
       simulationOnly: 'Nur Simulation',
       liveCapable: 'Live faehig',
       simulationTitle: 'Simulierten Versand ausfuehren',
-      simulationLead: 'Dieser Dry-Run prueft die optionalen Kanaele, ohne externe Nachrichten fuer Platzhalterpfade zu senden.',
+      simulationLead:
+        'Dieser Dry-Run prueft die optionalen Kanaele, ohne externe Nachrichten fuer Platzhalterpfade zu senden.',
       noExternalDelivery: 'Keine externe Zustellung',
       loadingChannels: 'Kanaele werden geladen...',
       channelsLabel: 'Kanaele',
@@ -299,14 +411,25 @@ const copy = computed(() => {
       runSimulation: 'Simulierten Versand starten',
       reset: 'Zuruecksetzen',
       liveDispatchTitle: 'Live-Benachrichtigung senden',
-      liveDispatchLead: 'Konfigurierte SMTP-, Telegram- oder WhatsApp-Kanaele liefern jetzt auch eine audit-faehige Annahme- und Reconciliation-Spur.',
+      liveDispatchLead:
+        'Konfigurierte SMTP-, Telegram- oder WhatsApp-Kanaele liefern jetzt auch eine audit-faehige Annahme- und Reconciliation-Spur.',
       liveEnabled: 'Live aktiviert',
       liveUnavailable: 'Live nicht verfuegbar',
-      liveUnavailableHint: 'Kein live-faehiger Kanal ist aktuell konfiguriert. Aktivieren Sie SMTP, Telegram oder WhatsApp fuer einen echten Zustellpfad.',
+      liveUnavailableHint:
+        'Kein live-faehiger Kanal ist aktuell konfiguriert. Aktivieren Sie SMTP, Telegram oder WhatsApp fuer einen echten Zustellpfad.',
       liveChannelLabel: 'Live-Kanal',
-      liveOnlyOneChannelHint: 'Der Live-Versand bleibt absichtlich auf einen einzelnen konfigurierten Kanal beschraenkt.',
+      liveOnlyOneChannelHint:
+        'Der Live-Versand bleibt absichtlich auf einen einzelnen konfigurierten Kanal beschraenkt.',
       sendingLive: 'Live-Versand...',
       sendLive: 'Live-Benachrichtigung senden',
+      triageTitle: 'Triage',
+      summaryTotal: 'Gesamt',
+      summaryPending: 'Ausstehend',
+      summaryFailed: 'Fehlgeschlagen',
+      summaryDelivered: 'Zugestellt',
+      summarySimulated: 'Simuliert',
+      summaryStale: 'Veraltet',
+      staleOnly: 'Nur veraltete ausstehende Zustellungen anzeigen',
       historyTitle: 'Letzte Operator-Historie',
       historyRecipient: 'Ziel',
       historyDeliveryStage: 'Lieferphase',
@@ -315,15 +438,19 @@ const copy = computed(() => {
       noProviderReference: 'Keine Provider-Referenz',
       pollStatus: 'Status abfragen',
       pollingStatus: 'Pruefung...',
+      retryAction: 'Erneut senden',
+      retryingStatus: 'Erneuter Versand...',
       noResults: 'Noch keine auditierte Benachrichtigungshistorie.',
       loadError: 'Die Benachrichtigungskanaele konnten nicht geladen werden.',
       simulationSuccess: 'Der simulierte Versand wurde abgeschlossen.',
       liveSuccess: 'Die Live-Benachrichtigung wurde an den ausgewaehlten Kanal uebergeben.',
       pollUpdatedSuccess: 'Die finale Zustellung wurde aus dem Provider-Status aktualisiert.',
       pollPendingSuccess: 'Die Zustellung bleibt beim Provider noch ausstehend.',
+      retrySuccess: 'Die fehlgeschlagene Zustellung wurde erneut versendet.',
       actionFallback: 'Die Benachrichtigungsaktion ist fehlgeschlagen.',
       actionDispatch: 'Live',
       actionTest: 'Test',
+      actionRetry: 'Retry',
       stageAccepted: 'Akzeptiert',
       stageDelivered: 'Zugestellt',
       stageFailed: 'Fehlgeschlagen',
@@ -332,13 +459,20 @@ const copy = computed(() => {
       reconciliationPending: 'Ausstehend',
       reconciliationFailed: 'Fehlgeschlagen',
       reconciliationNotApplicable: 'Nicht anwendbar',
+      filterAll: 'Alle',
+      filterPending: 'Ausstehend',
+      filterDelivered: 'Zugestellt',
+      filterFailed: 'Fehlgeschlagen',
+      filterSimulated: 'Simuliert',
+      stalePendingLabel: 'Seit {minutes} Min. ausstehend',
     }
   }
   if (localeStore.currentLocale === 'en') {
     return {
       kicker: 'Notifications',
       title: 'Notification extensions',
-      subtitle: 'Review optional channels, capture live delivery acceptance with audit evidence, and keep permissions backend-owned.',
+      subtitle:
+        'Review optional channels, capture live delivery acceptance with audit evidence, and keep permissions backend-owned.',
       refreshing: 'Refreshing...',
       refreshChannels: 'Refresh channels',
       configured: 'Configured',
@@ -348,7 +482,8 @@ const copy = computed(() => {
       simulationOnly: 'Simulation only',
       liveCapable: 'Live capable',
       simulationTitle: 'Run simulated dispatch',
-      simulationLead: 'This dry-run validates optional channels without sending external messages for placeholder-only paths.',
+      simulationLead:
+        'This dry-run validates optional channels without sending external messages for placeholder-only paths.',
       noExternalDelivery: 'No external delivery',
       loadingChannels: 'Loading channels...',
       channelsLabel: 'Channels',
@@ -362,14 +497,25 @@ const copy = computed(() => {
       runSimulation: 'Run simulated dispatch',
       reset: 'Reset',
       liveDispatchTitle: 'Send live notification',
-      liveDispatchLead: 'Configured SMTP, Telegram, and WhatsApp channels now expose acceptance evidence and reconciliation seams in the operator audit trail.',
+      liveDispatchLead:
+        'Configured SMTP, Telegram, and WhatsApp channels now expose acceptance evidence and reconciliation seams in the operator audit trail.',
       liveEnabled: 'Live enabled',
       liveUnavailable: 'Live unavailable',
-      liveUnavailableHint: 'No live-capable channel is configured right now. Enable SMTP, Telegram, or WhatsApp to validate a real delivery path.',
+      liveUnavailableHint:
+        'No live-capable channel is configured right now. Enable SMTP, Telegram, or WhatsApp to validate a real delivery path.',
       liveChannelLabel: 'Live channel',
-      liveOnlyOneChannelHint: 'Live delivery stays intentionally limited to one configured channel so operators confirm the target path explicitly.',
+      liveOnlyOneChannelHint:
+        'Live delivery stays intentionally limited to one configured channel so operators confirm the target path explicitly.',
       sendingLive: 'Sending live...',
       sendLive: 'Send live notification',
+      triageTitle: 'Triage',
+      summaryTotal: 'Total',
+      summaryPending: 'Pending',
+      summaryFailed: 'Failed',
+      summaryDelivered: 'Delivered',
+      summarySimulated: 'Simulated',
+      summaryStale: 'Stale',
+      staleOnly: 'Show only stale pending deliveries',
       historyTitle: 'Recent operator history',
       historyRecipient: 'Target',
       historyDeliveryStage: 'Delivery stage',
@@ -378,15 +524,19 @@ const copy = computed(() => {
       noProviderReference: 'No provider reference',
       pollStatus: 'Refresh status',
       pollingStatus: 'Refreshing...',
+      retryAction: 'Retry dispatch',
+      retryingStatus: 'Retrying...',
       noResults: 'No audited notification history yet.',
       loadError: 'Could not load notification channels.',
       simulationSuccess: 'Simulated dispatch completed.',
       liveSuccess: 'Live notification accepted for the selected channel.',
       pollUpdatedSuccess: 'The final delivery state was updated from the provider status.',
       pollPendingSuccess: 'The provider still reports this delivery as pending.',
+      retrySuccess: 'The failed delivery was dispatched again.',
       actionFallback: 'Notification action failed.',
       actionDispatch: 'Live',
       actionTest: 'Test',
+      actionRetry: 'Retry',
       stageAccepted: 'Accepted',
       stageDelivered: 'Delivered',
       stageFailed: 'Failed',
@@ -395,12 +545,19 @@ const copy = computed(() => {
       reconciliationPending: 'Pending',
       reconciliationFailed: 'Failed',
       reconciliationNotApplicable: 'Not applicable',
+      filterAll: 'All',
+      filterPending: 'Pending',
+      filterDelivered: 'Delivered',
+      filterFailed: 'Failed',
+      filterSimulated: 'Simulated',
+      stalePendingLabel: 'Pending for {minutes} min',
     }
   }
   return {
     kicker: 'Notifications',
     title: 'Extensions de notification',
-    subtitle: 'Consultez les canaux optionnels, capturez une preuve d’acceptation réelle avec audit, et gardez les permissions strictement côté backend.',
+    subtitle:
+      'Consultez les canaux optionnels, capturez une preuve d’acceptation réelle avec audit, et gardez les permissions strictement côté backend.',
     refreshing: 'Actualisation...',
     refreshChannels: 'Actualiser les canaux',
     configured: 'Configuré',
@@ -410,7 +567,8 @@ const copy = computed(() => {
     simulationOnly: 'Simulation uniquement',
     liveCapable: 'Capable en réel',
     simulationTitle: 'Lancer un dispatch simulé',
-    simulationLead: 'Ce dry-run valide les canaux optionnels sans envoyer de messages externes pour les chemins encore limités à la simulation.',
+    simulationLead:
+      'Ce dry-run valide les canaux optionnels sans envoyer de messages externes pour les chemins encore limités à la simulation.',
     noExternalDelivery: 'Aucune livraison externe',
     loadingChannels: 'Chargement des canaux...',
     channelsLabel: 'Canaux',
@@ -424,14 +582,25 @@ const copy = computed(() => {
     runSimulation: 'Lancer le dispatch simulé',
     reset: 'Réinitialiser',
     liveDispatchTitle: 'Envoyer une notification réelle',
-    liveDispatchLead: 'Les canaux SMTP, Telegram et WhatsApp configurés exposent maintenant une preuve d’acceptation et une couture de réconciliation dans la piste opérateur.',
+    liveDispatchLead:
+      'Les canaux SMTP, Telegram et WhatsApp configurés exposent maintenant une preuve d’acceptation et une couture de réconciliation dans la piste opérateur.',
     liveEnabled: 'Réel activé',
     liveUnavailable: 'Réel indisponible',
-    liveUnavailableHint: "Aucun canal réellement exploitable n'est configuré pour le moment. Activez SMTP, Telegram ou WhatsApp pour valider un vrai chemin de livraison.",
+    liveUnavailableHint:
+      "Aucun canal réellement exploitable n'est configuré pour le moment. Activez SMTP, Telegram ou WhatsApp pour valider un vrai chemin de livraison.",
     liveChannelLabel: 'Canal réel',
-    liveOnlyOneChannelHint: 'La livraison réelle reste volontairement limitée à un seul canal configuré pour confirmer explicitement la route cible.',
+    liveOnlyOneChannelHint:
+      'La livraison réelle reste volontairement limitée à un seul canal configuré pour confirmer explicitement la route cible.',
     sendingLive: 'Envoi réel...',
     sendLive: 'Envoyer la notification réelle',
+    triageTitle: 'Triage',
+    summaryTotal: 'Total',
+    summaryPending: 'En attente',
+    summaryFailed: 'En échec',
+    summaryDelivered: 'Livrées',
+    summarySimulated: 'Simulées',
+    summaryStale: 'En retard',
+    staleOnly: 'Afficher uniquement les livraisons en attente devenues anciennes',
     historyTitle: 'Historique opérateur récent',
     historyRecipient: 'Cible',
     historyDeliveryStage: 'Étape de livraison',
@@ -440,15 +609,19 @@ const copy = computed(() => {
     noProviderReference: 'Aucune référence fournisseur',
     pollStatus: 'Rafraîchir le statut',
     pollingStatus: 'Actualisation...',
+    retryAction: 'Relancer l’envoi',
+    retryingStatus: 'Relance...',
     noResults: 'Aucune notification auditée pour le moment.',
     loadError: 'Impossible de charger les canaux de notification.',
     simulationSuccess: 'Le dispatch simulé est terminé.',
     liveSuccess: 'La notification réelle a été acceptée pour le canal sélectionné.',
     pollUpdatedSuccess: 'L’état final a été mis à jour depuis le statut fournisseur.',
     pollPendingSuccess: 'Le fournisseur indique encore une livraison en attente.',
+    retrySuccess: 'La livraison en échec a été relancée.',
     actionFallback: "L'action de notification a échoué.",
     actionDispatch: 'Réel',
     actionTest: 'Test',
+    actionRetry: 'Relance',
     stageAccepted: 'Acceptée',
     stageDelivered: 'Livrée',
     stageFailed: 'Échec',
@@ -457,8 +630,22 @@ const copy = computed(() => {
     reconciliationPending: 'En attente',
     reconciliationFailed: 'Échec',
     reconciliationNotApplicable: 'Sans objet',
+    filterAll: 'Toutes',
+    filterPending: 'En attente',
+    filterDelivered: 'Livrées',
+    filterFailed: 'En échec',
+    filterSimulated: 'Simulées',
+    stalePendingLabel: 'En attente depuis {minutes} min',
   }
 })
+
+const historyFilters = computed(() => [
+  { value: 'all' as const, label: copy.value.filterAll },
+  { value: 'pending' as const, label: copy.value.filterPending },
+  { value: 'failed' as const, label: copy.value.filterFailed },
+  { value: 'delivered' as const, label: copy.value.filterDelivered },
+  { value: 'simulated' as const, label: copy.value.filterSimulated },
+])
 
 const liveCapableChannels = computed(() =>
   channels.value.filter((channel) => channel.configured && !channel.simulation_only),
@@ -479,7 +666,9 @@ function formatTimestamp(value: string) {
 }
 
 function formatAction(action: string) {
-  return action === 'notification_dispatch' ? copy.value.actionDispatch : copy.value.actionTest
+  if (action === 'notification_dispatch') return copy.value.actionDispatch
+  if (action === 'notification_retry') return copy.value.actionRetry
+  return copy.value.actionTest
 }
 
 function formatDeliveryStage(stage: string) {
@@ -515,18 +704,41 @@ function canPollEntry(entry: NotificationHistoryEntry) {
   )
 }
 
+function canRetryEntry(entry: NotificationHistoryEntry) {
+  return (
+    (entry.action === 'notification_dispatch' || entry.action === 'notification_retry') &&
+    entry.retry_supported &&
+    entry.retry_eligible &&
+    !!entry.provider_reference
+  )
+}
+
+function formatStale(entry: NotificationHistoryEntry) {
+  return copy.value.stalePendingLabel.replace('{minutes}', String(entry.stale_minutes ?? 0))
+}
+
+function setHistoryFilter(value: 'all' | 'pending' | 'delivered' | 'failed' | 'simulated') {
+  historyFilter.value = value
+  void refreshData()
+}
+
 async function refreshData() {
   loading.value = true
   error.value = ''
   actionError.value = ''
   successMessage.value = ''
   try {
-    const [channelRows, historyRows] = await Promise.all([
+    const [channelRows, historyResponse] = await Promise.all([
       listNotificationChannels(),
-      listNotificationHistory(),
+      listNotificationHistory({
+        status: historyFilter.value,
+        stale_only: staleOnly.value,
+        limit: 20,
+      }),
     ])
     channels.value = channelRows
-    history.value = historyRows
+    history.value = historyResponse.items
+    historySummary.value = historyResponse.summary
     if (!liveCapableChannels.value.find((channel) => channel.channel === selectedLiveChannel.value)) {
       selectedLiveChannel.value = liveCapableChannels.value[0]?.channel ?? ''
     }
@@ -622,6 +834,26 @@ async function handlePollEntry(entry: NotificationHistoryEntry) {
   }
 }
 
+async function handleRetryEntry(entry: NotificationHistoryEntry) {
+  if (!entry.provider_reference) return
+
+  retryingReference.value = entry.provider_reference
+  actionError.value = ''
+  successMessage.value = ''
+  try {
+    await retryNotificationDispatch({
+      channel: entry.channel,
+      provider_reference: entry.provider_reference,
+    })
+    await refreshData()
+    successMessage.value = copy.value.retrySuccess
+  } catch (err) {
+    setActionError(err)
+  } finally {
+    retryingReference.value = null
+  }
+}
+
 onMounted(refreshData)
 </script>
 
@@ -646,5 +878,27 @@ onMounted(refreshData)
   border-radius: 1rem;
   background: #fff;
   padding: 1rem;
+}
+
+.triage-metric {
+  border: 1px solid var(--om-border, #d9e2ec);
+  border-radius: 1rem;
+  background: #fff;
+  padding: 0.85rem 0.9rem;
+}
+
+.triage-metric--warning {
+  border-color: #f0ad4e;
+  background: #fff8eb;
+}
+
+.triage-metric__value {
+  font-size: 1.25rem;
+  font-weight: 700;
+}
+
+.triage-metric__label {
+  color: #6b7280;
+  font-size: 0.8rem;
 }
 </style>

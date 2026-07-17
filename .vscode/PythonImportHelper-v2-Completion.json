@@ -852,6 +852,14 @@
         "documentation": {}
     },
     {
+        "label": "annotations",
+        "importPath": "__future__",
+        "description": "__future__",
+        "isExtraImport": true,
+        "detail": "__future__",
+        "documentation": {}
+    },
+    {
         "label": "asyncio",
         "kind": 6,
         "isExtraImport": true,
@@ -4418,6 +4426,14 @@
         "documentation": {}
     },
     {
+        "label": "Query",
+        "importPath": "fastapi",
+        "description": "fastapi",
+        "isExtraImport": true,
+        "detail": "fastapi",
+        "documentation": {}
+    },
+    {
         "label": "status",
         "importPath": "fastapi",
         "description": "fastapi",
@@ -5250,7 +5266,23 @@
         "documentation": {}
     },
     {
+        "label": "dataclass",
+        "importPath": "dataclasses",
+        "description": "dataclasses",
+        "isExtraImport": true,
+        "detail": "dataclasses",
+        "documentation": {}
+    },
+    {
         "label": "replace",
+        "importPath": "dataclasses",
+        "description": "dataclasses",
+        "isExtraImport": true,
+        "detail": "dataclasses",
+        "documentation": {}
+    },
+    {
+        "label": "dataclass",
         "importPath": "dataclasses",
         "description": "dataclasses",
         "isExtraImport": true,
@@ -6633,6 +6665,14 @@
         "documentation": {}
     },
     {
+        "label": "parse_module_toggles",
+        "importPath": "app.modules.tenancy.module_toggles",
+        "description": "app.modules.tenancy.module_toggles",
+        "isExtraImport": true,
+        "detail": "app.modules.tenancy.module_toggles",
+        "documentation": {}
+    },
+    {
         "label": "is_module_enabled",
         "importPath": "app.modules.tenancy.module_toggles",
         "description": "app.modules.tenancy.module_toggles",
@@ -6662,6 +6702,14 @@
         "description": "app.modules.tenancy.module_toggles",
         "isExtraImport": true,
         "detail": "app.modules.tenancy.module_toggles",
+        "documentation": {}
+    },
+    {
+        "label": "TenancyRepository",
+        "importPath": "app.modules.tenancy.repository",
+        "description": "app.modules.tenancy.repository",
+        "isExtraImport": true,
+        "detail": "app.modules.tenancy.repository",
         "documentation": {}
     },
     {
@@ -7251,6 +7299,30 @@
     },
     {
         "label": "datetime",
+        "importPath": "datetime",
+        "description": "datetime",
+        "isExtraImport": true,
+        "detail": "datetime",
+        "documentation": {}
+    },
+    {
+        "label": "UTC",
+        "importPath": "datetime",
+        "description": "datetime",
+        "isExtraImport": true,
+        "detail": "datetime",
+        "documentation": {}
+    },
+    {
+        "label": "datetime",
+        "importPath": "datetime",
+        "description": "datetime",
+        "isExtraImport": true,
+        "detail": "datetime",
+        "documentation": {}
+    },
+    {
+        "label": "timedelta",
         "importPath": "datetime",
         "description": "datetime",
         "isExtraImport": true,
@@ -8628,6 +8700,94 @@
         "documentation": {}
     },
     {
+        "label": "CAP_AUDIT_READ",
+        "importPath": "app.core.capabilities",
+        "description": "app.core.capabilities",
+        "isExtraImport": true,
+        "detail": "app.core.capabilities",
+        "documentation": {}
+    },
+    {
+        "label": "CAP_DISCIPLINARY_TENANT_READ",
+        "importPath": "app.core.capabilities",
+        "description": "app.core.capabilities",
+        "isExtraImport": true,
+        "detail": "app.core.capabilities",
+        "documentation": {}
+    },
+    {
+        "label": "CAP_DISCIPLINARY_WRITE",
+        "importPath": "app.core.capabilities",
+        "description": "app.core.capabilities",
+        "isExtraImport": true,
+        "detail": "app.core.capabilities",
+        "documentation": {}
+    },
+    {
+        "label": "CAP_DOCUMENTS_WRITE",
+        "importPath": "app.core.capabilities",
+        "description": "app.core.capabilities",
+        "isExtraImport": true,
+        "detail": "app.core.capabilities",
+        "documentation": {}
+    },
+    {
+        "label": "CAP_EVENTS_SPORTS_WRITE",
+        "importPath": "app.core.capabilities",
+        "description": "app.core.capabilities",
+        "isExtraImport": true,
+        "detail": "app.core.capabilities",
+        "documentation": {}
+    },
+    {
+        "label": "CAP_FINANCE_AUDIT",
+        "importPath": "app.core.capabilities",
+        "description": "app.core.capabilities",
+        "isExtraImport": true,
+        "detail": "app.core.capabilities",
+        "documentation": {}
+    },
+    {
+        "label": "CAP_FINANCE_SELF_READ",
+        "importPath": "app.core.capabilities",
+        "description": "app.core.capabilities",
+        "isExtraImport": true,
+        "detail": "app.core.capabilities",
+        "documentation": {}
+    },
+    {
+        "label": "CAP_FINANCE_TENANT_READ",
+        "importPath": "app.core.capabilities",
+        "description": "app.core.capabilities",
+        "isExtraImport": true,
+        "detail": "app.core.capabilities",
+        "documentation": {}
+    },
+    {
+        "label": "CAP_POLICIES_WRITE",
+        "importPath": "app.core.capabilities",
+        "description": "app.core.capabilities",
+        "isExtraImport": true,
+        "detail": "app.core.capabilities",
+        "documentation": {}
+    },
+    {
+        "label": "CAP_TENANT_ADMINISTRATION",
+        "importPath": "app.core.capabilities",
+        "description": "app.core.capabilities",
+        "isExtraImport": true,
+        "detail": "app.core.capabilities",
+        "documentation": {}
+    },
+    {
+        "label": "CAP_ANNOUNCEMENTS_WRITE",
+        "importPath": "app.core.capabilities",
+        "description": "app.core.capabilities",
+        "isExtraImport": true,
+        "detail": "app.core.capabilities",
+        "documentation": {}
+    },
+    {
         "label": "CAP_DISCIPLINARY_TENANT_READ",
         "importPath": "app.core.capabilities",
         "description": "app.core.capabilities",
@@ -9284,6 +9444,14 @@
         "documentation": {}
     },
     {
+        "label": "ChatDomainPolicyResponse",
+        "importPath": "app.modules.chat.schemas",
+        "description": "app.modules.chat.schemas",
+        "isExtraImport": true,
+        "detail": "app.modules.chat.schemas",
+        "documentation": {}
+    },
+    {
         "label": "ChatConversationUpdate",
         "importPath": "app.modules.chat.schemas",
         "description": "app.modules.chat.schemas",
@@ -9325,6 +9493,14 @@
     },
     {
         "label": "ChatConversationResponse",
+        "importPath": "app.modules.chat.schemas",
+        "description": "app.modules.chat.schemas",
+        "isExtraImport": true,
+        "detail": "app.modules.chat.schemas",
+        "documentation": {}
+    },
+    {
+        "label": "ChatDomainPolicyResponse",
         "importPath": "app.modules.chat.schemas",
         "description": "app.modules.chat.schemas",
         "isExtraImport": true,
@@ -10044,6 +10220,14 @@
         "documentation": {}
     },
     {
+        "label": "AuditRepository",
+        "importPath": "app.modules.audit.repository",
+        "description": "app.modules.audit.repository",
+        "isExtraImport": true,
+        "detail": "app.modules.audit.repository",
+        "documentation": {}
+    },
+    {
         "label": "dedent",
         "importPath": "textwrap",
         "description": "textwrap",
@@ -10066,6 +10250,22 @@
         "importPath": "re",
         "description": "re",
         "detail": "re",
+        "documentation": {}
+    },
+    {
+        "label": "ChatDomainPolicy",
+        "importPath": "app.modules.chat.domain_policy",
+        "description": "app.modules.chat.domain_policy",
+        "isExtraImport": true,
+        "detail": "app.modules.chat.domain_policy",
+        "documentation": {}
+    },
+    {
+        "label": "build_chat_domain_policy",
+        "importPath": "app.modules.chat.domain_policy",
+        "description": "app.modules.chat.domain_policy",
+        "isExtraImport": true,
+        "detail": "app.modules.chat.domain_policy",
         "documentation": {}
     },
     {
@@ -11702,7 +11902,7 @@
         "documentation": {}
     },
     {
-        "label": "NotificationHistoryEntry",
+        "label": "NotificationHistoryResponse",
         "importPath": "app.modules.notifications.schemas",
         "description": "app.modules.notifications.schemas",
         "isExtraImport": true,
@@ -11735,6 +11935,22 @@
     },
     {
         "label": "NotificationReconciliationPollResponse",
+        "importPath": "app.modules.notifications.schemas",
+        "description": "app.modules.notifications.schemas",
+        "isExtraImport": true,
+        "detail": "app.modules.notifications.schemas",
+        "documentation": {}
+    },
+    {
+        "label": "NotificationRetryRequest",
+        "importPath": "app.modules.notifications.schemas",
+        "description": "app.modules.notifications.schemas",
+        "isExtraImport": true,
+        "detail": "app.modules.notifications.schemas",
+        "documentation": {}
+    },
+    {
+        "label": "NotificationRetryResponse",
         "importPath": "app.modules.notifications.schemas",
         "description": "app.modules.notifications.schemas",
         "isExtraImport": true,
@@ -11790,6 +12006,22 @@
         "documentation": {}
     },
     {
+        "label": "NotificationHistoryResponse",
+        "importPath": "app.modules.notifications.schemas",
+        "description": "app.modules.notifications.schemas",
+        "isExtraImport": true,
+        "detail": "app.modules.notifications.schemas",
+        "documentation": {}
+    },
+    {
+        "label": "NotificationHistorySummary",
+        "importPath": "app.modules.notifications.schemas",
+        "description": "app.modules.notifications.schemas",
+        "isExtraImport": true,
+        "detail": "app.modules.notifications.schemas",
+        "documentation": {}
+    },
+    {
         "label": "NotificationReconciliationCallbackRequest",
         "importPath": "app.modules.notifications.schemas",
         "description": "app.modules.notifications.schemas",
@@ -11815,6 +12047,22 @@
     },
     {
         "label": "NotificationReconciliationPollResponse",
+        "importPath": "app.modules.notifications.schemas",
+        "description": "app.modules.notifications.schemas",
+        "isExtraImport": true,
+        "detail": "app.modules.notifications.schemas",
+        "documentation": {}
+    },
+    {
+        "label": "NotificationRetryRequest",
+        "importPath": "app.modules.notifications.schemas",
+        "description": "app.modules.notifications.schemas",
+        "isExtraImport": true,
+        "detail": "app.modules.notifications.schemas",
+        "documentation": {}
+    },
+    {
+        "label": "NotificationRetryResponse",
         "importPath": "app.modules.notifications.schemas",
         "description": "app.modules.notifications.schemas",
         "isExtraImport": true,
@@ -15056,6 +15304,78 @@
         "documentation": {}
     },
     {
+        "label": "ChatDomainPolicy",
+        "kind": 6,
+        "importPath": "services.api.app.modules.chat.domain_policy",
+        "description": "services.api.app.modules.chat.domain_policy",
+        "peekOfCode": "class ChatDomainPolicy:\n    member_finance: bool\n    tenant_finance: bool\n    governance: bool\n    publication: bool\n    disciplinary: bool\n    sports: bool\n    def allowed_domains(self) -> list[str]:\n        domains: list[str] = []\n        if self.member_finance:",
+        "detail": "services.api.app.modules.chat.domain_policy",
+        "documentation": {}
+    },
+    {
+        "label": "build_chat_domain_policy",
+        "kind": 2,
+        "importPath": "services.api.app.modules.chat.domain_policy",
+        "description": "services.api.app.modules.chat.domain_policy",
+        "peekOfCode": "def build_chat_domain_policy(\n    *,\n    capabilities: tuple[str, ...],\n    tenant_settings_json: dict | None,\n) -> ChatDomainPolicy:\n    modules = parse_module_toggles(tenant_settings_json)\n    membership_and_contributions = modules[\"membership\"] and modules[\"contributions\"]\n    member_finance = CAP_FINANCE_SELF_READ in capabilities and membership_and_contributions\n    tenant_finance = (\n        any(",
+        "detail": "services.api.app.modules.chat.domain_policy",
+        "documentation": {}
+    },
+    {
+        "label": "DOMAIN_MEMBER_FINANCE",
+        "kind": 5,
+        "importPath": "services.api.app.modules.chat.domain_policy",
+        "description": "services.api.app.modules.chat.domain_policy",
+        "peekOfCode": "DOMAIN_MEMBER_FINANCE = \"member_finance\"\nDOMAIN_TENANT_FINANCE = \"tenant_finance\"\nDOMAIN_GOVERNANCE = \"governance\"\nDOMAIN_PUBLICATION = \"publication\"\nDOMAIN_DISCIPLINARY = \"disciplinary\"\nDOMAIN_SPORTS = \"sports\"\n@dataclass(frozen=True)\nclass ChatDomainPolicy:\n    member_finance: bool\n    tenant_finance: bool",
+        "detail": "services.api.app.modules.chat.domain_policy",
+        "documentation": {}
+    },
+    {
+        "label": "DOMAIN_TENANT_FINANCE",
+        "kind": 5,
+        "importPath": "services.api.app.modules.chat.domain_policy",
+        "description": "services.api.app.modules.chat.domain_policy",
+        "peekOfCode": "DOMAIN_TENANT_FINANCE = \"tenant_finance\"\nDOMAIN_GOVERNANCE = \"governance\"\nDOMAIN_PUBLICATION = \"publication\"\nDOMAIN_DISCIPLINARY = \"disciplinary\"\nDOMAIN_SPORTS = \"sports\"\n@dataclass(frozen=True)\nclass ChatDomainPolicy:\n    member_finance: bool\n    tenant_finance: bool\n    governance: bool",
+        "detail": "services.api.app.modules.chat.domain_policy",
+        "documentation": {}
+    },
+    {
+        "label": "DOMAIN_GOVERNANCE",
+        "kind": 5,
+        "importPath": "services.api.app.modules.chat.domain_policy",
+        "description": "services.api.app.modules.chat.domain_policy",
+        "peekOfCode": "DOMAIN_GOVERNANCE = \"governance\"\nDOMAIN_PUBLICATION = \"publication\"\nDOMAIN_DISCIPLINARY = \"disciplinary\"\nDOMAIN_SPORTS = \"sports\"\n@dataclass(frozen=True)\nclass ChatDomainPolicy:\n    member_finance: bool\n    tenant_finance: bool\n    governance: bool\n    publication: bool",
+        "detail": "services.api.app.modules.chat.domain_policy",
+        "documentation": {}
+    },
+    {
+        "label": "DOMAIN_PUBLICATION",
+        "kind": 5,
+        "importPath": "services.api.app.modules.chat.domain_policy",
+        "description": "services.api.app.modules.chat.domain_policy",
+        "peekOfCode": "DOMAIN_PUBLICATION = \"publication\"\nDOMAIN_DISCIPLINARY = \"disciplinary\"\nDOMAIN_SPORTS = \"sports\"\n@dataclass(frozen=True)\nclass ChatDomainPolicy:\n    member_finance: bool\n    tenant_finance: bool\n    governance: bool\n    publication: bool\n    disciplinary: bool",
+        "detail": "services.api.app.modules.chat.domain_policy",
+        "documentation": {}
+    },
+    {
+        "label": "DOMAIN_DISCIPLINARY",
+        "kind": 5,
+        "importPath": "services.api.app.modules.chat.domain_policy",
+        "description": "services.api.app.modules.chat.domain_policy",
+        "peekOfCode": "DOMAIN_DISCIPLINARY = \"disciplinary\"\nDOMAIN_SPORTS = \"sports\"\n@dataclass(frozen=True)\nclass ChatDomainPolicy:\n    member_finance: bool\n    tenant_finance: bool\n    governance: bool\n    publication: bool\n    disciplinary: bool\n    sports: bool",
+        "detail": "services.api.app.modules.chat.domain_policy",
+        "documentation": {}
+    },
+    {
+        "label": "DOMAIN_SPORTS",
+        "kind": 5,
+        "importPath": "services.api.app.modules.chat.domain_policy",
+        "description": "services.api.app.modules.chat.domain_policy",
+        "peekOfCode": "DOMAIN_SPORTS = \"sports\"\n@dataclass(frozen=True)\nclass ChatDomainPolicy:\n    member_finance: bool\n    tenant_finance: bool\n    governance: bool\n    publication: bool\n    disciplinary: bool\n    sports: bool\n    def allowed_domains(self) -> list[str]:",
+        "detail": "services.api.app.modules.chat.domain_policy",
+        "documentation": {}
+    },
+    {
         "label": "ChatConversation",
         "kind": 6,
         "importPath": "services.api.app.modules.chat.models",
@@ -15303,7 +15623,16 @@
         "kind": 6,
         "importPath": "services.api.app.modules.chat.schemas",
         "description": "services.api.app.modules.chat.schemas",
-        "peekOfCode": "class ChatQueryResponse(BaseModel):\n    answer: str\n    conversation_id: UUID | None = None\n    citations: list[ChatCitationResponse] = Field(default_factory=list)\n    source_types: list[str] = Field(default_factory=list)\n    confidence: float = Field(ge=0.0, le=1.0)\n    refused: bool = False\n    refusal_reason: str | None = None\nclass ChatQueryLogResponse(BaseModel):\n    id: UUID",
+        "peekOfCode": "class ChatQueryResponse(BaseModel):\n    answer: str\n    conversation_id: UUID | None = None\n    citations: list[ChatCitationResponse] = Field(default_factory=list)\n    source_types: list[str] = Field(default_factory=list)\n    confidence: float = Field(ge=0.0, le=1.0)\n    refused: bool = False\n    refusal_reason: str | None = None\nclass ChatDomainPolicyResponse(BaseModel):\n    allowed_domains: list[str] = Field(default_factory=list)",
+        "detail": "services.api.app.modules.chat.schemas",
+        "documentation": {}
+    },
+    {
+        "label": "ChatDomainPolicyResponse",
+        "kind": 6,
+        "importPath": "services.api.app.modules.chat.schemas",
+        "description": "services.api.app.modules.chat.schemas",
+        "peekOfCode": "class ChatDomainPolicyResponse(BaseModel):\n    allowed_domains: list[str] = Field(default_factory=list)\nclass ChatQueryLogResponse(BaseModel):\n    id: UUID\n    tenant_id: UUID\n    user_id: UUID\n    question_preview: str\n    answer_preview: str\n    refused: bool\n    refusal_reason_preview: str | None",
         "detail": "services.api.app.modules.chat.schemas",
         "documentation": {}
     },
@@ -16622,6 +16951,24 @@
         "documentation": {}
     },
     {
+        "label": "NotificationHistorySummary",
+        "kind": 6,
+        "importPath": "services.api.app.modules.notifications.schemas",
+        "description": "services.api.app.modules.notifications.schemas",
+        "peekOfCode": "class NotificationHistorySummary(BaseModel):\n    total: int\n    pending: int\n    delivered: int\n    failed: int\n    simulated: int\n    stale_pending: int\nclass NotificationHistoryResponse(BaseModel):\n    items: list[NotificationHistoryEntry]\n    summary: NotificationHistorySummary",
+        "detail": "services.api.app.modules.notifications.schemas",
+        "documentation": {}
+    },
+    {
+        "label": "NotificationHistoryResponse",
+        "kind": 6,
+        "importPath": "services.api.app.modules.notifications.schemas",
+        "description": "services.api.app.modules.notifications.schemas",
+        "peekOfCode": "class NotificationHistoryResponse(BaseModel):\n    items: list[NotificationHistoryEntry]\n    summary: NotificationHistorySummary\nclass NotificationReconciliationCallbackRequest(BaseModel):\n    tenant_id: UUID\n    channel: str = Field(min_length=1, max_length=50)\n    provider_reference: str = Field(min_length=1, max_length=255)\n    delivery_stage: Literal[\"delivered\", \"failed\"]\n    provider_message: str | None = Field(default=None, max_length=4000)\n    external_status: str | None = Field(default=None, max_length=100)",
+        "detail": "services.api.app.modules.notifications.schemas",
+        "documentation": {}
+    },
+    {
         "label": "NotificationReconciliationCallbackRequest",
         "kind": 6,
         "importPath": "services.api.app.modules.notifications.schemas",
@@ -16653,7 +17000,25 @@
         "kind": 6,
         "importPath": "services.api.app.modules.notifications.schemas",
         "description": "services.api.app.modules.notifications.schemas",
-        "peekOfCode": "class NotificationReconciliationPollResponse(BaseModel):\n    channel: str\n    provider_reference: str\n    delivery_stage: str\n    reconciliation_status: str\n    updated: bool\n    provider_message: str\n    external_status: str | None = None\nclass NotificationTestResponse(BaseModel):\n    results: list[NotificationDispatchResponse]",
+        "peekOfCode": "class NotificationReconciliationPollResponse(BaseModel):\n    channel: str\n    provider_reference: str\n    delivery_stage: str\n    reconciliation_status: str\n    updated: bool\n    provider_message: str\n    external_status: str | None = None\nclass NotificationRetryRequest(BaseModel):\n    channel: str = Field(min_length=1, max_length=50)",
+        "detail": "services.api.app.modules.notifications.schemas",
+        "documentation": {}
+    },
+    {
+        "label": "NotificationRetryRequest",
+        "kind": 6,
+        "importPath": "services.api.app.modules.notifications.schemas",
+        "description": "services.api.app.modules.notifications.schemas",
+        "peekOfCode": "class NotificationRetryRequest(BaseModel):\n    channel: str = Field(min_length=1, max_length=50)\n    provider_reference: str = Field(min_length=1, max_length=255)\nclass NotificationRetryResponse(BaseModel):\n    source_provider_reference: str\n    dispatch: NotificationDispatchResponse\nclass NotificationTestResponse(BaseModel):\n    results: list[NotificationDispatchResponse]",
+        "detail": "services.api.app.modules.notifications.schemas",
+        "documentation": {}
+    },
+    {
+        "label": "NotificationRetryResponse",
+        "kind": 6,
+        "importPath": "services.api.app.modules.notifications.schemas",
+        "description": "services.api.app.modules.notifications.schemas",
+        "peekOfCode": "class NotificationRetryResponse(BaseModel):\n    source_provider_reference: str\n    dispatch: NotificationDispatchResponse\nclass NotificationTestResponse(BaseModel):\n    results: list[NotificationDispatchResponse]",
         "detail": "services.api.app.modules.notifications.schemas",
         "documentation": {}
     },
@@ -16667,11 +17032,20 @@
         "documentation": {}
     },
     {
+        "label": "_RawNotificationAuditEvent",
+        "kind": 6,
+        "importPath": "services.api.app.modules.notifications.service",
+        "description": "services.api.app.modules.notifications.service",
+        "peekOfCode": "class _RawNotificationAuditEvent:\n    id: object\n    action: str\n    entity_id: str | None\n    details: dict[str, object]\n    created_at: datetime\nclass NotificationService:\n    STALE_PENDING_AFTER = timedelta(minutes=30)\n    def __init__(\n        self,",
+        "detail": "services.api.app.modules.notifications.service",
+        "documentation": {}
+    },
+    {
         "label": "NotificationService",
         "kind": 6,
         "importPath": "services.api.app.modules.notifications.service",
         "description": "services.api.app.modules.notifications.service",
-        "peekOfCode": "class NotificationService:\n    def __init__(\n        self,\n        providers: list[NotificationProvider],\n        db: AsyncSession | None = None,\n        audit: AuditService | None = None,\n    ) -> None:\n        self._providers = providers\n        self._provider_map = {provider.channel: provider for provider in providers}\n        self._db = db",
+        "peekOfCode": "class NotificationService:\n    STALE_PENDING_AFTER = timedelta(minutes=30)\n    def __init__(\n        self,\n        providers: list[NotificationProvider],\n        db: AsyncSession | None = None,\n        audit: AuditService | None = None,\n    ) -> None:\n        self._providers = providers\n        self._provider_map = {provider.channel: provider for provider in providers}",
         "detail": "services.api.app.modules.notifications.service",
         "documentation": {}
     },
@@ -16950,7 +17324,7 @@
         "kind": 2,
         "importPath": "services.api.app.modules.tenancy.module_toggles",
         "description": "services.api.app.modules.tenancy.module_toggles",
-        "peekOfCode": "def default_module_toggles() -> dict[str, bool]:\n    return {m: True for m in ALL_MODULES}\ndef parse_module_toggles(settings_json: dict[str, Any] | None) -> dict[str, bool]:\n    \"\"\"\n    Extract module toggles from a tenant's settings_json.\n    Returns full default set when settings_json is empty or missing modules key.\n    \"\"\"\n    if not settings_json:\n        return default_module_toggles()\n    modules = settings_json.get(\"modules\", {})",
+        "peekOfCode": "def default_module_toggles() -> dict[str, bool]:\n    return {m: True for m in ALL_MODULES}\ndef parse_module_toggles(settings_json: dict[str, Any] | str | None) -> dict[str, bool]:\n    \"\"\"\n    Extract module toggles from a tenant's settings_json.\n    Returns full default set when settings_json is empty or missing modules key.\n    \"\"\"\n    if not settings_json:\n        return default_module_toggles()\n    if isinstance(settings_json, str):",
         "detail": "services.api.app.modules.tenancy.module_toggles",
         "documentation": {}
     },
@@ -16959,7 +17333,7 @@
         "kind": 2,
         "importPath": "services.api.app.modules.tenancy.module_toggles",
         "description": "services.api.app.modules.tenancy.module_toggles",
-        "peekOfCode": "def parse_module_toggles(settings_json: dict[str, Any] | None) -> dict[str, bool]:\n    \"\"\"\n    Extract module toggles from a tenant's settings_json.\n    Returns full default set when settings_json is empty or missing modules key.\n    \"\"\"\n    if not settings_json:\n        return default_module_toggles()\n    modules = settings_json.get(\"modules\", {})\n    if not isinstance(modules, dict):\n        return default_module_toggles()",
+        "peekOfCode": "def parse_module_toggles(settings_json: dict[str, Any] | str | None) -> dict[str, bool]:\n    \"\"\"\n    Extract module toggles from a tenant's settings_json.\n    Returns full default set when settings_json is empty or missing modules key.\n    \"\"\"\n    if not settings_json:\n        return default_module_toggles()\n    if isinstance(settings_json, str):\n        try:\n            parsed = json.loads(settings_json)",
         "detail": "services.api.app.modules.tenancy.module_toggles",
         "documentation": {}
     },

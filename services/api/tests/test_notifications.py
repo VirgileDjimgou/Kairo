@@ -381,8 +381,12 @@ async def test_admin_can_review_notification_history_with_reconciliation_metadat
     assert live.status_code == 200, live.text
     assert simulated.status_code == 200, simulated.text
     assert history.status_code == 200, history.text
-    rows = history.json()
+    payload = history.json()
+    rows = payload["items"]
     assert len(rows) == 2
+    assert payload["summary"]["total"] == 2
+    assert payload["summary"]["pending"] == 1
+    assert payload["summary"]["simulated"] == 1
     by_action = {row["action"]: row for row in rows}
     assert by_action["notification_test"]["channel"] == "telegram"
     assert by_action["notification_test"]["delivery_stage"] == "simulated"
@@ -452,7 +456,7 @@ async def test_provider_callback_can_mark_live_notification_as_delivered(
     assert dispatch.status_code == 200, dispatch.text
     assert callback.status_code == 200, callback.text
     assert history.status_code == 200, history.text
-    row = history.json()[0]
+    row = history.json()["items"][0]
     assert row["channel"] == "whatsapp"
     assert row["delivery_stage"] == "delivered"
     assert row["reconciliation_status"] == "delivered"
@@ -532,7 +536,7 @@ async def test_provider_callback_is_replay_safe_for_identical_final_state(
     assert second_callback.status_code == 200, second_callback.text
     assert second_callback.json()["updated"] is False
     assert history.status_code == 200, history.text
-    rows = history.json()
+    rows = history.json()["items"]
     assert len(rows) == 1
     assert rows[0]["delivery_stage"] == "delivered"
 
@@ -596,10 +600,99 @@ async def test_admin_can_poll_pending_whatsapp_notification_to_final_state(
     assert polled.json()["updated"] is True
     assert provider.polled_references == ["wa-poll-ref"]
     assert history.status_code == 200, history.text
-    row = history.json()[0]
+    row = history.json()["items"][0]
     assert row["delivery_stage"] == "delivered"
     assert row["message"] == "Gateway poll confirmed final delivery."
     assert row["polling_supported"] is True
+
+
+@pytest.mark.asyncio
+async def test_history_supports_failed_filter_and_retry_flow(
+    client: AsyncClient,
+    db_session: AsyncSession,
+) -> None:
+    from app.core.dependencies import get_notification_providers
+    from app.main import app
+
+    ctx = await create_tenant_with_user(db_session, f"notif-retry-{_uuid.uuid4().hex[:6]}")
+    token = await login(client, ctx["user"].email, ctx["password"], tenant_slug=ctx["tenant"].slug)
+    failed_provider = FakeEmailNotificationProvider(
+        configured=True,
+        status="failed",
+        delivered=False,
+        simulation_only=False,
+        message="SMTP rejected the notification.",
+        provider_reference="email-failed-ref",
+    )
+    retry_provider = FakeEmailNotificationProvider(
+        configured=True,
+        status="sent",
+        delivered=True,
+        simulation_only=False,
+        message="SMTP accepted the retried notification.",
+        provider_reference="email-retry-ref",
+    )
+    current_provider = failed_provider
+    app.dependency_overrides[get_notification_providers] = lambda: [current_provider]
+
+    try:
+        dispatch = await client.post(
+            "/api/v1/notifications/dispatch",
+            headers={"Authorization": f"Bearer {token}"},
+            json={
+                "channel": "email",
+                "recipient": "ops@example.org",
+                "subject": "Retry me",
+                "body": "First delivery failed and should be retried safely.",
+            },
+        )
+        failed_history = await client.get(
+            "/api/v1/notifications/history?status=failed",
+            headers={"Authorization": f"Bearer {token}"},
+        )
+        current_provider = retry_provider
+        retried = await client.post(
+            "/api/v1/notifications/retry",
+            headers={"Authorization": f"Bearer {token}"},
+            json={
+                "channel": "email",
+                "provider_reference": "email-failed-ref",
+            },
+        )
+        second_retry = await client.post(
+            "/api/v1/notifications/retry",
+            headers={"Authorization": f"Bearer {token}"},
+            json={
+                "channel": "email",
+                "provider_reference": "email-failed-ref",
+            },
+        )
+        history = await client.get(
+            "/api/v1/notifications/history",
+            headers={"Authorization": f"Bearer {token}"},
+        )
+    finally:
+        app.dependency_overrides.pop(get_notification_providers, None)
+
+    assert dispatch.status_code == 200, dispatch.text
+    assert failed_history.status_code == 200, failed_history.text
+    failed_payload = failed_history.json()
+    assert failed_payload["summary"]["failed"] == 1
+    assert len(failed_payload["items"]) == 1
+    assert failed_payload["items"][0]["retry_eligible"] is True
+    assert retried.status_code == 200, retried.text
+    assert retried.json()["source_provider_reference"] == "email-failed-ref"
+    assert retried.json()["dispatch"]["provider_reference"] == "email-retry-ref"
+    assert retry_provider.calls[0]["recipient"] == "ops@example.org"
+    assert retry_provider.calls[0]["subject"] == "Retry me"
+    assert retry_provider.calls[0]["body"] == "First delivery failed and should be retried safely."
+    assert second_retry.status_code == 409
+    assert "already been retried" in second_retry.json()["detail"]
+    assert history.status_code == 200, history.text
+    rows = history.json()["items"]
+    by_action = {row["action"]: row for row in rows}
+    assert by_action["notification_retry"]["retry_source_provider_reference"] == "email-failed-ref"
+    assert by_action["notification_dispatch"]["retry_eligible"] is False
 
 
 @pytest.mark.asyncio
