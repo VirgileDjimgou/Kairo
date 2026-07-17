@@ -3544,7 +3544,7 @@ Completed implementation:
 
 ## Sprint 85 - Notification Reconciliation Polling And Replay-Safety Baseline
 
-Status: Planned
+Status: Completed
 
 Goal:
 Harden the new reconciliation seam with replay-safe update rules and one controlled polling path for providers or gateways that cannot push trustworthy callbacks reliably.
@@ -3561,6 +3561,35 @@ Deliverables:
 - one backend-owned polling seam for providers that support status lookup instead of callbacks
 - targeted operator visibility for stale pending deliveries that may need refresh
 - regression coverage and documentation for replay safety plus controlled polling behavior
+
+Completed implementation:
+
+- Added replay-safe reconciliation handling so duplicate final-state callbacks for the same tenant, channel, and provider reference now return `updated=false` instead of duplicating backend audit evidence
+- Added conflict protection so a mismatched second final-state update for an already reconciled dispatch is rejected instead of overwriting trusted history
+- Added `POST /api/v1/notifications/reconciliation/poll` for tenant-admin and principal-admin users, keeping status lookup strictly backend-owned and tenant-scoped
+- Extended the notification provider contract with a delivery-status lookup seam and activated controlled polling for the gateway-backed WhatsApp path
+- Extended notification channel, dispatch, and history payloads with `polling_supported`, then updated the admin notifications workspace so operators can refresh still-pending deliveries directly from audited history when a provider supports it
+- Added backend regression coverage for replay-safe callbacks, successful polling to a final delivered state, and clean rejection for channels that do not support polling
+- Verified: `python -m pytest services/api/tests/test_notifications.py -q` (22 passed), `npm run type-check`, and `npm run build` all green
+
+## Sprint 86 - Notification Reconciliation Operations And Stale-Delivery Triage Baseline
+
+Status: Planned
+
+Goal:
+Turn the new replay-safe and pollable reconciliation seam into a clearer operator workflow for stale pending or failed deliveries without widening the permission surface.
+
+Why this sprint next:
+
+- Sprint 85 closed the transport-level trust gap by making reconciliation idempotent and pollable, but the operator surface still treats pending and failed deliveries as a flat history list.
+- The next smallest coherent increment is to improve triage and retry ergonomics within the same module instead of branching into unrelated product areas.
+- This keeps the work bounded, testable, and aligned with the association-facing operator maturity track.
+
+Deliverables:
+
+- clearer operator filters or summary cues for pending, delivered, and failed notification outcomes
+- safe retry or replay tooling for eligible failed deliveries, enforced entirely in the backend
+- additional regression coverage and continuity docs for operator triage flows
 
 ## Roadmap Status
 
@@ -3584,13 +3613,13 @@ Sprint 68 is now complete.
 
 Sprint 69 is now complete.
 
-Sprint 72, Sprint 73, Sprint 74, Sprint 75, Sprint 76, Sprint 77, Sprint 78, Sprint 79, Sprint 80, Sprint 81, Sprint 82, Sprint 83, and Sprint 84 are now complete. Sprint 72 and Sprint 73 closed the stabilization and open-source maturity track; Sprint 74 through Sprint 78 completed the broader recovery UX rollout, Sprint 79 started the next theme by making the notifications module partially real through SMTP-backed email dispatch, Sprint 80 packaged the existing observability signals into a reusable operator monitoring baseline, Sprint 81 added Telegram as a second real operator-usable notification channel, Sprint 82 added a gateway-backed WhatsApp live path, Sprint 83 added the acceptance-level reconciliation and audit baseline, and Sprint 84 added a secure provider callback seam with final-state history merging for the live multi-channel notification surface.
+Sprint 72, Sprint 73, Sprint 74, Sprint 75, Sprint 76, Sprint 77, Sprint 78, Sprint 79, Sprint 80, Sprint 81, Sprint 82, Sprint 83, Sprint 84, and Sprint 85 are now complete. Sprint 72 and Sprint 73 closed the stabilization and open-source maturity track; Sprint 74 through Sprint 78 completed the broader recovery UX rollout, Sprint 79 started the next theme by making the notifications module partially real through SMTP-backed email dispatch, Sprint 80 packaged the existing observability signals into a reusable operator monitoring baseline, Sprint 81 added Telegram as a second real operator-usable notification channel, Sprint 82 added a gateway-backed WhatsApp live path, Sprint 83 added the acceptance-level reconciliation and audit baseline, Sprint 84 added a secure provider callback seam with final-state history merging for the live multi-channel notification surface, and Sprint 85 added replay-safe reconciliation updates plus a backend-owned polling fallback for pending deliveries.
 
 Execution window:
 
-- Sprint 72 through Sprint 84.
+- Sprint 72 through Sprint 85.
 
-Estimated additional sprints required from the current state: 0 for the stabilization track; the new planning cycle now moves from recovery UX and live notification channels to the remaining `docs/OPEN_SOURCE_RELEASE.md` themes, continuing with replay-safe and pollable final-state reconciliation.
+Estimated additional sprints required from the current state: 0 for the stabilization track; the new planning cycle now moves from recovery UX and live notification channels to operator triage and retry maturity on top of the replay-safe, pollable reconciliation baseline.
 
 Validation after this track should cover:
 

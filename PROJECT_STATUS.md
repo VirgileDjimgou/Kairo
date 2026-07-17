@@ -1,18 +1,18 @@
 # Project Status
 
-Last updated: 2026-07-16
+Last updated: 2026-07-17
 
 ## Current Sprint
 
-Sprint 84 - Notification Provider Callback And Final-State Reconciliation Baseline
+Sprint 85 - Notification Reconciliation Polling And Replay-Safety Baseline
 
 Status: Completed
 
 ## Official Next Sprint
 
-Sprint 85 - Notification Reconciliation Polling And Replay-Safety Baseline
+Sprint 86 - Notification Reconciliation Operations And Stale-Delivery Triage Baseline
 
-Harden the reconciliation seam with replay-safe update rules and one controlled polling path so providers without reliable callbacks can still progress live notifications beyond `pending` safely.
+Turn the now replay-safe and pollable reconciliation seam into a clearer operator workflow with better triage visibility for pending or failed deliveries, while keeping backend-owned authorization and tenant isolation intact.
 
 Status: Planned
 
@@ -21,7 +21,7 @@ Status: Planned
 - Target outcome: a stable, professional, mature open-source association-management product with secure role-aware workspaces and a trustworthy chatbot
 - Intended operational scope: usable by an association or organization of about 200 members with differentiated office roles
 - Remaining planned execution window: 1
-- Delivery status: Sprint 73 (open-source maturity track) complete; Sprint 74 through Sprint 78 completed the currently identified broader recovery UX rollout across the role workspaces, Sprint 79 added the first real operator-usable notification path, Sprint 80 packaged the existing observability signals into a reusable monitoring baseline, Sprint 81 added Telegram as a second real operator-usable notification channel, Sprint 82 added a gateway-backed WhatsApp live path, Sprint 83 added audited delivery-stage evidence plus a tenant-scoped notification history baseline, and Sprint 84 added a secure provider callback seam with final-state reconciliation updates
+- Delivery status: Sprint 73 (open-source maturity track) complete; Sprint 74 through Sprint 78 completed the currently identified broader recovery UX rollout across the role workspaces, Sprint 79 added the first real operator-usable notification path, Sprint 80 packaged the existing observability signals into a reusable monitoring baseline, Sprint 81 added Telegram as a second real operator-usable notification channel, Sprint 82 added a gateway-backed WhatsApp live path, Sprint 83 added audited delivery-stage evidence plus a tenant-scoped notification history baseline, Sprint 84 added a secure provider callback seam with final-state reconciliation updates, and Sprint 85 added replay-safe final-state handling plus a backend-owned polling fallback for pending live deliveries
 
 ## Source Of Truth
 
@@ -70,7 +70,7 @@ Status: Planned
   - commercial offer pack, buyer FAQ, support-boundary guidance, and first-contact commercial reading order
   - post-Sprint-63 stabilization now keeps the login language choice across the authenticated session, extends chat finance/privacy guards to French and German phrasing, and includes refreshed role screenshots under `apps/web/artifacts/manual-role-checks/2026-07-07/`
 - Main gaps before the target product is mature:
-- email, Telegram, and WhatsApp now expose callback-updated final-state evidence where a trusted bridge reports back, but replay safety and a controlled polling fallback still need a follow-up sprint
+  - email, Telegram, and WhatsApp now expose replay-safe callback or polling-based reconciliation evidence, but operators still need a cleaner triage layer for stale pending and failed deliveries
   - chat orchestration is now safer to extend, but the newer seams still need broader rollout if we later split retrieval and policy evaluation further
   - backup, restore, and alert posture are now visible in-product through the new health center and settings surfaces
   - deployment packaging and commercial handoff are now documented, while archive-import validation evidence and any future positioning changes should be treated as a new planning cycle
@@ -79,7 +79,7 @@ Status: Planned
 
 - Kairo is usable as a controlled production release candidate for disciplined self-hosting or pilot deployments.
 - Kairo remains a strong association-focused pilot and disciplined self-hosted release candidate.
-- The next planned track is focused on stabilization, multilingual polish, quality gates, retrieval maturity, and open-source publication readiness rather than broad new feature expansion.
+- The next planned track remains focused on disciplined operator maturity inside the notifications surface before any broader feature expansion.
 
 ## Completed
 

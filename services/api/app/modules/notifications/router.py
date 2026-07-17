@@ -17,6 +17,8 @@ from app.modules.notifications.schemas import (
     NotificationHistoryEntry,
     NotificationReconciliationCallbackRequest,
     NotificationReconciliationCallbackResponse,
+    NotificationReconciliationPollRequest,
+    NotificationReconciliationPollResponse,
     NotificationTestRequest,
     NotificationTestResponse,
 )
@@ -122,3 +124,26 @@ async def receive_notification_reconciliation_callback(
 
     service = NotificationService(notifications, db=db, audit=AuditService(db))
     return await service.record_provider_reconciliation(payload=payload)
+
+
+@router.post(
+    "/reconciliation/poll",
+    response_model=NotificationReconciliationPollResponse,
+)
+async def poll_notification_reconciliation(
+    payload: NotificationReconciliationPollRequest,
+    current: AuthDep,
+    db: DbDep,
+    notifications: NotificationsDep,
+) -> NotificationReconciliationPollResponse:
+    require_capability(
+        current,
+        CAP_TENANT_ADMINISTRATION,
+        detail="Tenant administration capability required",
+    )
+    service = NotificationService(notifications, db=db, audit=AuditService(db))
+    return await service.poll_provider_reconciliation(
+        tenant_id=current.tenant_id,
+        actor_user_id=current.user.id,
+        payload=payload,
+    )

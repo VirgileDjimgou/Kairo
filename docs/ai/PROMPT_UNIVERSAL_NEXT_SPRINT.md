@@ -1,20 +1,13 @@
-# Universal Prompt For The Next Sprint
+# Compatibility Prompt Pointer
 
-This file is kept for compatibility.
+This file is kept only for compatibility with older references.
 
-Use the portable handoff prompt in `prompts/KAIRO_CONTINUE_UNIVERSAL.md`.
+The former content was obsolete and pointed to pre-Sprint-55 continuity state.
 
-Current state:
+Use one of these instead:
 
-- the historical professional association maturity track is complete
-- Sprint 52 closed the release-candidate hardening pass
-- a new short post-release hardening roadmap is now defined
-- Sprint 53 - Production Communications And Identity Delivery is complete
-- the next sprint is Sprint 54 - Member Renewal, Reminder, And Collections Automation
+1. `prompts/KAIRO_CONTINUE_UNIVERSAL.md` for the full canonical execution prompt
+2. `prompts/KAIRO_UNIVERSAL_COMPACT.md` for a compact continuation prompt
+3. `docs/ai/README.md` for the current continuity hub and authoritative read order
 
-Before implementation, always keep these files aligned:
-
-1. `IMPLEMENTATION_ROADMAP.md`
-2. `PROJECT_STATUS.md`
-3. `docs/ai/NEXT_SPRINT.md`
-4. `docs/ai/PROJECT_STATE.md`
+Current verified continuity date: 2026-07-17.

@@ -315,43 +315,20 @@ On Windows PowerShell:
 .\seed\seed-multi-tenant.ps1
 ```
 
-## Delivery Status (Validated 2026-07-16)
+## Delivery Status
 
-- Current sprint: **Sprint 77 completed** (Broader Recovery UX Rollout: Secretary Announcements + Tenant Operations)
-- Stabilization and open-source maturity track: **complete** — see `docs/OPEN_SOURCE_RELEASE.md` for the verified baseline, known limits, and next planning cycle
-- New planning cycle status:
-  - Sprint 74 completed for Censor + Sports recovery UX rollout
-  - Sprint 75 completed for Auditor + Governance recovery UX rollout
-  - Sprint 76 completed for Secretary Documents + Principal Admin Overview recovery UX rollout
-  - Sprint 77 completed for Secretary Announcements + Tenant Operations recovery UX rollout
-  - Next likely increment: continue the shared recovery UX rollout to `secretary/policies`, `admin/health`, `admin/onboarding`, and `admin/settings`, or pick another `docs/OPEN_SOURCE_RELEASE.md` theme
-- Production packaging validation:
-  - `bash scripts/deploy_release.sh preflight` passed against a production-oriented environment file
-  - `docker compose --env-file .env.production.codex -f docker-compose.yml -f docker-compose.prod.yml config` rendered successfully
-  - `docker compose --env-file .env.production.codex -f docker-compose.yml -f docker-compose.prod.yml build api web` completed successfully
-- Frontend production build remains healthy inside the production image pipeline
-- Validation baseline recovery:
-  - `python -m pytest services/api/tests -q` passed from the repository root
-  - `python -m ruff check` now has an active blocking subset for shared auth, RAG policy, and key chat/governance tests
-  - `python -m mypy --config-file services/api/pyproject.toml --explicit-package-bases ...` is operational on the initial backend typing subset
-  - `npm run test:e2e:locale` passed and the Playwright web-server launcher is now portable across Windows and Linux CI
-- Chat modularization recovery:
-  - prompt construction and retrieval-query shaping now live in dedicated chat helper modules
-  - citation/context payload assembly is separated from the main chat service orchestration path
-  - `query` and `query-stream` now share the same preparation path for policy refusals, no-source refusals, prompts, citations, and confidence
-  - stream queries without authorized sources now stop before the LLM, matching the non-streaming safety contract
-- Retrieval quality hardening:
-  - the shipped retrieval contract is now explicit as dense retrieval with lexical keyword boosting, language-aware ordering, and optional reranking
-  - backend retrieval logs now summarize retrieval mode, candidate counts, authorized counts, and returned counts for chat flows
-  - targeted ranking regressions now cover keyword-overlap ordering and dense retrieval mode reporting
-- Commercial packaging validation:
-  - offer pack, buyer FAQ, feature matrix, and support playbook now align with the verified runtime surface
-  - the README and commercial reading order now point first to the shortest buyer-facing materials
-- Demo assets remain available for role walkthroughs and multi-tenant review
+For the current verified sprint state, next sprint, and continuity status, use:
 
-Kairo remains a strong professional release candidate for association workflows, suitable for controlled pilot deployments and disciplined self-hosting. The current hardening roadmap remains active, with the next execution step now focused on calmer role journeys and workspace clarity on top of the recovered retrieval and ingestion foundations.
+1. [`PROJECT_STATUS.md`](PROJECT_STATUS.md)
+2. [`IMPLEMENTATION_ROADMAP.md`](IMPLEMENTATION_ROADMAP.md)
+3. [`docs/ai/README.md`](docs/ai/README.md)
 
-See [`docs/commercial/maturity-review.md`](docs/commercial/maturity-review.md), [`docs/commercial/demo-to-production-checklist.md`](docs/commercial/demo-to-production-checklist.md), and [`docs/operations/validation-baseline.md`](docs/operations/validation-baseline.md).
+This README intentionally avoids repeating a sprint-by-sprint execution status
+block because that operational state changes faster than the product overview.
+
+See [`docs/commercial/maturity-review.md`](docs/commercial/maturity-review.md),
+[`docs/commercial/demo-to-production-checklist.md`](docs/commercial/demo-to-production-checklist.md),
+and [`docs/operations/validation-baseline.md`](docs/operations/validation-baseline.md).
 
 ## Commercial Packaging
 
@@ -406,7 +383,13 @@ Read these files at the start of every new AI-assisted session:
 3. `PROJECT_STATUS.md`
 4. `prompts/CODEX_AUTOPILOT.md`
 
-Reusable prompts: `prompts/CODEX_AUTOPILOT.md` · `prompts/KAIRO_CONTINUE_UNIVERSAL.md`
+Continuity hub: `docs/ai/README.md`
+
+Reusable prompts:
+
+- `prompts/CODEX_AUTOPILOT.md`
+- `prompts/KAIRO_CONTINUE_UNIVERSAL.md`
+- `prompts/KAIRO_UNIVERSAL_COMPACT.md`
 
 ## License
 

@@ -13,6 +13,7 @@ class NotificationChannelDescriptor:
     configured: bool
     simulation_only: bool
     target_hint: str
+    polling_supported: bool = False
 
 
 @dataclass(frozen=True)
@@ -26,6 +27,17 @@ class NotificationDispatchResult:
     reconciliation_status: str = "not_applicable"
     reconciliation_supported: bool = False
     provider_reference: str | None = None
+    polling_supported: bool = False
+
+
+@dataclass(frozen=True)
+class NotificationDeliveryStatusResult:
+    delivery_stage: str
+    reconciliation_status: str
+    delivered: bool
+    provider_message: str
+    external_status: str | None = None
+    terminal: bool = False
 
 
 class NotificationProvider(Protocol):
@@ -52,3 +64,12 @@ class NotificationProvider(Protocol):
         subject: str | None,
         body: str,
     ) -> NotificationDispatchResult: ...
+
+    async def fetch_delivery_status(
+        self,
+        *,
+        tenant_id: UUID,
+        actor_user_id: UUID | None,
+        recipient: str,
+        provider_reference: str,
+    ) -> NotificationDeliveryStatusResult | None: ...

@@ -14,6 +14,7 @@ class NotificationChannelResponse(BaseModel):
     configured: bool
     simulation_only: bool
     target_hint: str
+    polling_supported: bool = False
 
 
 class NotificationTestRequest(BaseModel):
@@ -40,6 +41,7 @@ class NotificationDispatchResponse(BaseModel):
     reconciliation_status: str
     reconciliation_supported: bool
     provider_reference: str | None = None
+    polling_supported: bool = False
 
 
 class NotificationHistoryEntry(BaseModel):
@@ -55,6 +57,7 @@ class NotificationHistoryEntry(BaseModel):
     reconciliation_status: str
     reconciliation_supported: bool
     provider_reference: str | None = None
+    polling_supported: bool = False
     created_at: datetime
 
 
@@ -73,6 +76,21 @@ class NotificationReconciliationCallbackResponse(BaseModel):
     delivery_stage: str
     reconciliation_status: str
     updated: bool
+
+
+class NotificationReconciliationPollRequest(BaseModel):
+    channel: str = Field(min_length=1, max_length=50)
+    provider_reference: str = Field(min_length=1, max_length=255)
+
+
+class NotificationReconciliationPollResponse(BaseModel):
+    channel: str
+    provider_reference: str
+    delivery_stage: str
+    reconciliation_status: str
+    updated: bool
+    provider_message: str
+    external_status: str | None = None
 
 
 class NotificationTestResponse(BaseModel):

@@ -6011,6 +6011,14 @@
         "documentation": {}
     },
     {
+        "label": "NotificationDeliveryStatusResult",
+        "importPath": "app.providers.notifications.base",
+        "description": "app.providers.notifications.base",
+        "isExtraImport": true,
+        "detail": "app.providers.notifications.base",
+        "documentation": {}
+    },
+    {
         "label": "NotificationProvider",
         "importPath": "app.providers.notifications.base",
         "description": "app.providers.notifications.base",
@@ -6027,6 +6035,14 @@
         "documentation": {}
     },
     {
+        "label": "NotificationDeliveryStatusResult",
+        "importPath": "app.providers.notifications.base",
+        "description": "app.providers.notifications.base",
+        "isExtraImport": true,
+        "detail": "app.providers.notifications.base",
+        "documentation": {}
+    },
+    {
         "label": "NotificationDispatchResult",
         "importPath": "app.providers.notifications.base",
         "description": "app.providers.notifications.base",
@@ -6036,6 +6052,14 @@
     },
     {
         "label": "NotificationChannelDescriptor",
+        "importPath": "app.providers.notifications.base",
+        "description": "app.providers.notifications.base",
+        "isExtraImport": true,
+        "detail": "app.providers.notifications.base",
+        "documentation": {}
+    },
+    {
+        "label": "NotificationDeliveryStatusResult",
         "importPath": "app.providers.notifications.base",
         "description": "app.providers.notifications.base",
         "isExtraImport": true,
@@ -11702,6 +11726,22 @@
         "documentation": {}
     },
     {
+        "label": "NotificationReconciliationPollRequest",
+        "importPath": "app.modules.notifications.schemas",
+        "description": "app.modules.notifications.schemas",
+        "isExtraImport": true,
+        "detail": "app.modules.notifications.schemas",
+        "documentation": {}
+    },
+    {
+        "label": "NotificationReconciliationPollResponse",
+        "importPath": "app.modules.notifications.schemas",
+        "description": "app.modules.notifications.schemas",
+        "isExtraImport": true,
+        "detail": "app.modules.notifications.schemas",
+        "documentation": {}
+    },
+    {
         "label": "NotificationTestRequest",
         "importPath": "app.modules.notifications.schemas",
         "description": "app.modules.notifications.schemas",
@@ -11759,6 +11799,22 @@
     },
     {
         "label": "NotificationReconciliationCallbackResponse",
+        "importPath": "app.modules.notifications.schemas",
+        "description": "app.modules.notifications.schemas",
+        "isExtraImport": true,
+        "detail": "app.modules.notifications.schemas",
+        "documentation": {}
+    },
+    {
+        "label": "NotificationReconciliationPollRequest",
+        "importPath": "app.modules.notifications.schemas",
+        "description": "app.modules.notifications.schemas",
+        "isExtraImport": true,
+        "detail": "app.modules.notifications.schemas",
+        "documentation": {}
+    },
+    {
+        "label": "NotificationReconciliationPollResponse",
         "importPath": "app.modules.notifications.schemas",
         "description": "app.modules.notifications.schemas",
         "isExtraImport": true,
@@ -16525,7 +16581,7 @@
         "kind": 6,
         "importPath": "services.api.app.modules.notifications.schemas",
         "description": "services.api.app.modules.notifications.schemas",
-        "peekOfCode": "class NotificationChannelResponse(BaseModel):\n    channel: str\n    display_name: str\n    description: str\n    configured: bool\n    simulation_only: bool\n    target_hint: str\nclass NotificationTestRequest(BaseModel):\n    channels: list[str] = Field(min_length=1)\n    recipient: str = Field(min_length=1, max_length=255)",
+        "peekOfCode": "class NotificationChannelResponse(BaseModel):\n    channel: str\n    display_name: str\n    description: str\n    configured: bool\n    simulation_only: bool\n    target_hint: str\n    polling_supported: bool = False\nclass NotificationTestRequest(BaseModel):\n    channels: list[str] = Field(min_length=1)",
         "detail": "services.api.app.modules.notifications.schemas",
         "documentation": {}
     },
@@ -16579,7 +16635,25 @@
         "kind": 6,
         "importPath": "services.api.app.modules.notifications.schemas",
         "description": "services.api.app.modules.notifications.schemas",
-        "peekOfCode": "class NotificationReconciliationCallbackResponse(BaseModel):\n    channel: str\n    provider_reference: str\n    delivery_stage: str\n    reconciliation_status: str\n    updated: bool\nclass NotificationTestResponse(BaseModel):\n    results: list[NotificationDispatchResponse]",
+        "peekOfCode": "class NotificationReconciliationCallbackResponse(BaseModel):\n    channel: str\n    provider_reference: str\n    delivery_stage: str\n    reconciliation_status: str\n    updated: bool\nclass NotificationReconciliationPollRequest(BaseModel):\n    channel: str = Field(min_length=1, max_length=50)\n    provider_reference: str = Field(min_length=1, max_length=255)\nclass NotificationReconciliationPollResponse(BaseModel):",
+        "detail": "services.api.app.modules.notifications.schemas",
+        "documentation": {}
+    },
+    {
+        "label": "NotificationReconciliationPollRequest",
+        "kind": 6,
+        "importPath": "services.api.app.modules.notifications.schemas",
+        "description": "services.api.app.modules.notifications.schemas",
+        "peekOfCode": "class NotificationReconciliationPollRequest(BaseModel):\n    channel: str = Field(min_length=1, max_length=50)\n    provider_reference: str = Field(min_length=1, max_length=255)\nclass NotificationReconciliationPollResponse(BaseModel):\n    channel: str\n    provider_reference: str\n    delivery_stage: str\n    reconciliation_status: str\n    updated: bool\n    provider_message: str",
+        "detail": "services.api.app.modules.notifications.schemas",
+        "documentation": {}
+    },
+    {
+        "label": "NotificationReconciliationPollResponse",
+        "kind": 6,
+        "importPath": "services.api.app.modules.notifications.schemas",
+        "description": "services.api.app.modules.notifications.schemas",
+        "peekOfCode": "class NotificationReconciliationPollResponse(BaseModel):\n    channel: str\n    provider_reference: str\n    delivery_stage: str\n    reconciliation_status: str\n    updated: bool\n    provider_message: str\n    external_status: str | None = None\nclass NotificationTestResponse(BaseModel):\n    results: list[NotificationDispatchResponse]",
         "detail": "services.api.app.modules.notifications.schemas",
         "documentation": {}
     },
@@ -17146,7 +17220,7 @@
         "kind": 6,
         "importPath": "services.api.app.providers.notifications.base",
         "description": "services.api.app.providers.notifications.base",
-        "peekOfCode": "class NotificationChannelDescriptor:\n    channel: str\n    display_name: str\n    description: str\n    configured: bool\n    simulation_only: bool\n    target_hint: str\n@dataclass(frozen=True)\nclass NotificationDispatchResult:\n    channel: str",
+        "peekOfCode": "class NotificationChannelDescriptor:\n    channel: str\n    display_name: str\n    description: str\n    configured: bool\n    simulation_only: bool\n    target_hint: str\n    polling_supported: bool = False\n@dataclass(frozen=True)\nclass NotificationDispatchResult:",
         "detail": "services.api.app.providers.notifications.base",
         "documentation": {}
     },
@@ -17156,6 +17230,15 @@
         "importPath": "services.api.app.providers.notifications.base",
         "description": "services.api.app.providers.notifications.base",
         "peekOfCode": "class NotificationDispatchResult:\n    channel: str\n    status: str\n    message: str\n    delivered: bool\n    simulation_only: bool\n    delivery_stage: str = \"simulated\"\n    reconciliation_status: str = \"not_applicable\"\n    reconciliation_supported: bool = False\n    provider_reference: str | None = None",
+        "detail": "services.api.app.providers.notifications.base",
+        "documentation": {}
+    },
+    {
+        "label": "NotificationDeliveryStatusResult",
+        "kind": 6,
+        "importPath": "services.api.app.providers.notifications.base",
+        "description": "services.api.app.providers.notifications.base",
+        "peekOfCode": "class NotificationDeliveryStatusResult:\n    delivery_stage: str\n    reconciliation_status: str\n    delivered: bool\n    provider_message: str\n    external_status: str | None = None\n    terminal: bool = False\nclass NotificationProvider(Protocol):\n    channel: str\n    def describe(self) -> NotificationChannelDescriptor: ...",
         "detail": "services.api.app.providers.notifications.base",
         "documentation": {}
     },
