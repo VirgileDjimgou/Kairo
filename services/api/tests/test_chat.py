@@ -3,17 +3,17 @@
 from __future__ import annotations
 
 import uuid as _uuid
+from datetime import UTC, datetime
 from decimal import Decimal
-from datetime import datetime, timezone
 
 import pytest
+from helpers import create_tenant_with_user, create_user_for_tenant, login
 from httpx import AsyncClient
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.modules.contributions.models import ContributionRecord
 from app.modules.documents.models import Document, DocumentChunk, DocumentStatus, DocumentVersion
 from app.modules.membership.models import MembershipProfile
-from helpers import create_tenant_with_user, login
 
 
 def _seed_document_and_chunk(
@@ -113,7 +113,7 @@ def _seed_contribution_record(
         balance=Decimal(expected_amount) - Decimal(paid_amount),
         currency="EUR",
         status="partial" if Decimal(paid_amount) < Decimal(expected_amount) else "paid",
-        due_date=datetime(2026, 1, 31, tzinfo=timezone.utc),
+        due_date=datetime(2026, 1, 31, tzinfo=UTC),
     )
     db.add(record)
     return record
@@ -443,6 +443,100 @@ async def test_chat_query_blocks_private_document_from_other_user(
 
 
 @pytest.mark.asyncio
+async def test_chat_query_allows_principal_admin_to_access_privileged_document_scopes(
+    client: AsyncClient,
+    db_session: AsyncSession,
+    fake_vector_store,
+    fake_llm,
+) -> None:
+    admin_ctx = await create_tenant_with_user(db_session, f"principal-doc-{_uuid.uuid4().hex[:6]}")
+    principal_ctx = await create_user_for_tenant(
+        db_session,
+        tenant_id=admin_ctx["tenant"].id,
+        email=f"principal-doc-{_uuid.uuid4().hex[:6]}@test.org",
+        password="Principal123!",
+        display_name="Pauline Ebanda",
+        role_code="principal_admin",
+        profile_type="admin",
+    )
+    token = await login(
+        client,
+        principal_ctx["user"].email,
+        principal_ctx["password"],
+        tenant_slug=admin_ctx["tenant"].slug,
+    )
+
+    private_chunk = _seed_document_and_chunk(
+        db_session,
+        tenant_id=admin_ctx["tenant"].id,
+        owner_user_id=admin_ctx["user"].id,
+        title="Private Treasurer Notes",
+        text="Private operator notes remain available to the principal admin inside the tenant.",
+        access_scope="user_private",
+    )
+    admin_only_chunk = _seed_document_and_chunk(
+        db_session,
+        tenant_id=admin_ctx["tenant"].id,
+        owner_user_id=admin_ctx["user"].id,
+        title="Admin Runbook",
+        text="Administrative runbook for sensitive tenant operations.",
+        access_scope="admin_only",
+    )
+    await db_session.flush()
+    fake_vector_store.upsert_chunk_vectors(
+        [
+            (
+                private_chunk.id,
+                [0.31] * 8,
+                {
+                    "tenant_id": str(admin_ctx["tenant"].id),
+                    "document_id": str(private_chunk.document_id),
+                    "document_version_id": str(private_chunk.document_version_id),
+                    "chunk_id": str(private_chunk.id),
+                    "access_scope": "user_private",
+                    "owner_user_id": str(admin_ctx["user"].id),
+                    "allowed_role_ids": [],
+                    "language": "fr",
+                    "source_type": "upload",
+                    "created_at": "2026-07-15T00:00:00Z",
+                },
+            ),
+            (
+                admin_only_chunk.id,
+                [0.32] * 8,
+                {
+                    "tenant_id": str(admin_ctx["tenant"].id),
+                    "document_id": str(admin_only_chunk.document_id),
+                    "document_version_id": str(admin_only_chunk.document_version_id),
+                    "chunk_id": str(admin_only_chunk.id),
+                    "access_scope": "admin_only",
+                    "owner_user_id": str(admin_ctx["user"].id),
+                    "allowed_role_ids": [],
+                    "language": "fr",
+                    "source_type": "upload",
+                    "created_at": "2026-07-15T00:00:00Z",
+                },
+            ),
+        ]
+    )
+
+    response = await client.post(
+        "/api/v1/chat/query",
+        headers={"Authorization": f"Bearer {token}"},
+        json={
+            "question": "Montre-moi les notes privees et le runbook administratif.",
+            "response_language": "fr",
+        },
+    )
+
+    assert response.status_code == 200, response.text
+    body = response.json()
+    assert body["refused"] is False
+    assert len(body["citations"]) == 2
+    assert len(fake_llm.calls) == 1
+
+
+@pytest.mark.asyncio
 async def test_chat_query_refuses_other_member_finance_requests_before_llm(
     client: AsyncClient,
     db_session: AsyncSession,
@@ -586,6 +680,31 @@ async def test_chat_stream_emits_citations_and_source_types(
 
 
 @pytest.mark.asyncio
+async def test_chat_stream_refuses_without_authorized_sources(
+    client: AsyncClient,
+    db_session: AsyncSession,
+    fake_llm,
+) -> None:
+    data = await create_tenant_with_user(db_session, f"stream-nohit-{_uuid.uuid4().hex[:6]}")
+    token = await login(client, data["user"].email, data["password"], tenant_slug=data["tenant"].slug)
+
+    async with client.stream(
+        "POST",
+        "/api/v1/chat/query-stream",
+        headers={"Authorization": f"Bearer {token}"},
+        json={"question": "What is the secret policy?", "response_language": "en"},
+    ) as response:
+        status = response.status_code
+        body = await response.aread()
+        assert status == 200, body
+
+    text = body.decode()
+    assert '"type": "error"' in text
+    assert "authorized documents or structured data available to you" in text
+    assert len(fake_llm.calls) == 0
+
+
+@pytest.mark.asyncio
 async def test_chat_query_prefers_documents_in_user_language(
     client: AsyncClient,
     db_session: AsyncSession,
@@ -674,6 +793,99 @@ async def test_chat_query_prefers_documents_in_user_language(
         assert "query_text" in captured_search_kwargs
         assert "français" in str(captured_search_kwargs["query_text"]).lower()
         assert "document" in str(captured_search_kwargs["query_text"]).lower()
+    finally:
+        app.dependency_overrides.pop(get_reranker_provider, None)
+
+
+@pytest.mark.asyncio
+async def test_chat_query_prefers_keyword_matching_documents_when_dense_scores_are_close(
+    client: AsyncClient,
+    db_session: AsyncSession,
+    fake_llm,
+    fake_vector_store,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    from app.core.dependencies import get_reranker_provider
+    from app.main import app
+
+    app.dependency_overrides[get_reranker_provider] = lambda: None
+    try:
+        data = await create_tenant_with_user(db_session, f"keyword-rank-{_uuid.uuid4().hex[:6]}")
+        token = await login(client, data["user"].email, data["password"], tenant_slug=data["tenant"].slug)
+        owner_user_id = data["user"].id
+
+        keyword_chunk = _seed_document_and_chunk(
+            db_session,
+            tenant_id=data["tenant"].id,
+            owner_user_id=owner_user_id,
+            title="Reglement interieur",
+            text="Le reglement interieur explique les regles de fonctionnement interne.",
+            access_scope="tenant_public",
+            language="fr",
+        )
+        generic_chunk = _seed_document_and_chunk(
+            db_session,
+            tenant_id=data["tenant"].id,
+            owner_user_id=owner_user_id,
+            title="Guide general",
+            text="Guide general pour les membres de l'association.",
+            access_scope="tenant_public",
+            language="fr",
+        )
+        await db_session.flush()
+
+        def _fake_search_chunk_vectors(**kwargs):
+            return [
+                {
+                    "id": str(generic_chunk.id),
+                    "score": 0.84,
+                    "payload": {
+                        "tenant_id": str(data["tenant"].id),
+                        "document_id": str(generic_chunk.document_id),
+                        "document_version_id": str(generic_chunk.document_version_id),
+                        "chunk_id": str(generic_chunk.id),
+                        "access_scope": "tenant_public",
+                        "owner_user_id": str(owner_user_id),
+                        "allowed_role_ids": [],
+                        "language": "fr",
+                        "source_type": "upload",
+                        "created_at": "2026-07-16T00:00:00Z",
+                    },
+                    "retrieval_mode": "dense",
+                },
+                {
+                    "id": str(keyword_chunk.id),
+                    "score": 0.78,
+                    "payload": {
+                        "tenant_id": str(data["tenant"].id),
+                        "document_id": str(keyword_chunk.document_id),
+                        "document_version_id": str(keyword_chunk.document_version_id),
+                        "chunk_id": str(keyword_chunk.id),
+                        "access_scope": "tenant_public",
+                        "owner_user_id": str(owner_user_id),
+                        "allowed_role_ids": [],
+                        "language": "fr",
+                        "source_type": "upload",
+                        "created_at": "2026-07-16T00:00:00Z",
+                    },
+                    "retrieval_mode": "dense",
+                },
+            ]
+
+        monkeypatch.setattr(fake_vector_store, "search_chunk_vectors", _fake_search_chunk_vectors)
+
+        response = await client.post(
+            "/api/v1/chat/query",
+            headers={"Authorization": f"Bearer {token}"},
+            json={
+                "question": "Quels documents parlent du reglement interieur ?",
+                "response_language": "fr",
+            },
+        )
+        assert response.status_code == 200, response.text
+        body = response.json()
+        assert body["citations"][0]["document_title"] == "Reglement interieur"
+        assert len(fake_llm.calls) == 1
     finally:
         app.dependency_overrides.pop(get_reranker_provider, None)
 

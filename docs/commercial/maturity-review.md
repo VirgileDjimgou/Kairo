@@ -9,11 +9,12 @@ This review captures what is ready, what is bounded, and what still needs busine
 - document ingestion, OCR, and RAG chat
 - operational visibility and recovery validation
 - backup and restore workflow
+- scripted install, upgrade, rollback, and smoke validation
 - commercial-facing docs and handoff material
 
 ## What Is Bounded
 
-- notification channels are placeholders, not production integrations
+- notification channels now have a credible operator baseline: SMTP-backed email, Telegram, and gateway-backed WhatsApp are real, but provider-side reconciliation and richer delivery-state feedback are still future work
 - onboarding is guided, not a full wizard-driven product journey
 - support terms are documented but not contractually finalized
 
@@ -35,4 +36,4 @@ This review captures what is ready, what is bounded, and what still needs busine
 
 ## Readiness Conclusion
 
-Kairo is mature enough to be presented as a credible commercial MVP, but the final offer still depends on explicit business decisions around branding, legal terms, and support commitments.
+Kairo is mature enough to be presented as a credible association-focused commercial MVP and a disciplined self-hosted release candidate, but the final offer still depends on explicit business decisions around branding, legal terms, and support commitments.

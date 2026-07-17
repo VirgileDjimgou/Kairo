@@ -1,16 +1,16 @@
 """Sprint 3 and Sprint 20 acceptance tests: document upload and tenant-scoped listing."""
 
-from io import BytesIO
 import uuid as _uuid
+from io import BytesIO
 
 import pytest
+from helpers import create_tenant_with_user, login
 from httpx import AsyncClient
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.modules.documents.models import Document, IngestionJob
+from app.modules.documents.models import IngestionJob
 from app.modules.ingestion.service import IngestionService
 from app.providers.parsers import parse_document_bytes
-from helpers import create_tenant_with_user, login
 
 pytestmark = pytest.mark.integration
 
@@ -36,6 +36,7 @@ async def test_document_upload_and_list_scoped_to_tenant(
     body = upload.json()
     assert body["title"] == "Tenant Policy"
     assert body["status"] == "uploaded"
+    assert body["language"] == "und"
     assert body["current_version"]["file_name"] == "policy.txt"
     assert body["ingestion_job_id"]
 
@@ -125,6 +126,30 @@ async def test_upload_stores_object_with_tenant_scoped_key(
     stored = fake_storage.uploads[0]
     assert str(data["tenant"].id) in stored["object_key"]
     assert stored["data"] == b"scoped storage key"
+
+
+@pytest.mark.asyncio
+async def test_upload_detects_document_language_from_filename_and_content(
+    client: AsyncClient,
+    seeded_tenant_and_admin: dict,
+) -> None:
+    data = seeded_tenant_and_admin
+    token = await login(client, data["user"].email, data["password"])
+
+    response = await client.post(
+        "/api/v1/documents/upload",
+        headers={"Authorization": f"Bearer {token}"},
+        files={
+            "file": (
+                "cotisations_2026.txt",
+                b"Bonjour, cotisation annuelle de l'association",
+                "text/plain",
+            )
+        },
+        data={"title": "Cotisations 2026", "access_scope": "tenant_public"},
+    )
+    assert response.status_code == 200, response.text
+    assert response.json()["language"] == "fr"
 
 
 @pytest.mark.asyncio

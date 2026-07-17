@@ -3,6 +3,9 @@ from __future__ import annotations
 import asyncio
 import smtplib
 from email.message import EmailMessage
+from email.utils import make_msgid
+
+import httpx
 
 from app.core.config import settings
 from app.providers.notifications.base import (
@@ -74,6 +77,9 @@ class _PlaceholderNotificationProvider:
             message=message,
             delivered=False,
             simulation_only=True,
+            delivery_stage="simulated",
+            reconciliation_status="not_applicable",
+            reconciliation_supported=False,
         )
 
 
@@ -112,7 +118,7 @@ class EmailNotificationProvider(_PlaceholderNotificationProvider):
             return await self._send_simulated(recipient=recipient, subject=subject, body=body)
 
         try:
-            await asyncio.to_thread(
+            provider_reference = await asyncio.to_thread(
                 self._send_via_smtp,
                 recipient=recipient,
                 subject=subject or "Kairo notification",
@@ -125,6 +131,9 @@ class EmailNotificationProvider(_PlaceholderNotificationProvider):
                 message=f"SMTP delivery failed for {recipient}: {exc}",
                 delivered=False,
                 simulation_only=False,
+                delivery_stage="failed",
+                reconciliation_status="failed",
+                reconciliation_supported=True,
             )
 
         return NotificationDispatchResult(
@@ -133,13 +142,18 @@ class EmailNotificationProvider(_PlaceholderNotificationProvider):
             message=f"SMTP delivery accepted for {recipient}.",
             delivered=True,
             simulation_only=False,
+            delivery_stage="accepted",
+            reconciliation_status="pending",
+            reconciliation_supported=True,
+            provider_reference=provider_reference,
         )
 
-    def _send_via_smtp(self, *, recipient: str, subject: str, body: str) -> None:
+    def _send_via_smtp(self, *, recipient: str, subject: str, body: str) -> str:
         message = EmailMessage()
         message["From"] = settings.smtp_from_email
         message["To"] = recipient
         message["Subject"] = subject
+        message["Message-ID"] = make_msgid()
         message.set_content(body)
 
         use_ssl = settings.smtp_port == 465
@@ -147,7 +161,7 @@ class EmailNotificationProvider(_PlaceholderNotificationProvider):
             with smtplib.SMTP_SSL(settings.smtp_host, settings.smtp_port, timeout=15) as smtp:
                 self._authenticate_if_needed(smtp)
                 smtp.send_message(message)
-            return
+            return str(message["Message-ID"])
 
         with smtplib.SMTP(settings.smtp_host, settings.smtp_port, timeout=15) as smtp:
             smtp.ehlo()
@@ -156,6 +170,7 @@ class EmailNotificationProvider(_PlaceholderNotificationProvider):
                 smtp.ehlo()
             self._authenticate_if_needed(smtp)
             smtp.send_message(message)
+        return str(message["Message-ID"])
 
     def _authenticate_if_needed(self, smtp: smtplib.SMTP) -> None:
         if settings.smtp_username and settings.smtp_password:
@@ -166,10 +181,91 @@ class TelegramNotificationProvider(_PlaceholderNotificationProvider):
     channel = "telegram"
     display_name = "Telegram"
     description = "Bot-based provider placeholder for direct or channel-based Telegram messages."
-    target_hint = "Telegram chat ID"
+    target_hint = "Telegram chat ID or @channel username"
 
     def __init__(self) -> None:
         super().__init__(configured=bool(settings.telegram_bot_token))
+
+    def describe(self) -> NotificationChannelDescriptor:
+        descriptor = super().describe()
+        if not self._configured:
+            return descriptor
+        return NotificationChannelDescriptor(
+            channel=descriptor.channel,
+            display_name=descriptor.display_name,
+            description="Telegram Bot API provider for direct operator or channel notifications.",
+            configured=True,
+            simulation_only=False,
+            target_hint=descriptor.target_hint,
+        )
+
+    async def send_message(
+        self,
+        *,
+        tenant_id,
+        actor_user_id,
+        recipient: str,
+        subject: str | None,
+        body: str,
+    ) -> NotificationDispatchResult:
+        if not self._configured:
+            return await self._send_simulated(recipient=recipient, subject=subject, body=body)
+
+        try:
+            provider_reference = await self._send_via_telegram(
+                recipient=recipient or settings.telegram_default_chat_id or "",
+                subject=subject,
+                body=body,
+            )
+        except Exception as exc:  # pragma: no cover - exercised via tests with fakes
+            return NotificationDispatchResult(
+                channel=self.channel,
+                status="failed",
+                message=f"Telegram delivery failed for {recipient}: {exc}",
+                delivered=False,
+                simulation_only=False,
+                delivery_stage="failed",
+                reconciliation_status="failed",
+                reconciliation_supported=True,
+            )
+
+        return NotificationDispatchResult(
+            channel=self.channel,
+            status="sent",
+            message=f"Telegram delivery accepted for {recipient}.",
+            delivered=True,
+            simulation_only=False,
+            delivery_stage="accepted",
+            reconciliation_status="pending",
+            reconciliation_supported=True,
+            provider_reference=provider_reference,
+        )
+
+    async def _send_via_telegram(self, *, recipient: str, subject: str | None, body: str) -> str | None:
+        if not recipient.strip():
+            raise ValueError("Telegram target is required for live delivery")
+
+        text = body.strip()
+        if subject and subject.strip():
+            text = f"*{subject.strip()}*\n\n{text}"
+
+        async with httpx.AsyncClient(timeout=15) as client:
+            response = await client.post(
+                f"https://api.telegram.org/bot{settings.telegram_bot_token}/sendMessage",
+                json={
+                    "chat_id": recipient,
+                    "text": text,
+                    "parse_mode": "Markdown",
+                    "disable_web_page_preview": True,
+                },
+            )
+            response.raise_for_status()
+            payload = response.json()
+            if not payload.get("ok", False):
+                raise ValueError(payload.get("description", "Telegram API rejected the message"))
+            result = payload.get("result", {})
+            message_id = result.get("message_id")
+            return str(message_id) if message_id is not None else None
 
 
 class WhatsAppNotificationProvider(_PlaceholderNotificationProvider):
@@ -180,3 +276,93 @@ class WhatsAppNotificationProvider(_PlaceholderNotificationProvider):
 
     def __init__(self) -> None:
         super().__init__(configured=bool(settings.whatsapp_api_base_url and settings.whatsapp_api_token))
+
+    def describe(self) -> NotificationChannelDescriptor:
+        descriptor = super().describe()
+        if not self._configured:
+            return descriptor
+        return NotificationChannelDescriptor(
+            channel=descriptor.channel,
+            display_name=descriptor.display_name,
+            description="Gateway-backed provider for operator WhatsApp notifications.",
+            configured=True,
+            simulation_only=False,
+            target_hint=descriptor.target_hint,
+        )
+
+    async def send_message(
+        self,
+        *,
+        tenant_id,
+        actor_user_id,
+        recipient: str,
+        subject: str | None,
+        body: str,
+    ) -> NotificationDispatchResult:
+        if not self._configured:
+            return await self._send_simulated(recipient=recipient, subject=subject, body=body)
+
+        try:
+            provider_reference = await self._send_via_gateway(
+                recipient=recipient,
+                subject=subject,
+                body=body,
+            )
+        except Exception as exc:  # pragma: no cover - exercised via tests with fakes
+            return NotificationDispatchResult(
+                channel=self.channel,
+                status="failed",
+                message=f"WhatsApp delivery failed for {recipient}: {exc}",
+                delivered=False,
+                simulation_only=False,
+                delivery_stage="failed",
+                reconciliation_status="failed",
+                reconciliation_supported=True,
+            )
+
+        return NotificationDispatchResult(
+            channel=self.channel,
+            status="sent",
+            message=f"WhatsApp delivery accepted for {recipient}.",
+            delivered=True,
+            simulation_only=False,
+            delivery_stage="accepted",
+            reconciliation_status="pending",
+            reconciliation_supported=True,
+            provider_reference=provider_reference,
+        )
+
+    async def _send_via_gateway(self, *, recipient: str, subject: str | None, body: str) -> str | None:
+        if not recipient.strip():
+            raise ValueError("WhatsApp target is required for live delivery")
+
+        payload = {
+            "to": recipient,
+            "body": body,
+        }
+        if subject and subject.strip():
+            payload["subject"] = subject.strip()
+
+        base_url = (settings.whatsapp_api_base_url or "").rstrip("/")
+        if not base_url:
+            raise ValueError("WhatsApp gateway base URL is required")
+
+        async with httpx.AsyncClient(timeout=15) as client:
+            response = await client.post(
+                f"{base_url}/messages",
+                json=payload,
+                headers={
+                    "Authorization": f"Bearer {settings.whatsapp_api_token}",
+                    "Content-Type": "application/json",
+                },
+            )
+            response.raise_for_status()
+            if response.headers.get("content-type", "").startswith("application/json"):
+                response_payload = response.json()
+                if response_payload.get("ok") is False:
+                    raise ValueError(response_payload.get("detail", "WhatsApp gateway rejected the message"))
+                for key in ("message_id", "id", "reference"):
+                    value = response_payload.get(key)
+                    if value is not None:
+                        return str(value)
+        return None

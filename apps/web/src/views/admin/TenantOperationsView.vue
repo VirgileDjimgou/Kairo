@@ -17,14 +17,30 @@
         <RouterLink to="/admin/settings" class="btn btn-outline-secondary">
           <i class="bi bi-gear me-1"></i>Tenant settings
         </RouterLink>
-        <button class="btn om-primary-btn" type="button" @click="refreshTenantContext" :disabled="loading">
-          {{ loading ? 'Refreshing...' : 'Refresh context' }}
+        <button class="btn om-primary-btn" type="button" @click="refreshTenantContext" :disabled="loading || isRecovering">
+          {{ loading ? copy.refreshing : copy.refreshContext }}
         </button>
       </div>
     </div>
 
-    <div v-if="error" class="alert alert-warning border-0 shadow-sm mb-4">
-      <i class="bi bi-exclamation-triangle me-2"></i>{{ error }}
+    <div v-if="error" class="alert alert-warning border-0 shadow-sm mb-4" role="alert">
+      <div class="d-flex flex-column flex-md-row justify-content-between gap-3">
+        <div>
+          <div class="fw-semibold">
+            <i class="bi bi-exclamation-triangle me-2"></i>{{ copy.workspaceErrorTitle }}
+          </div>
+          <p class="small mb-0 mt-2">{{ error }}</p>
+          <p class="mb-0 small text-muted mt-1">{{ localeStore.t('common.recoveryHint') }}</p>
+        </div>
+        <button class="btn btn-outline-secondary btn-sm align-self-start" type="button" @click="retryRefreshTenantContext" :disabled="isRecovering">
+          <span v-if="isRecovering" class="spinner-border spinner-border-sm me-1" aria-hidden="true"></span>
+          {{ isRecovering ? localeStore.t('common.loading') : localeStore.t('common.retry') }}
+        </button>
+      </div>
+    </div>
+
+    <div v-if="actionError" class="alert alert-danger border-0 shadow-sm mb-4" role="alert">
+      <i class="bi bi-exclamation-triangle me-2"></i>{{ actionError }}
     </div>
 
     <div v-if="successMessage" class="alert alert-success border-0 shadow-sm mb-4" data-testid="tenant-ops-success">
@@ -245,19 +261,21 @@
 <script setup lang="ts">
 import { computed, onMounted, ref, watch } from 'vue'
 import { RouterLink } from 'vue-router'
+import { useRecoveryState } from '@/composables/useRecoveryState'
 import { getTenantSettings, type TenantSettingsResponse } from '@/api/settings.api'
 import { useAuthStore } from '@/stores/auth.store'
+import { useLocaleStore } from '@/stores/locale.store'
 import { useTenantStore } from '@/stores/tenant.store'
 import type { TenantMembershipResponse } from '@/api/auth.api'
 
 const auth = useAuthStore()
+const localeStore = useLocaleStore()
 const tenantStore = useTenantStore()
-
-const loading = ref(false)
-const error = ref('')
+const { loading, error, isRecovering, run, retry } = useRecoveryState()
 const successMessage = ref('')
 const switchingTenantId = ref('')
 const settings = ref<TenantSettingsResponse | null>(null)
+const actionError = ref('')
 
 const memberships = computed(() => tenantStore.memberships)
 const currentTenantId = computed(() => tenantStore.currentTenant?.tenant_id ?? '')
@@ -267,6 +285,36 @@ const currentMembership = computed(
 const moduleTotal = computed(() =>
   currentMembership.value ? Object.keys(currentMembership.value.modules).length : 0,
 )
+const copy = computed(() => {
+  if (localeStore.currentLocale === 'de') {
+    return {
+      refreshing: 'Aktualisierung...',
+      refreshContext: 'Kontext aktualisieren',
+      workspaceErrorTitle: 'Tenant-Operationen nicht verfügbar',
+      switchFailed: 'Tenant-Wechsel fehlgeschlagen.',
+      loadFailed: 'Der aktuelle Tenant-Kontext konnte nicht geladen werden.',
+      switchedTo: 'Gewechselt zu {name}. Der aktive Tenant-Kontext ist jetzt auf diese Organisation isoliert.',
+    }
+  }
+  if (localeStore.currentLocale === 'en') {
+    return {
+      refreshing: 'Refreshing...',
+      refreshContext: 'Refresh context',
+      workspaceErrorTitle: 'Tenant operations unavailable',
+      switchFailed: 'Could not switch tenant.',
+      loadFailed: 'Could not load the current tenant context.',
+      switchedTo: 'Switched to {name}. The active tenant context is now isolated to that organization.',
+    }
+  }
+  return {
+    refreshing: 'Actualisation...',
+    refreshContext: 'Actualiser le contexte',
+    workspaceErrorTitle: 'Les opérations tenant sont indisponibles',
+    switchFailed: 'Impossible de changer de tenant.',
+    loadFailed: 'Impossible de charger le contexte du tenant courant.',
+    switchedTo: 'Basculé sur {name}. Le contexte actif est maintenant isolé à cette organisation.',
+  }
+})
 
 const summaryCards = computed(() => [
   {
@@ -312,22 +360,35 @@ function recoveryBadgeClass(status: string) {
 }
 
 async function refreshTenantContext() {
-  loading.value = true
-  error.value = ''
-
-  try {
+  actionError.value = ''
+  await run(async () => {
     const tenantId = currentTenantId.value
     if (!tenantId) {
       settings.value = null
       return
     }
     settings.value = await getTenantSettings(tenantId)
-  } catch (err: unknown) {
-    error.value = (err as { response?: { data?: { detail?: string } } })?.response?.data?.detail
-      || 'Could not load the current tenant context.'
-  } finally {
-    loading.value = false
+  })
+  if (error.value == null) {
+    return
   }
+  error.value = error.value || copy.value.loadFailed
+}
+
+async function retryRefreshTenantContext() {
+  actionError.value = ''
+  await retry(async () => {
+    const tenantId = currentTenantId.value
+    if (!tenantId) {
+      settings.value = null
+      return
+    }
+    settings.value = await getTenantSettings(tenantId)
+  })
+  if (error.value == null) {
+    return
+  }
+  error.value = error.value || copy.value.loadFailed
 }
 
 async function switchTenant(membership: TenantMembershipResponse) {
@@ -339,7 +400,7 @@ async function switchTenant(membership: TenantMembershipResponse) {
   if (!confirmed) return
 
   switchingTenantId.value = membership.tenant_id
-  error.value = ''
+  actionError.value = ''
   successMessage.value = ''
 
   try {
@@ -349,9 +410,9 @@ async function switchTenant(membership: TenantMembershipResponse) {
     }
     await auth.fetchMe()
     await refreshTenantContext()
-    successMessage.value = `Switched to ${membership.name}. The active tenant context is now isolated to that organization.`
+    successMessage.value = copy.value.switchedTo.replace('{name}', membership.name)
   } catch (err: unknown) {
-    error.value = (err as { message?: string })?.message || 'Could not switch tenant.'
+    actionError.value = (err as { message?: string })?.message || copy.value.switchFailed
   } finally {
     switchingTenantId.value = ''
   }

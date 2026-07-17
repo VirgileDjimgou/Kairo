@@ -60,7 +60,14 @@ class FakeVectorStoreProvider:
             if payload.get("tenant_id") != str(tenant_id):
                 continue
             score = float(sum(query_vector) + sum(vector))
-            results.append({"id": payload["chunk_id"], "score": score, "payload": payload})
+            results.append(
+                {
+                    "id": payload["chunk_id"],
+                    "score": score,
+                    "payload": payload,
+                    "retrieval_mode": "dense",
+                }
+            )
         results.sort(key=lambda item: item["score"], reverse=True)
         return results[:limit]
 
@@ -106,12 +113,14 @@ class FakeEmailNotificationProvider:
         simulation_only: bool = False,
         delivered: bool = True,
         message: str = "Email accepted by fake provider.",
+        provider_reference: str | None = "fake-email-ref",
     ) -> None:
         self._configured = configured
         self._status = status
         self._simulation_only = simulation_only
         self._delivered = delivered
         self._message = message
+        self._provider_reference = provider_reference
         self.calls: list[dict[str, Any]] = []
 
     def describe(self) -> NotificationChannelDescriptor:
@@ -148,6 +157,174 @@ class FakeEmailNotificationProvider:
             message=self._message,
             delivered=self._delivered,
             simulation_only=self._simulation_only,
+            delivery_stage="simulated" if self._simulation_only else ("accepted" if self._delivered else "failed"),
+            reconciliation_status="not_applicable"
+            if self._simulation_only
+            else ("pending" if self._delivered else "failed"),
+            reconciliation_supported=not self._simulation_only,
+            provider_reference=None if self._simulation_only else self._provider_reference,
+        )
+
+    async def send_test_message(
+        self,
+        *,
+        tenant_id: UUID,
+        actor_user_id: UUID,
+        recipient: str,
+        subject: str | None,
+        body: str,
+    ) -> NotificationDispatchResult:
+        return await self.send_message(
+            tenant_id=tenant_id,
+            actor_user_id=actor_user_id,
+            recipient=recipient,
+            subject=subject,
+            body=body,
+        )
+
+
+class FakeTelegramNotificationProvider:
+    channel = "telegram"
+
+    def __init__(
+        self,
+        *,
+        configured: bool = True,
+        status: str = "sent",
+        simulation_only: bool = False,
+        delivered: bool = True,
+        message: str = "Telegram accepted by fake provider.",
+        provider_reference: str | None = "fake-telegram-ref",
+    ) -> None:
+        self._configured = configured
+        self._status = status
+        self._simulation_only = simulation_only
+        self._delivered = delivered
+        self._message = message
+        self._provider_reference = provider_reference
+        self.calls: list[dict[str, Any]] = []
+
+    def describe(self) -> NotificationChannelDescriptor:
+        return NotificationChannelDescriptor(
+            channel=self.channel,
+            display_name="Telegram",
+            description="Fake Telegram provider for tests.",
+            configured=self._configured,
+            simulation_only=self._simulation_only,
+            target_hint="Telegram chat ID or @channel username",
+        )
+
+    async def send_message(
+        self,
+        *,
+        tenant_id: UUID,
+        actor_user_id: UUID | None,
+        recipient: str,
+        subject: str | None,
+        body: str,
+    ) -> NotificationDispatchResult:
+        self.calls.append(
+            {
+                "tenant_id": str(tenant_id),
+                "actor_user_id": str(actor_user_id) if actor_user_id else None,
+                "recipient": recipient,
+                "subject": subject,
+                "body": body,
+            }
+        )
+        return NotificationDispatchResult(
+            channel=self.channel,
+            status=self._status,
+            message=self._message,
+            delivered=self._delivered,
+            simulation_only=self._simulation_only,
+            delivery_stage="simulated" if self._simulation_only else ("accepted" if self._delivered else "failed"),
+            reconciliation_status="not_applicable"
+            if self._simulation_only
+            else ("pending" if self._delivered else "failed"),
+            reconciliation_supported=not self._simulation_only,
+            provider_reference=None if self._simulation_only else self._provider_reference,
+        )
+
+    async def send_test_message(
+        self,
+        *,
+        tenant_id: UUID,
+        actor_user_id: UUID,
+        recipient: str,
+        subject: str | None,
+        body: str,
+    ) -> NotificationDispatchResult:
+        return await self.send_message(
+            tenant_id=tenant_id,
+            actor_user_id=actor_user_id,
+            recipient=recipient,
+            subject=subject,
+            body=body,
+        )
+
+
+class FakeWhatsAppNotificationProvider:
+    channel = "whatsapp"
+
+    def __init__(
+        self,
+        *,
+        configured: bool = True,
+        status: str = "sent",
+        simulation_only: bool = False,
+        delivered: bool = True,
+        message: str = "WhatsApp accepted by fake provider.",
+        provider_reference: str | None = "fake-whatsapp-ref",
+    ) -> None:
+        self._configured = configured
+        self._status = status
+        self._simulation_only = simulation_only
+        self._delivered = delivered
+        self._message = message
+        self._provider_reference = provider_reference
+        self.calls: list[dict[str, Any]] = []
+
+    def describe(self) -> NotificationChannelDescriptor:
+        return NotificationChannelDescriptor(
+            channel=self.channel,
+            display_name="WhatsApp",
+            description="Fake WhatsApp provider for tests.",
+            configured=self._configured,
+            simulation_only=self._simulation_only,
+            target_hint="Phone number or WhatsApp target",
+        )
+
+    async def send_message(
+        self,
+        *,
+        tenant_id: UUID,
+        actor_user_id: UUID | None,
+        recipient: str,
+        subject: str | None,
+        body: str,
+    ) -> NotificationDispatchResult:
+        self.calls.append(
+            {
+                "tenant_id": str(tenant_id),
+                "actor_user_id": str(actor_user_id) if actor_user_id else None,
+                "recipient": recipient,
+                "subject": subject,
+                "body": body,
+            }
+        )
+        return NotificationDispatchResult(
+            channel=self.channel,
+            status=self._status,
+            message=self._message,
+            delivered=self._delivered,
+            simulation_only=self._simulation_only,
+            delivery_stage="simulated" if self._simulation_only else ("accepted" if self._delivered else "failed"),
+            reconciliation_status="not_applicable"
+            if self._simulation_only
+            else ("pending" if self._delivered else "failed"),
+            reconciliation_supported=not self._simulation_only,
+            provider_reference=None if self._simulation_only else self._provider_reference,
         )
 
     async def send_test_message(

@@ -2,19 +2,19 @@
   <div class="p-4">
     <div class="d-flex align-items-center justify-content-between mb-4">
       <div>
-        <h1 class="h4 fw-bold mb-0">Members</h1>
-        <p class="text-muted small mb-0">Manage organization member profiles</p>
+        <h1 class="h4 fw-bold mb-0">{{ t('members.title') }}</h1>
+        <p class="text-muted small mb-0">{{ t('members.subtitle') }}</p>
       </div>
       <div class="d-flex gap-2">
         <button class="btn btn-outline-secondary btn-sm" @click="exportMembers" :disabled="exporting">
           <i v-if="exporting" class="spinner-border spinner-border-sm me-1"></i>
-          <i v-else class="bi bi-download me-1"></i>Export CSV
+          <i v-else class="bi bi-download me-1"></i>{{ t('common.exportCsv') }}
         </button>
         <button class="btn btn-outline-primary btn-sm" data-bs-toggle="modal" data-bs-target="#importMemberModal">
-          <i class="bi bi-upload me-1"></i>Import CSV
+          <i class="bi bi-upload me-1"></i>{{ t('common.importCsv') }}
         </button>
         <button class="btn btn-primary btn-sm" data-bs-toggle="modal" data-bs-target="#createMemberModal">
-          <i class="bi bi-person-plus me-1"></i>Add member
+          <i class="bi bi-person-plus me-1"></i>{{ t('members.addMember') }}
         </button>
       </div>
     </div>
@@ -26,25 +26,25 @@
 
     <div v-if="loading" class="text-center py-5">
       <div class="spinner-border text-primary" role="status">
-        <span class="visually-hidden">Loading...</span>
+        <span class="visually-hidden">{{ t('common.loading') }}</span>
       </div>
     </div>
 
     <div v-else-if="members.length === 0" class="empty-state">
       <i class="bi bi-people display-6 text-secondary"></i>
-      <p class="mb-1 fw-semibold">No member profiles yet</p>
+      <p class="mb-1 fw-semibold">{{ t('members.noMembers') }}</p>
       <p class="text-muted mb-3">
-        Add the first member manually or import a CSV to give the tenant a working directory.
+        {{ t('members.addFirst') }}
       </p>
       <div class="d-flex flex-wrap justify-content-center gap-2">
         <button class="btn btn-primary btn-sm" data-bs-toggle="modal" data-bs-target="#createMemberModal">
-          Add first member
+          {{ t('members.addFirstMember') }}
         </button>
         <button class="btn btn-outline-secondary btn-sm" data-bs-toggle="modal" data-bs-target="#importMemberModal">
-          Import CSV
+          {{ t('common.importCsv') }}
         </button>
         <RouterLink to="/admin/settings" class="btn btn-outline-secondary btn-sm">
-          Review settings
+          {{ t('members.reviewSettings') }}
         </RouterLink>
       </div>
     </div>
@@ -54,12 +54,12 @@
         <table class="table table-hover mb-0 align-middle" aria-label="Members list">
           <thead class="table-light">
             <tr>
-              <th class="ps-4" scope="col">Code</th>
-              <th scope="col">Name</th>
-              <th scope="col">Email</th>
-              <th scope="col">Status</th>
-              <th scope="col">Joined</th>
-              <th class="text-end pe-4" scope="col">Actions</th>
+              <th class="ps-4" scope="col">{{ t('members.code') }}</th>
+              <th scope="col">{{ t('common.name') }}</th>
+              <th scope="col">{{ t('common.email') }}</th>
+              <th scope="col">{{ t('common.status') }}</th>
+              <th scope="col">{{ t('members.joined') }}</th>
+              <th class="text-end pe-4" scope="col">{{ t('common.actions') }}</th>
             </tr>
           </thead>
           <tbody>
@@ -75,11 +75,11 @@
               </td>
               <td class="small">{{ formatDate(member.joined_at) }}</td>
               <td class="text-end pe-4">
-                <button class="btn btn-sm btn-outline-secondary me-1" aria-label="Edit member"
+                <button class="btn btn-sm btn-outline-secondary me-1" :aria-label="t('members.editMember')"
                   @click="editMember(member)">
                   <i class="bi bi-pencil"></i>
                 </button>
-                <button class="btn btn-sm btn-outline-danger" aria-label="Delete member"
+                <button class="btn btn-sm btn-outline-danger" :aria-label="t('members.deleteMember')"
                   @click="confirmDelete(member)">
                   <i class="bi bi-trash"></i>
                 </button>
@@ -96,30 +96,30 @@
       <div class="modal-dialog modal-lg">
         <div class="modal-content">
           <div class="modal-header">
-            <h5 class="modal-title" id="importMemberModalLabel">Import members from CSV</h5>
+            <h5 class="modal-title" id="importMemberModalLabel">{{ t('members.importTitle') }}</h5>
             <button type="button" class="btn-close" data-bs-dismiss="modal" @click="resetImport"></button>
           </div>
           <div class="modal-body">
             <div class="mb-3">
-              <label class="form-label small fw-medium">CSV file</label>
+              <label class="form-label small fw-medium">{{ t('common.csvFile') }}</label>
               <input ref="importFileInput" class="form-control form-control-sm" type="file" accept=".csv" @change="onImportFileChange" />
-              <div class="form-text small">Required columns: <code>member_code</code>, <code>first_name</code>, <code>last_name</code>. Optional: <code>display_name</code>, <code>email</code>, <code>phone</code>, <code>status</code>.</div>
+              <div class="form-text small">{{ t('members.requiredColumns') }}</div>
             </div>
             <div class="form-check mb-3">
               <input id="importDryRun" v-model="importDryRun" type="checkbox" class="form-check-input" />
-              <label for="importDryRun" class="form-check-label small">Dry run (validate only, no changes saved)</label>
+              <label for="importDryRun" class="form-check-label small">{{ t('common.dryRun') }}</label>
             </div>
             <div v-if="importResult" class="mt-3">
               <hr />
               <div class="d-flex gap-3 mb-3">
-                <span class="badge bg-secondary">Total: {{ importResult.total }}</span>
-                <span class="badge bg-success">Success: {{ importResult.success_count }}</span>
-                <span class="badge" :class="importResult.error_count > 0 ? 'bg-danger' : 'bg-success'">Errors: {{ importResult.error_count }}</span>
+                <span class="badge bg-secondary">{{ t('common.total') }}: {{ importResult.total }}</span>
+                <span class="badge bg-success">{{ t('common.successCount') }}: {{ importResult.success_count }}</span>
+                <span class="badge" :class="importResult.error_count > 0 ? 'bg-danger' : 'bg-success'">{{ t('common.errorCount') }}: {{ importResult.error_count }}</span>
               </div>
               <div v-if="importResult.errors.length > 0" class="mb-3">
-                <h6 class="small fw-bold text-danger">Validation errors</h6>
+                <h6 class="small fw-bold text-danger">{{ t('common.validationErrors') }}</h6>
                 <table class="table table-sm small mb-0">
-                  <thead><tr><th>Row</th><th>Error</th></tr></thead>
+                  <thead><tr><th>{{ t('common.row') }}</th><th>{{ t('common.errorColumn') }}</th></tr></thead>
                   <tbody>
                     <tr v-for="err in importResult.errors" :key="err.row">
                       <td>{{ err.row }}</td>
@@ -129,17 +129,17 @@
                 </table>
               </div>
               <div v-if="importResult.error_count === 0 && !importDryRun" class="alert alert-success small py-2 mb-0">
-                Successfully imported {{ importResult.success_count }} members.
+                {{ t('members.successfullyImported').replace('{count}', String(importResult.success_count)) }}
               </div>
             </div>
           </div>
           <div class="modal-footer">
-            <button type="button" class="btn btn-sm btn-secondary" data-bs-dismiss="modal" @click="resetImport">Cancel</button>
+            <button type="button" class="btn btn-sm btn-secondary" data-bs-dismiss="modal" @click="resetImport">{{ t('common.cancel') }}</button>
             <button v-if="importDryRun && importResult && importResult.error_count === 0" type="button" class="btn btn-sm btn-primary" @click="confirmImport" :disabled="importing">
-              {{ importing ? 'Importing...' : 'Confirm import' }}
+              {{ importing ? t('common.importing') : t('common.confirmImport') }}
             </button>
             <button v-else type="button" class="btn btn-sm btn-primary" @click="handleImport" :disabled="importing || !importSelectedFile">
-              {{ importing ? 'Importing...' : importDryRun ? 'Validate' : 'Import' }}
+              {{ importing ? t('common.importing') : importDryRun ? t('common.validate') : t('common.import') }}
             </button>
           </div>
         </div>
@@ -151,41 +151,41 @@
       <div class="modal-dialog">
         <div class="modal-content">
           <div class="modal-header">
-            <h5 class="modal-title" id="createMemberModalLabel">Add member</h5>
+            <h5 class="modal-title" id="createMemberModalLabel">{{ t('members.addMember') }}</h5>
             <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
           </div>
           <div class="modal-body">
             <div class="mb-3">
-              <label class="form-label small fw-medium">Member code</label>
+              <label class="form-label small fw-medium">{{ t('members.memberCode') }}</label>
               <input v-model="form.member_code" class="form-control form-control-sm" required />
             </div>
             <div class="row g-2 mb-3">
               <div class="col">
-                <label class="form-label small fw-medium">First name</label>
+                <label class="form-label small fw-medium">{{ t('members.firstName') }}</label>
                 <input v-model="form.first_name" class="form-control form-control-sm" required />
               </div>
               <div class="col">
-                <label class="form-label small fw-medium">Last name</label>
+                <label class="form-label small fw-medium">{{ t('members.lastName') }}</label>
                 <input v-model="form.last_name" class="form-control form-control-sm" required />
               </div>
             </div>
             <div class="mb-3">
-              <label class="form-label small fw-medium">Display name</label>
+              <label class="form-label small fw-medium">{{ t('members.displayName') }}</label>
               <input v-model="form.display_name" class="form-control form-control-sm" required />
             </div>
             <div class="mb-3">
-              <label class="form-label small fw-medium">Email</label>
+              <label class="form-label small fw-medium">{{ t('common.email') }}</label>
               <input v-model="form.email" type="email" class="form-control form-control-sm" />
             </div>
             <div class="mb-3">
-              <label class="form-label small fw-medium">Phone</label>
+              <label class="form-label small fw-medium">{{ t('members.phone') }}</label>
               <input v-model="form.phone" class="form-control form-control-sm" />
             </div>
           </div>
           <div class="modal-footer">
-            <button type="button" class="btn btn-sm btn-secondary" data-bs-dismiss="modal">Cancel</button>
+            <button type="button" class="btn btn-sm btn-secondary" data-bs-dismiss="modal">{{ t('common.cancel') }}</button>
             <button type="button" class="btn btn-sm btn-primary" @click="handleCreate" :disabled="saving">
-              {{ saving ? 'Saving...' : 'Save' }}
+              {{ saving ? t('common.saving') : t('common.save') }}
             </button>
           </div>
         </div>
@@ -197,38 +197,38 @@
       <div class="modal-dialog">
         <div class="modal-content">
           <div class="modal-header">
-            <h5 class="modal-title" id="editMemberModalLabel">Edit member</h5>
+            <h5 class="modal-title" id="editMemberModalLabel">{{ t('members.editMember') }}</h5>
             <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
           </div>
           <div class="modal-body">
             <div class="mb-3">
-              <label class="form-label small fw-medium">Member code</label>
+              <label class="form-label small fw-medium">{{ t('members.memberCode') }}</label>
               <input v-model="editForm.member_code" class="form-control form-control-sm" />
             </div>
             <div class="row g-2 mb-3">
               <div class="col">
-                <label class="form-label small fw-medium">First name</label>
+                <label class="form-label small fw-medium">{{ t('members.firstName') }}</label>
                 <input v-model="editForm.first_name" class="form-control form-control-sm" />
               </div>
               <div class="col">
-                <label class="form-label small fw-medium">Last name</label>
+                <label class="form-label small fw-medium">{{ t('members.lastName') }}</label>
                 <input v-model="editForm.last_name" class="form-control form-control-sm" />
               </div>
             </div>
             <div class="mb-3">
-              <label class="form-label small fw-medium">Display name</label>
+              <label class="form-label small fw-medium">{{ t('members.displayName') }}</label>
               <input v-model="editForm.display_name" class="form-control form-control-sm" />
             </div>
             <div class="mb-3">
-              <label class="form-label small fw-medium">Email</label>
+              <label class="form-label small fw-medium">{{ t('common.email') }}</label>
               <input v-model="editForm.email" type="email" class="form-control form-control-sm" />
             </div>
             <div class="mb-3">
-              <label class="form-label small fw-medium">Phone</label>
+              <label class="form-label small fw-medium">{{ t('members.phone') }}</label>
               <input v-model="editForm.phone" class="form-control form-control-sm" />
             </div>
             <div class="mb-3">
-              <label class="form-label small fw-medium">Status</label>
+              <label class="form-label small fw-medium">{{ t('common.status') }}</label>
               <select v-model="editForm.status" class="form-select form-select-sm">
                 <option value="active">Active</option>
                 <option value="inactive">Inactive</option>
@@ -238,9 +238,9 @@
             </div>
           </div>
           <div class="modal-footer">
-            <button type="button" class="btn btn-sm btn-secondary" data-bs-dismiss="modal">Cancel</button>
+            <button type="button" class="btn btn-sm btn-secondary" data-bs-dismiss="modal">{{ t('common.cancel') }}</button>
             <button type="button" class="btn btn-sm btn-primary" @click="handleUpdate" :disabled="saving">
-              {{ saving ? 'Saving...' : 'Save' }}
+              {{ saving ? t('common.saving') : t('common.save') }}
             </button>
           </div>
         </div>
@@ -252,16 +252,16 @@
       <div class="modal-dialog modal-sm">
         <div class="modal-content">
           <div class="modal-header">
-            <h5 class="modal-title" id="deleteMemberModalLabel">Confirm delete</h5>
+            <h5 class="modal-title" id="deleteMemberModalLabel">{{ t('common.confirm') }}</h5>
             <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
           </div>
           <div class="modal-body">
-            <p class="mb-0 small">Remove <strong>{{ deletingMember?.display_name }}</strong>?</p>
+            <p class="mb-0 small">{{ t('members.deleteMember') }}: <strong>{{ deletingMember?.display_name }}</strong>?</p>
           </div>
           <div class="modal-footer">
-            <button type="button" class="btn btn-sm btn-secondary" data-bs-dismiss="modal">Cancel</button>
+            <button type="button" class="btn btn-sm btn-secondary" data-bs-dismiss="modal">{{ t('common.cancel') }}</button>
             <button type="button" class="btn btn-sm btn-danger" @click="handleDelete" :disabled="saving">
-              {{ saving ? 'Deleting...' : 'Delete' }}
+              {{ saving ? t('common.loading') : t('common.delete') }}
             </button>
           </div>
         </div>
@@ -277,6 +277,10 @@ import * as bootstrap from 'bootstrap'
 import { listMembers, createMember, updateMember, deleteMember, importMembersCsv, exportMembersCsv } from '@/api/membership.api'
 import type { MembershipProfileResponse, CreateMemberPayload, UpdateMemberPayload, ImportResult } from '@/api/membership.api'
 import { useCsvExport } from '@/composables/useCsvExport'
+import { useLocaleStore } from '@/stores/locale.store'
+
+const localeStore = useLocaleStore()
+const t = (key: string) => localeStore.t(key)
 
 const loading = ref(true)
 const error = ref('')

@@ -7,6 +7,7 @@ This playbook defines the support boundary for Kairo.
 Included in standard support:
 
 - installation and upgrade guidance
+- scripted preflight, rollback, and smoke-validation guidance
 - application configuration
 - backup and restore procedures
 - document ingestion troubleshooting
@@ -20,6 +21,20 @@ Not included by default:
 - custom plugin development
 - data recovery from backups that were never created
 - legal or compliance sign-off
+
+## Responsibility Split
+
+### Self-hosted baseline
+
+- customer owns infrastructure uptime
+- customer owns secrets, host patching, and network perimeter
+- support covers the documented Kairo runtime and deployment flow
+
+### Managed-service baseline
+
+- delivery team or hosting partner owns runtime operations
+- backup, upgrade, and rollback execution are part of the service
+- escalation paths and response expectations must still be defined contractually
 
 ## Severity Triage
 
@@ -67,3 +82,7 @@ Because the product is designed to be recoverable and upgrades must preserve ten
 ## Escalation Rule
 
 If the issue could involve tenant isolation, unauthorized access, or data loss, escalate immediately and preserve evidence before making changes.
+
+## Positioning Rule
+
+Do not sell placeholder integrations, undefined SLAs, or customer-specific compliance work as if they were part of the default product contract.

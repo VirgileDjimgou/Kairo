@@ -4,11 +4,11 @@
       <div class="d-flex flex-column flex-xl-row justify-content-between gap-4">
         <div>
           <div class="text-uppercase small fw-semibold text-secondary mb-2">
-            Finance audit
+            {{ t('auditor.kicker') }}
           </div>
-          <h1 class="h3 fw-bold mb-2">Read-only finance oversight</h1>
+          <h1 class="h3 fw-bold mb-2">{{ t('auditor.title') }}</h1>
           <p class="text-muted mb-0 hero-copy">
-            Review tenant-level contribution totals, member balances, and payment activity without any mutation controls.
+            {{ t('auditor.subtitle') }}
           </p>
         </div>
         <div class="d-flex gap-2 align-items-start">
@@ -17,43 +17,60 @@
           </select>
           <button class="btn btn-outline-secondary btn-sm" type="button" @click="refreshAll" :disabled="loading">
             <span v-if="loading" class="spinner-border spinner-border-sm me-1" aria-hidden="true"></span>
-            Refresh
+            {{ t('common.refresh') }}
           </button>
           <button class="btn btn-primary btn-sm" type="button" @click="downloadReport" :disabled="exporting">
             <span v-if="exporting" class="spinner-border spinner-border-sm me-1" aria-hidden="true"></span>
-            {{ exporting ? 'Exporting...' : 'Export finance report' }}
+            {{ exporting ? t('auditor.exporting') : t('auditor.exportReport') }}
           </button>
         </div>
       </div>
     </div>
 
-    <div v-if="error" class="alert alert-danger alert-dismissible small py-2 mb-4" role="alert">
-      <i class="bi bi-exclamation-triangle me-1"></i>{{ error }}
-      <button type="button" class="btn-close py-2" @click="error = ''"></button>
+    <div v-if="errorMessage" class="alert alert-warning border-0 shadow-sm mb-4" role="alert">
+      <div class="d-flex flex-column flex-md-row justify-content-between gap-3">
+        <div>
+          <div class="fw-semibold">
+            <i class="bi bi-exclamation-triangle me-2"></i>{{ t('auditor.workspaceErrorTitle') }}
+          </div>
+          <p class="small mb-0 mt-2">{{ errorMessage }}</p>
+          <p class="mb-0 small text-muted mt-1">{{ t('common.recoveryHint') }}</p>
+        </div>
+        <button
+          v-if="error"
+          class="btn btn-outline-secondary btn-sm align-self-start"
+          type="button"
+          @click="retryRefresh"
+          :disabled="isRecovering"
+        >
+          <span v-if="isRecovering" class="spinner-border spinner-border-sm me-1" aria-hidden="true"></span>
+          {{ isRecovering ? t('common.loading') : t('common.retry') }}
+        </button>
+      </div>
     </div>
 
     <div v-if="summary" class="row g-3 mb-4">
       <div class="col-md-3">
         <div class="metric-card bg-primary-subtle">
-          <div class="text-muted small">Expected</div>
+          <div class="text-muted small">{{ t('contributions.expected') }}</div>
           <div class="fw-bold fs-4">{{ summary.total_expected }} EUR</div>
         </div>
       </div>
       <div class="col-md-3">
         <div class="metric-card bg-success-subtle">
-          <div class="text-muted small">Paid</div>
+          <div class="text-muted small">{{ t('contributions.paid') }}</div>
           <div class="fw-bold fs-4">{{ summary.total_paid }} EUR</div>
         </div>
       </div>
       <div class="col-md-3">
         <div class="metric-card" :class="Number(summary.total_balance) > 0 ? 'bg-warning-subtle' : 'bg-success-subtle'">
-          <div class="text-muted small">Outstanding</div>
+          <div class="text-muted small">{{ t('finance.outstandingBalance') }}</div>
           <div class="fw-bold fs-4">{{ summary.total_balance }} EUR</div>
         </div>
       </div>
       <div class="col-md-3">
         <div class="metric-card bg-light">
-          <div class="text-muted small">Payments logged</div>
+          <div class="text-muted small">{{ t('auditor.paymentsLogged') }}</div>
           <div class="fw-bold fs-4">{{ payments.length }}</div>
         </div>
       </div>
@@ -65,15 +82,15 @@
           <div class="card-body p-0">
             <div class="px-4 pt-4 pb-2 d-flex justify-content-between align-items-center">
               <div>
-                <div class="text-uppercase small fw-semibold text-secondary mb-1">Member balances</div>
-                <h2 class="h6 fw-bold mb-0">Tenant-wide contribution exposure</h2>
+                <div class="text-uppercase small fw-semibold text-secondary mb-1">{{ t('auditor.memberBalances') }}</div>
+                <h2 class="h6 fw-bold mb-0">{{ t('auditor.memberExposure') }}</h2>
               </div>
               <span class="badge text-bg-light border text-dark">{{ memberRows.length }} members</span>
             </div>
 
             <div v-if="loading" class="text-center py-5">
               <div class="spinner-border text-primary" role="status">
-                <span class="visually-hidden">Loading...</span>
+                <span class="visually-hidden">{{ t('common.loading') }}</span>
               </div>
             </div>
 
@@ -81,11 +98,11 @@
               <table class="table table-hover align-middle mb-0" aria-label="Auditor member balances">
                 <thead class="table-light">
                   <tr>
-                    <th class="ps-4" scope="col">Member</th>
-                    <th scope="col">Expected</th>
-                    <th scope="col">Paid</th>
+                    <th class="ps-4" scope="col">{{ t('common.member') }}</th>
+                    <th scope="col">{{ t('contributions.expected') }}</th>
+                    <th scope="col">{{ t('contributions.paid') }}</th>
                     <th scope="col">Balance</th>
-                    <th class="pe-4" scope="col">Records</th>
+                    <th class="pe-4" scope="col">{{ t('common.records') }}</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -113,7 +130,7 @@
           <div class="card-body p-0">
             <div class="px-4 pt-4 pb-2 d-flex justify-content-between align-items-center">
               <div>
-                <div class="text-uppercase small fw-semibold text-secondary mb-1">Payment activity</div>
+                <div class="text-uppercase small fw-semibold text-secondary mb-1">{{ t('auditor.paymentActivity') }}</div>
                 <h2 class="h6 fw-bold mb-0">Recent recorded payments</h2>
               </div>
               <span class="badge text-bg-light border text-dark">{{ visiblePayments.length }} shown</span>
@@ -121,12 +138,12 @@
 
             <div v-if="loading" class="text-center py-5">
               <div class="spinner-border text-primary" role="status">
-                <span class="visually-hidden">Loading...</span>
+                <span class="visually-hidden">{{ t('common.loading') }}</span>
               </div>
             </div>
 
             <div v-else-if="visiblePayments.length === 0" class="p-4 text-muted small">
-              No payments recorded for the current tenant view.
+              {{ t('auditor.noPayments') }}
             </div>
 
             <div v-else class="list-group list-group-flush">
@@ -164,13 +181,18 @@ import {
 } from '@/api/contributions.api'
 import { listMembers, type MembershipProfileResponse } from '@/api/membership.api'
 import { useCsvExport } from '@/composables/useCsvExport'
+import { useRecoveryState } from '@/composables/useRecoveryState'
+import { useLocaleStore } from '@/stores/locale.store'
 import { computed, onMounted, ref } from 'vue'
+
+const localeStore = useLocaleStore()
+const t = (key: string) => localeStore.t(key)
 
 type AuditorPaymentRow = PaymentRecordResponse & { memberLabel: string }
 
-const loading = ref(true)
+const { loading, error, isRecovering, run, retry, clearError } = useRecoveryState()
 const exporting = ref(false)
-const error = ref('')
+const actionError = ref('')
 const members = ref<MembershipProfileResponse[]>([])
 const contributions = ref<ContributionRecordResponse[]>([])
 const payments = ref<PaymentRecordResponse[]>([])
@@ -229,9 +251,9 @@ function formatPaymentMethod(value: string): string {
 }
 
 async function refreshAll() {
-  loading.value = true
-  error.value = ''
-  try {
+  clearError()
+  actionError.value = ''
+  await run(async () => {
     const [memberRows, contributionRows, summaryData, paymentRows] = await Promise.all([
       listMembers(),
       listContributions(selectedYear.value),
@@ -242,24 +264,38 @@ async function refreshAll() {
     contributions.value = contributionRows
     summary.value = summaryData
     payments.value = paymentRows
-  } catch (err) {
-    error.value = err instanceof Error ? err.message : 'Unable to load the finance audit workspace.'
-  } finally {
-    loading.value = false
-  }
+  })
+}
+
+async function retryRefresh() {
+  actionError.value = ''
+  await retry(async () => {
+    const [memberRows, contributionRows, summaryData, paymentRows] = await Promise.all([
+      listMembers(),
+      listContributions(selectedYear.value),
+      getContributionSummary(selectedYear.value),
+      listTenantPayments(),
+    ])
+    members.value = memberRows
+    contributions.value = contributionRows
+    summary.value = summaryData
+    payments.value = paymentRows
+  })
 }
 
 async function downloadReport() {
   exporting.value = true
-  error.value = ''
+  actionError.value = ''
   try {
     await exportCsv(exportFinanceReportCsv, 'finance-report.csv')
   } catch (err) {
-    error.value = err instanceof Error ? err.message : 'Unable to export the finance report.'
+    actionError.value = err instanceof Error ? err.message : 'Unable to export the finance report.'
   } finally {
     exporting.value = false
   }
 }
+
+const errorMessage = computed(() => actionError.value || error.value)
 
 onMounted(refreshAll)
 </script>

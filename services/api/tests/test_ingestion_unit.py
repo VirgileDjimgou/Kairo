@@ -1,14 +1,20 @@
 """Unit tests for document parsers, chunking, and indexing payloads."""
 
-import pytest
 from io import BytesIO
 
+import pytest
+from fakes import FakeEmbeddingProvider, FakeVectorStoreProvider
+
+from app.modules.documents.metadata import (
+    classify_archive_access,
+    infer_document_language,
+    infer_document_language_from_upload,
+)
 from app.modules.indexing.service import build_chunk_payload
 from app.modules.ingestion.chunking import chunk_text, estimate_token_count
 from app.providers.parsers import parse_document_bytes
 from app.providers.parsers.pdf_docx import parse_docx_bytes, parse_pdf_bytes
 from app.providers.parsers.whatsapp import parse_whatsapp_export
-from fakes import FakeEmbeddingProvider, FakeVectorStoreProvider
 
 
 def test_parse_txt_bytes() -> None:
@@ -131,13 +137,84 @@ def test_build_chunk_payload_includes_tenant_and_scope() -> None:
     assert payload["document_version_id"] == str(version_id)
 
 
+def test_infer_document_language_detects_french_from_text_upload() -> None:
+    language = infer_document_language_from_upload(
+        file_name="cotisations.txt",
+        title="Cotisations 2026",
+        file_bytes=b"Bonjour association cotisation annuelle",
+    )
+    assert language == "fr"
+
+
+def test_infer_document_language_detects_german_archive_filename() -> None:
+    language = infer_document_language(
+        file_name="Vorstand_protokoll_de.pdf",
+        title="Vorstand Protokoll",
+    )
+    assert language == "de"
+
+
+def test_infer_document_language_returns_und_when_ambiguous() -> None:
+    language = infer_document_language(
+        file_name="notes.txt",
+        title="General notes",
+        text_sample="No clear linguistic markers here.",
+    )
+    assert language == "und"
+
+
+def test_classify_archive_access_is_conservative_for_sensitive_documents() -> None:
+    roles = {
+        "treasurer": "role-treasurer",
+        "auditor": "role-auditor",
+        "president": "role-president",
+        "vice_president": "role-vice",
+        "principal_admin": "role-admin",
+        "secretary_general": "role-secretary",
+        "censor": "role-censor",
+    }
+
+    finance_scope, finance_roles = classify_archive_access("Budget_audit_2026.xlsx", roles)
+    governance_scope, governance_roles = classify_archive_access(
+        "Proces-verbal_confidential_board_minutes.pdf",
+        roles,
+    )
+    discipline_scope, discipline_roles = classify_archive_access(
+        "disciplinary_warning_member.pdf",
+        roles,
+    )
+
+    assert finance_scope == "role_restricted"
+    assert finance_roles == [
+        "role-treasurer",
+        "role-auditor",
+        "role-president",
+        "role-vice",
+        "role-admin",
+    ]
+    assert governance_scope == "role_restricted"
+    assert governance_roles == [
+        "role-secretary",
+        "role-president",
+        "role-vice",
+        "role-admin",
+    ]
+    assert discipline_scope == "role_restricted"
+    assert discipline_roles == [
+        "role-censor",
+        "role-president",
+        "role-vice",
+        "role-admin",
+    ]
+
+
 @pytest.mark.asyncio
 async def test_fake_indexing_stores_vectors_with_metadata() -> None:
     from uuid import uuid4
 
+    from app.core.config import settings
     from app.modules.documents.models import Document, DocumentChunk
     from app.modules.indexing.service import IndexingService
-    from app.core.config import settings
 
     previous = settings.indexing_auto_enabled
     settings.indexing_auto_enabled = True

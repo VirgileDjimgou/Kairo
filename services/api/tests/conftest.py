@@ -15,9 +15,8 @@ but the default is now fully autonomous and does not require local PostgreSQL.
 import asyncio
 import os
 import tempfile
-from pathlib import Path
-import uuid
 from collections.abc import AsyncGenerator
+from pathlib import Path
 
 import pytest
 import pytest_asyncio
@@ -180,13 +179,16 @@ async def client(
     Yield an AsyncClient wired to the FastAPI app, with get_db overridden
     to use the same rolled-back test session.
     """
-    from app.core.dependencies import get_db
-    from app.core.dependencies import get_embedding_provider
-    from app.core.dependencies import get_llm_provider
-    from app.core.dependencies import get_object_storage_provider
-    from app.core.dependencies import get_vector_store_provider
-    from app.main import app
     from fakes import FakeEmbeddingProvider
+
+    from app.core.dependencies import (
+        get_db,
+        get_embedding_provider,
+        get_llm_provider,
+        get_object_storage_provider,
+        get_vector_store_provider,
+    )
+    from app.main import app
 
     async def override_get_db() -> AsyncGenerator[AsyncSession, None]:
         yield db_session
@@ -215,6 +217,7 @@ async def seeded_tenant_and_admin(db_session: AsyncSession):
     Used by auth and isolation tests without relying on the seed script.
     """
     import uuid as _uuid
+
     from app.core.security import hash_password
     from app.modules.identity.models import User
     from app.modules.tenancy.models import Role, Tenant, TenantUser, user_roles

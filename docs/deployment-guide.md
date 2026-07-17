@@ -2,6 +2,8 @@
 
 This guide covers production deployment and remote exposure via Cloudflare Tunnel.
 
+For the shortest install, upgrade, and rollback workflow, pair this guide with [`docs/operations/deployment-runbook.md`](./operations/deployment-runbook.md).
+
 ## Table of Contents
 
 - [Architecture Overview](#architecture-overview)
@@ -64,30 +66,21 @@ git clone <repository-url> kairo
 cd kairo
 cp .env.production.example .env
 # Edit .env — change all secrets
+bash scripts/deploy_release.sh preflight
 ```
 
 ### 2. Build and start
 
 ```bash
-# Development (hot-reload, docs enabled)
-docker compose up --build -d
-
-# Production (optimized builds, no docs, 2 workers)
-docker compose -f docker-compose.yml -f docker-compose.prod.yml up --build -d
+# First production install
+bash scripts/deploy_release.sh install
 ```
 
 ### 3. Verify
 
 ```bash
-# Health check
-curl http://localhost/health
-
-# Frontend
-curl http://localhost/
-
-# API
-curl http://localhost/api/v1/auth/login -X POST -H "Content-Type: application/json" \
-  -d '{"email":"admin@test.org","password":"TestPass123!","tenant_slug":"demo"}'
+# Built-in smoke validation
+bash scripts/production_smoke.sh
 ```
 
 ---
@@ -187,9 +180,8 @@ The cloudflare config sample (`infra/cloudflare/config.yml.example`) shows:
 ### Automated backup
 
 ```bash
-chmod +x scripts/backup.sh
-./scripts/backup.sh              # creates ./backups/kairo-backup-<timestamp>.tar.gz
-./scripts/backup.sh /mnt/backups # custom directory
+bash scripts/backup.sh              # creates ./backups/kairo-backup-<timestamp>.tar.gz
+bash scripts/backup.sh /mnt/backups # custom directory
 ```
 
 The script backs up all persistent data:
@@ -205,8 +197,7 @@ The script backs up all persistent data:
 ### Automated restore
 
 ```bash
-chmod +x scripts/restore.sh
-./scripts/restore.sh ./backups/kairo-backup-20260629_120000.tar.gz
+bash scripts/restore.sh ./backups/kairo-backup-20260629_120000.tar.gz
 ```
 
 The restore script:
@@ -219,7 +210,25 @@ The restore script:
 After restore, run the production smoke check to verify:
 
 ```bash
-./scripts/production_smoke.sh
+bash scripts/production_smoke.sh
+```
+
+### Guided install, upgrade, and rollback
+
+Use the release helpers for the full production path:
+
+```bash
+# Preflight only
+bash scripts/deploy_release.sh preflight
+
+# First install
+bash scripts/deploy_release.sh install
+
+# Upgrade with automatic backup + smoke validation
+bash scripts/deploy_release.sh upgrade
+
+# Roll back to a known-good backup
+bash scripts/rollback_release.sh ./backups/kairo-backup-YYYYMMDD_HHMMSS.tar.gz
 ```
 
 ### Manual restore (alternative)
@@ -263,7 +272,7 @@ docker compose up -d
 
 ```bash
 # Daily backup at 3 AM
-0 3 * * * /path/to/kairo/scripts/backup.sh /mnt/backups >> /var/log/kairo-backup.log 2>&1
+0 3 * * * bash /path/to/kairo/scripts/backup.sh /mnt/backups >> /var/log/kairo-backup.log 2>&1
 ```
 
 ---
@@ -273,11 +282,10 @@ docker compose up -d
 For a repeatable production smoke check, use:
 
 ```bash
-chmod +x scripts/production_smoke.sh
-./scripts/production_smoke.sh http://localhost
+bash scripts/production_smoke.sh http://localhost
 ```
 
-For the full validation and restore workflow, see [`docs/operations/production-readiness.md`](docs/operations/production-readiness.md).
+For the full validation and restore workflow, see [`docs/operations/production-readiness.md`](docs/operations/production-readiness.md) and [`docs/operations/deployment-runbook.md`](./operations/deployment-runbook.md).
 
 For customer-facing packaging and go-live preparation, see:
 
@@ -294,6 +302,7 @@ For customer-facing packaging and go-live preparation, see:
 - [ ] Changed all default passwords (`JWT_SECRET_KEY`, `POSTGRES_PASSWORD`, `MINIO_ROOT_PASSWORD`)
 - [ ] Set `APP_DEBUG=false` and `APP_ENV=production`
 - [ ] API docs disabled automatically when `APP_DEBUG=false`
+- [ ] `bash scripts/deploy_release.sh preflight` passes
 - [ ] CORS origins match your actual domain(s)
 - [ ] Cloudflare Tunnel configured — no ports exposed on the public internet
 - [ ] Internal service ports (5432, 6379, 6333, 9000, 9001, 11434) are NOT exposed through the tunnel
@@ -306,6 +315,7 @@ For customer-facing packaging and go-live preparation, see:
 - Rotate `JWT_SECRET_KEY` periodically
 - Monitor Docker logs: `docker compose logs --tail=100 -f`
 - Check backup integrity monthly
+- Re-run `bash scripts/production_smoke.sh` after every upgrade or rollback
 - Keep Cloudflare Access (Zero Trust) in mind for admin route protection
 
 ---
@@ -335,7 +345,7 @@ For customer-facing packaging and go-live preparation, see:
 - Ensure `docker compose` is available and the project is running
 - Set `COMPOSE_PROJECT` if using a non-default project name:
   ```bash
-  COMPOSE_PROJECT=myproject ./scripts/backup.sh
+  COMPOSE_PROJECT=myproject bash ./scripts/backup.sh
   ```
 
 ### Worker not processing jobs

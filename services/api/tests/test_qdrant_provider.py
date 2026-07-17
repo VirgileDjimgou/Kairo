@@ -45,5 +45,6 @@ def test_search_chunk_vectors_uses_query_points(monkeypatch) -> None:
             "id": "chunk-1",
             "score": 0.91,
             "payload": {"tenant_id": str(tenant_id), "document_id": "doc-1"},
+            "retrieval_mode": "dense",
         }
     ]

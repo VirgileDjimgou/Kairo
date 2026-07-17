@@ -79,3 +79,6 @@ Suggested alerts for small deployments:
 
 - Metrics are intentionally lightweight and local-first.
 - The first version is designed for operational clarity, not full enterprise telemetry.
+- Sprint 80 adds a versioned Prometheus/Grafana package under `infra/monitoring/`
+  plus a backend regression test that ensures the bundled dashboard references
+  only metrics that `/metrics` actually emits.

@@ -3,15 +3,15 @@
     <div class="d-flex flex-column flex-lg-row justify-content-between gap-3 mb-4">
       <div>
         <div class="text-uppercase small fw-semibold text-secondary mb-2">
-          Policies
+          {{ t('policies.kicker') }}
         </div>
-        <h1 class="h4 fw-bold mb-1">Policy administration</h1>
+        <h1 class="h4 fw-bold mb-1">{{ t('policies.adminTitle') }}</h1>
         <p class="text-muted mb-0">
-          Create, update, archive, and publish tenant policy records.
+          {{ t('policies.adminSubtitle') }}
         </p>
       </div>
       <button class="btn om-primary-btn align-self-start" type="button" @click="resetForm">
-        New policy
+        {{ t('policies.newPolicy') }}
       </button>
     </div>
 
@@ -21,21 +21,21 @@
           <div class="card-body p-4">
             <div class="d-flex align-items-center justify-content-between mb-3">
               <h2 class="h6 fw-bold mb-0">
-                {{ editingId ? 'Edit policy' : 'Create policy' }}
+                {{ editingId ? t('policies.editPolicy') : t('policies.createPolicy') }}
               </h2>
               <span class="badge text-bg-light text-dark border">
-                {{ policies.length }} records
+                {{ policies.length }} {{ t('common.records') }}
               </span>
             </div>
 
             <form class="vstack gap-3" @submit.prevent="savePolicy">
               <div>
-                <label class="form-label">Title</label>
+                <label class="form-label">{{ t('common.title') }}</label>
                 <input v-model.trim="form.title" class="form-control" type="text" required />
               </div>
 
               <div>
-                <label class="form-label">Category</label>
+                <label class="form-label">{{ t('common.category') }}</label>
                 <input v-model.trim="form.category" class="form-control" type="text" list="policy-category-list" required />
                 <datalist id="policy-category-list">
                   <option v-for="category in categories" :key="category" :value="category" />
@@ -43,14 +43,14 @@
               </div>
 
               <div>
-                <label class="form-label">Description</label>
+                <label class="form-label">{{ t('common.description') }}</label>
                 <textarea v-model.trim="form.description" class="form-control" rows="4" />
               </div>
 
               <div>
-                <label class="form-label">Linked document</label>
+                <label class="form-label">{{ t('policies.linkedDocument') }}</label>
                 <select v-model="form.document_id" class="form-select">
-                  <option value="">No document</option>
+                  <option value="">{{ t('common.noDocument') }}</option>
                   <option v-for="document in documents" :key="document.id" :value="document.id">
                     {{ document.title }}
                   </option>
@@ -58,20 +58,20 @@
               </div>
 
               <div>
-                <label class="form-label">Status</label>
+                <label class="form-label">{{ t('common.status') }}</label>
                 <select v-model="form.status" class="form-select">
-                  <option value="draft">Draft</option>
-                  <option value="published">Published</option>
-                  <option value="archived">Archived</option>
+                  <option value="draft">{{ t('common.draft') }}</option>
+                  <option value="published">{{ t('common.published') }}</option>
+                  <option value="archived">{{ t('common.archived') }}</option>
                 </select>
               </div>
 
               <div class="d-flex gap-2">
                 <button class="btn btn-primary" type="submit" :disabled="saving">
-                  {{ saving ? 'Saving...' : editingId ? 'Update policy' : 'Create policy' }}
+                  {{ saving ? t('common.saving') : editingId ? t('policies.updatePolicy') : t('policies.createPolicy') }}
                 </button>
                 <button class="btn btn-outline-secondary" type="button" @click="resetForm">
-                  Reset
+                  {{ t('common.reset') }}
                 </button>
               </div>
             </form>
@@ -82,15 +82,36 @@
       <div class="col-lg-8">
         <div class="card shadow-sm border-0">
           <div class="card-body p-4">
+            <div v-if="error" class="alert alert-warning border-0 shadow-sm mb-4" role="alert">
+              <div class="d-flex flex-column flex-md-row justify-content-between gap-3">
+                <div>
+                  <div class="fw-semibold">
+                    <i class="bi bi-exclamation-triangle me-2"></i>{{ t('policies.workspaceErrorTitle') }}
+                  </div>
+                  <p class="small mb-0 mt-2">{{ error }}</p>
+                  <p class="mb-0 small text-muted mt-1">{{ t('common.recoveryHint') }}</p>
+                </div>
+                <button class="btn btn-outline-secondary btn-sm align-self-start" type="button" @click="retryPolicies" :disabled="isRecovering">
+                  <span v-if="isRecovering" class="spinner-border spinner-border-sm me-1" aria-hidden="true"></span>
+                  {{ isRecovering ? t('common.loading') : t('common.retry') }}
+                </button>
+              </div>
+            </div>
+
+            <div v-if="actionError" class="alert alert-danger alert-dismissible small py-2 mb-3" role="alert">
+              <i class="bi bi-exclamation-triangle me-1"></i>{{ actionError }}
+              <button type="button" class="btn-close py-2" @click="actionError = ''"></button>
+            </div>
+
             <div v-if="loading" class="text-muted py-5 text-center">
-              Loading policies...
+              {{ t('policies.loadingPolicies') }}
             </div>
 
             <div v-else-if="policies.length === 0" class="empty-state">
               <i class="bi bi-journal-check display-6 text-secondary"></i>
-              <p class="mb-1 fw-semibold">No policies yet</p>
+              <p class="mb-1 fw-semibold">{{ t('policies.noPolicies') }}</p>
               <p class="text-muted mb-0">
-                Start by creating the first public or draft policy record.
+                {{ t('policies.noPoliciesHint') }}
               </p>
             </div>
 
@@ -98,12 +119,12 @@
               <table class="table align-middle">
                 <thead>
                   <tr>
-                    <th>Title</th>
-                    <th>Category</th>
-                    <th>Status</th>
-                    <th>Linked document</th>
-                    <th>Updated</th>
-                    <th class="text-end">Actions</th>
+                    <th>{{ t('common.title') }}</th>
+                    <th>{{ t('common.category') }}</th>
+                    <th>{{ t('common.status') }}</th>
+                    <th>{{ t('policies.linkedDocument') }}</th>
+                    <th>{{ t('common.updated') }}</th>
+                    <th class="text-end">{{ t('common.actions') }}</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -123,10 +144,10 @@
                     <td class="text-end">
                       <div class="btn-group btn-group-sm">
                         <button class="btn btn-outline-primary" type="button" @click="editPolicy(policy)">
-                          Edit
+                          {{ t('common.edit') }}
                         </button>
                         <button class="btn btn-outline-danger" type="button" @click="removePolicy(policy)">
-                          Delete
+                          {{ t('common.delete') }}
                         </button>
                       </div>
                     </td>
@@ -141,7 +162,7 @@
   </div>
 
   <ConfirmModal v-if="showDeleteModal && deletingItem"
-    title="Delete policy"
+    :title="t('policies.deletePolicy')"
     :message="`Delete policy &quot;${deletingItem.title}&quot;?`"
     @confirm="handleDelete"
     @cancel="showDeleteModal = false; deletingItem = null"
@@ -151,6 +172,8 @@
 <script setup lang="ts">
 import ConfirmModal from '@/components/ConfirmModal.vue'
 import { onMounted, ref } from 'vue'
+import { useRecoveryState } from '@/composables/useRecoveryState'
+import { useLocaleStore } from '@/stores/locale.store'
 import { listDocuments, type DocumentListItemResponse } from '@/api/documents.api'
 import {
   createPolicy,
@@ -163,7 +186,10 @@ import {
   type UpdatePolicyPayload,
 } from '@/api/policies.api'
 
-const loading = ref(true)
+const localeStore = useLocaleStore()
+const t = (key: string) => localeStore.t(key)
+
+const { loading, error, isRecovering, run, retry, clearError } = useRecoveryState()
 const saving = ref(false)
 const policies = ref<PolicyRecordResponse[]>([])
 const categories = ref<string[]>([])
@@ -171,6 +197,7 @@ const documents = ref<DocumentListItemResponse[]>([])
 const editingId = ref<string | null>(null)
 const showDeleteModal = ref(false)
 const deletingItem = ref<PolicyRecordResponse | null>(null)
+const actionError = ref('')
 
 const form = ref<CreatePolicyPayload>({
   title: '',
@@ -189,20 +216,33 @@ function statusClass(status: string): string {
   return map[status] || 'bg-light text-dark border'
 }
 
+function setActionError(err: unknown) {
+  actionError.value =
+    (err as any)?.response?.data?.detail ||
+    (err as any)?.message ||
+    localeStore.t('common.error')
+}
+
+async function loadPolicies() {
+  const [policyList, categoryList, documentList] = await Promise.all([
+    listPolicies(),
+    listPolicyCategories(),
+    listDocuments(),
+  ])
+  policies.value = policyList
+  categories.value = categoryList.categories
+  documents.value = documentList
+}
+
 async function refreshPolicies() {
-  loading.value = true
-  try {
-    const [policyList, categoryList, documentList] = await Promise.all([
-      listPolicies(),
-      listPolicyCategories(),
-      listDocuments(),
-    ])
-    policies.value = policyList
-    categories.value = categoryList.categories
-    documents.value = documentList
-  } finally {
-    loading.value = false
-  }
+  actionError.value = ''
+  clearError()
+  await run(loadPolicies)
+}
+
+async function retryPolicies() {
+  actionError.value = ''
+  await retry(loadPolicies)
 }
 
 function resetForm() {
@@ -229,6 +269,7 @@ function editPolicy(policy: PolicyRecordResponse) {
 
 async function savePolicy() {
   saving.value = true
+  actionError.value = ''
   try {
     const payload = {
       title: form.value.title,
@@ -244,6 +285,8 @@ async function savePolicy() {
     }
     await refreshPolicies()
     resetForm()
+  } catch (err) {
+    setActionError(err)
   } finally {
     saving.value = false
   }
@@ -257,12 +300,15 @@ function removePolicy(policy: PolicyRecordResponse) {
 async function handleDelete() {
   if (!deletingItem.value) return
   saving.value = true
+  actionError.value = ''
   try {
     await deletePolicy(deletingItem.value.id)
     await refreshPolicies()
     if (editingId.value === deletingItem.value.id) {
       resetForm()
     }
+  } catch (err) {
+    setActionError(err)
   } finally {
     saving.value = false
     showDeleteModal.value = false

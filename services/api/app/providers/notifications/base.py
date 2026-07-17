@@ -22,6 +22,10 @@ class NotificationDispatchResult:
     message: str
     delivered: bool
     simulation_only: bool
+    delivery_stage: str = "simulated"
+    reconciliation_status: str = "not_applicable"
+    reconciliation_supported: bool = False
+    provider_reference: str | None = None
 
 
 class NotificationProvider(Protocol):

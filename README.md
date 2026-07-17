@@ -152,7 +152,7 @@ kairo/
 │   │   │                events, announcements)
 │   │   ├── db/          Session, migrations, seed scripts
 │   │   └── core/        Security, logging, provider abstractions
-│   └── tests/           212 integration tests (SQLite, no infra needed)
+│   └── tests/           239 integration tests (SQLite, no infra needed)
 ├── infra/               Infrastructure config samples (nginx, caddy, cloudflare)
 ├── docs/                Architecture docs, ADRs, sprint notes, deployment guide
 ├── orgmind_prompt_pack/ Source-of-truth product documentation
@@ -315,54 +315,85 @@ On Windows PowerShell:
 .\seed\seed-multi-tenant.ps1
 ```
 
-## Delivery Status (Validated 2026-07-06)
+## Delivery Status (Validated 2026-07-16)
 
-- Current sprint: **Sprint 61 completed** (Onboarding Wizard, Demo Seed, and First-Run Setup)
-- Official next sprint: **Sprint 62** (Privacy, Audit, and Export Hardening)
-- Backend validation run: **212 tests executed**, **211 passed**, **1 failed**
-  - failing test: `tests/test_import_export.py::TestExports::test_export_members_accessible_to_auth_user`
-  - observed behavior: export endpoint returns `403` for an authenticated member profile
-- Frontend validation run: `npm run build` passed (`vue-tsc --noEmit` + Vite production build)
-- Role simulation run: 18 Playwright role-focused scenarios passed (finance, auditor, censor, sports, governance, secretary, tenant operations/switching, admin overview)
-- Demo assets refreshed: 13 screenshot sessions + 13 short role videos (WEBM)
+- Current sprint: **Sprint 77 completed** (Broader Recovery UX Rollout: Secretary Announcements + Tenant Operations)
+- Stabilization and open-source maturity track: **complete** — see `docs/OPEN_SOURCE_RELEASE.md` for the verified baseline, known limits, and next planning cycle
+- New planning cycle status:
+  - Sprint 74 completed for Censor + Sports recovery UX rollout
+  - Sprint 75 completed for Auditor + Governance recovery UX rollout
+  - Sprint 76 completed for Secretary Documents + Principal Admin Overview recovery UX rollout
+  - Sprint 77 completed for Secretary Announcements + Tenant Operations recovery UX rollout
+  - Next likely increment: continue the shared recovery UX rollout to `secretary/policies`, `admin/health`, `admin/onboarding`, and `admin/settings`, or pick another `docs/OPEN_SOURCE_RELEASE.md` theme
+- Production packaging validation:
+  - `bash scripts/deploy_release.sh preflight` passed against a production-oriented environment file
+  - `docker compose --env-file .env.production.codex -f docker-compose.yml -f docker-compose.prod.yml config` rendered successfully
+  - `docker compose --env-file .env.production.codex -f docker-compose.yml -f docker-compose.prod.yml build api web` completed successfully
+- Frontend production build remains healthy inside the production image pipeline
+- Validation baseline recovery:
+  - `python -m pytest services/api/tests -q` passed from the repository root
+  - `python -m ruff check` now has an active blocking subset for shared auth, RAG policy, and key chat/governance tests
+  - `python -m mypy --config-file services/api/pyproject.toml --explicit-package-bases ...` is operational on the initial backend typing subset
+  - `npm run test:e2e:locale` passed and the Playwright web-server launcher is now portable across Windows and Linux CI
+- Chat modularization recovery:
+  - prompt construction and retrieval-query shaping now live in dedicated chat helper modules
+  - citation/context payload assembly is separated from the main chat service orchestration path
+  - `query` and `query-stream` now share the same preparation path for policy refusals, no-source refusals, prompts, citations, and confidence
+  - stream queries without authorized sources now stop before the LLM, matching the non-streaming safety contract
+- Retrieval quality hardening:
+  - the shipped retrieval contract is now explicit as dense retrieval with lexical keyword boosting, language-aware ordering, and optional reranking
+  - backend retrieval logs now summarize retrieval mode, candidate counts, authorized counts, and returned counts for chat flows
+  - targeted ranking regressions now cover keyword-overlap ordering and dense retrieval mode reporting
+- Commercial packaging validation:
+  - offer pack, buyer FAQ, feature matrix, and support playbook now align with the verified runtime surface
+  - the README and commercial reading order now point first to the shortest buyer-facing materials
+- Demo assets remain available for role walkthroughs and multi-tenant review
 
-Kairo remains a strong professional release candidate for association workflows, suitable for controlled pilot deployments and disciplined self-hosting. The remaining productization track is still centered on privacy/export hardening, deployment packaging, and commercial handoff completion.
+Kairo remains a strong professional release candidate for association workflows, suitable for controlled pilot deployments and disciplined self-hosting. The current hardening roadmap remains active, with the next execution step now focused on calmer role journeys and workspace clarity on top of the recovered retrieval and ingestion foundations.
 
-See [`docs/commercial/maturity-review.md`](docs/commercial/maturity-review.md) and [`docs/commercial/demo-to-production-checklist.md`](docs/commercial/demo-to-production-checklist.md).
+See [`docs/commercial/maturity-review.md`](docs/commercial/maturity-review.md), [`docs/commercial/demo-to-production-checklist.md`](docs/commercial/demo-to-production-checklist.md), and [`docs/operations/validation-baseline.md`](docs/operations/validation-baseline.md).
 
 ## Commercial Packaging
 
 If you want to present Kairo as a product rather than only a codebase, start here:
 
 1. [`docs/commercial/README.md`](docs/commercial/README.md) - commercial overview and reading order
-2. [`docs/commercial/public-entry.md`](docs/commercial/public-entry.md) - what the public login surface communicates
-3. [`docs/commercial/onboarding-guide.md`](docs/commercial/onboarding-guide.md) - customer onboarding flow
-4. [`docs/commercial/administrator-guide.md`](docs/commercial/administrator-guide.md) - tenant admin operations
-5. [`docs/commercial/support-playbook.md`](docs/commercial/support-playbook.md) - support boundary and incident workflow
-6. [`docs/commercial/feature-matrix.md`](docs/commercial/feature-matrix.md) - included modules and future boundaries
-7. [`docs/commercial/commercialization-notes.md`](docs/commercial/commercialization-notes.md) - service-led offer structure
-8. [`docs/commercial/demo-to-production-checklist.md`](docs/commercial/demo-to-production-checklist.md) - go-live transition checklist
-9. [`docs/commercial/professional-release-candidate-checklist.md`](docs/commercial/professional-release-candidate-checklist.md) - final release-candidate validation checklist
-10. [`docs/commercial/maturity-review.md`](docs/commercial/maturity-review.md) - remaining legal and business decisions
+2. [`docs/commercial/offer-pack.md`](docs/commercial/offer-pack.md) - short product and offer summary
+3. [`docs/commercial/buyer-faq.md`](docs/commercial/buyer-faq.md) - simple buyer and board questions
+4. [`docs/commercial/public-entry.md`](docs/commercial/public-entry.md) - what the public login surface communicates
+5. [`docs/commercial/onboarding-guide.md`](docs/commercial/onboarding-guide.md) - customer onboarding flow
+6. [`docs/commercial/administrator-guide.md`](docs/commercial/administrator-guide.md) - tenant admin operations
+7. [`docs/commercial/support-playbook.md`](docs/commercial/support-playbook.md) - support boundary and incident workflow
+8. [`docs/commercial/feature-matrix.md`](docs/commercial/feature-matrix.md) - included modules and future boundaries
+9. [`docs/commercial/commercialization-notes.md`](docs/commercial/commercialization-notes.md) - service-led offer structure
+10. [`docs/commercial/demo-to-production-checklist.md`](docs/commercial/demo-to-production-checklist.md) - go-live transition checklist
+11. [`docs/commercial/professional-release-candidate-checklist.md`](docs/commercial/professional-release-candidate-checklist.md) - final release-candidate validation checklist
+12. [`docs/commercial/maturity-review.md`](docs/commercial/maturity-review.md) - remaining legal and business decisions
 
 ## Development
 
 ```bash
-# API tests (SQLite by default — no local PostgreSQL needed)
-cd services/api
-pip install -r requirements.txt
-pytest
+# Backend quality gates from repository root
+pip install -r services/api/requirements.txt
+python -m pytest services/api/tests -q
+python -m ruff check services/api/app/core/dependencies.py services/api/app/core/security.py services/api/app/core/authorization.py services/api/app/modules/rag/policy.py services/api/tests/conftest.py services/api/tests/test_chat.py services/api/tests/test_governance_roles.py
+python -m mypy --config-file services/api/pyproject.toml --explicit-package-bases services/api/app/core/dependencies.py services/api/app/core/security.py services/api/app/core/authorization.py services/api/app/modules/rag/policy.py
 
-# Frontend dev server
+# Frontend quality gates
 cd apps/web
 npm install
+npm run type-check
+npm run build
+npm run test:e2e:locale
+
+# Frontend dev server
 npm run dev
 
 # With Cloudflare Tunnel (expose to internet)
 docker compose --profile tunnel up --build
 ```
 
-For production deployment with nginx, Cloudflare Tunnel, and backups, see [`docs/deployment-guide.md`](docs/deployment-guide.md).
+For production deployment with nginx, Cloudflare Tunnel, and backups, see [`docs/deployment-guide.md`](docs/deployment-guide.md). For the maintained validation command set, see [`docs/operations/validation-baseline.md`](docs/operations/validation-baseline.md).
 
 ## Multi-IDE Workflow
 

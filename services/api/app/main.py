@@ -35,6 +35,7 @@ from app.modules.disciplinary.router import router as disciplinary_router
 from app.modules.events.router import router as events_router
 from app.modules.events.sports_router import router as sports_router
 from app.modules.announcements.router import router as announcements_router
+from app.modules.notifications.router import callback_router as notifications_callback_router
 from app.modules.notifications.router import router as notifications_router
 
 setup_logging()
@@ -105,6 +106,7 @@ app.include_router(events_router, prefix=API_PREFIX)
 app.include_router(sports_router, prefix=API_PREFIX)
 app.include_router(announcements_router, prefix=API_PREFIX)
 app.include_router(notifications_router, prefix=API_PREFIX)
+app.include_router(notifications_callback_router, prefix=API_PREFIX)
 
 
 # ── System endpoints ───────────────────────────────────────────────────────────

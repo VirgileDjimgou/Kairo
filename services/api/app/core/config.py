@@ -80,6 +80,7 @@ class Settings(BaseSettings):
     telegram_default_chat_id: str | None = None
     whatsapp_api_base_url: str | None = None
     whatsapp_api_token: str | None = None
+    notification_reconciliation_callback_token: str | None = None
 
     # Upload
     max_upload_mb: int = 50
@@ -106,6 +107,7 @@ class Settings(BaseSettings):
     rag_score_threshold: float = 0.65
     rag_candidate_multiplier: int = 5
     rag_language_boost: float = 0.15
+    rag_keyword_match_boost: float = 0.2
     rag_rerank_enabled: bool = True
     rag_rerank_top_k: int = 10
     rag_hybrid_search: bool = True

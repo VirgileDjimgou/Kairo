@@ -5,6 +5,7 @@ import { getContributionSummary, type ContributionSummary } from '@/api/contribu
 import { listActiveAnnouncements, type AnnouncementResponse } from '@/api/announcements.api'
 import { listPublicEvents, type EventResponse } from '@/api/events.api'
 import { listAuditEvents, type AuditEventResponse } from '@/api/audit.api'
+import { useRecoveryState } from '@/composables/useRecoveryState'
 import { useTenantStore } from '@/stores/tenant.store'
 import { useAuthStore } from '@/stores/auth.store'
 import { useLocaleStore } from '@/stores/locale.store'
@@ -30,8 +31,7 @@ export function useGovernanceCockpit() {
   const tenantStore = useTenantStore()
   const localeStore = useLocaleStore()
 
-  const loading = ref(false)
-  const error = ref('')
+  const { loading, error, isRecovering, run, retry, clearError } = useRecoveryState()
   const members = ref<MembershipProfileResponse[]>([])
   const documents = ref<DocumentListItemResponse[]>([])
   const announcements = ref<AnnouncementResponse[]>([])
@@ -173,10 +173,8 @@ export function useGovernanceCockpit() {
   })
 
   async function refresh() {
-    loading.value = true
-    error.value = ''
-
-    try {
+    clearError()
+    await run(async () => {
       const work: Promise<unknown>[] = [
         listDocuments().then((rows) => {
           documents.value = rows
@@ -206,21 +204,54 @@ export function useGovernanceCockpit() {
       }
 
       await Promise.all(work)
-    } catch (err: unknown) {
-      error.value = (err as { message?: string })?.message || (localeStore.currentLocale === 'de' ? 'Le cockpit de gouvernance n’a pas pu être chargé.' : localeStore.currentLocale === 'en' ? 'Could not load the governance cockpit.' : "Le cockpit de gouvernance n'a pas pu être chargé.")
-    } finally {
-      loading.value = false
-    }
+    })
+  }
+
+  async function retryRefresh() {
+    await retry(async () => {
+      const work: Promise<unknown>[] = [
+        listDocuments().then((rows) => {
+          documents.value = rows
+        }),
+        listActiveAnnouncements().then((rows) => {
+          announcements.value = rows
+        }),
+        listPublicEvents().then((rows) => {
+          events.value = rows
+        }),
+        listMembers().then((rows) => {
+          members.value = rows
+        }),
+        getContributionSummary().then((rows) => {
+          contributionSummary.value = rows
+        }),
+      ]
+
+      if (hasAuditAccess.value) {
+        work.push(
+          listAuditEvents({ limit: 10 }).then((rows) => {
+            auditEvents.value = rows
+          }),
+        )
+      } else {
+        auditEvents.value = []
+      }
+
+      await Promise.all(work)
+    })
   }
 
   return {
     loading,
     error,
+    isRecovering,
     heading,
     subtitle,
     cards,
     quickActions,
     refresh,
+    retryRefresh,
+    clearError,
     isPresident,
     isVicePresident,
     isPrincipalAdmin,

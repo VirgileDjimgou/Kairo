@@ -4,18 +4,17 @@
       <div class="d-flex flex-column flex-xl-row justify-content-between gap-4">
         <div>
           <div class="text-uppercase small fw-semibold text-secondary mb-2">
-            Disciplinary console
+            {{ t('censor.kicker') }}
           </div>
-          <h1 class="h3 fw-bold mb-2">Censor workspace</h1>
+          <h1 class="h3 fw-bold mb-2">{{ t('censor.title') }}</h1>
           <p class="text-muted mb-0 hero-copy">
-            Manage tenant disciplinary records with explicit privacy boundaries. The workspace
-            keeps member data scoped to the current tenant and records every mutation in the audit trail.
+            {{ t('censor.subtitle') }}
           </p>
         </div>
         <div class="d-flex gap-2 align-items-start">
           <button class="btn btn-outline-secondary btn-sm" type="button" @click="refreshAll" :disabled="loading">
             <span v-if="loading" class="spinner-border spinner-border-sm me-1" aria-hidden="true"></span>
-            Refresh
+            {{ t('common.refresh') }}
           </button>
           <button
             v-if="canManageRecords"
@@ -23,15 +22,26 @@
             type="button"
             @click="resetForm"
           >
-            New record
+            {{ t('censor.newRecord') }}
           </button>
         </div>
       </div>
     </div>
 
-    <div v-if="error" class="alert alert-danger alert-dismissible small py-2 mb-4" role="alert">
-      <i class="bi bi-exclamation-triangle me-1"></i>{{ error }}
-      <button type="button" class="btn-close py-2" @click="error = ''"></button>
+    <div v-if="error" class="alert alert-danger border-0 shadow-sm mb-4" role="alert">
+      <div class="d-flex flex-column flex-md-row align-items-md-center justify-content-between gap-3">
+        <div>
+          <div class="fw-semibold mb-1">
+            <i class="bi bi-exclamation-triangle me-2"></i>{{ t('censor.workspaceErrorTitle') }}
+          </div>
+          <p class="mb-0 small">{{ error }}</p>
+          <p class="mb-0 small text-muted mt-1">{{ t('common.recoveryHint') }}</p>
+        </div>
+        <button class="btn btn-outline-secondary btn-sm flex-shrink-0" type="button" @click="retryAll" :disabled="isRecovering">
+          <span v-if="isRecovering" class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
+          {{ isRecovering ? t('common.loading') : t('common.retry') }}
+        </button>
+      </div>
     </div>
 
     <div class="row g-3 mb-4">
@@ -49,21 +59,21 @@
           <div class="card-body p-4">
             <div class="d-flex align-items-center justify-content-between mb-3">
               <h2 class="h6 fw-bold mb-0">
-                {{ editingId ? 'Edit disciplinary record' : 'Create disciplinary record' }}
+                {{ editingId ? t('censor.editRecord') : t('censor.createRecord') }}
               </h2>
-              <span class="badge text-bg-light text-dark border">{{ records.length }} records</span>
+              <span class="badge text-bg-light text-dark border">{{ records.length }} {{ t('common.records') }}</span>
             </div>
 
             <form class="vstack gap-3" @submit.prevent="saveRecord">
               <div>
-                <label class="form-label" for="censor-member-select">Member</label>
+                <label class="form-label" for="censor-member-select">{{ t('common.member') }}</label>
                 <select
                   id="censor-member-select"
                   v-model="form.membership_profile_id"
                   class="form-select"
                   required
                 >
-                  <option value="" disabled>Select member</option>
+                  <option value="" disabled>{{ t('censor.selectMember') }}</option>
                   <option v-for="member in members" :key="member.id" :value="member.id">
                     {{ member.display_name }} ({{ member.member_code }})
                   </option>
@@ -73,7 +83,7 @@
               <div>
                 <label class="form-label" for="censor-policy-select">Policy</label>
                 <select id="censor-policy-select" v-model="form.policy_record_id" class="form-select">
-                  <option value="">No linked policy</option>
+                  <option value="">{{ t('censor.noPolicy') }}</option>
                   <option v-for="policy in policies" :key="policy.id" :value="policy.id">
                     {{ policy.title }} · {{ policy.category }}
                   </option>
@@ -81,7 +91,7 @@
               </div>
 
               <div>
-                <label class="form-label" for="censor-title-input">Title</label>
+                <label class="form-label" for="censor-title-input">{{ t('common.title') }}</label>
                 <input
                   id="censor-title-input"
                   v-model.trim="form.title"
@@ -92,7 +102,7 @@
               </div>
 
               <div>
-                <label class="form-label" for="censor-description-input">Description</label>
+                <label class="form-label" for="censor-description-input">{{ t('common.description') }}</label>
                 <textarea
                   id="censor-description-input"
                   v-model.trim="form.description"
@@ -103,7 +113,7 @@
 
               <div class="row g-2">
                 <div class="col-7">
-                  <label class="form-label" for="censor-amount-input">Amount</label>
+                  <label class="form-label" for="censor-amount-input">{{ t('common.amount') }}</label>
                   <input
                     id="censor-amount-input"
                     v-model="form.amount"
@@ -114,7 +124,7 @@
                   />
                 </div>
                 <div class="col-5">
-                  <label class="form-label" for="censor-currency-input">Currency</label>
+                  <label class="form-label" for="censor-currency-input">{{ t('common.currency') }}</label>
                   <input
                     id="censor-currency-input"
                     v-model.trim="form.currency"
@@ -126,21 +136,21 @@
               </div>
 
               <div>
-                <label class="form-label" for="censor-status-select">Status</label>
+                <label class="form-label" for="censor-status-select">{{ t('common.status') }}</label>
                 <select id="censor-status-select" v-model="form.status" class="form-select">
-                  <option value="open">Open</option>
-                  <option value="under_review">Under review</option>
-                  <option value="resolved">Resolved</option>
-                  <option value="waived">Waived</option>
+                  <option value="open">{{ t('disciplinary.open') }}</option>
+                  <option value="under_review">{{ t('disciplinary.underReview') }}</option>
+                  <option value="resolved">{{ t('disciplinary.resolved') }}</option>
+                  <option value="waived">{{ t('disciplinary.waived') }}</option>
                 </select>
               </div>
 
               <div class="d-flex gap-2">
                 <button class="btn btn-primary" type="submit" :disabled="saving">
-                  {{ saving ? 'Saving...' : editingId ? 'Update record' : 'Create record' }}
+                  {{ saving ? t('common.saving') : editingId ? t('disciplinary.updateRecord') : t('disciplinary.createRecord') }}
                 </button>
                 <button class="btn btn-outline-secondary" type="button" @click="resetForm">
-                  Reset
+                  {{ t('common.reset') }}
                 </button>
               </div>
             </form>
@@ -199,14 +209,14 @@
             </div>
 
             <div v-if="loading" class="text-muted py-5 text-center">
-              Loading disciplinary records...
+              {{ t('censor.loadingRecords') }}
             </div>
 
             <div v-else-if="records.length === 0" class="empty-state">
               <i class="bi bi-shield-lock display-6 text-secondary"></i>
-              <p class="mb-1 fw-semibold">No disciplinary records yet</p>
+              <p class="mb-1 fw-semibold">{{ t('censor.noRecords') }}</p>
               <p class="text-muted mb-0">
-                Create the first sanction or waiver record for this tenant when the case requires it.
+                {{ t('censor.noRecordsHint') }}
               </p>
             </div>
 
@@ -214,11 +224,11 @@
               <table class="table align-middle">
                 <thead>
                   <tr>
-                    <th>Member</th>
-                    <th>Title</th>
+                    <th>{{ t('common.member') }}</th>
+                    <th>{{ t('common.title') }}</th>
                     <th>Policy</th>
-                    <th>Amount</th>
-                    <th>Status</th>
+                    <th>{{ t('common.amount') }}</th>
+                    <th>{{ t('common.status') }}</th>
                     <th>Recorded</th>
                     <th v-if="canManageRecords" class="text-end">Actions</th>
                   </tr>
@@ -272,6 +282,8 @@
 import ConfirmModal from '@/components/ConfirmModal.vue'
 import { computed, onMounted, ref } from 'vue'
 import { useAuthStore } from '@/stores/auth.store'
+import { useLocaleStore } from '@/stores/locale.store'
+import { useRecoveryState } from '@/composables/useRecoveryState'
 import { listMembers, type MembershipProfileResponse } from '@/api/membership.api'
 import { listPolicies, type PolicyRecordResponse } from '@/api/policies.api'
 import {
@@ -285,10 +297,11 @@ import {
 } from '@/api/disciplinary.api'
 
 const authStore = useAuthStore()
+const localeStore = useLocaleStore()
+const { loading, error, isRecovering, run, retry, clearError } = useRecoveryState()
+const t = (key: string) => localeStore.t(key)
 
-const loading = ref(true)
 const saving = ref(false)
-const error = ref('')
 const records = ref<DisciplinaryRecordResponse[]>([])
 const members = ref<MembershipProfileResponse[]>([])
 const policies = ref<PolicyRecordResponse[]>([])
@@ -317,10 +330,10 @@ const resolvedCount = computed(() =>
 )
 
 const metrics = computed(() => [
-  { label: 'Total', value: records.value.length },
-  { label: 'Open', value: openCount.value },
-  { label: 'Under review', value: reviewCount.value },
-  { label: 'Closed', value: resolvedCount.value },
+  { label: t('censor.totalRecords'), value: records.value.length },
+  { label: t('censor.openCases'), value: openCount.value },
+  { label: t('censor.underReview'), value: reviewCount.value },
+  { label: t('censor.resolvedCases'), value: resolvedCount.value },
 ])
 
 function statusClass(status: string): string {
@@ -345,15 +358,11 @@ async function refreshData() {
 }
 
 async function refreshAll() {
-  loading.value = true
-  error.value = ''
-  try {
-    await refreshData()
-  } catch (err) {
-    error.value = err instanceof Error ? err.message : 'Unable to load the disciplinary workspace.'
-  } finally {
-    loading.value = false
-  }
+  await run(refreshData)
+}
+
+async function retryAll() {
+  await retry(refreshData)
 }
 
 function resetForm() {
@@ -384,7 +393,7 @@ function editRecord(record: DisciplinaryRecordResponse) {
 
 async function saveRecord() {
   saving.value = true
-  error.value = ''
+  clearError()
   try {
     const payload = {
       membership_profile_id: form.value.membership_profile_id,
@@ -425,7 +434,7 @@ function removeRecord(record: DisciplinaryRecordResponse) {
 async function handleDelete() {
   if (!deletingItem.value) return
   saving.value = true
-  error.value = ''
+  clearError()
   try {
     await deleteDisciplinaryRecord(deletingItem.value.id)
     await refreshData()

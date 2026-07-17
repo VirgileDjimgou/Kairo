@@ -43,7 +43,19 @@
     </div>
 
     <div v-else-if="error" class="alert alert-warning border-0 shadow-sm" role="alert">
-      <i class="bi bi-info-circle me-2"></i>{{ error }}
+      <div class="d-flex flex-column flex-md-row align-items-md-center justify-content-between gap-3">
+        <div>
+          <div class="fw-semibold mb-1">
+            <i class="bi bi-exclamation-triangle me-2"></i>{{ copy.couldNotLoad }}
+          </div>
+          <p class="mb-0 small">{{ error }}</p>
+          <p class="mb-0 small text-muted mt-1">{{ copy.recoveryHint }}</p>
+        </div>
+        <button class="btn btn-outline-secondary btn-sm flex-shrink-0" type="button" @click="retryLoad" :disabled="isRecovering">
+          <span v-if="isRecovering" class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
+          {{ isRecovering ? copy.retrying : copy.retry }}
+        </button>
+      </div>
     </div>
 
     <template v-else-if="statement">
@@ -190,11 +202,11 @@ import {
   type MemberStatementResponse,
 } from '@/api/membership.api'
 import { useLocaleStore } from '@/stores/locale.store'
+import { useRecoveryState } from '@/composables/useRecoveryState'
 
 const localeStore = useLocaleStore()
-const loading = ref(true)
+const { loading, error, isRecovering, run, retry, clearError } = useRecoveryState()
 const downloadingPdf = ref(false)
-const error = ref<string | null>(null)
 const statement = ref<MemberStatementResponse | null>(null)
 
 const copy = computed(() => {
@@ -207,6 +219,10 @@ const copy = computed(() => {
       downloadStatement: 'Meine Bescheinigung herunterladen',
       loadingTitle: 'Mitgliederbereich wird geladen',
       loadingBody: 'Wir laden Ihr persönliches Profil und Ihre Beitragsgeschichte.',
+      couldNotLoad: 'Bereich nicht verfügbar',
+      retry: 'Erneut versuchen',
+      retrying: 'Wird erneut geladen...',
+      recoveryHint: 'Der Ladevorgang ist fehlgeschlagen. Ihr Bereich bleibt geschützt, Sie können es erneut versuchen.',
       firstName: 'Vorname',
       lastName: 'Nachname',
       email: 'E-Mail',
@@ -237,6 +253,10 @@ const copy = computed(() => {
       downloadStatement: 'Download my statement',
       loadingTitle: 'Loading your member workspace',
       loadingBody: 'We are fetching your personal profile and contribution history.',
+      couldNotLoad: 'Workspace unavailable',
+      retry: 'Retry',
+      retrying: 'Retrying...',
+      recoveryHint: 'The last load failed. Your space stays protected and you can try again.',
       firstName: 'First name',
       lastName: 'Last name',
       email: 'Email',
@@ -266,6 +286,10 @@ const copy = computed(() => {
     downloadStatement: 'Télécharger mon relevé',
     loadingTitle: 'Chargement de votre espace membre',
     loadingBody: 'Nous récupérons votre profil personnel et votre historique de cotisations.',
+    couldNotLoad: "Espace indisponible",
+    retry: 'Réessayer',
+    retrying: 'Nouvelle tentative...',
+    recoveryHint: 'Le dernier chargement a échoué. Votre espace reste protégé et vous pouvez réessayer.',
     firstName: 'Prénom',
     lastName: 'Nom',
     email: 'E-mail',
@@ -329,16 +353,15 @@ function statusBadgeClass(status: string): string {
 }
 
 async function loadStatement() {
-  loading.value = true
-
-  try {
+  await run(async () => {
     statement.value = await getMyStatement()
-    error.value = null
-  } catch (err: any) {
-    error.value = err?.response?.data?.detail || (localeStore.currentLocale === 'en' ? 'Could not load your personal statement' : localeStore.currentLocale === 'de' ? 'Ihr persönliches Dokument konnte nicht geladen werden' : 'Impossible de charger votre relevé personnel')
-  } finally {
-    loading.value = false
-  }
+  })
+}
+
+async function retryLoad() {
+  await retry(async () => {
+    statement.value = await getMyStatement()
+  })
 }
 
 async function handleDownloadPdf() {

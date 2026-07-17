@@ -12,25 +12,37 @@
       </div>
       <div class="d-flex align-items-start gap-2">
         <RouterLink to="/admin/onboarding" class="btn btn-outline-secondary" data-testid="admin-overview-onboarding-button">
-          <i class="bi bi-stars me-1"></i>Onboarding wizard
+          <i class="bi bi-stars me-1"></i>{{ copy.onboardingWizard }}
         </RouterLink>
         <RouterLink to="/admin/health" class="btn btn-outline-secondary" data-testid="admin-overview-health-button">
-          <i class="bi bi-heart-pulse me-1"></i>Health center
+          <i class="bi bi-heart-pulse me-1"></i>{{ copy.healthCenter }}
         </RouterLink>
         <RouterLink to="/admin/tenants" class="btn btn-outline-secondary">
-          <i class="bi bi-diagram-3 me-1"></i>Tenant operations
+          <i class="bi bi-diagram-3 me-1"></i>{{ copy.tenantOperations }}
         </RouterLink>
         <RouterLink to="/admin/settings" class="btn btn-outline-secondary">
-          <i class="bi bi-gear me-1"></i>Settings
+          <i class="bi bi-gear me-1"></i>{{ copy.settings }}
         </RouterLink>
-        <button class="btn om-primary-btn" type="button" @click="refresh" :disabled="loading">
-          {{ loading ? 'Refreshing...' : 'Refresh overview' }}
+        <button class="btn om-primary-btn" type="button" @click="refresh" :disabled="loading || isRecovering">
+          {{ loading ? copy.refreshing : copy.refreshOverview }}
         </button>
       </div>
     </div>
 
-    <div v-if="error" class="alert alert-warning border-0 shadow-sm mb-4">
-      <i class="bi bi-exclamation-triangle me-2"></i>{{ error }}
+    <div v-if="error" class="alert alert-warning border-0 shadow-sm mb-4" role="alert">
+      <div class="d-flex flex-column flex-md-row justify-content-between gap-3">
+        <div>
+          <div class="fw-semibold">
+            <i class="bi bi-exclamation-triangle me-2"></i>{{ copy.workspaceErrorTitle }}
+          </div>
+          <p class="small mb-0 mt-2">{{ error }}</p>
+          <p class="mb-0 small text-muted mt-1">{{ t('common.recoveryHint') }}</p>
+        </div>
+        <button class="btn btn-outline-secondary btn-sm align-self-start" type="button" @click="retryRefresh" :disabled="isRecovering">
+          <span v-if="isRecovering" class="spinner-border spinner-border-sm me-1" aria-hidden="true"></span>
+          {{ isRecovering ? t('common.loading') : t('common.retry') }}
+        </button>
+      </div>
     </div>
 
     <div class="row g-4">
@@ -50,15 +62,15 @@
             <div class="d-flex flex-column flex-lg-row justify-content-between gap-3 mb-3">
               <div>
                 <div class="text-uppercase small fw-semibold text-secondary mb-2">
-                  Operational watchlist
+                  {{ copy.operationalWatchlist }}
                 </div>
-                <h2 class="h6 fw-bold mb-1">Warnings and readiness gaps</h2>
+                <h2 class="h6 fw-bold mb-1">{{ copy.warningsTitle }}</h2>
                 <p class="text-muted small mb-0">
-                  This panel surfaces the setup or operational issues most likely to slow down a tenant admin.
+                  {{ copy.warningsLead }}
                 </p>
               </div>
               <span class="badge bg-light text-dark border align-self-start">
-                {{ riskItems.length }} item(s)
+                {{ riskItems.length }} {{ copy.itemsSuffix }}
               </span>
             </div>
 
@@ -88,18 +100,18 @@
             <div class="d-flex flex-column flex-lg-row justify-content-between gap-3 mb-3">
               <div>
                 <div class="text-uppercase small fw-semibold text-secondary mb-2">
-                  Onboarding continuity
+                  {{ copy.onboardingContinuity }}
                 </div>
-                <h2 class="h6 fw-bold mb-1">Launch readiness</h2>
+                <h2 class="h6 fw-bold mb-1">{{ copy.launchReadiness }}</h2>
                 <p class="text-muted small mb-0">
-                  Reuses the tenant setup logic from the member-facing dashboard so admins see the same launch picture.
+                  {{ copy.launchReadinessLead }}
                 </p>
               </div>
               <div class="text-lg-end">
                 <div class="fw-bold fs-4" data-testid="admin-overview-onboarding-progress">
                   {{ onboardingProgress }}%
                 </div>
-                <div class="small text-muted">checklist complete</div>
+                <div class="small text-muted">{{ copy.checklistComplete }}</div>
               </div>
             </div>
 
@@ -117,7 +129,7 @@
             <div v-if="onboardingNextStep" class="alert alert-primary border-0 mb-0">
               <div class="d-flex flex-column flex-md-row justify-content-between gap-3">
                 <div>
-                  <div class="fw-semibold mb-1">Next recommended admin action</div>
+                  <div class="fw-semibold mb-1">{{ copy.nextRecommendedAction }}</div>
                   <p class="small mb-0">
                     {{ onboardingNextStep.title }}: {{ onboardingNextStep.description }}
                   </p>
@@ -135,26 +147,26 @@
         <div class="card shadow-sm border-0 mb-4">
           <div class="card-body p-4">
             <div class="text-uppercase small fw-semibold text-secondary mb-2">
-              Document operations
+              {{ copy.documentOperations }}
             </div>
-            <h2 class="h6 fw-bold mb-3">Ingestion health</h2>
+            <h2 class="h6 fw-bold mb-3">{{ copy.ingestionHealth }}</h2>
 
             <div v-if="ingestionHealth" class="row g-2 mb-3">
               <div class="col-6">
                 <div class="mini-stat">
-                  <div class="small text-muted">Queued</div>
+                  <div class="small text-muted">{{ copy.queued }}</div>
                   <div class="fw-bold">{{ ingestionHealth.queued_count }}</div>
                 </div>
               </div>
               <div class="col-6">
                 <div class="mini-stat">
-                  <div class="small text-muted">Processing</div>
+                  <div class="small text-muted">{{ copy.processing }}</div>
                   <div class="fw-bold">{{ ingestionHealth.processing_count }}</div>
                 </div>
               </div>
               <div class="col-6">
                 <div class="mini-stat">
-                  <div class="small text-muted">Failed</div>
+                  <div class="small text-muted">{{ copy.failed }}</div>
                   <div class="fw-bold" :class="toneTextClass(ingestionHealth.failed_count > 0 ? 'danger' : 'success')">
                     {{ ingestionHealth.failed_count }}
                   </div>
@@ -162,18 +174,18 @@
               </div>
               <div class="col-6">
                 <div class="mini-stat">
-                  <div class="small text-muted">Retried</div>
+                  <div class="small text-muted">{{ copy.retried }}</div>
                   <div class="fw-bold">{{ ingestionHealth.retried_count }}</div>
                 </div>
               </div>
             </div>
 
             <div v-if="ingestionHealth?.recent_failures.length" class="small text-muted mb-3">
-              Latest failure: {{ shortId(ingestionHealth.recent_failures[0].job_id) }}
+              {{ copy.latestFailure }}: {{ shortId(ingestionHealth.recent_failures[0].job_id) }}
             </div>
 
             <RouterLink to="/admin/documents" class="btn btn-outline-secondary btn-sm w-100">
-              Open document operations
+              {{ copy.openDocumentOperations }}
             </RouterLink>
           </div>
         </div>
@@ -181,7 +193,7 @@
         <div class="card shadow-sm border-0 mb-4">
           <div class="card-body p-4">
             <div class="text-uppercase small fw-semibold text-secondary mb-2">
-              Quick actions
+              {{ copy.quickActions }}
             </div>
             <div class="vstack gap-2" data-testid="admin-overview-quick-actions">
               <RouterLink
@@ -201,21 +213,21 @@
         <div class="card shadow-sm border-0">
           <div class="card-body p-4">
             <div class="text-uppercase small fw-semibold text-secondary mb-2">
-              Tenant scope
+              {{ copy.tenantScope }}
             </div>
             <div class="vstack gap-2 small">
               <div class="d-flex justify-content-between gap-2">
-                <span class="text-muted">Tenant</span>
+                <span class="text-muted">{{ copy.tenant }}</span>
                 <span class="fw-semibold text-end">{{ tenantStore.currentTenantName }}</span>
               </div>
               <div class="d-flex justify-content-between gap-2">
-                <span class="text-muted">Enabled modules</span>
+                <span class="text-muted">{{ copy.enabledModules }}</span>
                 <span class="fw-semibold text-end">{{ enabledModuleCount }}</span>
               </div>
               <div class="d-flex justify-content-between gap-2">
-                <span class="text-muted">Open contribution balance</span>
+                <span class="text-muted">{{ copy.openContributionBalance }}</span>
                 <span class="fw-semibold text-end">
-                  {{ contributionSummary?.total_balance ?? 'n/a' }}
+                  {{ contributionSummary?.total_balance ?? copy.na }}
                 </span>
               </div>
             </div>
@@ -230,23 +242,147 @@
 import { computed, onMounted } from 'vue'
 import { RouterLink } from 'vue-router'
 import { useAuthStore } from '@/stores/auth.store'
+import { useLocaleStore } from '@/stores/locale.store'
 import { useTenantStore } from '@/stores/tenant.store'
 import { useAdminOverview } from '@/composables/useAdminOverview'
 
 const authStore = useAuthStore()
+const localeStore = useLocaleStore()
 const tenantStore = useTenantStore()
+const t = (key: string) => localeStore.t(key)
 const userRoles = computed(() => authStore.user?.roles ?? [])
 const isPrincipalAdmin = computed(() => userRoles.value.includes('principal_admin'))
-const hubLabel = computed(() => (isPrincipalAdmin.value ? 'Principal administration' : 'Administration'))
-const overviewTitle = computed(() => (isPrincipalAdmin.value ? 'Principal admin overview' : 'Admin overview'))
+const copy = computed(() => {
+  if (localeStore.currentLocale === 'de') {
+    return {
+      onboardingWizard: 'Onboarding-Assistent',
+      healthCenter: 'Health Center',
+      tenantOperations: 'Tenant-Operationen',
+      settings: 'Einstellungen',
+      refreshing: 'Aktualisierung...',
+      refreshOverview: 'Übersicht aktualisieren',
+      operationalWatchlist: 'Betriebliche Watchlist',
+      warningsTitle: 'Warnungen und Bereitschaftslücken',
+      warningsLead: 'Dieses Panel zeigt Einrichtungs- oder Betriebsprobleme, die Tenant-Admins am ehesten bremsen.',
+      itemsSuffix: 'Eintrag(e)',
+      onboardingContinuity: 'Onboarding-Kontinuität',
+      launchReadiness: 'Startbereitschaft',
+      launchReadinessLead: 'Nutzen dieselbe Tenant-Setup-Logik wie das Mitglieds-Dashboard, damit Admins das gleiche Startbild sehen.',
+      checklistComplete: 'Checkliste abgeschlossen',
+      nextRecommendedAction: 'Nächste empfohlene Admin-Aktion',
+      documentOperations: 'Dokumentenbetrieb',
+      ingestionHealth: 'Ingestion-Status',
+      queued: 'Wartend',
+      processing: 'In Bearbeitung',
+      failed: 'Fehlgeschlagen',
+      retried: 'Erneut versucht',
+      latestFailure: 'Letzter Fehler',
+      openDocumentOperations: 'Dokumentenbetrieb öffnen',
+      quickActions: 'Schnellaktionen',
+      tenantScope: 'Tenant-Umfang',
+      tenant: 'Tenant',
+      enabledModules: 'Aktive Module',
+      openContributionBalance: 'Offener Beitragsbestand',
+      hubAdmin: 'Administration',
+      hubPrincipal: 'Hauptadministration',
+      titleAdmin: 'Admin-Übersicht',
+      titlePrincipal: 'Übersicht Hauptadmin',
+      subtitleAdmin: 'Ein gemeinsamer Bildschirm für Tenant-Bereitschaft, Betriebssignale und die nächste sinnvolle Aktion.',
+      subtitlePrincipal: 'Eine tenant-weite Steuerzentrale für Rollen, Einstellungen, Modulschalter und sensible Prüfungen.',
+      workspaceErrorTitle: 'Admin-Uebersicht nicht verfügbar',
+      na: 'n/v',
+    }
+  }
+  if (localeStore.currentLocale === 'en') {
+    return {
+      onboardingWizard: 'Onboarding wizard',
+      healthCenter: 'Health center',
+      tenantOperations: 'Tenant operations',
+      settings: 'Settings',
+      refreshing: 'Refreshing...',
+      refreshOverview: 'Refresh overview',
+      operationalWatchlist: 'Operational watchlist',
+      warningsTitle: 'Warnings and readiness gaps',
+      warningsLead: 'This panel surfaces the setup or operational issues most likely to slow down a tenant admin.',
+      itemsSuffix: 'item(s)',
+      onboardingContinuity: 'Onboarding continuity',
+      launchReadiness: 'Launch readiness',
+      launchReadinessLead: 'Reuses the tenant setup logic from the member-facing dashboard so admins see the same launch picture.',
+      checklistComplete: 'checklist complete',
+      nextRecommendedAction: 'Next recommended admin action',
+      documentOperations: 'Document operations',
+      ingestionHealth: 'Ingestion health',
+      queued: 'Queued',
+      processing: 'Processing',
+      failed: 'Failed',
+      retried: 'Retried',
+      latestFailure: 'Latest failure',
+      openDocumentOperations: 'Open document operations',
+      quickActions: 'Quick actions',
+      tenantScope: 'Tenant scope',
+      tenant: 'Tenant',
+      enabledModules: 'Enabled modules',
+      openContributionBalance: 'Open contribution balance',
+      hubAdmin: 'Administration',
+      hubPrincipal: 'Principal administration',
+      titleAdmin: 'Admin overview',
+      titlePrincipal: 'Principal admin overview',
+      subtitleAdmin: 'A single screen for tenant readiness, operational signals, and the next action that deserves attention.',
+      subtitlePrincipal: 'A tenant-wide control plane for role assignments, settings, module toggles, and sensitive review.',
+      workspaceErrorTitle: 'Admin overview unavailable',
+      na: 'n/a',
+    }
+  }
+  return {
+    onboardingWizard: 'Assistant de démarrage',
+    healthCenter: 'Centre de santé',
+    tenantOperations: 'Opérations tenant',
+    settings: 'Réglages',
+    refreshing: 'Actualisation...',
+    refreshOverview: 'Actualiser la vue d’ensemble',
+    operationalWatchlist: 'Liste de vigilance opérationnelle',
+    warningsTitle: 'Avertissements et écarts de préparation',
+    warningsLead: 'Ce panneau remonte les problèmes de configuration ou d’exploitation les plus susceptibles de ralentir un administrateur de tenant.',
+    itemsSuffix: 'élément(s)',
+    onboardingContinuity: 'Continuité du démarrage',
+    launchReadiness: 'Préparation au lancement',
+    launchReadinessLead: 'Réutilise la logique de configuration du tenant du tableau de bord membre pour donner la même lecture aux administrateurs.',
+    checklistComplete: 'checklist complétée',
+    nextRecommendedAction: 'Prochaine action administrateur recommandée',
+    documentOperations: 'Opérations documentaires',
+    ingestionHealth: 'Santé de l’ingestion',
+    queued: 'En file',
+    processing: 'En cours',
+    failed: 'Échoué',
+    retried: 'Relancé',
+    latestFailure: 'Dernier échec',
+    openDocumentOperations: 'Ouvrir les opérations documentaires',
+    quickActions: 'Actions rapides',
+    tenantScope: 'Périmètre du tenant',
+    tenant: 'Tenant',
+    enabledModules: 'Modules activés',
+    openContributionBalance: 'Solde de cotisations ouvert',
+    hubAdmin: 'Administration',
+    hubPrincipal: 'Administration principale',
+    titleAdmin: 'Vue d’ensemble admin',
+    titlePrincipal: 'Vue d’ensemble administrateur principal',
+    subtitleAdmin: 'Un écran unique pour la préparation du tenant, les signaux opérationnels et la prochaine action utile.',
+    subtitlePrincipal: 'Un poste de pilotage à l’échelle du tenant pour les rôles, les réglages, les modules et les revues sensibles.',
+    workspaceErrorTitle: "La vue d'ensemble admin est indisponible",
+    na: 'n/d',
+  }
+})
+const hubLabel = computed(() => (isPrincipalAdmin.value ? copy.value.hubPrincipal : copy.value.hubAdmin))
+const overviewTitle = computed(() => (isPrincipalAdmin.value ? copy.value.titlePrincipal : copy.value.titleAdmin))
 const overviewSubtitle = computed(() =>
   isPrincipalAdmin.value
-    ? 'A tenant-wide control plane for role assignments, settings, module toggles, and sensitive review.'
-    : 'A single screen for tenant readiness, operational signals, and the next action that deserves attention.',
+    ? copy.value.subtitlePrincipal
+    : copy.value.subtitleAdmin,
 )
 const {
   loading,
   error,
+  isRecovering,
   modules,
   summaryMetrics,
   riskItems,
@@ -255,6 +391,7 @@ const {
   ingestionHealth,
   contributionSummary,
   refresh,
+  retryRefresh,
 } = useAdminOverview()
 
 const enabledModuleCount = computed(() => {

@@ -24,9 +24,10 @@ This matrix helps explain what is included in the current product and what is op
 
 | Channel | Status | Notes |
 |---|---|---|
-| Email | Placeholder | Provider abstraction only |
-| Telegram | Placeholder | Provider abstraction only |
-| WhatsApp | Placeholder | Provider abstraction only |
+| Identity email delivery | Included | Invitations and password reset now use a real SMTP-backed path |
+| Generic email notifications | Included (baseline) | The admin notifications console can now send a real SMTP-backed operator email when configured |
+| Telegram | Included (baseline) | The admin notifications console can now send a real Telegram operator message when a bot token is configured |
+| WhatsApp | Included (baseline) | The admin notifications console can now send a gateway-backed operator WhatsApp message when the gateway base URL and token are configured |
 
 ## Future Premium Or External Integrations
 

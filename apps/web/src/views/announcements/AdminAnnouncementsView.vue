@@ -16,9 +16,25 @@
       </div>
     </div>
 
-    <div v-if="error" class="alert alert-danger alert-dismissible small py-2 mb-3" role="alert">
-      <i class="bi bi-exclamation-triangle me-1"></i>{{ error }}
-      <button type="button" class="btn-close py-2" @click="error = ''"></button>
+    <div v-if="error" class="alert alert-warning border-0 shadow-sm mb-4" role="alert">
+      <div class="d-flex flex-column flex-md-row justify-content-between gap-3">
+        <div>
+          <div class="fw-semibold">
+            <i class="bi bi-exclamation-triangle me-2"></i>{{ copy.workspaceErrorTitle }}
+          </div>
+          <p class="small mb-0 mt-2">{{ error }}</p>
+          <p class="mb-0 small text-muted mt-1">{{ t('common.recoveryHint') }}</p>
+        </div>
+        <button class="btn btn-outline-secondary btn-sm align-self-start" type="button" @click="retryLoad" :disabled="isRecovering">
+          <span v-if="isRecovering" class="spinner-border spinner-border-sm me-1" aria-hidden="true"></span>
+          {{ isRecovering ? t('common.loading') : t('common.retry') }}
+        </button>
+      </div>
+    </div>
+
+    <div v-if="actionError" class="alert alert-danger alert-dismissible small py-2 mb-3" role="alert">
+      <i class="bi bi-exclamation-triangle me-1"></i>{{ actionError }}
+      <button type="button" class="btn-close py-2" @click="actionError = ''"></button>
     </div>
 
     <div v-if="loading" class="text-center py-5">
@@ -120,17 +136,18 @@ import { computed, nextTick, onMounted, ref } from 'vue'
 import * as bootstrap from 'bootstrap'
 import ConfirmModal from '@/components/ConfirmModal.vue'
 import { listAnnouncements, createAnnouncement, updateAnnouncement, deleteAnnouncement, exportAnnouncementsCsv, type AnnouncementResponse } from '@/api/announcements.api'
+import { useRecoveryState } from '@/composables/useRecoveryState'
 import { useCsvExport } from '@/composables/useCsvExport'
 import { useLocaleStore } from '@/stores/locale.store'
 
 const localeStore = useLocaleStore()
-const loading = ref(true)
-const error = ref('')
+const t = (key: string) => localeStore.t(key)
 const saving = ref(false)
 const announcements = ref<AnnouncementResponse[]>([])
 const editingId = ref<string | null>(null)
 const showDeleteModal = ref(false)
 const deletingItem = ref<AnnouncementResponse | null>(null)
+const actionError = ref('')
 
 const copy = computed(() => {
   if (localeStore.currentLocale === 'de') {
@@ -140,6 +157,7 @@ const copy = computed(() => {
       exportCsv: 'CSV exportieren',
       addAnnouncement: 'Ankuendigung hinzufuegen',
       loading: 'Wird geladen...',
+      workspaceErrorTitle: 'Ankuendigungsbereich nicht verfügbar',
       titleColumn: 'Titel',
       publishedColumn: 'Veröffentlicht',
       expiresColumn: 'Läuft ab',
@@ -171,6 +189,7 @@ const copy = computed(() => {
       exportCsv: 'Export CSV',
       addAnnouncement: 'Add announcement',
       loading: 'Loading...',
+      workspaceErrorTitle: 'Announcements workspace unavailable',
       titleColumn: 'Title',
       publishedColumn: 'Published',
       expiresColumn: 'Expires',
@@ -201,6 +220,7 @@ const copy = computed(() => {
     exportCsv: 'Exporter CSV',
     addAnnouncement: 'Ajouter une annonce',
     loading: 'Chargement...',
+    workspaceErrorTitle: "L'espace annonces est indisponible",
     titleColumn: 'Titre',
     publishedColumn: 'Publié',
     expiresColumn: 'Expire',
@@ -227,10 +247,11 @@ const copy = computed(() => {
 })
 
 const { exportCsv, exporting } = useCsvExport()
+const { loading, error, isRecovering, run, retry, clearError } = useRecoveryState()
 const form = ref({ title: '', body: '', visibility_scope: 'members_only', expires_at: '' })
 
 function setError(err: unknown) {
-  error.value = (err as any)?.response?.data?.detail || (err as any)?.message || (localeStore.currentLocale === 'en' ? 'An unexpected error occurred' : localeStore.currentLocale === 'de' ? 'Ein unerwarteter Fehler ist aufgetreten' : "Une erreur inattendue s'est produite")
+  actionError.value = (err as any)?.response?.data?.detail || (err as any)?.message || (localeStore.currentLocale === 'en' ? 'An unexpected error occurred' : localeStore.currentLocale === 'de' ? 'Ein unerwarteter Fehler ist aufgetreten' : "Une erreur inattendue s'est produite")
 }
 
 function visibilityLabel(value: string): string {
@@ -247,17 +268,22 @@ function formatDate(dateStr: string): string {
 }
 
 async function load() {
-  try {
+  actionError.value = ''
+  await run(async () => {
     announcements.value = await listAnnouncements()
-  } catch (err) {
-    setError(err)
-  } finally {
-    loading.value = false
-  }
+  })
+}
+
+async function retryLoad() {
+  actionError.value = ''
+  await retry(async () => {
+    announcements.value = await listAnnouncements()
+  })
 }
 
 async function handleSave() {
   saving.value = true
+  actionError.value = ''
   try {
     const payload: any = { ...form.value }
     payload.expires_at = payload.expires_at ? new Date(payload.expires_at).toISOString() : null
@@ -296,6 +322,7 @@ function confirmDelete(a: AnnouncementResponse) {
 
 async function handleDelete() {
   if (!deletingItem.value) return
+  actionError.value = ''
   try {
     await deleteAnnouncement(deletingItem.value.id)
     await load()
@@ -308,6 +335,7 @@ async function handleDelete() {
 }
 
 async function exportAnnouncements() {
+  actionError.value = ''
   try {
     await exportCsv(exportAnnouncementsCsv, 'announcements.csv')
   } catch (err) {

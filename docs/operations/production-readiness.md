@@ -2,13 +2,15 @@
 
 This document captures the validation steps for Sprint 24.
 
+The preferred operator flow now starts with [`docs/operations/deployment-runbook.md`](./deployment-runbook.md), which wraps these checks into install, upgrade, and rollback helpers.
+
 ## 1. Production Build Validation
 
 Run from the repository root:
 
 ```bash
-docker compose -f docker-compose.yml -f docker-compose.prod.yml config
-docker compose -f docker-compose.yml -f docker-compose.prod.yml build api web
+bash scripts/deploy_release.sh preflight
+bash scripts/deploy_release.sh install
 ```
 
 Expected outcome:
@@ -23,9 +25,7 @@ Expected outcome:
 Once the stack is running:
 
 ```bash
-curl http://localhost/health
-curl http://localhost/metrics
-curl http://localhost/
+bash scripts/production_smoke.sh http://localhost
 ```
 
 Expected outcome:
@@ -33,14 +33,14 @@ Expected outcome:
 - `/health` reports dependency status and module list
 - `/metrics` returns runtime metrics text
 - `/` serves the SPA entry point
+- optional monitoring can scrape `/metrics` through the packaged Prometheus/Grafana baseline in `infra/monitoring/`
 
 ## 3. Backup And Restore Drill
 
 Create a backup:
 
 ```bash
-chmod +x scripts/backup.sh
-./scripts/backup.sh ./backups
+bash scripts/backup.sh ./backups
 ```
 
 Restore drill outline:
@@ -89,9 +89,10 @@ Use the admin health center or the admin overview to confirm the recovery eviden
 
 ## 6. Upgrade Notes
 
-- Always run Alembic migrations before starting the new release.
+- The preferred upgrade path is `bash scripts/deploy_release.sh upgrade`.
+- That helper runs preflight checks, captures a backup, rebuilds the stack, applies Alembic migrations, and reruns the smoke check.
 - Capture backup evidence before applying a schema change.
-- Re-run the smoke check after every upgrade.
+- Re-run the smoke check after every upgrade or rollback.
 
 ## Evidence To Record
 
@@ -101,4 +102,5 @@ Use the admin health center or the admin overview to confirm the recovery eviden
 - tenant recovery evidence record
 - `/health` output
 - `/metrics` output
+- Grafana screenshot or Prometheus target status if the optional monitoring package is enabled
 - any deviations or known gaps

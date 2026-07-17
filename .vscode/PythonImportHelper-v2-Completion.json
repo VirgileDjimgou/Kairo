@@ -780,6 +780,78 @@
         "documentation": {}
     },
     {
+        "label": "annotations",
+        "importPath": "__future__",
+        "description": "__future__",
+        "isExtraImport": true,
+        "detail": "__future__",
+        "documentation": {}
+    },
+    {
+        "label": "annotations",
+        "importPath": "__future__",
+        "description": "__future__",
+        "isExtraImport": true,
+        "detail": "__future__",
+        "documentation": {}
+    },
+    {
+        "label": "annotations",
+        "importPath": "__future__",
+        "description": "__future__",
+        "isExtraImport": true,
+        "detail": "__future__",
+        "documentation": {}
+    },
+    {
+        "label": "annotations",
+        "importPath": "__future__",
+        "description": "__future__",
+        "isExtraImport": true,
+        "detail": "__future__",
+        "documentation": {}
+    },
+    {
+        "label": "annotations",
+        "importPath": "__future__",
+        "description": "__future__",
+        "isExtraImport": true,
+        "detail": "__future__",
+        "documentation": {}
+    },
+    {
+        "label": "annotations",
+        "importPath": "__future__",
+        "description": "__future__",
+        "isExtraImport": true,
+        "detail": "__future__",
+        "documentation": {}
+    },
+    {
+        "label": "annotations",
+        "importPath": "__future__",
+        "description": "__future__",
+        "isExtraImport": true,
+        "detail": "__future__",
+        "documentation": {}
+    },
+    {
+        "label": "annotations",
+        "importPath": "__future__",
+        "description": "__future__",
+        "isExtraImport": true,
+        "detail": "__future__",
+        "documentation": {}
+    },
+    {
+        "label": "annotations",
+        "importPath": "__future__",
+        "description": "__future__",
+        "isExtraImport": true,
+        "detail": "__future__",
+        "documentation": {}
+    },
+    {
         "label": "asyncio",
         "kind": 6,
         "isExtraImport": true,
@@ -1039,94 +1111,6 @@
         "documentation": {}
     },
     {
-        "label": "uuid4",
-        "importPath": "uuid",
-        "description": "uuid",
-        "isExtraImport": true,
-        "detail": "uuid",
-        "documentation": {}
-    },
-    {
-        "label": "UUID",
-        "importPath": "uuid",
-        "description": "uuid",
-        "isExtraImport": true,
-        "detail": "uuid",
-        "documentation": {}
-    },
-    {
-        "label": "UUID",
-        "importPath": "uuid",
-        "description": "uuid",
-        "isExtraImport": true,
-        "detail": "uuid",
-        "documentation": {}
-    },
-    {
-        "label": "UUID",
-        "importPath": "uuid",
-        "description": "uuid",
-        "isExtraImport": true,
-        "detail": "uuid",
-        "documentation": {}
-    },
-    {
-        "label": "UUID",
-        "importPath": "uuid",
-        "description": "uuid",
-        "isExtraImport": true,
-        "detail": "uuid",
-        "documentation": {}
-    },
-    {
-        "label": "UUID",
-        "importPath": "uuid",
-        "description": "uuid",
-        "isExtraImport": true,
-        "detail": "uuid",
-        "documentation": {}
-    },
-    {
-        "label": "UUID",
-        "importPath": "uuid",
-        "description": "uuid",
-        "isExtraImport": true,
-        "detail": "uuid",
-        "documentation": {}
-    },
-    {
-        "label": "UUID",
-        "importPath": "uuid",
-        "description": "uuid",
-        "isExtraImport": true,
-        "detail": "uuid",
-        "documentation": {}
-    },
-    {
-        "label": "UUID",
-        "importPath": "uuid",
-        "description": "uuid",
-        "isExtraImport": true,
-        "detail": "uuid",
-        "documentation": {}
-    },
-    {
-        "label": "UUID",
-        "importPath": "uuid",
-        "description": "uuid",
-        "isExtraImport": true,
-        "detail": "uuid",
-        "documentation": {}
-    },
-    {
-        "label": "UUID",
-        "importPath": "uuid",
-        "description": "uuid",
-        "isExtraImport": true,
-        "detail": "uuid",
-        "documentation": {}
-    },
-    {
         "label": "UUID",
         "importPath": "uuid",
         "description": "uuid",
@@ -1231,6 +1215,110 @@
         "documentation": {}
     },
     {
+        "label": "uuid4",
+        "importPath": "uuid",
+        "description": "uuid",
+        "isExtraImport": true,
+        "detail": "uuid",
+        "documentation": {}
+    },
+    {
+        "label": "UUID",
+        "importPath": "uuid",
+        "description": "uuid",
+        "isExtraImport": true,
+        "detail": "uuid",
+        "documentation": {}
+    },
+    {
+        "label": "UUID",
+        "importPath": "uuid",
+        "description": "uuid",
+        "isExtraImport": true,
+        "detail": "uuid",
+        "documentation": {}
+    },
+    {
+        "label": "UUID",
+        "importPath": "uuid",
+        "description": "uuid",
+        "isExtraImport": true,
+        "detail": "uuid",
+        "documentation": {}
+    },
+    {
+        "label": "UUID",
+        "importPath": "uuid",
+        "description": "uuid",
+        "isExtraImport": true,
+        "detail": "uuid",
+        "documentation": {}
+    },
+    {
+        "label": "UUID",
+        "importPath": "uuid",
+        "description": "uuid",
+        "isExtraImport": true,
+        "detail": "uuid",
+        "documentation": {}
+    },
+    {
+        "label": "UUID",
+        "importPath": "uuid",
+        "description": "uuid",
+        "isExtraImport": true,
+        "detail": "uuid",
+        "documentation": {}
+    },
+    {
+        "label": "UUID",
+        "importPath": "uuid",
+        "description": "uuid",
+        "isExtraImport": true,
+        "detail": "uuid",
+        "documentation": {}
+    },
+    {
+        "label": "UUID",
+        "importPath": "uuid",
+        "description": "uuid",
+        "isExtraImport": true,
+        "detail": "uuid",
+        "documentation": {}
+    },
+    {
+        "label": "UUID",
+        "importPath": "uuid",
+        "description": "uuid",
+        "isExtraImport": true,
+        "detail": "uuid",
+        "documentation": {}
+    },
+    {
+        "label": "UUID",
+        "importPath": "uuid",
+        "description": "uuid",
+        "isExtraImport": true,
+        "detail": "uuid",
+        "documentation": {}
+    },
+    {
+        "label": "UUID",
+        "importPath": "uuid",
+        "description": "uuid",
+        "isExtraImport": true,
+        "detail": "uuid",
+        "documentation": {}
+    },
+    {
+        "label": "UUID",
+        "importPath": "uuid",
+        "description": "uuid",
+        "isExtraImport": true,
+        "detail": "uuid",
+        "documentation": {}
+    },
+    {
         "label": "UUID",
         "importPath": "uuid",
         "description": "uuid",
@@ -1300,6 +1388,14 @@
         "description": "uuid",
         "isExtraImport": true,
         "detail": "uuid",
+        "documentation": {}
+    },
+    {
+        "label": "Path",
+        "importPath": "pathlib",
+        "description": "pathlib",
+        "isExtraImport": true,
+        "detail": "pathlib",
         "documentation": {}
     },
     {
@@ -1343,764 +1439,75 @@
         "documentation": {}
     },
     {
-        "label": "sqlalchemy",
-        "kind": 6,
+        "label": "Path",
+        "importPath": "pathlib",
+        "description": "pathlib",
         "isExtraImport": true,
-        "importPath": "sqlalchemy",
-        "description": "sqlalchemy",
-        "detail": "sqlalchemy",
+        "detail": "pathlib",
         "documentation": {}
     },
     {
-        "label": "select",
-        "importPath": "sqlalchemy",
-        "description": "sqlalchemy",
+        "label": "settings",
+        "importPath": "app.core.config",
+        "description": "app.core.config",
         "isExtraImport": true,
-        "detail": "sqlalchemy",
+        "detail": "app.core.config",
         "documentation": {}
     },
     {
-        "label": "text",
-        "importPath": "sqlalchemy",
-        "description": "sqlalchemy",
+        "label": "settings",
+        "importPath": "app.core.config",
+        "description": "app.core.config",
         "isExtraImport": true,
-        "detail": "sqlalchemy",
+        "detail": "app.core.config",
         "documentation": {}
     },
     {
-        "label": "func",
-        "importPath": "sqlalchemy",
-        "description": "sqlalchemy",
+        "label": "settings",
+        "importPath": "app.core.config",
+        "description": "app.core.config",
         "isExtraImport": true,
-        "detail": "sqlalchemy",
+        "detail": "app.core.config",
         "documentation": {}
     },
     {
-        "label": "select",
-        "importPath": "sqlalchemy",
-        "description": "sqlalchemy",
+        "label": "settings",
+        "importPath": "app.core.config",
+        "description": "app.core.config",
         "isExtraImport": true,
-        "detail": "sqlalchemy",
+        "detail": "app.core.config",
         "documentation": {}
     },
     {
-        "label": "pool",
-        "importPath": "sqlalchemy",
-        "description": "sqlalchemy",
+        "label": "settings",
+        "importPath": "app.core.config",
+        "description": "app.core.config",
         "isExtraImport": true,
-        "detail": "sqlalchemy",
+        "detail": "app.core.config",
         "documentation": {}
     },
     {
-        "label": "select",
-        "importPath": "sqlalchemy",
-        "description": "sqlalchemy",
+        "label": "settings",
+        "importPath": "app.core.config",
+        "description": "app.core.config",
         "isExtraImport": true,
-        "detail": "sqlalchemy",
+        "detail": "app.core.config",
         "documentation": {}
     },
     {
-        "label": "func",
-        "importPath": "sqlalchemy",
-        "description": "sqlalchemy",
+        "label": "settings",
+        "importPath": "app.core.config",
+        "description": "app.core.config",
         "isExtraImport": true,
-        "detail": "sqlalchemy",
+        "detail": "app.core.config",
         "documentation": {}
     },
     {
-        "label": "select",
-        "importPath": "sqlalchemy",
-        "description": "sqlalchemy",
+        "label": "settings",
+        "importPath": "app.core.config",
+        "description": "app.core.config",
         "isExtraImport": true,
-        "detail": "sqlalchemy",
-        "documentation": {}
-    },
-    {
-        "label": "func",
-        "importPath": "sqlalchemy",
-        "description": "sqlalchemy",
-        "isExtraImport": true,
-        "detail": "sqlalchemy",
-        "documentation": {}
-    },
-    {
-        "label": "or_",
-        "importPath": "sqlalchemy",
-        "description": "sqlalchemy",
-        "isExtraImport": true,
-        "detail": "sqlalchemy",
-        "documentation": {}
-    },
-    {
-        "label": "select",
-        "importPath": "sqlalchemy",
-        "description": "sqlalchemy",
-        "isExtraImport": true,
-        "detail": "sqlalchemy",
-        "documentation": {}
-    },
-    {
-        "label": "DateTime",
-        "importPath": "sqlalchemy",
-        "description": "sqlalchemy",
-        "isExtraImport": true,
-        "detail": "sqlalchemy",
-        "documentation": {}
-    },
-    {
-        "label": "ForeignKey",
-        "importPath": "sqlalchemy",
-        "description": "sqlalchemy",
-        "isExtraImport": true,
-        "detail": "sqlalchemy",
-        "documentation": {}
-    },
-    {
-        "label": "String",
-        "importPath": "sqlalchemy",
-        "description": "sqlalchemy",
-        "isExtraImport": true,
-        "detail": "sqlalchemy",
-        "documentation": {}
-    },
-    {
-        "label": "Text",
-        "importPath": "sqlalchemy",
-        "description": "sqlalchemy",
-        "isExtraImport": true,
-        "detail": "sqlalchemy",
-        "documentation": {}
-    },
-    {
-        "label": "select",
-        "importPath": "sqlalchemy",
-        "description": "sqlalchemy",
-        "isExtraImport": true,
-        "detail": "sqlalchemy",
-        "documentation": {}
-    },
-    {
-        "label": "DateTime",
-        "importPath": "sqlalchemy",
-        "description": "sqlalchemy",
-        "isExtraImport": true,
-        "detail": "sqlalchemy",
-        "documentation": {}
-    },
-    {
-        "label": "ForeignKey",
-        "importPath": "sqlalchemy",
-        "description": "sqlalchemy",
-        "isExtraImport": true,
-        "detail": "sqlalchemy",
-        "documentation": {}
-    },
-    {
-        "label": "String",
-        "importPath": "sqlalchemy",
-        "description": "sqlalchemy",
-        "isExtraImport": true,
-        "detail": "sqlalchemy",
-        "documentation": {}
-    },
-    {
-        "label": "Text",
-        "importPath": "sqlalchemy",
-        "description": "sqlalchemy",
-        "isExtraImport": true,
-        "detail": "sqlalchemy",
-        "documentation": {}
-    },
-    {
-        "label": "and_",
-        "importPath": "sqlalchemy",
-        "description": "sqlalchemy",
-        "isExtraImport": true,
-        "detail": "sqlalchemy",
-        "documentation": {}
-    },
-    {
-        "label": "desc",
-        "importPath": "sqlalchemy",
-        "description": "sqlalchemy",
-        "isExtraImport": true,
-        "detail": "sqlalchemy",
-        "documentation": {}
-    },
-    {
-        "label": "func",
-        "importPath": "sqlalchemy",
-        "description": "sqlalchemy",
-        "isExtraImport": true,
-        "detail": "sqlalchemy",
-        "documentation": {}
-    },
-    {
-        "label": "or_",
-        "importPath": "sqlalchemy",
-        "description": "sqlalchemy",
-        "isExtraImport": true,
-        "detail": "sqlalchemy",
-        "documentation": {}
-    },
-    {
-        "label": "select",
-        "importPath": "sqlalchemy",
-        "description": "sqlalchemy",
-        "isExtraImport": true,
-        "detail": "sqlalchemy",
-        "documentation": {}
-    },
-    {
-        "label": "Boolean",
-        "importPath": "sqlalchemy",
-        "description": "sqlalchemy",
-        "isExtraImport": true,
-        "detail": "sqlalchemy",
-        "documentation": {}
-    },
-    {
-        "label": "DateTime",
-        "importPath": "sqlalchemy",
-        "description": "sqlalchemy",
-        "isExtraImport": true,
-        "detail": "sqlalchemy",
-        "documentation": {}
-    },
-    {
-        "label": "ForeignKey",
-        "importPath": "sqlalchemy",
-        "description": "sqlalchemy",
-        "isExtraImport": true,
-        "detail": "sqlalchemy",
-        "documentation": {}
-    },
-    {
-        "label": "Float",
-        "importPath": "sqlalchemy",
-        "description": "sqlalchemy",
-        "isExtraImport": true,
-        "detail": "sqlalchemy",
-        "documentation": {}
-    },
-    {
-        "label": "String",
-        "importPath": "sqlalchemy",
-        "description": "sqlalchemy",
-        "isExtraImport": true,
-        "detail": "sqlalchemy",
-        "documentation": {}
-    },
-    {
-        "label": "Text",
-        "importPath": "sqlalchemy",
-        "description": "sqlalchemy",
-        "isExtraImport": true,
-        "detail": "sqlalchemy",
-        "documentation": {}
-    },
-    {
-        "label": "select",
-        "importPath": "sqlalchemy",
-        "description": "sqlalchemy",
-        "isExtraImport": true,
-        "detail": "sqlalchemy",
-        "documentation": {}
-    },
-    {
-        "label": "DateTime",
-        "importPath": "sqlalchemy",
-        "description": "sqlalchemy",
-        "isExtraImport": true,
-        "detail": "sqlalchemy",
-        "documentation": {}
-    },
-    {
-        "label": "ForeignKey",
-        "importPath": "sqlalchemy",
-        "description": "sqlalchemy",
-        "isExtraImport": true,
-        "detail": "sqlalchemy",
-        "documentation": {}
-    },
-    {
-        "label": "Integer",
-        "importPath": "sqlalchemy",
-        "description": "sqlalchemy",
-        "isExtraImport": true,
-        "detail": "sqlalchemy",
-        "documentation": {}
-    },
-    {
-        "label": "Numeric",
-        "importPath": "sqlalchemy",
-        "description": "sqlalchemy",
-        "isExtraImport": true,
-        "detail": "sqlalchemy",
-        "documentation": {}
-    },
-    {
-        "label": "String",
-        "importPath": "sqlalchemy",
-        "description": "sqlalchemy",
-        "isExtraImport": true,
-        "detail": "sqlalchemy",
-        "documentation": {}
-    },
-    {
-        "label": "Text",
-        "importPath": "sqlalchemy",
-        "description": "sqlalchemy",
-        "isExtraImport": true,
-        "detail": "sqlalchemy",
-        "documentation": {}
-    },
-    {
-        "label": "select",
-        "importPath": "sqlalchemy",
-        "description": "sqlalchemy",
-        "isExtraImport": true,
-        "detail": "sqlalchemy",
-        "documentation": {}
-    },
-    {
-        "label": "func",
-        "importPath": "sqlalchemy",
-        "description": "sqlalchemy",
-        "isExtraImport": true,
-        "detail": "sqlalchemy",
-        "documentation": {}
-    },
-    {
-        "label": "DateTime",
-        "importPath": "sqlalchemy",
-        "description": "sqlalchemy",
-        "isExtraImport": true,
-        "detail": "sqlalchemy",
-        "documentation": {}
-    },
-    {
-        "label": "ForeignKey",
-        "importPath": "sqlalchemy",
-        "description": "sqlalchemy",
-        "isExtraImport": true,
-        "detail": "sqlalchemy",
-        "documentation": {}
-    },
-    {
-        "label": "Numeric",
-        "importPath": "sqlalchemy",
-        "description": "sqlalchemy",
-        "isExtraImport": true,
-        "detail": "sqlalchemy",
-        "documentation": {}
-    },
-    {
-        "label": "String",
-        "importPath": "sqlalchemy",
-        "description": "sqlalchemy",
-        "isExtraImport": true,
-        "detail": "sqlalchemy",
-        "documentation": {}
-    },
-    {
-        "label": "Text",
-        "importPath": "sqlalchemy",
-        "description": "sqlalchemy",
-        "isExtraImport": true,
-        "detail": "sqlalchemy",
-        "documentation": {}
-    },
-    {
-        "label": "select",
-        "importPath": "sqlalchemy",
-        "description": "sqlalchemy",
-        "isExtraImport": true,
-        "detail": "sqlalchemy",
-        "documentation": {}
-    },
-    {
-        "label": "DateTime",
-        "importPath": "sqlalchemy",
-        "description": "sqlalchemy",
-        "isExtraImport": true,
-        "detail": "sqlalchemy",
-        "documentation": {}
-    },
-    {
-        "label": "ForeignKey",
-        "importPath": "sqlalchemy",
-        "description": "sqlalchemy",
-        "isExtraImport": true,
-        "detail": "sqlalchemy",
-        "documentation": {}
-    },
-    {
-        "label": "Integer",
-        "importPath": "sqlalchemy",
-        "description": "sqlalchemy",
-        "isExtraImport": true,
-        "detail": "sqlalchemy",
-        "documentation": {}
-    },
-    {
-        "label": "String",
-        "importPath": "sqlalchemy",
-        "description": "sqlalchemy",
-        "isExtraImport": true,
-        "detail": "sqlalchemy",
-        "documentation": {}
-    },
-    {
-        "label": "Text",
-        "importPath": "sqlalchemy",
-        "description": "sqlalchemy",
-        "isExtraImport": true,
-        "detail": "sqlalchemy",
-        "documentation": {}
-    },
-    {
-        "label": "delete",
-        "importPath": "sqlalchemy",
-        "description": "sqlalchemy",
-        "isExtraImport": true,
-        "detail": "sqlalchemy",
-        "documentation": {}
-    },
-    {
-        "label": "func",
-        "importPath": "sqlalchemy",
-        "description": "sqlalchemy",
-        "isExtraImport": true,
-        "detail": "sqlalchemy",
-        "documentation": {}
-    },
-    {
-        "label": "select",
-        "importPath": "sqlalchemy",
-        "description": "sqlalchemy",
-        "isExtraImport": true,
-        "detail": "sqlalchemy",
-        "documentation": {}
-    },
-    {
-        "label": "DateTime",
-        "importPath": "sqlalchemy",
-        "description": "sqlalchemy",
-        "isExtraImport": true,
-        "detail": "sqlalchemy",
-        "documentation": {}
-    },
-    {
-        "label": "ForeignKey",
-        "importPath": "sqlalchemy",
-        "description": "sqlalchemy",
-        "isExtraImport": true,
-        "detail": "sqlalchemy",
-        "documentation": {}
-    },
-    {
-        "label": "String",
-        "importPath": "sqlalchemy",
-        "description": "sqlalchemy",
-        "isExtraImport": true,
-        "detail": "sqlalchemy",
-        "documentation": {}
-    },
-    {
-        "label": "Text",
-        "importPath": "sqlalchemy",
-        "description": "sqlalchemy",
-        "isExtraImport": true,
-        "detail": "sqlalchemy",
-        "documentation": {}
-    },
-    {
-        "label": "select",
-        "importPath": "sqlalchemy",
-        "description": "sqlalchemy",
-        "isExtraImport": true,
-        "detail": "sqlalchemy",
-        "documentation": {}
-    },
-    {
-        "label": "Boolean",
-        "importPath": "sqlalchemy",
-        "description": "sqlalchemy",
-        "isExtraImport": true,
-        "detail": "sqlalchemy",
-        "documentation": {}
-    },
-    {
-        "label": "DateTime",
-        "importPath": "sqlalchemy",
-        "description": "sqlalchemy",
-        "isExtraImport": true,
-        "detail": "sqlalchemy",
-        "documentation": {}
-    },
-    {
-        "label": "ForeignKey",
-        "importPath": "sqlalchemy",
-        "description": "sqlalchemy",
-        "isExtraImport": true,
-        "detail": "sqlalchemy",
-        "documentation": {}
-    },
-    {
-        "label": "String",
-        "importPath": "sqlalchemy",
-        "description": "sqlalchemy",
-        "isExtraImport": true,
-        "detail": "sqlalchemy",
-        "documentation": {}
-    },
-    {
-        "label": "Text",
-        "importPath": "sqlalchemy",
-        "description": "sqlalchemy",
-        "isExtraImport": true,
-        "detail": "sqlalchemy",
-        "documentation": {}
-    },
-    {
-        "label": "func",
-        "importPath": "sqlalchemy",
-        "description": "sqlalchemy",
-        "isExtraImport": true,
-        "detail": "sqlalchemy",
-        "documentation": {}
-    },
-    {
-        "label": "select",
-        "importPath": "sqlalchemy",
-        "description": "sqlalchemy",
-        "isExtraImport": true,
-        "detail": "sqlalchemy",
-        "documentation": {}
-    },
-    {
-        "label": "update",
-        "importPath": "sqlalchemy",
-        "description": "sqlalchemy",
-        "isExtraImport": true,
-        "detail": "sqlalchemy",
-        "documentation": {}
-    },
-    {
-        "label": "DateTime",
-        "importPath": "sqlalchemy",
-        "description": "sqlalchemy",
-        "isExtraImport": true,
-        "detail": "sqlalchemy",
-        "documentation": {}
-    },
-    {
-        "label": "ForeignKey",
-        "importPath": "sqlalchemy",
-        "description": "sqlalchemy",
-        "isExtraImport": true,
-        "detail": "sqlalchemy",
-        "documentation": {}
-    },
-    {
-        "label": "String",
-        "importPath": "sqlalchemy",
-        "description": "sqlalchemy",
-        "isExtraImport": true,
-        "detail": "sqlalchemy",
-        "documentation": {}
-    },
-    {
-        "label": "Text",
-        "importPath": "sqlalchemy",
-        "description": "sqlalchemy",
-        "isExtraImport": true,
-        "detail": "sqlalchemy",
-        "documentation": {}
-    },
-    {
-        "label": "select",
-        "importPath": "sqlalchemy",
-        "description": "sqlalchemy",
-        "isExtraImport": true,
-        "detail": "sqlalchemy",
-        "documentation": {}
-    },
-    {
-        "label": "DateTime",
-        "importPath": "sqlalchemy",
-        "description": "sqlalchemy",
-        "isExtraImport": true,
-        "detail": "sqlalchemy",
-        "documentation": {}
-    },
-    {
-        "label": "ForeignKey",
-        "importPath": "sqlalchemy",
-        "description": "sqlalchemy",
-        "isExtraImport": true,
-        "detail": "sqlalchemy",
-        "documentation": {}
-    },
-    {
-        "label": "String",
-        "importPath": "sqlalchemy",
-        "description": "sqlalchemy",
-        "isExtraImport": true,
-        "detail": "sqlalchemy",
-        "documentation": {}
-    },
-    {
-        "label": "Text",
-        "importPath": "sqlalchemy",
-        "description": "sqlalchemy",
-        "isExtraImport": true,
-        "detail": "sqlalchemy",
-        "documentation": {}
-    },
-    {
-        "label": "distinct",
-        "importPath": "sqlalchemy",
-        "description": "sqlalchemy",
-        "isExtraImport": true,
-        "detail": "sqlalchemy",
-        "documentation": {}
-    },
-    {
-        "label": "select",
-        "importPath": "sqlalchemy",
-        "description": "sqlalchemy",
-        "isExtraImport": true,
-        "detail": "sqlalchemy",
-        "documentation": {}
-    },
-    {
-        "label": "Boolean",
-        "importPath": "sqlalchemy",
-        "description": "sqlalchemy",
-        "isExtraImport": true,
-        "detail": "sqlalchemy",
-        "documentation": {}
-    },
-    {
-        "label": "Column",
-        "importPath": "sqlalchemy",
-        "description": "sqlalchemy",
-        "isExtraImport": true,
-        "detail": "sqlalchemy",
-        "documentation": {}
-    },
-    {
-        "label": "ForeignKey",
-        "importPath": "sqlalchemy",
-        "description": "sqlalchemy",
-        "isExtraImport": true,
-        "detail": "sqlalchemy",
-        "documentation": {}
-    },
-    {
-        "label": "String",
-        "importPath": "sqlalchemy",
-        "description": "sqlalchemy",
-        "isExtraImport": true,
-        "detail": "sqlalchemy",
-        "documentation": {}
-    },
-    {
-        "label": "Table",
-        "importPath": "sqlalchemy",
-        "description": "sqlalchemy",
-        "isExtraImport": true,
-        "detail": "sqlalchemy",
-        "documentation": {}
-    },
-    {
-        "label": "Text",
-        "importPath": "sqlalchemy",
-        "description": "sqlalchemy",
-        "isExtraImport": true,
-        "detail": "sqlalchemy",
-        "documentation": {}
-    },
-    {
-        "label": "DateTime",
-        "importPath": "sqlalchemy",
-        "description": "sqlalchemy",
-        "isExtraImport": true,
-        "detail": "sqlalchemy",
-        "documentation": {}
-    },
-    {
-        "label": "delete",
-        "importPath": "sqlalchemy",
-        "description": "sqlalchemy",
-        "isExtraImport": true,
-        "detail": "sqlalchemy",
-        "documentation": {}
-    },
-    {
-        "label": "select",
-        "importPath": "sqlalchemy",
-        "description": "sqlalchemy",
-        "isExtraImport": true,
-        "detail": "sqlalchemy",
-        "documentation": {}
-    },
-    {
-        "label": "select",
-        "importPath": "sqlalchemy",
-        "description": "sqlalchemy",
-        "isExtraImport": true,
-        "detail": "sqlalchemy",
-        "documentation": {}
-    },
-    {
-        "label": "delete",
-        "importPath": "sqlalchemy",
-        "description": "sqlalchemy",
-        "isExtraImport": true,
-        "detail": "sqlalchemy",
-        "documentation": {}
-    },
-    {
-        "label": "select",
-        "importPath": "sqlalchemy",
-        "description": "sqlalchemy",
-        "isExtraImport": true,
-        "detail": "sqlalchemy",
-        "documentation": {}
-    },
-    {
-        "label": "func",
-        "importPath": "sqlalchemy",
-        "description": "sqlalchemy",
-        "isExtraImport": true,
-        "detail": "sqlalchemy",
-        "documentation": {}
-    },
-    {
-        "label": "select",
-        "importPath": "sqlalchemy",
-        "description": "sqlalchemy",
-        "isExtraImport": true,
-        "detail": "sqlalchemy",
-        "documentation": {}
-    },
-    {
-        "label": "select",
-        "importPath": "sqlalchemy",
-        "description": "sqlalchemy",
-        "isExtraImport": true,
-        "detail": "sqlalchemy",
-        "documentation": {}
-    },
-    {
-        "label": "select",
-        "importPath": "sqlalchemy",
-        "description": "sqlalchemy",
-        "isExtraImport": true,
-        "detail": "sqlalchemy",
+        "detail": "app.core.config",
         "documentation": {}
     },
     {
@@ -2664,11 +2071,19 @@
         "documentation": {}
     },
     {
-        "label": "async_session_factory",
-        "importPath": "app.db.session",
-        "description": "app.db.session",
+        "label": "get_embedding_provider",
+        "importPath": "app.core.dependencies",
+        "description": "app.core.dependencies",
         "isExtraImport": true,
-        "detail": "app.db.session",
+        "detail": "app.core.dependencies",
+        "documentation": {}
+    },
+    {
+        "label": "get_llm_provider",
+        "importPath": "app.core.dependencies",
+        "description": "app.core.dependencies",
+        "isExtraImport": true,
+        "detail": "app.core.dependencies",
         "documentation": {}
     },
     {
@@ -2717,6 +2132,62 @@
         "description": "app.db.session",
         "isExtraImport": true,
         "detail": "app.db.session",
+        "documentation": {}
+    },
+    {
+        "label": "async_session_factory",
+        "importPath": "app.db.session",
+        "description": "app.db.session",
+        "isExtraImport": true,
+        "detail": "app.db.session",
+        "documentation": {}
+    },
+    {
+        "label": "classify_archive_access",
+        "importPath": "app.modules.documents.metadata",
+        "description": "app.modules.documents.metadata",
+        "isExtraImport": true,
+        "detail": "app.modules.documents.metadata",
+        "documentation": {}
+    },
+    {
+        "label": "infer_document_language",
+        "importPath": "app.modules.documents.metadata",
+        "description": "app.modules.documents.metadata",
+        "isExtraImport": true,
+        "detail": "app.modules.documents.metadata",
+        "documentation": {}
+    },
+    {
+        "label": "infer_document_language_from_upload",
+        "importPath": "app.modules.documents.metadata",
+        "description": "app.modules.documents.metadata",
+        "isExtraImport": true,
+        "detail": "app.modules.documents.metadata",
+        "documentation": {}
+    },
+    {
+        "label": "classify_archive_access",
+        "importPath": "app.modules.documents.metadata",
+        "description": "app.modules.documents.metadata",
+        "isExtraImport": true,
+        "detail": "app.modules.documents.metadata",
+        "documentation": {}
+    },
+    {
+        "label": "infer_document_language",
+        "importPath": "app.modules.documents.metadata",
+        "description": "app.modules.documents.metadata",
+        "isExtraImport": true,
+        "detail": "app.modules.documents.metadata",
+        "documentation": {}
+    },
+    {
+        "label": "infer_document_language_from_upload",
+        "importPath": "app.modules.documents.metadata",
+        "description": "app.modules.documents.metadata",
+        "isExtraImport": true,
+        "detail": "app.modules.documents.metadata",
         "documentation": {}
     },
     {
@@ -3032,7 +2503,7 @@
         "documentation": {}
     },
     {
-        "label": "Document",
+        "label": "IngestionJob",
         "importPath": "app.modules.documents.models",
         "description": "app.modules.documents.models",
         "isExtraImport": true,
@@ -3040,7 +2511,7 @@
         "documentation": {}
     },
     {
-        "label": "IngestionJob",
+        "label": "Document",
         "importPath": "app.modules.documents.models",
         "description": "app.modules.documents.models",
         "isExtraImport": true,
@@ -3696,6 +3167,775 @@
         "documentation": {}
     },
     {
+        "label": "sqlalchemy",
+        "kind": 6,
+        "isExtraImport": true,
+        "importPath": "sqlalchemy",
+        "description": "sqlalchemy",
+        "detail": "sqlalchemy",
+        "documentation": {}
+    },
+    {
+        "label": "select",
+        "importPath": "sqlalchemy",
+        "description": "sqlalchemy",
+        "isExtraImport": true,
+        "detail": "sqlalchemy",
+        "documentation": {}
+    },
+    {
+        "label": "text",
+        "importPath": "sqlalchemy",
+        "description": "sqlalchemy",
+        "isExtraImport": true,
+        "detail": "sqlalchemy",
+        "documentation": {}
+    },
+    {
+        "label": "func",
+        "importPath": "sqlalchemy",
+        "description": "sqlalchemy",
+        "isExtraImport": true,
+        "detail": "sqlalchemy",
+        "documentation": {}
+    },
+    {
+        "label": "select",
+        "importPath": "sqlalchemy",
+        "description": "sqlalchemy",
+        "isExtraImport": true,
+        "detail": "sqlalchemy",
+        "documentation": {}
+    },
+    {
+        "label": "pool",
+        "importPath": "sqlalchemy",
+        "description": "sqlalchemy",
+        "isExtraImport": true,
+        "detail": "sqlalchemy",
+        "documentation": {}
+    },
+    {
+        "label": "select",
+        "importPath": "sqlalchemy",
+        "description": "sqlalchemy",
+        "isExtraImport": true,
+        "detail": "sqlalchemy",
+        "documentation": {}
+    },
+    {
+        "label": "func",
+        "importPath": "sqlalchemy",
+        "description": "sqlalchemy",
+        "isExtraImport": true,
+        "detail": "sqlalchemy",
+        "documentation": {}
+    },
+    {
+        "label": "select",
+        "importPath": "sqlalchemy",
+        "description": "sqlalchemy",
+        "isExtraImport": true,
+        "detail": "sqlalchemy",
+        "documentation": {}
+    },
+    {
+        "label": "func",
+        "importPath": "sqlalchemy",
+        "description": "sqlalchemy",
+        "isExtraImport": true,
+        "detail": "sqlalchemy",
+        "documentation": {}
+    },
+    {
+        "label": "or_",
+        "importPath": "sqlalchemy",
+        "description": "sqlalchemy",
+        "isExtraImport": true,
+        "detail": "sqlalchemy",
+        "documentation": {}
+    },
+    {
+        "label": "select",
+        "importPath": "sqlalchemy",
+        "description": "sqlalchemy",
+        "isExtraImport": true,
+        "detail": "sqlalchemy",
+        "documentation": {}
+    },
+    {
+        "label": "DateTime",
+        "importPath": "sqlalchemy",
+        "description": "sqlalchemy",
+        "isExtraImport": true,
+        "detail": "sqlalchemy",
+        "documentation": {}
+    },
+    {
+        "label": "ForeignKey",
+        "importPath": "sqlalchemy",
+        "description": "sqlalchemy",
+        "isExtraImport": true,
+        "detail": "sqlalchemy",
+        "documentation": {}
+    },
+    {
+        "label": "String",
+        "importPath": "sqlalchemy",
+        "description": "sqlalchemy",
+        "isExtraImport": true,
+        "detail": "sqlalchemy",
+        "documentation": {}
+    },
+    {
+        "label": "Text",
+        "importPath": "sqlalchemy",
+        "description": "sqlalchemy",
+        "isExtraImport": true,
+        "detail": "sqlalchemy",
+        "documentation": {}
+    },
+    {
+        "label": "select",
+        "importPath": "sqlalchemy",
+        "description": "sqlalchemy",
+        "isExtraImport": true,
+        "detail": "sqlalchemy",
+        "documentation": {}
+    },
+    {
+        "label": "DateTime",
+        "importPath": "sqlalchemy",
+        "description": "sqlalchemy",
+        "isExtraImport": true,
+        "detail": "sqlalchemy",
+        "documentation": {}
+    },
+    {
+        "label": "ForeignKey",
+        "importPath": "sqlalchemy",
+        "description": "sqlalchemy",
+        "isExtraImport": true,
+        "detail": "sqlalchemy",
+        "documentation": {}
+    },
+    {
+        "label": "String",
+        "importPath": "sqlalchemy",
+        "description": "sqlalchemy",
+        "isExtraImport": true,
+        "detail": "sqlalchemy",
+        "documentation": {}
+    },
+    {
+        "label": "Text",
+        "importPath": "sqlalchemy",
+        "description": "sqlalchemy",
+        "isExtraImport": true,
+        "detail": "sqlalchemy",
+        "documentation": {}
+    },
+    {
+        "label": "and_",
+        "importPath": "sqlalchemy",
+        "description": "sqlalchemy",
+        "isExtraImport": true,
+        "detail": "sqlalchemy",
+        "documentation": {}
+    },
+    {
+        "label": "desc",
+        "importPath": "sqlalchemy",
+        "description": "sqlalchemy",
+        "isExtraImport": true,
+        "detail": "sqlalchemy",
+        "documentation": {}
+    },
+    {
+        "label": "func",
+        "importPath": "sqlalchemy",
+        "description": "sqlalchemy",
+        "isExtraImport": true,
+        "detail": "sqlalchemy",
+        "documentation": {}
+    },
+    {
+        "label": "or_",
+        "importPath": "sqlalchemy",
+        "description": "sqlalchemy",
+        "isExtraImport": true,
+        "detail": "sqlalchemy",
+        "documentation": {}
+    },
+    {
+        "label": "select",
+        "importPath": "sqlalchemy",
+        "description": "sqlalchemy",
+        "isExtraImport": true,
+        "detail": "sqlalchemy",
+        "documentation": {}
+    },
+    {
+        "label": "Boolean",
+        "importPath": "sqlalchemy",
+        "description": "sqlalchemy",
+        "isExtraImport": true,
+        "detail": "sqlalchemy",
+        "documentation": {}
+    },
+    {
+        "label": "DateTime",
+        "importPath": "sqlalchemy",
+        "description": "sqlalchemy",
+        "isExtraImport": true,
+        "detail": "sqlalchemy",
+        "documentation": {}
+    },
+    {
+        "label": "ForeignKey",
+        "importPath": "sqlalchemy",
+        "description": "sqlalchemy",
+        "isExtraImport": true,
+        "detail": "sqlalchemy",
+        "documentation": {}
+    },
+    {
+        "label": "Float",
+        "importPath": "sqlalchemy",
+        "description": "sqlalchemy",
+        "isExtraImport": true,
+        "detail": "sqlalchemy",
+        "documentation": {}
+    },
+    {
+        "label": "String",
+        "importPath": "sqlalchemy",
+        "description": "sqlalchemy",
+        "isExtraImport": true,
+        "detail": "sqlalchemy",
+        "documentation": {}
+    },
+    {
+        "label": "Text",
+        "importPath": "sqlalchemy",
+        "description": "sqlalchemy",
+        "isExtraImport": true,
+        "detail": "sqlalchemy",
+        "documentation": {}
+    },
+    {
+        "label": "func",
+        "importPath": "sqlalchemy",
+        "description": "sqlalchemy",
+        "isExtraImport": true,
+        "detail": "sqlalchemy",
+        "documentation": {}
+    },
+    {
+        "label": "select",
+        "importPath": "sqlalchemy",
+        "description": "sqlalchemy",
+        "isExtraImport": true,
+        "detail": "sqlalchemy",
+        "documentation": {}
+    },
+    {
+        "label": "DateTime",
+        "importPath": "sqlalchemy",
+        "description": "sqlalchemy",
+        "isExtraImport": true,
+        "detail": "sqlalchemy",
+        "documentation": {}
+    },
+    {
+        "label": "ForeignKey",
+        "importPath": "sqlalchemy",
+        "description": "sqlalchemy",
+        "isExtraImport": true,
+        "detail": "sqlalchemy",
+        "documentation": {}
+    },
+    {
+        "label": "Integer",
+        "importPath": "sqlalchemy",
+        "description": "sqlalchemy",
+        "isExtraImport": true,
+        "detail": "sqlalchemy",
+        "documentation": {}
+    },
+    {
+        "label": "Numeric",
+        "importPath": "sqlalchemy",
+        "description": "sqlalchemy",
+        "isExtraImport": true,
+        "detail": "sqlalchemy",
+        "documentation": {}
+    },
+    {
+        "label": "String",
+        "importPath": "sqlalchemy",
+        "description": "sqlalchemy",
+        "isExtraImport": true,
+        "detail": "sqlalchemy",
+        "documentation": {}
+    },
+    {
+        "label": "Text",
+        "importPath": "sqlalchemy",
+        "description": "sqlalchemy",
+        "isExtraImport": true,
+        "detail": "sqlalchemy",
+        "documentation": {}
+    },
+    {
+        "label": "select",
+        "importPath": "sqlalchemy",
+        "description": "sqlalchemy",
+        "isExtraImport": true,
+        "detail": "sqlalchemy",
+        "documentation": {}
+    },
+    {
+        "label": "func",
+        "importPath": "sqlalchemy",
+        "description": "sqlalchemy",
+        "isExtraImport": true,
+        "detail": "sqlalchemy",
+        "documentation": {}
+    },
+    {
+        "label": "DateTime",
+        "importPath": "sqlalchemy",
+        "description": "sqlalchemy",
+        "isExtraImport": true,
+        "detail": "sqlalchemy",
+        "documentation": {}
+    },
+    {
+        "label": "ForeignKey",
+        "importPath": "sqlalchemy",
+        "description": "sqlalchemy",
+        "isExtraImport": true,
+        "detail": "sqlalchemy",
+        "documentation": {}
+    },
+    {
+        "label": "Numeric",
+        "importPath": "sqlalchemy",
+        "description": "sqlalchemy",
+        "isExtraImport": true,
+        "detail": "sqlalchemy",
+        "documentation": {}
+    },
+    {
+        "label": "String",
+        "importPath": "sqlalchemy",
+        "description": "sqlalchemy",
+        "isExtraImport": true,
+        "detail": "sqlalchemy",
+        "documentation": {}
+    },
+    {
+        "label": "Text",
+        "importPath": "sqlalchemy",
+        "description": "sqlalchemy",
+        "isExtraImport": true,
+        "detail": "sqlalchemy",
+        "documentation": {}
+    },
+    {
+        "label": "select",
+        "importPath": "sqlalchemy",
+        "description": "sqlalchemy",
+        "isExtraImport": true,
+        "detail": "sqlalchemy",
+        "documentation": {}
+    },
+    {
+        "label": "DateTime",
+        "importPath": "sqlalchemy",
+        "description": "sqlalchemy",
+        "isExtraImport": true,
+        "detail": "sqlalchemy",
+        "documentation": {}
+    },
+    {
+        "label": "ForeignKey",
+        "importPath": "sqlalchemy",
+        "description": "sqlalchemy",
+        "isExtraImport": true,
+        "detail": "sqlalchemy",
+        "documentation": {}
+    },
+    {
+        "label": "Integer",
+        "importPath": "sqlalchemy",
+        "description": "sqlalchemy",
+        "isExtraImport": true,
+        "detail": "sqlalchemy",
+        "documentation": {}
+    },
+    {
+        "label": "String",
+        "importPath": "sqlalchemy",
+        "description": "sqlalchemy",
+        "isExtraImport": true,
+        "detail": "sqlalchemy",
+        "documentation": {}
+    },
+    {
+        "label": "Text",
+        "importPath": "sqlalchemy",
+        "description": "sqlalchemy",
+        "isExtraImport": true,
+        "detail": "sqlalchemy",
+        "documentation": {}
+    },
+    {
+        "label": "delete",
+        "importPath": "sqlalchemy",
+        "description": "sqlalchemy",
+        "isExtraImport": true,
+        "detail": "sqlalchemy",
+        "documentation": {}
+    },
+    {
+        "label": "func",
+        "importPath": "sqlalchemy",
+        "description": "sqlalchemy",
+        "isExtraImport": true,
+        "detail": "sqlalchemy",
+        "documentation": {}
+    },
+    {
+        "label": "select",
+        "importPath": "sqlalchemy",
+        "description": "sqlalchemy",
+        "isExtraImport": true,
+        "detail": "sqlalchemy",
+        "documentation": {}
+    },
+    {
+        "label": "DateTime",
+        "importPath": "sqlalchemy",
+        "description": "sqlalchemy",
+        "isExtraImport": true,
+        "detail": "sqlalchemy",
+        "documentation": {}
+    },
+    {
+        "label": "ForeignKey",
+        "importPath": "sqlalchemy",
+        "description": "sqlalchemy",
+        "isExtraImport": true,
+        "detail": "sqlalchemy",
+        "documentation": {}
+    },
+    {
+        "label": "String",
+        "importPath": "sqlalchemy",
+        "description": "sqlalchemy",
+        "isExtraImport": true,
+        "detail": "sqlalchemy",
+        "documentation": {}
+    },
+    {
+        "label": "Text",
+        "importPath": "sqlalchemy",
+        "description": "sqlalchemy",
+        "isExtraImport": true,
+        "detail": "sqlalchemy",
+        "documentation": {}
+    },
+    {
+        "label": "select",
+        "importPath": "sqlalchemy",
+        "description": "sqlalchemy",
+        "isExtraImport": true,
+        "detail": "sqlalchemy",
+        "documentation": {}
+    },
+    {
+        "label": "Boolean",
+        "importPath": "sqlalchemy",
+        "description": "sqlalchemy",
+        "isExtraImport": true,
+        "detail": "sqlalchemy",
+        "documentation": {}
+    },
+    {
+        "label": "DateTime",
+        "importPath": "sqlalchemy",
+        "description": "sqlalchemy",
+        "isExtraImport": true,
+        "detail": "sqlalchemy",
+        "documentation": {}
+    },
+    {
+        "label": "ForeignKey",
+        "importPath": "sqlalchemy",
+        "description": "sqlalchemy",
+        "isExtraImport": true,
+        "detail": "sqlalchemy",
+        "documentation": {}
+    },
+    {
+        "label": "String",
+        "importPath": "sqlalchemy",
+        "description": "sqlalchemy",
+        "isExtraImport": true,
+        "detail": "sqlalchemy",
+        "documentation": {}
+    },
+    {
+        "label": "Text",
+        "importPath": "sqlalchemy",
+        "description": "sqlalchemy",
+        "isExtraImport": true,
+        "detail": "sqlalchemy",
+        "documentation": {}
+    },
+    {
+        "label": "func",
+        "importPath": "sqlalchemy",
+        "description": "sqlalchemy",
+        "isExtraImport": true,
+        "detail": "sqlalchemy",
+        "documentation": {}
+    },
+    {
+        "label": "select",
+        "importPath": "sqlalchemy",
+        "description": "sqlalchemy",
+        "isExtraImport": true,
+        "detail": "sqlalchemy",
+        "documentation": {}
+    },
+    {
+        "label": "update",
+        "importPath": "sqlalchemy",
+        "description": "sqlalchemy",
+        "isExtraImport": true,
+        "detail": "sqlalchemy",
+        "documentation": {}
+    },
+    {
+        "label": "DateTime",
+        "importPath": "sqlalchemy",
+        "description": "sqlalchemy",
+        "isExtraImport": true,
+        "detail": "sqlalchemy",
+        "documentation": {}
+    },
+    {
+        "label": "ForeignKey",
+        "importPath": "sqlalchemy",
+        "description": "sqlalchemy",
+        "isExtraImport": true,
+        "detail": "sqlalchemy",
+        "documentation": {}
+    },
+    {
+        "label": "String",
+        "importPath": "sqlalchemy",
+        "description": "sqlalchemy",
+        "isExtraImport": true,
+        "detail": "sqlalchemy",
+        "documentation": {}
+    },
+    {
+        "label": "Text",
+        "importPath": "sqlalchemy",
+        "description": "sqlalchemy",
+        "isExtraImport": true,
+        "detail": "sqlalchemy",
+        "documentation": {}
+    },
+    {
+        "label": "select",
+        "importPath": "sqlalchemy",
+        "description": "sqlalchemy",
+        "isExtraImport": true,
+        "detail": "sqlalchemy",
+        "documentation": {}
+    },
+    {
+        "label": "DateTime",
+        "importPath": "sqlalchemy",
+        "description": "sqlalchemy",
+        "isExtraImport": true,
+        "detail": "sqlalchemy",
+        "documentation": {}
+    },
+    {
+        "label": "ForeignKey",
+        "importPath": "sqlalchemy",
+        "description": "sqlalchemy",
+        "isExtraImport": true,
+        "detail": "sqlalchemy",
+        "documentation": {}
+    },
+    {
+        "label": "String",
+        "importPath": "sqlalchemy",
+        "description": "sqlalchemy",
+        "isExtraImport": true,
+        "detail": "sqlalchemy",
+        "documentation": {}
+    },
+    {
+        "label": "Text",
+        "importPath": "sqlalchemy",
+        "description": "sqlalchemy",
+        "isExtraImport": true,
+        "detail": "sqlalchemy",
+        "documentation": {}
+    },
+    {
+        "label": "distinct",
+        "importPath": "sqlalchemy",
+        "description": "sqlalchemy",
+        "isExtraImport": true,
+        "detail": "sqlalchemy",
+        "documentation": {}
+    },
+    {
+        "label": "select",
+        "importPath": "sqlalchemy",
+        "description": "sqlalchemy",
+        "isExtraImport": true,
+        "detail": "sqlalchemy",
+        "documentation": {}
+    },
+    {
+        "label": "Boolean",
+        "importPath": "sqlalchemy",
+        "description": "sqlalchemy",
+        "isExtraImport": true,
+        "detail": "sqlalchemy",
+        "documentation": {}
+    },
+    {
+        "label": "Column",
+        "importPath": "sqlalchemy",
+        "description": "sqlalchemy",
+        "isExtraImport": true,
+        "detail": "sqlalchemy",
+        "documentation": {}
+    },
+    {
+        "label": "ForeignKey",
+        "importPath": "sqlalchemy",
+        "description": "sqlalchemy",
+        "isExtraImport": true,
+        "detail": "sqlalchemy",
+        "documentation": {}
+    },
+    {
+        "label": "String",
+        "importPath": "sqlalchemy",
+        "description": "sqlalchemy",
+        "isExtraImport": true,
+        "detail": "sqlalchemy",
+        "documentation": {}
+    },
+    {
+        "label": "Table",
+        "importPath": "sqlalchemy",
+        "description": "sqlalchemy",
+        "isExtraImport": true,
+        "detail": "sqlalchemy",
+        "documentation": {}
+    },
+    {
+        "label": "Text",
+        "importPath": "sqlalchemy",
+        "description": "sqlalchemy",
+        "isExtraImport": true,
+        "detail": "sqlalchemy",
+        "documentation": {}
+    },
+    {
+        "label": "DateTime",
+        "importPath": "sqlalchemy",
+        "description": "sqlalchemy",
+        "isExtraImport": true,
+        "detail": "sqlalchemy",
+        "documentation": {}
+    },
+    {
+        "label": "delete",
+        "importPath": "sqlalchemy",
+        "description": "sqlalchemy",
+        "isExtraImport": true,
+        "detail": "sqlalchemy",
+        "documentation": {}
+    },
+    {
+        "label": "select",
+        "importPath": "sqlalchemy",
+        "description": "sqlalchemy",
+        "isExtraImport": true,
+        "detail": "sqlalchemy",
+        "documentation": {}
+    },
+    {
+        "label": "select",
+        "importPath": "sqlalchemy",
+        "description": "sqlalchemy",
+        "isExtraImport": true,
+        "detail": "sqlalchemy",
+        "documentation": {}
+    },
+    {
+        "label": "delete",
+        "importPath": "sqlalchemy",
+        "description": "sqlalchemy",
+        "isExtraImport": true,
+        "detail": "sqlalchemy",
+        "documentation": {}
+    },
+    {
+        "label": "select",
+        "importPath": "sqlalchemy",
+        "description": "sqlalchemy",
+        "isExtraImport": true,
+        "detail": "sqlalchemy",
+        "documentation": {}
+    },
+    {
+        "label": "func",
+        "importPath": "sqlalchemy",
+        "description": "sqlalchemy",
+        "isExtraImport": true,
+        "detail": "sqlalchemy",
+        "documentation": {}
+    },
+    {
+        "label": "select",
+        "importPath": "sqlalchemy",
+        "description": "sqlalchemy",
+        "isExtraImport": true,
+        "detail": "sqlalchemy",
+        "documentation": {}
+    },
+    {
+        "label": "select",
+        "importPath": "sqlalchemy",
+        "description": "sqlalchemy",
+        "isExtraImport": true,
+        "detail": "sqlalchemy",
+        "documentation": {}
+    },
+    {
+        "label": "select",
+        "importPath": "sqlalchemy",
+        "description": "sqlalchemy",
+        "isExtraImport": true,
+        "detail": "sqlalchemy",
+        "documentation": {}
+    },
+    {
         "label": "importlib.util",
         "kind": 6,
         "isExtraImport": true,
@@ -4162,6 +4402,30 @@
         "documentation": {}
     },
     {
+        "label": "Header",
+        "importPath": "fastapi",
+        "description": "fastapi",
+        "isExtraImport": true,
+        "detail": "fastapi",
+        "documentation": {}
+    },
+    {
+        "label": "HTTPException",
+        "importPath": "fastapi",
+        "description": "fastapi",
+        "isExtraImport": true,
+        "detail": "fastapi",
+        "documentation": {}
+    },
+    {
+        "label": "status",
+        "importPath": "fastapi",
+        "description": "fastapi",
+        "isExtraImport": true,
+        "detail": "fastapi",
+        "documentation": {}
+    },
+    {
         "label": "HTTPException",
         "importPath": "fastapi",
         "description": "fastapi",
@@ -4271,6 +4535,382 @@
         "description": "collections.abc",
         "isExtraImport": true,
         "detail": "collections.abc",
+        "documentation": {}
+    },
+    {
+        "label": "AsyncGenerator",
+        "importPath": "collections.abc",
+        "description": "collections.abc",
+        "isExtraImport": true,
+        "detail": "collections.abc",
+        "documentation": {}
+    },
+    {
+        "label": "Literal",
+        "importPath": "typing",
+        "description": "typing",
+        "isExtraImport": true,
+        "detail": "typing",
+        "documentation": {}
+    },
+    {
+        "label": "Annotated",
+        "importPath": "typing",
+        "description": "typing",
+        "isExtraImport": true,
+        "detail": "typing",
+        "documentation": {}
+    },
+    {
+        "label": "Any",
+        "importPath": "typing",
+        "description": "typing",
+        "isExtraImport": true,
+        "detail": "typing",
+        "documentation": {}
+    },
+    {
+        "label": "Any",
+        "importPath": "typing",
+        "description": "typing",
+        "isExtraImport": true,
+        "detail": "typing",
+        "documentation": {}
+    },
+    {
+        "label": "Sequence",
+        "importPath": "typing",
+        "description": "typing",
+        "isExtraImport": true,
+        "detail": "typing",
+        "documentation": {}
+    },
+    {
+        "label": "Union",
+        "importPath": "typing",
+        "description": "typing",
+        "isExtraImport": true,
+        "detail": "typing",
+        "documentation": {}
+    },
+    {
+        "label": "Sequence",
+        "importPath": "typing",
+        "description": "typing",
+        "isExtraImport": true,
+        "detail": "typing",
+        "documentation": {}
+    },
+    {
+        "label": "Union",
+        "importPath": "typing",
+        "description": "typing",
+        "isExtraImport": true,
+        "detail": "typing",
+        "documentation": {}
+    },
+    {
+        "label": "Sequence",
+        "importPath": "typing",
+        "description": "typing",
+        "isExtraImport": true,
+        "detail": "typing",
+        "documentation": {}
+    },
+    {
+        "label": "Union",
+        "importPath": "typing",
+        "description": "typing",
+        "isExtraImport": true,
+        "detail": "typing",
+        "documentation": {}
+    },
+    {
+        "label": "Sequence",
+        "importPath": "typing",
+        "description": "typing",
+        "isExtraImport": true,
+        "detail": "typing",
+        "documentation": {}
+    },
+    {
+        "label": "Union",
+        "importPath": "typing",
+        "description": "typing",
+        "isExtraImport": true,
+        "detail": "typing",
+        "documentation": {}
+    },
+    {
+        "label": "Sequence",
+        "importPath": "typing",
+        "description": "typing",
+        "isExtraImport": true,
+        "detail": "typing",
+        "documentation": {}
+    },
+    {
+        "label": "Union",
+        "importPath": "typing",
+        "description": "typing",
+        "isExtraImport": true,
+        "detail": "typing",
+        "documentation": {}
+    },
+    {
+        "label": "Sequence",
+        "importPath": "typing",
+        "description": "typing",
+        "isExtraImport": true,
+        "detail": "typing",
+        "documentation": {}
+    },
+    {
+        "label": "Union",
+        "importPath": "typing",
+        "description": "typing",
+        "isExtraImport": true,
+        "detail": "typing",
+        "documentation": {}
+    },
+    {
+        "label": "Annotated",
+        "importPath": "typing",
+        "description": "typing",
+        "isExtraImport": true,
+        "detail": "typing",
+        "documentation": {}
+    },
+    {
+        "label": "Annotated",
+        "importPath": "typing",
+        "description": "typing",
+        "isExtraImport": true,
+        "detail": "typing",
+        "documentation": {}
+    },
+    {
+        "label": "Literal",
+        "importPath": "typing",
+        "description": "typing",
+        "isExtraImport": true,
+        "detail": "typing",
+        "documentation": {}
+    },
+    {
+        "label": "Any",
+        "importPath": "typing",
+        "description": "typing",
+        "isExtraImport": true,
+        "detail": "typing",
+        "documentation": {}
+    },
+    {
+        "label": "Any",
+        "importPath": "typing",
+        "description": "typing",
+        "isExtraImport": true,
+        "detail": "typing",
+        "documentation": {}
+    },
+    {
+        "label": "Literal",
+        "importPath": "typing",
+        "description": "typing",
+        "isExtraImport": true,
+        "detail": "typing",
+        "documentation": {}
+    },
+    {
+        "label": "Annotated",
+        "importPath": "typing",
+        "description": "typing",
+        "isExtraImport": true,
+        "detail": "typing",
+        "documentation": {}
+    },
+    {
+        "label": "Annotated",
+        "importPath": "typing",
+        "description": "typing",
+        "isExtraImport": true,
+        "detail": "typing",
+        "documentation": {}
+    },
+    {
+        "label": "Any",
+        "importPath": "typing",
+        "description": "typing",
+        "isExtraImport": true,
+        "detail": "typing",
+        "documentation": {}
+    },
+    {
+        "label": "Union",
+        "importPath": "typing",
+        "description": "typing",
+        "isExtraImport": true,
+        "detail": "typing",
+        "documentation": {}
+    },
+    {
+        "label": "Any",
+        "importPath": "typing",
+        "description": "typing",
+        "isExtraImport": true,
+        "detail": "typing",
+        "documentation": {}
+    },
+    {
+        "label": "Literal",
+        "importPath": "typing",
+        "description": "typing",
+        "isExtraImport": true,
+        "detail": "typing",
+        "documentation": {}
+    },
+    {
+        "label": "Annotated",
+        "importPath": "typing",
+        "description": "typing",
+        "isExtraImport": true,
+        "detail": "typing",
+        "documentation": {}
+    },
+    {
+        "label": "Any",
+        "importPath": "typing",
+        "description": "typing",
+        "isExtraImport": true,
+        "detail": "typing",
+        "documentation": {}
+    },
+    {
+        "label": "Any",
+        "importPath": "typing",
+        "description": "typing",
+        "isExtraImport": true,
+        "detail": "typing",
+        "documentation": {}
+    },
+    {
+        "label": "Protocol",
+        "importPath": "typing",
+        "description": "typing",
+        "isExtraImport": true,
+        "detail": "typing",
+        "documentation": {}
+    },
+    {
+        "label": "AsyncGenerator",
+        "importPath": "typing",
+        "description": "typing",
+        "isExtraImport": true,
+        "detail": "typing",
+        "documentation": {}
+    },
+    {
+        "label": "Protocol",
+        "importPath": "typing",
+        "description": "typing",
+        "isExtraImport": true,
+        "detail": "typing",
+        "documentation": {}
+    },
+    {
+        "label": "AsyncGenerator",
+        "importPath": "typing",
+        "description": "typing",
+        "isExtraImport": true,
+        "detail": "typing",
+        "documentation": {}
+    },
+    {
+        "label": "AsyncGenerator",
+        "importPath": "typing",
+        "description": "typing",
+        "isExtraImport": true,
+        "detail": "typing",
+        "documentation": {}
+    },
+    {
+        "label": "Protocol",
+        "importPath": "typing",
+        "description": "typing",
+        "isExtraImport": true,
+        "detail": "typing",
+        "documentation": {}
+    },
+    {
+        "label": "Protocol",
+        "importPath": "typing",
+        "description": "typing",
+        "isExtraImport": true,
+        "detail": "typing",
+        "documentation": {}
+    },
+    {
+        "label": "Any",
+        "importPath": "typing",
+        "description": "typing",
+        "isExtraImport": true,
+        "detail": "typing",
+        "documentation": {}
+    },
+    {
+        "label": "Protocol",
+        "importPath": "typing",
+        "description": "typing",
+        "isExtraImport": true,
+        "detail": "typing",
+        "documentation": {}
+    },
+    {
+        "label": "Any",
+        "importPath": "typing",
+        "description": "typing",
+        "isExtraImport": true,
+        "detail": "typing",
+        "documentation": {}
+    },
+    {
+        "label": "Any",
+        "importPath": "typing",
+        "description": "typing",
+        "isExtraImport": true,
+        "detail": "typing",
+        "documentation": {}
+    },
+    {
+        "label": "Protocol",
+        "importPath": "typing",
+        "description": "typing",
+        "isExtraImport": true,
+        "detail": "typing",
+        "documentation": {}
+    },
+    {
+        "label": "Any",
+        "importPath": "typing",
+        "description": "typing",
+        "isExtraImport": true,
+        "detail": "typing",
+        "documentation": {}
+    },
+    {
+        "label": "Any",
+        "importPath": "typing",
+        "description": "typing",
+        "isExtraImport": true,
+        "detail": "typing",
+        "documentation": {}
+    },
+    {
+        "label": "AsyncGenerator",
+        "importPath": "typing",
+        "description": "typing",
+        "isExtraImport": true,
+        "detail": "typing",
         "documentation": {}
     },
     {
@@ -4610,6 +5250,22 @@
         "documentation": {}
     },
     {
+        "label": "replace",
+        "importPath": "dataclasses",
+        "description": "dataclasses",
+        "isExtraImport": true,
+        "detail": "dataclasses",
+        "documentation": {}
+    },
+    {
+        "label": "dataclass",
+        "importPath": "dataclasses",
+        "description": "dataclasses",
+        "isExtraImport": true,
+        "detail": "dataclasses",
+        "documentation": {}
+    },
+    {
         "label": "dataclass",
         "importPath": "dataclasses",
         "description": "dataclasses",
@@ -4639,358 +5295,6 @@
         "description": "functools",
         "isExtraImport": true,
         "detail": "functools",
-        "documentation": {}
-    },
-    {
-        "label": "Annotated",
-        "importPath": "typing",
-        "description": "typing",
-        "isExtraImport": true,
-        "detail": "typing",
-        "documentation": {}
-    },
-    {
-        "label": "Any",
-        "importPath": "typing",
-        "description": "typing",
-        "isExtraImport": true,
-        "detail": "typing",
-        "documentation": {}
-    },
-    {
-        "label": "Any",
-        "importPath": "typing",
-        "description": "typing",
-        "isExtraImport": true,
-        "detail": "typing",
-        "documentation": {}
-    },
-    {
-        "label": "Sequence",
-        "importPath": "typing",
-        "description": "typing",
-        "isExtraImport": true,
-        "detail": "typing",
-        "documentation": {}
-    },
-    {
-        "label": "Union",
-        "importPath": "typing",
-        "description": "typing",
-        "isExtraImport": true,
-        "detail": "typing",
-        "documentation": {}
-    },
-    {
-        "label": "Sequence",
-        "importPath": "typing",
-        "description": "typing",
-        "isExtraImport": true,
-        "detail": "typing",
-        "documentation": {}
-    },
-    {
-        "label": "Union",
-        "importPath": "typing",
-        "description": "typing",
-        "isExtraImport": true,
-        "detail": "typing",
-        "documentation": {}
-    },
-    {
-        "label": "Sequence",
-        "importPath": "typing",
-        "description": "typing",
-        "isExtraImport": true,
-        "detail": "typing",
-        "documentation": {}
-    },
-    {
-        "label": "Union",
-        "importPath": "typing",
-        "description": "typing",
-        "isExtraImport": true,
-        "detail": "typing",
-        "documentation": {}
-    },
-    {
-        "label": "Sequence",
-        "importPath": "typing",
-        "description": "typing",
-        "isExtraImport": true,
-        "detail": "typing",
-        "documentation": {}
-    },
-    {
-        "label": "Union",
-        "importPath": "typing",
-        "description": "typing",
-        "isExtraImport": true,
-        "detail": "typing",
-        "documentation": {}
-    },
-    {
-        "label": "Sequence",
-        "importPath": "typing",
-        "description": "typing",
-        "isExtraImport": true,
-        "detail": "typing",
-        "documentation": {}
-    },
-    {
-        "label": "Union",
-        "importPath": "typing",
-        "description": "typing",
-        "isExtraImport": true,
-        "detail": "typing",
-        "documentation": {}
-    },
-    {
-        "label": "Sequence",
-        "importPath": "typing",
-        "description": "typing",
-        "isExtraImport": true,
-        "detail": "typing",
-        "documentation": {}
-    },
-    {
-        "label": "Union",
-        "importPath": "typing",
-        "description": "typing",
-        "isExtraImport": true,
-        "detail": "typing",
-        "documentation": {}
-    },
-    {
-        "label": "Annotated",
-        "importPath": "typing",
-        "description": "typing",
-        "isExtraImport": true,
-        "detail": "typing",
-        "documentation": {}
-    },
-    {
-        "label": "Annotated",
-        "importPath": "typing",
-        "description": "typing",
-        "isExtraImport": true,
-        "detail": "typing",
-        "documentation": {}
-    },
-    {
-        "label": "Literal",
-        "importPath": "typing",
-        "description": "typing",
-        "isExtraImport": true,
-        "detail": "typing",
-        "documentation": {}
-    },
-    {
-        "label": "Any",
-        "importPath": "typing",
-        "description": "typing",
-        "isExtraImport": true,
-        "detail": "typing",
-        "documentation": {}
-    },
-    {
-        "label": "Any",
-        "importPath": "typing",
-        "description": "typing",
-        "isExtraImport": true,
-        "detail": "typing",
-        "documentation": {}
-    },
-    {
-        "label": "AsyncGenerator",
-        "importPath": "typing",
-        "description": "typing",
-        "isExtraImport": true,
-        "detail": "typing",
-        "documentation": {}
-    },
-    {
-        "label": "Literal",
-        "importPath": "typing",
-        "description": "typing",
-        "isExtraImport": true,
-        "detail": "typing",
-        "documentation": {}
-    },
-    {
-        "label": "Annotated",
-        "importPath": "typing",
-        "description": "typing",
-        "isExtraImport": true,
-        "detail": "typing",
-        "documentation": {}
-    },
-    {
-        "label": "Annotated",
-        "importPath": "typing",
-        "description": "typing",
-        "isExtraImport": true,
-        "detail": "typing",
-        "documentation": {}
-    },
-    {
-        "label": "Any",
-        "importPath": "typing",
-        "description": "typing",
-        "isExtraImport": true,
-        "detail": "typing",
-        "documentation": {}
-    },
-    {
-        "label": "Union",
-        "importPath": "typing",
-        "description": "typing",
-        "isExtraImport": true,
-        "detail": "typing",
-        "documentation": {}
-    },
-    {
-        "label": "Any",
-        "importPath": "typing",
-        "description": "typing",
-        "isExtraImport": true,
-        "detail": "typing",
-        "documentation": {}
-    },
-    {
-        "label": "Annotated",
-        "importPath": "typing",
-        "description": "typing",
-        "isExtraImport": true,
-        "detail": "typing",
-        "documentation": {}
-    },
-    {
-        "label": "Any",
-        "importPath": "typing",
-        "description": "typing",
-        "isExtraImport": true,
-        "detail": "typing",
-        "documentation": {}
-    },
-    {
-        "label": "Any",
-        "importPath": "typing",
-        "description": "typing",
-        "isExtraImport": true,
-        "detail": "typing",
-        "documentation": {}
-    },
-    {
-        "label": "Protocol",
-        "importPath": "typing",
-        "description": "typing",
-        "isExtraImport": true,
-        "detail": "typing",
-        "documentation": {}
-    },
-    {
-        "label": "AsyncGenerator",
-        "importPath": "typing",
-        "description": "typing",
-        "isExtraImport": true,
-        "detail": "typing",
-        "documentation": {}
-    },
-    {
-        "label": "Protocol",
-        "importPath": "typing",
-        "description": "typing",
-        "isExtraImport": true,
-        "detail": "typing",
-        "documentation": {}
-    },
-    {
-        "label": "AsyncGenerator",
-        "importPath": "typing",
-        "description": "typing",
-        "isExtraImport": true,
-        "detail": "typing",
-        "documentation": {}
-    },
-    {
-        "label": "Protocol",
-        "importPath": "typing",
-        "description": "typing",
-        "isExtraImport": true,
-        "detail": "typing",
-        "documentation": {}
-    },
-    {
-        "label": "Protocol",
-        "importPath": "typing",
-        "description": "typing",
-        "isExtraImport": true,
-        "detail": "typing",
-        "documentation": {}
-    },
-    {
-        "label": "Any",
-        "importPath": "typing",
-        "description": "typing",
-        "isExtraImport": true,
-        "detail": "typing",
-        "documentation": {}
-    },
-    {
-        "label": "Protocol",
-        "importPath": "typing",
-        "description": "typing",
-        "isExtraImport": true,
-        "detail": "typing",
-        "documentation": {}
-    },
-    {
-        "label": "Any",
-        "importPath": "typing",
-        "description": "typing",
-        "isExtraImport": true,
-        "detail": "typing",
-        "documentation": {}
-    },
-    {
-        "label": "Any",
-        "importPath": "typing",
-        "description": "typing",
-        "isExtraImport": true,
-        "detail": "typing",
-        "documentation": {}
-    },
-    {
-        "label": "Protocol",
-        "importPath": "typing",
-        "description": "typing",
-        "isExtraImport": true,
-        "detail": "typing",
-        "documentation": {}
-    },
-    {
-        "label": "Any",
-        "importPath": "typing",
-        "description": "typing",
-        "isExtraImport": true,
-        "detail": "typing",
-        "documentation": {}
-    },
-    {
-        "label": "Any",
-        "importPath": "typing",
-        "description": "typing",
-        "isExtraImport": true,
-        "detail": "typing",
-        "documentation": {}
-    },
-    {
-        "label": "AsyncGenerator",
-        "importPath": "typing",
-        "description": "typing",
-        "isExtraImport": true,
-        "detail": "typing",
         "documentation": {}
     },
     {
@@ -5651,14 +5955,6 @@
         "documentation": {}
     },
     {
-        "label": "LLMProvider",
-        "importPath": "app.providers.llm.base",
-        "description": "app.providers.llm.base",
-        "isExtraImport": true,
-        "detail": "app.providers.llm.base",
-        "documentation": {}
-    },
-    {
         "label": "EmbeddingProvider",
         "importPath": "app.providers.embeddings.base",
         "description": "app.providers.embeddings.base",
@@ -5667,11 +5963,91 @@
         "documentation": {}
     },
     {
-        "label": "VectorStoreProvider",
-        "importPath": "app.providers.vector_store.base",
-        "description": "app.providers.vector_store.base",
+        "label": "LLMProvider",
+        "importPath": "app.providers.llm.base",
+        "description": "app.providers.llm.base",
         "isExtraImport": true,
-        "detail": "app.providers.vector_store.base",
+        "detail": "app.providers.llm.base",
+        "documentation": {}
+    },
+    {
+        "label": "NotificationProvider",
+        "importPath": "app.providers.notifications.base",
+        "description": "app.providers.notifications.base",
+        "isExtraImport": true,
+        "detail": "app.providers.notifications.base",
+        "documentation": {}
+    },
+    {
+        "label": "NotificationDispatchResult",
+        "importPath": "app.providers.notifications.base",
+        "description": "app.providers.notifications.base",
+        "isExtraImport": true,
+        "detail": "app.providers.notifications.base",
+        "documentation": {}
+    },
+    {
+        "label": "NotificationProvider",
+        "importPath": "app.providers.notifications.base",
+        "description": "app.providers.notifications.base",
+        "isExtraImport": true,
+        "detail": "app.providers.notifications.base",
+        "documentation": {}
+    },
+    {
+        "label": "NotificationDispatchResult",
+        "importPath": "app.providers.notifications.base",
+        "description": "app.providers.notifications.base",
+        "isExtraImport": true,
+        "detail": "app.providers.notifications.base",
+        "documentation": {}
+    },
+    {
+        "label": "NotificationProvider",
+        "importPath": "app.providers.notifications.base",
+        "description": "app.providers.notifications.base",
+        "isExtraImport": true,
+        "detail": "app.providers.notifications.base",
+        "documentation": {}
+    },
+    {
+        "label": "NotificationProvider",
+        "importPath": "app.providers.notifications.base",
+        "description": "app.providers.notifications.base",
+        "isExtraImport": true,
+        "detail": "app.providers.notifications.base",
+        "documentation": {}
+    },
+    {
+        "label": "NotificationChannelDescriptor",
+        "importPath": "app.providers.notifications.base",
+        "description": "app.providers.notifications.base",
+        "isExtraImport": true,
+        "detail": "app.providers.notifications.base",
+        "documentation": {}
+    },
+    {
+        "label": "NotificationDispatchResult",
+        "importPath": "app.providers.notifications.base",
+        "description": "app.providers.notifications.base",
+        "isExtraImport": true,
+        "detail": "app.providers.notifications.base",
+        "documentation": {}
+    },
+    {
+        "label": "NotificationChannelDescriptor",
+        "importPath": "app.providers.notifications.base",
+        "description": "app.providers.notifications.base",
+        "isExtraImport": true,
+        "detail": "app.providers.notifications.base",
+        "documentation": {}
+    },
+    {
+        "label": "NotificationDispatchResult",
+        "importPath": "app.providers.notifications.base",
+        "description": "app.providers.notifications.base",
+        "isExtraImport": true,
+        "detail": "app.providers.notifications.base",
         "documentation": {}
     },
     {
@@ -5683,86 +6059,6 @@
         "documentation": {}
     },
     {
-        "label": "NotificationProvider",
-        "importPath": "app.providers.notifications.base",
-        "description": "app.providers.notifications.base",
-        "isExtraImport": true,
-        "detail": "app.providers.notifications.base",
-        "documentation": {}
-    },
-    {
-        "label": "NotificationDispatchResult",
-        "importPath": "app.providers.notifications.base",
-        "description": "app.providers.notifications.base",
-        "isExtraImport": true,
-        "detail": "app.providers.notifications.base",
-        "documentation": {}
-    },
-    {
-        "label": "NotificationProvider",
-        "importPath": "app.providers.notifications.base",
-        "description": "app.providers.notifications.base",
-        "isExtraImport": true,
-        "detail": "app.providers.notifications.base",
-        "documentation": {}
-    },
-    {
-        "label": "NotificationDispatchResult",
-        "importPath": "app.providers.notifications.base",
-        "description": "app.providers.notifications.base",
-        "isExtraImport": true,
-        "detail": "app.providers.notifications.base",
-        "documentation": {}
-    },
-    {
-        "label": "NotificationProvider",
-        "importPath": "app.providers.notifications.base",
-        "description": "app.providers.notifications.base",
-        "isExtraImport": true,
-        "detail": "app.providers.notifications.base",
-        "documentation": {}
-    },
-    {
-        "label": "NotificationProvider",
-        "importPath": "app.providers.notifications.base",
-        "description": "app.providers.notifications.base",
-        "isExtraImport": true,
-        "detail": "app.providers.notifications.base",
-        "documentation": {}
-    },
-    {
-        "label": "NotificationChannelDescriptor",
-        "importPath": "app.providers.notifications.base",
-        "description": "app.providers.notifications.base",
-        "isExtraImport": true,
-        "detail": "app.providers.notifications.base",
-        "documentation": {}
-    },
-    {
-        "label": "NotificationDispatchResult",
-        "importPath": "app.providers.notifications.base",
-        "description": "app.providers.notifications.base",
-        "isExtraImport": true,
-        "detail": "app.providers.notifications.base",
-        "documentation": {}
-    },
-    {
-        "label": "NotificationChannelDescriptor",
-        "importPath": "app.providers.notifications.base",
-        "description": "app.providers.notifications.base",
-        "isExtraImport": true,
-        "detail": "app.providers.notifications.base",
-        "documentation": {}
-    },
-    {
-        "label": "NotificationDispatchResult",
-        "importPath": "app.providers.notifications.base",
-        "description": "app.providers.notifications.base",
-        "isExtraImport": true,
-        "detail": "app.providers.notifications.base",
-        "documentation": {}
-    },
-    {
         "label": "RerankerProvider",
         "importPath": "app.providers.reranker.interface",
         "description": "app.providers.reranker.interface",
@@ -5776,6 +6072,14 @@
         "description": "app.providers.reranker.interface",
         "isExtraImport": true,
         "detail": "app.providers.reranker.interface",
+        "documentation": {}
+    },
+    {
+        "label": "VectorStoreProvider",
+        "importPath": "app.providers.vector_store.base",
+        "description": "app.providers.vector_store.base",
+        "isExtraImport": true,
+        "detail": "app.providers.vector_store.base",
         "documentation": {}
     },
     {
@@ -5806,6 +6110,14 @@
     },
     {
         "label": "ASGITransport",
+        "importPath": "httpx",
+        "description": "httpx",
+        "isExtraImport": true,
+        "detail": "httpx",
+        "documentation": {}
+    },
+    {
+        "label": "AsyncClient",
         "importPath": "httpx",
         "description": "httpx",
         "isExtraImport": true,
@@ -6265,14 +6577,6 @@
         "documentation": {}
     },
     {
-        "label": "ChatConversation",
-        "importPath": "app.modules.chat.models",
-        "description": "app.modules.chat.models",
-        "isExtraImport": true,
-        "detail": "app.modules.chat.models",
-        "documentation": {}
-    },
-    {
         "label": "ChatQueryLog",
         "importPath": "app.modules.chat.models",
         "description": "app.modules.chat.models",
@@ -6305,6 +6609,14 @@
         "documentation": {}
     },
     {
+        "label": "is_module_enabled",
+        "importPath": "app.modules.tenancy.module_toggles",
+        "description": "app.modules.tenancy.module_toggles",
+        "isExtraImport": true,
+        "detail": "app.modules.tenancy.module_toggles",
+        "documentation": {}
+    },
+    {
         "label": "default_module_toggles",
         "importPath": "app.modules.tenancy.module_toggles",
         "description": "app.modules.tenancy.module_toggles",
@@ -6326,6 +6638,14 @@
         "description": "app.modules.tenancy.module_toggles",
         "isExtraImport": true,
         "detail": "app.modules.tenancy.module_toggles",
+        "documentation": {}
+    },
+    {
+        "label": "TenancyRepository",
+        "importPath": "app.modules.tenancy.repository",
+        "description": "app.modules.tenancy.repository",
+        "isExtraImport": true,
+        "detail": "app.modules.tenancy.repository",
         "documentation": {}
     },
     {
@@ -6482,6 +6802,14 @@
         "documentation": {}
     },
     {
+        "label": "UTC",
+        "importPath": "datetime",
+        "description": "datetime",
+        "isExtraImport": true,
+        "detail": "datetime",
+        "documentation": {}
+    },
+    {
         "label": "datetime",
         "importPath": "datetime",
         "description": "datetime",
@@ -6491,14 +6819,6 @@
     },
     {
         "label": "timedelta",
-        "importPath": "datetime",
-        "description": "datetime",
-        "isExtraImport": true,
-        "detail": "datetime",
-        "documentation": {}
-    },
-    {
-        "label": "timezone",
         "importPath": "datetime",
         "description": "datetime",
         "isExtraImport": true,
@@ -6930,6 +7250,14 @@
         "documentation": {}
     },
     {
+        "label": "datetime",
+        "importPath": "datetime",
+        "description": "datetime",
+        "isExtraImport": true,
+        "detail": "datetime",
+        "documentation": {}
+    },
+    {
         "label": "UTC",
         "importPath": "datetime",
         "description": "datetime",
@@ -7018,7 +7346,7 @@
         "documentation": {}
     },
     {
-        "label": "datetime",
+        "label": "UTC",
         "importPath": "datetime",
         "description": "datetime",
         "isExtraImport": true,
@@ -7026,7 +7354,7 @@
         "documentation": {}
     },
     {
-        "label": "timezone",
+        "label": "datetime",
         "importPath": "datetime",
         "description": "datetime",
         "isExtraImport": true,
@@ -8276,14 +8604,6 @@
         "documentation": {}
     },
     {
-        "label": "CAP_DOCUMENTS_WRITE",
-        "importPath": "app.core.capabilities",
-        "description": "app.core.capabilities",
-        "isExtraImport": true,
-        "detail": "app.core.capabilities",
-        "documentation": {}
-    },
-    {
         "label": "CAP_DISCIPLINARY_TENANT_READ",
         "importPath": "app.core.capabilities",
         "description": "app.core.capabilities",
@@ -8293,6 +8613,14 @@
     },
     {
         "label": "CAP_DISCIPLINARY_WRITE",
+        "importPath": "app.core.capabilities",
+        "description": "app.core.capabilities",
+        "isExtraImport": true,
+        "detail": "app.core.capabilities",
+        "documentation": {}
+    },
+    {
+        "label": "CAP_DOCUMENTS_WRITE",
         "importPath": "app.core.capabilities",
         "description": "app.core.capabilities",
         "isExtraImport": true,
@@ -8893,6 +9221,14 @@
     },
     {
         "label": "ChatQueryLogResponse",
+        "importPath": "app.modules.chat.schemas",
+        "description": "app.modules.chat.schemas",
+        "isExtraImport": true,
+        "detail": "app.modules.chat.schemas",
+        "documentation": {}
+    },
+    {
+        "label": "ChatCitationResponse",
         "importPath": "app.modules.chat.schemas",
         "description": "app.modules.chat.schemas",
         "isExtraImport": true,
@@ -9684,6 +10020,14 @@
         "documentation": {}
     },
     {
+        "label": "dedent",
+        "importPath": "textwrap",
+        "description": "textwrap",
+        "isExtraImport": true,
+        "detail": "textwrap",
+        "documentation": {}
+    },
+    {
         "label": "ChatService",
         "importPath": "app.modules.chat.service",
         "description": "app.modules.chat.service",
@@ -9701,11 +10045,139 @@
         "documentation": {}
     },
     {
-        "label": "dedent",
-        "importPath": "textwrap",
-        "description": "textwrap",
+        "label": "PreparedChatTurn",
+        "importPath": "app.modules.chat.payloads",
+        "description": "app.modules.chat.payloads",
         "isExtraImport": true,
-        "detail": "textwrap",
+        "detail": "app.modules.chat.payloads",
+        "documentation": {}
+    },
+    {
+        "label": "RetrievedChunk",
+        "importPath": "app.modules.chat.payloads",
+        "description": "app.modules.chat.payloads",
+        "isExtraImport": true,
+        "detail": "app.modules.chat.payloads",
+        "documentation": {}
+    },
+    {
+        "label": "StructuredContext",
+        "importPath": "app.modules.chat.payloads",
+        "description": "app.modules.chat.payloads",
+        "isExtraImport": true,
+        "detail": "app.modules.chat.payloads",
+        "documentation": {}
+    },
+    {
+        "label": "build_citations",
+        "importPath": "app.modules.chat.payloads",
+        "description": "app.modules.chat.payloads",
+        "isExtraImport": true,
+        "detail": "app.modules.chat.payloads",
+        "documentation": {}
+    },
+    {
+        "label": "collect_source_types",
+        "importPath": "app.modules.chat.payloads",
+        "description": "app.modules.chat.payloads",
+        "isExtraImport": true,
+        "detail": "app.modules.chat.payloads",
+        "documentation": {}
+    },
+    {
+        "label": "compute_structured_confidence",
+        "importPath": "app.modules.chat.payloads",
+        "description": "app.modules.chat.payloads",
+        "isExtraImport": true,
+        "detail": "app.modules.chat.payloads",
+        "documentation": {}
+    },
+    {
+        "label": "render_document_context",
+        "importPath": "app.modules.chat.payloads",
+        "description": "app.modules.chat.payloads",
+        "isExtraImport": true,
+        "detail": "app.modules.chat.payloads",
+        "documentation": {}
+    },
+    {
+        "label": "render_structured_context",
+        "importPath": "app.modules.chat.payloads",
+        "description": "app.modules.chat.payloads",
+        "isExtraImport": true,
+        "detail": "app.modules.chat.payloads",
+        "documentation": {}
+    },
+    {
+        "label": "serialize_citations",
+        "importPath": "app.modules.chat.payloads",
+        "description": "app.modules.chat.payloads",
+        "isExtraImport": true,
+        "detail": "app.modules.chat.payloads",
+        "documentation": {}
+    },
+    {
+        "label": "render_document_context",
+        "importPath": "app.modules.chat.payloads",
+        "description": "app.modules.chat.payloads",
+        "isExtraImport": true,
+        "detail": "app.modules.chat.payloads",
+        "documentation": {}
+    },
+    {
+        "label": "build_prompt_context",
+        "importPath": "app.modules.chat.prompting",
+        "description": "app.modules.chat.prompting",
+        "isExtraImport": true,
+        "detail": "app.modules.chat.prompting",
+        "documentation": {}
+    },
+    {
+        "label": "build_retrieval_query",
+        "importPath": "app.modules.chat.prompting",
+        "description": "app.modules.chat.prompting",
+        "isExtraImport": true,
+        "detail": "app.modules.chat.prompting",
+        "documentation": {}
+    },
+    {
+        "label": "normalize_question",
+        "importPath": "app.modules.chat.prompting",
+        "description": "app.modules.chat.prompting",
+        "isExtraImport": true,
+        "detail": "app.modules.chat.prompting",
+        "documentation": {}
+    },
+    {
+        "label": "primary_role",
+        "importPath": "app.modules.chat.prompting",
+        "description": "app.modules.chat.prompting",
+        "isExtraImport": true,
+        "detail": "app.modules.chat.prompting",
+        "documentation": {}
+    },
+    {
+        "label": "build_prompt_context",
+        "importPath": "app.modules.chat.prompting",
+        "description": "app.modules.chat.prompting",
+        "isExtraImport": true,
+        "detail": "app.modules.chat.prompting",
+        "documentation": {}
+    },
+    {
+        "label": "build_retrieval_query",
+        "importPath": "app.modules.chat.prompting",
+        "description": "app.modules.chat.prompting",
+        "isExtraImport": true,
+        "detail": "app.modules.chat.prompting",
+        "documentation": {}
+    },
+    {
+        "label": "primary_role",
+        "importPath": "app.modules.chat.prompting",
+        "description": "app.modules.chat.prompting",
+        "isExtraImport": true,
+        "detail": "app.modules.chat.prompting",
         "documentation": {}
     },
     {
@@ -9722,6 +10194,22 @@
         "description": "app.modules.chat.repository",
         "isExtraImport": true,
         "detail": "app.modules.chat.repository",
+        "documentation": {}
+    },
+    {
+        "label": "ContributionService",
+        "importPath": "app.modules.contributions.service",
+        "description": "app.modules.contributions.service",
+        "isExtraImport": true,
+        "detail": "app.modules.contributions.service",
+        "documentation": {}
+    },
+    {
+        "label": "ContributionService",
+        "importPath": "app.modules.contributions.service",
+        "description": "app.modules.contributions.service",
+        "isExtraImport": true,
+        "detail": "app.modules.contributions.service",
         "documentation": {}
     },
     {
@@ -9757,22 +10245,6 @@
         "documentation": {}
     },
     {
-        "label": "ContributionService",
-        "importPath": "app.modules.contributions.service",
-        "description": "app.modules.contributions.service",
-        "isExtraImport": true,
-        "detail": "app.modules.contributions.service",
-        "documentation": {}
-    },
-    {
-        "label": "ContributionService",
-        "importPath": "app.modules.contributions.service",
-        "description": "app.modules.contributions.service",
-        "isExtraImport": true,
-        "detail": "app.modules.contributions.service",
-        "documentation": {}
-    },
-    {
         "label": "MembershipService",
         "importPath": "app.modules.membership.service",
         "description": "app.modules.membership.service",
@@ -9802,14 +10274,6 @@
         "description": "app.modules.policies.service",
         "isExtraImport": true,
         "detail": "app.modules.policies.service",
-        "documentation": {}
-    },
-    {
-        "label": "build_access_policy",
-        "importPath": "app.modules.rag.retrieval",
-        "description": "app.modules.rag.retrieval",
-        "isExtraImport": true,
-        "detail": "app.modules.rag.retrieval",
         "documentation": {}
     },
     {
@@ -9818,6 +10282,38 @@
         "description": "app.modules.rag.confidence",
         "isExtraImport": true,
         "detail": "app.modules.rag.confidence",
+        "documentation": {}
+    },
+    {
+        "label": "compute_keyword_overlap_ratio",
+        "importPath": "app.modules.rag.ranking",
+        "description": "app.modules.rag.ranking",
+        "isExtraImport": true,
+        "detail": "app.modules.rag.ranking",
+        "documentation": {}
+    },
+    {
+        "label": "compute_keyword_overlap_ratio",
+        "importPath": "app.modules.rag.ranking",
+        "description": "app.modules.rag.ranking",
+        "isExtraImport": true,
+        "detail": "app.modules.rag.ranking",
+        "documentation": {}
+    },
+    {
+        "label": "extract_rank_terms",
+        "importPath": "app.modules.rag.ranking",
+        "description": "app.modules.rag.ranking",
+        "isExtraImport": true,
+        "detail": "app.modules.rag.ranking",
+        "documentation": {}
+    },
+    {
+        "label": "build_access_policy",
+        "importPath": "app.modules.rag.retrieval",
+        "description": "app.modules.rag.retrieval",
+        "isExtraImport": true,
+        "detail": "app.modules.rag.retrieval",
         "documentation": {}
     },
     {
@@ -11166,6 +11662,46 @@
         "documentation": {}
     },
     {
+        "label": "NotificationDispatchRequest",
+        "importPath": "app.modules.notifications.schemas",
+        "description": "app.modules.notifications.schemas",
+        "isExtraImport": true,
+        "detail": "app.modules.notifications.schemas",
+        "documentation": {}
+    },
+    {
+        "label": "NotificationDispatchResponse",
+        "importPath": "app.modules.notifications.schemas",
+        "description": "app.modules.notifications.schemas",
+        "isExtraImport": true,
+        "detail": "app.modules.notifications.schemas",
+        "documentation": {}
+    },
+    {
+        "label": "NotificationHistoryEntry",
+        "importPath": "app.modules.notifications.schemas",
+        "description": "app.modules.notifications.schemas",
+        "isExtraImport": true,
+        "detail": "app.modules.notifications.schemas",
+        "documentation": {}
+    },
+    {
+        "label": "NotificationReconciliationCallbackRequest",
+        "importPath": "app.modules.notifications.schemas",
+        "description": "app.modules.notifications.schemas",
+        "isExtraImport": true,
+        "detail": "app.modules.notifications.schemas",
+        "documentation": {}
+    },
+    {
+        "label": "NotificationReconciliationCallbackResponse",
+        "importPath": "app.modules.notifications.schemas",
+        "description": "app.modules.notifications.schemas",
+        "isExtraImport": true,
+        "detail": "app.modules.notifications.schemas",
+        "documentation": {}
+    },
+    {
         "label": "NotificationTestRequest",
         "importPath": "app.modules.notifications.schemas",
         "description": "app.modules.notifications.schemas",
@@ -11190,7 +11726,39 @@
         "documentation": {}
     },
     {
+        "label": "NotificationDispatchRequest",
+        "importPath": "app.modules.notifications.schemas",
+        "description": "app.modules.notifications.schemas",
+        "isExtraImport": true,
+        "detail": "app.modules.notifications.schemas",
+        "documentation": {}
+    },
+    {
         "label": "NotificationDispatchResponse",
+        "importPath": "app.modules.notifications.schemas",
+        "description": "app.modules.notifications.schemas",
+        "isExtraImport": true,
+        "detail": "app.modules.notifications.schemas",
+        "documentation": {}
+    },
+    {
+        "label": "NotificationHistoryEntry",
+        "importPath": "app.modules.notifications.schemas",
+        "description": "app.modules.notifications.schemas",
+        "isExtraImport": true,
+        "detail": "app.modules.notifications.schemas",
+        "documentation": {}
+    },
+    {
+        "label": "NotificationReconciliationCallbackRequest",
+        "importPath": "app.modules.notifications.schemas",
+        "description": "app.modules.notifications.schemas",
+        "isExtraImport": true,
+        "detail": "app.modules.notifications.schemas",
+        "documentation": {}
+    },
+    {
+        "label": "NotificationReconciliationCallbackResponse",
         "importPath": "app.modules.notifications.schemas",
         "description": "app.modules.notifications.schemas",
         "isExtraImport": true,
@@ -11358,14 +11926,6 @@
         "documentation": {}
     },
     {
-        "label": "SparseVector",
-        "importPath": "qdrant_client.models",
-        "description": "qdrant_client.models",
-        "isExtraImport": true,
-        "detail": "qdrant_client.models",
-        "documentation": {}
-    },
-    {
         "label": "VectorParams",
         "importPath": "qdrant_client.models",
         "description": "qdrant_client.models",
@@ -11374,19 +11934,11 @@
         "documentation": {}
     },
     {
-        "label": "NamedSparseVector",
-        "importPath": "qdrant_client.models",
-        "description": "qdrant_client.models",
+        "label": "AccessPolicy",
+        "importPath": "app.modules.rag.policy",
+        "description": "app.modules.rag.policy",
         "isExtraImport": true,
-        "detail": "qdrant_client.models",
-        "documentation": {}
-    },
-    {
-        "label": "ScoredPoint",
-        "importPath": "qdrant_client.models",
-        "description": "qdrant_client.models",
-        "isExtraImport": true,
-        "detail": "qdrant_client.models",
+        "detail": "app.modules.rag.policy",
         "documentation": {}
     },
     {
@@ -11420,6 +11972,14 @@
         "description": "email.message",
         "isExtraImport": true,
         "detail": "email.message",
+        "documentation": {}
+    },
+    {
+        "label": "make_msgid",
+        "importPath": "email.utils",
+        "description": "email.utils",
+        "isExtraImport": true,
+        "detail": "email.utils",
         "documentation": {}
     },
     {
@@ -11672,6 +12232,14 @@
         "documentation": {}
     },
     {
+        "label": "callback_router",
+        "importPath": "app.modules.notifications.router",
+        "description": "app.modules.notifications.router",
+        "isExtraImport": true,
+        "detail": "app.modules.notifications.router",
+        "documentation": {}
+    },
+    {
         "label": "router",
         "importPath": "app.modules.notifications.router",
         "description": "app.modules.notifications.router",
@@ -11739,6 +12307,14 @@
     },
     {
         "label": "create_tenant_with_user",
+        "importPath": "helpers",
+        "description": "helpers",
+        "isExtraImport": true,
+        "detail": "helpers",
+        "documentation": {}
+    },
+    {
+        "label": "create_user_for_tenant",
         "importPath": "helpers",
         "description": "helpers",
         "isExtraImport": true,
@@ -12066,6 +12642,30 @@
         "documentation": {}
     },
     {
+        "label": "FakeEmailNotificationProvider",
+        "importPath": "fakes",
+        "description": "fakes",
+        "isExtraImport": true,
+        "detail": "fakes",
+        "documentation": {}
+    },
+    {
+        "label": "FakeTelegramNotificationProvider",
+        "importPath": "fakes",
+        "description": "fakes",
+        "isExtraImport": true,
+        "detail": "fakes",
+        "documentation": {}
+    },
+    {
+        "label": "FakeWhatsAppNotificationProvider",
+        "importPath": "fakes",
+        "description": "fakes",
+        "isExtraImport": true,
+        "detail": "fakes",
+        "documentation": {}
+    },
+    {
         "label": "_create_member_role",
         "importPath": "test_identity_lifecycle",
         "description": "test_identity_lifecycle",
@@ -12119,6 +12719,54 @@
         "description": "app.providers.embeddings.ollama",
         "isExtraImport": true,
         "detail": "app.providers.embeddings.ollama",
+        "documentation": {}
+    },
+    {
+        "label": "OllamaEmbeddingProvider",
+        "importPath": "app.providers.embeddings.ollama",
+        "description": "app.providers.embeddings.ollama",
+        "isExtraImport": true,
+        "detail": "app.providers.embeddings.ollama",
+        "documentation": {}
+    },
+    {
+        "label": "OpenAICompatibleEmbeddingProvider",
+        "importPath": "app.providers.embeddings.openai_compatible",
+        "description": "app.providers.embeddings.openai_compatible",
+        "isExtraImport": true,
+        "detail": "app.providers.embeddings.openai_compatible",
+        "documentation": {}
+    },
+    {
+        "label": "OpenAICompatibleEmbeddingProvider",
+        "importPath": "app.providers.embeddings.openai_compatible",
+        "description": "app.providers.embeddings.openai_compatible",
+        "isExtraImport": true,
+        "detail": "app.providers.embeddings.openai_compatible",
+        "documentation": {}
+    },
+    {
+        "label": "OpenAICompatibleLLMProvider",
+        "importPath": "app.providers.llm.openai_compatible",
+        "description": "app.providers.llm.openai_compatible",
+        "isExtraImport": true,
+        "detail": "app.providers.llm.openai_compatible",
+        "documentation": {}
+    },
+    {
+        "label": "OpenAICompatibleLLMProvider",
+        "importPath": "app.providers.llm.openai_compatible",
+        "description": "app.providers.llm.openai_compatible",
+        "isExtraImport": true,
+        "detail": "app.providers.llm.openai_compatible",
+        "documentation": {}
+    },
+    {
+        "label": "OllamaLLMProvider",
+        "importPath": "app.providers.llm.ollama",
+        "description": "app.providers.llm.ollama",
+        "isExtraImport": true,
+        "detail": "app.providers.llm.ollama",
         "documentation": {}
     },
     {
@@ -12426,29 +13074,11 @@
         "documentation": {}
     },
     {
-        "label": "infer_language",
-        "kind": 2,
-        "importPath": "scripts.import_combis_demo_documents",
-        "description": "scripts.import_combis_demo_documents",
-        "peekOfCode": "def infer_language(file_name: str) -> str:\n    lower = file_name.lower()\n    if any(token in lower for token in [\"_de\", \"satzung\", \"verhaltenskodex\", \"anerkennung\", \"fußball\", \"sponsoringanfrage\"]):\n        return \"de\"\n    if any(token in lower for token in [\"_en\", \"financial report\", \"semi annual\", \"review of activities\"]):\n        return \"en\"\n    return \"fr\"\ndef classify_access(file_name: str, roles: dict[str, str]) -> tuple[str, list[str]]:\n    lower = file_name.lower()\n    finance_roles = _role_ids(roles, \"treasurer\", \"auditor\", \"president\", \"vice_president\", \"principal_admin\", \"admin\")",
-        "detail": "scripts.import_combis_demo_documents",
-        "documentation": {}
-    },
-    {
-        "label": "classify_access",
-        "kind": 2,
-        "importPath": "scripts.import_combis_demo_documents",
-        "description": "scripts.import_combis_demo_documents",
-        "peekOfCode": "def classify_access(file_name: str, roles: dict[str, str]) -> tuple[str, list[str]]:\n    lower = file_name.lower()\n    finance_roles = _role_ids(roles, \"treasurer\", \"auditor\", \"president\", \"vice_president\", \"principal_admin\", \"admin\")\n    discipline_roles = _role_ids(roles, \"censor\", \"president\", \"vice_president\", \"principal_admin\", \"admin\")\n    governance_roles = _role_ids(roles, \"secretary_general\", \"president\", \"vice_president\", \"principal_admin\", \"admin\")\n    if any(token in lower for token in [\"sanction\", \"avertissement\", \"mise_en_demeure\", \"cahier des sanctions\"]):\n        return \"role_restricted\", discipline_roles\n    if any(token in lower for token in [\"bilan\", \"financial report\", \"rapport financier\", \"cotisations\", \"synthese\", \"contributions\"]):\n        return \"role_restricted\", finance_roles\n    if any(token in lower for token in [\"vorstand\", \"plan d'action\", \"programme d'assistance\", \"catalogue des compétences\"]):",
-        "detail": "scripts.import_combis_demo_documents",
-        "documentation": {}
-    },
-    {
         "label": "guess_content_type",
         "kind": 2,
         "importPath": "scripts.import_combis_demo_documents",
         "description": "scripts.import_combis_demo_documents",
-        "peekOfCode": "def guess_content_type(extension: str) -> str:\n    mapping = {\n        \"pdf\": \"application/pdf\",\n        \"docx\": \"application/vnd.openxmlformats-officedocument.wordprocessingml.document\",\n        \"txt\": \"text/plain\",\n        \"md\": \"text/markdown\",\n        \"csv\": \"text/csv\",\n        \"xlsx\": \"application/vnd.openxmlformats-officedocument.spreadsheetml.sheet\",\n        \"png\": \"image/png\",\n        \"jpg\": \"image/jpeg\",",
+        "peekOfCode": "def guess_content_type(extension: str) -> str:\n    mapping = {\n        \"pdf\": \"application/pdf\",\n        \"docx\": (\n            \"application/vnd.openxmlformats-officedocument.wordprocessingml.document\"\n        ),\n        \"txt\": \"text/plain\",\n        \"md\": \"text/markdown\",\n        \"csv\": \"text/csv\",\n        \"xlsx\": \"application/vnd.openxmlformats-officedocument.spreadsheetml.sheet\",",
         "detail": "scripts.import_combis_demo_documents",
         "documentation": {}
     },
@@ -12457,7 +13087,7 @@
         "kind": 5,
         "importPath": "scripts.import_combis_demo_documents",
         "description": "scripts.import_combis_demo_documents",
-        "peekOfCode": "ROOT = Path(__file__).resolve().parents[1]\nAPI_ROOT = ROOT / \"services\" / \"api\"\nsys.path.insert(0, str(API_ROOT))\nfrom sqlalchemy import select\nfrom app.core.config import settings\nfrom app.core.dependencies import get_embedding_provider, get_object_storage_provider, get_vector_store_provider\nfrom app.db.session import async_session_factory\nfrom app.modules.documents.models import Document, DocumentStatus, DocumentVersion, IngestionJob\nfrom app.modules.documents.repository import DocumentRepository\nfrom app.modules.identity.models import User",
+        "peekOfCode": "ROOT = Path(__file__).resolve().parents[1]\nAPI_ROOT = ROOT / \"services\" / \"api\"\nsys.path.insert(0, str(API_ROOT))\nfrom app.core.config import settings\nfrom app.core.dependencies import (\n    get_embedding_provider,\n    get_object_storage_provider,\n    get_vector_store_provider,\n)\nfrom app.db.session import async_session_factory",
         "detail": "scripts.import_combis_demo_documents",
         "documentation": {}
     },
@@ -12466,7 +13096,7 @@
         "kind": 5,
         "importPath": "scripts.import_combis_demo_documents",
         "description": "scripts.import_combis_demo_documents",
-        "peekOfCode": "API_ROOT = ROOT / \"services\" / \"api\"\nsys.path.insert(0, str(API_ROOT))\nfrom sqlalchemy import select\nfrom app.core.config import settings\nfrom app.core.dependencies import get_embedding_provider, get_object_storage_provider, get_vector_store_provider\nfrom app.db.session import async_session_factory\nfrom app.modules.documents.models import Document, DocumentStatus, DocumentVersion, IngestionJob\nfrom app.modules.documents.repository import DocumentRepository\nfrom app.modules.identity.models import User\nfrom app.modules.ingestion.service import IngestionService",
+        "peekOfCode": "API_ROOT = ROOT / \"services\" / \"api\"\nsys.path.insert(0, str(API_ROOT))\nfrom app.core.config import settings\nfrom app.core.dependencies import (\n    get_embedding_provider,\n    get_object_storage_provider,\n    get_vector_store_provider,\n)\nfrom app.db.session import async_session_factory\nfrom app.modules.documents.metadata import (",
         "detail": "scripts.import_combis_demo_documents",
         "documentation": {}
     },
@@ -12475,7 +13105,7 @@
         "kind": 5,
         "importPath": "scripts.import_combis_demo_documents",
         "description": "scripts.import_combis_demo_documents",
-        "peekOfCode": "ARCHIVE_DIR = Path(os.getenv(\"COMBIS_ARCHIVE_DIR\", str(ROOT / \"Combis Sport Verein\")))\nTARGET_TENANT_SLUG = os.getenv(\"COMBIS_TARGET_TENANT\", \"demo\")\nasync def main() -> None:\n    if not ARCHIVE_DIR.exists():\n        raise RuntimeError(f\"Archive folder not found: {ARCHIVE_DIR}\")\n    storage_provider = get_object_storage_provider()\n    embedding_provider = get_embedding_provider()\n    vector_store_provider = get_vector_store_provider()\n    storage_provider.ensure_bucket(settings.minio_bucket_documents)\n    async with async_session_factory() as db:",
+        "peekOfCode": "ARCHIVE_DIR = Path(\n    os.getenv(\"COMBIS_ARCHIVE_DIR\", str(ROOT / \"Combis Sport Verein\"))\n)\nTARGET_TENANT_SLUG = os.getenv(\"COMBIS_TARGET_TENANT\", \"demo\")\nasync def main() -> None:\n    if not ARCHIVE_DIR.exists():\n        raise RuntimeError(f\"Archive folder not found: {ARCHIVE_DIR}\")\n    storage_provider = get_object_storage_provider()\n    embedding_provider = get_embedding_provider()\n    vector_store_provider = get_vector_store_provider()",
         "detail": "scripts.import_combis_demo_documents",
         "documentation": {}
     },
@@ -12844,7 +13474,7 @@
         "kind": 2,
         "importPath": "services.api.app.core.dependencies",
         "description": "services.api.app.core.dependencies",
-        "peekOfCode": "def get_object_storage_provider() -> ObjectStorageProvider:\n    \"\"\"Return the singleton object storage provider (MinIO in production).\"\"\"\n    from app.providers.object_storage.minio import MinIOObjectStorageProvider\n    return MinIOObjectStorageProvider()\nObjectStorageDep = Annotated[ObjectStorageProvider, Depends(get_object_storage_provider)]\n@lru_cache(maxsize=1)\ndef get_embedding_provider() -> EmbeddingProvider:\n    from app.providers.embeddings.ollama import OllamaEmbeddingProvider\n    return OllamaEmbeddingProvider()\n@lru_cache(maxsize=1)",
+        "peekOfCode": "def get_object_storage_provider() -> ObjectStorageProvider:\n    \"\"\"Return the singleton object storage provider (MinIO in production).\"\"\"\n    from app.providers.object_storage.minio import MinIOObjectStorageProvider\n    return MinIOObjectStorageProvider()\nObjectStorageDep = Annotated[ObjectStorageProvider, Depends(get_object_storage_provider)]\n@lru_cache(maxsize=1)\ndef get_embedding_provider() -> EmbeddingProvider:\n    if settings.embedding_provider_kind == \"openai_compatible\":\n        from app.providers.embeddings.openai_compatible import (\n            OpenAICompatibleEmbeddingProvider,",
         "detail": "services.api.app.core.dependencies",
         "documentation": {}
     },
@@ -12853,7 +13483,7 @@
         "kind": 2,
         "importPath": "services.api.app.core.dependencies",
         "description": "services.api.app.core.dependencies",
-        "peekOfCode": "def get_embedding_provider() -> EmbeddingProvider:\n    from app.providers.embeddings.ollama import OllamaEmbeddingProvider\n    return OllamaEmbeddingProvider()\n@lru_cache(maxsize=1)\ndef get_vector_store_provider() -> VectorStoreProvider:\n    from app.providers.vector_store.qdrant import QdrantVectorStoreProvider\n    return QdrantVectorStoreProvider()\nEmbeddingDep = Annotated[EmbeddingProvider, Depends(get_embedding_provider)]\nVectorStoreDep = Annotated[VectorStoreProvider, Depends(get_vector_store_provider)]\n@lru_cache(maxsize=1)",
+        "peekOfCode": "def get_embedding_provider() -> EmbeddingProvider:\n    if settings.embedding_provider_kind == \"openai_compatible\":\n        from app.providers.embeddings.openai_compatible import (\n            OpenAICompatibleEmbeddingProvider,\n        )\n        return OpenAICompatibleEmbeddingProvider()\n    from app.providers.embeddings.ollama import OllamaEmbeddingProvider\n    return OllamaEmbeddingProvider()\n@lru_cache(maxsize=1)\ndef get_vector_store_provider() -> VectorStoreProvider:",
         "detail": "services.api.app.core.dependencies",
         "documentation": {}
     },
@@ -12862,7 +13492,7 @@
         "kind": 2,
         "importPath": "services.api.app.core.dependencies",
         "description": "services.api.app.core.dependencies",
-        "peekOfCode": "def get_vector_store_provider() -> VectorStoreProvider:\n    from app.providers.vector_store.qdrant import QdrantVectorStoreProvider\n    return QdrantVectorStoreProvider()\nEmbeddingDep = Annotated[EmbeddingProvider, Depends(get_embedding_provider)]\nVectorStoreDep = Annotated[VectorStoreProvider, Depends(get_vector_store_provider)]\n@lru_cache(maxsize=1)\ndef get_llm_provider() -> LLMProvider:\n    from app.providers.llm.ollama import OllamaLLMProvider\n    return OllamaLLMProvider()\nLlmDep = Annotated[LLMProvider, Depends(get_llm_provider)]",
+        "peekOfCode": "def get_vector_store_provider() -> VectorStoreProvider:\n    from app.providers.vector_store.qdrant import QdrantVectorStoreProvider\n    return QdrantVectorStoreProvider()\nEmbeddingDep = Annotated[EmbeddingProvider, Depends(get_embedding_provider)]\nVectorStoreDep = Annotated[VectorStoreProvider, Depends(get_vector_store_provider)]\n@lru_cache(maxsize=1)\ndef get_llm_provider() -> LLMProvider:\n    if settings.llm_provider_kind == \"openai_compatible\":\n        from app.providers.llm.openai_compatible import OpenAICompatibleLLMProvider\n        return OpenAICompatibleLLMProvider()",
         "detail": "services.api.app.core.dependencies",
         "documentation": {}
     },
@@ -12871,7 +13501,7 @@
         "kind": 2,
         "importPath": "services.api.app.core.dependencies",
         "description": "services.api.app.core.dependencies",
-        "peekOfCode": "def get_llm_provider() -> LLMProvider:\n    from app.providers.llm.ollama import OllamaLLMProvider\n    return OllamaLLMProvider()\nLlmDep = Annotated[LLMProvider, Depends(get_llm_provider)]\n@lru_cache(maxsize=1)\ndef get_notification_providers() -> list[NotificationProvider]:\n    from app.providers.notifications import (\n        EmailNotificationProvider,\n        TelegramNotificationProvider,\n        WhatsAppNotificationProvider,",
+        "peekOfCode": "def get_llm_provider() -> LLMProvider:\n    if settings.llm_provider_kind == \"openai_compatible\":\n        from app.providers.llm.openai_compatible import OpenAICompatibleLLMProvider\n        return OpenAICompatibleLLMProvider()\n    from app.providers.llm.ollama import OllamaLLMProvider\n    return OllamaLLMProvider()\nLlmDep = Annotated[LLMProvider, Depends(get_llm_provider)]\n@lru_cache(maxsize=1)\ndef get_notification_providers() -> list[NotificationProvider]:\n    from app.providers.notifications import (",
         "detail": "services.api.app.core.dependencies",
         "documentation": {}
     },
@@ -12916,7 +13546,7 @@
         "kind": 5,
         "importPath": "services.api.app.core.dependencies",
         "description": "services.api.app.core.dependencies",
-        "peekOfCode": "DbDep = Annotated[AsyncSession, Depends(get_db)]\n@lru_cache(maxsize=1)\ndef get_object_storage_provider() -> ObjectStorageProvider:\n    \"\"\"Return the singleton object storage provider (MinIO in production).\"\"\"\n    from app.providers.object_storage.minio import MinIOObjectStorageProvider\n    return MinIOObjectStorageProvider()\nObjectStorageDep = Annotated[ObjectStorageProvider, Depends(get_object_storage_provider)]\n@lru_cache(maxsize=1)\ndef get_embedding_provider() -> EmbeddingProvider:\n    from app.providers.embeddings.ollama import OllamaEmbeddingProvider",
+        "peekOfCode": "DbDep = Annotated[AsyncSession, Depends(get_db)]\n@lru_cache(maxsize=1)\ndef get_object_storage_provider() -> ObjectStorageProvider:\n    \"\"\"Return the singleton object storage provider (MinIO in production).\"\"\"\n    from app.providers.object_storage.minio import MinIOObjectStorageProvider\n    return MinIOObjectStorageProvider()\nObjectStorageDep = Annotated[ObjectStorageProvider, Depends(get_object_storage_provider)]\n@lru_cache(maxsize=1)\ndef get_embedding_provider() -> EmbeddingProvider:\n    if settings.embedding_provider_kind == \"openai_compatible\":",
         "detail": "services.api.app.core.dependencies",
         "documentation": {}
     },
@@ -12925,7 +13555,7 @@
         "kind": 5,
         "importPath": "services.api.app.core.dependencies",
         "description": "services.api.app.core.dependencies",
-        "peekOfCode": "ObjectStorageDep = Annotated[ObjectStorageProvider, Depends(get_object_storage_provider)]\n@lru_cache(maxsize=1)\ndef get_embedding_provider() -> EmbeddingProvider:\n    from app.providers.embeddings.ollama import OllamaEmbeddingProvider\n    return OllamaEmbeddingProvider()\n@lru_cache(maxsize=1)\ndef get_vector_store_provider() -> VectorStoreProvider:\n    from app.providers.vector_store.qdrant import QdrantVectorStoreProvider\n    return QdrantVectorStoreProvider()\nEmbeddingDep = Annotated[EmbeddingProvider, Depends(get_embedding_provider)]",
+        "peekOfCode": "ObjectStorageDep = Annotated[ObjectStorageProvider, Depends(get_object_storage_provider)]\n@lru_cache(maxsize=1)\ndef get_embedding_provider() -> EmbeddingProvider:\n    if settings.embedding_provider_kind == \"openai_compatible\":\n        from app.providers.embeddings.openai_compatible import (\n            OpenAICompatibleEmbeddingProvider,\n        )\n        return OpenAICompatibleEmbeddingProvider()\n    from app.providers.embeddings.ollama import OllamaEmbeddingProvider\n    return OllamaEmbeddingProvider()",
         "detail": "services.api.app.core.dependencies",
         "documentation": {}
     },
@@ -12934,7 +13564,7 @@
         "kind": 5,
         "importPath": "services.api.app.core.dependencies",
         "description": "services.api.app.core.dependencies",
-        "peekOfCode": "EmbeddingDep = Annotated[EmbeddingProvider, Depends(get_embedding_provider)]\nVectorStoreDep = Annotated[VectorStoreProvider, Depends(get_vector_store_provider)]\n@lru_cache(maxsize=1)\ndef get_llm_provider() -> LLMProvider:\n    from app.providers.llm.ollama import OllamaLLMProvider\n    return OllamaLLMProvider()\nLlmDep = Annotated[LLMProvider, Depends(get_llm_provider)]\n@lru_cache(maxsize=1)\ndef get_notification_providers() -> list[NotificationProvider]:\n    from app.providers.notifications import (",
+        "peekOfCode": "EmbeddingDep = Annotated[EmbeddingProvider, Depends(get_embedding_provider)]\nVectorStoreDep = Annotated[VectorStoreProvider, Depends(get_vector_store_provider)]\n@lru_cache(maxsize=1)\ndef get_llm_provider() -> LLMProvider:\n    if settings.llm_provider_kind == \"openai_compatible\":\n        from app.providers.llm.openai_compatible import OpenAICompatibleLLMProvider\n        return OpenAICompatibleLLMProvider()\n    from app.providers.llm.ollama import OllamaLLMProvider\n    return OllamaLLMProvider()\nLlmDep = Annotated[LLMProvider, Depends(get_llm_provider)]",
         "detail": "services.api.app.core.dependencies",
         "documentation": {}
     },
@@ -12943,7 +13573,7 @@
         "kind": 5,
         "importPath": "services.api.app.core.dependencies",
         "description": "services.api.app.core.dependencies",
-        "peekOfCode": "VectorStoreDep = Annotated[VectorStoreProvider, Depends(get_vector_store_provider)]\n@lru_cache(maxsize=1)\ndef get_llm_provider() -> LLMProvider:\n    from app.providers.llm.ollama import OllamaLLMProvider\n    return OllamaLLMProvider()\nLlmDep = Annotated[LLMProvider, Depends(get_llm_provider)]\n@lru_cache(maxsize=1)\ndef get_notification_providers() -> list[NotificationProvider]:\n    from app.providers.notifications import (\n        EmailNotificationProvider,",
+        "peekOfCode": "VectorStoreDep = Annotated[VectorStoreProvider, Depends(get_vector_store_provider)]\n@lru_cache(maxsize=1)\ndef get_llm_provider() -> LLMProvider:\n    if settings.llm_provider_kind == \"openai_compatible\":\n        from app.providers.llm.openai_compatible import OpenAICompatibleLLMProvider\n        return OpenAICompatibleLLMProvider()\n    from app.providers.llm.ollama import OllamaLLMProvider\n    return OllamaLLMProvider()\nLlmDep = Annotated[LLMProvider, Depends(get_llm_provider)]\n@lru_cache(maxsize=1)",
         "detail": "services.api.app.core.dependencies",
         "documentation": {}
     },
@@ -13150,7 +13780,7 @@
         "kind": 2,
         "importPath": "services.api.app.core.security",
         "description": "services.api.app.core.security",
-        "peekOfCode": "def verify_password(plain: str, hashed: str) -> bool:\n    return _pwd_context.verify(plain, hashed)\ndef create_access_token(\n    user_id: UUID,\n    tenant_id: UUID,\n    roles: list[str],\n    session_id: UUID,\n) -> str:\n    now = datetime.now(timezone.utc)\n    payload: dict = {",
+        "peekOfCode": "def verify_password(plain: str, hashed: str) -> bool:\n    return _pwd_context.verify(plain, hashed)\ndef create_access_token(\n    user_id: UUID,\n    tenant_id: UUID,\n    roles: list[str],\n    session_id: UUID,\n) -> str:\n    now = datetime.now(UTC)\n    payload: dict = {",
         "detail": "services.api.app.core.security",
         "documentation": {}
     },
@@ -13159,7 +13789,7 @@
         "kind": 2,
         "importPath": "services.api.app.core.security",
         "description": "services.api.app.core.security",
-        "peekOfCode": "def create_access_token(\n    user_id: UUID,\n    tenant_id: UUID,\n    roles: list[str],\n    session_id: UUID,\n) -> str:\n    now = datetime.now(timezone.utc)\n    payload: dict = {\n        \"sub\": str(user_id),\n        \"tenant_id\": str(tenant_id),",
+        "peekOfCode": "def create_access_token(\n    user_id: UUID,\n    tenant_id: UUID,\n    roles: list[str],\n    session_id: UUID,\n) -> str:\n    now = datetime.now(UTC)\n    payload: dict = {\n        \"sub\": str(user_id),\n        \"tenant_id\": str(tenant_id),",
         "detail": "services.api.app.core.security",
         "documentation": {}
     },
@@ -13168,7 +13798,7 @@
         "kind": 2,
         "importPath": "services.api.app.core.security",
         "description": "services.api.app.core.security",
-        "peekOfCode": "def decode_access_token(token: str) -> dict:\n    return jwt.decode(\n        token,\n        settings.jwt_secret_key,\n        algorithms=[settings.jwt_algorithm],\n    )\ndef create_refresh_token(user_id: UUID, session_id: UUID) -> str:\n    now = datetime.now(timezone.utc)\n    payload: dict = {\n        \"sub\": str(user_id),",
+        "peekOfCode": "def decode_access_token(token: str) -> dict:\n    return jwt.decode(\n        token,\n        settings.jwt_secret_key,\n        algorithms=[settings.jwt_algorithm],\n    )\ndef create_refresh_token(user_id: UUID, session_id: UUID) -> str:\n    now = datetime.now(UTC)\n    payload: dict = {\n        \"sub\": str(user_id),",
         "detail": "services.api.app.core.security",
         "documentation": {}
     },
@@ -13177,7 +13807,7 @@
         "kind": 2,
         "importPath": "services.api.app.core.security",
         "description": "services.api.app.core.security",
-        "peekOfCode": "def create_refresh_token(user_id: UUID, session_id: UUID) -> str:\n    now = datetime.now(timezone.utc)\n    payload: dict = {\n        \"sub\": str(user_id),\n        \"sid\": str(session_id),\n        \"type\": \"refresh\",\n        \"iat\": now,\n        \"exp\": now + timedelta(days=settings.refresh_token_expire_days),\n    }\n    return jwt.encode(payload, settings.jwt_secret_key, algorithm=settings.jwt_algorithm)",
+        "peekOfCode": "def create_refresh_token(user_id: UUID, session_id: UUID) -> str:\n    now = datetime.now(UTC)\n    payload: dict = {\n        \"sub\": str(user_id),\n        \"sid\": str(session_id),\n        \"type\": \"refresh\",\n        \"iat\": now,\n        \"exp\": now + timedelta(days=settings.refresh_token_expire_days),\n    }\n    return jwt.encode(payload, settings.jwt_secret_key, algorithm=settings.jwt_algorithm)",
         "detail": "services.api.app.core.security",
         "documentation": {}
     },
@@ -13186,7 +13816,7 @@
         "kind": 2,
         "importPath": "services.api.app.core.security",
         "description": "services.api.app.core.security",
-        "peekOfCode": "def create_mfa_token(user_id: UUID, tenant_id: UUID | None = None) -> str:\n    now = datetime.now(timezone.utc)\n    payload: dict = {\n        \"sub\": str(user_id),\n        \"type\": \"mfa\",\n        \"iat\": now,\n        \"exp\": now + timedelta(minutes=5),\n    }\n    if tenant_id is not None:\n        payload[\"tenant_id\"] = str(tenant_id)",
+        "peekOfCode": "def create_mfa_token(user_id: UUID, tenant_id: UUID | None = None) -> str:\n    now = datetime.now(UTC)\n    payload: dict = {\n        \"sub\": str(user_id),\n        \"type\": \"mfa\",\n        \"iat\": now,\n        \"exp\": now + timedelta(minutes=5),\n    }\n    if tenant_id is not None:\n        payload[\"tenant_id\"] = str(tenant_id)",
         "detail": "services.api.app.core.security",
         "documentation": {}
     },
@@ -14397,6 +15027,186 @@
         "documentation": {}
     },
     {
+        "label": "RetrievedChunk",
+        "kind": 6,
+        "importPath": "services.api.app.modules.chat.payloads",
+        "description": "services.api.app.modules.chat.payloads",
+        "peekOfCode": "class RetrievedChunk:\n    chunk: DocumentChunk\n    document: Document\n    score: float\n@dataclass(frozen=True)\nclass StructuredContext:\n    source_type: str\n    title: str\n    content: str\n@dataclass(frozen=True)",
+        "detail": "services.api.app.modules.chat.payloads",
+        "documentation": {}
+    },
+    {
+        "label": "StructuredContext",
+        "kind": 6,
+        "importPath": "services.api.app.modules.chat.payloads",
+        "description": "services.api.app.modules.chat.payloads",
+        "peekOfCode": "class StructuredContext:\n    source_type: str\n    title: str\n    content: str\n@dataclass(frozen=True)\nclass PreparedChatTurn:\n    response_language: str\n    conversation_id: UUID | None\n    structured_contexts: list[StructuredContext]\n    citations: list[ChatCitationResponse]",
+        "detail": "services.api.app.modules.chat.payloads",
+        "documentation": {}
+    },
+    {
+        "label": "PreparedChatTurn",
+        "kind": 6,
+        "importPath": "services.api.app.modules.chat.payloads",
+        "description": "services.api.app.modules.chat.payloads",
+        "peekOfCode": "class PreparedChatTurn:\n    response_language: str\n    conversation_id: UUID | None\n    structured_contexts: list[StructuredContext]\n    citations: list[ChatCitationResponse]\n    source_types: list[str]\n    system_prompt: str\n    user_prompt: str\n    confidence: float\ndef excerpt(text: str, limit: int = 220) -> str:",
+        "detail": "services.api.app.modules.chat.payloads",
+        "documentation": {}
+    },
+    {
+        "label": "excerpt",
+        "kind": 2,
+        "importPath": "services.api.app.modules.chat.payloads",
+        "description": "services.api.app.modules.chat.payloads",
+        "peekOfCode": "def excerpt(text: str, limit: int = 220) -> str:\n    cleaned = \" \".join(text.split())\n    if len(cleaned) <= limit:\n        return cleaned\n    return f\"{cleaned[: limit - 1].rstrip()}...\"\ndef build_citations(\n    retrieved_chunks: list[RetrievedChunk],\n    *,\n    top_k: int,\n) -> list[ChatCitationResponse]:",
+        "detail": "services.api.app.modules.chat.payloads",
+        "documentation": {}
+    },
+    {
+        "label": "build_citations",
+        "kind": 2,
+        "importPath": "services.api.app.modules.chat.payloads",
+        "description": "services.api.app.modules.chat.payloads",
+        "peekOfCode": "def build_citations(\n    retrieved_chunks: list[RetrievedChunk],\n    *,\n    top_k: int,\n) -> list[ChatCitationResponse]:\n    return [\n        ChatCitationResponse(\n            chunk_id=item.chunk.id,\n            document_id=item.document.id,\n            document_version_id=item.chunk.document_version_id,",
+        "detail": "services.api.app.modules.chat.payloads",
+        "documentation": {}
+    },
+    {
+        "label": "collect_source_types",
+        "kind": 2,
+        "importPath": "services.api.app.modules.chat.payloads",
+        "description": "services.api.app.modules.chat.payloads",
+        "peekOfCode": "def collect_source_types(\n    structured_contexts: list[StructuredContext],\n    citations: list[ChatCitationResponse],\n) -> list[str]:\n    source_types = {context.source_type for context in structured_contexts}\n    if citations:\n        source_types.add(\"document\")\n    return sorted(source_types)\ndef render_structured_context(structured_contexts: list[StructuredContext]) -> str:\n    if not structured_contexts:",
+        "detail": "services.api.app.modules.chat.payloads",
+        "documentation": {}
+    },
+    {
+        "label": "render_structured_context",
+        "kind": 2,
+        "importPath": "services.api.app.modules.chat.payloads",
+        "description": "services.api.app.modules.chat.payloads",
+        "peekOfCode": "def render_structured_context(structured_contexts: list[StructuredContext]) -> str:\n    if not structured_contexts:\n        return \"\"\n    return \"\\n\\n\".join(\n        f\"[{index}] {context.title}\\n{context.content}\"\n        for index, context in enumerate(structured_contexts, start=1)\n    )\ndef render_document_context(citations: list[ChatCitationResponse]) -> str:\n    if not citations:\n        return \"No document sources were retrieved.\"",
+        "detail": "services.api.app.modules.chat.payloads",
+        "documentation": {}
+    },
+    {
+        "label": "render_document_context",
+        "kind": 2,
+        "importPath": "services.api.app.modules.chat.payloads",
+        "description": "services.api.app.modules.chat.payloads",
+        "peekOfCode": "def render_document_context(citations: list[ChatCitationResponse]) -> str:\n    if not citations:\n        return \"No document sources were retrieved.\"\n    return \"\\n\\n\".join(\n        f\"[{index}] {citation.document_title}: {citation.excerpt}\"\n        for index, citation in enumerate(citations, start=1)\n    )\ndef compute_structured_confidence(structured_count: int, citation_count: int) -> float:\n    confidence = 0.45 + (0.2 * structured_count) + (0.1 * citation_count)\n    return min(1.0, confidence)",
+        "detail": "services.api.app.modules.chat.payloads",
+        "documentation": {}
+    },
+    {
+        "label": "compute_structured_confidence",
+        "kind": 2,
+        "importPath": "services.api.app.modules.chat.payloads",
+        "description": "services.api.app.modules.chat.payloads",
+        "peekOfCode": "def compute_structured_confidence(structured_count: int, citation_count: int) -> float:\n    confidence = 0.45 + (0.2 * structured_count) + (0.1 * citation_count)\n    return min(1.0, confidence)\ndef serialize_citations(citations: list[ChatCitationResponse]) -> list[dict[str, object]]:\n    return [\n        {\n            \"chunk_id\": str(citation.chunk_id),\n            \"document_id\": str(citation.document_id),\n            \"document_version_id\": str(citation.document_version_id),\n            \"document_title\": citation.document_title,",
+        "detail": "services.api.app.modules.chat.payloads",
+        "documentation": {}
+    },
+    {
+        "label": "serialize_citations",
+        "kind": 2,
+        "importPath": "services.api.app.modules.chat.payloads",
+        "description": "services.api.app.modules.chat.payloads",
+        "peekOfCode": "def serialize_citations(citations: list[ChatCitationResponse]) -> list[dict[str, object]]:\n    return [\n        {\n            \"chunk_id\": str(citation.chunk_id),\n            \"document_id\": str(citation.document_id),\n            \"document_version_id\": str(citation.document_version_id),\n            \"document_title\": citation.document_title,\n            \"excerpt\": citation.excerpt,\n            \"score\": citation.score,\n        }",
+        "detail": "services.api.app.modules.chat.payloads",
+        "documentation": {}
+    },
+    {
+        "label": "PromptPackage",
+        "kind": 6,
+        "importPath": "services.api.app.modules.chat.prompting",
+        "description": "services.api.app.modules.chat.prompting",
+        "peekOfCode": "class PromptPackage:\n    primary_role: str\n    system_prompt: str\n    user_prompt: str\n_ROLE_PRIORITY = (\n    \"principal_admin\",\n    \"president\",\n    \"vice_president\",\n    \"secretary_general\",\n    \"treasurer\",",
+        "detail": "services.api.app.modules.chat.prompting",
+        "documentation": {}
+    },
+    {
+        "label": "normalize_question",
+        "kind": 2,
+        "importPath": "services.api.app.modules.chat.prompting",
+        "description": "services.api.app.modules.chat.prompting",
+        "peekOfCode": "def normalize_question(question: str) -> str:\n    return \" \".join(question.lower().split())\ndef primary_role(roles: list[str]) -> str:\n    for role in _ROLE_PRIORITY:\n        if role in roles:\n            return role\n    return \"member\"\ndef role_style_guidance(primary_role_code: str, response_language: str) -> str:\n    role_guidance = _ROLE_STYLE_GUIDANCE.get(primary_role_code, _ROLE_STYLE_GUIDANCE[\"member\"])\n    return role_guidance.get(response_language, role_guidance[\"en\"])",
+        "detail": "services.api.app.modules.chat.prompting",
+        "documentation": {}
+    },
+    {
+        "label": "primary_role",
+        "kind": 2,
+        "importPath": "services.api.app.modules.chat.prompting",
+        "description": "services.api.app.modules.chat.prompting",
+        "peekOfCode": "def primary_role(roles: list[str]) -> str:\n    for role in _ROLE_PRIORITY:\n        if role in roles:\n            return role\n    return \"member\"\ndef role_style_guidance(primary_role_code: str, response_language: str) -> str:\n    role_guidance = _ROLE_STYLE_GUIDANCE.get(primary_role_code, _ROLE_STYLE_GUIDANCE[\"member\"])\n    return role_guidance.get(response_language, role_guidance[\"en\"])\ndef build_retrieval_query(\n    *,",
+        "detail": "services.api.app.modules.chat.prompting",
+        "documentation": {}
+    },
+    {
+        "label": "role_style_guidance",
+        "kind": 2,
+        "importPath": "services.api.app.modules.chat.prompting",
+        "description": "services.api.app.modules.chat.prompting",
+        "peekOfCode": "def role_style_guidance(primary_role_code: str, response_language: str) -> str:\n    role_guidance = _ROLE_STYLE_GUIDANCE.get(primary_role_code, _ROLE_STYLE_GUIDANCE[\"member\"])\n    return role_guidance.get(response_language, role_guidance[\"en\"])\ndef build_retrieval_query(\n    *,\n    normalized_question: str,\n    response_language: str,\n    primary_role_code: str,\n    topic: str | None,\n) -> str:",
+        "detail": "services.api.app.modules.chat.prompting",
+        "documentation": {}
+    },
+    {
+        "label": "build_retrieval_query",
+        "kind": 2,
+        "importPath": "services.api.app.modules.chat.prompting",
+        "description": "services.api.app.modules.chat.prompting",
+        "peekOfCode": "def build_retrieval_query(\n    *,\n    normalized_question: str,\n    response_language: str,\n    primary_role_code: str,\n    topic: str | None,\n) -> str:\n    query_parts = [normalized_question]\n    if topic is not None:\n        query_parts.extend(_TOPIC_KEYWORDS[topic].get(response_language, _TOPIC_KEYWORDS[topic][\"en\"]))",
+        "detail": "services.api.app.modules.chat.prompting",
+        "documentation": {}
+    },
+    {
+        "label": "build_prompt_context",
+        "kind": 2,
+        "importPath": "services.api.app.modules.chat.prompting",
+        "description": "services.api.app.modules.chat.prompting",
+        "peekOfCode": "def build_prompt_context(\n    *,\n    question: str,\n    response_language: str,\n    primary_role_code: str,\n    structured_block: str,\n    document_block: str,\n    history_block: str,\n) -> PromptPackage:\n    role_guidance = role_style_guidance(primary_role_code, response_language)",
+        "detail": "services.api.app.modules.chat.prompting",
+        "documentation": {}
+    },
+    {
+        "label": "_ROLE_PRIORITY",
+        "kind": 5,
+        "importPath": "services.api.app.modules.chat.prompting",
+        "description": "services.api.app.modules.chat.prompting",
+        "peekOfCode": "_ROLE_PRIORITY = (\n    \"principal_admin\",\n    \"president\",\n    \"vice_president\",\n    \"secretary_general\",\n    \"treasurer\",\n    \"auditor\",\n    \"censor\",\n    \"sports_manager\",\n    \"member\",",
+        "detail": "services.api.app.modules.chat.prompting",
+        "documentation": {}
+    },
+    {
+        "label": "_ROLE_STYLE_GUIDANCE",
+        "kind": 5,
+        "importPath": "services.api.app.modules.chat.prompting",
+        "description": "services.api.app.modules.chat.prompting",
+        "peekOfCode": "_ROLE_STYLE_GUIDANCE = {\n    \"principal_admin\": {\n        \"fr\": \"Réponds avec une vue synthétique, puis les implications opérationnelles et les éventuels risques.\",\n        \"en\": \"Answer with a concise overview, then the operational implications and any relevant risks.\",\n        \"de\": \"Antworte mit einer kurzen Uebersicht, dann den operativen Auswirkungen und relevanten Risiken.\",\n    },\n    \"president\": {\n        \"fr\": \"Réponds comme pour une décision de bureau: synthèse d'abord, ensuite les points à arbitrer.\",\n        \"en\": \"Answer like a board decision brief: summary first, then the points that need a decision.\",\n        \"de\": \"Antworte wie in einer Vorstandsvorlage: zuerst die Zusammenfassung, dann die Entscheidungsfragen.\",",
+        "detail": "services.api.app.modules.chat.prompting",
+        "documentation": {}
+    },
+    {
+        "label": "_TOPIC_KEYWORDS",
+        "kind": 5,
+        "importPath": "services.api.app.modules.chat.prompting",
+        "description": "services.api.app.modules.chat.prompting",
+        "peekOfCode": "_TOPIC_KEYWORDS = {\n    \"finance\": {\n        \"fr\": [\"cotisation\", \"contribution\", \"solde\", \"paiement\", \"recouvrement\"],\n        \"en\": [\"dues\", \"contribution\", \"balance\", \"payment\", \"collection\"],\n        \"de\": [\"beitrag\", \"beitraege\", \"saldo\", \"zahlung\", \"einzug\"],\n    },\n    \"governance\": {\n        \"fr\": [\"statut\", \"règlement\", \"bureau\", \"gouvernance\", \"membres\"],\n        \"en\": [\"bylaws\", \"rules\", \"board\", \"governance\", \"members\"],\n        \"de\": [\"satzung\", \"regeln\", \"vorstand\", \"governance\", \"mitglieder\"],",
+        "detail": "services.api.app.modules.chat.prompting",
+        "documentation": {}
+    },
+    {
+        "label": "_ROLE_RETRIEVAL_HINTS",
+        "kind": 5,
+        "importPath": "services.api.app.modules.chat.prompting",
+        "description": "services.api.app.modules.chat.prompting",
+        "peekOfCode": "_ROLE_RETRIEVAL_HINTS = {\n    \"principal_admin\": [\"tenant administration\", \"governance\", \"documents\", \"members\"],\n    \"president\": [\"board summary\", \"decision\", \"governance\"],\n    \"vice_president\": [\"priorities\", \"summary\", \"follow up\"],\n    \"secretary_general\": [\"documents\", \"versions\", \"publication\", \"announcements\"],\n    \"treasurer\": [\"amount\", \"balance\", \"payments\", \"dues\"],\n    \"auditor\": [\"numbers\", \"review\", \"balance\", \"reconciliation\"],\n    \"censor\": [\"disciplinary\", \"sanctions\", \"cases\"],\n    \"sports_manager\": [\"sports\", \"events\", \"calendar\", \"training\"],\n    \"member\": [\"personal\", \"membership\", \"balance\", \"announcements\"],",
+        "detail": "services.api.app.modules.chat.prompting",
+        "documentation": {}
+    },
+    {
         "label": "ChatRepository",
         "kind": 6,
         "importPath": "services.api.app.modules.chat.repository",
@@ -14419,7 +15229,7 @@
         "kind": 6,
         "importPath": "services.api.app.modules.chat.schemas",
         "description": "services.api.app.modules.chat.schemas",
-        "peekOfCode": "class ChatQueryRequest(BaseModel):\n    question: str = Field(min_length=1, max_length=4000)\n    conversation_id: UUID | None = None\n    top_k: int = Field(default=4, ge=1, le=10)\n    response_language: str = Field(default=\"fr\", min_length=2, max_length=10)\nclass ChatCitationResponse(BaseModel):\n    chunk_id: UUID\n    document_id: UUID\n    document_version_id: UUID\n    document_title: str",
+        "peekOfCode": "class ChatQueryRequest(BaseModel):\n    question: str = Field(min_length=1, max_length=4000)\n    conversation_id: UUID | None = None\n    top_k: int = Field(default=settings.rag_top_k, ge=1, le=10)\n    response_language: str = Field(default=\"fr\", min_length=2, max_length=10)\nclass ChatCitationResponse(BaseModel):\n    chunk_id: UUID\n    document_id: UUID\n    document_version_id: UUID\n    document_title: str",
         "detail": "services.api.app.modules.chat.schemas",
         "documentation": {}
     },
@@ -14496,29 +15306,20 @@
         "documentation": {}
     },
     {
-        "label": "RetrievedChunk",
-        "kind": 6,
-        "importPath": "services.api.app.modules.chat.service",
-        "description": "services.api.app.modules.chat.service",
-        "peekOfCode": "class RetrievedChunk:\n    chunk: DocumentChunk\n    document: Document\n    score: float\n@dataclass(frozen=True)\nclass StructuredContext:\n    source_type: str\n    title: str\n    content: str\n_PERSONAL_FINANCE_SELF_PATTERNS = (",
-        "detail": "services.api.app.modules.chat.service",
-        "documentation": {}
-    },
-    {
-        "label": "StructuredContext",
-        "kind": 6,
-        "importPath": "services.api.app.modules.chat.service",
-        "description": "services.api.app.modules.chat.service",
-        "peekOfCode": "class StructuredContext:\n    source_type: str\n    title: str\n    content: str\n_PERSONAL_FINANCE_SELF_PATTERNS = (\n    r\"\\bmy balance\\b\",\n    r\"\\bmy dues\\b\",\n    r\"\\bmy contribution(?:s)?\\b\",\n    r\"\\bwhat do i owe\\b\",\n    r\"\\bhow much do i owe\\b\",",
-        "detail": "services.api.app.modules.chat.service",
-        "documentation": {}
-    },
-    {
         "label": "ChatService",
         "kind": 6,
         "importPath": "services.api.app.modules.chat.service",
         "description": "services.api.app.modules.chat.service",
         "peekOfCode": "class ChatService:\n    def __init__(\n        self,\n        db: AsyncSession,\n        *,\n        embedding_provider=None,\n        vector_store_provider=None,\n        llm_provider=None,\n        reranker_provider: RerankerProvider | None = None,\n    ) -> None:",
+        "detail": "services.api.app.modules.chat.service",
+        "documentation": {}
+    },
+    {
+        "label": "logger",
+        "kind": 5,
+        "importPath": "services.api.app.modules.chat.service",
+        "description": "services.api.app.modules.chat.service",
+        "peekOfCode": "logger = structlog.get_logger(__name__)\n_PERSONAL_FINANCE_SELF_PATTERNS = (\n    r\"\\bmy balance\\b\",\n    r\"\\bmy dues\\b\",\n    r\"\\bmy contribution(?:s)?\\b\",\n    r\"\\bwhat do i owe\\b\",\n    r\"\\bhow much do i owe\\b\",\n    r\"\\bwhat is my balance\\b\",\n    r\"\\bwhat is owing\\b\",\n    r\"\\bmy statement\\b\",",
         "detail": "services.api.app.modules.chat.service",
         "documentation": {}
     },
@@ -14826,6 +15627,69 @@
         "description": "services.api.app.modules.disciplinary.service",
         "peekOfCode": "class DisciplinaryService:\n    def __init__(self, db: AsyncSession) -> None:\n        self._db = db\n        self._repo = DisciplinaryRepository(db)\n        self._membership_repo = MembershipRepository(db)\n        self._policy_repo = PolicyRepository(db)\n        self._audit = AuditService(db)\n    async def list_records(self, tenant_id: UUID) -> list[DisciplinaryRecordResponse]:\n        records = await self._repo.list_by_tenant(tenant_id)\n        return [await self._to_response(tenant_id, record) for record in records]",
         "detail": "services.api.app.modules.disciplinary.service",
+        "documentation": {}
+    },
+    {
+        "label": "normalize_language",
+        "kind": 2,
+        "importPath": "services.api.app.modules.documents.metadata",
+        "description": "services.api.app.modules.documents.metadata",
+        "peekOfCode": "def normalize_language(value: str | None) -> str:\n    if not value:\n        return \"und\"\n    lowered = value.strip().lower()\n    if lowered.startswith(\"fr\"):\n        return \"fr\"\n    if lowered.startswith(\"en\"):\n        return \"en\"\n    if lowered.startswith(\"de\"):\n        return \"de\"",
+        "detail": "services.api.app.modules.documents.metadata",
+        "documentation": {}
+    },
+    {
+        "label": "infer_document_language",
+        "kind": 2,
+        "importPath": "services.api.app.modules.documents.metadata",
+        "description": "services.api.app.modules.documents.metadata",
+        "peekOfCode": "def infer_document_language(\n    *,\n    file_name: str | None,\n    title: str | None = None,\n    description: str | None = None,\n    text_sample: str | None = None,\n) -> str:\n    sample_parts = [file_name or \"\", title or \"\", description or \"\", text_sample or \"\"]\n    haystack = \" \".join(sample_parts).lower()\n    scores = {",
+        "detail": "services.api.app.modules.documents.metadata",
+        "documentation": {}
+    },
+    {
+        "label": "infer_document_language_from_upload",
+        "kind": 2,
+        "importPath": "services.api.app.modules.documents.metadata",
+        "description": "services.api.app.modules.documents.metadata",
+        "peekOfCode": "def infer_document_language_from_upload(\n    *,\n    file_name: str | None,\n    title: str | None = None,\n    description: str | None = None,\n    file_bytes: bytes | None = None,\n) -> str:\n    text_sample = _extract_text_sample(file_name=file_name, file_bytes=file_bytes)\n    return infer_document_language(\n        file_name=file_name,",
+        "detail": "services.api.app.modules.documents.metadata",
+        "documentation": {}
+    },
+    {
+        "label": "classify_archive_access",
+        "kind": 2,
+        "importPath": "services.api.app.modules.documents.metadata",
+        "description": "services.api.app.modules.documents.metadata",
+        "peekOfCode": "def classify_archive_access(file_name: str, roles: dict[str, str]) -> tuple[str, list[str]]:\n    lower = file_name.lower()\n    finance_roles = _role_ids(\n        roles,\n        \"treasurer\",\n        \"auditor\",\n        \"president\",\n        \"vice_president\",\n        \"principal_admin\",\n        \"admin\",",
+        "detail": "services.api.app.modules.documents.metadata",
+        "documentation": {}
+    },
+    {
+        "label": "FINANCE_TOKENS",
+        "kind": 5,
+        "importPath": "services.api.app.modules.documents.metadata",
+        "description": "services.api.app.modules.documents.metadata",
+        "peekOfCode": "FINANCE_TOKENS = (\n    \"audit\",\n    \"auditor\",\n    \"budget\",\n    \"bilan\",\n    \"comptes\",\n    \"contribution\",\n    \"contributions\",\n    \"cotisation\",\n    \"cotisations\",",
+        "detail": "services.api.app.modules.documents.metadata",
+        "documentation": {}
+    },
+    {
+        "label": "DISCIPLINARY_TOKENS",
+        "kind": 5,
+        "importPath": "services.api.app.modules.documents.metadata",
+        "description": "services.api.app.modules.documents.metadata",
+        "peekOfCode": "DISCIPLINARY_TOKENS = (\n    \"avertissement\",\n    \"cahier des sanctions\",\n    \"complaint\",\n    \"disciplin\",\n    \"exclusion\",\n    \"grievance\",\n    \"incident\",\n    \"mise_en_demeure\",\n    \"mise en demeure\",",
+        "detail": "services.api.app.modules.documents.metadata",
+        "documentation": {}
+    },
+    {
+        "label": "GOVERNANCE_TOKENS",
+        "kind": 5,
+        "importPath": "services.api.app.modules.documents.metadata",
+        "description": "services.api.app.modules.documents.metadata",
+        "peekOfCode": "GOVERNANCE_TOKENS = (\n    \"board\",\n    \"bureau\",\n    \"catalogue des compétences\",\n    \"catalogue des competences\",\n    \"confidential\",\n    \"election\",\n    \"minutes\",\n    \"plan d'action\",\n    \"plan d actions\",",
+        "detail": "services.api.app.modules.documents.metadata",
         "documentation": {}
     },
     {
@@ -15643,7 +16507,16 @@
         "kind": 5,
         "importPath": "services.api.app.modules.notifications.router",
         "description": "services.api.app.modules.notifications.router",
-        "peekOfCode": "router = APIRouter(prefix=\"/notifications\", tags=[\"notifications\"], dependencies=[require_module(\"notifications\")])\n@router.get(\"/channels\", response_model=list[NotificationChannelResponse])\nasync def list_notification_channels(\n    current: AuthDep,\n    notifications: NotificationsDep,\n) -> list[NotificationChannelResponse]:\n    require_capability(\n        current,\n        CAP_TENANT_ADMINISTRATION,\n        detail=\"Tenant administration capability required\",",
+        "peekOfCode": "router = APIRouter(prefix=\"/notifications\", tags=[\"notifications\"], dependencies=[require_module(\"notifications\")])\ncallback_router = APIRouter(prefix=\"/notifications\", tags=[\"notifications\"])\n@router.get(\"/channels\", response_model=list[NotificationChannelResponse])\nasync def list_notification_channels(\n    current: AuthDep,\n    notifications: NotificationsDep,\n) -> list[NotificationChannelResponse]:\n    require_capability(\n        current,\n        CAP_TENANT_ADMINISTRATION,",
+        "detail": "services.api.app.modules.notifications.router",
+        "documentation": {}
+    },
+    {
+        "label": "callback_router",
+        "kind": 5,
+        "importPath": "services.api.app.modules.notifications.router",
+        "description": "services.api.app.modules.notifications.router",
+        "peekOfCode": "callback_router = APIRouter(prefix=\"/notifications\", tags=[\"notifications\"])\n@router.get(\"/channels\", response_model=list[NotificationChannelResponse])\nasync def list_notification_channels(\n    current: AuthDep,\n    notifications: NotificationsDep,\n) -> list[NotificationChannelResponse]:\n    require_capability(\n        current,\n        CAP_TENANT_ADMINISTRATION,\n        detail=\"Tenant administration capability required\",",
         "detail": "services.api.app.modules.notifications.router",
         "documentation": {}
     },
@@ -15661,7 +16534,16 @@
         "kind": 6,
         "importPath": "services.api.app.modules.notifications.schemas",
         "description": "services.api.app.modules.notifications.schemas",
-        "peekOfCode": "class NotificationTestRequest(BaseModel):\n    channels: list[str] = Field(min_length=1)\n    recipient: str = Field(min_length=1, max_length=255)\n    subject: str | None = Field(default=None, max_length=255)\n    body: str = Field(min_length=1, max_length=4000)\nclass NotificationDispatchResponse(BaseModel):\n    channel: str\n    status: str\n    message: str\n    delivered: bool",
+        "peekOfCode": "class NotificationTestRequest(BaseModel):\n    channels: list[str] = Field(min_length=1)\n    recipient: str = Field(min_length=1, max_length=255)\n    subject: str | None = Field(default=None, max_length=255)\n    body: str = Field(min_length=1, max_length=4000)\nclass NotificationDispatchRequest(BaseModel):\n    channel: str = Field(min_length=1, max_length=50)\n    recipient: str = Field(min_length=1, max_length=255)\n    subject: str | None = Field(default=None, max_length=255)\n    body: str = Field(min_length=1, max_length=4000)",
+        "detail": "services.api.app.modules.notifications.schemas",
+        "documentation": {}
+    },
+    {
+        "label": "NotificationDispatchRequest",
+        "kind": 6,
+        "importPath": "services.api.app.modules.notifications.schemas",
+        "description": "services.api.app.modules.notifications.schemas",
+        "peekOfCode": "class NotificationDispatchRequest(BaseModel):\n    channel: str = Field(min_length=1, max_length=50)\n    recipient: str = Field(min_length=1, max_length=255)\n    subject: str | None = Field(default=None, max_length=255)\n    body: str = Field(min_length=1, max_length=4000)\nclass NotificationDispatchResponse(BaseModel):\n    channel: str\n    status: str\n    message: str\n    delivered: bool",
         "detail": "services.api.app.modules.notifications.schemas",
         "documentation": {}
     },
@@ -15670,7 +16552,34 @@
         "kind": 6,
         "importPath": "services.api.app.modules.notifications.schemas",
         "description": "services.api.app.modules.notifications.schemas",
-        "peekOfCode": "class NotificationDispatchResponse(BaseModel):\n    channel: str\n    status: str\n    message: str\n    delivered: bool\n    simulation_only: bool\nclass NotificationTestResponse(BaseModel):\n    results: list[NotificationDispatchResponse]",
+        "peekOfCode": "class NotificationDispatchResponse(BaseModel):\n    channel: str\n    status: str\n    message: str\n    delivered: bool\n    simulation_only: bool\n    delivery_stage: str\n    reconciliation_status: str\n    reconciliation_supported: bool\n    provider_reference: str | None = None",
+        "detail": "services.api.app.modules.notifications.schemas",
+        "documentation": {}
+    },
+    {
+        "label": "NotificationHistoryEntry",
+        "kind": 6,
+        "importPath": "services.api.app.modules.notifications.schemas",
+        "description": "services.api.app.modules.notifications.schemas",
+        "peekOfCode": "class NotificationHistoryEntry(BaseModel):\n    id: UUID\n    action: str\n    channel: str\n    recipient: str\n    status: str\n    message: str\n    delivered: bool\n    simulation_only: bool\n    delivery_stage: str",
+        "detail": "services.api.app.modules.notifications.schemas",
+        "documentation": {}
+    },
+    {
+        "label": "NotificationReconciliationCallbackRequest",
+        "kind": 6,
+        "importPath": "services.api.app.modules.notifications.schemas",
+        "description": "services.api.app.modules.notifications.schemas",
+        "peekOfCode": "class NotificationReconciliationCallbackRequest(BaseModel):\n    tenant_id: UUID\n    channel: str = Field(min_length=1, max_length=50)\n    provider_reference: str = Field(min_length=1, max_length=255)\n    delivery_stage: Literal[\"delivered\", \"failed\"]\n    provider_message: str | None = Field(default=None, max_length=4000)\n    external_status: str | None = Field(default=None, max_length=100)\nclass NotificationReconciliationCallbackResponse(BaseModel):\n    channel: str\n    provider_reference: str",
+        "detail": "services.api.app.modules.notifications.schemas",
+        "documentation": {}
+    },
+    {
+        "label": "NotificationReconciliationCallbackResponse",
+        "kind": 6,
+        "importPath": "services.api.app.modules.notifications.schemas",
+        "description": "services.api.app.modules.notifications.schemas",
+        "peekOfCode": "class NotificationReconciliationCallbackResponse(BaseModel):\n    channel: str\n    provider_reference: str\n    delivery_stage: str\n    reconciliation_status: str\n    updated: bool\nclass NotificationTestResponse(BaseModel):\n    results: list[NotificationDispatchResponse]",
         "detail": "services.api.app.modules.notifications.schemas",
         "documentation": {}
     },
@@ -15792,11 +16701,56 @@
         "documentation": {}
     },
     {
+        "label": "PRIVILEGED_DOCUMENT_ACCESS_ROLES",
+        "kind": 5,
+        "importPath": "services.api.app.modules.rag.policy",
+        "description": "services.api.app.modules.rag.policy",
+        "peekOfCode": "PRIVILEGED_DOCUMENT_ACCESS_ROLES = frozenset({\"admin\", \"principal_admin\"})\n@dataclass(frozen=True)\nclass AccessPolicy:\n    tenant_id: UUID\n    user_id: UUID\n    roles: tuple[str, ...]\n    def can_access(self, document: Document) -> bool:\n        if document.tenant_id != self.tenant_id:\n            return False\n        scope = document.access_scope",
+        "detail": "services.api.app.modules.rag.policy",
+        "documentation": {}
+    },
+    {
+        "label": "extract_rank_terms",
+        "kind": 2,
+        "importPath": "services.api.app.modules.rag.ranking",
+        "description": "services.api.app.modules.rag.ranking",
+        "peekOfCode": "def extract_rank_terms(text: str) -> list[str]:\n    unique_terms: list[str] = []\n    seen: set[str] = set()\n    for raw in _TOKEN_PATTERN.findall(text.lower()):\n        if raw in _STOPWORDS:\n            continue\n        if raw in seen:\n            continue\n        seen.add(raw)\n        unique_terms.append(raw)",
+        "detail": "services.api.app.modules.rag.ranking",
+        "documentation": {}
+    },
+    {
+        "label": "compute_keyword_overlap_ratio",
+        "kind": 2,
+        "importPath": "services.api.app.modules.rag.ranking",
+        "description": "services.api.app.modules.rag.ranking",
+        "peekOfCode": "def compute_keyword_overlap_ratio(*, query: str, content: str) -> float:\n    query_terms = extract_rank_terms(query)\n    if not query_terms:\n        return 0.0\n    content_terms = set(extract_rank_terms(content))\n    if not content_terms:\n        return 0.0\n    matches = sum(1 for term in query_terms if term in content_terms)\n    return matches / len(query_terms)",
+        "detail": "services.api.app.modules.rag.ranking",
+        "documentation": {}
+    },
+    {
+        "label": "_TOKEN_PATTERN",
+        "kind": 5,
+        "importPath": "services.api.app.modules.rag.ranking",
+        "description": "services.api.app.modules.rag.ranking",
+        "peekOfCode": "_TOKEN_PATTERN = re.compile(r\"[a-z0-9à-ÿ]{3,}\", re.IGNORECASE)\n_STOPWORDS = {\n    \"about\",\n    \"avec\",\n    \"avec\",\n    \"dans\",\n    \"de\",\n    \"der\",\n    \"des\",\n    \"die\",",
+        "detail": "services.api.app.modules.rag.ranking",
+        "documentation": {}
+    },
+    {
+        "label": "_STOPWORDS",
+        "kind": 5,
+        "importPath": "services.api.app.modules.rag.ranking",
+        "description": "services.api.app.modules.rag.ranking",
+        "peekOfCode": "_STOPWORDS = {\n    \"about\",\n    \"avec\",\n    \"avec\",\n    \"dans\",\n    \"de\",\n    \"der\",\n    \"des\",\n    \"die\",\n    \"document\",",
+        "detail": "services.api.app.modules.rag.ranking",
+        "documentation": {}
+    },
+    {
         "label": "check_embedding_model_changed",
         "kind": 2,
         "importPath": "services.api.app.modules.rag.reindex",
         "description": "services.api.app.modules.rag.reindex",
-        "peekOfCode": "def check_embedding_model_changed() -> bool:\n    \"\"\"Return True if the embedding model changed since last run.\"\"\"\n    sentinel_path = _get_sentinel_path()\n    current = settings.ollama_embedding_model\n    previous: str | None = None\n    try:\n        if os.path.isfile(sentinel_path):\n            with open(sentinel_path) as f:\n                data = json.load(f)\n                previous = data.get(\"model\")",
+        "peekOfCode": "def check_embedding_model_changed() -> bool:\n    \"\"\"Return True if the embedding model changed since last run.\"\"\"\n    sentinel_path = _get_sentinel_path()\n    current = (\n        settings.openai_compatible_embedding_model\n        if settings.embedding_provider_kind == \"openai_compatible\"\n        else settings.ollama_embedding_model\n    )\n    previous: str | None = None\n    try:",
         "detail": "services.api.app.modules.rag.reindex",
         "documentation": {}
     },
@@ -15805,7 +16759,7 @@
         "kind": 2,
         "importPath": "services.api.app.modules.rag.reindex",
         "description": "services.api.app.modules.rag.reindex",
-        "peekOfCode": "def persist_embedding_model() -> None:\n    \"\"\"Write the current embedding model to the sentinel file.\"\"\"\n    sentinel_path = _get_sentinel_path()\n    os.makedirs(os.path.dirname(sentinel_path), exist_ok=True)\n    with open(sentinel_path, \"w\") as f:\n        json.dump({\"model\": settings.ollama_embedding_model}, f)\n    logger.info(\"embedding_model_persisted\", model=settings.ollama_embedding_model)",
+        "peekOfCode": "def persist_embedding_model() -> None:\n    \"\"\"Write the current embedding model to the sentinel file.\"\"\"\n    sentinel_path = _get_sentinel_path()\n    os.makedirs(os.path.dirname(sentinel_path), exist_ok=True)\n    with open(sentinel_path, \"w\") as f:\n        json.dump(\n            {\n                \"model\": (\n                    settings.openai_compatible_embedding_model\n                    if settings.embedding_provider_kind == \"openai_compatible\"",
         "detail": "services.api.app.modules.rag.reindex",
         "documentation": {}
     },
@@ -16152,6 +17106,15 @@
         "documentation": {}
     },
     {
+        "label": "OpenAICompatibleEmbeddingProvider",
+        "kind": 6,
+        "importPath": "services.api.app.providers.embeddings.openai_compatible",
+        "description": "services.api.app.providers.embeddings.openai_compatible",
+        "peekOfCode": "class OpenAICompatibleEmbeddingProvider:\n    \"\"\"Embedding provider for OpenAI-compatible local servers such as LM Studio.\"\"\"\n    def __init__(self) -> None:\n        self._vector_size = settings.embedding_dimensions\n    @property\n    def vector_size(self) -> int:\n        return self._vector_size\n    def _headers(self) -> dict[str, str]:\n        api_key = settings.openai_compatible_api_key.strip()\n        headers = {\"Content-Type\": \"application/json\"}",
+        "detail": "services.api.app.providers.embeddings.openai_compatible",
+        "documentation": {}
+    },
+    {
         "label": "LLMProvider",
         "kind": 6,
         "importPath": "services.api.app.providers.llm.base",
@@ -16165,8 +17128,17 @@
         "kind": 6,
         "importPath": "services.api.app.providers.llm.ollama",
         "description": "services.api.app.providers.llm.ollama",
-        "peekOfCode": "class OllamaLLMProvider:\n    def __init__(self) -> None:\n        self._timeout = settings.embedding_request_timeout_seconds\n    async def generate(\n        self,\n        *,\n        system_prompt: str,\n        user_prompt: str,\n        temperature: float = 0.3,\n        top_p: float = 0.9,",
+        "peekOfCode": "class OllamaLLMProvider:\n    def __init__(self) -> None:\n        self._timeout = settings.llm_request_timeout_seconds\n    async def generate(\n        self,\n        *,\n        system_prompt: str,\n        user_prompt: str,\n        temperature: float = 0.3,\n        top_p: float = 0.9,",
         "detail": "services.api.app.providers.llm.ollama",
+        "documentation": {}
+    },
+    {
+        "label": "OpenAICompatibleLLMProvider",
+        "kind": 6,
+        "importPath": "services.api.app.providers.llm.openai_compatible",
+        "description": "services.api.app.providers.llm.openai_compatible",
+        "peekOfCode": "class OpenAICompatibleLLMProvider:\n    \"\"\"Chat provider for OpenAI-compatible local servers such as LM Studio.\"\"\"\n    def __init__(self) -> None:\n        self._timeout = settings.llm_request_timeout_seconds\n    def _headers(self) -> dict[str, str]:\n        api_key = settings.openai_compatible_api_key.strip()\n        headers = {\"Content-Type\": \"application/json\"}\n        if api_key:\n            headers[\"Authorization\"] = f\"Bearer {api_key}\"\n        return headers",
+        "detail": "services.api.app.providers.llm.openai_compatible",
         "documentation": {}
     },
     {
@@ -16183,7 +17155,7 @@
         "kind": 6,
         "importPath": "services.api.app.providers.notifications.base",
         "description": "services.api.app.providers.notifications.base",
-        "peekOfCode": "class NotificationDispatchResult:\n    channel: str\n    status: str\n    message: str\n    delivered: bool\n    simulation_only: bool\nclass NotificationProvider(Protocol):\n    channel: str\n    def describe(self) -> NotificationChannelDescriptor: ...\n    async def send_message(",
+        "peekOfCode": "class NotificationDispatchResult:\n    channel: str\n    status: str\n    message: str\n    delivered: bool\n    simulation_only: bool\n    delivery_stage: str = \"simulated\"\n    reconciliation_status: str = \"not_applicable\"\n    reconciliation_supported: bool = False\n    provider_reference: str | None = None",
         "detail": "services.api.app.providers.notifications.base",
         "documentation": {}
     },
@@ -16219,7 +17191,7 @@
         "kind": 6,
         "importPath": "services.api.app.providers.notifications.placeholders",
         "description": "services.api.app.providers.notifications.placeholders",
-        "peekOfCode": "class TelegramNotificationProvider(_PlaceholderNotificationProvider):\n    channel = \"telegram\"\n    display_name = \"Telegram\"\n    description = \"Bot-based provider placeholder for direct or channel-based Telegram messages.\"\n    target_hint = \"Telegram chat ID\"\n    def __init__(self) -> None:\n        super().__init__(configured=bool(settings.telegram_bot_token))\nclass WhatsAppNotificationProvider(_PlaceholderNotificationProvider):\n    channel = \"whatsapp\"\n    display_name = \"WhatsApp\"",
+        "peekOfCode": "class TelegramNotificationProvider(_PlaceholderNotificationProvider):\n    channel = \"telegram\"\n    display_name = \"Telegram\"\n    description = \"Bot-based provider placeholder for direct or channel-based Telegram messages.\"\n    target_hint = \"Telegram chat ID or @channel username\"\n    def __init__(self) -> None:\n        super().__init__(configured=bool(settings.telegram_bot_token))\n    def describe(self) -> NotificationChannelDescriptor:\n        descriptor = super().describe()\n        if not self._configured:",
         "detail": "services.api.app.providers.notifications.placeholders",
         "documentation": {}
     },
@@ -16228,7 +17200,7 @@
         "kind": 6,
         "importPath": "services.api.app.providers.notifications.placeholders",
         "description": "services.api.app.providers.notifications.placeholders",
-        "peekOfCode": "class WhatsAppNotificationProvider(_PlaceholderNotificationProvider):\n    channel = \"whatsapp\"\n    display_name = \"WhatsApp\"\n    description = \"Gateway-based provider placeholder for WhatsApp notifications.\"\n    target_hint = \"Phone number or WhatsApp target\"\n    def __init__(self) -> None:\n        super().__init__(configured=bool(settings.whatsapp_api_base_url and settings.whatsapp_api_token))",
+        "peekOfCode": "class WhatsAppNotificationProvider(_PlaceholderNotificationProvider):\n    channel = \"whatsapp\"\n    display_name = \"WhatsApp\"\n    description = \"Gateway-based provider placeholder for WhatsApp notifications.\"\n    target_hint = \"Phone number or WhatsApp target\"\n    def __init__(self) -> None:\n        super().__init__(configured=bool(settings.whatsapp_api_base_url and settings.whatsapp_api_token))\n    def describe(self) -> NotificationChannelDescriptor:\n        descriptor = super().describe()\n        if not self._configured:",
         "detail": "services.api.app.providers.notifications.placeholders",
         "documentation": {}
     },
@@ -16372,7 +17344,7 @@
         "kind": 6,
         "importPath": "services.api.app.providers.vector_store.qdrant",
         "description": "services.api.app.providers.vector_store.qdrant",
-        "peekOfCode": "class QdrantVectorStoreProvider:\n    \"\"\"Qdrant adapter for tenant-scoped document chunk vectors with hybrid search support.\"\"\"\n    def __init__(self) -> None:\n        self._client = QdrantClient(url=settings.qdrant_url, timeout=30)\n        self._collection = settings.qdrant_collection\n    def ensure_collection(self, vector_size: int) -> None:\n        existing = {item.name for item in self._client.get_collections().collections}\n        if self._collection in existing:\n            info = self._client.get_collection(self._collection)\n            current_size = info.config.params.vectors.size",
+        "peekOfCode": "class QdrantVectorStoreProvider:\n    \"\"\"Qdrant adapter for tenant-scoped dense retrieval over document chunks.\"\"\"\n    def __init__(self) -> None:\n        self._client = QdrantClient(url=settings.qdrant_url, timeout=30)\n        self._collection = settings.qdrant_collection\n    def ensure_collection(self, vector_size: int) -> None:\n        existing = {item.name for item in self._client.get_collections().collections}\n        if self._collection in existing:\n            info = self._client.get_collection(self._collection)\n            current_size = info.config.params.vectors.size",
         "detail": "services.api.app.providers.vector_store.qdrant",
         "documentation": {}
     },
@@ -16381,7 +17353,7 @@
         "kind": 5,
         "importPath": "services.api.app.providers.vector_store.qdrant",
         "description": "services.api.app.providers.vector_store.qdrant",
-        "peekOfCode": "logger = structlog.get_logger(__name__)\nclass QdrantVectorStoreProvider:\n    \"\"\"Qdrant adapter for tenant-scoped document chunk vectors with hybrid search support.\"\"\"\n    def __init__(self) -> None:\n        self._client = QdrantClient(url=settings.qdrant_url, timeout=30)\n        self._collection = settings.qdrant_collection\n    def ensure_collection(self, vector_size: int) -> None:\n        existing = {item.name for item in self._client.get_collections().collections}\n        if self._collection in existing:\n            info = self._client.get_collection(self._collection)",
+        "peekOfCode": "logger = structlog.get_logger(__name__)\nclass QdrantVectorStoreProvider:\n    \"\"\"Qdrant adapter for tenant-scoped dense retrieval over document chunks.\"\"\"\n    def __init__(self) -> None:\n        self._client = QdrantClient(url=settings.qdrant_url, timeout=30)\n        self._collection = settings.qdrant_collection\n    def ensure_collection(self, vector_size: int) -> None:\n        existing = {item.name for item in self._client.get_collections().collections}\n        if self._collection in existing:\n            info = self._client.get_collection(self._collection)",
         "detail": "services.api.app.providers.vector_store.qdrant",
         "documentation": {}
     },
@@ -16575,6 +17547,24 @@
         "documentation": {}
     },
     {
+        "label": "FakeTelegramNotificationProvider",
+        "kind": 6,
+        "importPath": "services.api.tests.fakes",
+        "description": "services.api.tests.fakes",
+        "peekOfCode": "class FakeTelegramNotificationProvider:\n    channel = \"telegram\"\n    def __init__(\n        self,\n        *,\n        configured: bool = True,\n        status: str = \"sent\",\n        simulation_only: bool = False,\n        delivered: bool = True,\n        message: str = \"Telegram accepted by fake provider.\",",
+        "detail": "services.api.tests.fakes",
+        "documentation": {}
+    },
+    {
+        "label": "FakeWhatsAppNotificationProvider",
+        "kind": 6,
+        "importPath": "services.api.tests.fakes",
+        "description": "services.api.tests.fakes",
+        "peekOfCode": "class FakeWhatsAppNotificationProvider:\n    channel = \"whatsapp\"\n    def __init__(\n        self,\n        *,\n        configured: bool = True,\n        status: str = \"sent\",\n        simulation_only: bool = False,\n        delivered: bool = True,\n        message: str = \"WhatsApp accepted by fake provider.\",",
+        "detail": "services.api.tests.fakes",
+        "documentation": {}
+    },
+    {
         "label": "pytestmark",
         "kind": 5,
         "importPath": "services.api.tests.test_audit_trail",
@@ -16593,6 +17583,33 @@
         "documentation": {}
     },
     {
+        "label": "test_build_retrieval_query_keeps_language_topic_and_role_hints",
+        "kind": 2,
+        "importPath": "services.api.tests.test_chat_prompting",
+        "description": "services.api.tests.test_chat_prompting",
+        "peekOfCode": "def test_build_retrieval_query_keeps_language_topic_and_role_hints() -> None:\n    query = build_retrieval_query(\n        normalized_question=\"quels documents sont prets\",\n        response_language=\"fr\",\n        primary_role_code=\"secretary_general\",\n        topic=\"publication\",\n    )\n    assert \"quels documents sont prets\" in query\n    assert \"publication\" in query\n    assert \"documents\" in query",
+        "detail": "services.api.tests.test_chat_prompting",
+        "documentation": {}
+    },
+    {
+        "label": "test_build_prompt_context_preserves_role_and_structured_priority",
+        "kind": 2,
+        "importPath": "services.api.tests.test_chat_prompting",
+        "description": "services.api.tests.test_chat_prompting",
+        "peekOfCode": "def test_build_prompt_context_preserves_role_and_structured_priority() -> None:\n    prompt = build_prompt_context(\n        question=\"Quel est mon solde ?\",\n        response_language=\"fr\",\n        primary_role_code=primary_role([\"member\"]),\n        structured_block=\"[1] Personal contribution balance\\nOutstanding balance: 75.00 EUR\",\n        document_block=\"No document sources were retrieved.\",\n        history_block=\"User: Bonjour\",\n    )\n    assert \"Role profile: member\" in prompt.system_prompt",
+        "detail": "services.api.tests.test_chat_prompting",
+        "documentation": {}
+    },
+    {
+        "label": "test_render_document_context_returns_safe_fallback_when_empty",
+        "kind": 2,
+        "importPath": "services.api.tests.test_chat_prompting",
+        "description": "services.api.tests.test_chat_prompting",
+        "peekOfCode": "def test_render_document_context_returns_safe_fallback_when_empty() -> None:\n    assert render_document_context([]) == \"No document sources were retrieved.\"",
+        "detail": "services.api.tests.test_chat_prompting",
+        "documentation": {}
+    },
+    {
         "label": "pytestmark",
         "kind": 5,
         "importPath": "services.api.tests.test_documents",
@@ -16607,6 +17624,15 @@
         "importPath": "services.api.tests.test_governance_roles",
         "description": "services.api.tests.test_governance_roles",
         "peekOfCode": "def test_current_user_capability_checks_support_legacy_and_canonical_roles() -> None:\n    fake_user = object()\n    fake_uuid = uuid.uuid4()\n    current_admin = CurrentUser(\n        user=fake_user,\n        tenant_id=fake_uuid,\n        roles=[\"admin\"],\n        session_id=fake_uuid,\n    )\n    current_principal = CurrentUser(",
+        "detail": "services.api.tests.test_governance_roles",
+        "documentation": {}
+    },
+    {
+        "label": "test_access_policy_grants_privileged_document_access_to_legacy_and_canonical_admin_roles",
+        "kind": 2,
+        "importPath": "services.api.tests.test_governance_roles",
+        "description": "services.api.tests.test_governance_roles",
+        "peekOfCode": "def test_access_policy_grants_privileged_document_access_to_legacy_and_canonical_admin_roles(\n    roles: tuple[str, ...],\n) -> None:\n    tenant_id = uuid.uuid4()\n    owner_user_id = uuid.uuid4()\n    viewer_user_id = uuid.uuid4()\n    policy = AccessPolicy(tenant_id=tenant_id, user_id=viewer_user_id, roles=roles)\n    admin_only_document = Document(\n        id=uuid.uuid4(),\n        tenant_id=tenant_id,",
         "detail": "services.api.tests.test_governance_roles",
         "documentation": {}
     },
@@ -16827,6 +17853,42 @@
         "documentation": {}
     },
     {
+        "label": "test_infer_document_language_detects_french_from_text_upload",
+        "kind": 2,
+        "importPath": "services.api.tests.test_ingestion_unit",
+        "description": "services.api.tests.test_ingestion_unit",
+        "peekOfCode": "def test_infer_document_language_detects_french_from_text_upload() -> None:\n    language = infer_document_language_from_upload(\n        file_name=\"cotisations.txt\",\n        title=\"Cotisations 2026\",\n        file_bytes=b\"Bonjour association cotisation annuelle\",\n    )\n    assert language == \"fr\"\ndef test_infer_document_language_detects_german_archive_filename() -> None:\n    language = infer_document_language(\n        file_name=\"Vorstand_protokoll_de.pdf\",",
+        "detail": "services.api.tests.test_ingestion_unit",
+        "documentation": {}
+    },
+    {
+        "label": "test_infer_document_language_detects_german_archive_filename",
+        "kind": 2,
+        "importPath": "services.api.tests.test_ingestion_unit",
+        "description": "services.api.tests.test_ingestion_unit",
+        "peekOfCode": "def test_infer_document_language_detects_german_archive_filename() -> None:\n    language = infer_document_language(\n        file_name=\"Vorstand_protokoll_de.pdf\",\n        title=\"Vorstand Protokoll\",\n    )\n    assert language == \"de\"\ndef test_infer_document_language_returns_und_when_ambiguous() -> None:\n    language = infer_document_language(\n        file_name=\"notes.txt\",\n        title=\"General notes\",",
+        "detail": "services.api.tests.test_ingestion_unit",
+        "documentation": {}
+    },
+    {
+        "label": "test_infer_document_language_returns_und_when_ambiguous",
+        "kind": 2,
+        "importPath": "services.api.tests.test_ingestion_unit",
+        "description": "services.api.tests.test_ingestion_unit",
+        "peekOfCode": "def test_infer_document_language_returns_und_when_ambiguous() -> None:\n    language = infer_document_language(\n        file_name=\"notes.txt\",\n        title=\"General notes\",\n        text_sample=\"No clear linguistic markers here.\",\n    )\n    assert language == \"und\"\ndef test_classify_archive_access_is_conservative_for_sensitive_documents() -> None:\n    roles = {\n        \"treasurer\": \"role-treasurer\",",
+        "detail": "services.api.tests.test_ingestion_unit",
+        "documentation": {}
+    },
+    {
+        "label": "test_classify_archive_access_is_conservative_for_sensitive_documents",
+        "kind": 2,
+        "importPath": "services.api.tests.test_ingestion_unit",
+        "description": "services.api.tests.test_ingestion_unit",
+        "peekOfCode": "def test_classify_archive_access_is_conservative_for_sensitive_documents() -> None:\n    roles = {\n        \"treasurer\": \"role-treasurer\",\n        \"auditor\": \"role-auditor\",\n        \"president\": \"role-president\",\n        \"vice_president\": \"role-vice\",\n        \"principal_admin\": \"role-admin\",\n        \"secretary_general\": \"role-secretary\",\n        \"censor\": \"role-censor\",\n    }",
+        "detail": "services.api.tests.test_ingestion_unit",
+        "documentation": {}
+    },
+    {
         "label": "TestModuleEnforcement",
         "kind": 6,
         "importPath": "services.api.tests.test_module_enforcement",
@@ -16845,12 +17907,84 @@
         "documentation": {}
     },
     {
+        "label": "_FakeSimulationProvider",
+        "kind": 6,
+        "importPath": "services.api.tests.test_notifications",
+        "description": "services.api.tests.test_notifications",
+        "peekOfCode": "class _FakeSimulationProvider:\n    def __init__(self, channel: str, display_name: str) -> None:\n        self.channel = channel\n        self._display_name = display_name\n    def describe(self):\n        from app.providers.notifications.base import NotificationChannelDescriptor\n        return NotificationChannelDescriptor(\n            channel=self.channel,\n            display_name=self._display_name,\n            description=f\"{self._display_name} placeholder.\",",
+        "detail": "services.api.tests.test_notifications",
+        "documentation": {}
+    },
+    {
         "label": "pytestmark",
         "kind": 5,
         "importPath": "services.api.tests.test_observability",
         "description": "services.api.tests.test_observability",
         "peekOfCode": "pytestmark = pytest.mark.integration\ndef _metric_value(text: str, metric_name: str, labels: str | None = None) -> float:\n    prefix = metric_name if labels is None else f\"{metric_name}{labels}\"\n    for line in text.splitlines():\n        if line.startswith(prefix):\n            return float(line.split()[-1])\n    raise AssertionError(f\"Metric not found: {prefix}\")\n@pytest.mark.asyncio\nasync def test_http_errors_include_request_id_and_error_code(\n    client: AsyncClient, seeded_tenant_and_admin: dict",
         "detail": "services.api.tests.test_observability",
+        "documentation": {}
+    },
+    {
+        "label": "test_packaged_dashboard_and_prometheus_config_exist",
+        "kind": 2,
+        "importPath": "services.api.tests.test_observability_dashboard_package",
+        "description": "services.api.tests.test_observability_dashboard_package",
+        "peekOfCode": "def test_packaged_dashboard_and_prometheus_config_exist() -> None:\n    assert DASHBOARD_PATH.exists(), f\"Missing dashboard package: {DASHBOARD_PATH}\"\n    assert PROMETHEUS_CONFIG_PATH.exists(), f\"Missing Prometheus config: {PROMETHEUS_CONFIG_PATH}\"\n@pytest.mark.asyncio\nasync def test_packaged_dashboard_only_references_runtime_metrics(client: AsyncClient) -> None:\n    await client.get(\"/health\")\n    await client.get(\"/metrics\")\n    await client.get(\"/definitely-missing-route\")\n    response = await client.get(\"/metrics\")\n    assert response.status_code == 200, response.text",
+        "detail": "services.api.tests.test_observability_dashboard_package",
+        "documentation": {}
+    },
+    {
+        "label": "test_prometheus_package_scrapes_api_metrics_endpoint",
+        "kind": 2,
+        "importPath": "services.api.tests.test_observability_dashboard_package",
+        "description": "services.api.tests.test_observability_dashboard_package",
+        "peekOfCode": "def test_prometheus_package_scrapes_api_metrics_endpoint() -> None:\n    config = PROMETHEUS_CONFIG_PATH.read_text(encoding=\"utf-8\")\n    assert 'job_name: \"kairo-api\"' in config\n    assert \"metrics_path: /metrics\" in config\n    assert \"api:8000\" in config",
+        "detail": "services.api.tests.test_observability_dashboard_package",
+        "documentation": {}
+    },
+    {
+        "label": "pytestmark",
+        "kind": 5,
+        "importPath": "services.api.tests.test_observability_dashboard_package",
+        "description": "services.api.tests.test_observability_dashboard_package",
+        "peekOfCode": "pytestmark = pytest.mark.integration\nREPO_ROOT = Path(__file__).resolve().parents[3]\nDASHBOARD_PATH = REPO_ROOT / \"infra\" / \"monitoring\" / \"grafana\" / \"dashboards\" / \"kairo-operator-overview.json\"\nPROMETHEUS_CONFIG_PATH = REPO_ROOT / \"infra\" / \"monitoring\" / \"prometheus.yml\"\nMETRIC_NAME_PATTERN = re.compile(r\"\\bkairo_[a-z0-9_]+\\b\")\ndef _extract_metric_names_from_dashboard() -> set[str]:\n    dashboard = json.loads(DASHBOARD_PATH.read_text(encoding=\"utf-8\"))\n    names: set[str] = set()\n    for panel in dashboard.get(\"panels\", []):\n        for target in panel.get(\"targets\", []):",
+        "detail": "services.api.tests.test_observability_dashboard_package",
+        "documentation": {}
+    },
+    {
+        "label": "REPO_ROOT",
+        "kind": 5,
+        "importPath": "services.api.tests.test_observability_dashboard_package",
+        "description": "services.api.tests.test_observability_dashboard_package",
+        "peekOfCode": "REPO_ROOT = Path(__file__).resolve().parents[3]\nDASHBOARD_PATH = REPO_ROOT / \"infra\" / \"monitoring\" / \"grafana\" / \"dashboards\" / \"kairo-operator-overview.json\"\nPROMETHEUS_CONFIG_PATH = REPO_ROOT / \"infra\" / \"monitoring\" / \"prometheus.yml\"\nMETRIC_NAME_PATTERN = re.compile(r\"\\bkairo_[a-z0-9_]+\\b\")\ndef _extract_metric_names_from_dashboard() -> set[str]:\n    dashboard = json.loads(DASHBOARD_PATH.read_text(encoding=\"utf-8\"))\n    names: set[str] = set()\n    for panel in dashboard.get(\"panels\", []):\n        for target in panel.get(\"targets\", []):\n            expr = target.get(\"expr\", \"\")",
+        "detail": "services.api.tests.test_observability_dashboard_package",
+        "documentation": {}
+    },
+    {
+        "label": "DASHBOARD_PATH",
+        "kind": 5,
+        "importPath": "services.api.tests.test_observability_dashboard_package",
+        "description": "services.api.tests.test_observability_dashboard_package",
+        "peekOfCode": "DASHBOARD_PATH = REPO_ROOT / \"infra\" / \"monitoring\" / \"grafana\" / \"dashboards\" / \"kairo-operator-overview.json\"\nPROMETHEUS_CONFIG_PATH = REPO_ROOT / \"infra\" / \"monitoring\" / \"prometheus.yml\"\nMETRIC_NAME_PATTERN = re.compile(r\"\\bkairo_[a-z0-9_]+\\b\")\ndef _extract_metric_names_from_dashboard() -> set[str]:\n    dashboard = json.loads(DASHBOARD_PATH.read_text(encoding=\"utf-8\"))\n    names: set[str] = set()\n    for panel in dashboard.get(\"panels\", []):\n        for target in panel.get(\"targets\", []):\n            expr = target.get(\"expr\", \"\")\n            names.update(METRIC_NAME_PATTERN.findall(expr))",
+        "detail": "services.api.tests.test_observability_dashboard_package",
+        "documentation": {}
+    },
+    {
+        "label": "PROMETHEUS_CONFIG_PATH",
+        "kind": 5,
+        "importPath": "services.api.tests.test_observability_dashboard_package",
+        "description": "services.api.tests.test_observability_dashboard_package",
+        "peekOfCode": "PROMETHEUS_CONFIG_PATH = REPO_ROOT / \"infra\" / \"monitoring\" / \"prometheus.yml\"\nMETRIC_NAME_PATTERN = re.compile(r\"\\bkairo_[a-z0-9_]+\\b\")\ndef _extract_metric_names_from_dashboard() -> set[str]:\n    dashboard = json.loads(DASHBOARD_PATH.read_text(encoding=\"utf-8\"))\n    names: set[str] = set()\n    for panel in dashboard.get(\"panels\", []):\n        for target in panel.get(\"targets\", []):\n            expr = target.get(\"expr\", \"\")\n            names.update(METRIC_NAME_PATTERN.findall(expr))\n    return names",
+        "detail": "services.api.tests.test_observability_dashboard_package",
+        "documentation": {}
+    },
+    {
+        "label": "METRIC_NAME_PATTERN",
+        "kind": 5,
+        "importPath": "services.api.tests.test_observability_dashboard_package",
+        "description": "services.api.tests.test_observability_dashboard_package",
+        "peekOfCode": "METRIC_NAME_PATTERN = re.compile(r\"\\bkairo_[a-z0-9_]+\\b\")\ndef _extract_metric_names_from_dashboard() -> set[str]:\n    dashboard = json.loads(DASHBOARD_PATH.read_text(encoding=\"utf-8\"))\n    names: set[str] = set()\n    for panel in dashboard.get(\"panels\", []):\n        for target in panel.get(\"targets\", []):\n            expr = target.get(\"expr\", \"\")\n            names.update(METRIC_NAME_PATTERN.findall(expr))\n    return names\ndef _extract_metric_names_from_payload(payload: str) -> set[str]:",
+        "detail": "services.api.tests.test_observability_dashboard_package",
         "documentation": {}
     },
     {
@@ -16872,12 +18006,93 @@
         "documentation": {}
     },
     {
+        "label": "_FakeResponse",
+        "kind": 6,
+        "importPath": "services.api.tests.test_openai_compatible_provider",
+        "description": "services.api.tests.test_openai_compatible_provider",
+        "peekOfCode": "class _FakeResponse:\n    def __init__(self, status_code: int, payload: dict) -> None:\n        self.status_code = status_code\n        self._payload = payload\n    def raise_for_status(self) -> None:\n        if self.status_code >= 400:\n            raise RuntimeError(f\"HTTP {self.status_code}\")\n    def json(self) -> dict:\n        return self._payload\nclass _FakeStreamResponse:",
+        "detail": "services.api.tests.test_openai_compatible_provider",
+        "documentation": {}
+    },
+    {
+        "label": "_FakeStreamResponse",
+        "kind": 6,
+        "importPath": "services.api.tests.test_openai_compatible_provider",
+        "description": "services.api.tests.test_openai_compatible_provider",
+        "peekOfCode": "class _FakeStreamResponse:\n    def __init__(self, lines: list[str]) -> None:\n        self._lines = lines\n    def raise_for_status(self) -> None:\n        return None\n    async def __aenter__(self) -> _FakeStreamResponse:\n        return self\n    async def __aexit__(self, exc_type, exc, tb) -> None:\n        return None\n    async def aiter_lines(self):",
+        "detail": "services.api.tests.test_openai_compatible_provider",
+        "documentation": {}
+    },
+    {
+        "label": "_FakeAsyncClient",
+        "kind": 6,
+        "importPath": "services.api.tests.test_openai_compatible_provider",
+        "description": "services.api.tests.test_openai_compatible_provider",
+        "peekOfCode": "class _FakeAsyncClient:\n    def __init__(self, responses: list[_FakeResponse], stream_lines: list[str] | None = None) -> None:\n        self._responses = responses\n        self._stream_lines = stream_lines or []\n        self.calls: list[tuple[str, dict]] = []\n    async def __aenter__(self) -> _FakeAsyncClient:\n        return self\n    async def __aexit__(self, exc_type, exc, tb) -> None:\n        return None\n    async def post(self, path: str, json: dict) -> _FakeResponse:",
+        "detail": "services.api.tests.test_openai_compatible_provider",
+        "documentation": {}
+    },
+    {
+        "label": "clear_provider_caches",
+        "kind": 2,
+        "importPath": "services.api.tests.test_provider_selection",
+        "description": "services.api.tests.test_provider_selection",
+        "peekOfCode": "def clear_provider_caches() -> None:\n    get_llm_provider.cache_clear()\n    get_embedding_provider.cache_clear()\n    yield\n    get_llm_provider.cache_clear()\n    get_embedding_provider.cache_clear()\ndef test_provider_selection_defaults_to_ollama(monkeypatch) -> None:\n    monkeypatch.setattr(settings, \"llm_provider_kind\", \"ollama\")\n    monkeypatch.setattr(settings, \"embedding_provider_kind\", \"ollama\")\n    assert isinstance(get_llm_provider(), OllamaLLMProvider)",
+        "detail": "services.api.tests.test_provider_selection",
+        "documentation": {}
+    },
+    {
+        "label": "test_provider_selection_defaults_to_ollama",
+        "kind": 2,
+        "importPath": "services.api.tests.test_provider_selection",
+        "description": "services.api.tests.test_provider_selection",
+        "peekOfCode": "def test_provider_selection_defaults_to_ollama(monkeypatch) -> None:\n    monkeypatch.setattr(settings, \"llm_provider_kind\", \"ollama\")\n    monkeypatch.setattr(settings, \"embedding_provider_kind\", \"ollama\")\n    assert isinstance(get_llm_provider(), OllamaLLMProvider)\n    assert isinstance(get_embedding_provider(), OllamaEmbeddingProvider)\ndef test_provider_selection_can_switch_to_openai_compatible(monkeypatch) -> None:\n    monkeypatch.setattr(settings, \"llm_provider_kind\", \"openai_compatible\")\n    monkeypatch.setattr(settings, \"embedding_provider_kind\", \"openai_compatible\")\n    assert isinstance(get_llm_provider(), OpenAICompatibleLLMProvider)\n    assert isinstance(get_embedding_provider(), OpenAICompatibleEmbeddingProvider)",
+        "detail": "services.api.tests.test_provider_selection",
+        "documentation": {}
+    },
+    {
+        "label": "test_provider_selection_can_switch_to_openai_compatible",
+        "kind": 2,
+        "importPath": "services.api.tests.test_provider_selection",
+        "description": "services.api.tests.test_provider_selection",
+        "peekOfCode": "def test_provider_selection_can_switch_to_openai_compatible(monkeypatch) -> None:\n    monkeypatch.setattr(settings, \"llm_provider_kind\", \"openai_compatible\")\n    monkeypatch.setattr(settings, \"embedding_provider_kind\", \"openai_compatible\")\n    assert isinstance(get_llm_provider(), OpenAICompatibleLLMProvider)\n    assert isinstance(get_embedding_provider(), OpenAICompatibleEmbeddingProvider)",
+        "detail": "services.api.tests.test_provider_selection",
+        "documentation": {}
+    },
+    {
         "label": "test_search_chunk_vectors_uses_query_points",
         "kind": 2,
         "importPath": "services.api.tests.test_qdrant_provider",
         "description": "services.api.tests.test_qdrant_provider",
         "peekOfCode": "def test_search_chunk_vectors_uses_query_points(monkeypatch) -> None:\n    tenant_id = uuid4()\n    captured: dict[str, object] = {}\n    class FakeClient:\n        def query_points(self, **kwargs):\n            captured.update(kwargs)\n            return SimpleNamespace(\n                points=[\n                    SimpleNamespace(\n                        id=\"chunk-1\",",
         "detail": "services.api.tests.test_qdrant_provider",
+        "documentation": {}
+    },
+    {
+        "label": "test_extract_rank_terms_deduplicates_and_skips_stopwords",
+        "kind": 2,
+        "importPath": "services.api.tests.test_rag_ranking",
+        "description": "services.api.tests.test_rag_ranking",
+        "peekOfCode": "def test_extract_rank_terms_deduplicates_and_skips_stopwords() -> None:\n    terms = extract_rank_terms(\"What documents explain cotisations et reglement interieur?\")\n    assert \"what\" not in terms\n    assert \"documents\" not in terms\n    assert \"cotisations\" in terms\n    assert \"reglement\" in terms\ndef test_compute_keyword_overlap_ratio_rewards_matching_terms() -> None:\n    score = compute_keyword_overlap_ratio(\n        query=\"cotisations reglement interieur\",\n        content=\"Le reglement interieur explique les cotisations annuelles.\",",
+        "detail": "services.api.tests.test_rag_ranking",
+        "documentation": {}
+    },
+    {
+        "label": "test_compute_keyword_overlap_ratio_rewards_matching_terms",
+        "kind": 2,
+        "importPath": "services.api.tests.test_rag_ranking",
+        "description": "services.api.tests.test_rag_ranking",
+        "peekOfCode": "def test_compute_keyword_overlap_ratio_rewards_matching_terms() -> None:\n    score = compute_keyword_overlap_ratio(\n        query=\"cotisations reglement interieur\",\n        content=\"Le reglement interieur explique les cotisations annuelles.\",\n    )\n    assert score > 0.6\ndef test_compute_keyword_overlap_ratio_returns_zero_without_terms() -> None:\n    score = compute_keyword_overlap_ratio(\n        query=\"the and for\",\n        content=\"General policy text without useful overlap.\",",
+        "detail": "services.api.tests.test_rag_ranking",
+        "documentation": {}
+    },
+    {
+        "label": "test_compute_keyword_overlap_ratio_returns_zero_without_terms",
+        "kind": 2,
+        "importPath": "services.api.tests.test_rag_ranking",
+        "description": "services.api.tests.test_rag_ranking",
+        "peekOfCode": "def test_compute_keyword_overlap_ratio_returns_zero_without_terms() -> None:\n    score = compute_keyword_overlap_ratio(\n        query=\"the and for\",\n        content=\"General policy text without useful overlap.\",\n    )\n    assert score == 0.0",
+        "detail": "services.api.tests.test_rag_ranking",
         "documentation": {}
     },
     {
