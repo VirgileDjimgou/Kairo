@@ -209,6 +209,20 @@
                   <span class="fw-medium text-end">{{ formatReconciliation(entry.reconciliation_status) }}</span>
                 </div>
                 <p class="small text-muted mb-2">{{ entry.message }}</p>
+                <div v-if="canPollEntry(entry)" class="mb-2">
+                  <button
+                    class="btn btn-sm btn-outline-secondary"
+                    type="button"
+                    :disabled="pollingReference === entry.provider_reference"
+                    @click="handlePollEntry(entry)"
+                  >
+                    {{
+                      pollingReference === entry.provider_reference
+                        ? copy.pollingStatus
+                        : copy.pollStatus
+                    }}
+                  </button>
+                </div>
                 <div class="small text-muted">
                   {{
                     entry.provider_reference
@@ -230,6 +244,7 @@ import { computed, onMounted, ref } from 'vue'
 import {
   listNotificationChannels,
   listNotificationHistory,
+  pollNotificationReconciliation,
   sendNotificationDispatch,
   sendNotificationTest,
   type NotificationChannelResponse,
@@ -245,6 +260,7 @@ const channels = ref<NotificationChannelResponse[]>([])
 const history = ref<NotificationHistoryEntry[]>([])
 const selectedChannels = ref<string[]>(['email'])
 const selectedLiveChannel = ref('email')
+const pollingReference = ref<string | null>(null)
 const error = ref('')
 const actionError = ref('')
 const successMessage = ref('')
@@ -297,10 +313,14 @@ const copy = computed(() => {
       historyReconciliation: 'Reconciliation',
       historyProviderReference: 'Provider-Referenz',
       noProviderReference: 'Keine Provider-Referenz',
+      pollStatus: 'Status abfragen',
+      pollingStatus: 'Pruefung...',
       noResults: 'Noch keine auditierte Benachrichtigungshistorie.',
       loadError: 'Die Benachrichtigungskanaele konnten nicht geladen werden.',
       simulationSuccess: 'Der simulierte Versand wurde abgeschlossen.',
       liveSuccess: 'Die Live-Benachrichtigung wurde an den ausgewaehlten Kanal uebergeben.',
+      pollUpdatedSuccess: 'Die finale Zustellung wurde aus dem Provider-Status aktualisiert.',
+      pollPendingSuccess: 'Die Zustellung bleibt beim Provider noch ausstehend.',
       actionFallback: 'Die Benachrichtigungsaktion ist fehlgeschlagen.',
       actionDispatch: 'Live',
       actionTest: 'Test',
@@ -356,10 +376,14 @@ const copy = computed(() => {
       historyReconciliation: 'Reconciliation',
       historyProviderReference: 'Provider reference',
       noProviderReference: 'No provider reference',
+      pollStatus: 'Refresh status',
+      pollingStatus: 'Refreshing...',
       noResults: 'No audited notification history yet.',
       loadError: 'Could not load notification channels.',
       simulationSuccess: 'Simulated dispatch completed.',
       liveSuccess: 'Live notification accepted for the selected channel.',
+      pollUpdatedSuccess: 'The final delivery state was updated from the provider status.',
+      pollPendingSuccess: 'The provider still reports this delivery as pending.',
       actionFallback: 'Notification action failed.',
       actionDispatch: 'Live',
       actionTest: 'Test',
@@ -414,10 +438,14 @@ const copy = computed(() => {
     historyReconciliation: 'Réconciliation',
     historyProviderReference: 'Référence fournisseur',
     noProviderReference: 'Aucune référence fournisseur',
+    pollStatus: 'Rafraîchir le statut',
+    pollingStatus: 'Actualisation...',
     noResults: 'Aucune notification auditée pour le moment.',
     loadError: 'Impossible de charger les canaux de notification.',
     simulationSuccess: 'Le dispatch simulé est terminé.',
     liveSuccess: 'La notification réelle a été acceptée pour le canal sélectionné.',
+    pollUpdatedSuccess: 'L’état final a été mis à jour depuis le statut fournisseur.',
+    pollPendingSuccess: 'Le fournisseur indique encore une livraison en attente.',
     actionFallback: "L'action de notification a échoué.",
     actionDispatch: 'Réel',
     actionTest: 'Test',
@@ -476,6 +504,15 @@ function statusBadgeClass(entry: NotificationHistoryEntry) {
     return 'bg-success-subtle text-success border border-success-subtle'
   }
   return 'bg-danger-subtle text-danger border border-danger-subtle'
+}
+
+function canPollEntry(entry: NotificationHistoryEntry) {
+  return (
+    entry.action === 'notification_dispatch' &&
+    entry.reconciliation_status === 'pending' &&
+    entry.polling_supported &&
+    !!entry.provider_reference
+  )
 }
 
 async function refreshData() {
@@ -562,6 +599,26 @@ async function handleSendLiveDispatch() {
     setActionError(err)
   } finally {
     sendingLive.value = false
+  }
+}
+
+async function handlePollEntry(entry: NotificationHistoryEntry) {
+  if (!entry.provider_reference) return
+
+  pollingReference.value = entry.provider_reference
+  actionError.value = ''
+  successMessage.value = ''
+  try {
+    const result = await pollNotificationReconciliation({
+      channel: entry.channel,
+      provider_reference: entry.provider_reference,
+    })
+    await refreshData()
+    successMessage.value = result.updated ? copy.value.pollUpdatedSuccess : copy.value.pollPendingSuccess
+  } catch (err) {
+    setActionError(err)
+  } finally {
+    pollingReference.value = null
   }
 }
 

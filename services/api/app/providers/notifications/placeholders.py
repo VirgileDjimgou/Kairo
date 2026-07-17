@@ -10,6 +10,7 @@ import httpx
 from app.core.config import settings
 from app.providers.notifications.base import (
     NotificationChannelDescriptor,
+    NotificationDeliveryStatusResult,
     NotificationDispatchResult,
 )
 
@@ -31,6 +32,7 @@ class _PlaceholderNotificationProvider:
             configured=self._configured,
             simulation_only=True,
             target_hint=self.target_hint,
+            polling_supported=False,
         )
 
     async def send_message(
@@ -80,7 +82,18 @@ class _PlaceholderNotificationProvider:
             delivery_stage="simulated",
             reconciliation_status="not_applicable",
             reconciliation_supported=False,
+            polling_supported=False,
         )
+
+    async def fetch_delivery_status(
+        self,
+        *,
+        tenant_id,
+        actor_user_id,
+        recipient: str,
+        provider_reference: str,
+    ) -> NotificationDeliveryStatusResult | None:
+        return None
 
 
 class EmailNotificationProvider(_PlaceholderNotificationProvider):
@@ -103,6 +116,7 @@ class EmailNotificationProvider(_PlaceholderNotificationProvider):
             configured=True,
             simulation_only=False,
             target_hint=descriptor.target_hint,
+            polling_supported=False,
         )
 
     async def send_message(
@@ -146,6 +160,7 @@ class EmailNotificationProvider(_PlaceholderNotificationProvider):
             reconciliation_status="pending",
             reconciliation_supported=True,
             provider_reference=provider_reference,
+            polling_supported=False,
         )
 
     def _send_via_smtp(self, *, recipient: str, subject: str, body: str) -> str:
@@ -197,6 +212,7 @@ class TelegramNotificationProvider(_PlaceholderNotificationProvider):
             configured=True,
             simulation_only=False,
             target_hint=descriptor.target_hint,
+            polling_supported=False,
         )
 
     async def send_message(
@@ -239,6 +255,7 @@ class TelegramNotificationProvider(_PlaceholderNotificationProvider):
             reconciliation_status="pending",
             reconciliation_supported=True,
             provider_reference=provider_reference,
+            polling_supported=False,
         )
 
     async def _send_via_telegram(self, *, recipient: str, subject: str | None, body: str) -> str | None:
@@ -288,6 +305,7 @@ class WhatsAppNotificationProvider(_PlaceholderNotificationProvider):
             configured=True,
             simulation_only=False,
             target_hint=descriptor.target_hint,
+            polling_supported=True,
         )
 
     async def send_message(
@@ -330,6 +348,7 @@ class WhatsAppNotificationProvider(_PlaceholderNotificationProvider):
             reconciliation_status="pending",
             reconciliation_supported=True,
             provider_reference=provider_reference,
+            polling_supported=True,
         )
 
     async def _send_via_gateway(self, *, recipient: str, subject: str | None, body: str) -> str | None:
@@ -366,3 +385,72 @@ class WhatsAppNotificationProvider(_PlaceholderNotificationProvider):
                     if value is not None:
                         return str(value)
         return None
+
+    async def fetch_delivery_status(
+        self,
+        *,
+        tenant_id,
+        actor_user_id,
+        recipient: str,
+        provider_reference: str,
+    ) -> NotificationDeliveryStatusResult | None:
+        if not self._configured:
+            return None
+
+        base_url = (settings.whatsapp_api_base_url or "").rstrip("/")
+        if not base_url:
+            return None
+
+        async with httpx.AsyncClient(timeout=15) as client:
+            response = await client.get(
+                f"{base_url}/messages/{provider_reference}",
+                headers={
+                    "Authorization": f"Bearer {settings.whatsapp_api_token}",
+                    "Content-Type": "application/json",
+                },
+            )
+            response.raise_for_status()
+            payload = response.json() if response.headers.get("content-type", "").startswith("application/json") else {}
+
+        normalized = str(
+            payload.get("delivery_stage")
+            or payload.get("reconciliation_status")
+            or payload.get("status")
+            or payload.get("state")
+            or "pending"
+        ).lower()
+        message = str(
+            payload.get("provider_message")
+            or payload.get("message")
+            or payload.get("detail")
+            or "WhatsApp gateway reconciliation is still pending."
+        )
+
+        if normalized in {"delivered", "sent", "success"}:
+            return NotificationDeliveryStatusResult(
+                delivery_stage="delivered",
+                reconciliation_status="delivered",
+                delivered=True,
+                provider_message=message,
+                external_status=normalized,
+                terminal=True,
+            )
+
+        if normalized in {"failed", "error", "rejected", "undelivered"}:
+            return NotificationDeliveryStatusResult(
+                delivery_stage="failed",
+                reconciliation_status="failed",
+                delivered=False,
+                provider_message=message,
+                external_status=normalized,
+                terminal=True,
+            )
+
+        return NotificationDeliveryStatusResult(
+            delivery_stage="accepted",
+            reconciliation_status="pending",
+            delivered=False,
+            provider_message=message,
+            external_status=normalized,
+            terminal=False,
+        )

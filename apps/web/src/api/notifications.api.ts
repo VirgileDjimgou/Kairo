@@ -7,6 +7,7 @@ export interface NotificationChannelResponse {
   configured: boolean
   simulation_only: boolean
   target_hint: string
+  polling_supported: boolean
 }
 
 export interface NotificationDispatchResponse {
@@ -19,6 +20,7 @@ export interface NotificationDispatchResponse {
   reconciliation_status: string
   reconciliation_supported: boolean
   provider_reference?: string | null
+  polling_supported: boolean
 }
 
 export interface NotificationHistoryEntry {
@@ -34,7 +36,23 @@ export interface NotificationHistoryEntry {
   reconciliation_status: string
   reconciliation_supported: boolean
   provider_reference?: string | null
+  polling_supported: boolean
   created_at: string
+}
+
+export interface PollNotificationReconciliationPayload {
+  channel: string
+  provider_reference: string
+}
+
+export interface NotificationReconciliationPollResponse {
+  channel: string
+  provider_reference: string
+  delivery_stage: string
+  reconciliation_status: string
+  updated: boolean
+  provider_message: string
+  external_status?: string | null
 }
 
 export interface SendNotificationDispatchPayload {
@@ -76,5 +94,15 @@ export async function sendNotificationDispatch(
 
 export async function listNotificationHistory(): Promise<NotificationHistoryEntry[]> {
   const response = await http.get<NotificationHistoryEntry[]>('/notifications/history')
+  return response.data
+}
+
+export async function pollNotificationReconciliation(
+  payload: PollNotificationReconciliationPayload,
+): Promise<NotificationReconciliationPollResponse> {
+  const response = await http.post<NotificationReconciliationPollResponse>(
+    '/notifications/reconciliation/poll',
+    payload,
+  )
   return response.data
 }

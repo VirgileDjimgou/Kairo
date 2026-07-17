@@ -49,6 +49,9 @@ class _FakeSimulationProvider:
     async def send_test_message(self, **kwargs):
         return await self.send_message(**kwargs)
 
+    async def fetch_delivery_status(self, **kwargs):
+        return None
+
 
 @pytest.mark.asyncio
 async def test_telegram_provider_reports_live_when_token_is_configured(monkeypatch) -> None:
@@ -456,6 +459,194 @@ async def test_provider_callback_can_mark_live_notification_as_delivered(
     assert row["delivered"] is True
     assert row["provider_reference"] == "wa-live-ref"
     assert row["message"] == "Gateway confirmed final delivery."
+    assert row["polling_supported"] is True
+
+
+@pytest.mark.asyncio
+async def test_provider_callback_is_replay_safe_for_identical_final_state(
+    client: AsyncClient,
+    db_session: AsyncSession,
+    monkeypatch,
+) -> None:
+    from app.core.config import settings
+    from app.core.dependencies import get_notification_providers
+    from app.main import app
+
+    monkeypatch.setattr(settings, "notification_reconciliation_callback_token", "callback-secret")
+    ctx = await create_tenant_with_user(db_session, f"notif-callback-replay-{_uuid.uuid4().hex[:6]}")
+    token = await login(client, ctx["user"].email, ctx["password"], tenant_slug=ctx["tenant"].slug)
+    app.dependency_overrides[get_notification_providers] = lambda: [
+        FakeWhatsAppNotificationProvider(
+            configured=True,
+            status="sent",
+            delivered=True,
+            simulation_only=False,
+            provider_reference="wa-replay-ref",
+        )
+    ]
+
+    try:
+        dispatch = await client.post(
+            "/api/v1/notifications/dispatch",
+            headers={"Authorization": f"Bearer {token}"},
+            json={
+                "channel": "whatsapp",
+                "recipient": "+49123456789",
+                "subject": "Replay check",
+                "body": "Waiting for provider delivery confirmation.",
+            },
+        )
+        first_callback = await client.post(
+            "/api/v1/notifications/reconciliation/callback",
+            headers={"X-Kairo-Notification-Token": "callback-secret"},
+            json={
+                "tenant_id": str(ctx["tenant"].id),
+                "channel": "whatsapp",
+                "provider_reference": "wa-replay-ref",
+                "delivery_stage": "delivered",
+                "provider_message": "Gateway confirmed final delivery.",
+                "external_status": "delivered",
+            },
+        )
+        second_callback = await client.post(
+            "/api/v1/notifications/reconciliation/callback",
+            headers={"X-Kairo-Notification-Token": "callback-secret"},
+            json={
+                "tenant_id": str(ctx["tenant"].id),
+                "channel": "whatsapp",
+                "provider_reference": "wa-replay-ref",
+                "delivery_stage": "delivered",
+                "provider_message": "Gateway confirmed final delivery.",
+                "external_status": "delivered",
+            },
+        )
+        history = await client.get(
+            "/api/v1/notifications/history",
+            headers={"Authorization": f"Bearer {token}"},
+        )
+    finally:
+        app.dependency_overrides.pop(get_notification_providers, None)
+
+    assert dispatch.status_code == 200, dispatch.text
+    assert first_callback.status_code == 200, first_callback.text
+    assert second_callback.status_code == 200, second_callback.text
+    assert second_callback.json()["updated"] is False
+    assert history.status_code == 200, history.text
+    rows = history.json()
+    assert len(rows) == 1
+    assert rows[0]["delivery_stage"] == "delivered"
+
+
+@pytest.mark.asyncio
+async def test_admin_can_poll_pending_whatsapp_notification_to_final_state(
+    client: AsyncClient,
+    db_session: AsyncSession,
+) -> None:
+    from app.core.dependencies import get_notification_providers
+    from app.main import app
+    from app.providers.notifications.base import NotificationDeliveryStatusResult
+
+    ctx = await create_tenant_with_user(db_session, f"notif-poll-{_uuid.uuid4().hex[:6]}")
+    token = await login(client, ctx["user"].email, ctx["password"], tenant_slug=ctx["tenant"].slug)
+    provider = FakeWhatsAppNotificationProvider(
+        configured=True,
+        status="sent",
+        delivered=True,
+        simulation_only=False,
+        provider_reference="wa-poll-ref",
+        polled_result=NotificationDeliveryStatusResult(
+            delivery_stage="delivered",
+            reconciliation_status="delivered",
+            delivered=True,
+            provider_message="Gateway poll confirmed final delivery.",
+            external_status="delivered",
+            terminal=True,
+        ),
+    )
+    app.dependency_overrides[get_notification_providers] = lambda: [provider]
+
+    try:
+        dispatch = await client.post(
+            "/api/v1/notifications/dispatch",
+            headers={"Authorization": f"Bearer {token}"},
+            json={
+                "channel": "whatsapp",
+                "recipient": "+49123456789",
+                "subject": "Polling check",
+                "body": "Pending provider status.",
+            },
+        )
+        polled = await client.post(
+            "/api/v1/notifications/reconciliation/poll",
+            headers={"Authorization": f"Bearer {token}"},
+            json={
+                "channel": "whatsapp",
+                "provider_reference": "wa-poll-ref",
+            },
+        )
+        history = await client.get(
+            "/api/v1/notifications/history",
+            headers={"Authorization": f"Bearer {token}"},
+        )
+    finally:
+        app.dependency_overrides.pop(get_notification_providers, None)
+
+    assert dispatch.status_code == 200, dispatch.text
+    assert polled.status_code == 200, polled.text
+    assert polled.json()["updated"] is True
+    assert provider.polled_references == ["wa-poll-ref"]
+    assert history.status_code == 200, history.text
+    row = history.json()[0]
+    assert row["delivery_stage"] == "delivered"
+    assert row["message"] == "Gateway poll confirmed final delivery."
+    assert row["polling_supported"] is True
+
+
+@pytest.mark.asyncio
+async def test_poll_rejects_channel_without_polling_support(
+    client: AsyncClient,
+    db_session: AsyncSession,
+) -> None:
+    from app.core.dependencies import get_notification_providers
+    from app.main import app
+
+    ctx = await create_tenant_with_user(db_session, f"notif-poll-lock-{_uuid.uuid4().hex[:6]}")
+    token = await login(client, ctx["user"].email, ctx["password"], tenant_slug=ctx["tenant"].slug)
+    app.dependency_overrides[get_notification_providers] = lambda: [
+        FakeEmailNotificationProvider(
+            configured=True,
+            status="sent",
+            delivered=True,
+            simulation_only=False,
+            provider_reference="email-poll-ref",
+        )
+    ]
+
+    try:
+        dispatch = await client.post(
+            "/api/v1/notifications/dispatch",
+            headers={"Authorization": f"Bearer {token}"},
+            json={
+                "channel": "email",
+                "recipient": "ops@example.org",
+                "subject": "Polling unsupported",
+                "body": "Email polling should stay unsupported in this sprint.",
+            },
+        )
+        polled = await client.post(
+            "/api/v1/notifications/reconciliation/poll",
+            headers={"Authorization": f"Bearer {token}"},
+            json={
+                "channel": "email",
+                "provider_reference": "email-poll-ref",
+            },
+        )
+    finally:
+        app.dependency_overrides.pop(get_notification_providers, None)
+
+    assert dispatch.status_code == 200, dispatch.text
+    assert polled.status_code == 400
+    assert "does not support reconciliation polling" in polled.json()["detail"]
 
 
 @pytest.mark.asyncio

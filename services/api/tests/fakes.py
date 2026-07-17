@@ -7,6 +7,7 @@ from uuid import UUID
 
 from app.providers.notifications.base import (
     NotificationChannelDescriptor,
+    NotificationDeliveryStatusResult,
     NotificationDispatchResult,
 )
 
@@ -131,6 +132,7 @@ class FakeEmailNotificationProvider:
             configured=self._configured,
             simulation_only=self._simulation_only,
             target_hint="Email address",
+            polling_supported=False,
         )
 
     async def send_message(
@@ -163,6 +165,7 @@ class FakeEmailNotificationProvider:
             else ("pending" if self._delivered else "failed"),
             reconciliation_supported=not self._simulation_only,
             provider_reference=None if self._simulation_only else self._provider_reference,
+            polling_supported=False,
         )
 
     async def send_test_message(
@@ -212,6 +215,7 @@ class FakeTelegramNotificationProvider:
             configured=self._configured,
             simulation_only=self._simulation_only,
             target_hint="Telegram chat ID or @channel username",
+            polling_supported=False,
         )
 
     async def send_message(
@@ -244,6 +248,7 @@ class FakeTelegramNotificationProvider:
             else ("pending" if self._delivered else "failed"),
             reconciliation_supported=not self._simulation_only,
             provider_reference=None if self._simulation_only else self._provider_reference,
+            polling_supported=False,
         )
 
     async def send_test_message(
@@ -262,6 +267,16 @@ class FakeTelegramNotificationProvider:
             subject=subject,
             body=body,
         )
+
+    async def fetch_delivery_status(
+        self,
+        *,
+        tenant_id: UUID,
+        actor_user_id: UUID | None,
+        recipient: str,
+        provider_reference: str,
+    ) -> NotificationDeliveryStatusResult | None:
+        return None
 
 
 class FakeWhatsAppNotificationProvider:
@@ -276,6 +291,7 @@ class FakeWhatsAppNotificationProvider:
         delivered: bool = True,
         message: str = "WhatsApp accepted by fake provider.",
         provider_reference: str | None = "fake-whatsapp-ref",
+        polled_result: NotificationDeliveryStatusResult | None = None,
     ) -> None:
         self._configured = configured
         self._status = status
@@ -283,7 +299,9 @@ class FakeWhatsAppNotificationProvider:
         self._delivered = delivered
         self._message = message
         self._provider_reference = provider_reference
+        self._polled_result = polled_result
         self.calls: list[dict[str, Any]] = []
+        self.polled_references: list[str] = []
 
     def describe(self) -> NotificationChannelDescriptor:
         return NotificationChannelDescriptor(
@@ -293,6 +311,7 @@ class FakeWhatsAppNotificationProvider:
             configured=self._configured,
             simulation_only=self._simulation_only,
             target_hint="Phone number or WhatsApp target",
+            polling_supported=self._configured and not self._simulation_only,
         )
 
     async def send_message(
@@ -325,6 +344,7 @@ class FakeWhatsAppNotificationProvider:
             else ("pending" if self._delivered else "failed"),
             reconciliation_supported=not self._simulation_only,
             provider_reference=None if self._simulation_only else self._provider_reference,
+            polling_supported=self._configured and not self._simulation_only,
         )
 
     async def send_test_message(
@@ -343,3 +363,14 @@ class FakeWhatsAppNotificationProvider:
             subject=subject,
             body=body,
         )
+
+    async def fetch_delivery_status(
+        self,
+        *,
+        tenant_id: UUID,
+        actor_user_id: UUID | None,
+        recipient: str,
+        provider_reference: str,
+    ) -> NotificationDeliveryStatusResult | None:
+        self.polled_references.append(provider_reference)
+        return self._polled_result
