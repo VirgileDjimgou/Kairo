@@ -211,14 +211,14 @@
           </div>
         </div>
 
-        <div class="card shadow-sm border-0">
+        <div class="card shadow-sm border-0" data-testid="dashboard-quick-actions">
           <div class="card-body p-4">
             <div class="text-uppercase small fw-semibold text-secondary mb-2">
               {{ copy.quickActions }}
             </div>
             <div class="vstack gap-2">
               <RouterLink
-                v-for="action in quickActions"
+                v-for="action in filteredQuickActions"
                 :key="action.to + action.label"
                 :to="action.to"
                 class="btn btn-outline-secondary text-start"
@@ -269,6 +269,18 @@ const isPresidentRole = computed(() => userRoles.value.includes('president'))
 const isVicePresidentRole = computed(() => userRoles.value.includes('vice_president'))
 const isAuditor = computed(() => userRoles.value.includes('auditor'))
 const isPresident = computed(() => userRoles.value.includes('president'))
+const canOpenHealthCenter = computed(
+  () =>
+    isAuditor.value ||
+    isPresidentRole.value ||
+    isVicePresidentRole.value ||
+    isSecretaryGeneral.value ||
+    isTreasurer.value ||
+    isCensor.value ||
+    isSportsManager.value ||
+    isPrincipalAdmin.value ||
+    isAdmin.value,
+)
 const {
   loading,
   error,
@@ -325,7 +337,7 @@ const workspaceFocus = computed<WorkspaceFocus>(() => {
       primary: { label: localeStore.currentLocale === 'en' ? 'Go to finance workspace' : localeStore.currentLocale === 'de' ? 'Finanzbereich öffnen' : "Ouvrir l'espace finances", to: '/finance' },
       links: [
         { label: localeStore.currentLocale === 'en' ? 'Review member profile' : localeStore.currentLocale === 'de' ? 'Mitgliedsprofil prüfen' : 'Consulter le profil membre', to: '/members/profile' },
-        { label: localeStore.currentLocale === 'en' ? 'Open finance audit' : localeStore.currentLocale === 'de' ? 'Finanzaudit öffnen' : "Ouvrir l'audit financier", to: '/finance-audit' },
+        { label: localeStore.currentLocale === 'en' ? 'Open health center' : localeStore.currentLocale === 'de' ? 'Health Center öffnen' : 'Ouvrir le centre de santé', to: '/admin/health' },
       ],
     }
   }
@@ -343,7 +355,12 @@ const workspaceFocus = computed<WorkspaceFocus>(() => {
       primary: { label: localeStore.currentLocale === 'en' ? 'Open secretary workspace' : localeStore.currentLocale === 'de' ? 'Sekretariatsbereich öffnen' : "Ouvrir l'espace secrétariat", to: '/secretary' },
       links: [
         { label: localeStore.currentLocale === 'en' ? 'Review documents' : localeStore.currentLocale === 'de' ? 'Dokumente prüfen' : 'Consulter les documents', to: '/secretary/documents' },
-        { label: localeStore.currentLocale === 'en' ? 'Review policies' : localeStore.currentLocale === 'de' ? 'Regeln prüfen' : 'Consulter les règlements', to: '/secretary/policies' },
+        ...(tenantStore.isModuleEnabled('policies')
+          ? [{ label: localeStore.currentLocale === 'en' ? 'Review policies' : localeStore.currentLocale === 'de' ? 'Regeln prüfen' : 'Consulter les règlements', to: '/secretary/policies' }]
+          : []),
+        ...(tenantStore.isModuleEnabled('announcements')
+          ? [{ label: localeStore.currentLocale === 'en' ? 'Review announcements' : localeStore.currentLocale === 'de' ? 'Ankuendigungen prüfen' : 'Consulter les annonces', to: '/secretary/announcements' }]
+          : []),
       ],
     }
   }
@@ -360,8 +377,8 @@ const workspaceFocus = computed<WorkspaceFocus>(() => {
             : "Contrôlez les synthèses financières et les enregistrements prêts pour l'audit sans droits d'écriture.",
       primary: { label: localeStore.currentLocale === 'en' ? 'Open finance audit' : localeStore.currentLocale === 'de' ? 'Finanzaudit öffnen' : "Ouvrir l'audit financier", to: '/finance-audit' },
       links: [
-        { label: localeStore.currentLocale === 'en' ? 'Review member directory' : localeStore.currentLocale === 'de' ? 'Mitgliederverzeichnis prüfen' : 'Consulter le répertoire membres', to: '/members/profile' },
-        { label: localeStore.currentLocale === 'en' ? 'Review finance workspace' : localeStore.currentLocale === 'de' ? 'Finanzbereich prüfen' : "Consulter l'espace finances", to: '/finance' },
+        { label: localeStore.currentLocale === 'en' ? 'Review policies' : localeStore.currentLocale === 'de' ? 'Regeln prüfen' : 'Consulter les règlements', to: '/policies' },
+        { label: localeStore.currentLocale === 'en' ? 'Open health center' : localeStore.currentLocale === 'de' ? 'Health Center öffnen' : 'Ouvrir le centre de santé', to: '/admin/health' },
       ],
     }
   }
@@ -476,24 +493,17 @@ const quickActions = computed(() => {
     if (tenantStore.isModuleEnabled('policies')) {
       actions.push({ label: localeStore.currentLocale === 'en' ? 'Review policies' : localeStore.currentLocale === 'de' ? 'Regeln prüfen' : 'Consulter les règlements', to: '/secretary/policies', icon: 'bi bi-journal-text' })
     }
-  } else if (isAuditor.value || isPresident.value || isPrincipalAdmin.value) {
+    if (tenantStore.isModuleEnabled('announcements')) {
+      actions.push({ label: localeStore.currentLocale === 'en' ? 'Review announcements' : localeStore.currentLocale === 'de' ? 'Ankuendigungen prüfen' : 'Consulter les annonces', to: '/secretary/announcements', icon: 'bi bi-megaphone' })
+    }
+  } else if (isAuditor.value || isPresident.value) {
     actions.push({ label: localeStore.currentLocale === 'en' ? 'Open finance audit' : localeStore.currentLocale === 'de' ? 'Finanzaudit öffnen' : "Ouvrir l'audit financier", to: '/finance-audit', icon: 'bi bi-clipboard-data' })
-    if (tenantStore.isModuleEnabled('membership')) {
-      actions.push({ label: localeStore.currentLocale === 'en' ? 'Review member directory' : localeStore.currentLocale === 'de' ? 'Mitgliederverzeichnis prüfen' : 'Consulter le répertoire membres', to: '/members/profile', icon: 'bi bi-person-badge' })
+    if (tenantStore.isModuleEnabled('policies')) {
+      actions.push({ label: localeStore.currentLocale === 'en' ? 'Review policies' : localeStore.currentLocale === 'de' ? 'Regeln prüfen' : 'Consulter les règlements', to: '/policies', icon: 'bi bi-journal-text' })
     }
   }
 
-  if (
-    isAuditor.value ||
-    isPresidentRole.value ||
-    isVicePresidentRole.value ||
-    isSecretaryGeneral.value ||
-    isTreasurer.value ||
-    isCensor.value ||
-    isSportsManager.value ||
-    isPrincipalAdmin.value ||
-    isAdmin.value
-  ) {
+  if (canOpenHealthCenter.value) {
     actions.push({
       label: localeStore.currentLocale === 'en' ? 'Open health center' : localeStore.currentLocale === 'de' ? 'Health Center öffnen' : 'Ouvrir le centre de santé',
       to: '/admin/health',
@@ -544,6 +554,10 @@ const quickActions = computed(() => {
 
   return actions
 })
+
+const filteredQuickActions = computed(() =>
+  quickActions.value.filter((action, index, source) => source.findIndex((item) => item.to === action.to) === index),
+)
 
 const copy = computed(() => {
   if (localeStore.currentLocale === 'de') {

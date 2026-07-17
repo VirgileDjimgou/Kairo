@@ -1,5 +1,7 @@
 import { expect, test, type Page } from '@playwright/test'
 
+const quickActionsPattern = /Quick actions|Actions rapides|Schnellaktionen/
+
 const secretaryMeResponse = {
   id: 'user-secretary-1',
   email: 'secretary@demo.org',
@@ -33,7 +35,21 @@ const secretaryMeResponse = {
   ],
 }
 
-async function mockSecretaryWorkspace(page: Page) {
+const secretaryLimitedModulesResponse = {
+  ...secretaryMeResponse,
+  memberships: [
+    {
+      ...secretaryMeResponse.memberships[0],
+      modules: {
+        ...secretaryMeResponse.memberships[0].modules,
+        policies: false,
+        announcements: false,
+      },
+    },
+  ],
+}
+
+async function mockSecretaryWorkspace(page: Page, response = secretaryMeResponse) {
   await page.addInitScript(() => {
     window.localStorage.setItem('access_token', 'playwright-secretary-token')
   })
@@ -42,7 +58,7 @@ async function mockSecretaryWorkspace(page: Page) {
     await route.fulfill({
       status: 200,
       contentType: 'application/json',
-      body: JSON.stringify(secretaryMeResponse),
+      body: JSON.stringify(response),
     })
   })
 
@@ -118,11 +134,11 @@ test.describe('Secretary workspace', () => {
 
     await expect(page).toHaveURL(/\/secretary$/)
     await expect(page.getByTestId('secretary-overview')).toBeVisible()
-    await expect(page.getByText('Official records and communication workspace')).toBeVisible()
-    await expect(page.getByRole('link', { name: 'Open documents' })).toBeVisible()
-    await expect(page.getByRole('link', { name: 'Open announcements' })).toBeVisible()
-    await expect(page.getByRole('link', { name: 'Back to portal' })).toBeVisible()
-    await expect(page.getByTestId('secretary-boundaries')).toContainText('Contribution mutation and finance operations')
+    await expect(page.getByRole('heading', { name: /Official records and communication workspace|Espace des documents et de la communication officielle|Offizielle Dokumente und Kommunikationszentrale/ })).toBeVisible()
+    await expect(page.locator('a[href="/secretary/documents"]').first()).toBeVisible()
+    await expect(page.locator('a[href="/secretary/announcements"]').first()).toBeVisible()
+    await expect(page.locator('a[href="/dashboard"]').first()).toBeVisible()
+    await expect(page.getByTestId('secretary-boundaries')).toContainText(/Contribution mutation and finance operations|Mouvements de cotisations et opérations financières|Beitrags- und Finanzvorgaenge/)
   })
 
   test('secretary general cannot enter the finance workspace route', async ({ page }) => {
@@ -130,9 +146,23 @@ test.describe('Secretary workspace', () => {
     await page.goto('/finance')
 
     await expect(page).toHaveURL(/\/dashboard$/)
-    await expect(page.getByText('Quick actions')).toBeVisible()
-    await expect(page.getByTestId('dashboard-workspace-focus').getByRole('link', { name: 'Open secretary workspace' })).toHaveAttribute('href', '/secretary')
-    await expect(page.getByRole('link', { name: /Open secretary workspace/ })).toHaveCount(2)
-    await expect(page.getByRole('link', { name: 'Go to finance workspace' })).toHaveCount(0)
+    await expect(page.getByText(quickActionsPattern)).toBeVisible()
+    await expect(page.getByTestId('dashboard-workspace-focus').locator('a[href="/secretary"]').first()).toBeVisible()
+    await expect(page.locator('a[href="/secretary"]').first()).toBeVisible()
+    await expect(page.locator('a[href="/finance"]')).toHaveCount(0)
+  })
+
+  test('secretary workspace stays discoverable when policy and announcement modules are disabled', async ({ page }) => {
+    await mockSecretaryWorkspace(page, secretaryLimitedModulesResponse)
+    await page.goto('/dashboard')
+
+    await expect(page.getByTestId('dashboard-workspace-focus').locator('a[href="/secretary"]').first()).toBeVisible()
+    await expect(page.locator('a[href="/secretary"]').first()).toBeVisible()
+    await expect(page.locator('a[href="/secretary/policies"]')).toHaveCount(0)
+    await expect(page.locator('a[href="/secretary/announcements"]')).toHaveCount(0)
+
+    await page.goto('/secretary')
+    await expect(page).toHaveURL(/\/secretary$/)
+    await expect(page.getByTestId('secretary-overview')).toBeVisible()
   })
 })

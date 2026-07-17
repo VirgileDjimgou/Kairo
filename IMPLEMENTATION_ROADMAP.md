@@ -3574,7 +3574,7 @@ Completed implementation:
 
 ## Sprint 86 - Notification Reconciliation Operations And Stale-Delivery Triage Baseline
 
-Status: Planned
+Status: Completed
 
 Goal:
 Turn the new replay-safe and pollable reconciliation seam into a clearer operator workflow for stale pending or failed deliveries without widening the permission surface.
@@ -3590,6 +3590,63 @@ Deliverables:
 - clearer operator filters or summary cues for pending, delivered, and failed notification outcomes
 - safe retry or replay tooling for eligible failed deliveries, enforced entirely in the backend
 - additional regression coverage and continuity docs for operator triage flows
+
+Implemented:
+
+- Replaced the flat notification history payload with a backend-owned triage response that now returns filtered items plus summary counts for pending, delivered, failed, simulated, and stale-pending deliveries
+- Added backend stale-pending cues and retry eligibility markers per history entry without trusting the frontend to derive resend permissions
+- Added `POST /api/v1/notifications/retry` with strict backend rules: tenant-admin capability required, original dispatch must belong to the same tenant, the effective delivery state must be `failed`, the provider must still be live-capable, and each source provider reference can only be retried once
+- Kept retry-safe behavior internal to the backend by reading raw audit payload details server-side only, while the history endpoint continues to expose redacted operator-safe data
+- Extended notification audit evidence to keep `subject`, `body`, and retry lineage available for backend replay while preserving redaction on outward-facing audit reads
+- Updated the admin notifications workspace with triage summary cards, history filters, stale-only toggling, stale age warnings, and backend-authorized retry actions
+- Added backend regression coverage for failed-history filtering, retry eligibility, retry execution, and duplicate retry rejection
+- Verified: `python -m pytest services/api/tests/test_notifications.py -q` (23 passed), `npm run type-check`, and `npm run build`
+
+## Sprint 87 - Frontend Role Parity And Workspace Entry Contract
+
+Status: Completed
+
+Goal:
+Align the main frontend workspace-entry surfaces with the backend capability and route contract already in place, while keeping ordinary members read-first and never advertising unauthorized routes.
+
+Why this sprint next:
+
+- Sprint 86 completed the notifications operator triage loop, so the next highest-value maturity gap was no longer backend transport but frontend role clarity.
+- The product already had stronger backend role enforcement plus dedicated workspaces, but some dashboard and discoverability links still exposed misleading paths for certain office roles.
+- This is a bounded, testable slice that improves product maturity without widening permissions or changing tenant data contracts.
+
+Implemented:
+
+- Updated the role-navigation contract so the secretary workspace remains visible whenever the role can truly access it, even if optional `policies` or `announcements` modules are disabled
+- Corrected dashboard workspace-focus links for treasurer and auditor sessions so they point only to routes the backend/frontend contract actually permits
+- Removed misleading auditor shortcuts toward finance mutation surfaces and replaced them with valid read-only oversight links
+- Kept member and office-role journeys compact by deduplicating dashboard quick actions and adding a stable `dashboard-quick-actions` test hook for browser validation
+- Added Playwright regression coverage for auditor parity and for secretary discoverability when optional content modules are disabled
+- Verified: `npm run test:e2e -- e2e/dashboard.spec.ts e2e/secretary-workspace.spec.ts` (11 passed), `npm run type-check`, and `npm run build`
+
+## Sprint 88 - Chat Authorization Surface And Domain Guard Expansion
+
+Status: Completed
+
+Goal:
+Broaden role-aware chatbot coverage only where the backend can guarantee safe structured access boundaries.
+
+Why this sprint next:
+
+- Sprint 87 corrected workspace-entry parity, but the chatbot surface could still drift from backend-owned domain and tenant-module rules.
+- This was the smallest coherent security-focused increment to keep role-aware assistant affordances aligned with real authorization and module availability.
+- The sprint stays intentionally bounded inside chat policy, chat UI suggestion parity, and targeted regressions.
+
+Implemented:
+
+- Added a centralized backend chat domain-policy contract under `services/api/app/modules/chat/domain_policy.py` for member finance, tenant finance, governance, publication, disciplinary, and sports domains
+- Added `GET /api/v1/chat/domain-policy` so the frontend can consume a backend-owned allowed-domain list instead of inferring assistant scope from roles alone
+- Updated chat structured-context assembly so publication, sports, governance, disciplinary, personal-finance, and tenant-finance prompts are all checked against the centralized domain policy before any protected data reaches prompt assembly
+- Extended tenant module-toggle parsing so chat policy evaluation works safely whether `settings_json` is currently loaded as serialized text or an already-decoded object
+- Updated the chat view suggestion surface to follow the backend policy contract and stop advertising prompts for domains disabled by role or tenant module configuration
+- Added regression coverage for hidden publication domains, publication refusal, sports refusal, and tenant-finance stream refusal when the corresponding tenant modules are disabled
+- Tightened French publication-intent detection so explicit requests for official publication context now map to the domain-specific refusal path instead of falling through to a generic no-source answer
+- Verified: `python -m pytest services/api/tests/test_chat.py -q` (20 passed), `npm run type-check`, and `npm run build`
 
 ## Roadmap Status
 
@@ -3613,13 +3670,13 @@ Sprint 68 is now complete.
 
 Sprint 69 is now complete.
 
-Sprint 72, Sprint 73, Sprint 74, Sprint 75, Sprint 76, Sprint 77, Sprint 78, Sprint 79, Sprint 80, Sprint 81, Sprint 82, Sprint 83, Sprint 84, and Sprint 85 are now complete. Sprint 72 and Sprint 73 closed the stabilization and open-source maturity track; Sprint 74 through Sprint 78 completed the broader recovery UX rollout, Sprint 79 started the next theme by making the notifications module partially real through SMTP-backed email dispatch, Sprint 80 packaged the existing observability signals into a reusable operator monitoring baseline, Sprint 81 added Telegram as a second real operator-usable notification channel, Sprint 82 added a gateway-backed WhatsApp live path, Sprint 83 added the acceptance-level reconciliation and audit baseline, Sprint 84 added a secure provider callback seam with final-state history merging for the live multi-channel notification surface, and Sprint 85 added replay-safe reconciliation updates plus a backend-owned polling fallback for pending deliveries.
+Sprint 72, Sprint 73, Sprint 74, Sprint 75, Sprint 76, Sprint 77, Sprint 78, Sprint 79, Sprint 80, Sprint 81, Sprint 82, Sprint 83, Sprint 84, Sprint 85, Sprint 86, Sprint 87, and Sprint 88 are now complete. Sprint 72 and Sprint 73 closed the stabilization and open-source maturity track; Sprint 74 through Sprint 78 completed the broader recovery UX rollout, Sprint 79 started the next theme by making the notifications module partially real through SMTP-backed email dispatch, Sprint 80 packaged the existing observability signals into a reusable operator monitoring baseline, Sprint 81 added Telegram as a second real operator-usable notification channel, Sprint 82 added a gateway-backed WhatsApp live path, Sprint 83 added the acceptance-level reconciliation and audit baseline, Sprint 84 added a secure provider callback seam with final-state history merging for the live multi-channel notification surface, Sprint 85 added replay-safe reconciliation updates plus a backend-owned polling fallback for pending deliveries, Sprint 86 turned that baseline into an operator triage and retry workflow with backend-enforced filtering and resend eligibility, Sprint 87 aligned frontend workspace discoverability with the backend role contract for the current association-role track, and Sprint 88 aligned chat assistant affordances and structured-context guards with backend-owned domain and tenant-module policy contracts.
 
 Execution window:
 
-- Sprint 72 through Sprint 85.
+- Sprint 72 through Sprint 88.
 
-Estimated additional sprints required from the current state: 0 for the stabilization track; the new planning cycle now moves from recovery UX and live notification channels to operator triage and retry maturity on top of the replay-safe, pollable reconciliation baseline.
+Estimated additional sprints required from the current state: 0 for the stabilization track; the new planning cycle now moves from chat authorization-surface parity to broader quality-gate expansion and CI hardening.
 
 Validation after this track should cover:
 

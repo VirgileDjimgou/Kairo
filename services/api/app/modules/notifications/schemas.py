@@ -58,7 +58,26 @@ class NotificationHistoryEntry(BaseModel):
     reconciliation_supported: bool
     provider_reference: str | None = None
     polling_supported: bool = False
+    retry_supported: bool = False
+    retry_eligible: bool = False
+    retry_source_provider_reference: str | None = None
+    stale_pending: bool = False
+    stale_minutes: int | None = None
     created_at: datetime
+
+
+class NotificationHistorySummary(BaseModel):
+    total: int
+    pending: int
+    delivered: int
+    failed: int
+    simulated: int
+    stale_pending: int
+
+
+class NotificationHistoryResponse(BaseModel):
+    items: list[NotificationHistoryEntry]
+    summary: NotificationHistorySummary
 
 
 class NotificationReconciliationCallbackRequest(BaseModel):
@@ -91,6 +110,16 @@ class NotificationReconciliationPollResponse(BaseModel):
     updated: bool
     provider_message: str
     external_status: str | None = None
+
+
+class NotificationRetryRequest(BaseModel):
+    channel: str = Field(min_length=1, max_length=50)
+    provider_reference: str = Field(min_length=1, max_length=255)
+
+
+class NotificationRetryResponse(BaseModel):
+    source_provider_reference: str
+    dispatch: NotificationDispatchResponse
 
 
 class NotificationTestResponse(BaseModel):

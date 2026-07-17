@@ -4,15 +4,15 @@ Last updated: 2026-07-17
 
 ## Current Sprint
 
-Sprint 85 - Notification Reconciliation Polling And Replay-Safety Baseline
+Sprint 88 - Chat Authorization Surface And Domain Guard Expansion
 
 Status: Completed
 
 ## Official Next Sprint
 
-Sprint 86 - Notification Reconciliation Operations And Stale-Delivery Triage Baseline
+Sprint 89 - Quality Gate Expansion And CI Hardening
 
-Turn the now replay-safe and pollable reconciliation seam into a clearer operator workflow with better triage visibility for pending or failed deliveries, while keeping backend-owned authorization and tenant isolation intact.
+Broaden the automated non-regression baseline carefully so linting, typing, backend safety, and browser validation cover more of the mature association product without destabilizing delivery.
 
 Status: Planned
 
@@ -20,8 +20,8 @@ Status: Planned
 
 - Target outcome: a stable, professional, mature open-source association-management product with secure role-aware workspaces and a trustworthy chatbot
 - Intended operational scope: usable by an association or organization of about 200 members with differentiated office roles
-- Remaining planned execution window: 1
-- Delivery status: Sprint 73 (open-source maturity track) complete; Sprint 74 through Sprint 78 completed the currently identified broader recovery UX rollout across the role workspaces, Sprint 79 added the first real operator-usable notification path, Sprint 80 packaged the existing observability signals into a reusable monitoring baseline, Sprint 81 added Telegram as a second real operator-usable notification channel, Sprint 82 added a gateway-backed WhatsApp live path, Sprint 83 added audited delivery-stage evidence plus a tenant-scoped notification history baseline, Sprint 84 added a secure provider callback seam with final-state reconciliation updates, and Sprint 85 added replay-safe final-state handling plus a backend-owned polling fallback for pending live deliveries
+- Remaining planned execution window: 5
+- Delivery status: Sprint 73 (open-source maturity track) complete; Sprint 74 through Sprint 78 completed the currently identified broader recovery UX rollout across the role workspaces, Sprint 79 added the first real operator-usable notification path, Sprint 80 packaged the existing observability signals into a reusable monitoring baseline, Sprint 81 added Telegram as a second real operator-usable notification channel, Sprint 82 added a gateway-backed WhatsApp live path, Sprint 83 added audited delivery-stage evidence plus a tenant-scoped notification history baseline, Sprint 84 added a secure provider callback seam with final-state reconciliation updates, Sprint 85 added replay-safe final-state handling plus a backend-owned polling fallback for pending live deliveries, Sprint 86 added operator triage filters, stale-delivery cues, and backend-enforced safe retry flows, Sprint 87 aligned dashboard and workspace entry surfaces with the backend role model for secretary, treasurer, auditor, censor, sports, president, member, and principal-admin sessions, and Sprint 88 aligned chat suggestions plus structured domain guards with backend-owned capability and tenant-module policy contracts
 
 ## Source Of Truth
 
@@ -32,7 +32,7 @@ Status: Planned
 
 ## Professionalization Assessment
 
-- Estimated additional sprints required from the current state: 1
+- Estimated additional sprints required from the current state: 5
 - Current strengths:
   - multi-tenant auth and role resolution
   - secure document RAG with citations and prompt-injection defenses
@@ -40,9 +40,10 @@ Status: Planned
   - membership, contributions, events, announcements, disciplinary, audit, and onboarding foundations
   - dedicated secretary, treasurer, auditor, censor, sports, executive governance, and principal admin workspaces
   - role-specific navigation simplification for members and office roles, including member PDF statements
+  - backend-owned chat domain policy exposure that now keeps publication, sports, governance, disciplinary, personal finance, and tenant-finance assistant surfaces aligned with real tenant module availability
   - treasurer-safe reminder history and collections follow-up workflows tied directly to contribution records
   - autonomous test posture and role-aware dashboard, secretary, finance, sports, governance, and principal-admin improvements
-  - refined dashboard workspace focus cards that point each role to the right workspace immediately
+  - refined dashboard workspace focus cards that point each role to the right workspace immediately, with frontend-visible entry points now brought back into parity with actually allowed routes
   - dedicated admin health center that combines live dependency checks with tenant recovery evidence and now follows the shared recovery alert pattern
   - dedicated onboarding wizard that provides a concise first-run setup path and demo seed guidance and now follows the shared recovery alert pattern
   - tenant operations command center with explicit membership inventory, current-tenant posture, and confirmation-based tenant switching
@@ -50,6 +51,7 @@ Status: Planned
   - admin notification extensions console now distinguishes simulation from live delivery and can send a real SMTP-backed operator email, Telegram message, or gateway-backed WhatsApp message when configured
   - notification dispatch responses and the admin notification console now expose backend-owned delivery-stage evidence, reconciliation status, provider references when available, and a tenant-scoped audited history endpoint
   - the notification module now accepts backend-owned provider reconciliation callbacks through a shared-secret endpoint, correlates them to live dispatches by tenant and provider reference, and updates operator history toward final delivered or failed states
+  - the admin notifications workspace now exposes backend-owned triage summaries, filtered history, stale-pending cues, and safe retry actions for eligible failed deliveries only
   - release-candidate regression matrix, professional handoff checklist, and a reproducible role-and-tenant screenshot gallery
   - French-first interface foundation with persistent user language preference and English/German alternates
   - recovered validation baseline with root-level backend test execution, a portable Playwright browser pack, a scoped Ruff guardrail, and an operational initial Mypy target
@@ -70,7 +72,7 @@ Status: Planned
   - commercial offer pack, buyer FAQ, support-boundary guidance, and first-contact commercial reading order
   - post-Sprint-63 stabilization now keeps the login language choice across the authenticated session, extends chat finance/privacy guards to French and German phrasing, and includes refreshed role screenshots under `apps/web/artifacts/manual-role-checks/2026-07-07/`
 - Main gaps before the target product is mature:
-  - email, Telegram, and WhatsApp now expose replay-safe callback or polling-based reconciliation evidence, but operators still need a cleaner triage layer for stale pending and failed deliveries
+  - notification triage is now clearer, but the broader frontend role-entry contract still needs parity work so each role sees only the right primary workspaces and routes
   - chat orchestration is now safer to extend, but the newer seams still need broader rollout if we later split retrieval and policy evaluation further
   - backup, restore, and alert posture are now visible in-product through the new health center and settings surfaces
   - deployment packaging and commercial handoff are now documented, while archive-import validation evidence and any future positioning changes should be treated as a new planning cycle
@@ -79,7 +81,7 @@ Status: Planned
 
 - Kairo is usable as a controlled production release candidate for disciplined self-hosting or pilot deployments.
 - Kairo remains a strong association-focused pilot and disciplined self-hosted release candidate.
-- The next planned track remains focused on disciplined operator maturity inside the notifications surface before any broader feature expansion.
+- The next planned track moves from chat authorization-surface parity into broader automated quality-gate coverage.
 
 ## Completed
 
@@ -527,7 +529,7 @@ Status: Planned
 
 ## Known Risks
 
-- The backend capability layer is now wired into the major association modules, but frontend navigation and surfaces do not yet reflect the finer-grained role model.
+- The backend capability layer is now wired into the major association modules, and the main dashboard/workspace entry surfaces now reflect it more faithfully, but the chatbot authorization surface still needs the same rigor role by role.
 - The current chatbot is now stronger on structured member-finance boundaries, but broader role-aware coverage for other approved domains still needs work.
 - Dedicated workspaces for secretary general, auditor, censor, sports manager, president, vice president, and principal administrator are still roadmap work, not completed product surface.
 - `allowed_role_ids` naming still reflects the upload/API contract and should be revisited if we want UUID-backed role targeting later.

@@ -44,9 +44,7 @@ export function useRoleNavigation() {
   )
 
   const showSecretaryWorkspace = computed(() =>
-    (isSecretaryGeneral.value || isPrincipalAdmin.value) &&
-    tenantStore.isModuleEnabled('policies') &&
-    tenantStore.isModuleEnabled('announcements'),
+    isSecretaryGeneral.value || isPrincipalAdmin.value || isAdmin.value,
   )
 
   const showGovernanceCockpit = computed(() =>

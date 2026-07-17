@@ -27,6 +27,7 @@ from app.core.config import settings
 from app.core.privacy import preview_text
 from app.modules.announcements.repository import AnnouncementRepository
 from app.modules.chat.models import ChatQueryLog
+from app.modules.chat.domain_policy import ChatDomainPolicy, build_chat_domain_policy
 from app.modules.chat.payloads import (
     PreparedChatTurn,
     RetrievedChunk,
@@ -49,6 +50,7 @@ from app.modules.chat.schemas import (
     ChatCitationResponse,
     ChatConversationDetailResponse,
     ChatConversationResponse,
+    ChatDomainPolicyResponse,
     ChatMessageResponse,
     ChatQueryRequest,
     ChatQueryResponse,
@@ -63,6 +65,7 @@ from app.modules.policies.service import PolicyService
 from app.modules.rag.confidence import compute_confidence_score
 from app.modules.rag.ranking import compute_keyword_overlap_ratio
 from app.modules.rag.retrieval import build_access_policy
+from app.modules.tenancy.repository import TenancyRepository
 from app.providers.reranker.interface import RerankerProvider
 
 logger = structlog.get_logger(__name__)
@@ -219,6 +222,7 @@ _PUBLICATION_CONTEXT_PATTERNS = (
     r"\bwhat needs to be published\b",
     r"\bofficial notices\b",
     r"\bcontexte de publication\b",
+    r"\bcontexte officiel de publication\b",
     r"\bpublication officielle\b",
     r"\bquelles annonces sont actives\b",
     r"\bquels documents sont pr[êe]ts [àa] [êe]tre publi[ée]s\b",
@@ -278,6 +282,7 @@ class ChatService:
         self._disciplinary_repo = DisciplinaryRepository(db)
         self._event_repo = EventRepository(db)
         self._policy_service = PolicyService(db)
+        self._tenancy_repo = TenancyRepository(db)
         self._embedding = embedding_provider
         self._vector_store = vector_store_provider
         self._llm = llm_provider
@@ -338,6 +343,18 @@ class ChatService:
             response=response,
         )
         return response
+
+    async def get_domain_policy(
+        self,
+        *,
+        tenant_id: UUID,
+        roles: list[str],
+    ) -> ChatDomainPolicyResponse:
+        policy = await self._resolve_chat_domain_policy(
+            tenant_id=tenant_id,
+            capabilities=capabilities_for_roles(roles),
+        )
+        return ChatDomainPolicyResponse(allowed_domains=policy.allowed_domains())
 
     # --- Conversation CRUD ---
 
@@ -470,6 +487,7 @@ class ChatService:
         tenant_id: UUID,
         user_id: UUID,
         capabilities: tuple[str, ...],
+        domain_policy: ChatDomainPolicy,
         question: str,
         response_language: str,
     ) -> tuple[list[StructuredContext], str | None]:
@@ -480,7 +498,7 @@ class ChatService:
             return [], _message("other_member_finance_forbidden", response_language)
 
         if _question_mentions_personal_finance(normalized):
-            if CAP_FINANCE_SELF_READ not in capabilities:
+            if not domain_policy.member_finance:
                 return [], _message("personal_finance_forbidden", response_language)
             balance = await self._membership_service.get_my_balance(tenant_id, user_id)
             contexts.append(
@@ -499,7 +517,7 @@ class ChatService:
             )
 
         if _question_mentions_tenant_finance(normalized):
-            if not _can_view_tenant_finance(capabilities):
+            if not domain_policy.tenant_finance:
                 return [], _message("tenant_finance_forbidden", response_language)
             summary = await self._contribution_service.get_summary(tenant_id)
             contexts.append(
@@ -517,7 +535,7 @@ class ChatService:
 
         governance_context, refusal = await self._build_governance_summary_context(
             tenant_id=tenant_id,
-            capabilities=capabilities,
+            domain_policy=domain_policy,
             normalized_question=normalized,
             response_language=response_language,
         )
@@ -528,7 +546,7 @@ class ChatService:
 
         publication_context, refusal = await self._build_publication_context(
             tenant_id=tenant_id,
-            capabilities=capabilities,
+            domain_policy=domain_policy,
             normalized_question=normalized,
             response_language=response_language,
         )
@@ -539,7 +557,7 @@ class ChatService:
 
         disciplinary_context, refusal = await self._build_disciplinary_summary_context(
             tenant_id=tenant_id,
-            capabilities=capabilities,
+            domain_policy=domain_policy,
             normalized_question=normalized,
             response_language=response_language,
         )
@@ -550,7 +568,7 @@ class ChatService:
 
         sports_context, refusal = await self._build_sports_schedule_context(
             tenant_id=tenant_id,
-            capabilities=capabilities,
+            domain_policy=domain_policy,
             normalized_question=normalized,
             response_language=response_language,
         )
@@ -565,13 +583,13 @@ class ChatService:
         self,
         *,
         tenant_id: UUID,
-        capabilities: tuple[str, ...],
+        domain_policy: ChatDomainPolicy,
         normalized_question: str,
         response_language: str,
     ) -> tuple[StructuredContext | None, str | None]:
         if not _question_mentions_any(normalized_question, _GOVERNANCE_SUMMARY_PATTERNS):
             return None, None
-        if not _can_view_governance_summary(capabilities):
+        if not domain_policy.governance:
             return None, _message("governance_forbidden", response_language)
 
         documents = await self._repo.list_documents(tenant_id)
@@ -612,13 +630,13 @@ class ChatService:
         self,
         *,
         tenant_id: UUID,
-        capabilities: tuple[str, ...],
+        domain_policy: ChatDomainPolicy,
         normalized_question: str,
         response_language: str,
     ) -> tuple[StructuredContext | None, str | None]:
         if not _question_mentions_any(normalized_question, _PUBLICATION_CONTEXT_PATTERNS):
             return None, None
-        if not _can_view_publication_context(capabilities):
+        if not domain_policy.publication:
             return None, _message("publication_forbidden", response_language)
 
         policies = await self._policy_service.list_all(tenant_id)
@@ -659,13 +677,13 @@ class ChatService:
         self,
         *,
         tenant_id: UUID,
-        capabilities: tuple[str, ...],
+        domain_policy: ChatDomainPolicy,
         normalized_question: str,
         response_language: str,
     ) -> tuple[StructuredContext | None, str | None]:
         if not _question_mentions_any(normalized_question, _DISCIPLINARY_SUMMARY_PATTERNS):
             return None, None
-        if not _can_view_disciplinary_summary(capabilities):
+        if not domain_policy.disciplinary:
             return None, _message("disciplinary_forbidden", response_language)
 
         records = await self._disciplinary_repo.list_by_tenant(tenant_id)
@@ -694,13 +712,13 @@ class ChatService:
         self,
         *,
         tenant_id: UUID,
-        capabilities: tuple[str, ...],
+        domain_policy: ChatDomainPolicy,
         normalized_question: str,
         response_language: str,
     ) -> tuple[StructuredContext | None, str | None]:
         if not _question_mentions_any(normalized_question, _SPORTS_SCHEDULE_PATTERNS):
             return None, None
-        if not _can_view_sports_schedule(capabilities):
+        if not domain_policy.sports:
             return None, _message("sports_forbidden", response_language)
 
         events = await self._event_repo.list_by_tenant(tenant_id)
@@ -878,10 +896,15 @@ class ChatService:
     ) -> tuple[PreparedChatTurn | None, ChatQueryResponse | None]:
         capabilities = capabilities_for_roles(roles)
         response_language = self._normalize_response_language(request.response_language)
+        domain_policy = await self._resolve_chat_domain_policy(
+            tenant_id=tenant_id,
+            capabilities=capabilities,
+        )
         structured_contexts, policy_refusal = await self._build_structured_contexts(
             tenant_id=tenant_id,
             user_id=user_id,
             capabilities=capabilities,
+            domain_policy=domain_policy,
             question=request.question,
             response_language=response_language,
         )
@@ -942,6 +965,19 @@ class ChatService:
                 confidence=confidence,
             ),
             None,
+        )
+
+    async def _resolve_chat_domain_policy(
+        self,
+        *,
+        tenant_id: UUID,
+        capabilities: tuple[str, ...],
+    ) -> ChatDomainPolicy:
+        tenant = await self._tenancy_repo.get_tenant_by_id(tenant_id)
+        tenant_settings = tenant.settings_json if tenant else None
+        return build_chat_domain_policy(
+            capabilities=capabilities,
+            tenant_settings_json=tenant_settings,
         )
 
     async def _build_history_block(self, conversation_id: UUID | None) -> str:

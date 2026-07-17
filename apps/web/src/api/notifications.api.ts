@@ -37,7 +37,26 @@ export interface NotificationHistoryEntry {
   reconciliation_supported: boolean
   provider_reference?: string | null
   polling_supported: boolean
+  retry_supported: boolean
+  retry_eligible: boolean
+  retry_source_provider_reference?: string | null
+  stale_pending: boolean
+  stale_minutes?: number | null
   created_at: string
+}
+
+export interface NotificationHistorySummary {
+  total: number
+  pending: number
+  delivered: number
+  failed: number
+  simulated: number
+  stale_pending: number
+}
+
+export interface NotificationHistoryResponse {
+  items: NotificationHistoryEntry[]
+  summary: NotificationHistorySummary
 }
 
 export interface PollNotificationReconciliationPayload {
@@ -53,6 +72,16 @@ export interface NotificationReconciliationPollResponse {
   updated: boolean
   provider_message: string
   external_status?: string | null
+}
+
+export interface RetryNotificationPayload {
+  channel: string
+  provider_reference: string
+}
+
+export interface NotificationRetryResponse {
+  source_provider_reference: string
+  dispatch: NotificationDispatchResponse
 }
 
 export interface SendNotificationDispatchPayload {
@@ -92,8 +121,12 @@ export async function sendNotificationDispatch(
   return response.data
 }
 
-export async function listNotificationHistory(): Promise<NotificationHistoryEntry[]> {
-  const response = await http.get<NotificationHistoryEntry[]>('/notifications/history')
+export async function listNotificationHistory(params?: {
+  status?: 'all' | 'pending' | 'delivered' | 'failed' | 'simulated'
+  stale_only?: boolean
+  limit?: number
+}): Promise<NotificationHistoryResponse> {
+  const response = await http.get<NotificationHistoryResponse>('/notifications/history', { params })
   return response.data
 }
 
@@ -104,5 +137,12 @@ export async function pollNotificationReconciliation(
     '/notifications/reconciliation/poll',
     payload,
   )
+  return response.data
+}
+
+export async function retryNotificationDispatch(
+  payload: RetryNotificationPayload,
+): Promise<NotificationRetryResponse> {
+  const response = await http.post<NotificationRetryResponse>('/notifications/retry', payload)
   return response.data
 }

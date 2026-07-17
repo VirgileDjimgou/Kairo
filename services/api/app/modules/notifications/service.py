@@ -1,20 +1,27 @@
 from __future__ import annotations
 
 import json
+from datetime import UTC, datetime, timedelta
+from dataclasses import dataclass
 
 from fastapi import HTTPException, status
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from app.modules.audit.repository import AuditRepository
 from app.modules.audit.service import AuditService
 from app.modules.notifications.schemas import (
     NotificationChannelResponse,
     NotificationDispatchRequest,
     NotificationDispatchResponse,
     NotificationHistoryEntry,
+    NotificationHistoryResponse,
+    NotificationHistorySummary,
     NotificationReconciliationCallbackRequest,
     NotificationReconciliationCallbackResponse,
     NotificationReconciliationPollRequest,
     NotificationReconciliationPollResponse,
+    NotificationRetryRequest,
+    NotificationRetryResponse,
     NotificationTestRequest,
     NotificationTestResponse,
 )
@@ -26,7 +33,18 @@ from app.providers.notifications.base import (
 )
 
 
+@dataclass(slots=True)
+class _RawNotificationAuditEvent:
+    id: object
+    action: str
+    entity_id: str | None
+    details: dict[str, object]
+    created_at: datetime
+
+
 class NotificationService:
+    STALE_PENDING_AFTER = timedelta(minutes=30)
+
     def __init__(
         self,
         providers: list[NotificationProvider],
@@ -57,30 +75,55 @@ class NotificationService:
         *,
         tenant_id,
         limit: int = 20,
-    ) -> list[NotificationHistoryEntry]:
+        status_filter: str = "all",
+        stale_only: bool = False,
+    ) -> NotificationHistoryResponse:
         if self._audit is None:
-            return []
+            return NotificationHistoryResponse(
+                items=[],
+                summary=NotificationHistorySummary(
+                    total=0,
+                    pending=0,
+                    delivered=0,
+                    failed=0,
+                    simulated=0,
+                    stale_pending=0,
+                ),
+            )
 
         events = await self._audit.list_events(
             tenant_id,
-            limit=max(limit * 5, 100),
+            limit=max(limit * 10, 200),
             offset=0,
             module_key="notifications",
             entity_type="notification",
         )
         latest_reconciliation_by_key: dict[tuple[str, str], object] = {}
+        retried_provider_references: set[tuple[str, str]] = set()
         for event in events:
-            if event.action != "notification_reconciliation":
-                continue
-            provider_reference = event.details.get("provider_reference")
-            if not provider_reference:
-                continue
             channel = str(event.details.get("channel", event.entity_id or "unknown"))
-            latest_reconciliation_by_key.setdefault((channel, str(provider_reference)), event)
+            if event.action == "notification_reconciliation":
+                provider_reference = event.details.get("provider_reference")
+                if provider_reference:
+                    latest_reconciliation_by_key.setdefault((channel, str(provider_reference)), event)
+                continue
+            if event.action == "notification_retry":
+                source_provider_reference = event.details.get("source_provider_reference")
+                if source_provider_reference:
+                    retried_provider_references.add((channel, str(source_provider_reference)))
 
         history: list[NotificationHistoryEntry] = []
+        summary = NotificationHistorySummary(
+            total=0,
+            pending=0,
+            delivered=0,
+            failed=0,
+            simulated=0,
+            stale_pending=0,
+        )
+        now = datetime.now(UTC)
         for event in events:
-            if event.action not in {"notification_dispatch", "notification_test"}:
+            if event.action not in {"notification_dispatch", "notification_test", "notification_retry"}:
                 continue
 
             channel = str(event.details.get("channel", event.entity_id or "unknown"))
@@ -92,37 +135,72 @@ class NotificationService:
             details = dict(event.details)
             created_at = event.created_at
 
-            if event.action == "notification_dispatch" and provider_reference is not None:
+            if event.action in {"notification_dispatch", "notification_retry"} and provider_reference is not None:
                 reconciliation_event = latest_reconciliation_by_key.get((channel, provider_reference))
                 if reconciliation_event is not None:
                     details.update(reconciliation_event.details)
                     created_at = reconciliation_event.created_at
 
-            history.append(
-                NotificationHistoryEntry(
-                    id=event.id,
-                    action=event.action,
-                    channel=channel,
-                    recipient=str(details.get("recipient", "")),
-                    status=str(details.get("delivery_status", "unknown")),
-                    message=str(details.get("provider_message", "")),
-                    delivered=bool(details.get("delivered", False)),
-                    simulation_only=bool(details.get("simulation_only", False)),
-                    delivery_stage=str(details.get("delivery_stage", "simulated")),
-                    reconciliation_status=str(details.get("reconciliation_status", "not_applicable")),
-                    reconciliation_supported=bool(details.get("reconciliation_supported", False)),
-                    provider_reference=(
-                        str(details["provider_reference"])
-                        if details.get("provider_reference") is not None
-                        else None
-                    ),
-                    polling_supported=bool(details.get("polling_supported", False)),
-                    created_at=created_at,
-                )
+            effective_created_at = (
+                created_at.replace(tzinfo=UTC) if created_at.tzinfo is None else created_at.astimezone(UTC)
             )
+            stale_minutes: int | None = None
+            stale_pending = False
+            if str(details.get("reconciliation_status", "not_applicable")) == "pending":
+                delta = max(now - effective_created_at, timedelta())
+                stale_minutes = int(delta.total_seconds() // 60)
+                stale_pending = delta >= self.STALE_PENDING_AFTER
+
+            retry_supported = False
+            retry_eligible = False
+            retry_source_provider_reference = (
+                str(details["source_provider_reference"])
+                if details.get("source_provider_reference") is not None
+                else None
+            )
+            if event.action in {"notification_dispatch", "notification_retry"}:
+                retry_supported = provider_reference is not None and not bool(details.get("simulation_only", False))
+                retry_eligible = (
+                    retry_supported
+                    and str(details.get("delivery_stage", "unknown")) == "failed"
+                    and provider_reference is not None
+                    and (channel, provider_reference) not in retried_provider_references
+                    and isinstance(details.get("subject"), (str, type(None)))
+                    and isinstance(details.get("body"), str)
+                    and bool(details.get("recipient"))
+                )
+
+            entry = NotificationHistoryEntry(
+                id=event.id,
+                action=event.action,
+                channel=channel,
+                recipient=str(details.get("recipient", "")),
+                status=str(details.get("delivery_status", "unknown")),
+                message=str(details.get("provider_message", "")),
+                delivered=bool(details.get("delivered", False)),
+                simulation_only=bool(details.get("simulation_only", False)),
+                delivery_stage=str(details.get("delivery_stage", "simulated")),
+                reconciliation_status=str(details.get("reconciliation_status", "not_applicable")),
+                reconciliation_supported=bool(details.get("reconciliation_supported", False)),
+                provider_reference=provider_reference,
+                polling_supported=bool(details.get("polling_supported", False)),
+                retry_supported=retry_supported,
+                retry_eligible=retry_eligible,
+                retry_source_provider_reference=retry_source_provider_reference,
+                stale_pending=stale_pending,
+                stale_minutes=stale_minutes,
+                created_at=created_at,
+            )
+            self._increment_history_summary(summary, entry)
+            if not self._matches_history_filter(entry, status_filter):
+                continue
+            if stale_only and not entry.stale_pending:
+                continue
+
+            history.append(entry)
 
         history.sort(key=lambda item: item.created_at, reverse=True)
-        return history[:limit]
+        return NotificationHistoryResponse(items=history[:limit], summary=summary)
 
     async def record_provider_reconciliation(
         self,
@@ -269,6 +347,124 @@ class NotificationService:
             external_status=polled_status.external_status,
         )
 
+    async def retry_failed_dispatch(
+        self,
+        *,
+        tenant_id,
+        actor_user_id,
+        payload: NotificationRetryRequest,
+    ) -> NotificationRetryResponse:
+        if self._audit is None or self._db is None:
+            raise HTTPException(
+                status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
+                detail="Notification retry is unavailable",
+            )
+
+        await self._ensure_notifications_enabled(tenant_id)
+        provider = self._provider_map.get(payload.channel)
+        if provider is None:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail=f"Unknown notification channel: {payload.channel}",
+            )
+
+        descriptor = provider.describe()
+        if descriptor.simulation_only or not descriptor.configured:
+            raise HTTPException(
+                status_code=status.HTTP_409_CONFLICT,
+                detail=f"Notification channel '{payload.channel}' is not eligible for retry",
+            )
+
+        source_event = await self._find_live_dispatch_event(
+            tenant_id=tenant_id,
+            channel=payload.channel,
+            provider_reference=payload.provider_reference,
+        )
+        if source_event is None:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail="Matching notification dispatch not found for retry",
+            )
+
+        source_details = dict(source_event.details)
+        effective_details = dict(source_details)
+        reconciliation_event = await self._find_latest_reconciliation_event(
+            tenant_id=tenant_id,
+            channel=payload.channel,
+            provider_reference=payload.provider_reference,
+        )
+        if reconciliation_event is not None:
+            effective_details.update(reconciliation_event.details)
+
+        if str(effective_details.get("delivery_stage", "accepted")) != "failed":
+            raise HTTPException(
+                status_code=status.HTTP_409_CONFLICT,
+                detail="Only failed notification deliveries can be retried",
+            )
+
+        existing_retry = await self._find_retry_event(
+            tenant_id=tenant_id,
+            channel=payload.channel,
+            source_provider_reference=payload.provider_reference,
+        )
+        if existing_retry is not None:
+            raise HTTPException(
+                status_code=status.HTTP_409_CONFLICT,
+                detail="This notification delivery has already been retried",
+            )
+
+        recipient = source_details.get("recipient")
+        body = source_details.get("body")
+        if not isinstance(recipient, str) or not recipient or not isinstance(body, str) or not body:
+            raise HTTPException(
+                status_code=status.HTTP_409_CONFLICT,
+                detail="The original notification payload is incomplete and cannot be retried safely",
+            )
+        subject = source_details.get("subject")
+        if subject is not None and not isinstance(subject, str):
+            raise HTTPException(
+                status_code=status.HTTP_409_CONFLICT,
+                detail="The original notification payload is incomplete and cannot be retried safely",
+            )
+
+        dispatched = await provider.send_message(
+            tenant_id=tenant_id,
+            actor_user_id=actor_user_id,
+            recipient=recipient,
+            subject=subject,
+            body=body,
+        )
+        response = self._to_dispatch_response(dispatched)
+        await self._audit.record_event(
+            tenant_id=tenant_id,
+            actor_user_id=actor_user_id,
+            action="notification_retry",
+            entity_type="notification",
+            entity_id=payload.channel,
+            module_key="notifications",
+            details={
+                "channel": payload.channel,
+                "recipient": recipient,
+                "subject": subject,
+                "body": body,
+                "delivery_status": response.status,
+                "delivery_stage": response.delivery_stage,
+                "simulation_only": response.simulation_only,
+                "delivered": response.delivered,
+                "provider_message": response.message,
+                "provider_reference": response.provider_reference,
+                "source_provider_reference": payload.provider_reference,
+                "reconciliation_status": response.reconciliation_status,
+                "reconciliation_supported": response.reconciliation_supported,
+                "polling_supported": response.polling_supported,
+            },
+        )
+        await self._db.commit()
+        return NotificationRetryResponse(
+            source_provider_reference=payload.provider_reference,
+            dispatch=response,
+        )
+
     async def send_test(
         self,
         *,
@@ -310,13 +506,15 @@ class NotificationService:
                     entity_id=channel,
                     module_key="notifications",
                     details={
-                        "channel": response.channel,
-                        "recipient": payload.recipient,
-                        "delivery_status": response.status,
-                        "delivery_stage": response.delivery_stage,
-                        "simulation_only": response.simulation_only,
-                        "delivered": response.delivered,
-                        "provider_message": response.message,
+                    "channel": response.channel,
+                    "recipient": payload.recipient,
+                    "subject": payload.subject,
+                    "body": payload.body,
+                    "delivery_status": response.status,
+                    "delivery_stage": response.delivery_stage,
+                    "simulation_only": response.simulation_only,
+                    "delivered": response.delivered,
+                    "provider_message": response.message,
                         "provider_reference": response.provider_reference,
                         "reconciliation_status": response.reconciliation_status,
                         "reconciliation_supported": response.reconciliation_supported,
@@ -375,6 +573,8 @@ class NotificationService:
                 details={
                     "channel": payload.channel,
                     "recipient": payload.recipient,
+                    "subject": payload.subject,
+                    "body": payload.body,
                     "delivery_status": response.status,
                     "delivery_stage": response.delivery_stage,
                     "simulation_only": response.simulation_only,
@@ -440,16 +640,12 @@ class NotificationService:
         channel: str,
         provider_reference: str,
     ):
-        if self._audit is None:
+        if self._db is None:
             return None
 
-        events = await self._audit.list_events(
-            tenant_id,
-            limit=200,
-            offset=0,
+        events = await self._list_raw_notification_events(
+            tenant_id=tenant_id,
             action="notification_dispatch",
-            entity_type="notification",
-            module_key="notifications",
         )
         for event in events:
             if str(event.details.get("channel", event.entity_id or "")) != channel:
@@ -468,16 +664,12 @@ class NotificationService:
         channel: str,
         provider_reference: str,
     ):
-        if self._audit is None:
+        if self._db is None:
             return None
 
-        events = await self._audit.list_events(
-            tenant_id,
-            limit=200,
-            offset=0,
+        events = await self._list_raw_notification_events(
+            tenant_id=tenant_id,
             action="notification_reconciliation",
-            entity_type="notification",
-            module_key="notifications",
         )
         for event in events:
             if str(event.details.get("channel", event.entity_id or "")) != channel:
@@ -486,6 +678,64 @@ class NotificationService:
                 continue
             return event
         return None
+
+    async def _find_retry_event(
+        self,
+        *,
+        tenant_id,
+        channel: str,
+        source_provider_reference: str,
+    ):
+        if self._db is None:
+            return None
+
+        events = await self._list_raw_notification_events(
+            tenant_id=tenant_id,
+            action="notification_retry",
+        )
+        for event in events:
+            if str(event.details.get("channel", event.entity_id or "")) != channel:
+                continue
+            if str(event.details.get("source_provider_reference") or "") != source_provider_reference:
+                continue
+            return event
+        return None
+
+    async def _list_raw_notification_events(
+        self,
+        *,
+        tenant_id,
+        action: str,
+    ) -> list[_RawNotificationAuditEvent]:
+        if self._db is None:
+            return []
+
+        rows = await AuditRepository(self._db).list_events(
+            tenant_id,
+            limit=200,
+            offset=0,
+            action=action,
+            entity_type="notification",
+            module_key="notifications",
+        )
+        events: list[_RawNotificationAuditEvent] = []
+        for row in rows:
+            try:
+                details = json.loads(row.details_json)
+            except json.JSONDecodeError:
+                details = {}
+            if not isinstance(details, dict):
+                details = {}
+            events.append(
+                _RawNotificationAuditEvent(
+                    id=row.id,
+                    action=row.action,
+                    entity_id=row.entity_id,
+                    details=details,
+                    created_at=row.created_at,
+                )
+            )
+        return events
 
     async def _apply_reconciliation_update(
         self,
@@ -554,3 +804,32 @@ class NotificationService:
             reconciliation_status=result.reconciliation_status,
             updated=True,
         )
+
+    def _increment_history_summary(
+        self,
+        summary: NotificationHistorySummary,
+        entry: NotificationHistoryEntry,
+    ) -> None:
+        summary.total += 1
+        if entry.reconciliation_status == "pending":
+            summary.pending += 1
+        elif entry.reconciliation_status == "delivered":
+            summary.delivered += 1
+        elif entry.reconciliation_status == "failed":
+            summary.failed += 1
+        elif entry.reconciliation_status == "not_applicable":
+            summary.simulated += 1
+
+        if entry.stale_pending:
+            summary.stale_pending += 1
+
+    def _matches_history_filter(
+        self,
+        entry: NotificationHistoryEntry,
+        status_filter: str,
+    ) -> bool:
+        if status_filter == "all":
+            return True
+        if status_filter == "simulated":
+            return entry.action == "notification_test" or entry.delivery_stage == "simulated"
+        return entry.reconciliation_status == status_filter

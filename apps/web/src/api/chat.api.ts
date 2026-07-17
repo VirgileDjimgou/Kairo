@@ -26,6 +26,10 @@ export interface ChatQueryResponse {
   refusal_reason: string | null;
 }
 
+export interface ChatDomainPolicyResponse {
+  allowed_domains: string[];
+}
+
 export interface ChatConversationResponse {
   id: string;
   tenant_id: string;
@@ -57,6 +61,11 @@ export interface ChatConversationDetailResponse {
 
 export async function queryChat(payload: ChatQueryRequest): Promise<ChatQueryResponse> {
   const response = await http.post<ChatQueryResponse>("/chat/query", payload);
+  return response.data;
+}
+
+export async function getChatDomainPolicy(): Promise<ChatDomainPolicyResponse> {
+  const response = await http.get<ChatDomainPolicyResponse>("/chat/domain-policy");
   return response.data;
 }
 

@@ -18,6 +18,7 @@ from app.modules.chat.schemas import (
     ChatConversationCreate,
     ChatConversationDetailResponse,
     ChatConversationResponse,
+    ChatDomainPolicyResponse,
     ChatConversationUpdate,
     ChatQueryRequest,
     ChatQueryResponse,
@@ -61,6 +62,18 @@ async def query_chat_stream(
             "Connection": "keep-alive",
             "X-Accel-Buffering": "no",
         },
+    )
+
+
+@router.get("/domain-policy", response_model=ChatDomainPolicyResponse)
+async def get_chat_domain_policy(
+    current: AuthDep,
+    db: DbDep,
+) -> ChatDomainPolicyResponse:
+    service = ChatService(db)
+    return await service.get_domain_policy(
+        tenant_id=current.tenant_id,
+        roles=current.roles,
     )
 
 
