@@ -2,9 +2,8 @@
 
 import uuid as _uuid
 
-from sqlalchemy import select
-
 from httpx import AsyncClient
+from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core.security import hash_password

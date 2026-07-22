@@ -537,8 +537,10 @@ async function saveSettings() {
   actionError.value = "";
   try {
     const result = await updateTenantSettings(auth.user.tenant_id, {
-      name: form.name !== settings.value?.name ? form.name : undefined,
-      default_language: form.default_language !== settings.value?.default_language ? form.default_language : undefined,
+      ...(form.name !== settings.value?.name ? { name: form.name } : {}),
+      ...(form.default_language !== settings.value?.default_language
+        ? { default_language: form.default_language }
+        : {}),
       branding: form.branding,
       modules: form.modules,
       operations: buildOperationsPayload(),
@@ -580,7 +582,7 @@ function buildOperationsPayload(): Partial<RecoveryEvidenceConfig> {
     last_restore_drill_status: form.operations.last_restore_drill_status,
     alert_posture: form.operations.alert_posture,
     alert_contacts_configured: form.operations.alert_contacts_configured,
-    backup_retention_days: form.operations.backup_retention_days ?? undefined,
+    backup_retention_days: form.operations.backup_retention_days ?? null,
     notes: form.operations.notes,
   };
 }

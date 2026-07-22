@@ -4,12 +4,12 @@ import secrets
 
 from fastapi import APIRouter, Header, HTTPException, Query, status
 
+from app.core.authorization import require_capability
 from app.core.capabilities import CAP_TENANT_ADMINISTRATION
 from app.core.config import settings
-from app.core.authorization import require_capability
 from app.core.dependencies import AuthDep, DbDep, NotificationsDep
-from app.modules.audit.service import AuditService
 from app.core.module_guard import require_module
+from app.modules.audit.service import AuditService
 from app.modules.notifications.schemas import (
     NotificationChannelResponse,
     NotificationDispatchRequest,

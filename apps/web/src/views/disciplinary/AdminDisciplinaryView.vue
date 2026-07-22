@@ -263,7 +263,7 @@ async function saveRecord() {
       description: form.value.description || null,
       amount: form.value.amount || '0.00',
       currency: form.value.currency || 'EUR',
-      status: form.value.status,
+      status: form.value.status ?? 'open',
     }
     if (editingId.value) {
       const updatePayload: UpdateDisciplinaryPayload = {

@@ -1,13 +1,12 @@
 from __future__ import annotations
 
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from uuid import UUID
 
 from fastapi import HTTPException, status
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core.import_export import generate_csv
-from app.modules.audit.service import AuditService
 from app.modules.announcements.models import Announcement
 from app.modules.announcements.repository import AnnouncementRepository
 from app.modules.announcements.schemas import (
@@ -15,6 +14,7 @@ from app.modules.announcements.schemas import (
     AnnouncementResponse,
     AnnouncementUpdate,
 )
+from app.modules.audit.service import AuditService
 
 
 class AnnouncementService:
@@ -30,14 +30,14 @@ class AnnouncementService:
         *,
         actor_user_id: UUID | None = None,
     ) -> AnnouncementResponse:
-        from datetime import datetime, timezone
+        from datetime import datetime
 
         announcement = Announcement(
             tenant_id=tenant_id,
             title=data.title,
             body=data.body,
             visibility_scope=data.visibility_scope,
-            published_at=data.published_at or datetime.now(timezone.utc),
+            published_at=data.published_at or datetime.now(UTC),
             expires_at=data.expires_at,
         )
         created = await self._repo.create(announcement)
@@ -148,7 +148,7 @@ class AnnouncementService:
                 "visibility_scope": a.visibility_scope,
                 "published_at": str(a.published_at) if a.published_at else "",
                 "expires_at": str(a.expires_at) if a.expires_at else "",
-                "status": "active" if a.published_at and (not a.expires_at or a.expires_at > datetime.now(timezone.utc)) else "expired",
+                "status": "active" if a.published_at and (not a.expires_at or a.expires_at > datetime.now(UTC)) else "expired",
             }
             for a in announcements
         ]

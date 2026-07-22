@@ -4,10 +4,9 @@ import uuid
 
 import fitz
 import pytest
+from helpers import create_tenant_with_user, create_user_for_tenant, login
 from httpx import AsyncClient
 from sqlalchemy.ext.asyncio import AsyncSession
-
-from helpers import create_tenant_with_user, create_user_for_tenant, login
 
 
 @pytest.mark.asyncio
@@ -114,7 +113,7 @@ async def test_get_my_profile_returns_linked_profile(
         headers={"Authorization": f"Bearer {token}"},
     )
     assert create_resp.status_code == 201
-    profile_id = create_resp.json()["id"]
+    create_resp.json()["id"]
 
     # The /me endpoint checks if the auth user's user_id is linked to a profile
     # Since user_id is nullable and not set on creation, /me will return 404

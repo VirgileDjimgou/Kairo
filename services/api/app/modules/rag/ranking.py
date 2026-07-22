@@ -6,7 +6,6 @@ _TOKEN_PATTERN = re.compile(r"[a-z0-9à-ÿ]{3,}", re.IGNORECASE)
 _STOPWORDS = {
     "about",
     "avec",
-    "avec",
     "dans",
     "de",
     "der",

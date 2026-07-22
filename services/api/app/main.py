@@ -10,33 +10,33 @@ from starlette.exceptions import HTTPException as StarletteHTTPException
 from app._version import __version__
 from app.core.config import settings
 from app.core.dependencies import DbDep
+from app.core.health_checks import run_all_checks
+from app.core.logging import setup_logging
 from app.core.metrics import build_runtime_metrics
-from app.db.session import async_session_factory
-from app.modules.rag.reindex import check_embedding_model_changed, persist_embedding_model
 from app.core.observability import (
     ObservabilityMiddleware,
     http_exception_handler,
     unhandled_exception_handler,
     validation_exception_handler,
 )
-from app.core.health_checks import run_all_checks
-from app.core.logging import setup_logging
-from app.modules.tenancy.module_toggles import ALL_MODULES
-from app.modules.chat.router import router as chat_router
-from app.modules.audit.router import router as audit_router
+from app.db.session import async_session_factory
 from app.modules.admin.router import router as admin_router
-from app.modules.documents.router import router as documents_router
-from app.modules.identity.router import router as identity_router
-from app.modules.tenancy.router import router as tenancy_router
-from app.modules.membership.router import router as membership_router
+from app.modules.announcements.router import router as announcements_router
+from app.modules.audit.router import router as audit_router
+from app.modules.chat.router import router as chat_router
 from app.modules.contributions.router import router as contributions_router
-from app.modules.policies.router import router as policies_router
 from app.modules.disciplinary.router import router as disciplinary_router
+from app.modules.documents.router import router as documents_router
 from app.modules.events.router import router as events_router
 from app.modules.events.sports_router import router as sports_router
-from app.modules.announcements.router import router as announcements_router
+from app.modules.identity.router import router as identity_router
+from app.modules.membership.router import router as membership_router
 from app.modules.notifications.router import callback_router as notifications_callback_router
 from app.modules.notifications.router import router as notifications_router
+from app.modules.policies.router import router as policies_router
+from app.modules.rag.reindex import check_embedding_model_changed, persist_embedding_model
+from app.modules.tenancy.module_toggles import ALL_MODULES
+from app.modules.tenancy.router import router as tenancy_router
 
 setup_logging()
 logger = structlog.get_logger(__name__)
@@ -86,7 +86,7 @@ app.add_middleware(
 )
 
 app.add_exception_handler(StarletteHTTPException, http_exception_handler)
-app.add_exception_handler(RequestValidationError, validation_exception_handler)
+app.add_exception_handler(RequestValidationError, validation_exception_handler)  # type: ignore[arg-type]
 app.add_exception_handler(Exception, unhandled_exception_handler)
 
 # ── API v1 routers ─────────────────────────────────────────────────────────────
@@ -122,7 +122,7 @@ async def health_check(db: DbDep) -> dict:
     """
     checks = await run_all_checks(db)
 
-    statuses = [c["status"] for c in checks.values()]
+    statuses = [c["status"] for c in checks.values()]  # type: ignore[index]
     if all(s == "ok" for s in statuses):
         overall = "ok"
     elif any(s == "unavailable" for s in statuses):

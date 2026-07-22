@@ -1,9 +1,8 @@
-import pytest
 import pyotp
+import pytest
 from httpx import AsyncClient
 
 from app.core.security import create_refresh_token, decode_access_token
-
 
 pytestmark = pytest.mark.asyncio
 

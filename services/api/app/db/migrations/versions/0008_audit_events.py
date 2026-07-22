@@ -5,10 +5,9 @@ Revises: 0007_identity_lifecycle
 Create Date: 2026-06-28
 """
 
-from alembic import op
 import sqlalchemy as sa
+from alembic import op
 from sqlalchemy.dialects import postgresql
-
 
 revision = "0008_audit_events"
 down_revision = "0007_identity_lifecycle"

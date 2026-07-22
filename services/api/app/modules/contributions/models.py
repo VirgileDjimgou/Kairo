@@ -1,7 +1,7 @@
 import uuid
 from datetime import datetime
 from decimal import Decimal
-from enum import Enum
+from enum import StrEnum
 
 from sqlalchemy import DateTime, ForeignKey, Integer, Numeric, String, Text
 from sqlalchemy.dialects.postgresql import UUID
@@ -11,7 +11,7 @@ from sqlalchemy.sql import text as sql_text
 from app.db.base import Base
 
 
-class ContributionStatus(str, Enum):
+class ContributionStatus(StrEnum):
     pending = "pending"
     partial = "partial"
     paid = "paid"
@@ -19,7 +19,7 @@ class ContributionStatus(str, Enum):
     waived = "waived"
 
 
-class PaymentMethod(str, Enum):
+class PaymentMethod(StrEnum):
     cash = "cash"
     bank_transfer = "bank_transfer"
     card = "card"
@@ -27,7 +27,7 @@ class PaymentMethod(str, Enum):
     other = "other"
 
 
-class ReminderDeliveryStatus(str, Enum):
+class ReminderDeliveryStatus(StrEnum):
     sent = "sent"
     simulated = "simulated"
     failed = "failed"

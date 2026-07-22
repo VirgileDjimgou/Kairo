@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import uuid
 from datetime import datetime
-from enum import Enum
+from enum import StrEnum
 
 from sqlalchemy import DateTime, ForeignKey, String, Text
 from sqlalchemy.dialects.postgresql import UUID
@@ -12,14 +12,14 @@ from sqlalchemy.sql import text as sql_text
 from app.db.base import Base
 
 
-class EventStatus(str, Enum):
+class EventStatus(StrEnum):
     draft = "draft"
     published = "published"
     cancelled = "cancelled"
     completed = "completed"
 
 
-class EventVisibility(str, Enum):
+class EventVisibility(StrEnum):
     tenant_public = "tenant_public"
     members_only = "members_only"
     role_restricted = "role_restricted"

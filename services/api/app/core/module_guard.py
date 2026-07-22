@@ -1,14 +1,14 @@
 import json
-from collections.abc import Callable
 
 from fastapi import Depends, HTTPException, status
+from fastapi.params import Depends as FastAPIDepends
 
 from app.core.dependencies import AuthDep, DbDep
 from app.modules.tenancy.module_toggles import is_module_enabled
 from app.modules.tenancy.repository import TenancyRepository
 
 
-def require_module(module_key: str) -> Callable:
+def require_module(module_key: str) -> FastAPIDepends:
     """
     FastAPI dependency factory that rejects requests when a module
     is disabled for the current tenant.
@@ -26,7 +26,7 @@ def require_module(module_key: str) -> Callable:
                 status_code=status.HTTP_404_NOT_FOUND,
                 detail="Organization not found",
             )
-        raw_json = {}
+        raw_json: dict[str, object] = {}
         if isinstance(tenant.settings_json, str) and tenant.settings_json.strip():
             try:
                 raw_json = json.loads(tenant.settings_json)

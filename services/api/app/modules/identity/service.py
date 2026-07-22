@@ -1,5 +1,6 @@
 import json
-from datetime import datetime, timedelta, timezone
+from collections.abc import Sequence
+from datetime import UTC, datetime, timedelta
 from uuid import UUID
 
 import jwt
@@ -11,17 +12,16 @@ from app.core.config import settings
 from app.core.security import (
     create_access_token,
     create_mfa_token,
-    create_refresh_token,
     decode_access_token,
-    generate_totp_secret,
     generate_token,
+    generate_totp_secret,
     get_totp_uri,
     hash_password,
     hash_token,
     verify_password,
     verify_totp,
-    verify_token,
 )
+from app.modules.audit.schemas import AuditEventResponse
 from app.modules.audit.service import AuditService
 from app.modules.identity.repository import (
     InvitationRepository,
@@ -33,17 +33,17 @@ from app.modules.identity.schemas import (
     AcceptInviteRequest,
     AcceptInviteResponse,
     ActiveSessionResponse,
-    LanguagePreferenceResponse,
     ForgotPasswordRequest,
     ForgotPasswordResponse,
     InvitationStatusResponse,
     InviteRequest,
     InviteResponse,
+    LanguagePreferenceResponse,
     LoginRequest,
     ManagedTenantUserActionResponse,
+    ManagedTenantUserResponse,
     ManagedTenantUserRolesUpdateRequest,
     ManagedTenantUserRolesUpdateResponse,
-    ManagedTenantUserResponse,
     MfaCompleteLoginRequest,
     MfaEnrollResponse,
     MfaLoginResponse,
@@ -74,7 +74,7 @@ SUPPORTED_INTERFACE_LANGUAGES = {"fr", "en", "de"}
 def _ensure_aware(dt: datetime) -> datetime:
     """Ensure datetime is timezone-aware (assume UTC if naive)."""
     if dt.tzinfo is None:
-        return dt.replace(tzinfo=timezone.utc)
+        return dt.replace(tzinfo=UTC)
     return dt
 
 
@@ -194,7 +194,7 @@ class AuthService:
             raise HTTPException(
                 status_code=status.HTTP_401_UNAUTHORIZED,
                 detail="Invalid or expired MFA token",
-            )
+            ) from None
 
         user = await self._user_repo.get_by_id(user_id)
         if not user or user.status != "active":
@@ -237,6 +237,11 @@ class AuthService:
                     detail="No active organization membership found",
                 )
             tenant = await self._tenancy_repo.get_tenant_by_id(memberships[0].tenant_id)
+            if tenant is None:
+                raise HTTPException(
+                    status_code=status.HTTP_404_NOT_FOUND,
+                    detail="Organization not found",
+                )
 
         roles = await self._tenancy_repo.get_user_role_codes(tenant.id, user.id)
         token, session_id = await self._issue_session_access_token(
@@ -304,14 +309,14 @@ class AuthService:
                 continue
             roles = await self._tenancy_repo.get_user_role_codes(tenant.id, user_id)
 
-            branding_raw = {}
+            branding_raw: dict[str, object] = {}
             if isinstance(tenant.branding_json, str) and tenant.branding_json.strip():
                 try:
                     branding_raw = json.loads(tenant.branding_json)
                 except json.JSONDecodeError:
                     branding_raw = {}
 
-            settings_raw = {}
+            settings_raw: dict[str, object] = {}
             if isinstance(tenant.settings_json, str) and tenant.settings_json.strip():
                 try:
                     settings_raw = json.loads(tenant.settings_json)
@@ -319,7 +324,7 @@ class AuthService:
                     settings_raw = {}
 
             module_toggles = parse_module_toggles(settings_raw)
-            branding = BrandingConfig(**branding_raw) if branding_raw else BrandingConfig()
+            branding = BrandingConfig(**branding_raw) if branding_raw else BrandingConfig()  # type: ignore[arg-type]
 
             result.append(
                 TenantMembershipResponse(
@@ -470,7 +475,7 @@ class AuthService:
 
         raw_token = generate_token()
         token_hash_value = hash_token(raw_token)
-        expires_at = datetime.now(timezone.utc) + timedelta(days=7)
+        expires_at = datetime.now(UTC) + timedelta(days=7)
 
         invitation = await self._invitation_repo.create(
             tenant_id=request.tenant_id,
@@ -543,7 +548,7 @@ class AuthService:
                 detail=f"Invitation is already {invitation.status}",
             )
 
-        if datetime.now(timezone.utc) > _ensure_aware(invitation.expires_at):
+        if datetime.now(UTC) > _ensure_aware(invitation.expires_at):
             raise HTTPException(
                 status_code=status.HTTP_400_BAD_REQUEST,
                 detail="Invitation has expired",
@@ -995,7 +1000,7 @@ class AuthService:
 
         raw_token = generate_token()
         token_hash_value = hash_token(raw_token)
-        expires_at = datetime.now(timezone.utc) + timedelta(hours=1)
+        expires_at = datetime.now(UTC) + timedelta(hours=1)
 
         await self._password_reset_repo.create(
             user_id=user.id,
@@ -1052,7 +1057,7 @@ class AuthService:
                 detail="Reset token has already been used",
             )
 
-        if datetime.now(timezone.utc) > _ensure_aware(prt.expires_at):
+        if datetime.now(UTC) > _ensure_aware(prt.expires_at):
             raise HTTPException(
                 status_code=status.HTTP_400_BAD_REQUEST,
                 detail="Reset token has expired",
@@ -1274,7 +1279,7 @@ class AuthService:
         *,
         tenant_id: UUID,
         user_ids: list[UUID],
-    ) -> dict[UUID, SecurityEventResponse]:
+    ) -> dict[UUID, AuditEventResponse]:
         if not user_ids:
             return {}
         user_id_set = set(user_ids)
@@ -1284,7 +1289,7 @@ class AuthService:
             offset=0,
             module_key="identity",
         )
-        latest: dict[UUID, SecurityEventResponse] = {}
+        latest: dict[UUID, AuditEventResponse] = {}
         for event in events:
             target_user_id = self._resolve_identity_event_user_id(event)
             if target_user_id is None or target_user_id not in user_id_set:
@@ -1296,7 +1301,7 @@ class AuthService:
 
     def _resolve_identity_event_user_id(
         self,
-        event: SecurityEventResponse,
+        event: AuditEventResponse,
     ) -> UUID | None:
         details = event.details if isinstance(event.details, dict) else {}
         if event.actor_user_id is not None:
@@ -1342,7 +1347,7 @@ class AuthService:
         *,
         tenant_id: UUID,
         actor_user_id: UUID,
-        revoked_sessions: list[object],
+        revoked_sessions: Sequence[object],
         reason: str,
     ) -> None:
         for session in revoked_sessions:
@@ -1532,7 +1537,7 @@ class AuthService:
             raise HTTPException(
                 status_code=status.HTTP_401_UNAUTHORIZED,
                 detail="Invalid or expired refresh token",
-            )
+            ) from None
 
         user = await self._user_repo.get_by_id(user_id)
         if not user or user.status != "active":

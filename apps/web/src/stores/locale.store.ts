@@ -30,7 +30,7 @@ export const useLocaleStore = defineStore('locale', () => {
     locale.value = nextLocale
     localStorage.setItem(LOCALE_STORAGE_KEY, nextLocale)
     document.documentElement.lang = nextLocale
-    document.title = messages[nextLocale]['app.name']
+    document.title = messages[nextLocale]['app.name'] ?? 'Kairo'
   }
 
   async function setLocale(nextLocale: SupportedLocale, syncWithBackend = false) {

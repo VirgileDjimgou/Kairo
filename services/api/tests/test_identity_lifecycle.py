@@ -9,17 +9,16 @@ Covers:
 """
 
 import uuid
-from datetime import datetime, timedelta, timezone
+from datetime import UTC, datetime, timedelta
 
-import pytest
 import pyotp
+import pytest
 from httpx import AsyncClient
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.core.security import hash_password, hash_token
-from app.modules.identity.models import Invitation, PasswordResetToken, User
-from app.modules.tenancy.models import TenantUser, Role
-
+from app.core.security import hash_token
+from app.modules.identity.models import Invitation, PasswordResetToken
+from app.modules.tenancy.models import Role
 
 # ── Helpers ────────────────────────────────────────────────────────────────────
 
@@ -80,7 +79,6 @@ class TestInvitationFlow:
         db_session: AsyncSession,
     ) -> None:
         from helpers import create_tenant_with_user
-        data = seeded_tenant_and_admin
         member = await create_tenant_with_user(
             db_session, "member-only", role_code="member", profile_type="member"
         )
@@ -186,7 +184,7 @@ class TestInvitationFlow:
             role_code="member",
             invited_by_user_id=data["user"].id,
             token_hash=token_hash_value,
-            expires_at=datetime.now(timezone.utc) - timedelta(hours=1),
+            expires_at=datetime.now(UTC) - timedelta(hours=1),
             status="pending",
         )
         db_session.add(invitation)
@@ -398,7 +396,7 @@ class TestPasswordResetFlow:
             id=uuid.uuid4(),
             user_id=data["user"].id,
             token_hash=token_hash_value,
-            expires_at=datetime.now(timezone.utc) - timedelta(hours=2),
+            expires_at=datetime.now(UTC) - timedelta(hours=2),
         )
         db_session.add(prt)
         await db_session.flush()

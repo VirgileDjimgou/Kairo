@@ -3,6 +3,8 @@
 import uuid as _uuid
 
 import pytest
+from fakes import FakeEmbeddingProvider, FakeVectorStoreProvider
+from helpers import create_tenant_with_user, login
 from httpx import AsyncClient
 from sqlalchemy import func, select
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -10,8 +12,6 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from app.core.config import settings
 from app.modules.documents.models import DocumentChunk, IngestionJob
 from app.modules.ingestion.service import IngestionService
-from helpers import create_tenant_with_user, login
-from fakes import FakeEmbeddingProvider, FakeVectorStoreProvider
 
 pytestmark = pytest.mark.integration
 

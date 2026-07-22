@@ -938,6 +938,17 @@ test.describe('locale coverage', () => {
         created_at: '2026-07-16T09:15:00Z',
       },
     ]
+    const historyResponse = () => ({
+      items: historyRows,
+      summary: {
+        total: historyRows.length,
+        pending: historyRows.filter((entry) => entry.delivery_stage === 'accepted').length,
+        delivered: historyRows.filter((entry) => entry.delivery_stage === 'delivered').length,
+        failed: historyRows.filter((entry) => entry.delivery_stage === 'failed').length,
+        simulated: historyRows.filter((entry) => entry.delivery_stage === 'simulated').length,
+        stale_pending: 0,
+      },
+    })
     await page.route('**/api/v1/notifications/channels', async (route) => {
       await route.fulfill({
         status: 200,
@@ -970,11 +981,11 @@ test.describe('locale coverage', () => {
         ]),
       })
     })
-    await page.route('**/api/v1/notifications/history', async (route) => {
+    await page.route('**/api/v1/notifications/history**', async (route) => {
       await route.fulfill({
         status: 200,
         contentType: 'application/json',
-        body: JSON.stringify(historyRows),
+        body: JSON.stringify(historyResponse()),
       })
     })
     await page.route('**/api/v1/notifications/test', async (route) => {

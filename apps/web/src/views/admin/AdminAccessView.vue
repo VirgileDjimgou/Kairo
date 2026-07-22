@@ -488,10 +488,11 @@ async function loadAccessConsole() {
       .sort((left, right) => new Date(right.created_at).getTime() - new Date(left.created_at).getTime())
     managedUsers.value = managedUserItems
       .slice()
-      .sort((left, right) => left.display_name.localeCompare(right.display_name))
+    .sort((left, right) => left.display_name.localeCompare(right.display_name))
 
-    if (!inviteForm.roleCode && roleOptions.value.length > 0) {
-      inviteForm.roleCode = roleOptions.value[0].code
+    const firstRole = roleOptions.value.at(0)
+    if (!inviteForm.roleCode && firstRole) {
+      inviteForm.roleCode = firstRole.code
     }
   } catch (err: unknown) {
     const detail = (err as { response?: { data?: { detail?: string } } })?.response?.data?.detail

@@ -4,8 +4,6 @@ from typing import Any
 
 import structlog
 
-from app.core.config import settings
-
 logger = structlog.get_logger(__name__)
 
 
@@ -52,7 +50,7 @@ class SentenceTransformersReranker:
         scores = self._model.predict(pairs)
 
         reranked = []
-        for chunk, score in zip(chunks, scores):
+        for chunk, score in zip(chunks, scores, strict=False):
             reranked.append({
                 **chunk,
                 "score": float(score),

@@ -23,7 +23,11 @@ export const useAuthStore = defineStore('auth', () => {
   async function login(email: string, password: string, tenantSlug?: string): Promise<boolean | string> {
     const localeStore = useLocaleStore()
     const selectedLocale = localeStore.currentLocale
-    const data = await apiLogin({ email, password, tenant_slug: tenantSlug })
+    const data = await apiLogin({
+      email,
+      password,
+      ...(tenantSlug ? { tenant_slug: tenantSlug } : {}),
+    })
 
     if ('mfa_required' in data && data.mfa_required) {
       mfaToken.value = data.mfa_token
@@ -60,7 +64,7 @@ export const useAuthStore = defineStore('auth', () => {
       const localeStore = useLocaleStore()
       const resolvedLocale = localeStore.resolvePreferredLocale({
         preferredLanguage: preferredLocaleOverride ?? profile.preferred_language,
-        tenantDefaultLanguage: tenantStore.currentTenant?.default_language,
+        tenantDefaultLanguage: tenantStore.currentTenant?.default_language ?? null,
       })
       localeStore.applyLocale(resolvedLocale)
       if (preferredLocaleOverride || !profile.preferred_language || profile.preferred_language !== resolvedLocale) {

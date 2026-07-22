@@ -1,7 +1,10 @@
 from dataclasses import dataclass
 from functools import lru_cache
-from typing import Annotated
+from typing import TYPE_CHECKING, Annotated
 from uuid import UUID
+
+if TYPE_CHECKING:
+    from app.modules.identity.models import User
 
 import jwt
 from fastapi import Depends, HTTPException, Request, status
@@ -30,7 +33,7 @@ class CurrentUser:
     and the list of role codes resolved from the JWT.
     """
 
-    user: object  # app.modules.identity.models.User (typed here to avoid circular import)
+    user: "User"
     tenant_id: UUID
     roles: list[str]
     session_id: UUID

@@ -5,10 +5,9 @@ from __future__ import annotations
 import uuid as _uuid
 
 import pytest
+from helpers import create_tenant_with_user, create_user_for_tenant, login
 from httpx import AsyncClient
 from sqlalchemy.ext.asyncio import AsyncSession
-
-from helpers import create_tenant_with_user, create_user_for_tenant, login
 
 
 async def _create_linked_member(

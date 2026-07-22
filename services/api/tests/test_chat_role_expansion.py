@@ -4,10 +4,11 @@ from __future__ import annotations
 
 import json
 import uuid as _uuid
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from decimal import Decimal
 
 import pytest
+from helpers import create_tenant_with_user, create_user_for_tenant, login
 from httpx import AsyncClient
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -17,7 +18,6 @@ from app.modules.documents.models import Document, DocumentChunk, DocumentStatus
 from app.modules.events.models import Event, EventStatus, EventVisibility
 from app.modules.membership.models import MembershipProfile
 from app.modules.policies.models import PolicyRecord, PolicyStatus
-from helpers import create_tenant_with_user, create_user_for_tenant, login
 
 
 def _seed_document(
@@ -129,7 +129,7 @@ def _seed_announcement(
             title=title,
             body=f"{title} body",
             visibility_scope=visibility_scope,
-            published_at=published_at or datetime.now(timezone.utc),
+            published_at=published_at or datetime.now(UTC),
             metadata_json="{}",
         )
     )
@@ -205,7 +205,7 @@ async def test_governance_summary_is_available_to_president(
         member_code="PRS-001",
         display_name="President User",
     )
-    secondary = await create_user_for_tenant(
+    await create_user_for_tenant(
         db_session,
         tenant_id=data["tenant"].id,
         email="member-overview@test.org",
@@ -237,7 +237,7 @@ async def test_governance_summary_is_available_to_president(
         db_session,
         tenant_id=data["tenant"].id,
         title="Annual Assembly",
-        start_at=datetime(2030, 8, 1, 12, 0, tzinfo=timezone.utc),
+        start_at=datetime(2030, 8, 1, 12, 0, tzinfo=UTC),
         location="Main Hall",
     )
     await db_session.flush()
@@ -393,14 +393,14 @@ async def test_sports_manager_can_request_sports_schedule(
         db_session,
         tenant_id=data["tenant"].id,
         title="Morning Training",
-        start_at=datetime(2030, 8, 5, 18, 0, tzinfo=timezone.utc),
+        start_at=datetime(2030, 8, 5, 18, 0, tzinfo=UTC),
         location="Field A",
     )
     _seed_event(
         db_session,
         tenant_id=data["tenant"].id,
         title="Weekend Match",
-        start_at=datetime(2030, 8, 12, 16, 0, tzinfo=timezone.utc),
+        start_at=datetime(2030, 8, 12, 16, 0, tzinfo=UTC),
         location="Arena",
     )
     await db_session.flush()

@@ -15,6 +15,7 @@ ignore = [
 [tool.ruff.lint.per-file-ignores]
 "tests/*" = ["S", "E501"]
 "app/db/seed.py" = ["S105", "S106"]
+"app/providers/parsers/xlsx_xml.py" = ["S314"]
 
 [tool.mypy]
 python_version = "3.12"

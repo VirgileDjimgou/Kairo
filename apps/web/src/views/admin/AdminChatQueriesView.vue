@@ -173,14 +173,12 @@ const stats = computed(() => {
 async function refreshQueries() {
   loading.value = true;
   try {
-    queries.value = await listChatQueries({
+    const filters = {
       limit: limit.value,
-      search: searchText.value || undefined,
-      refused:
-        statusFilter.value === "all"
-          ? undefined
-          : statusFilter.value === "refused",
-    });
+      ...(searchText.value ? { search: searchText.value } : {}),
+      ...(statusFilter.value === "all" ? {} : { refused: statusFilter.value === "refused" }),
+    };
+    queries.value = await listChatQueries(filters);
   } finally {
     loading.value = false;
   }

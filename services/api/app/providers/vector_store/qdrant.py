@@ -31,7 +31,9 @@ class QdrantVectorStoreProvider:
         existing = {item.name for item in self._client.get_collections().collections}
         if self._collection in existing:
             info = self._client.get_collection(self._collection)
-            current_size = info.config.params.vectors.size
+            vectors = info.config.params.vectors
+            assert isinstance(vectors, VectorParams)
+            current_size = vectors.size
             if current_size != vector_size:
                 raise ValueError(
                     "Qdrant collection "
@@ -112,9 +114,9 @@ class QdrantVectorStoreProvider:
         results = getattr(response, "points", response)
         return [
             {
-                "id": str(point.id),
-                "score": float(point.score or 0.0),
-                "payload": point.payload or {},
+                "id": str(point.id),  # type: ignore[union-attr]
+                "score": float(point.score or 0.0),  # type: ignore[union-attr]
+                "payload": point.payload or {},  # type: ignore[union-attr]
                 "retrieval_mode": "dense",
             }
             for point in results

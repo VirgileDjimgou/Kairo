@@ -5,6 +5,7 @@ from __future__ import annotations
 import uuid as _uuid
 
 import pytest
+from helpers import create_tenant_with_user, login
 from httpx import AsyncClient
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -13,7 +14,6 @@ from app.core.security import hash_password
 from app.modules.identity.models import User
 from app.modules.membership.models import MembershipProfile
 from app.modules.tenancy.models import Role, TenantUser, user_roles
-from helpers import create_tenant_with_user, login
 
 
 async def _create_linked_member(

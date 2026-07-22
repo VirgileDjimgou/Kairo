@@ -139,7 +139,7 @@ async def _check_embedding_provider() -> dict:
         return {"status": "unavailable", "latency_ms": elapsed}
 
 
-async def run_all_checks(db: AsyncSession) -> dict[str, dict]:
+async def run_all_checks(db: AsyncSession) -> dict[str, object]:
     checks = {
         "database": _check_db(db),
         "redis": _check_redis(),
@@ -149,8 +149,8 @@ async def run_all_checks(db: AsyncSession) -> dict[str, dict]:
         "embedding_provider": _check_embedding_provider(),
     }
     results = await asyncio.gather(*checks.values(), return_exceptions=True)
-    output = {}
-    for name, result in zip(checks, results):
+    output: dict[str, object] = {}
+    for name, result in zip(checks, results, strict=False):
         if isinstance(result, Exception):
             logger.error("Unexpected health check error", service=name, error=str(result))
             output[name] = {"status": "error", "latency_ms": -1, "detail": str(result)}

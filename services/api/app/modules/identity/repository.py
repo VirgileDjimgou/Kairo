@@ -1,4 +1,4 @@
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from uuid import UUID
 
 from sqlalchemy import func, select, update
@@ -55,8 +55,8 @@ class UserRepository:
             update(User)
             .where(User.id == user_id)
             .values(
-                last_login_at=datetime.now(timezone.utc),
-                updated_at=datetime.now(timezone.utc),
+                last_login_at=datetime.now(UTC),
+                updated_at=datetime.now(UTC),
             )
         )
 
@@ -66,7 +66,7 @@ class UserRepository:
             .where(User.id == user_id)
             .values(
                 password_hash=new_password_hash,
-                updated_at=datetime.now(timezone.utc),
+                updated_at=datetime.now(UTC),
             )
         )
 
@@ -76,7 +76,7 @@ class UserRepository:
             .where(User.id == user_id)
             .values(
                 preferred_language=preferred_language,
-                updated_at=datetime.now(timezone.utc),
+                updated_at=datetime.now(UTC),
             )
         )
 
@@ -86,7 +86,7 @@ class UserRepository:
             .where(User.id == user_id)
             .values(
                 totp_secret=secret,
-                updated_at=datetime.now(timezone.utc),
+                updated_at=datetime.now(UTC),
             )
         )
 
@@ -96,7 +96,7 @@ class UserRepository:
             .where(User.id == user_id)
             .values(
                 totp_enabled=True,
-                updated_at=datetime.now(timezone.utc),
+                updated_at=datetime.now(UTC),
             )
         )
 
@@ -107,7 +107,7 @@ class UserRepository:
             .values(
                 totp_secret=None,
                 totp_enabled=False,
-                updated_at=datetime.now(timezone.utc),
+                updated_at=datetime.now(UTC),
             )
         )
 
@@ -217,7 +217,7 @@ class UserSessionRepository:
             )
             .values(
                 current_tenant_id=tenant_id,
-                last_seen_at=datetime.now(timezone.utc),
+                last_seen_at=datetime.now(UTC),
                 last_seen_ip=ip_address,
                 last_seen_user_agent=user_agent,
             )
@@ -232,7 +232,7 @@ class UserSessionRepository:
         session = await self.get_active_by_id(session_id)
         if session is None:
             return None
-        session.revoked_at = datetime.now(timezone.utc)
+        session.revoked_at = datetime.now(UTC)
         session.revoked_reason = revoked_reason
         await self._db.flush()
         return session
@@ -246,7 +246,7 @@ class UserSessionRepository:
     ) -> list[UserSession]:
         sessions = await self.list_active_for_user(user_id)
         revoked: list[UserSession] = []
-        now = datetime.now(timezone.utc)
+        now = datetime.now(UTC)
         for session in sessions:
             if session.id == keep_session_id:
                 continue
@@ -264,7 +264,7 @@ class UserSessionRepository:
     ) -> list[UserSession]:
         sessions = await self.list_active_for_user(user_id)
         revoked: list[UserSession] = []
-        now = datetime.now(timezone.utc)
+        now = datetime.now(UTC)
         for session in sessions:
             session.revoked_at = now
             session.revoked_reason = revoked_reason
@@ -284,7 +284,7 @@ class UserSessionRepository:
             tenant_id=tenant_id,
         )
         revoked: list[UserSession] = []
-        now = datetime.now(timezone.utc)
+        now = datetime.now(UTC)
         for session in sessions:
             session.revoked_at = now
             session.revoked_reason = revoked_reason
@@ -361,9 +361,9 @@ class InvitationRepository:
             .where(Invitation.id == invitation_id)
             .values(
                 status="accepted",
-                accepted_at=datetime.now(timezone.utc),
+                accepted_at=datetime.now(UTC),
                 accepted_by_user_id=accepted_by_user_id,
-                updated_at=datetime.now(timezone.utc),
+                updated_at=datetime.now(UTC),
             )
         )
 
@@ -373,7 +373,7 @@ class InvitationRepository:
             .where(Invitation.id == invitation_id)
             .values(
                 status="cancelled",
-                updated_at=datetime.now(timezone.utc),
+                updated_at=datetime.now(UTC),
             )
         )
 
@@ -393,7 +393,7 @@ class PasswordResetRepository:
         return result.scalar_one_or_none()
 
     async def get_valid_by_user_id(self, user_id: UUID) -> list[PasswordResetToken]:
-        now = datetime.now(timezone.utc)
+        now = datetime.now(UTC)
         result = await self._db.execute(
             select(PasswordResetToken).where(
                 PasswordResetToken.user_id == user_id,
@@ -420,11 +420,11 @@ class PasswordResetRepository:
         await self._db.execute(
             update(PasswordResetToken)
             .where(PasswordResetToken.id == token_id)
-            .values(used_at=datetime.now(timezone.utc))
+            .values(used_at=datetime.now(UTC))
         )
 
     async def invalidate_all_for_user(self, user_id: UUID) -> None:
-        now = datetime.now(timezone.utc)
+        now = datetime.now(UTC)
         await self._db.execute(
             update(PasswordResetToken)
             .where(

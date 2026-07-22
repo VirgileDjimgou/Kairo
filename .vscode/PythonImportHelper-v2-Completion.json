@@ -1687,14 +1687,6 @@
         "documentation": {}
     },
     {
-        "label": "settings",
-        "importPath": "app.core.config",
-        "description": "app.core.config",
-        "isExtraImport": true,
-        "detail": "app.core.config",
-        "documentation": {}
-    },
-    {
         "label": "get_embedding_provider",
         "importPath": "app.core.dependencies",
         "description": "app.core.dependencies",
@@ -2327,7 +2319,7 @@
         "documentation": {}
     },
     {
-        "label": "DocumentVersion",
+        "label": "DocumentChunk",
         "importPath": "app.modules.documents.models",
         "description": "app.modules.documents.models",
         "isExtraImport": true,
@@ -2335,7 +2327,7 @@
         "documentation": {}
     },
     {
-        "label": "DocumentChunk",
+        "label": "DocumentVersion",
         "importPath": "app.modules.documents.models",
         "description": "app.modules.documents.models",
         "isExtraImport": true,
@@ -2799,14 +2791,6 @@
         "documentation": {}
     },
     {
-        "label": "User",
-        "importPath": "app.modules.identity.models",
-        "description": "app.modules.identity.models",
-        "isExtraImport": true,
-        "detail": "app.modules.identity.models",
-        "documentation": {}
-    },
-    {
         "label": "IngestionService",
         "importPath": "app.modules.ingestion.service",
         "description": "app.modules.ingestion.service",
@@ -2975,14 +2959,6 @@
         "documentation": {}
     },
     {
-        "label": "user_roles",
-        "importPath": "app.modules.tenancy.models",
-        "description": "app.modules.tenancy.models",
-        "isExtraImport": true,
-        "detail": "app.modules.tenancy.models",
-        "documentation": {}
-    },
-    {
         "label": "Role",
         "importPath": "app.modules.tenancy.models",
         "description": "app.modules.tenancy.models",
@@ -3064,14 +3040,6 @@
     },
     {
         "label": "user_roles",
-        "importPath": "app.modules.tenancy.models",
-        "description": "app.modules.tenancy.models",
-        "isExtraImport": true,
-        "detail": "app.modules.tenancy.models",
-        "documentation": {}
-    },
-    {
-        "label": "TenantUser",
         "importPath": "app.modules.tenancy.models",
         "description": "app.modules.tenancy.models",
         "isExtraImport": true,
@@ -3400,7 +3368,7 @@
         "documentation": {}
     },
     {
-        "label": "ForeignKey",
+        "label": "Float",
         "importPath": "sqlalchemy",
         "description": "sqlalchemy",
         "isExtraImport": true,
@@ -3408,7 +3376,7 @@
         "documentation": {}
     },
     {
-        "label": "Float",
+        "label": "ForeignKey",
         "importPath": "sqlalchemy",
         "description": "sqlalchemy",
         "isExtraImport": true,
@@ -3496,7 +3464,7 @@
         "documentation": {}
     },
     {
-        "label": "select",
+        "label": "func",
         "importPath": "sqlalchemy",
         "description": "sqlalchemy",
         "isExtraImport": true,
@@ -3504,7 +3472,7 @@
         "documentation": {}
     },
     {
-        "label": "func",
+        "label": "select",
         "importPath": "sqlalchemy",
         "description": "sqlalchemy",
         "isExtraImport": true,
@@ -3832,6 +3800,14 @@
         "documentation": {}
     },
     {
+        "label": "DateTime",
+        "importPath": "sqlalchemy",
+        "description": "sqlalchemy",
+        "isExtraImport": true,
+        "detail": "sqlalchemy",
+        "documentation": {}
+    },
+    {
         "label": "ForeignKey",
         "importPath": "sqlalchemy",
         "description": "sqlalchemy",
@@ -3864,14 +3840,6 @@
         "documentation": {}
     },
     {
-        "label": "DateTime",
-        "importPath": "sqlalchemy",
-        "description": "sqlalchemy",
-        "isExtraImport": true,
-        "detail": "sqlalchemy",
-        "documentation": {}
-    },
-    {
         "label": "delete",
         "importPath": "sqlalchemy",
         "description": "sqlalchemy",
@@ -3881,22 +3849,6 @@
     },
     {
         "label": "select",
-        "importPath": "sqlalchemy",
-        "description": "sqlalchemy",
-        "isExtraImport": true,
-        "detail": "sqlalchemy",
-        "documentation": {}
-    },
-    {
-        "label": "select",
-        "importPath": "sqlalchemy",
-        "description": "sqlalchemy",
-        "isExtraImport": true,
-        "detail": "sqlalchemy",
-        "documentation": {}
-    },
-    {
-        "label": "delete",
         "importPath": "sqlalchemy",
         "description": "sqlalchemy",
         "isExtraImport": true,
@@ -4530,14 +4482,6 @@
         "documentation": {}
     },
     {
-        "label": "Callable",
-        "importPath": "collections.abc",
-        "description": "collections.abc",
-        "isExtraImport": true,
-        "detail": "collections.abc",
-        "documentation": {}
-    },
-    {
         "label": "Mapping",
         "importPath": "collections.abc",
         "description": "collections.abc",
@@ -4546,6 +4490,94 @@
         "documentation": {}
     },
     {
+        "label": "Sequence",
+        "importPath": "collections.abc",
+        "description": "collections.abc",
+        "isExtraImport": true,
+        "detail": "collections.abc",
+        "documentation": {}
+    },
+    {
+        "label": "Sequence",
+        "importPath": "collections.abc",
+        "description": "collections.abc",
+        "isExtraImport": true,
+        "detail": "collections.abc",
+        "documentation": {}
+    },
+    {
+        "label": "Sequence",
+        "importPath": "collections.abc",
+        "description": "collections.abc",
+        "isExtraImport": true,
+        "detail": "collections.abc",
+        "documentation": {}
+    },
+    {
+        "label": "Sequence",
+        "importPath": "collections.abc",
+        "description": "collections.abc",
+        "isExtraImport": true,
+        "detail": "collections.abc",
+        "documentation": {}
+    },
+    {
+        "label": "Sequence",
+        "importPath": "collections.abc",
+        "description": "collections.abc",
+        "isExtraImport": true,
+        "detail": "collections.abc",
+        "documentation": {}
+    },
+    {
+        "label": "Sequence",
+        "importPath": "collections.abc",
+        "description": "collections.abc",
+        "isExtraImport": true,
+        "detail": "collections.abc",
+        "documentation": {}
+    },
+    {
+        "label": "AsyncGenerator",
+        "importPath": "collections.abc",
+        "description": "collections.abc",
+        "isExtraImport": true,
+        "detail": "collections.abc",
+        "documentation": {}
+    },
+    {
+        "label": "Sequence",
+        "importPath": "collections.abc",
+        "description": "collections.abc",
+        "isExtraImport": true,
+        "detail": "collections.abc",
+        "documentation": {}
+    },
+    {
+        "label": "AsyncGenerator",
+        "importPath": "collections.abc",
+        "description": "collections.abc",
+        "isExtraImport": true,
+        "detail": "collections.abc",
+        "documentation": {}
+    },
+    {
+        "label": "AsyncGenerator",
+        "importPath": "collections.abc",
+        "description": "collections.abc",
+        "isExtraImport": true,
+        "detail": "collections.abc",
+        "documentation": {}
+    },
+    {
+        "label": "AsyncGenerator",
+        "importPath": "collections.abc",
+        "description": "collections.abc",
+        "isExtraImport": true,
+        "detail": "collections.abc",
+        "documentation": {}
+    },
+    {
         "label": "AsyncGenerator",
         "importPath": "collections.abc",
         "description": "collections.abc",
@@ -4570,6 +4602,14 @@
         "documentation": {}
     },
     {
+        "label": "TYPE_CHECKING",
+        "importPath": "typing",
+        "description": "typing",
+        "isExtraImport": true,
+        "detail": "typing",
+        "documentation": {}
+    },
+    {
         "label": "Annotated",
         "importPath": "typing",
         "description": "typing",
@@ -4587,102 +4627,6 @@
     },
     {
         "label": "Any",
-        "importPath": "typing",
-        "description": "typing",
-        "isExtraImport": true,
-        "detail": "typing",
-        "documentation": {}
-    },
-    {
-        "label": "Sequence",
-        "importPath": "typing",
-        "description": "typing",
-        "isExtraImport": true,
-        "detail": "typing",
-        "documentation": {}
-    },
-    {
-        "label": "Union",
-        "importPath": "typing",
-        "description": "typing",
-        "isExtraImport": true,
-        "detail": "typing",
-        "documentation": {}
-    },
-    {
-        "label": "Sequence",
-        "importPath": "typing",
-        "description": "typing",
-        "isExtraImport": true,
-        "detail": "typing",
-        "documentation": {}
-    },
-    {
-        "label": "Union",
-        "importPath": "typing",
-        "description": "typing",
-        "isExtraImport": true,
-        "detail": "typing",
-        "documentation": {}
-    },
-    {
-        "label": "Sequence",
-        "importPath": "typing",
-        "description": "typing",
-        "isExtraImport": true,
-        "detail": "typing",
-        "documentation": {}
-    },
-    {
-        "label": "Union",
-        "importPath": "typing",
-        "description": "typing",
-        "isExtraImport": true,
-        "detail": "typing",
-        "documentation": {}
-    },
-    {
-        "label": "Sequence",
-        "importPath": "typing",
-        "description": "typing",
-        "isExtraImport": true,
-        "detail": "typing",
-        "documentation": {}
-    },
-    {
-        "label": "Union",
-        "importPath": "typing",
-        "description": "typing",
-        "isExtraImport": true,
-        "detail": "typing",
-        "documentation": {}
-    },
-    {
-        "label": "Sequence",
-        "importPath": "typing",
-        "description": "typing",
-        "isExtraImport": true,
-        "detail": "typing",
-        "documentation": {}
-    },
-    {
-        "label": "Union",
-        "importPath": "typing",
-        "description": "typing",
-        "isExtraImport": true,
-        "detail": "typing",
-        "documentation": {}
-    },
-    {
-        "label": "Sequence",
-        "importPath": "typing",
-        "description": "typing",
-        "isExtraImport": true,
-        "detail": "typing",
-        "documentation": {}
-    },
-    {
-        "label": "Union",
         "importPath": "typing",
         "description": "typing",
         "isExtraImport": true,
@@ -4746,23 +4690,7 @@
         "documentation": {}
     },
     {
-        "label": "Annotated",
-        "importPath": "typing",
-        "description": "typing",
-        "isExtraImport": true,
-        "detail": "typing",
-        "documentation": {}
-    },
-    {
         "label": "Any",
-        "importPath": "typing",
-        "description": "typing",
-        "isExtraImport": true,
-        "detail": "typing",
-        "documentation": {}
-    },
-    {
-        "label": "Union",
         "importPath": "typing",
         "description": "typing",
         "isExtraImport": true,
@@ -4786,7 +4714,7 @@
         "documentation": {}
     },
     {
-        "label": "Annotated",
+        "label": "Any",
         "importPath": "typing",
         "description": "typing",
         "isExtraImport": true,
@@ -4818,31 +4746,7 @@
         "documentation": {}
     },
     {
-        "label": "AsyncGenerator",
-        "importPath": "typing",
-        "description": "typing",
-        "isExtraImport": true,
-        "detail": "typing",
-        "documentation": {}
-    },
-    {
         "label": "Protocol",
-        "importPath": "typing",
-        "description": "typing",
-        "isExtraImport": true,
-        "detail": "typing",
-        "documentation": {}
-    },
-    {
-        "label": "AsyncGenerator",
-        "importPath": "typing",
-        "description": "typing",
-        "isExtraImport": true,
-        "detail": "typing",
-        "documentation": {}
-    },
-    {
-        "label": "AsyncGenerator",
         "importPath": "typing",
         "description": "typing",
         "isExtraImport": true,
@@ -4915,14 +4819,6 @@
     },
     {
         "label": "Any",
-        "importPath": "typing",
-        "description": "typing",
-        "isExtraImport": true,
-        "detail": "typing",
-        "documentation": {}
-    },
-    {
-        "label": "AsyncGenerator",
         "importPath": "typing",
         "description": "typing",
         "isExtraImport": true,
@@ -5835,14 +5731,6 @@
         "documentation": {}
     },
     {
-        "label": "create_refresh_token",
-        "importPath": "app.core.security",
-        "description": "app.core.security",
-        "isExtraImport": true,
-        "detail": "app.core.security",
-        "documentation": {}
-    },
-    {
         "label": "decode_access_token",
         "importPath": "app.core.security",
         "description": "app.core.security",
@@ -5851,7 +5739,7 @@
         "documentation": {}
     },
     {
-        "label": "generate_totp_secret",
+        "label": "generate_token",
         "importPath": "app.core.security",
         "description": "app.core.security",
         "isExtraImport": true,
@@ -5859,7 +5747,7 @@
         "documentation": {}
     },
     {
-        "label": "generate_token",
+        "label": "generate_totp_secret",
         "importPath": "app.core.security",
         "description": "app.core.security",
         "isExtraImport": true,
@@ -5907,14 +5795,6 @@
         "documentation": {}
     },
     {
-        "label": "verify_token",
-        "importPath": "app.core.security",
-        "description": "app.core.security",
-        "isExtraImport": true,
-        "detail": "app.core.security",
-        "documentation": {}
-    },
-    {
         "label": "hash_password",
         "importPath": "app.core.security",
         "description": "app.core.security",
@@ -5932,14 +5812,6 @@
     },
     {
         "label": "decode_access_token",
-        "importPath": "app.core.security",
-        "description": "app.core.security",
-        "isExtraImport": true,
-        "detail": "app.core.security",
-        "documentation": {}
-    },
-    {
-        "label": "hash_password",
         "importPath": "app.core.security",
         "description": "app.core.security",
         "isExtraImport": true,
@@ -6044,6 +5916,14 @@
     },
     {
         "label": "NotificationDeliveryStatusResult",
+        "importPath": "app.providers.notifications.base",
+        "description": "app.providers.notifications.base",
+        "isExtraImport": true,
+        "detail": "app.providers.notifications.base",
+        "documentation": {}
+    },
+    {
+        "label": "NotificationDispatchResult",
         "importPath": "app.providers.notifications.base",
         "description": "app.providers.notifications.base",
         "isExtraImport": true,
@@ -6496,14 +6376,6 @@
         "documentation": {}
     },
     {
-        "label": "BytesIO",
-        "importPath": "io",
-        "description": "io",
-        "isExtraImport": true,
-        "detail": "io",
-        "documentation": {}
-    },
-    {
         "label": "logging",
         "kind": 6,
         "isExtraImport": true,
@@ -6641,11 +6513,11 @@
         "documentation": {}
     },
     {
-        "label": "ChatConversation",
-        "importPath": "app.modules.chat.models",
-        "description": "app.modules.chat.models",
+        "label": "Depends",
+        "importPath": "fastapi.params",
+        "description": "fastapi.params",
         "isExtraImport": true,
-        "detail": "app.modules.chat.models",
+        "detail": "fastapi.params",
         "documentation": {}
     },
     {
@@ -6833,14 +6705,6 @@
         "documentation": {}
     },
     {
-        "label": "Response",
-        "importPath": "starlette.responses",
-        "description": "starlette.responses",
-        "isExtraImport": true,
-        "detail": "starlette.responses",
-        "documentation": {}
-    },
-    {
         "label": "metrics",
         "importPath": "app.core.metrics",
         "description": "app.core.metrics",
@@ -6898,23 +6762,7 @@
         "documentation": {}
     },
     {
-        "label": "datetime",
-        "importPath": "datetime",
-        "description": "datetime",
-        "isExtraImport": true,
-        "detail": "datetime",
-        "documentation": {}
-    },
-    {
-        "label": "timedelta",
-        "importPath": "datetime",
-        "description": "datetime",
-        "isExtraImport": true,
-        "detail": "datetime",
-        "documentation": {}
-    },
-    {
-        "label": "timezone",
+        "label": "UTC",
         "importPath": "datetime",
         "description": "datetime",
         "isExtraImport": true,
@@ -6938,143 +6786,7 @@
         "documentation": {}
     },
     {
-        "label": "timezone",
-        "importPath": "datetime",
-        "description": "datetime",
-        "isExtraImport": true,
-        "detail": "datetime",
-        "documentation": {}
-    },
-    {
-        "label": "datetime",
-        "importPath": "datetime",
-        "description": "datetime",
-        "isExtraImport": true,
-        "detail": "datetime",
-        "documentation": {}
-    },
-    {
-        "label": "datetime",
-        "importPath": "datetime",
-        "description": "datetime",
-        "isExtraImport": true,
-        "detail": "datetime",
-        "documentation": {}
-    },
-    {
-        "label": "datetime",
-        "importPath": "datetime",
-        "description": "datetime",
-        "isExtraImport": true,
-        "detail": "datetime",
-        "documentation": {}
-    },
-    {
-        "label": "datetime",
-        "importPath": "datetime",
-        "description": "datetime",
-        "isExtraImport": true,
-        "detail": "datetime",
-        "documentation": {}
-    },
-    {
-        "label": "timezone",
-        "importPath": "datetime",
-        "description": "datetime",
-        "isExtraImport": true,
-        "detail": "datetime",
-        "documentation": {}
-    },
-    {
-        "label": "datetime",
-        "importPath": "datetime",
-        "description": "datetime",
-        "isExtraImport": true,
-        "detail": "datetime",
-        "documentation": {}
-    },
-    {
-        "label": "datetime",
-        "importPath": "datetime",
-        "description": "datetime",
-        "isExtraImport": true,
-        "detail": "datetime",
-        "documentation": {}
-    },
-    {
-        "label": "datetime",
-        "importPath": "datetime",
-        "description": "datetime",
-        "isExtraImport": true,
-        "detail": "datetime",
-        "documentation": {}
-    },
-    {
-        "label": "datetime",
-        "importPath": "datetime",
-        "description": "datetime",
-        "isExtraImport": true,
-        "detail": "datetime",
-        "documentation": {}
-    },
-    {
-        "label": "datetime",
-        "importPath": "datetime",
-        "description": "datetime",
-        "isExtraImport": true,
-        "detail": "datetime",
-        "documentation": {}
-    },
-    {
-        "label": "datetime",
-        "importPath": "datetime",
-        "description": "datetime",
-        "isExtraImport": true,
-        "detail": "datetime",
-        "documentation": {}
-    },
-    {
-        "label": "datetime",
-        "importPath": "datetime",
-        "description": "datetime",
-        "isExtraImport": true,
-        "detail": "datetime",
-        "documentation": {}
-    },
-    {
-        "label": "datetime",
-        "importPath": "datetime",
-        "description": "datetime",
-        "isExtraImport": true,
-        "detail": "datetime",
-        "documentation": {}
-    },
-    {
-        "label": "timezone",
-        "importPath": "datetime",
-        "description": "datetime",
-        "isExtraImport": true,
-        "detail": "datetime",
-        "documentation": {}
-    },
-    {
-        "label": "datetime",
-        "importPath": "datetime",
-        "description": "datetime",
-        "isExtraImport": true,
-        "detail": "datetime",
-        "documentation": {}
-    },
-    {
-        "label": "datetime",
-        "importPath": "datetime",
-        "description": "datetime",
-        "isExtraImport": true,
-        "detail": "datetime",
-        "documentation": {}
-    },
-    {
-        "label": "datetime",
+        "label": "UTC",
         "importPath": "datetime",
         "description": "datetime",
         "isExtraImport": true,
@@ -7098,7 +6810,191 @@
         "documentation": {}
     },
     {
-        "label": "timezone",
+        "label": "datetime",
+        "importPath": "datetime",
+        "description": "datetime",
+        "isExtraImport": true,
+        "detail": "datetime",
+        "documentation": {}
+    },
+    {
+        "label": "datetime",
+        "importPath": "datetime",
+        "description": "datetime",
+        "isExtraImport": true,
+        "detail": "datetime",
+        "documentation": {}
+    },
+    {
+        "label": "UTC",
+        "importPath": "datetime",
+        "description": "datetime",
+        "isExtraImport": true,
+        "detail": "datetime",
+        "documentation": {}
+    },
+    {
+        "label": "datetime",
+        "importPath": "datetime",
+        "description": "datetime",
+        "isExtraImport": true,
+        "detail": "datetime",
+        "documentation": {}
+    },
+    {
+        "label": "UTC",
+        "importPath": "datetime",
+        "description": "datetime",
+        "isExtraImport": true,
+        "detail": "datetime",
+        "documentation": {}
+    },
+    {
+        "label": "datetime",
+        "importPath": "datetime",
+        "description": "datetime",
+        "isExtraImport": true,
+        "detail": "datetime",
+        "documentation": {}
+    },
+    {
+        "label": "datetime",
+        "importPath": "datetime",
+        "description": "datetime",
+        "isExtraImport": true,
+        "detail": "datetime",
+        "documentation": {}
+    },
+    {
+        "label": "datetime",
+        "importPath": "datetime",
+        "description": "datetime",
+        "isExtraImport": true,
+        "detail": "datetime",
+        "documentation": {}
+    },
+    {
+        "label": "datetime",
+        "importPath": "datetime",
+        "description": "datetime",
+        "isExtraImport": true,
+        "detail": "datetime",
+        "documentation": {}
+    },
+    {
+        "label": "datetime",
+        "importPath": "datetime",
+        "description": "datetime",
+        "isExtraImport": true,
+        "detail": "datetime",
+        "documentation": {}
+    },
+    {
+        "label": "datetime",
+        "importPath": "datetime",
+        "description": "datetime",
+        "isExtraImport": true,
+        "detail": "datetime",
+        "documentation": {}
+    },
+    {
+        "label": "datetime",
+        "importPath": "datetime",
+        "description": "datetime",
+        "isExtraImport": true,
+        "detail": "datetime",
+        "documentation": {}
+    },
+    {
+        "label": "UTC",
+        "importPath": "datetime",
+        "description": "datetime",
+        "isExtraImport": true,
+        "detail": "datetime",
+        "documentation": {}
+    },
+    {
+        "label": "datetime",
+        "importPath": "datetime",
+        "description": "datetime",
+        "isExtraImport": true,
+        "detail": "datetime",
+        "documentation": {}
+    },
+    {
+        "label": "UTC",
+        "importPath": "datetime",
+        "description": "datetime",
+        "isExtraImport": true,
+        "detail": "datetime",
+        "documentation": {}
+    },
+    {
+        "label": "datetime",
+        "importPath": "datetime",
+        "description": "datetime",
+        "isExtraImport": true,
+        "detail": "datetime",
+        "documentation": {}
+    },
+    {
+        "label": "datetime",
+        "importPath": "datetime",
+        "description": "datetime",
+        "isExtraImport": true,
+        "detail": "datetime",
+        "documentation": {}
+    },
+    {
+        "label": "datetime",
+        "importPath": "datetime",
+        "description": "datetime",
+        "isExtraImport": true,
+        "detail": "datetime",
+        "documentation": {}
+    },
+    {
+        "label": "UTC",
+        "importPath": "datetime",
+        "description": "datetime",
+        "isExtraImport": true,
+        "detail": "datetime",
+        "documentation": {}
+    },
+    {
+        "label": "datetime",
+        "importPath": "datetime",
+        "description": "datetime",
+        "isExtraImport": true,
+        "detail": "datetime",
+        "documentation": {}
+    },
+    {
+        "label": "timedelta",
+        "importPath": "datetime",
+        "description": "datetime",
+        "isExtraImport": true,
+        "detail": "datetime",
+        "documentation": {}
+    },
+    {
+        "label": "datetime",
+        "importPath": "datetime",
+        "description": "datetime",
+        "isExtraImport": true,
+        "detail": "datetime",
+        "documentation": {}
+    },
+    {
+        "label": "datetime",
+        "importPath": "datetime",
+        "description": "datetime",
+        "isExtraImport": true,
+        "detail": "datetime",
+        "documentation": {}
+    },
+    {
+        "label": "UTC",
         "importPath": "datetime",
         "description": "datetime",
         "isExtraImport": true,
@@ -7178,7 +7074,7 @@
         "documentation": {}
     },
     {
-        "label": "datetime",
+        "label": "UTC",
         "importPath": "datetime",
         "description": "datetime",
         "isExtraImport": true,
@@ -7202,15 +7098,7 @@
         "documentation": {}
     },
     {
-        "label": "timezone",
-        "importPath": "datetime",
-        "description": "datetime",
-        "isExtraImport": true,
-        "detail": "datetime",
-        "documentation": {}
-    },
-    {
-        "label": "datetime",
+        "label": "UTC",
         "importPath": "datetime",
         "description": "datetime",
         "isExtraImport": true,
@@ -7227,14 +7115,6 @@
     },
     {
         "label": "timedelta",
-        "importPath": "datetime",
-        "description": "datetime",
-        "isExtraImport": true,
-        "detail": "datetime",
-        "documentation": {}
-    },
-    {
-        "label": "timezone",
         "importPath": "datetime",
         "description": "datetime",
         "isExtraImport": true,
@@ -7346,6 +7226,22 @@
         "documentation": {}
     },
     {
+        "label": "UTC",
+        "importPath": "datetime",
+        "description": "datetime",
+        "isExtraImport": true,
+        "detail": "datetime",
+        "documentation": {}
+    },
+    {
+        "label": "datetime",
+        "importPath": "datetime",
+        "description": "datetime",
+        "isExtraImport": true,
+        "detail": "datetime",
+        "documentation": {}
+    },
+    {
         "label": "datetime",
         "importPath": "datetime",
         "description": "datetime",
@@ -7378,39 +7274,7 @@
         "documentation": {}
     },
     {
-        "label": "timezone",
-        "importPath": "datetime",
-        "description": "datetime",
-        "isExtraImport": true,
-        "detail": "datetime",
-        "documentation": {}
-    },
-    {
-        "label": "datetime",
-        "importPath": "datetime",
-        "description": "datetime",
-        "isExtraImport": true,
-        "detail": "datetime",
-        "documentation": {}
-    },
-    {
-        "label": "datetime",
-        "importPath": "datetime",
-        "description": "datetime",
-        "isExtraImport": true,
-        "detail": "datetime",
-        "documentation": {}
-    },
-    {
-        "label": "timezone",
-        "importPath": "datetime",
-        "description": "datetime",
-        "isExtraImport": true,
-        "detail": "datetime",
-        "documentation": {}
-    },
-    {
-        "label": "timedelta",
+        "label": "UTC",
         "importPath": "datetime",
         "description": "datetime",
         "isExtraImport": true,
@@ -7427,14 +7291,6 @@
     },
     {
         "label": "timedelta",
-        "importPath": "datetime",
-        "description": "datetime",
-        "isExtraImport": true,
-        "detail": "datetime",
-        "documentation": {}
-    },
-    {
-        "label": "timezone",
         "importPath": "datetime",
         "description": "datetime",
         "isExtraImport": true,
@@ -7458,15 +7314,7 @@
         "documentation": {}
     },
     {
-        "label": "datetime",
-        "importPath": "datetime",
-        "description": "datetime",
-        "isExtraImport": true,
-        "detail": "datetime",
-        "documentation": {}
-    },
-    {
-        "label": "timezone",
+        "label": "UTC",
         "importPath": "datetime",
         "description": "datetime",
         "isExtraImport": true,
@@ -7482,15 +7330,7 @@
         "documentation": {}
     },
     {
-        "label": "timedelta",
-        "importPath": "datetime",
-        "description": "datetime",
-        "isExtraImport": true,
-        "detail": "datetime",
-        "documentation": {}
-    },
-    {
-        "label": "timezone",
+        "label": "UTC",
         "importPath": "datetime",
         "description": "datetime",
         "isExtraImport": true,
@@ -7514,7 +7354,31 @@
         "documentation": {}
     },
     {
-        "label": "timezone",
+        "label": "UTC",
+        "importPath": "datetime",
+        "description": "datetime",
+        "isExtraImport": true,
+        "detail": "datetime",
+        "documentation": {}
+    },
+    {
+        "label": "UTC",
+        "importPath": "datetime",
+        "description": "datetime",
+        "isExtraImport": true,
+        "detail": "datetime",
+        "documentation": {}
+    },
+    {
+        "label": "datetime",
+        "importPath": "datetime",
+        "description": "datetime",
+        "isExtraImport": true,
+        "detail": "datetime",
+        "documentation": {}
+    },
+    {
+        "label": "timedelta",
         "importPath": "datetime",
         "description": "datetime",
         "isExtraImport": true,
@@ -7739,108 +7603,108 @@
         "documentation": {}
     },
     {
-        "label": "Base",
-        "importPath": "app.db.base",
-        "description": "app.db.base",
-        "isExtraImport": true,
-        "detail": "app.db.base",
-        "documentation": {}
-    },
-    {
-        "label": "Base",
-        "importPath": "app.db.base",
-        "description": "app.db.base",
-        "isExtraImport": true,
-        "detail": "app.db.base",
-        "documentation": {}
-    },
-    {
-        "label": "Base",
-        "importPath": "app.db.base",
-        "description": "app.db.base",
-        "isExtraImport": true,
-        "detail": "app.db.base",
-        "documentation": {}
-    },
-    {
-        "label": "Base",
-        "importPath": "app.db.base",
-        "description": "app.db.base",
-        "isExtraImport": true,
-        "detail": "app.db.base",
-        "documentation": {}
-    },
-    {
-        "label": "Base",
-        "importPath": "app.db.base",
-        "description": "app.db.base",
-        "isExtraImport": true,
-        "detail": "app.db.base",
-        "documentation": {}
-    },
-    {
-        "label": "Base",
-        "importPath": "app.db.base",
-        "description": "app.db.base",
-        "isExtraImport": true,
-        "detail": "app.db.base",
-        "documentation": {}
-    },
-    {
-        "label": "Base",
-        "importPath": "app.db.base",
-        "description": "app.db.base",
-        "isExtraImport": true,
-        "detail": "app.db.base",
-        "documentation": {}
-    },
-    {
-        "label": "Base",
-        "importPath": "app.db.base",
-        "description": "app.db.base",
-        "isExtraImport": true,
-        "detail": "app.db.base",
-        "documentation": {}
-    },
-    {
-        "label": "Base",
-        "importPath": "app.db.base",
-        "description": "app.db.base",
-        "isExtraImport": true,
-        "detail": "app.db.base",
-        "documentation": {}
-    },
-    {
-        "label": "Base",
-        "importPath": "app.db.base",
-        "description": "app.db.base",
-        "isExtraImport": true,
-        "detail": "app.db.base",
-        "documentation": {}
-    },
-    {
-        "label": "Base",
-        "importPath": "app.db.base",
-        "description": "app.db.base",
-        "isExtraImport": true,
-        "detail": "app.db.base",
-        "documentation": {}
-    },
-    {
-        "label": "Base",
-        "importPath": "app.db.base",
-        "description": "app.db.base",
-        "isExtraImport": true,
-        "detail": "app.db.base",
-        "documentation": {}
-    },
-    {
         "label": "app.db.models",
         "kind": 6,
         "isExtraImport": true,
         "importPath": "app.db.models",
         "description": "app.db.models",
         "detail": "app.db.models",
+        "documentation": {}
+    },
+    {
+        "label": "Base",
+        "importPath": "app.db.base",
+        "description": "app.db.base",
+        "isExtraImport": true,
+        "detail": "app.db.base",
+        "documentation": {}
+    },
+    {
+        "label": "Base",
+        "importPath": "app.db.base",
+        "description": "app.db.base",
+        "isExtraImport": true,
+        "detail": "app.db.base",
+        "documentation": {}
+    },
+    {
+        "label": "Base",
+        "importPath": "app.db.base",
+        "description": "app.db.base",
+        "isExtraImport": true,
+        "detail": "app.db.base",
+        "documentation": {}
+    },
+    {
+        "label": "Base",
+        "importPath": "app.db.base",
+        "description": "app.db.base",
+        "isExtraImport": true,
+        "detail": "app.db.base",
+        "documentation": {}
+    },
+    {
+        "label": "Base",
+        "importPath": "app.db.base",
+        "description": "app.db.base",
+        "isExtraImport": true,
+        "detail": "app.db.base",
+        "documentation": {}
+    },
+    {
+        "label": "Base",
+        "importPath": "app.db.base",
+        "description": "app.db.base",
+        "isExtraImport": true,
+        "detail": "app.db.base",
+        "documentation": {}
+    },
+    {
+        "label": "Base",
+        "importPath": "app.db.base",
+        "description": "app.db.base",
+        "isExtraImport": true,
+        "detail": "app.db.base",
+        "documentation": {}
+    },
+    {
+        "label": "Base",
+        "importPath": "app.db.base",
+        "description": "app.db.base",
+        "isExtraImport": true,
+        "detail": "app.db.base",
+        "documentation": {}
+    },
+    {
+        "label": "Base",
+        "importPath": "app.db.base",
+        "description": "app.db.base",
+        "isExtraImport": true,
+        "detail": "app.db.base",
+        "documentation": {}
+    },
+    {
+        "label": "Base",
+        "importPath": "app.db.base",
+        "description": "app.db.base",
+        "isExtraImport": true,
+        "detail": "app.db.base",
+        "documentation": {}
+    },
+    {
+        "label": "Base",
+        "importPath": "app.db.base",
+        "description": "app.db.base",
+        "isExtraImport": true,
+        "detail": "app.db.base",
+        "documentation": {}
+    },
+    {
+        "label": "Base",
+        "importPath": "app.db.base",
+        "description": "app.db.base",
+        "isExtraImport": true,
+        "detail": "app.db.base",
         "documentation": {}
     },
     {
@@ -8044,91 +7908,59 @@
         "documentation": {}
     },
     {
-        "label": "MembershipProfile",
-        "importPath": "app.modules.membership.models",
-        "description": "app.modules.membership.models",
+        "label": "Announcement",
+        "importPath": "app.modules.announcements.models",
+        "description": "app.modules.announcements.models",
         "isExtraImport": true,
-        "detail": "app.modules.membership.models",
+        "detail": "app.modules.announcements.models",
         "documentation": {}
     },
     {
-        "label": "MembershipProfile",
-        "importPath": "app.modules.membership.models",
-        "description": "app.modules.membership.models",
+        "label": "Announcement",
+        "importPath": "app.modules.announcements.models",
+        "description": "app.modules.announcements.models",
         "isExtraImport": true,
-        "detail": "app.modules.membership.models",
+        "detail": "app.modules.announcements.models",
         "documentation": {}
     },
     {
-        "label": "MembershipProfile",
-        "importPath": "app.modules.membership.models",
-        "description": "app.modules.membership.models",
+        "label": "Announcement",
+        "importPath": "app.modules.announcements.models",
+        "description": "app.modules.announcements.models",
         "isExtraImport": true,
-        "detail": "app.modules.membership.models",
+        "detail": "app.modules.announcements.models",
         "documentation": {}
     },
     {
-        "label": "MembershipProfile",
-        "importPath": "app.modules.membership.models",
-        "description": "app.modules.membership.models",
+        "label": "Announcement",
+        "importPath": "app.modules.announcements.models",
+        "description": "app.modules.announcements.models",
         "isExtraImport": true,
-        "detail": "app.modules.membership.models",
+        "detail": "app.modules.announcements.models",
         "documentation": {}
     },
     {
-        "label": "MembershipProfile",
-        "importPath": "app.modules.membership.models",
-        "description": "app.modules.membership.models",
+        "label": "AnnouncementVisibility",
+        "importPath": "app.modules.announcements.models",
+        "description": "app.modules.announcements.models",
         "isExtraImport": true,
-        "detail": "app.modules.membership.models",
+        "detail": "app.modules.announcements.models",
         "documentation": {}
     },
     {
-        "label": "MembershipStatus",
-        "importPath": "app.modules.membership.models",
-        "description": "app.modules.membership.models",
+        "label": "Announcement",
+        "importPath": "app.modules.announcements.models",
+        "description": "app.modules.announcements.models",
         "isExtraImport": true,
-        "detail": "app.modules.membership.models",
+        "detail": "app.modules.announcements.models",
         "documentation": {}
     },
     {
-        "label": "MembershipProfile",
-        "importPath": "app.modules.membership.models",
-        "description": "app.modules.membership.models",
+        "label": "Announcement",
+        "importPath": "app.modules.announcements.models",
+        "description": "app.modules.announcements.models",
         "isExtraImport": true,
-        "detail": "app.modules.membership.models",
-        "documentation": {}
-    },
-    {
-        "label": "MembershipProfile",
-        "importPath": "app.modules.membership.models",
-        "description": "app.modules.membership.models",
-        "isExtraImport": true,
-        "detail": "app.modules.membership.models",
-        "documentation": {}
-    },
-    {
-        "label": "MembershipProfile",
-        "importPath": "app.modules.membership.models",
-        "description": "app.modules.membership.models",
-        "isExtraImport": true,
-        "detail": "app.modules.membership.models",
-        "documentation": {}
-    },
-    {
-        "label": "MembershipProfile",
-        "importPath": "app.modules.membership.models",
-        "description": "app.modules.membership.models",
-        "isExtraImport": true,
-        "detail": "app.modules.membership.models",
-        "documentation": {}
-    },
-    {
-        "label": "MembershipProfile",
-        "importPath": "app.modules.membership.models",
-        "description": "app.modules.membership.models",
-        "isExtraImport": true,
-        "detail": "app.modules.membership.models",
+        "detail": "app.modules.announcements.models",
         "documentation": {}
     },
     {
@@ -8228,6 +8060,14 @@
         "documentation": {}
     },
     {
+        "label": "ContributionStatus",
+        "importPath": "app.modules.contributions.models",
+        "description": "app.modules.contributions.models",
+        "isExtraImport": true,
+        "detail": "app.modules.contributions.models",
+        "documentation": {}
+    },
+    {
         "label": "ReminderDeliveryStatus",
         "importPath": "app.modules.contributions.models",
         "description": "app.modules.contributions.models",
@@ -8241,70 +8081,6 @@
         "description": "app.modules.contributions.models",
         "isExtraImport": true,
         "detail": "app.modules.contributions.models",
-        "documentation": {}
-    },
-    {
-        "label": "PolicyRecord",
-        "importPath": "app.modules.policies.models",
-        "description": "app.modules.policies.models",
-        "isExtraImport": true,
-        "detail": "app.modules.policies.models",
-        "documentation": {}
-    },
-    {
-        "label": "PolicyRecord",
-        "importPath": "app.modules.policies.models",
-        "description": "app.modules.policies.models",
-        "isExtraImport": true,
-        "detail": "app.modules.policies.models",
-        "documentation": {}
-    },
-    {
-        "label": "PolicyRecord",
-        "importPath": "app.modules.policies.models",
-        "description": "app.modules.policies.models",
-        "isExtraImport": true,
-        "detail": "app.modules.policies.models",
-        "documentation": {}
-    },
-    {
-        "label": "PolicyStatus",
-        "importPath": "app.modules.policies.models",
-        "description": "app.modules.policies.models",
-        "isExtraImport": true,
-        "detail": "app.modules.policies.models",
-        "documentation": {}
-    },
-    {
-        "label": "PolicyRecord",
-        "importPath": "app.modules.policies.models",
-        "description": "app.modules.policies.models",
-        "isExtraImport": true,
-        "detail": "app.modules.policies.models",
-        "documentation": {}
-    },
-    {
-        "label": "PolicyStatus",
-        "importPath": "app.modules.policies.models",
-        "description": "app.modules.policies.models",
-        "isExtraImport": true,
-        "detail": "app.modules.policies.models",
-        "documentation": {}
-    },
-    {
-        "label": "PolicyRecord",
-        "importPath": "app.modules.policies.models",
-        "description": "app.modules.policies.models",
-        "isExtraImport": true,
-        "detail": "app.modules.policies.models",
-        "documentation": {}
-    },
-    {
-        "label": "PolicyStatus",
-        "importPath": "app.modules.policies.models",
-        "description": "app.modules.policies.models",
-        "isExtraImport": true,
-        "detail": "app.modules.policies.models",
         "documentation": {}
     },
     {
@@ -8444,59 +8220,163 @@
         "documentation": {}
     },
     {
-        "label": "Announcement",
-        "importPath": "app.modules.announcements.models",
-        "description": "app.modules.announcements.models",
+        "label": "MembershipProfile",
+        "importPath": "app.modules.membership.models",
+        "description": "app.modules.membership.models",
         "isExtraImport": true,
-        "detail": "app.modules.announcements.models",
+        "detail": "app.modules.membership.models",
         "documentation": {}
     },
     {
-        "label": "Announcement",
-        "importPath": "app.modules.announcements.models",
-        "description": "app.modules.announcements.models",
+        "label": "MembershipProfile",
+        "importPath": "app.modules.membership.models",
+        "description": "app.modules.membership.models",
         "isExtraImport": true,
-        "detail": "app.modules.announcements.models",
+        "detail": "app.modules.membership.models",
         "documentation": {}
     },
     {
-        "label": "Announcement",
-        "importPath": "app.modules.announcements.models",
-        "description": "app.modules.announcements.models",
+        "label": "MembershipProfile",
+        "importPath": "app.modules.membership.models",
+        "description": "app.modules.membership.models",
         "isExtraImport": true,
-        "detail": "app.modules.announcements.models",
+        "detail": "app.modules.membership.models",
         "documentation": {}
     },
     {
-        "label": "Announcement",
-        "importPath": "app.modules.announcements.models",
-        "description": "app.modules.announcements.models",
+        "label": "MembershipProfile",
+        "importPath": "app.modules.membership.models",
+        "description": "app.modules.membership.models",
         "isExtraImport": true,
-        "detail": "app.modules.announcements.models",
+        "detail": "app.modules.membership.models",
         "documentation": {}
     },
     {
-        "label": "AnnouncementVisibility",
-        "importPath": "app.modules.announcements.models",
-        "description": "app.modules.announcements.models",
+        "label": "MembershipProfile",
+        "importPath": "app.modules.membership.models",
+        "description": "app.modules.membership.models",
         "isExtraImport": true,
-        "detail": "app.modules.announcements.models",
+        "detail": "app.modules.membership.models",
         "documentation": {}
     },
     {
-        "label": "Announcement",
-        "importPath": "app.modules.announcements.models",
-        "description": "app.modules.announcements.models",
+        "label": "MembershipStatus",
+        "importPath": "app.modules.membership.models",
+        "description": "app.modules.membership.models",
         "isExtraImport": true,
-        "detail": "app.modules.announcements.models",
+        "detail": "app.modules.membership.models",
         "documentation": {}
     },
     {
-        "label": "Announcement",
-        "importPath": "app.modules.announcements.models",
-        "description": "app.modules.announcements.models",
+        "label": "MembershipProfile",
+        "importPath": "app.modules.membership.models",
+        "description": "app.modules.membership.models",
         "isExtraImport": true,
-        "detail": "app.modules.announcements.models",
+        "detail": "app.modules.membership.models",
+        "documentation": {}
+    },
+    {
+        "label": "MembershipStatus",
+        "importPath": "app.modules.membership.models",
+        "description": "app.modules.membership.models",
+        "isExtraImport": true,
+        "detail": "app.modules.membership.models",
+        "documentation": {}
+    },
+    {
+        "label": "MembershipProfile",
+        "importPath": "app.modules.membership.models",
+        "description": "app.modules.membership.models",
+        "isExtraImport": true,
+        "detail": "app.modules.membership.models",
+        "documentation": {}
+    },
+    {
+        "label": "MembershipProfile",
+        "importPath": "app.modules.membership.models",
+        "description": "app.modules.membership.models",
+        "isExtraImport": true,
+        "detail": "app.modules.membership.models",
+        "documentation": {}
+    },
+    {
+        "label": "MembershipProfile",
+        "importPath": "app.modules.membership.models",
+        "description": "app.modules.membership.models",
+        "isExtraImport": true,
+        "detail": "app.modules.membership.models",
+        "documentation": {}
+    },
+    {
+        "label": "MembershipProfile",
+        "importPath": "app.modules.membership.models",
+        "description": "app.modules.membership.models",
+        "isExtraImport": true,
+        "detail": "app.modules.membership.models",
+        "documentation": {}
+    },
+    {
+        "label": "PolicyRecord",
+        "importPath": "app.modules.policies.models",
+        "description": "app.modules.policies.models",
+        "isExtraImport": true,
+        "detail": "app.modules.policies.models",
+        "documentation": {}
+    },
+    {
+        "label": "PolicyRecord",
+        "importPath": "app.modules.policies.models",
+        "description": "app.modules.policies.models",
+        "isExtraImport": true,
+        "detail": "app.modules.policies.models",
+        "documentation": {}
+    },
+    {
+        "label": "PolicyRecord",
+        "importPath": "app.modules.policies.models",
+        "description": "app.modules.policies.models",
+        "isExtraImport": true,
+        "detail": "app.modules.policies.models",
+        "documentation": {}
+    },
+    {
+        "label": "PolicyStatus",
+        "importPath": "app.modules.policies.models",
+        "description": "app.modules.policies.models",
+        "isExtraImport": true,
+        "detail": "app.modules.policies.models",
+        "documentation": {}
+    },
+    {
+        "label": "PolicyRecord",
+        "importPath": "app.modules.policies.models",
+        "description": "app.modules.policies.models",
+        "isExtraImport": true,
+        "detail": "app.modules.policies.models",
+        "documentation": {}
+    },
+    {
+        "label": "PolicyStatus",
+        "importPath": "app.modules.policies.models",
+        "description": "app.modules.policies.models",
+        "isExtraImport": true,
+        "detail": "app.modules.policies.models",
+        "documentation": {}
+    },
+    {
+        "label": "PolicyRecord",
+        "importPath": "app.modules.policies.models",
+        "description": "app.modules.policies.models",
+        "isExtraImport": true,
+        "detail": "app.modules.policies.models",
+        "documentation": {}
+    },
+    {
+        "label": "PolicyStatus",
+        "importPath": "app.modules.policies.models",
+        "description": "app.modules.policies.models",
+        "isExtraImport": true,
+        "detail": "app.modules.policies.models",
         "documentation": {}
     },
     {
@@ -8828,14 +8708,6 @@
         "documentation": {}
     },
     {
-        "label": "CAP_FINANCE_SELF_READ",
-        "importPath": "app.core.capabilities",
-        "description": "app.core.capabilities",
-        "isExtraImport": true,
-        "detail": "app.core.capabilities",
-        "documentation": {}
-    },
-    {
         "label": "CAP_FINANCE_TENANT_READ",
         "importPath": "app.core.capabilities",
         "description": "app.core.capabilities",
@@ -9124,7 +8996,7 @@
         "documentation": {}
     },
     {
-        "label": "CAP_EVENTS_WRITE",
+        "label": "CAP_EVENTS_SPORTS_WRITE",
         "importPath": "app.core.capabilities",
         "description": "app.core.capabilities",
         "isExtraImport": true,
@@ -9132,7 +9004,7 @@
         "documentation": {}
     },
     {
-        "label": "CAP_EVENTS_SPORTS_WRITE",
+        "label": "CAP_EVENTS_WRITE",
         "importPath": "app.core.capabilities",
         "description": "app.core.capabilities",
         "isExtraImport": true,
@@ -9380,6 +9252,14 @@
         "documentation": {}
     },
     {
+        "label": "module_has_data",
+        "importPath": "app.modules.admin.module_usage",
+        "description": "app.modules.admin.module_usage",
+        "isExtraImport": true,
+        "detail": "app.modules.admin.module_usage",
+        "documentation": {}
+    },
+    {
         "label": "IngestionJobHealthItemResponse",
         "importPath": "app.modules.admin.schemas",
         "description": "app.modules.admin.schemas",
@@ -9393,14 +9273,6 @@
         "description": "app.modules.admin.schemas",
         "isExtraImport": true,
         "detail": "app.modules.admin.schemas",
-        "documentation": {}
-    },
-    {
-        "label": "module_has_data",
-        "importPath": "app.modules.admin.module_usage",
-        "description": "app.modules.admin.module_usage",
-        "isExtraImport": true,
-        "detail": "app.modules.admin.module_usage",
         "documentation": {}
     },
     {
@@ -9444,7 +9316,7 @@
         "documentation": {}
     },
     {
-        "label": "ChatDomainPolicyResponse",
+        "label": "ChatConversationUpdate",
         "importPath": "app.modules.chat.schemas",
         "description": "app.modules.chat.schemas",
         "isExtraImport": true,
@@ -9452,7 +9324,7 @@
         "documentation": {}
     },
     {
-        "label": "ChatConversationUpdate",
+        "label": "ChatDomainPolicyResponse",
         "importPath": "app.modules.chat.schemas",
         "description": "app.modules.chat.schemas",
         "isExtraImport": true,
@@ -9532,7 +9404,7 @@
         "documentation": {}
     },
     {
-        "label": "Enum",
+        "label": "StrEnum",
         "importPath": "enum",
         "description": "enum",
         "isExtraImport": true,
@@ -9540,7 +9412,7 @@
         "documentation": {}
     },
     {
-        "label": "Enum",
+        "label": "StrEnum",
         "importPath": "enum",
         "description": "enum",
         "isExtraImport": true,
@@ -9548,7 +9420,7 @@
         "documentation": {}
     },
     {
-        "label": "Enum",
+        "label": "StrEnum",
         "importPath": "enum",
         "description": "enum",
         "isExtraImport": true,
@@ -9556,7 +9428,7 @@
         "documentation": {}
     },
     {
-        "label": "Enum",
+        "label": "StrEnum",
         "importPath": "enum",
         "description": "enum",
         "isExtraImport": true,
@@ -9564,7 +9436,7 @@
         "documentation": {}
     },
     {
-        "label": "Enum",
+        "label": "StrEnum",
         "importPath": "enum",
         "description": "enum",
         "isExtraImport": true,
@@ -9572,7 +9444,7 @@
         "documentation": {}
     },
     {
-        "label": "Enum",
+        "label": "StrEnum",
         "importPath": "enum",
         "description": "enum",
         "isExtraImport": true,
@@ -9580,7 +9452,7 @@
         "documentation": {}
     },
     {
-        "label": "Enum",
+        "label": "StrEnum",
         "importPath": "enum",
         "description": "enum",
         "isExtraImport": true,
@@ -9940,102 +9812,6 @@
         "documentation": {}
     },
     {
-        "label": "AuditService",
-        "importPath": "app.modules.audit.service",
-        "description": "app.modules.audit.service",
-        "isExtraImport": true,
-        "detail": "app.modules.audit.service",
-        "documentation": {}
-    },
-    {
-        "label": "AuditService",
-        "importPath": "app.modules.audit.service",
-        "description": "app.modules.audit.service",
-        "isExtraImport": true,
-        "detail": "app.modules.audit.service",
-        "documentation": {}
-    },
-    {
-        "label": "AuditService",
-        "importPath": "app.modules.audit.service",
-        "description": "app.modules.audit.service",
-        "isExtraImport": true,
-        "detail": "app.modules.audit.service",
-        "documentation": {}
-    },
-    {
-        "label": "AuditService",
-        "importPath": "app.modules.audit.service",
-        "description": "app.modules.audit.service",
-        "isExtraImport": true,
-        "detail": "app.modules.audit.service",
-        "documentation": {}
-    },
-    {
-        "label": "AuditService",
-        "importPath": "app.modules.audit.service",
-        "description": "app.modules.audit.service",
-        "isExtraImport": true,
-        "detail": "app.modules.audit.service",
-        "documentation": {}
-    },
-    {
-        "label": "AuditService",
-        "importPath": "app.modules.audit.service",
-        "description": "app.modules.audit.service",
-        "isExtraImport": true,
-        "detail": "app.modules.audit.service",
-        "documentation": {}
-    },
-    {
-        "label": "AuditService",
-        "importPath": "app.modules.audit.service",
-        "description": "app.modules.audit.service",
-        "isExtraImport": true,
-        "detail": "app.modules.audit.service",
-        "documentation": {}
-    },
-    {
-        "label": "AuditService",
-        "importPath": "app.modules.audit.service",
-        "description": "app.modules.audit.service",
-        "isExtraImport": true,
-        "detail": "app.modules.audit.service",
-        "documentation": {}
-    },
-    {
-        "label": "AuditService",
-        "importPath": "app.modules.audit.service",
-        "description": "app.modules.audit.service",
-        "isExtraImport": true,
-        "detail": "app.modules.audit.service",
-        "documentation": {}
-    },
-    {
-        "label": "AuditService",
-        "importPath": "app.modules.audit.service",
-        "description": "app.modules.audit.service",
-        "isExtraImport": true,
-        "detail": "app.modules.audit.service",
-        "documentation": {}
-    },
-    {
-        "label": "AuditService",
-        "importPath": "app.modules.audit.service",
-        "description": "app.modules.audit.service",
-        "isExtraImport": true,
-        "detail": "app.modules.audit.service",
-        "documentation": {}
-    },
-    {
-        "label": "AuditService",
-        "importPath": "app.modules.audit.service",
-        "description": "app.modules.audit.service",
-        "isExtraImport": true,
-        "detail": "app.modules.audit.service",
-        "documentation": {}
-    },
-    {
         "label": "AnnouncementRepository",
         "importPath": "app.modules.announcements.repository",
         "description": "app.modules.announcements.repository",
@@ -10049,6 +9825,118 @@
         "description": "app.modules.announcements.repository",
         "isExtraImport": true,
         "detail": "app.modules.announcements.repository",
+        "documentation": {}
+    },
+    {
+        "label": "AuditService",
+        "importPath": "app.modules.audit.service",
+        "description": "app.modules.audit.service",
+        "isExtraImport": true,
+        "detail": "app.modules.audit.service",
+        "documentation": {}
+    },
+    {
+        "label": "AuditService",
+        "importPath": "app.modules.audit.service",
+        "description": "app.modules.audit.service",
+        "isExtraImport": true,
+        "detail": "app.modules.audit.service",
+        "documentation": {}
+    },
+    {
+        "label": "AuditService",
+        "importPath": "app.modules.audit.service",
+        "description": "app.modules.audit.service",
+        "isExtraImport": true,
+        "detail": "app.modules.audit.service",
+        "documentation": {}
+    },
+    {
+        "label": "AuditService",
+        "importPath": "app.modules.audit.service",
+        "description": "app.modules.audit.service",
+        "isExtraImport": true,
+        "detail": "app.modules.audit.service",
+        "documentation": {}
+    },
+    {
+        "label": "AuditService",
+        "importPath": "app.modules.audit.service",
+        "description": "app.modules.audit.service",
+        "isExtraImport": true,
+        "detail": "app.modules.audit.service",
+        "documentation": {}
+    },
+    {
+        "label": "AuditService",
+        "importPath": "app.modules.audit.service",
+        "description": "app.modules.audit.service",
+        "isExtraImport": true,
+        "detail": "app.modules.audit.service",
+        "documentation": {}
+    },
+    {
+        "label": "AuditService",
+        "importPath": "app.modules.audit.service",
+        "description": "app.modules.audit.service",
+        "isExtraImport": true,
+        "detail": "app.modules.audit.service",
+        "documentation": {}
+    },
+    {
+        "label": "AuditService",
+        "importPath": "app.modules.audit.service",
+        "description": "app.modules.audit.service",
+        "isExtraImport": true,
+        "detail": "app.modules.audit.service",
+        "documentation": {}
+    },
+    {
+        "label": "AuditService",
+        "importPath": "app.modules.audit.service",
+        "description": "app.modules.audit.service",
+        "isExtraImport": true,
+        "detail": "app.modules.audit.service",
+        "documentation": {}
+    },
+    {
+        "label": "AuditService",
+        "importPath": "app.modules.audit.service",
+        "description": "app.modules.audit.service",
+        "isExtraImport": true,
+        "detail": "app.modules.audit.service",
+        "documentation": {}
+    },
+    {
+        "label": "AuditService",
+        "importPath": "app.modules.audit.service",
+        "description": "app.modules.audit.service",
+        "isExtraImport": true,
+        "detail": "app.modules.audit.service",
+        "documentation": {}
+    },
+    {
+        "label": "AuditService",
+        "importPath": "app.modules.audit.service",
+        "description": "app.modules.audit.service",
+        "isExtraImport": true,
+        "detail": "app.modules.audit.service",
+        "documentation": {}
+    },
+    {
+        "label": "AuditEventResponse",
+        "importPath": "app.modules.audit.schemas",
+        "description": "app.modules.audit.schemas",
+        "isExtraImport": true,
+        "detail": "app.modules.audit.schemas",
+        "documentation": {}
+    },
+    {
+        "label": "AuditEventResponse",
+        "importPath": "app.modules.audit.schemas",
+        "description": "app.modules.audit.schemas",
+        "isExtraImport": true,
+        "detail": "app.modules.audit.schemas",
         "documentation": {}
     },
     {
@@ -10084,14 +9972,6 @@
         "documentation": {}
     },
     {
-        "label": "Decimal",
-        "importPath": "decimal",
-        "description": "decimal",
-        "isExtraImport": true,
-        "detail": "decimal",
-        "documentation": {}
-    },
-    {
         "label": "ROUND_HALF_UP",
         "importPath": "decimal",
         "description": "decimal",
@@ -10156,7 +10036,7 @@
         "documentation": {}
     },
     {
-        "label": "Decimal",
+        "label": "ROUND_HALF_UP",
         "importPath": "decimal",
         "description": "decimal",
         "isExtraImport": true,
@@ -10164,7 +10044,7 @@
         "documentation": {}
     },
     {
-        "label": "ROUND_HALF_UP",
+        "label": "Decimal",
         "importPath": "decimal",
         "description": "decimal",
         "isExtraImport": true,
@@ -10541,6 +10421,30 @@
         "documentation": {}
     },
     {
+        "label": "ContributionRecordCreate",
+        "importPath": "app.modules.contributions.schemas",
+        "description": "app.modules.contributions.schemas",
+        "isExtraImport": true,
+        "detail": "app.modules.contributions.schemas",
+        "documentation": {}
+    },
+    {
+        "label": "ContributionRecordResponse",
+        "importPath": "app.modules.contributions.schemas",
+        "description": "app.modules.contributions.schemas",
+        "isExtraImport": true,
+        "detail": "app.modules.contributions.schemas",
+        "documentation": {}
+    },
+    {
+        "label": "ContributionRecordUpdate",
+        "importPath": "app.modules.contributions.schemas",
+        "description": "app.modules.contributions.schemas",
+        "isExtraImport": true,
+        "detail": "app.modules.contributions.schemas",
+        "documentation": {}
+    },
+    {
         "label": "ContributionReminderBatchRequest",
         "importPath": "app.modules.contributions.schemas",
         "description": "app.modules.contributions.schemas",
@@ -10566,30 +10470,6 @@
     },
     {
         "label": "ContributionReminderSendRequest",
-        "importPath": "app.modules.contributions.schemas",
-        "description": "app.modules.contributions.schemas",
-        "isExtraImport": true,
-        "detail": "app.modules.contributions.schemas",
-        "documentation": {}
-    },
-    {
-        "label": "ContributionRecordCreate",
-        "importPath": "app.modules.contributions.schemas",
-        "description": "app.modules.contributions.schemas",
-        "isExtraImport": true,
-        "detail": "app.modules.contributions.schemas",
-        "documentation": {}
-    },
-    {
-        "label": "ContributionRecordResponse",
-        "importPath": "app.modules.contributions.schemas",
-        "description": "app.modules.contributions.schemas",
-        "isExtraImport": true,
-        "detail": "app.modules.contributions.schemas",
-        "documentation": {}
-    },
-    {
-        "label": "ContributionRecordUpdate",
         "importPath": "app.modules.contributions.schemas",
         "description": "app.modules.contributions.schemas",
         "isExtraImport": true,
@@ -10613,6 +10493,30 @@
         "documentation": {}
     },
     {
+        "label": "ContributionRecordCreate",
+        "importPath": "app.modules.contributions.schemas",
+        "description": "app.modules.contributions.schemas",
+        "isExtraImport": true,
+        "detail": "app.modules.contributions.schemas",
+        "documentation": {}
+    },
+    {
+        "label": "ContributionRecordResponse",
+        "importPath": "app.modules.contributions.schemas",
+        "description": "app.modules.contributions.schemas",
+        "isExtraImport": true,
+        "detail": "app.modules.contributions.schemas",
+        "documentation": {}
+    },
+    {
+        "label": "ContributionRecordUpdate",
+        "importPath": "app.modules.contributions.schemas",
+        "description": "app.modules.contributions.schemas",
+        "isExtraImport": true,
+        "detail": "app.modules.contributions.schemas",
+        "documentation": {}
+    },
+    {
         "label": "ContributionReminderBatchRequest",
         "importPath": "app.modules.contributions.schemas",
         "description": "app.modules.contributions.schemas",
@@ -10638,30 +10542,6 @@
     },
     {
         "label": "ContributionReminderSendRequest",
-        "importPath": "app.modules.contributions.schemas",
-        "description": "app.modules.contributions.schemas",
-        "isExtraImport": true,
-        "detail": "app.modules.contributions.schemas",
-        "documentation": {}
-    },
-    {
-        "label": "ContributionRecordCreate",
-        "importPath": "app.modules.contributions.schemas",
-        "description": "app.modules.contributions.schemas",
-        "isExtraImport": true,
-        "detail": "app.modules.contributions.schemas",
-        "documentation": {}
-    },
-    {
-        "label": "ContributionRecordResponse",
-        "importPath": "app.modules.contributions.schemas",
-        "description": "app.modules.contributions.schemas",
-        "isExtraImport": true,
-        "detail": "app.modules.contributions.schemas",
-        "documentation": {}
-    },
-    {
-        "label": "ContributionRecordUpdate",
         "importPath": "app.modules.contributions.schemas",
         "description": "app.modules.contributions.schemas",
         "isExtraImport": true,
@@ -10901,6 +10781,14 @@
         "documentation": {}
     },
     {
+        "label": "DocumentVersionResponse",
+        "importPath": "app.modules.documents.schemas",
+        "description": "app.modules.documents.schemas",
+        "isExtraImport": true,
+        "detail": "app.modules.documents.schemas",
+        "documentation": {}
+    },
+    {
         "label": "IngestionJobResponse",
         "importPath": "app.modules.documents.schemas",
         "description": "app.modules.documents.schemas",
@@ -11117,6 +11005,14 @@
         "documentation": {}
     },
     {
+        "label": "ManagedTenantUserResponse",
+        "importPath": "app.modules.identity.schemas",
+        "description": "app.modules.identity.schemas",
+        "isExtraImport": true,
+        "detail": "app.modules.identity.schemas",
+        "documentation": {}
+    },
+    {
         "label": "ManagedTenantUserRolesUpdateRequest",
         "importPath": "app.modules.identity.schemas",
         "description": "app.modules.identity.schemas",
@@ -11126,14 +11022,6 @@
     },
     {
         "label": "ManagedTenantUserRolesUpdateResponse",
-        "importPath": "app.modules.identity.schemas",
-        "description": "app.modules.identity.schemas",
-        "isExtraImport": true,
-        "detail": "app.modules.identity.schemas",
-        "documentation": {}
-    },
-    {
-        "label": "ManagedTenantUserResponse",
         "importPath": "app.modules.identity.schemas",
         "description": "app.modules.identity.schemas",
         "isExtraImport": true,
@@ -11277,14 +11165,6 @@
         "documentation": {}
     },
     {
-        "label": "UserResponse",
-        "importPath": "app.modules.identity.schemas",
-        "description": "app.modules.identity.schemas",
-        "isExtraImport": true,
-        "detail": "app.modules.identity.schemas",
-        "documentation": {}
-    },
-    {
         "label": "UserWithMembershipsResponse",
         "importPath": "app.modules.identity.schemas",
         "description": "app.modules.identity.schemas",
@@ -11310,14 +11190,6 @@
     },
     {
         "label": "ActiveSessionResponse",
-        "importPath": "app.modules.identity.schemas",
-        "description": "app.modules.identity.schemas",
-        "isExtraImport": true,
-        "detail": "app.modules.identity.schemas",
-        "documentation": {}
-    },
-    {
-        "label": "LanguagePreferenceResponse",
         "importPath": "app.modules.identity.schemas",
         "description": "app.modules.identity.schemas",
         "isExtraImport": true,
@@ -11365,6 +11237,14 @@
         "documentation": {}
     },
     {
+        "label": "LanguagePreferenceResponse",
+        "importPath": "app.modules.identity.schemas",
+        "description": "app.modules.identity.schemas",
+        "isExtraImport": true,
+        "detail": "app.modules.identity.schemas",
+        "documentation": {}
+    },
+    {
         "label": "LoginRequest",
         "importPath": "app.modules.identity.schemas",
         "description": "app.modules.identity.schemas",
@@ -11381,6 +11261,14 @@
         "documentation": {}
     },
     {
+        "label": "ManagedTenantUserResponse",
+        "importPath": "app.modules.identity.schemas",
+        "description": "app.modules.identity.schemas",
+        "isExtraImport": true,
+        "detail": "app.modules.identity.schemas",
+        "documentation": {}
+    },
+    {
         "label": "ManagedTenantUserRolesUpdateRequest",
         "importPath": "app.modules.identity.schemas",
         "description": "app.modules.identity.schemas",
@@ -11390,14 +11278,6 @@
     },
     {
         "label": "ManagedTenantUserRolesUpdateResponse",
-        "importPath": "app.modules.identity.schemas",
-        "description": "app.modules.identity.schemas",
-        "isExtraImport": true,
-        "detail": "app.modules.identity.schemas",
-        "documentation": {}
-    },
-    {
-        "label": "ManagedTenantUserResponse",
         "importPath": "app.modules.identity.schemas",
         "description": "app.modules.identity.schemas",
         "isExtraImport": true,
@@ -11637,14 +11517,6 @@
         "documentation": {}
     },
     {
-        "label": "RoleResponse",
-        "importPath": "app.modules.tenancy.schemas",
-        "description": "app.modules.tenancy.schemas",
-        "isExtraImport": true,
-        "detail": "app.modules.tenancy.schemas",
-        "documentation": {}
-    },
-    {
         "label": "RecoveryEvidenceConfig",
         "importPath": "app.modules.tenancy.schemas",
         "description": "app.modules.tenancy.schemas",
@@ -11654,6 +11526,14 @@
     },
     {
         "label": "RecoveryEvidenceResponse",
+        "importPath": "app.modules.tenancy.schemas",
+        "description": "app.modules.tenancy.schemas",
+        "isExtraImport": true,
+        "detail": "app.modules.tenancy.schemas",
+        "documentation": {}
+    },
+    {
+        "label": "RoleResponse",
         "importPath": "app.modules.tenancy.schemas",
         "description": "app.modules.tenancy.schemas",
         "isExtraImport": true,
@@ -11797,14 +11677,6 @@
         "documentation": {}
     },
     {
-        "label": "MemberStatementResponse",
-        "importPath": "app.modules.membership.schemas",
-        "description": "app.modules.membership.schemas",
-        "isExtraImport": true,
-        "detail": "app.modules.membership.schemas",
-        "documentation": {}
-    },
-    {
         "label": "MembershipProfileCreate",
         "importPath": "app.modules.membership.schemas",
         "description": "app.modules.membership.schemas",
@@ -11822,6 +11694,14 @@
     },
     {
         "label": "MembershipProfileUpdate",
+        "importPath": "app.modules.membership.schemas",
+        "description": "app.modules.membership.schemas",
+        "isExtraImport": true,
+        "detail": "app.modules.membership.schemas",
+        "documentation": {}
+    },
+    {
+        "label": "MemberStatementResponse",
         "importPath": "app.modules.membership.schemas",
         "description": "app.modules.membership.schemas",
         "isExtraImport": true,
@@ -11837,14 +11717,6 @@
         "documentation": {}
     },
     {
-        "label": "MemberStatementResponse",
-        "importPath": "app.modules.membership.schemas",
-        "description": "app.modules.membership.schemas",
-        "isExtraImport": true,
-        "detail": "app.modules.membership.schemas",
-        "documentation": {}
-    },
-    {
         "label": "MembershipProfileCreate",
         "importPath": "app.modules.membership.schemas",
         "description": "app.modules.membership.schemas",
@@ -11862,6 +11734,14 @@
     },
     {
         "label": "MembershipProfileUpdate",
+        "importPath": "app.modules.membership.schemas",
+        "description": "app.modules.membership.schemas",
+        "isExtraImport": true,
+        "detail": "app.modules.membership.schemas",
+        "documentation": {}
+    },
+    {
+        "label": "MemberStatementResponse",
         "importPath": "app.modules.membership.schemas",
         "description": "app.modules.membership.schemas",
         "isExtraImport": true,
@@ -12376,19 +12256,11 @@
         "documentation": {}
     },
     {
-        "label": "check_embedding_model_changed",
-        "importPath": "app.modules.rag.reindex",
-        "description": "app.modules.rag.reindex",
+        "label": "run_all_checks",
+        "importPath": "app.core.health_checks",
+        "description": "app.core.health_checks",
         "isExtraImport": true,
-        "detail": "app.modules.rag.reindex",
-        "documentation": {}
-    },
-    {
-        "label": "persist_embedding_model",
-        "importPath": "app.modules.rag.reindex",
-        "description": "app.modules.rag.reindex",
-        "isExtraImport": true,
-        "detail": "app.modules.rag.reindex",
+        "detail": "app.core.health_checks",
         "documentation": {}
     },
     {
@@ -12424,19 +12296,19 @@
         "documentation": {}
     },
     {
-        "label": "run_all_checks",
-        "importPath": "app.core.health_checks",
-        "description": "app.core.health_checks",
+        "label": "router",
+        "importPath": "app.modules.admin.router",
+        "description": "app.modules.admin.router",
         "isExtraImport": true,
-        "detail": "app.core.health_checks",
+        "detail": "app.modules.admin.router",
         "documentation": {}
     },
     {
         "label": "router",
-        "importPath": "app.modules.chat.router",
-        "description": "app.modules.chat.router",
+        "importPath": "app.modules.announcements.router",
+        "description": "app.modules.announcements.router",
         "isExtraImport": true,
-        "detail": "app.modules.chat.router",
+        "detail": "app.modules.announcements.router",
         "documentation": {}
     },
     {
@@ -12449,42 +12321,10 @@
     },
     {
         "label": "router",
-        "importPath": "app.modules.admin.router",
-        "description": "app.modules.admin.router",
+        "importPath": "app.modules.chat.router",
+        "description": "app.modules.chat.router",
         "isExtraImport": true,
-        "detail": "app.modules.admin.router",
-        "documentation": {}
-    },
-    {
-        "label": "router",
-        "importPath": "app.modules.documents.router",
-        "description": "app.modules.documents.router",
-        "isExtraImport": true,
-        "detail": "app.modules.documents.router",
-        "documentation": {}
-    },
-    {
-        "label": "router",
-        "importPath": "app.modules.identity.router",
-        "description": "app.modules.identity.router",
-        "isExtraImport": true,
-        "detail": "app.modules.identity.router",
-        "documentation": {}
-    },
-    {
-        "label": "router",
-        "importPath": "app.modules.tenancy.router",
-        "description": "app.modules.tenancy.router",
-        "isExtraImport": true,
-        "detail": "app.modules.tenancy.router",
-        "documentation": {}
-    },
-    {
-        "label": "router",
-        "importPath": "app.modules.membership.router",
-        "description": "app.modules.membership.router",
-        "isExtraImport": true,
-        "detail": "app.modules.membership.router",
+        "detail": "app.modules.chat.router",
         "documentation": {}
     },
     {
@@ -12497,18 +12337,18 @@
     },
     {
         "label": "router",
-        "importPath": "app.modules.policies.router",
-        "description": "app.modules.policies.router",
-        "isExtraImport": true,
-        "detail": "app.modules.policies.router",
-        "documentation": {}
-    },
-    {
-        "label": "router",
         "importPath": "app.modules.disciplinary.router",
         "description": "app.modules.disciplinary.router",
         "isExtraImport": true,
         "detail": "app.modules.disciplinary.router",
+        "documentation": {}
+    },
+    {
+        "label": "router",
+        "importPath": "app.modules.documents.router",
+        "description": "app.modules.documents.router",
+        "isExtraImport": true,
+        "detail": "app.modules.documents.router",
         "documentation": {}
     },
     {
@@ -12529,10 +12369,18 @@
     },
     {
         "label": "router",
-        "importPath": "app.modules.announcements.router",
-        "description": "app.modules.announcements.router",
+        "importPath": "app.modules.identity.router",
+        "description": "app.modules.identity.router",
         "isExtraImport": true,
-        "detail": "app.modules.announcements.router",
+        "detail": "app.modules.identity.router",
+        "documentation": {}
+    },
+    {
+        "label": "router",
+        "importPath": "app.modules.membership.router",
+        "description": "app.modules.membership.router",
+        "isExtraImport": true,
+        "detail": "app.modules.membership.router",
         "documentation": {}
     },
     {
@@ -12549,6 +12397,38 @@
         "description": "app.modules.notifications.router",
         "isExtraImport": true,
         "detail": "app.modules.notifications.router",
+        "documentation": {}
+    },
+    {
+        "label": "router",
+        "importPath": "app.modules.policies.router",
+        "description": "app.modules.policies.router",
+        "isExtraImport": true,
+        "detail": "app.modules.policies.router",
+        "documentation": {}
+    },
+    {
+        "label": "check_embedding_model_changed",
+        "importPath": "app.modules.rag.reindex",
+        "description": "app.modules.rag.reindex",
+        "isExtraImport": true,
+        "detail": "app.modules.rag.reindex",
+        "documentation": {}
+    },
+    {
+        "label": "persist_embedding_model",
+        "importPath": "app.modules.rag.reindex",
+        "description": "app.modules.rag.reindex",
+        "isExtraImport": true,
+        "detail": "app.modules.rag.reindex",
+        "documentation": {}
+    },
+    {
+        "label": "router",
+        "importPath": "app.modules.tenancy.router",
+        "description": "app.modules.tenancy.router",
+        "isExtraImport": true,
+        "detail": "app.modules.tenancy.router",
         "documentation": {}
     },
     {
@@ -12786,7 +12666,7 @@
         "documentation": {}
     },
     {
-        "label": "login",
+        "label": "create_user_for_tenant",
         "importPath": "helpers",
         "description": "helpers",
         "isExtraImport": true,
@@ -12794,7 +12674,7 @@
         "documentation": {}
     },
     {
-        "label": "create_user_for_tenant",
+        "label": "login",
         "importPath": "helpers",
         "description": "helpers",
         "isExtraImport": true,
@@ -13769,7 +13649,7 @@
         "kind": 6,
         "importPath": "services.api.app.core.dependencies",
         "description": "services.api.app.core.dependencies",
-        "peekOfCode": "class CurrentUser:\n    \"\"\"\n    Resolved auth context attached to every protected request.\n    Carries the authenticated User ORM object, the active tenant UUID,\n    and the list of role codes resolved from the JWT.\n    \"\"\"\n    user: object  # app.modules.identity.models.User (typed here to avoid circular import)\n    tenant_id: UUID\n    roles: list[str]\n    session_id: UUID",
+        "peekOfCode": "class CurrentUser:\n    \"\"\"\n    Resolved auth context attached to every protected request.\n    Carries the authenticated User ORM object, the active tenant UUID,\n    and the list of role codes resolved from the JWT.\n    \"\"\"\n    user: \"User\"\n    tenant_id: UUID\n    roles: list[str]\n    session_id: UUID",
         "detail": "services.api.app.core.dependencies",
         "documentation": {}
     },
@@ -13832,7 +13712,7 @@
         "kind": 5,
         "importPath": "services.api.app.core.dependencies",
         "description": "services.api.app.core.dependencies",
-        "peekOfCode": "_bearer_scheme = HTTPBearer(auto_error=True)\n@dataclass(frozen=True)\nclass CurrentUser:\n    \"\"\"\n    Resolved auth context attached to every protected request.\n    Carries the authenticated User ORM object, the active tenant UUID,\n    and the list of role codes resolved from the JWT.\n    \"\"\"\n    user: object  # app.modules.identity.models.User (typed here to avoid circular import)\n    tenant_id: UUID",
+        "peekOfCode": "_bearer_scheme = HTTPBearer(auto_error=True)\n@dataclass(frozen=True)\nclass CurrentUser:\n    \"\"\"\n    Resolved auth context attached to every protected request.\n    Carries the authenticated User ORM object, the active tenant UUID,\n    and the list of role codes resolved from the JWT.\n    \"\"\"\n    user: \"User\"\n    tenant_id: UUID",
         "detail": "services.api.app.core.dependencies",
         "documentation": {}
     },
@@ -13994,7 +13874,7 @@
         "kind": 2,
         "importPath": "services.api.app.core.module_guard",
         "description": "services.api.app.core.module_guard",
-        "peekOfCode": "def require_module(module_key: str) -> Callable:\n    \"\"\"\n    FastAPI dependency factory that rejects requests when a module\n    is disabled for the current tenant.\n    Usage::\n        router = APIRouter(..., dependencies=[require_module(\"membership\")])\n    \"\"\"\n    async def _guard(current: AuthDep, db: DbDep) -> None:\n        repo = TenancyRepository(db)\n        tenant = await repo.get_tenant_by_id(current.tenant_id)",
+        "peekOfCode": "def require_module(module_key: str) -> FastAPIDepends:\n    \"\"\"\n    FastAPI dependency factory that rejects requests when a module\n    is disabled for the current tenant.\n    Usage::\n        router = APIRouter(..., dependencies=[require_module(\"membership\")])\n    \"\"\"\n    async def _guard(current: AuthDep, db: DbDep) -> None:\n        repo = TenancyRepository(db)\n        tenant = await repo.get_tenant_by_id(current.tenant_id)",
         "detail": "services.api.app.core.module_guard",
         "documentation": {}
     },
@@ -14948,7 +14828,7 @@
         "kind": 5,
         "importPath": "services.api.app.db.seed",
         "description": "services.api.app.db.seed",
-        "peekOfCode": "PRESIDENT_PASSWORD = \"President123!\"\nVICE_PRESIDENT_EMAIL = \"vice-president@demo.org\"\nVICE_PRESIDENT_PASSWORD = \"VicePresident123!\"\nPRINCIPAL_ADMIN_EMAIL = \"principal@demo.org\"\nPRINCIPAL_ADMIN_PASSWORD = \"Principal123!\"\nADMIN_ROLE_CODE = \"admin\"\nMEMBER_ROLE_CODE = \"member\"\nTREASURER_ROLE_CODE = \"treasurer\"\nPRINCIPAL_ADMIN_ROLE_CODE = \"principal_admin\"\nNOW = datetime.now(timezone.utc)",
+        "peekOfCode": "PRESIDENT_PASSWORD = \"President123!\"\nVICE_PRESIDENT_EMAIL = \"vice-president@demo.org\"\nVICE_PRESIDENT_PASSWORD = \"VicePresident123!\"\nPRINCIPAL_ADMIN_EMAIL = \"principal@demo.org\"\nPRINCIPAL_ADMIN_PASSWORD = \"Principal123!\"\nADMIN_ROLE_CODE = \"admin\"\nMEMBER_ROLE_CODE = \"member\"\nTREASURER_ROLE_CODE = \"treasurer\"\nPRINCIPAL_ADMIN_ROLE_CODE = \"principal_admin\"\nNOW = datetime.now(UTC)",
         "detail": "services.api.app.db.seed",
         "documentation": {}
     },
@@ -14957,7 +14837,7 @@
         "kind": 5,
         "importPath": "services.api.app.db.seed",
         "description": "services.api.app.db.seed",
-        "peekOfCode": "VICE_PRESIDENT_EMAIL = \"vice-president@demo.org\"\nVICE_PRESIDENT_PASSWORD = \"VicePresident123!\"\nPRINCIPAL_ADMIN_EMAIL = \"principal@demo.org\"\nPRINCIPAL_ADMIN_PASSWORD = \"Principal123!\"\nADMIN_ROLE_CODE = \"admin\"\nMEMBER_ROLE_CODE = \"member\"\nTREASURER_ROLE_CODE = \"treasurer\"\nPRINCIPAL_ADMIN_ROLE_CODE = \"principal_admin\"\nNOW = datetime.now(timezone.utc)\nPERMISSION_DEFS: list[tuple[str, str]] = [",
+        "peekOfCode": "VICE_PRESIDENT_EMAIL = \"vice-president@demo.org\"\nVICE_PRESIDENT_PASSWORD = \"VicePresident123!\"\nPRINCIPAL_ADMIN_EMAIL = \"principal@demo.org\"\nPRINCIPAL_ADMIN_PASSWORD = \"Principal123!\"\nADMIN_ROLE_CODE = \"admin\"\nMEMBER_ROLE_CODE = \"member\"\nTREASURER_ROLE_CODE = \"treasurer\"\nPRINCIPAL_ADMIN_ROLE_CODE = \"principal_admin\"\nNOW = datetime.now(UTC)\nPERMISSION_DEFS: list[tuple[str, str]] = [",
         "detail": "services.api.app.db.seed",
         "documentation": {}
     },
@@ -14966,7 +14846,7 @@
         "kind": 5,
         "importPath": "services.api.app.db.seed",
         "description": "services.api.app.db.seed",
-        "peekOfCode": "VICE_PRESIDENT_PASSWORD = \"VicePresident123!\"\nPRINCIPAL_ADMIN_EMAIL = \"principal@demo.org\"\nPRINCIPAL_ADMIN_PASSWORD = \"Principal123!\"\nADMIN_ROLE_CODE = \"admin\"\nMEMBER_ROLE_CODE = \"member\"\nTREASURER_ROLE_CODE = \"treasurer\"\nPRINCIPAL_ADMIN_ROLE_CODE = \"principal_admin\"\nNOW = datetime.now(timezone.utc)\nPERMISSION_DEFS: list[tuple[str, str]] = [\n    (\"admin:all\", \"Superadmin permission — full access to all resources\"),",
+        "peekOfCode": "VICE_PRESIDENT_PASSWORD = \"VicePresident123!\"\nPRINCIPAL_ADMIN_EMAIL = \"principal@demo.org\"\nPRINCIPAL_ADMIN_PASSWORD = \"Principal123!\"\nADMIN_ROLE_CODE = \"admin\"\nMEMBER_ROLE_CODE = \"member\"\nTREASURER_ROLE_CODE = \"treasurer\"\nPRINCIPAL_ADMIN_ROLE_CODE = \"principal_admin\"\nNOW = datetime.now(UTC)\nPERMISSION_DEFS: list[tuple[str, str]] = [\n    (\"admin:all\", \"Superadmin permission — full access to all resources\"),",
         "detail": "services.api.app.db.seed",
         "documentation": {}
     },
@@ -14975,7 +14855,7 @@
         "kind": 5,
         "importPath": "services.api.app.db.seed",
         "description": "services.api.app.db.seed",
-        "peekOfCode": "PRINCIPAL_ADMIN_EMAIL = \"principal@demo.org\"\nPRINCIPAL_ADMIN_PASSWORD = \"Principal123!\"\nADMIN_ROLE_CODE = \"admin\"\nMEMBER_ROLE_CODE = \"member\"\nTREASURER_ROLE_CODE = \"treasurer\"\nPRINCIPAL_ADMIN_ROLE_CODE = \"principal_admin\"\nNOW = datetime.now(timezone.utc)\nPERMISSION_DEFS: list[tuple[str, str]] = [\n    (\"admin:all\", \"Superadmin permission — full access to all resources\"),\n    (\"members:read\", \"Read member profiles\"),",
+        "peekOfCode": "PRINCIPAL_ADMIN_EMAIL = \"principal@demo.org\"\nPRINCIPAL_ADMIN_PASSWORD = \"Principal123!\"\nADMIN_ROLE_CODE = \"admin\"\nMEMBER_ROLE_CODE = \"member\"\nTREASURER_ROLE_CODE = \"treasurer\"\nPRINCIPAL_ADMIN_ROLE_CODE = \"principal_admin\"\nNOW = datetime.now(UTC)\nPERMISSION_DEFS: list[tuple[str, str]] = [\n    (\"admin:all\", \"Superadmin permission — full access to all resources\"),\n    (\"members:read\", \"Read member profiles\"),",
         "detail": "services.api.app.db.seed",
         "documentation": {}
     },
@@ -14984,7 +14864,7 @@
         "kind": 5,
         "importPath": "services.api.app.db.seed",
         "description": "services.api.app.db.seed",
-        "peekOfCode": "PRINCIPAL_ADMIN_PASSWORD = \"Principal123!\"\nADMIN_ROLE_CODE = \"admin\"\nMEMBER_ROLE_CODE = \"member\"\nTREASURER_ROLE_CODE = \"treasurer\"\nPRINCIPAL_ADMIN_ROLE_CODE = \"principal_admin\"\nNOW = datetime.now(timezone.utc)\nPERMISSION_DEFS: list[tuple[str, str]] = [\n    (\"admin:all\", \"Superadmin permission — full access to all resources\"),\n    (\"members:read\", \"Read member profiles\"),\n    (\"members:write\", \"Create and update member profiles\"),",
+        "peekOfCode": "PRINCIPAL_ADMIN_PASSWORD = \"Principal123!\"\nADMIN_ROLE_CODE = \"admin\"\nMEMBER_ROLE_CODE = \"member\"\nTREASURER_ROLE_CODE = \"treasurer\"\nPRINCIPAL_ADMIN_ROLE_CODE = \"principal_admin\"\nNOW = datetime.now(UTC)\nPERMISSION_DEFS: list[tuple[str, str]] = [\n    (\"admin:all\", \"Superadmin permission — full access to all resources\"),\n    (\"members:read\", \"Read member profiles\"),\n    (\"members:write\", \"Create and update member profiles\"),",
         "detail": "services.api.app.db.seed",
         "documentation": {}
     },
@@ -14993,7 +14873,7 @@
         "kind": 5,
         "importPath": "services.api.app.db.seed",
         "description": "services.api.app.db.seed",
-        "peekOfCode": "ADMIN_ROLE_CODE = \"admin\"\nMEMBER_ROLE_CODE = \"member\"\nTREASURER_ROLE_CODE = \"treasurer\"\nPRINCIPAL_ADMIN_ROLE_CODE = \"principal_admin\"\nNOW = datetime.now(timezone.utc)\nPERMISSION_DEFS: list[tuple[str, str]] = [\n    (\"admin:all\", \"Superadmin permission — full access to all resources\"),\n    (\"members:read\", \"Read member profiles\"),\n    (\"members:write\", \"Create and update member profiles\"),\n    (\"contributions:read\", \"Read contribution records\"),",
+        "peekOfCode": "ADMIN_ROLE_CODE = \"admin\"\nMEMBER_ROLE_CODE = \"member\"\nTREASURER_ROLE_CODE = \"treasurer\"\nPRINCIPAL_ADMIN_ROLE_CODE = \"principal_admin\"\nNOW = datetime.now(UTC)\nPERMISSION_DEFS: list[tuple[str, str]] = [\n    (\"admin:all\", \"Superadmin permission — full access to all resources\"),\n    (\"members:read\", \"Read member profiles\"),\n    (\"members:write\", \"Create and update member profiles\"),\n    (\"contributions:read\", \"Read contribution records\"),",
         "detail": "services.api.app.db.seed",
         "documentation": {}
     },
@@ -15002,7 +14882,7 @@
         "kind": 5,
         "importPath": "services.api.app.db.seed",
         "description": "services.api.app.db.seed",
-        "peekOfCode": "MEMBER_ROLE_CODE = \"member\"\nTREASURER_ROLE_CODE = \"treasurer\"\nPRINCIPAL_ADMIN_ROLE_CODE = \"principal_admin\"\nNOW = datetime.now(timezone.utc)\nPERMISSION_DEFS: list[tuple[str, str]] = [\n    (\"admin:all\", \"Superadmin permission — full access to all resources\"),\n    (\"members:read\", \"Read member profiles\"),\n    (\"members:write\", \"Create and update member profiles\"),\n    (\"contributions:read\", \"Read contribution records\"),\n    (\"contributions:write\", \"Create and update contribution records\"),",
+        "peekOfCode": "MEMBER_ROLE_CODE = \"member\"\nTREASURER_ROLE_CODE = \"treasurer\"\nPRINCIPAL_ADMIN_ROLE_CODE = \"principal_admin\"\nNOW = datetime.now(UTC)\nPERMISSION_DEFS: list[tuple[str, str]] = [\n    (\"admin:all\", \"Superadmin permission — full access to all resources\"),\n    (\"members:read\", \"Read member profiles\"),\n    (\"members:write\", \"Create and update member profiles\"),\n    (\"contributions:read\", \"Read contribution records\"),\n    (\"contributions:write\", \"Create and update contribution records\"),",
         "detail": "services.api.app.db.seed",
         "documentation": {}
     },
@@ -15011,7 +14891,7 @@
         "kind": 5,
         "importPath": "services.api.app.db.seed",
         "description": "services.api.app.db.seed",
-        "peekOfCode": "TREASURER_ROLE_CODE = \"treasurer\"\nPRINCIPAL_ADMIN_ROLE_CODE = \"principal_admin\"\nNOW = datetime.now(timezone.utc)\nPERMISSION_DEFS: list[tuple[str, str]] = [\n    (\"admin:all\", \"Superadmin permission — full access to all resources\"),\n    (\"members:read\", \"Read member profiles\"),\n    (\"members:write\", \"Create and update member profiles\"),\n    (\"contributions:read\", \"Read contribution records\"),\n    (\"contributions:write\", \"Create and update contribution records\"),\n    (\"policies:read\", \"Read policy documents\"),",
+        "peekOfCode": "TREASURER_ROLE_CODE = \"treasurer\"\nPRINCIPAL_ADMIN_ROLE_CODE = \"principal_admin\"\nNOW = datetime.now(UTC)\nPERMISSION_DEFS: list[tuple[str, str]] = [\n    (\"admin:all\", \"Superadmin permission — full access to all resources\"),\n    (\"members:read\", \"Read member profiles\"),\n    (\"members:write\", \"Create and update member profiles\"),\n    (\"contributions:read\", \"Read contribution records\"),\n    (\"contributions:write\", \"Create and update contribution records\"),\n    (\"policies:read\", \"Read policy documents\"),",
         "detail": "services.api.app.db.seed",
         "documentation": {}
     },
@@ -15020,7 +14900,7 @@
         "kind": 5,
         "importPath": "services.api.app.db.seed",
         "description": "services.api.app.db.seed",
-        "peekOfCode": "PRINCIPAL_ADMIN_ROLE_CODE = \"principal_admin\"\nNOW = datetime.now(timezone.utc)\nPERMISSION_DEFS: list[tuple[str, str]] = [\n    (\"admin:all\", \"Superadmin permission — full access to all resources\"),\n    (\"members:read\", \"Read member profiles\"),\n    (\"members:write\", \"Create and update member profiles\"),\n    (\"contributions:read\", \"Read contribution records\"),\n    (\"contributions:write\", \"Create and update contribution records\"),\n    (\"policies:read\", \"Read policy documents\"),\n    (\"policies:write\", \"Create and update policy documents\"),",
+        "peekOfCode": "PRINCIPAL_ADMIN_ROLE_CODE = \"principal_admin\"\nNOW = datetime.now(UTC)\nPERMISSION_DEFS: list[tuple[str, str]] = [\n    (\"admin:all\", \"Superadmin permission — full access to all resources\"),\n    (\"members:read\", \"Read member profiles\"),\n    (\"members:write\", \"Create and update member profiles\"),\n    (\"contributions:read\", \"Read contribution records\"),\n    (\"contributions:write\", \"Create and update contribution records\"),\n    (\"policies:read\", \"Read policy documents\"),\n    (\"policies:write\", \"Create and update policy documents\"),",
         "detail": "services.api.app.db.seed",
         "documentation": {}
     },
@@ -15029,7 +14909,7 @@
         "kind": 5,
         "importPath": "services.api.app.db.seed",
         "description": "services.api.app.db.seed",
-        "peekOfCode": "NOW = datetime.now(timezone.utc)\nPERMISSION_DEFS: list[tuple[str, str]] = [\n    (\"admin:all\", \"Superadmin permission — full access to all resources\"),\n    (\"members:read\", \"Read member profiles\"),\n    (\"members:write\", \"Create and update member profiles\"),\n    (\"contributions:read\", \"Read contribution records\"),\n    (\"contributions:write\", \"Create and update contribution records\"),\n    (\"policies:read\", \"Read policy documents\"),\n    (\"policies:write\", \"Create and update policy documents\"),\n    (\"disciplinary:read\", \"Read disciplinary records\"),",
+        "peekOfCode": "NOW = datetime.now(UTC)\nPERMISSION_DEFS: list[tuple[str, str]] = [\n    (\"admin:all\", \"Superadmin permission — full access to all resources\"),\n    (\"members:read\", \"Read member profiles\"),\n    (\"members:write\", \"Create and update member profiles\"),\n    (\"contributions:read\", \"Read contribution records\"),\n    (\"contributions:write\", \"Create and update contribution records\"),\n    (\"policies:read\", \"Read policy documents\"),\n    (\"policies:write\", \"Create and update policy documents\"),\n    (\"disciplinary:read\", \"Read disciplinary records\"),",
         "detail": "services.api.app.db.seed",
         "documentation": {}
     },
@@ -15155,7 +15035,7 @@
         "kind": 5,
         "importPath": "services.api.app.modules.admin.router",
         "description": "services.api.app.modules.admin.router",
-        "peekOfCode": "router = APIRouter(prefix=\"/admin\", tags=[\"admin\"])\n@router.get(\"/chat-queries\", response_model=list[ChatQueryLogResponse])\nasync def list_chat_queries(\n    current: AuthDep,\n    db: DbDep,\n    limit: Annotated[int, Query(ge=1, le=100)] = 20,\n    search: Annotated[str | None, Query(max_length=200)] = None,\n    refused: Annotated[bool | None, Query()] = None,\n    _chat_guard: None = require_module(\"chat\"),\n) -> list[ChatQueryLogResponse]:",
+        "peekOfCode": "router = APIRouter(prefix=\"/admin\", tags=[\"admin\"])\n@router.get(\"/chat-queries\", response_model=list[ChatQueryLogResponse])\nasync def list_chat_queries(\n    current: AuthDep,\n    db: DbDep,\n    limit: Annotated[int, Query(ge=1, le=100)] = 20,\n    search: Annotated[str | None, Query(max_length=200)] = None,\n    refused: Annotated[bool | None, Query()] = None,\n    _chat_guard: None = require_module(\"chat\"),  # type: ignore[assignment]\n) -> list[ChatQueryLogResponse]:",
         "detail": "services.api.app.modules.admin.router",
         "documentation": {}
     },
@@ -15182,7 +15062,7 @@
         "kind": 6,
         "importPath": "services.api.app.modules.announcements.models",
         "description": "services.api.app.modules.announcements.models",
-        "peekOfCode": "class AnnouncementVisibility(str, Enum):\n    tenant_public = \"tenant_public\"\n    members_only = \"members_only\"\n    role_restricted = \"role_restricted\"\n    admin_only = \"admin_only\"\nclass Announcement(Base):\n    __tablename__ = \"announcements\"\n    id: Mapped[uuid.UUID] = mapped_column(\n        UUID(as_uuid=True), primary_key=True, default=uuid.uuid4\n    )",
+        "peekOfCode": "class AnnouncementVisibility(StrEnum):\n    tenant_public = \"tenant_public\"\n    members_only = \"members_only\"\n    role_restricted = \"role_restricted\"\n    admin_only = \"admin_only\"\nclass Announcement(Base):\n    __tablename__ = \"announcements\"\n    id: Mapped[uuid.UUID] = mapped_column(\n        UUID(as_uuid=True), primary_key=True, default=uuid.uuid4\n    )",
         "detail": "services.api.app.modules.announcements.models",
         "documentation": {}
     },
@@ -15785,7 +15665,7 @@
         "kind": 6,
         "importPath": "services.api.app.modules.contributions.models",
         "description": "services.api.app.modules.contributions.models",
-        "peekOfCode": "class ContributionStatus(str, Enum):\n    pending = \"pending\"\n    partial = \"partial\"\n    paid = \"paid\"\n    overdue = \"overdue\"\n    waived = \"waived\"\nclass PaymentMethod(str, Enum):\n    cash = \"cash\"\n    bank_transfer = \"bank_transfer\"\n    card = \"card\"",
+        "peekOfCode": "class ContributionStatus(StrEnum):\n    pending = \"pending\"\n    partial = \"partial\"\n    paid = \"paid\"\n    overdue = \"overdue\"\n    waived = \"waived\"\nclass PaymentMethod(StrEnum):\n    cash = \"cash\"\n    bank_transfer = \"bank_transfer\"\n    card = \"card\"",
         "detail": "services.api.app.modules.contributions.models",
         "documentation": {}
     },
@@ -15794,7 +15674,7 @@
         "kind": 6,
         "importPath": "services.api.app.modules.contributions.models",
         "description": "services.api.app.modules.contributions.models",
-        "peekOfCode": "class PaymentMethod(str, Enum):\n    cash = \"cash\"\n    bank_transfer = \"bank_transfer\"\n    card = \"card\"\n    check = \"check\"\n    other = \"other\"\nclass ReminderDeliveryStatus(str, Enum):\n    sent = \"sent\"\n    simulated = \"simulated\"\n    failed = \"failed\"",
+        "peekOfCode": "class PaymentMethod(StrEnum):\n    cash = \"cash\"\n    bank_transfer = \"bank_transfer\"\n    card = \"card\"\n    check = \"check\"\n    other = \"other\"\nclass ReminderDeliveryStatus(StrEnum):\n    sent = \"sent\"\n    simulated = \"simulated\"\n    failed = \"failed\"",
         "detail": "services.api.app.modules.contributions.models",
         "documentation": {}
     },
@@ -15803,7 +15683,7 @@
         "kind": 6,
         "importPath": "services.api.app.modules.contributions.models",
         "description": "services.api.app.modules.contributions.models",
-        "peekOfCode": "class ReminderDeliveryStatus(str, Enum):\n    sent = \"sent\"\n    simulated = \"simulated\"\n    failed = \"failed\"\n    skipped = \"skipped\"\nclass ContributionRecord(Base):\n    \"\"\"\n    Expected and paid contribution for a member in a specific year/period.\n    Balance is calculated as expected_amount - paid_amount.\n    \"\"\"",
+        "peekOfCode": "class ReminderDeliveryStatus(StrEnum):\n    sent = \"sent\"\n    simulated = \"simulated\"\n    failed = \"failed\"\n    skipped = \"skipped\"\nclass ContributionRecord(Base):\n    \"\"\"\n    Expected and paid contribution for a member in a specific year/period.\n    Balance is calculated as expected_amount - paid_amount.\n    \"\"\"",
         "detail": "services.api.app.modules.contributions.models",
         "documentation": {}
     },
@@ -15947,7 +15827,7 @@
         "kind": 6,
         "importPath": "services.api.app.modules.disciplinary.models",
         "description": "services.api.app.modules.disciplinary.models",
-        "peekOfCode": "class DisciplinaryStatus(str, Enum):\n    open = \"open\"\n    under_review = \"under_review\"\n    resolved = \"resolved\"\n    waived = \"waived\"\nclass DisciplinaryRecord(Base):\n    __tablename__ = \"disciplinary_records\"\n    id: Mapped[uuid.UUID] = mapped_column(\n        UUID(as_uuid=True), primary_key=True, default=uuid.uuid4\n    )",
+        "peekOfCode": "class DisciplinaryStatus(StrEnum):\n    open = \"open\"\n    under_review = \"under_review\"\n    resolved = \"resolved\"\n    waived = \"waived\"\nclass DisciplinaryRecord(Base):\n    __tablename__ = \"disciplinary_records\"\n    id: Mapped[uuid.UUID] = mapped_column(\n        UUID(as_uuid=True), primary_key=True, default=uuid.uuid4\n    )",
         "detail": "services.api.app.modules.disciplinary.models",
         "documentation": {}
     },
@@ -16082,7 +15962,7 @@
         "kind": 6,
         "importPath": "services.api.app.modules.documents.models",
         "description": "services.api.app.modules.documents.models",
-        "peekOfCode": "class DocumentAccessScope(str, Enum):\n    tenant_public = \"tenant_public\"\n    members_only = \"members_only\"\n    role_restricted = \"role_restricted\"\n    user_private = \"user_private\"\n    admin_only = \"admin_only\"\n    system_only = \"system_only\"\nclass DocumentStatus(str, Enum):\n    uploaded = \"uploaded\"\n    processing = \"processing\"",
+        "peekOfCode": "class DocumentAccessScope(StrEnum):\n    tenant_public = \"tenant_public\"\n    members_only = \"members_only\"\n    role_restricted = \"role_restricted\"\n    user_private = \"user_private\"\n    admin_only = \"admin_only\"\n    system_only = \"system_only\"\nclass DocumentStatus(StrEnum):\n    uploaded = \"uploaded\"\n    processing = \"processing\"",
         "detail": "services.api.app.modules.documents.models",
         "documentation": {}
     },
@@ -16091,7 +15971,7 @@
         "kind": 6,
         "importPath": "services.api.app.modules.documents.models",
         "description": "services.api.app.modules.documents.models",
-        "peekOfCode": "class DocumentStatus(str, Enum):\n    uploaded = \"uploaded\"\n    processing = \"processing\"\n    ready = \"ready\"\n    archived = \"archived\"\nclass Document(Base):\n    __tablename__ = \"documents\"\n    id: Mapped[uuid.UUID] = mapped_column(\n        UUID(as_uuid=True), primary_key=True, default=uuid.uuid4\n    )",
+        "peekOfCode": "class DocumentStatus(StrEnum):\n    uploaded = \"uploaded\"\n    processing = \"processing\"\n    ready = \"ready\"\n    archived = \"archived\"\nclass Document(Base):\n    __tablename__ = \"documents\"\n    id: Mapped[uuid.UUID] = mapped_column(\n        UUID(as_uuid=True), primary_key=True, default=uuid.uuid4\n    )",
         "detail": "services.api.app.modules.documents.models",
         "documentation": {}
     },
@@ -16244,7 +16124,7 @@
         "kind": 6,
         "importPath": "services.api.app.modules.events.models",
         "description": "services.api.app.modules.events.models",
-        "peekOfCode": "class EventStatus(str, Enum):\n    draft = \"draft\"\n    published = \"published\"\n    cancelled = \"cancelled\"\n    completed = \"completed\"\nclass EventVisibility(str, Enum):\n    tenant_public = \"tenant_public\"\n    members_only = \"members_only\"\n    role_restricted = \"role_restricted\"\n    admin_only = \"admin_only\"",
+        "peekOfCode": "class EventStatus(StrEnum):\n    draft = \"draft\"\n    published = \"published\"\n    cancelled = \"cancelled\"\n    completed = \"completed\"\nclass EventVisibility(StrEnum):\n    tenant_public = \"tenant_public\"\n    members_only = \"members_only\"\n    role_restricted = \"role_restricted\"\n    admin_only = \"admin_only\"",
         "detail": "services.api.app.modules.events.models",
         "documentation": {}
     },
@@ -16253,7 +16133,7 @@
         "kind": 6,
         "importPath": "services.api.app.modules.events.models",
         "description": "services.api.app.modules.events.models",
-        "peekOfCode": "class EventVisibility(str, Enum):\n    tenant_public = \"tenant_public\"\n    members_only = \"members_only\"\n    role_restricted = \"role_restricted\"\n    admin_only = \"admin_only\"\nclass Event(Base):\n    __tablename__ = \"events\"\n    id: Mapped[uuid.UUID] = mapped_column(\n        UUID(as_uuid=True), primary_key=True, default=uuid.uuid4\n    )",
+        "peekOfCode": "class EventVisibility(StrEnum):\n    tenant_public = \"tenant_public\"\n    members_only = \"members_only\"\n    role_restricted = \"role_restricted\"\n    admin_only = \"admin_only\"\nclass Event(Base):\n    __tablename__ = \"events\"\n    id: Mapped[uuid.UUID] = mapped_column(\n        UUID(as_uuid=True), primary_key=True, default=uuid.uuid4\n    )",
         "detail": "services.api.app.modules.events.models",
         "documentation": {}
     },
@@ -16730,7 +16610,7 @@
         "kind": 5,
         "importPath": "services.api.app.modules.identity.service",
         "description": "services.api.app.modules.identity.service",
-        "peekOfCode": "SUPPORTED_INTERFACE_LANGUAGES = {\"fr\", \"en\", \"de\"}\ndef _ensure_aware(dt: datetime) -> datetime:\n    \"\"\"Ensure datetime is timezone-aware (assume UTC if naive).\"\"\"\n    if dt.tzinfo is None:\n        return dt.replace(tzinfo=timezone.utc)\n    return dt\nclass AuthService:\n    \"\"\"\n    Handles login, membership resolution, token issuance, and\n    identity lifecycle flows (invitation, password reset, MFA).",
+        "peekOfCode": "SUPPORTED_INTERFACE_LANGUAGES = {\"fr\", \"en\", \"de\"}\ndef _ensure_aware(dt: datetime) -> datetime:\n    \"\"\"Ensure datetime is timezone-aware (assume UTC if naive).\"\"\"\n    if dt.tzinfo is None:\n        return dt.replace(tzinfo=UTC)\n    return dt\nclass AuthService:\n    \"\"\"\n    Handles login, membership resolution, token issuance, and\n    identity lifecycle flows (invitation, password reset, MFA).",
         "detail": "services.api.app.modules.identity.service",
         "documentation": {}
     },
@@ -16802,7 +16682,7 @@
         "kind": 6,
         "importPath": "services.api.app.modules.membership.models",
         "description": "services.api.app.modules.membership.models",
-        "peekOfCode": "class MembershipStatus(str, Enum):\n    active = \"active\"\n    inactive = \"inactive\"\n    suspended = \"suspended\"\n    resigned = \"resigned\"\nclass MembershipProfile(Base):\n    \"\"\"\n    Structured member profile within a tenant.\n    Can be linked to a platform User (if the member has login access)\n    or exist independently (for non-digital members).",
+        "peekOfCode": "class MembershipStatus(StrEnum):\n    active = \"active\"\n    inactive = \"inactive\"\n    suspended = \"suspended\"\n    resigned = \"resigned\"\nclass MembershipProfile(Base):\n    \"\"\"\n    Structured member profile within a tenant.\n    Can be linked to a platform User (if the member has login access)\n    or exist independently (for non-digital members).",
         "detail": "services.api.app.modules.membership.models",
         "documentation": {}
     },
@@ -17054,7 +16934,7 @@
         "kind": 6,
         "importPath": "services.api.app.modules.policies.models",
         "description": "services.api.app.modules.policies.models",
-        "peekOfCode": "class PolicyStatus(str, Enum):\n    draft = \"draft\"\n    published = \"published\"\n    archived = \"archived\"\nclass PolicyRecord(Base):\n    __tablename__ = \"policy_records\"\n    id: Mapped[uuid.UUID] = mapped_column(\n        UUID(as_uuid=True), primary_key=True, default=uuid.uuid4\n    )\n    tenant_id: Mapped[uuid.UUID] = mapped_column(",
+        "peekOfCode": "class PolicyStatus(StrEnum):\n    draft = \"draft\"\n    published = \"published\"\n    archived = \"archived\"\nclass PolicyRecord(Base):\n    __tablename__ = \"policy_records\"\n    id: Mapped[uuid.UUID] = mapped_column(\n        UUID(as_uuid=True), primary_key=True, default=uuid.uuid4\n    )\n    tenant_id: Mapped[uuid.UUID] = mapped_column(",
         "detail": "services.api.app.modules.policies.models",
         "documentation": {}
     },
@@ -17180,7 +17060,7 @@
         "kind": 5,
         "importPath": "services.api.app.modules.rag.ranking",
         "description": "services.api.app.modules.rag.ranking",
-        "peekOfCode": "_TOKEN_PATTERN = re.compile(r\"[a-z0-9à-ÿ]{3,}\", re.IGNORECASE)\n_STOPWORDS = {\n    \"about\",\n    \"avec\",\n    \"avec\",\n    \"dans\",\n    \"de\",\n    \"der\",\n    \"des\",\n    \"die\",",
+        "peekOfCode": "_TOKEN_PATTERN = re.compile(r\"[a-z0-9à-ÿ]{3,}\", re.IGNORECASE)\n_STOPWORDS = {\n    \"about\",\n    \"avec\",\n    \"dans\",\n    \"de\",\n    \"der\",\n    \"des\",\n    \"die\",\n    \"document\",",
         "detail": "services.api.app.modules.rag.ranking",
         "documentation": {}
     },
@@ -17189,7 +17069,7 @@
         "kind": 5,
         "importPath": "services.api.app.modules.rag.ranking",
         "description": "services.api.app.modules.rag.ranking",
-        "peekOfCode": "_STOPWORDS = {\n    \"about\",\n    \"avec\",\n    \"avec\",\n    \"dans\",\n    \"de\",\n    \"der\",\n    \"des\",\n    \"die\",\n    \"document\",",
+        "peekOfCode": "_STOPWORDS = {\n    \"about\",\n    \"avec\",\n    \"dans\",\n    \"de\",\n    \"der\",\n    \"des\",\n    \"die\",\n    \"document\",\n    \"documents\",",
         "detail": "services.api.app.modules.rag.ranking",
         "documentation": {}
     },
@@ -17684,7 +17564,7 @@
         "kind": 2,
         "importPath": "services.api.app.providers.parsers.image_ocr",
         "description": "services.api.app.providers.parsers.image_ocr",
-        "peekOfCode": "def parse_image_bytes(file_bytes: bytes) -> str:\n    \"\"\"Extract text from an image using OCR.\"\"\"\n    from PIL import Image, ImageOps\n    import pytesseract\n    image = Image.open(BytesIO(file_bytes))\n    image = ImageOps.exif_transpose(image)\n    image = image.convert(\"L\")\n    text = pytesseract.image_to_string(image, config=\"--psm 6\")\n    cleaned = text.strip()\n    if not cleaned:",
+        "peekOfCode": "def parse_image_bytes(file_bytes: bytes) -> str:\n    \"\"\"Extract text from an image using OCR.\"\"\"\n    import pytesseract\n    from PIL import Image, ImageOps\n    image: Image.Image = Image.open(BytesIO(file_bytes))  # type: ignore[assignment]\n    image = ImageOps.exif_transpose(image)\n    image = image.convert(\"L\")\n    text = pytesseract.image_to_string(image, config=\"--psm 6\")\n    cleaned = text.strip()\n    if not cleaned:",
         "detail": "services.api.app.providers.parsers.image_ocr",
         "documentation": {}
     },
@@ -17801,7 +17681,7 @@
         "kind": 6,
         "importPath": "services.api.app.providers.vector_store.qdrant",
         "description": "services.api.app.providers.vector_store.qdrant",
-        "peekOfCode": "class QdrantVectorStoreProvider:\n    \"\"\"Qdrant adapter for tenant-scoped dense retrieval over document chunks.\"\"\"\n    def __init__(self) -> None:\n        self._client = QdrantClient(url=settings.qdrant_url, timeout=30)\n        self._collection = settings.qdrant_collection\n    def ensure_collection(self, vector_size: int) -> None:\n        existing = {item.name for item in self._client.get_collections().collections}\n        if self._collection in existing:\n            info = self._client.get_collection(self._collection)\n            current_size = info.config.params.vectors.size",
+        "peekOfCode": "class QdrantVectorStoreProvider:\n    \"\"\"Qdrant adapter for tenant-scoped dense retrieval over document chunks.\"\"\"\n    def __init__(self) -> None:\n        self._client = QdrantClient(url=settings.qdrant_url, timeout=30)\n        self._collection = settings.qdrant_collection\n    def ensure_collection(self, vector_size: int) -> None:\n        existing = {item.name for item in self._client.get_collections().collections}\n        if self._collection in existing:\n            info = self._client.get_collection(self._collection)\n            vectors = info.config.params.vectors",
         "detail": "services.api.app.providers.vector_store.qdrant",
         "documentation": {}
     },
@@ -17828,7 +17708,7 @@
         "kind": 2,
         "importPath": "services.api.app.worker.tasks.ingestion",
         "description": "services.api.app.worker.tasks.ingestion",
-        "peekOfCode": "def process_ingestion_job(self, job_id: str) -> None:\n    try:\n        asyncio.run(_process_ingestion_job(UUID(job_id)))\n    except Exception as exc:\n        logger.exception(\"ingestion_task_failed\", job_id=job_id)\n        raise self.retry(exc=exc, countdown=30)\ndef enqueue_ingestion_job(job_id: UUID) -> None:\n    from app.core.config import settings\n    if not settings.ingestion_auto_enqueue:\n        return",
+        "peekOfCode": "def process_ingestion_job(self, job_id: str) -> None:\n    try:\n        asyncio.run(_process_ingestion_job(UUID(job_id)))\n    except Exception as exc:\n        logger.exception(\"ingestion_task_failed\", job_id=job_id)\n        raise self.retry(exc=exc, countdown=30) from exc\ndef enqueue_ingestion_job(job_id: UUID) -> None:\n    from app.core.config import settings\n    if not settings.ingestion_auto_enqueue:\n        return",
         "detail": "services.api.app.worker.tasks.ingestion",
         "documentation": {}
     },
@@ -18188,7 +18068,7 @@
         "kind": 6,
         "importPath": "services.api.tests.test_import_export",
         "description": "services.api.tests.test_import_export",
-        "peekOfCode": "class TestExports:\n    async def _seed_event(self, client, headers, tenant):\n        from datetime import datetime, timezone\n        resp = await client.post(\n            \"/api/v1/events/\",\n            headers=headers,\n            json={\n                \"title\": \"Test Event\",\n                \"start_at\": datetime.now(timezone.utc).isoformat(),\n                \"visibility_scope\": \"members_only\",",
+        "peekOfCode": "class TestExports:\n    async def _seed_event(self, client, headers, tenant):\n        from datetime import datetime\n        resp = await client.post(\n            \"/api/v1/events/\",\n            headers=headers,\n            json={\n                \"title\": \"Test Event\",\n                \"start_at\": datetime.now(UTC).isoformat(),\n                \"visibility_scope\": \"members_only\",",
         "detail": "services.api.tests.test_import_export",
         "documentation": {}
     },
@@ -18557,7 +18437,7 @@
         "kind": 5,
         "importPath": "services.api.tests.test_recovery_evidence",
         "description": "services.api.tests.test_recovery_evidence",
-        "peekOfCode": "pytestmark = pytest.mark.integration\ndef _iso(days_ago: int) -> str:\n    return (datetime.now(timezone.utc) - timedelta(days=days_ago)).isoformat()\n@pytest.mark.asyncio\nasync def test_recovery_evidence_round_trip_and_health_flags(\n    client: AsyncClient, db_session: AsyncSession\n) -> None:\n    data = await create_tenant_with_user(db_session, f\"recovery-{datetime.now().strftime('%H%M%S')}\")\n    token = await login(client, data[\"user\"].email, data[\"password\"], data[\"tenant\"].slug)\n    payload = {",
+        "peekOfCode": "pytestmark = pytest.mark.integration\ndef _iso(days_ago: int) -> str:\n    return (datetime.now(UTC) - timedelta(days=days_ago)).isoformat()\n@pytest.mark.asyncio\nasync def test_recovery_evidence_round_trip_and_health_flags(\n    client: AsyncClient, db_session: AsyncSession\n) -> None:\n    data = await create_tenant_with_user(db_session, f\"recovery-{datetime.now().strftime('%H%M%S')}\")\n    token = await login(client, data[\"user\"].email, data[\"password\"], data[\"tenant\"].slug)\n    payload = {",
         "detail": "services.api.tests.test_recovery_evidence",
         "documentation": {}
     },

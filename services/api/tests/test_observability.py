@@ -3,10 +3,10 @@
 import uuid as _uuid
 
 import pytest
+from helpers import create_tenant_with_user, login
 from httpx import AsyncClient
 
 from app.modules.documents.models import IngestionJob
-from helpers import create_tenant_with_user, login
 
 pytestmark = pytest.mark.integration
 

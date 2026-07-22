@@ -87,7 +87,7 @@ export async function queryChatStream(
         ...(token ? { Authorization: `Bearer ${token}` } : {}),
       },
       body: JSON.stringify(payload),
-      signal,
+      ...(signal ? { signal } : {}),
     });
 
     if (!response.ok) {

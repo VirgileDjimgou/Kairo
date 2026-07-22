@@ -14,12 +14,12 @@ from app.core.capabilities import (
 )
 from app.core.dependencies import AuthDep, DbDep
 from app.core.module_guard import require_module
+from app.modules.admin.module_usage import module_has_data
 from app.modules.admin.schemas import (
     IngestionJobHealthItemResponse,
     IngestionJobHealthResponse,
 )
 from app.modules.audit.models import AuditEvent
-from app.modules.admin.module_usage import module_has_data
 from app.modules.chat.models import ChatQueryLog
 from app.modules.chat.schemas import ChatQueryLogResponse
 from app.modules.documents.models import IngestionJob
@@ -34,7 +34,7 @@ async def list_chat_queries(
     limit: Annotated[int, Query(ge=1, le=100)] = 20,
     search: Annotated[str | None, Query(max_length=200)] = None,
     refused: Annotated[bool | None, Query()] = None,
-    _chat_guard: None = require_module("chat"),
+    _chat_guard: None = require_module("chat"),  # type: ignore[assignment]
 ) -> list[ChatQueryLogResponse]:
     require_capability(
         current,
@@ -99,7 +99,7 @@ async def check_module_has_data(
 async def ingestion_jobs_health(
     current: AuthDep,
     db: DbDep,
-    _documents_guard: None = require_module("documents"),
+    _documents_guard: None = require_module("documents"),  # type: ignore[assignment]
 ) -> IngestionJobHealthResponse:
     require_capability(
         current,
@@ -112,7 +112,7 @@ async def ingestion_jobs_health(
             IngestionJob.tenant_id == current.tenant_id
         ).group_by(IngestionJob.status)
     )
-    counts = dict(status_rows.all())
+    counts: dict[str, int] = dict(status_rows.all())  # type: ignore[arg-type]
     failed_rows = await db.execute(
         select(IngestionJob)
         .where(

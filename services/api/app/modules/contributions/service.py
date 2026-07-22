@@ -1,4 +1,4 @@
-from datetime import datetime, timedelta, timezone
+from datetime import UTC, datetime, timedelta
 from decimal import Decimal
 from uuid import UUID
 
@@ -7,16 +7,16 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core.import_export import ImportResult, ImportRowError, generate_csv, parse_csv
 from app.modules.audit.service import AuditService
-from app.modules.contributions.models import ReminderDeliveryStatus
+from app.modules.contributions.models import ContributionStatus, ReminderDeliveryStatus
 from app.modules.contributions.repository import ContributionRepository
 from app.modules.contributions.schemas import (
+    ContributionRecordCreate,
+    ContributionRecordResponse,
+    ContributionRecordUpdate,
     ContributionReminderBatchRequest,
     ContributionReminderBatchResponse,
     ContributionReminderResponse,
     ContributionReminderSendRequest,
-    ContributionRecordCreate,
-    ContributionRecordResponse,
-    ContributionRecordUpdate,
     PaymentRecordCreate,
     PaymentRecordResponse,
 )
@@ -161,8 +161,8 @@ class ContributionService:
             )
         payload = data.model_dump()
         if payload.get("paid_at") is None:
-            from datetime import datetime, timezone
-            payload["paid_at"] = datetime.now(timezone.utc)
+            from datetime import datetime
+            payload["paid_at"] = datetime.now(UTC)
         payment = await self._repo.create_payment(tenant_id, payload)
         new_paid = contrib.paid_amount + data.amount
         await self._repo.update_contribution(
@@ -269,13 +269,15 @@ class ContributionService:
                 success_count += 1
                 continue
 
+            assert profile is not None
+            assert year is not None
             data = ContributionRecordCreate(
                 membership_profile_id=profile.id,
                 year=year,
                 expected_amount=expected,
                 paid_amount=paid,
                 currency=currency,
-                status=status_val,
+                status=ContributionStatus(status_val),
             )
             record = await self._repo.create_contribution(tenant_id, data.model_dump())
             await self._audit.record_event(
@@ -431,7 +433,7 @@ class ContributionService:
         contributions: list,
         payload: ContributionReminderBatchRequest,
     ) -> list:
-        now = datetime.now(timezone.utc)
+        now = datetime.now(UTC)
         due_soon_cutoff = now + timedelta(days=14)
         filtered = []
         for contribution in contributions:

@@ -4,10 +4,9 @@ import uuid as _uuid
 from dataclasses import dataclass
 
 import pytest
+from helpers import create_tenant_with_user, create_user_for_tenant, login
 from httpx import AsyncClient
 from sqlalchemy.ext.asyncio import AsyncSession
-
-from helpers import create_tenant_with_user, create_user_for_tenant, login
 
 pytestmark = pytest.mark.asyncio
 

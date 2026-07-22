@@ -5,10 +5,9 @@ Revises: 0005_chat_query_logs
 Create Date: 2026-06-28
 """
 
-from alembic import op
 import sqlalchemy as sa
+from alembic import op
 from sqlalchemy.dialects import postgresql
-
 
 revision = "0006_business_modules"
 down_revision = "0005_chat_query_logs"

@@ -129,7 +129,7 @@ async def build_runtime_metrics(db: AsyncSession) -> str:
     ingestion_counts = await db.execute(
         select(IngestionJob.status, func.count()).group_by(IngestionJob.status)
     )
-    status_counts = dict(ingestion_counts.all())
+    status_counts: dict[str, int] = dict(ingestion_counts.all())  # type: ignore[arg-type]
     queued = int(status_counts.get("pending", 0))
     processing = int(status_counts.get("processing", 0))
     failed = int(status_counts.get("failed", 0))
