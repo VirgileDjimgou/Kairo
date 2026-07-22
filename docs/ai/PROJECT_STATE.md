@@ -39,7 +39,7 @@ association product with:
 - Productization track completed through Sprint 65
 - Stabilization and open-source maturity track completed: Sprint 72 and Sprint 73
 - New planning cycle status: Sprint 74 through Sprint 97 complete
-- Next sprint: Sprint 98 - Operational Pilot Acceptance
+- Current sprint: Sprint 98 - Operational Pilot Acceptance (external pilot inputs required)
 
 ## Current State
 
@@ -53,7 +53,7 @@ association product with:
 - **Executive oversight**: president and vice president have a dedicated cross-module governance cockpit with limited, backend-governed actions
 - **Principal admin control plane**: the broadest tenant administration surfaces recognize `principal_admin` explicitly
 - **Multi-tenant operations**: reproducible second-tenant provisioning, tenant-switch browser coverage, and the tenant operations command center exist
-- **Validation status**: Sprint 96 automated checks remain green; Sprint 97 built the production web image, verified its same-origin API bundle, and passed the isolated production gateway smoke check (6 passed) on July 22, 2026
+- **Validation status**: Sprint 96 automated checks remain green; Sprint 97 built the production web image and passed the isolated gateway smoke check. Sprint 98 added a non-disclosing pilot preflight that correctly fails closed against the local development environment until real secrets, HTTPS exposure, and restore-drill inputs are available, plus an automated no-domain Quick Tunnel demonstration path that keeps `.env` unchanged and exposes only web/API endpoints
 - **Communications posture**: live notifications now support callback-updated final states, replay-safe updates, controlled provider polling, and backend-enforced retry eligibility without trusting the frontend
 - **Commercial posture**: strong association-focused pilot and disciplined self-hosted release candidate
 - **License**: MIT

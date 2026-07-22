@@ -4,6 +4,7 @@ Use this checklist when moving from the demo tenant to a real customer deploymen
 
 ## Before Cutover
 
+- [ ] Run `./scripts/pilot_acceptance_preflight.ps1 -EnvFile .env` and resolve every failed requirement
 - [ ] Confirm the customer has accepted the feature matrix
 - [ ] Confirm the support boundary is understood
 - [ ] Confirm the domain and TLS setup

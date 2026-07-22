@@ -3944,6 +3944,25 @@ Completed implementation:
 - Added and executed a Windows PowerShell equivalent of the Bash production smoke check (6/6 passed), documented the isolated Docker Desktop validation path, and recorded the evidence.
 - Removed the isolated validation containers, network, and volumes after the checks; the existing local Compose project was not modified.
 
+## Sprint 98 - Operational Pilot Acceptance
+
+Status: In Progress - External pilot inputs required
+
+Goal:
+Validate a customer-ready environment with non-placeholder secrets, HTTPS through a real domain or Cloudflare Tunnel, and a recorded backup/restore drill.
+
+Progress:
+
+- Added a non-disclosing PowerShell pilot preflight that verifies production mode, non-placeholder JWT/PostgreSQL/MinIO secrets, HTTPS, CORS, and a Cloudflare Tunnel token without printing values.
+- The current local `.env` correctly fails the preflight: it is a development configuration, lacks acceptable production secrets and a tunnel token, and uses a non-HTTPS base URL.
+- Added a PowerShell Quick Tunnel demo launcher/stopping pair that creates an ignored temporary environment file, configures ephemeral web/API URLs and CORS automatically, and never exposes data stores or edits the base `.env`. The Vite development server permits only the `.trycloudflare.com` suffix required by this flow, rather than arbitrary external hosts.
+
+Completion blockers:
+
+- A customer-ready environment file with real secrets is required.
+- A real domain or Cloudflare Tunnel token is required for HTTPS exposure validation.
+- A backup archive and an approved isolated restore target are required for a non-destructive restore drill.
+
 ## Roadmap Status
 
 The historical track through Sprint 57 is complete.
@@ -3972,7 +3991,7 @@ Execution window:
 
 - Sprint 72 through Sprint 97.
 
-Estimated additional sprints required from the current state: 1 for the new planning cycle. Sprint 98 should complete operational pilot acceptance with customer-ready secrets, a real domain or tunnel, and backup/restore evidence before any new product-surface work.
+Estimated additional sprints required from the current state: 1 for the new planning cycle. Sprint 98 remains in progress until operational pilot acceptance can be completed with customer-ready secrets, a real domain or tunnel, and backup/restore evidence.
 
 Validation after this track should cover:
 
