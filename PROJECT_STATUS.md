@@ -12,14 +12,14 @@ Status: Completed
 
 Sprint 98 - Operational Pilot Acceptance
 
-Status: Planned
+Status: In Progress - External pilot inputs required
 
 ## Active Delivery Frame
 
 - Target outcome: a stable, professional, mature open-source association-management product with secure role-aware workspaces and a trustworthy chatbot
 - Intended operational scope: usable by an association or organization of about 200 members with differentiated office roles
 - Remaining planned execution window: 1
-- Delivery status: Sprint 97 validated the production image and public gateway through an isolated local Docker stack.
+- Delivery status: Sprint 98 added a non-disclosing pilot preflight; the local development environment correctly fails it until real pilot secrets, HTTPS exposure, and restore-drill inputs exist. It also provides a PowerShell Quick Tunnel demonstration helper that uses temporary web/API-only exposure without a Cloudflare account, domain, token, or edits to `.env`; it is explicitly not a production path.
 
 ## Source Of Truth
 

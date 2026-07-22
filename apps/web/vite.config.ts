@@ -12,6 +12,8 @@ export default defineConfig({
   server: {
     host: '0.0.0.0',
     port: 5173,
+    // Quick Tunnel pilots use random Cloudflare hostnames; do not allow arbitrary hosts.
+    allowedHosts: ['.trycloudflare.com'],
     // Proxy API calls to the backend when running outside Docker
     proxy: {
       '/api': {

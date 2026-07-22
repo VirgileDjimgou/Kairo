@@ -81,6 +81,18 @@ Run the production gateway smoke check after starting the production Compose sta
 .\scripts\production_smoke.ps1 -BaseUrl http://localhost
 ```
 
+Run the non-disclosing operational pilot preflight before using a real domain or tunnel:
+
+```powershell
+.\scripts\pilot_acceptance_preflight.ps1 -EnvFile .env
+```
+
+Launch a temporary Quick Tunnel demonstration without changing `.env`:
+
+```powershell
+.\scripts\start_quick_demo.ps1
+```
+
 Notes:
 
 - `apps/web/playwright.config.ts` now selects `npm.cmd` on Windows and `npm` elsewhere so the same Playwright suite can run locally and in Linux CI.
@@ -89,4 +101,6 @@ Notes:
 - The release-candidate browser matrix is a CI gate for the nine target roles. It verifies role-specific landing workspaces, sidebar entry points, and configured direct-route denials. Latest verified result: 9 Chromium tests passed.
 - The release-candidate backend matrix runs against isolated SQLite and is included in the full backend CI suite. Latest verified result: 2 tests passed.
 - The PowerShell smoke check mirrors the Bash production gate for Windows operators: root, health, metrics, and the public blocking of `/docs`, `/redoc`, and `/openapi.json`.
+- The pilot preflight reports only pass/fail requirements for production mode, non-placeholder secrets, HTTPS, CORS, and a Cloudflare Tunnel token. It never prints secret values.
+- The Quick Tunnel helper is demonstration-only. It writes an ignored `.env.quick-demo`, exposes only web and API endpoints, and restores the standard local web/API environment through `./scripts/stop_quick_demo.ps1`.
 - `vue-tsc` runs with `strict`, `exactOptionalPropertyTypes`, and `noUncheckedIndexedAccess`, so optional API fields and list access must be handled explicitly.

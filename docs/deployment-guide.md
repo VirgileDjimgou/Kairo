@@ -98,6 +98,12 @@ docker compose -f docker-compose.yml -f docker-compose.prod.yml --env-file .env 
 docker compose -f docker-compose.yml -f docker-compose.prod.yml --env-file .env -p kairo-validation down --volumes
 ```
 
+Before a real pilot cutover, run the non-disclosing production-readiness check:
+
+```powershell
+.\scripts\pilot_acceptance_preflight.ps1 -EnvFile .env
+```
+
 ---
 
 ## Environment Configuration
@@ -172,6 +178,35 @@ Cloudflare Tunnel creates an encrypted outbound-only connection from your machin
    ```bash
    cloudflared tunnel --config ~/.cloudflared/config.yml run
    ```
+
+### Temporary Quick Tunnel Pilot (No Domain)
+
+Use this path only for a short demonstration. It creates random public
+`trycloudflare.com` URLs that stop working when the tunnel containers stop.
+It does not require a Cloudflare account, domain, or tunnel token.
+
+From the repository root on Windows PowerShell:
+
+```powershell
+.\scripts\start_quick_demo.ps1
+```
+
+The helper creates an ignored `.env.quick-demo` file, keeps the original
+`.env` unchanged, starts two temporary tunnels, and prints only the public
+application URL to share. It exposes only the Vite web service and the API;
+PostgreSQL, Redis, Qdrant, MinIO, and Ollama remain private.
+The Vite development server accepts only the `.trycloudflare.com` suffix for
+this pilot flow; it does not allow arbitrary external host headers.
+
+When the demonstration ends, stop the public tunnels and restore the regular
+local API and web configuration:
+
+```powershell
+.\scripts\stop_quick_demo.ps1
+```
+
+Quick Tunnels are not a production deployment path. They have random URLs,
+no uptime commitment, and must not be used with real member data.
 
 ### DNS Configuration
 
