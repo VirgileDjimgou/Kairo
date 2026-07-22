@@ -28,6 +28,20 @@ Use this checklist when validating Kairo as a release candidate for a profession
 - [ ] Confirm ordinary members keep a compact, read-first navigation shell
 - [ ] Confirm the principal-admin shell is visibly distinct from office workspaces
 
+## Automated Evidence
+
+The following checks are maintained in CI and provide reproducible release-candidate evidence; they do not replace the deployment-specific manual checks above.
+
+```bash
+python -m pytest services/api/tests/test_release_candidate_matrix.py -q
+
+cd apps/web
+npm run test:e2e:release-candidate
+```
+
+- The backend matrix verifies cross-tenant tenant-settings mutation is rejected for `principal_admin` and exercises the release-candidate authorization contract with isolated SQLite.
+- The browser matrix verifies all nine target roles land in their intended workspace and redirect away from configured restricted routes.
+
 ## Release Hygiene
 
 - [ ] README, roadmap, status, and AI handoff docs are in sync

@@ -1,6 +1,6 @@
 # Project State
 
-Last verified against repository code on 2026-07-21.
+Last verified against repository code on 2026-07-22.
 
 ## Product Snapshot
 
@@ -29,7 +29,7 @@ association product with:
 ## Main Gaps To Close
 
 - Mypy now covers ALL 151 backend source files with zero errors — backend quality gates (ruff + mypy) are fully saturated
-- Browser automation still covers only selected high-value journeys and can broaden carefully
+- Browser automation now covers member self-finance isolation, tenant-token renewal, and direct finance-route denials for the targeted office roles through a stable CI baseline
 - Some deeper frontend subflows may still need smaller parity cleanups beyond the dashboard-first pass completed in Sprint 87
 
 ## Current Execution Plan
@@ -38,13 +38,13 @@ association product with:
 - Post-release hardening track completed: Sprint 53 through Sprint 58
 - Productization track completed through Sprint 65
 - Stabilization and open-source maturity track completed: Sprint 72 and Sprint 73
-- New planning cycle status: Sprint 74 through Sprint 93 complete
-- Next sprint: Sprint 94 - Role Journey Browser Coverage Expansion
+- New planning cycle status: Sprint 74 through Sprint 97 complete
+- Next sprint: Sprint 98 - Operational Pilot Acceptance
 
 ## Current State
 
 - **Open-source release base**: strong and demonstrable
-- **Roadmap status**: Sprint 72 through Sprint 93 complete; Sprint 93 enabled exact optional-property and unchecked-index safeguards across the Vue application and corrected the affected client/store boundaries
+- **Roadmap status**: Sprint 72 through Sprint 97 complete; Sprint 97 validated the production web image, Nginx gateway, and Windows smoke path through an isolated local Docker stack
 - **Governance foundation**: canonical role catalog and backend capability matrix are present
 - **Authorization state**: major backend modules enforce explicit capabilities instead of broad inline role checks
 - **Member self-service**: personal contribution history and member-only PDF statements are in place
@@ -53,7 +53,7 @@ association product with:
 - **Executive oversight**: president and vice president have a dedicated cross-module governance cockpit with limited, backend-governed actions
 - **Principal admin control plane**: the broadest tenant administration surfaces recognize `principal_admin` explicitly
 - **Multi-tenant operations**: reproducible second-tenant provisioning, tenant-switch browser coverage, and the tenant operations command center exist
-- **Validation status**: `npm run type-check`, `npm run build`, and `npm run test:e2e:locale` (20 passed) passed on July 21, 2026 for Sprint 93; the backend quality gates remain fully covered through Sprint 92
+- **Validation status**: Sprint 96 automated checks remain green; Sprint 97 built the production web image, verified its same-origin API bundle, and passed the isolated production gateway smoke check (6 passed) on July 22, 2026
 - **Communications posture**: live notifications now support callback-updated final states, replay-safe updates, controlled provider polling, and backend-enforced retry eligibility without trusting the frontend
 - **Commercial posture**: strong association-focused pilot and disciplined self-hosted release candidate
 - **License**: MIT

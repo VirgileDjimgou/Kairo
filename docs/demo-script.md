@@ -198,7 +198,7 @@ npm install
 npm run build
 
 # Browser release-candidate matrix
-npx playwright test e2e/release-candidate.spec.ts --project=chromium
+npm run test:e2e:release-candidate
 ```
 
 ## 7. Production Deployment

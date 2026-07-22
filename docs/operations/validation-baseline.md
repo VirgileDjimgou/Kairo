@@ -1,6 +1,6 @@
 # Validation Baseline
 
-Last updated: 2026-07-21
+Last updated: 2026-07-22
 
 This document captures the active quality-gate commands that are expected to work from the repository root unless noted otherwise.
 
@@ -55,8 +55,38 @@ cd apps/web
 npm run test:e2e:locale
 ```
 
+Run the role-security browser subset:
+
+```bash
+cd apps/web
+npm run test:e2e:roles
+```
+
+Run the release-candidate browser matrix:
+
+```bash
+cd apps/web
+npm run test:e2e:release-candidate
+```
+
+Run the release-candidate backend matrix:
+
+```bash
+python -m pytest services/api/tests/test_release_candidate_matrix.py -q
+```
+
+Run the production gateway smoke check after starting the production Compose stack:
+
+```powershell
+.\scripts\production_smoke.ps1 -BaseUrl http://localhost
+```
+
 Notes:
 
 - `apps/web/playwright.config.ts` now selects `npm.cmd` on Windows and `npm` elsewhere so the same Playwright suite can run locally and in Linux CI.
 - The localization pack is the current browser baseline because it exercises the FR-first contract, authenticated session bootstrapping, principal-admin admin surfaces, and the role-scoped workspaces most affected by recent changes.
+- The role-authorization matrix is a CI gate. It proves member self-finance isolation and tenant-token renewal, plus direct finance-route denials for secretary general, auditor, censor, and sports manager without requiring a live backend. Latest verified result: 14 Chromium tests passed.
+- The release-candidate browser matrix is a CI gate for the nine target roles. It verifies role-specific landing workspaces, sidebar entry points, and configured direct-route denials. Latest verified result: 9 Chromium tests passed.
+- The release-candidate backend matrix runs against isolated SQLite and is included in the full backend CI suite. Latest verified result: 2 tests passed.
+- The PowerShell smoke check mirrors the Bash production gate for Windows operators: root, health, metrics, and the public blocking of `/docs`, `/redoc`, and `/openapi.json`.
 - `vue-tsc` runs with `strict`, `exactOptionalPropertyTypes`, and `noUncheckedIndexedAccess`, so optional API fields and list access must be handled explicitly.

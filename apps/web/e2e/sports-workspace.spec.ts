@@ -5,6 +5,7 @@ function makeSportsManagerMeResponse() {
     id: 'user-sports-1',
     email: 'sports@demo.org',
     display_name: 'Sports Manager',
+    preferred_language: 'en',
     status: 'active',
     tenant_id: 'tenant-demo-1',
     roles: ['sports_manager'],
@@ -40,6 +41,7 @@ function makeTreasurerMeResponse() {
     id: 'user-treasurer-1',
     email: 'treasurer@demo.org',
     display_name: 'Treasurer User',
+    preferred_language: 'en',
     status: 'active',
     tenant_id: 'tenant-demo-1',
     roles: ['treasurer'],
@@ -71,6 +73,8 @@ function makeTreasurerMeResponse() {
 }
 
 async function mockSportsWorkspace(page: Page) {
+  const financeRequests: string[] = []
+
   let events = [
     {
       id: 'sports-1',
@@ -91,6 +95,13 @@ async function mockSportsWorkspace(page: Page) {
 
   await page.addInitScript(() => {
     window.localStorage.setItem('access_token', 'playwright-sports-token')
+  })
+
+  page.on('request', (request) => {
+    const url = new URL(request.url())
+    if (url.origin === 'http://localhost:8000' && url.pathname.startsWith('/api/v1/contributions')) {
+      financeRequests.push(url.pathname)
+    }
   })
 
   await page.route('http://localhost:8000/api/v1/auth/me', async (route) => {
@@ -223,6 +234,8 @@ async function mockSportsWorkspace(page: Page) {
       body: JSON.stringify([]),
     })
   })
+
+  return { financeRequests }
 }
 
 async function mockTreasurerDenied(page: Page) {
@@ -279,7 +292,7 @@ test.describe('Sports workspace', () => {
     await page.getByLabel('Start').fill('2026-07-20T18:00')
     await page.getByLabel('End').fill('2026-07-20T20:00')
     await page.getByLabel('Location').fill('Main Stadium')
-    await page.getByRole('button', { name: 'Create event' }).click()
+    await page.getByRole('button', { name: 'Create sports event' }).click()
 
     await expect(page.getByText('Club Championship')).toBeVisible()
     await expect(page.getByText('match', { exact: true })).toBeVisible()
@@ -297,5 +310,15 @@ test.describe('Sports workspace', () => {
     await expect(page.getByRole('heading', { name: 'Welcome back, Treasurer User' })).toBeVisible()
     await expect(page).toHaveURL(/\/dashboard$/)
     await expect(page.getByRole('link', { name: 'Sports Workspace' })).toHaveCount(0)
+  })
+
+  test('sports manager cannot enter the treasurer finance workspace or load contribution data', async ({ page }) => {
+    const { financeRequests } = await mockSportsWorkspace(page)
+
+    await page.goto('/finance')
+
+    await expect(page).toHaveURL(/\/dashboard$/)
+    await expect(page.getByRole('heading', { name: 'Welcome back, Sports Manager' })).toBeVisible()
+    expect(financeRequests).toEqual([])
   })
 })

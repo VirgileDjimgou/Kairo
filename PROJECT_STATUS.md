@@ -1,16 +1,16 @@
 # Project Status
 
-Last updated: 2026-07-21
+Last updated: 2026-07-22
 
 ## Current Sprint
 
-Sprint 93 - Frontend Type Contract Hardening
+Sprint 97 - Production Docker Evidence And Handoff Validation
 
 Status: Completed
 
 ## Official Next Sprint
 
-Sprint 94 - Role Journey Browser Coverage Expansion
+Sprint 98 - Operational Pilot Acceptance
 
 Status: Planned
 
@@ -18,8 +18,8 @@ Status: Planned
 
 - Target outcome: a stable, professional, mature open-source association-management product with secure role-aware workspaces and a trustworthy chatbot
 - Intended operational scope: usable by an association or organization of about 200 members with differentiated office roles
-- Remaining planned execution window: 3
-- Delivery status: Sprint 93 enabled exact optional-property and unchecked-index safeguards across the Vue application, with the resulting API and store contract gaps resolved.
+- Remaining planned execution window: 1
+- Delivery status: Sprint 97 validated the production image and public gateway through an isolated local Docker stack.
 
 ## Source Of Truth
 
@@ -30,7 +30,7 @@ Status: Planned
 
 ## Professionalization Assessment
 
-- Estimated additional sprints required from the current state: 4
+- Estimated additional sprints required from the current state: 1
 - Current strengths:
   - multi-tenant auth and role resolution
   - secure document RAG with citations and prompt-injection defenses
@@ -79,7 +79,7 @@ Status: Planned
 
 - Kairo is usable as a controlled production release candidate for disciplined self-hosting or pilot deployments.
 - Kairo remains a strong association-focused pilot and disciplined self-hosted release candidate.
-- The next planned track moves from chat authorization-surface parity into broader automated quality-gate coverage.
+- The next planned track completes customer-facing pilot acceptance with real secrets, a real domain or tunnel, and backup/restore evidence before any new product-surface work.
 
 ## Completed
 

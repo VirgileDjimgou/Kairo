@@ -5,6 +5,7 @@ function makeTreasurerMeResponse() {
     id: 'user-treasurer-1',
     email: 'treasurer@demo.org',
     display_name: 'Treasurer Demo',
+    preferred_language: 'en',
     status: 'active',
     tenant_id: 'tenant-demo-1',
     roles: ['treasurer'],
@@ -446,7 +447,7 @@ test.describe('Finance workspace', () => {
     await page.goto('/dashboard')
     await financeNavLink(page).click()
 
-    await expect(page.getByRole('heading', { name: 'Collections reminders' })).toBeVisible()
+    await expect(page.getByRole('heading', { name: 'Reminders' })).toBeVisible()
     await expect(page.getByTestId('finance-reminder-history')).toContainText('Alice Example')
 
     await page.getByRole('button', { name: 'Remind' }).first().click()

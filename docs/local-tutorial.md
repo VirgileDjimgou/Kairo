@@ -234,7 +234,7 @@ npm run build
 
 ```bash
 cd apps/web
-npx playwright test e2e/release-candidate.spec.ts --project=chromium
+npm run test:e2e:release-candidate
 ```
 
 For focused role validation:

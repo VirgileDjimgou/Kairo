@@ -5,6 +5,7 @@ function makeCensorMeResponse() {
     id: 'user-censor-1',
     email: 'censor@demo.org',
     display_name: 'Censor Demo',
+    preferred_language: 'en',
     status: 'active',
     tenant_id: 'tenant-demo-1',
     roles: ['censor'],
@@ -40,6 +41,7 @@ function makeTreasurerMeResponse() {
     id: 'user-treasurer-1',
     email: 'treasurer@demo.org',
     display_name: 'Treasurer Demo',
+    preferred_language: 'en',
     status: 'active',
     tenant_id: 'tenant-demo-1',
     roles: ['treasurer'],
@@ -71,6 +73,8 @@ function makeTreasurerMeResponse() {
 }
 
 async function mockDisciplinaryWorkspace(page: Page) {
+  const financeRequests: string[] = []
+
   const members = [
     {
       id: 'member-1',
@@ -140,6 +144,13 @@ async function mockDisciplinaryWorkspace(page: Page) {
 
   await page.addInitScript(() => {
     window.localStorage.setItem('access_token', 'playwright-censor-token')
+  })
+
+  page.on('request', (request) => {
+    const url = new URL(request.url())
+    if (url.origin === 'http://localhost:8000' && url.pathname.startsWith('/api/v1/contributions')) {
+      financeRequests.push(url.pathname)
+    }
   })
 
   await page.route('http://localhost:8000/api/v1/auth/me', async (route) => {
@@ -278,6 +289,8 @@ async function mockDisciplinaryWorkspace(page: Page) {
       body: JSON.stringify([]),
     })
   })
+
+  return { financeRequests }
 }
 
 async function mockTreasurerDenied(page: Page) {
@@ -347,5 +360,15 @@ test.describe('Censor workspace', () => {
     await expect(page.getByRole('heading', { name: 'Welcome back, Treasurer Demo' })).toBeVisible()
     await expect(page).toHaveURL(/\/dashboard$/)
     await expect(page.getByRole('link', { name: 'Disciplinary Console' })).toHaveCount(0)
+  })
+
+  test('censor cannot enter the treasurer finance workspace or load contribution data', async ({ page }) => {
+    const { financeRequests } = await mockDisciplinaryWorkspace(page)
+
+    await page.goto('/finance')
+
+    await expect(page).toHaveURL(/\/dashboard$/)
+    await expect(page.getByRole('heading', { name: 'Welcome back, Censor Demo' })).toBeVisible()
+    expect(financeRequests).toEqual([])
   })
 })

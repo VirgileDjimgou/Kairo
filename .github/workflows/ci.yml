@@ -78,3 +78,13 @@ jobs:
         run: |
           cd apps/web
           npm run test:e2e:locale
+
+      - name: Run role authorization browser matrix
+        run: |
+          cd apps/web
+          npm run test:e2e:roles
+
+      - name: Run release candidate browser matrix
+        run: |
+          cd apps/web
+          npm run test:e2e:release-candidate
