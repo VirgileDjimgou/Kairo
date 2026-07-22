@@ -3866,6 +3866,84 @@ Completed implementation:
 - Aligned the notification-history Playwright fixture with the current `{ items, summary }` API response and query-string contract.
 - Verified `npm run type-check`, `npm run build`, and `npm run test:e2e:locale` (20 passed).
 
+## Sprint 94 - Role Journey Browser Coverage Expansion
+
+Status: Completed
+
+Goal:
+Add browser-level evidence that the role-aware frontend follows backend-owned tenant and authorization boundaries during the highest-risk member journeys.
+
+Why this sprint next:
+
+- Sprint 93 established a stronger frontend type contract, and `PROJECT_STATUS.md` explicitly selected tenant switching, member finance self-service, and direct-route denials as the next browser coverage targets.
+- Backend authorization was already tested independently; this sprint proves that the UI neither advertises nor requests broader data while preserving backend-only policy enforcement.
+
+Completed implementation:
+
+- Added a member-role Playwright suite that verifies the personal statement route does not call tenant finance, member-directory, or admin endpoints.
+- Added direct-navigation coverage for `/finance` and `/admin/members`, proving members return to the dashboard before protected views load.
+- Added tenant-switch coverage proving the renewed tenant token is used by the next personal-statement request.
+- Stabilized existing finance and tenant-switch fixtures by making their English locale assumption explicit and aligning an obsolete reminder heading assertion.
+- Verified `npm run type-check`, `npm run build`, and the focused role-journey browser subset (7 passed).
+
+## Sprint 95 - Role Authorization Browser Matrix And CI Baseline
+
+Status: Completed
+
+Goal:
+Make the role-authorization browser coverage a maintained CI quality gate and extend direct-route denial evidence to the targeted office workspaces.
+
+Why this sprint next:
+
+- Sprint 94 established member self-service and tenant-switch safety evidence, but the focused checks were not yet a named CI command and did not cover all targeted office-role finance denials.
+- The backend remains the policy enforcement point. This sprint prevents UI regressions that could advertise or load restricted finance data before backend authorization rejects it.
+
+Completed implementation:
+
+- Added the maintained `npm run test:e2e:roles` command and executed it in the web CI job after Chromium installation.
+- Extended secretary, auditor, censor, and sports-manager browser coverage with direct `/finance` denials and assertions that no contribution endpoint is requested.
+- Made the affected office fixtures explicitly English and corrected stale sports-event action selectors exposed by the current UI contract.
+- Verified `npm run type-check`, `npm run build`, `npm run test:e2e:locale` (20 passed), and `npm run test:e2e:roles` (14 passed).
+
+## Sprint 96 - Release Candidate Browser And CI Consolidation
+
+Status: Completed
+
+Goal:
+Promote the existing release-candidate role matrix into a maintained CI gate and verify the complete release-candidate evidence set without expanding the product surface.
+
+Why this sprint next:
+
+- Sprint 95 protected the highest-risk member and office authorization journeys, while the existing nine-role release-candidate matrix was still an undocumented ad hoc Playwright command.
+- The release candidate needed reproducible evidence covering the full role catalog, its backend tenant-isolation contract, and the browser packs already required by CI.
+
+Completed implementation:
+
+- Added `npm run test:e2e:release-candidate` and ran it in the web CI job after the localization and role-authorization packs.
+- Stabilized the release-candidate authentication fixture with an explicit language preference, avoiding an unmocked preference-synchronization request during browser runs.
+- Documented the release-candidate browser and SQLite backend commands in the validation baseline, commercial checklist, demo script, and local tutorial.
+- Verified the full backend suite (264 passed), release-candidate backend matrix (2 passed), type check, production build, localization matrix (20 passed), role-authorization matrix (14 passed), and release-candidate browser matrix (9 passed).
+
+## Sprint 97 - Production Docker Evidence And Handoff Validation
+
+Status: Completed
+
+Goal:
+Validate the documented production Compose path against a real local Docker stack and record reproducible gateway evidence without changing product behavior.
+
+Why this sprint next:
+
+- The release-candidate browser and SQLite evidence was complete, but the production Docker image path and Nginx public gateway had not been exercised end to end.
+- Inspection found that the web image could compile the development API base URL from the repository `.env`, bypassing the same-origin production proxy.
+
+Completed implementation:
+
+- Made the web production build inject `VITE_API_BASE_URL=/api/v1` explicitly through the Dockerfile and production Compose build arguments.
+- Built the production web image and verified its bundle contains `/api/v1` rather than the development-only localhost API URL.
+- Started an isolated `kairo-s97` production Compose stack with independent volumes, then verified root, health, metrics, and the public `404` blocking of docs, Redoc, and OpenAPI.
+- Added and executed a Windows PowerShell equivalent of the Bash production smoke check (6/6 passed), documented the isolated Docker Desktop validation path, and recorded the evidence.
+- Removed the isolated validation containers, network, and volumes after the checks; the existing local Compose project was not modified.
+
 ## Roadmap Status
 
 The historical track through Sprint 57 is complete.
@@ -3888,13 +3966,13 @@ Sprint 68 is now complete.
 
 Sprint 69 is now complete.
 
-Sprint 72 through Sprint 93 are now complete. Sprint 72 and Sprint 73 closed the stabilization and open-source maturity track; Sprint 74 through Sprint 78 completed the broader recovery UX rollout, Sprint 79 started the next theme by making the notifications module partially real through SMTP-backed email dispatch, Sprint 80 packaged the existing observability signals into a reusable operator monitoring baseline, Sprint 81 added Telegram as a second real operator-usable notification channel, Sprint 82 added a gateway-backed WhatsApp live path, Sprint 83 added the acceptance-level reconciliation and audit baseline, Sprint 84 added a secure provider callback seam with final-state history merging for the live multi-channel notification surface, Sprint 85 added replay-safe reconciliation updates plus a backend-owned polling fallback for pending deliveries, Sprint 86 turned that baseline into an operator triage and retry workflow with backend-enforced filtering and resend eligibility, Sprint 87 aligned frontend workspace discoverability with the backend role contract for the current association-role track, Sprint 88 aligned chat assistant affordances and structured-context guards with backend-owned domain and tenant-module policy contracts, Sprint 89 expanded ruff to 12 module paths and mypy to 9 files, Sprint 90 completed the ruff expansion to ALL backend modules, Sprint 91 resolved all pre-existing mypy errors and expanded the typed baseline to 7 directory/module paths, Sprint 92 expanded mypy coverage to ALL 151 backend source files, and Sprint 93 enabled stricter frontend transport and collection-safety checks.
+Sprint 72 through Sprint 97 are now complete. Sprint 72 and Sprint 73 closed the stabilization and open-source maturity track; Sprint 74 through Sprint 78 completed the broader recovery UX rollout, Sprint 79 started the next theme by making the notifications module partially real through SMTP-backed email dispatch, Sprint 80 packaged the existing observability signals into a reusable operator monitoring baseline, Sprint 81 added Telegram as a second real operator-usable notification channel, Sprint 82 added a gateway-backed WhatsApp live path, Sprint 83 added the acceptance-level reconciliation and audit baseline, Sprint 84 added a secure provider callback seam with final-state history merging for the live multi-channel notification surface, Sprint 85 added replay-safe reconciliation updates plus a backend-owned polling fallback for pending deliveries, Sprint 86 turned that baseline into an operator triage and retry workflow with backend-enforced filtering and resend eligibility, Sprint 87 aligned frontend workspace discoverability with the backend role contract for the current association-role track, Sprint 88 aligned chat assistant affordances and structured-context guards with backend-owned domain and tenant-module policy contracts, Sprint 89 expanded ruff to 12 module paths and mypy to 9 files, Sprint 90 completed the ruff expansion to ALL backend modules, Sprint 91 resolved all pre-existing mypy errors and expanded the typed baseline to 7 directory/module paths, Sprint 92 expanded mypy coverage to ALL 151 backend source files, Sprint 93 enabled stricter frontend transport and collection-safety checks, Sprint 94 added browser proof for member self-finance isolation, direct-route denials, and tenant-token renewal, Sprint 95 made the member and targeted office-role authorization matrix a maintained CI gate, Sprint 96 promoted the full release-candidate browser matrix into CI with a verified backend evidence baseline, and Sprint 97 validated the production Docker image and Nginx gateway through an isolated live stack.
 
 Execution window:
 
-- Sprint 72 through Sprint 93.
+- Sprint 72 through Sprint 97.
 
-Estimated additional sprints required from the current state: 4 for the new planning cycle. Sprint 94 should expand browser coverage for the highest-risk member and office role journeys before further professionalization backlog items.
+Estimated additional sprints required from the current state: 1 for the new planning cycle. Sprint 98 should complete operational pilot acceptance with customer-ready secrets, a real domain or tunnel, and backup/restore evidence before any new product-surface work.
 
 Validation after this track should cover:
 

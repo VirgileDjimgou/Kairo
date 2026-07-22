@@ -6,6 +6,7 @@ const secretaryMeResponse = {
   id: 'user-secretary-1',
   email: 'secretary@demo.org',
   display_name: 'Secretary General',
+  preferred_language: 'en',
   status: 'active',
   tenant_id: 'tenant-demo-1',
   roles: ['secretary_general'],
@@ -50,8 +51,17 @@ const secretaryLimitedModulesResponse = {
 }
 
 async function mockSecretaryWorkspace(page: Page, response = secretaryMeResponse) {
+  const financeRequests: string[] = []
+
   await page.addInitScript(() => {
     window.localStorage.setItem('access_token', 'playwright-secretary-token')
+  })
+
+  page.on('request', (request) => {
+    const url = new URL(request.url())
+    if (url.origin === 'http://localhost:8000' && url.pathname.startsWith('/api/v1/contributions')) {
+      financeRequests.push(url.pathname)
+    }
   })
 
   await page.route('**/api/v1/auth/me', async (route) => {
@@ -125,6 +135,8 @@ async function mockSecretaryWorkspace(page: Page, response = secretaryMeResponse
       body: JSON.stringify({ detail: 'not found' }),
     })
   })
+
+  return { financeRequests }
 }
 
 test.describe('Secretary workspace', () => {
@@ -142,7 +154,7 @@ test.describe('Secretary workspace', () => {
   })
 
   test('secretary general cannot enter the finance workspace route', async ({ page }) => {
-    await mockSecretaryWorkspace(page)
+    const { financeRequests } = await mockSecretaryWorkspace(page)
     await page.goto('/finance')
 
     await expect(page).toHaveURL(/\/dashboard$/)
@@ -150,6 +162,7 @@ test.describe('Secretary workspace', () => {
     await expect(page.getByTestId('dashboard-workspace-focus').locator('a[href="/secretary"]').first()).toBeVisible()
     await expect(page.locator('a[href="/secretary"]').first()).toBeVisible()
     await expect(page.locator('a[href="/finance"]')).toHaveCount(0)
+    expect(financeRequests).toEqual([])
   })
 
   test('secretary workspace stays discoverable when policy and announcement modules are disabled', async ({ page }) => {

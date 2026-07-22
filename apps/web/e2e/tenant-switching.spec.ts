@@ -50,6 +50,7 @@ function makeUser(tenantId: string) {
     id: 'user-principal-1',
     email: 'principal@demo.org',
     display_name: 'Priya Principal',
+    preferred_language: 'en',
     status: 'active',
     tenant_id: tenantId,
     roles: ['principal_admin'],

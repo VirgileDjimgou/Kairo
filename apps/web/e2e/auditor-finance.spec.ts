@@ -5,6 +5,7 @@ function makeAuditorMeResponse() {
     id: 'user-auditor-1',
     email: 'auditor@demo.org',
     display_name: 'Auditor Demo',
+    preferred_language: 'en',
     status: 'active',
     tenant_id: 'tenant-demo-1',
     roles: ['auditor'],
@@ -36,6 +37,8 @@ function makeAuditorMeResponse() {
 }
 
 async function mockAuditorFinance(page: Page) {
+  const financeRequests: string[] = []
+
   const members = [
     {
       id: 'member-1',
@@ -131,6 +134,13 @@ async function mockAuditorFinance(page: Page) {
     window.localStorage.setItem('access_token', 'playwright-auditor-token')
   })
 
+  page.on('request', (request) => {
+    const url = new URL(request.url())
+    if (url.origin === 'http://localhost:8000' && url.pathname.startsWith('/api/v1/contributions')) {
+      financeRequests.push(url.pathname)
+    }
+  })
+
   await page.route('**/api/v1/auth/me', async (route) => {
     await route.fulfill({
       status: 200,
@@ -215,6 +225,8 @@ async function mockAuditorFinance(page: Page) {
       body: JSON.stringify(contributions),
     })
   })
+
+  return { financeRequests }
 }
 
 test.describe('Auditor finance workspace', () => {
@@ -231,5 +243,15 @@ test.describe('Auditor finance workspace', () => {
     await expect(page.getByText('40.00 EUR · bank transfer')).toBeVisible()
     await expect(page.getByRole('button', { name: 'Record payment' })).toHaveCount(0)
     await expect(page.getByRole('button', { name: 'Create contribution' })).toHaveCount(0)
+  })
+
+  test('auditor cannot enter the treasurer finance workspace or load contribution data', async ({ page }) => {
+    const { financeRequests } = await mockAuditorFinance(page)
+
+    await page.goto('/finance')
+
+    await expect(page).toHaveURL(/\/dashboard$/)
+    await expect(page.getByRole('heading', { name: 'Welcome back, Auditor Demo' })).toBeVisible()
+    expect(financeRequests).toEqual([])
   })
 })

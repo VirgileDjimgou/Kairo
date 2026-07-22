@@ -83,6 +83,21 @@ bash scripts/deploy_release.sh install
 bash scripts/production_smoke.sh
 ```
 
+On Windows PowerShell, use the equivalent smoke check:
+
+```powershell
+.\scripts\production_smoke.ps1
+```
+
+For a local Docker Desktop validation without the Bash install helper, use an
+isolated Compose project and a production-ready environment file:
+
+```powershell
+docker compose -f docker-compose.yml -f docker-compose.prod.yml --env-file .env -p kairo-validation up -d --build
+.\scripts\production_smoke.ps1 -BaseUrl http://localhost
+docker compose -f docker-compose.yml -f docker-compose.prod.yml --env-file .env -p kairo-validation down --volumes
+```
+
 ---
 
 ## Environment Configuration
@@ -283,6 +298,12 @@ For a repeatable production smoke check, use:
 
 ```bash
 bash scripts/production_smoke.sh http://localhost
+```
+
+Windows PowerShell:
+
+```powershell
+.\scripts\production_smoke.ps1 -BaseUrl http://localhost
 ```
 
 For the full validation and restore workflow, see [`docs/operations/production-readiness.md`](docs/operations/production-readiness.md) and [`docs/operations/deployment-runbook.md`](./operations/deployment-runbook.md).

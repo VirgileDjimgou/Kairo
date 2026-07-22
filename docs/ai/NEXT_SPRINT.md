@@ -2,22 +2,24 @@
 
 ## Status
 
-Sprint 93 (Frontend Type Contract Hardening) is complete.
+Sprint 97 (Production Docker Evidence And Handoff Validation) is complete.
 
 ## What Was Done
 
-Sprint 93 made the existing strict frontend compiler contract materially stronger.
+Sprint 97 completed the local production Docker and gateway evidence baseline.
 
-Key fixes:
-- Enabled `exactOptionalPropertyTypes` and `noUncheckedIndexedAccess` in the Vue TypeScript configuration.
-- Corrected optional HTTP payloads, filters, streaming request options, stores, and list access to make absent values explicit rather than sending `undefined`.
-- Aligned the notification-history Playwright fixture with the current `{ items, summary }` API response and query-string request contract.
+Key coverage:
+- Forced the production web build to use the same-origin `/api/v1` gateway path instead of inheriting a development API URL.
+- Built a production web image and verified its compiled bundle contains no development localhost API endpoint.
+- Started and removed an isolated production Compose stack with independent volumes.
+- Verified the Nginx gateway: root, health, and metrics return `200`; docs, Redoc, and OpenAPI return `404`.
+- Added and verified `scripts/production_smoke.ps1` for reproducible Windows Docker Desktop smoke checks.
 
-Verified: frontend type-check and production build pass; the localization browser suite passes 20/20.
+Verified: production web image build passed; production gateway smoke check passed 6/6 against the isolated stack.
 
 ## Next Planning Cycle
 
-Sprint 94 - Role Journey Browser Coverage Expansion should add focused browser journeys for the highest-risk member and office permissions, beginning with tenant switching, member finance self-service, and direct-route denials. The backend remains the source of authorization truth; browser checks only prove that the UI follows it.
+Sprint 98 - Operational Pilot Acceptance should validate a customer-ready environment with non-placeholder secrets, a real domain or Cloudflare Tunnel, and a recorded backup/restore drill. It must not add product features or weaken backend-owned authorization.
 
 ## Continuity Rule
 

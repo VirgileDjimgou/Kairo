@@ -40,6 +40,7 @@ function makeMeResponse(caseItem: RoleCase) {
     id: `user-${caseItem.role}-1`,
     email: caseItem.email,
     display_name: caseItem.displayName,
+    preferred_language: 'en',
     status: 'active',
     tenant_id: 'tenant-demo-1',
     roles: [caseItem.role],
