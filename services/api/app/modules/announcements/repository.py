@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+from datetime import UTC
 from uuid import UUID
 
 from sqlalchemy import select
@@ -36,9 +37,9 @@ class AnnouncementRepository:
         return list(result.scalars().all())
 
     async def list_active_by_tenant(self, tenant_id: UUID) -> list[Announcement]:
-        from datetime import datetime, timezone
+        from datetime import datetime
 
-        now = datetime.now(timezone.utc)
+        now = datetime.now(UTC)
         result = await self._db.execute(
             select(Announcement)
             .where(
@@ -52,9 +53,9 @@ class AnnouncementRepository:
 
     async def list_visible_active_by_tenant(self, tenant_id: UUID) -> list[Announcement]:
         """Return active announcements that are not admin_only."""
-        from datetime import datetime, timezone
+        from datetime import datetime
 
-        now = datetime.now(timezone.utc)
+        now = datetime.now(UTC)
         result = await self._db.execute(
             select(Announcement)
             .where(

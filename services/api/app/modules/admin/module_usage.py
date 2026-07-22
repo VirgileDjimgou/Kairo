@@ -9,13 +9,14 @@ MODEL_MAP: dict[str, type] = {}
 def _lazy_load_models() -> dict[str, type]:
     if MODEL_MAP:
         return MODEL_MAP
+    from app.modules.notifications.models import NotificationChannel
+
     from app.modules.announcements.models import Announcement
     from app.modules.chat.models import ChatQueryLog
     from app.modules.contributions.models import ContributionRecord
     from app.modules.disciplinary.models import DisciplinaryRecord
     from app.modules.events.models import Event
     from app.modules.membership.models import MembershipProfile
-    from app.modules.notifications.models import NotificationChannel
     from app.modules.policies.models import PolicyRecord
 
     MODEL_MAP.update(
@@ -41,6 +42,6 @@ async def module_has_data(db: AsyncSession, tenant_id: UUID, module: str) -> boo
         return False
 
     result = await db.execute(
-        select(func.count(model.id)).where(model.tenant_id == tenant_id)
+        select(func.count(model.id)).where(model.tenant_id == tenant_id)  # type: ignore[attr-defined]
     )
     return result.scalar_one() > 0

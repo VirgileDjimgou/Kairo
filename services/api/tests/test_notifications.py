@@ -5,16 +5,14 @@ from __future__ import annotations
 import uuid as _uuid
 
 import pytest
-from httpx import AsyncClient
-from sqlalchemy.ext.asyncio import AsyncSession
-
-from helpers import create_tenant_with_user, login
-from helpers import create_user_for_tenant
 from fakes import (
     FakeEmailNotificationProvider,
     FakeTelegramNotificationProvider,
     FakeWhatsAppNotificationProvider,
 )
+from helpers import create_tenant_with_user, create_user_for_tenant, login
+from httpx import AsyncClient
+from sqlalchemy.ext.asyncio import AsyncSession
 from test_events_announcements import _create_linked_member
 
 

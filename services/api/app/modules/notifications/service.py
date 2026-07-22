@@ -1,13 +1,14 @@
 from __future__ import annotations
 
 import json
-from datetime import UTC, datetime, timedelta
 from dataclasses import dataclass
+from datetime import UTC, datetime, timedelta
 
 from fastapi import HTTPException, status
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.modules.audit.repository import AuditRepository
+from app.modules.audit.schemas import AuditEventResponse
 from app.modules.audit.service import AuditService
 from app.modules.notifications.schemas import (
     NotificationChannelResponse,
@@ -29,6 +30,7 @@ from app.modules.tenancy.module_toggles import is_module_enabled
 from app.modules.tenancy.repository import TenancyRepository
 from app.providers.notifications.base import (
     NotificationDeliveryStatusResult,
+    NotificationDispatchResult,
     NotificationProvider,
 )
 
@@ -54,7 +56,7 @@ class NotificationService:
         self._providers = providers
         self._provider_map = {provider.channel: provider for provider in providers}
         self._db = db
-        self._audit = audit
+        self._audit: AuditService | None = audit
 
     def list_channels(self) -> list[NotificationChannelResponse]:
         return [
@@ -98,7 +100,7 @@ class NotificationService:
             module_key="notifications",
             entity_type="notification",
         )
-        latest_reconciliation_by_key: dict[tuple[str, str], object] = {}
+        latest_reconciliation_by_key: dict[tuple[str, str], AuditEventResponse] = {}
         retried_provider_references: set[tuple[str, str]] = set()
         for event in events:
             channel = str(event.details.get("channel", event.entity_id or "unknown"))
@@ -591,18 +593,18 @@ class NotificationService:
 
         return response
 
-    def _to_dispatch_response(self, dispatched: object) -> NotificationDispatchResponse:
+    def _to_dispatch_response(self, dispatched: NotificationDispatchResult) -> NotificationDispatchResponse:
         return NotificationDispatchResponse(
-            channel=getattr(dispatched, "channel"),
-            status=getattr(dispatched, "status"),
-            message=getattr(dispatched, "message"),
-            delivered=getattr(dispatched, "delivered"),
-            simulation_only=getattr(dispatched, "simulation_only"),
-            delivery_stage=getattr(dispatched, "delivery_stage"),
-            reconciliation_status=getattr(dispatched, "reconciliation_status"),
-            reconciliation_supported=getattr(dispatched, "reconciliation_supported"),
-            provider_reference=getattr(dispatched, "provider_reference"),
-            polling_supported=getattr(dispatched, "polling_supported"),
+            channel=dispatched.channel,
+            status=dispatched.status,
+            message=dispatched.message,
+            delivered=dispatched.delivered,
+            simulation_only=dispatched.simulation_only,
+            delivery_stage=dispatched.delivery_stage,
+            reconciliation_status=dispatched.reconciliation_status,
+            reconciliation_supported=dispatched.reconciliation_supported,
+            provider_reference=dispatched.provider_reference,
+            polling_supported=dispatched.polling_supported,
         )
 
     async def _ensure_notifications_enabled(self, tenant_id) -> None:

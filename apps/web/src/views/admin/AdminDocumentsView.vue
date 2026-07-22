@@ -912,8 +912,8 @@ async function submitUpload() {
     const uploaded = await uploadDocument({
       file: selectedFile.value,
       title: title.value,
-      description: description.value || undefined,
       access_scope: accessScope.value,
+      ...(description.value ? { description: description.value } : {}),
     });
     ingestionJobByDocument.value[uploaded.id] = uploaded.ingestion_job_id;
     ingestionStatusByDocument.value[uploaded.id] = "pending";

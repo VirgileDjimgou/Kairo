@@ -1,4 +1,4 @@
-from typing import Union
+
 from uuid import UUID
 
 from fastapi import APIRouter, HTTPException, Request, status
@@ -17,9 +17,9 @@ from app.modules.identity.schemas import (
     LanguagePreferenceResponse,
     LoginRequest,
     ManagedTenantUserActionResponse,
+    ManagedTenantUserResponse,
     ManagedTenantUserRolesUpdateRequest,
     ManagedTenantUserRolesUpdateResponse,
-    ManagedTenantUserResponse,
     MfaCompleteLoginRequest,
     MfaEnrollResponse,
     MfaLoginResponse,
@@ -37,7 +37,6 @@ from app.modules.identity.schemas import (
     SwitchTenantResponse,
     TokenResponse,
     UpdateLanguagePreferenceRequest,
-    UserResponse,
     UserWithMembershipsResponse,
 )
 from app.modules.identity.service import AuthService
@@ -60,12 +59,12 @@ def _rate_limit_or_429(key: str, *, max_requests: int, window_seconds: int) -> N
         )
 
 
-@router.post("/login", response_model=Union[TokenResponse, MfaRequiredResponse])
+@router.post("/login", response_model=TokenResponse | MfaRequiredResponse)
 async def login(
     request: LoginRequest,
     db: DbDep,
     fastapi_request: Request,
-) -> Union[TokenResponse, MfaRequiredResponse]:
+) -> TokenResponse | MfaRequiredResponse:
     """Authenticate with email + password. Returns JWT or MFA challenge."""
     ip = _client_ip(fastapi_request)
     if not rate_limiter.check(f"login:{ip}", max_requests=10, window_seconds=60):

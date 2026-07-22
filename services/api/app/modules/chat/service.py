@@ -4,7 +4,7 @@ import json
 import re
 from collections.abc import AsyncGenerator
 from dataclasses import replace
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from uuid import UUID
 
 import structlog
@@ -17,7 +17,6 @@ from app.core.capabilities import (
     CAP_DOCUMENTS_WRITE,
     CAP_EVENTS_SPORTS_WRITE,
     CAP_FINANCE_AUDIT,
-    CAP_FINANCE_SELF_READ,
     CAP_FINANCE_TENANT_READ,
     CAP_POLICIES_WRITE,
     CAP_TENANT_ADMINISTRATION,
@@ -26,8 +25,8 @@ from app.core.capabilities import (
 from app.core.config import settings
 from app.core.privacy import preview_text
 from app.modules.announcements.repository import AnnouncementRepository
-from app.modules.chat.models import ChatQueryLog
 from app.modules.chat.domain_policy import ChatDomainPolicy, build_chat_domain_policy
+from app.modules.chat.models import ChatQueryLog
 from app.modules.chat.payloads import (
     PreparedChatTurn,
     RetrievedChunk,
@@ -1325,9 +1324,9 @@ def _format_datetime(value: datetime | None) -> str:
     if value is None:
         return "unknown date"
     if value.tzinfo is None:
-        normalized = value.replace(tzinfo=timezone.utc)
+        normalized = value.replace(tzinfo=UTC)
     else:
-        normalized = value.astimezone(timezone.utc)
+        normalized = value.astimezone(UTC)
     return normalized.strftime("%Y-%m-%d %H:%M UTC")
 
 
@@ -1335,10 +1334,10 @@ def _is_future_datetime(value: datetime | None) -> bool:
     if value is None:
         return False
     if value.tzinfo is None:
-        normalized = value.replace(tzinfo=timezone.utc)
+        normalized = value.replace(tzinfo=UTC)
     else:
-        normalized = value.astimezone(timezone.utc)
-    return normalized >= datetime.now(timezone.utc)
+        normalized = value.astimezone(UTC)
+    return normalized >= datetime.now(UTC)
 
 
 def _excerpt(text: str, limit: int = 220) -> str:

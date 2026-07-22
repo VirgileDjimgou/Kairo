@@ -6,8 +6,8 @@ from uuid import UUID
 from fastapi import HTTPException, status
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.core.dependencies import CurrentUser
 from app.core.capabilities import CAP_EVENTS_WRITE
+from app.core.dependencies import CurrentUser
 from app.core.import_export import generate_csv
 from app.modules.audit.service import AuditService
 from app.modules.events.models import Event
@@ -254,7 +254,7 @@ class EventService:
         if isinstance(value, dict):
             return dict(value)
         try:
-            parsed = json.loads(value)
+            parsed = json.loads(value)  # type: ignore[arg-type]
         except json.JSONDecodeError:
             return {}
         return parsed if isinstance(parsed, dict) else {}

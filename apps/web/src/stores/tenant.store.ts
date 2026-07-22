@@ -26,8 +26,11 @@ export const useTenantStore = defineStore('tenant', () => {
     } else if (selectedTenantId.value && list.some((m) => m.tenant_id === selectedTenantId.value)) {
       // persisted selection is still valid
     } else if (list.length > 0) {
-      selectedTenantId.value = list[0].tenant_id
-      localStorage.setItem(SELECTED_TENANT_KEY, list[0].tenant_id)
+      const firstMembership = list.at(0)
+      if (firstMembership) {
+        selectedTenantId.value = firstMembership.tenant_id
+        localStorage.setItem(SELECTED_TENANT_KEY, firstMembership.tenant_id)
+      }
     } else {
       selectedTenantId.value = ''
       localStorage.removeItem(SELECTED_TENANT_KEY)

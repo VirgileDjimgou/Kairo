@@ -1,4 +1,4 @@
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from uuid import UUID
 
 from sqlalchemy import delete, select
@@ -51,9 +51,9 @@ class TenancyRepository:
         if default_language is not None:
             tenant.default_language = default_language
         if branding_json is not None:
-            tenant.branding_json = branding_json
+            tenant.branding_json = branding_json  # type: ignore[assignment]
         if settings_json is not None:
-            tenant.settings_json = settings_json
+            tenant.settings_json = settings_json  # type: ignore[assignment]
         await self._db.flush()
         await self._db.refresh(tenant)
         return tenant
@@ -125,7 +125,7 @@ class TenancyRepository:
             .where(TenantUser.tenant_id == tenant_id)
             .order_by(User.display_name.asc(), User.email.asc())
         )
-        return list(result.all())
+        return list(result.all())  # type: ignore[arg-type]
 
     async def create_tenant_user(
         self,
@@ -155,7 +155,7 @@ class TenancyRepository:
         if membership is None:
             return None
         membership.membership_status = membership_status
-        membership.updated_at = datetime.now(timezone.utc)
+        membership.updated_at = datetime.now(UTC)
         await self._db.flush()
         await self._db.refresh(membership)
         return membership
@@ -267,7 +267,7 @@ class TenancyRepository:
 
             stmt = pg_insert(user_roles).values(
                 tenant_user_id=tenant_user.id, role_id=role_id
-            ).on_conflict_do_nothing()
+            ).on_conflict_do_nothing()  # type: ignore[assignment]
         await self._db.execute(stmt)
 
     async def replace_user_roles(

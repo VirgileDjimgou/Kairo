@@ -3,7 +3,7 @@ from __future__ import annotations
 import uuid
 from datetime import datetime
 from decimal import Decimal
-from enum import Enum
+from enum import StrEnum
 
 from sqlalchemy import DateTime, ForeignKey, Numeric, String, Text
 from sqlalchemy.dialects.postgresql import UUID
@@ -13,7 +13,7 @@ from sqlalchemy.sql import text as sql_text
 from app.db.base import Base
 
 
-class DisciplinaryStatus(str, Enum):
+class DisciplinaryStatus(StrEnum):
     open = "open"
     under_review = "under_review"
     resolved = "resolved"

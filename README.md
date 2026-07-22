@@ -152,7 +152,7 @@ kairo/
 │   │   │                events, announcements)
 │   │   ├── db/          Session, migrations, seed scripts
 │   │   └── core/        Security, logging, provider abstractions
-│   └── tests/           239 integration tests (SQLite, no infra needed)
+│   └── tests/           264 integration tests (SQLite, no infra needed)
 ├── infra/               Infrastructure config samples (nginx, caddy, cloudflare)
 ├── docs/                Architecture docs, ADRs, sprint notes, deployment guide
 ├── orgmind_prompt_pack/ Source-of-truth product documentation

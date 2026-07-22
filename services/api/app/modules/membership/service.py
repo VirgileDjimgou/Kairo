@@ -7,18 +7,18 @@ from fastapi import HTTPException, status
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core.import_export import ImportResult, ImportRowError, generate_csv, parse_csv
-from app.modules.contributions.schemas import ContributionRecordResponse
 from app.modules.audit.service import AuditService
-from app.modules.membership.models import MembershipProfile
+from app.modules.contributions.repository import ContributionRepository
+from app.modules.contributions.schemas import ContributionRecordResponse
+from app.modules.membership.models import MembershipProfile, MembershipStatus
 from app.modules.membership.repository import MembershipRepository
 from app.modules.membership.schemas import (
     MemberBalanceResponse,
-    MemberStatementResponse,
     MembershipProfileCreate,
     MembershipProfileResponse,
     MembershipProfileUpdate,
+    MemberStatementResponse,
 )
-from app.modules.contributions.repository import ContributionRepository
 
 
 class MembershipService:
@@ -344,7 +344,7 @@ class MembershipService:
                     display_name=display_name,
                     email=email,
                     phone=phone,
-                    status=status_val,
+                    status=MembershipStatus(status_val),
                 )
                 profile = await self._repo.create(tenant_id, data.model_dump(exclude_unset=True))
                 await self._audit.record_event(

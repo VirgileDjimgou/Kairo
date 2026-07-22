@@ -33,7 +33,7 @@ import { useLocaleStore } from "@/stores/locale.store";
 const props = defineProps<{
   role: string;
   content: string;
-  citations?: ChatCitationResponse[];
+  citations?: ChatCitationResponse[] | undefined;
   isStreaming?: boolean;
 }>();
 

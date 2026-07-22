@@ -11,22 +11,21 @@ from __future__ import annotations
 import asyncio
 import json
 import uuid
-from datetime import datetime, timedelta, timezone
+from datetime import UTC, datetime, timedelta
 
 import structlog
 from sqlalchemy import select
 
 from app.core.logging import setup_logging
+from app.db import seed as base_seed
 from app.db.session import async_session_factory
 from app.modules.announcements.models import Announcement
 from app.modules.contributions.models import ContributionRecord
 from app.modules.events.models import Event
 from app.modules.identity.models import User
 from app.modules.membership.models import MembershipProfile
-from app.modules.tenancy.models import Role, Tenant, user_roles
+from app.modules.tenancy.models import Role, Tenant
 from app.modules.tenancy.role_catalog import canonical_role_definitions
-
-from app.db import seed as base_seed
 
 setup_logging()
 logger = structlog.get_logger(__name__)
@@ -184,7 +183,7 @@ async def seed_multi_tenant_demo() -> None:
                 "Riverdale Admin",
             )
 
-            await base_seed._get_or_create_tenant_user(
+            switcher_membership = await base_seed._get_or_create_tenant_user(
                 db,
                 demo_tenant.id,
                 switcher_user.id,
@@ -203,7 +202,7 @@ async def seed_multi_tenant_demo() -> None:
                 "admin",
             )
 
-            await base_seed._assign_role_if_not_exists(db, demo_membership.id, canonical_roles["member"].id)
+            await base_seed._assign_role_if_not_exists(db, switcher_membership.id, canonical_roles["member"].id)
             await base_seed._assign_role_if_not_exists(db, secondary_membership.id, canonical_roles["member"].id)
             await base_seed._assign_role_if_not_exists(db, secondary_admin_membership.id, admin_role.id)
             await base_seed._assign_role_if_not_exists(db, secondary_admin_membership.id, canonical_roles["principal_admin"].id)
@@ -229,7 +228,7 @@ async def seed_multi_tenant_demo() -> None:
                 email=MULTI_TENANT_EMAIL,
             )
 
-            now = datetime.now(timezone.utc)
+            now = datetime.now(UTC)
             demo_contrib = await db.scalar(
                 select(ContributionRecord).where(
                     ContributionRecord.tenant_id == demo_tenant.id,

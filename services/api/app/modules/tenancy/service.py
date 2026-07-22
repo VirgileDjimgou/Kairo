@@ -1,5 +1,6 @@
 import json
-from datetime import datetime, timezone, timedelta
+from datetime import UTC, datetime, timedelta
+from typing import Any
 from uuid import UUID
 
 from fastapi import HTTPException, status
@@ -18,9 +19,9 @@ from app.modules.tenancy.role_catalog import is_canonical_role
 from app.modules.tenancy.schemas import (
     BrandingConfig,
     ModuleToggles,
-    RoleResponse,
     RecoveryEvidenceConfig,
     RecoveryEvidenceResponse,
+    RoleResponse,
     TenantResponse,
     TenantSettingsResponse,
     TenantSettingsUpdate,
@@ -113,14 +114,14 @@ class TenancyService:
                 detail="Organization not found",
             )
 
-        branding_raw = {}
+        branding_raw: dict[str, Any] = {}
         if isinstance(tenant.branding_json, str) and tenant.branding_json.strip():
             try:
                 branding_raw = json.loads(tenant.branding_json)
             except json.JSONDecodeError:
                 branding_raw = {}
 
-        settings_raw = {}
+        settings_raw: dict[str, Any] = {}
         if isinstance(tenant.settings_json, str) and tenant.settings_json.strip():
             try:
                 settings_raw = json.loads(tenant.settings_json)
@@ -256,7 +257,7 @@ class TenancyService:
             recovery_raw = {}
 
         config = RecoveryEvidenceConfig(**recovery_raw)
-        now = datetime.now(timezone.utc)
+        now = datetime.now(UTC)
 
         backup_is_stale = True
         if config.last_backup_at is not None:

@@ -1,14 +1,13 @@
 import uuid
 
 import pytest
+from helpers import create_tenant_with_user
 from httpx import AsyncClient
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core.security import create_refresh_token, decode_access_token
 from app.modules.identity.models import User
 from app.modules.tenancy.models import Role, TenantUser, user_roles
-from helpers import create_tenant_with_user
-
 
 pytestmark = pytest.mark.asyncio
 

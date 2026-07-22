@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import uuid
 from datetime import datetime
-from enum import Enum
+from enum import StrEnum
 
 from sqlalchemy import DateTime, ForeignKey, String, Text
 from sqlalchemy.dialects.postgresql import UUID
@@ -12,7 +12,7 @@ from sqlalchemy.sql import text as sql_text
 from app.db.base import Base
 
 
-class PolicyStatus(str, Enum):
+class PolicyStatus(StrEnum):
     draft = "draft"
     published = "published"
     archived = "archived"

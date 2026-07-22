@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+from datetime import UTC
 from uuid import UUID
 
 from sqlalchemy import select
@@ -51,9 +52,9 @@ class EventRepository:
     async def list_upcoming_by_tenant(
         self, tenant_id: UUID, *, published_only: bool = False
     ) -> list[Event]:
-        from datetime import datetime, timezone
+        from datetime import datetime
 
-        now = datetime.now(timezone.utc)
+        now = datetime.now(UTC)
         query = select(Event).where(
             Event.tenant_id == tenant_id,
             Event.start_at >= now,

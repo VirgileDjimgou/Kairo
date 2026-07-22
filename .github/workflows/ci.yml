@@ -23,24 +23,17 @@ jobs:
       - name: Install API dependencies
         run: pip install -r services/api/requirements.txt
 
-      - name: Lint selected backend baseline (ruff)
+      - name: Lint all backend modules (ruff)
         run: >
           python -m ruff check
-          services/api/app/core/dependencies.py
-          services/api/app/core/security.py
-          services/api/app/core/authorization.py
-          services/api/app/modules/rag/policy.py
-          services/api/tests/conftest.py
-          services/api/tests/test_chat.py
-          services/api/tests/test_governance_roles.py
+          services/api/app/
+          services/api/tests/
+          --ignore E501
 
-      - name: Type check selected backend baseline (mypy)
+      - name: Type check all backend modules (mypy)
         run: >
           python -m mypy --config-file services/api/pyproject.toml --explicit-package-bases
-          services/api/app/core/dependencies.py
-          services/api/app/core/security.py
-          services/api/app/core/authorization.py
-          services/api/app/modules/rag/policy.py
+          services/api/app/
 
       - name: Run backend tests from repository root
         env:

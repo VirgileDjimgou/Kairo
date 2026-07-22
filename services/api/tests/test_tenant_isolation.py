@@ -5,8 +5,9 @@ Verifies that users from tenant A cannot access data belonging to tenant B.
 This is the core multi-tenant security requirement.
 """
 
-import pytest
 import uuid as _uuid
+
+import pytest
 from httpx import AsyncClient
 from sqlalchemy.ext.asyncio import AsyncSession
 

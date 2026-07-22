@@ -172,6 +172,7 @@ class EmailNotificationProvider(_PlaceholderNotificationProvider):
         message.set_content(body)
 
         use_ssl = settings.smtp_port == 465
+        assert settings.smtp_host is not None, "SMTP host must be configured"
         if use_ssl:
             with smtplib.SMTP_SSL(settings.smtp_host, settings.smtp_port, timeout=15) as smtp:
                 self._authenticate_if_needed(smtp)

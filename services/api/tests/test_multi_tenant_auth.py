@@ -13,12 +13,12 @@ Covers:
 import uuid
 
 import pytest
+from helpers import create_tenant_with_user
 from httpx import AsyncClient
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.modules.tenancy.models import Role, Tenant, TenantUser, user_roles
-from helpers import create_tenant_with_user
 
 
 @pytest.mark.asyncio

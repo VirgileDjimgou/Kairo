@@ -140,7 +140,7 @@ def infer_document_language(
         language: sum(1 for token in tokens if token in haystack)
         for language, tokens in LANGUAGE_HINTS.items()
     }
-    best_language = max(scores, key=scores.get)
+    best_language = max(scores, key=lambda k: scores[k])
     best_score = scores[best_language]
     if best_score == 0:
         return "und"

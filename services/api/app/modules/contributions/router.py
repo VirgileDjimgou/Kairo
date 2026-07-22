@@ -15,13 +15,13 @@ from app.core.dependencies import AuthDep, DbDep, NotificationsDep
 from app.core.import_export import ImportResult
 from app.core.module_guard import require_module
 from app.modules.contributions.schemas import (
+    ContributionRecordCreate,
+    ContributionRecordResponse,
+    ContributionRecordUpdate,
     ContributionReminderBatchRequest,
     ContributionReminderBatchResponse,
     ContributionReminderResponse,
     ContributionReminderSendRequest,
-    ContributionRecordCreate,
-    ContributionRecordResponse,
-    ContributionRecordUpdate,
     PaymentRecordCreate,
     PaymentRecordResponse,
 )

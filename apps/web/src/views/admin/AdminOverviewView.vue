@@ -181,7 +181,7 @@
             </div>
 
             <div v-if="ingestionHealth?.recent_failures.length" class="small text-muted mb-3">
-              {{ copy.latestFailure }}: {{ shortId(ingestionHealth.recent_failures[0].job_id) }}
+              {{ copy.latestFailure }}: {{ shortId(ingestionHealth.recent_failures[0]?.job_id ?? '') }}
             </div>
 
             <RouterLink to="/admin/documents" class="btn btn-outline-secondary btn-sm w-100">

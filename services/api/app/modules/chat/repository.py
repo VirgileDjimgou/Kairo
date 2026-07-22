@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+from datetime import UTC
 from uuid import UUID
 
 from sqlalchemy import func, select
@@ -61,13 +62,14 @@ class ChatRepository:
         return msg
 
     async def update_conversation_timestamp(self, *, conversation_id: UUID) -> None:
-        from datetime import datetime, timezone
+        from datetime import datetime
+
         from sqlalchemy import update as sa_update
 
         stmt = (
             sa_update(ChatConversation)
             .where(ChatConversation.id == conversation_id)
-            .values(updated_at=datetime.now(timezone.utc))
+            .values(updated_at=datetime.now(UTC))
         )
         await self._db.execute(stmt)
 
@@ -115,10 +117,11 @@ class ChatRepository:
         return int(result.scalar_one() or 0)
 
     async def get_old_conversations(self, *, days: int) -> list[ChatConversation]:
-        from datetime import datetime, timedelta, timezone
+        from datetime import datetime, timedelta
+
         from sqlalchemy import select
 
-        cutoff = datetime.now(timezone.utc) - timedelta(days=days)
+        cutoff = datetime.now(UTC) - timedelta(days=days)
         stmt = (
             select(ChatConversation)
             .where(ChatConversation.updated_at < cutoff)

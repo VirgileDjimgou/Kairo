@@ -3,7 +3,7 @@ from uuid import UUID
 from sqlalchemy import delete, func, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.modules.documents.models import Document, DocumentVersion, DocumentChunk, IngestionJob
+from app.modules.documents.models import Document, DocumentChunk, DocumentVersion, IngestionJob
 
 
 class DocumentRepository:
@@ -50,7 +50,7 @@ class DocumentRepository:
             .where(Document.tenant_id == tenant_id)
             .order_by(Document.created_at.desc())
         )
-        return list(result.all())
+        return list(result.all())  # type: ignore[arg-type]
 
     async def get_ingestion_job(self, tenant_id: UUID, job_id: UUID) -> IngestionJob | None:
         result = await self._db.execute(
@@ -152,10 +152,11 @@ class DocumentRepository:
                 DocumentChunk.id.in_(chunk_ids),
             )
         )
-        return list(result.all())
+        return list(result.all())  # type: ignore[arg-type]
 
     async def flag_all_documents_for_reindex(self) -> int:
         from sqlalchemy import update as sa_update
+
         from app.modules.documents.models import IngestionJob
 
         result = await self._db.execute(

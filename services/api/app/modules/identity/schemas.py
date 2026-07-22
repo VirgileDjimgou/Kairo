@@ -5,7 +5,6 @@ from pydantic import BaseModel, EmailStr, Field
 
 from app.modules.tenancy.schemas import BrandingConfig, ModuleToggles
 
-
 # ── Auth Request DTOs ──────────────────────────────────────────────────────────
 
 class LoginRequest(BaseModel):

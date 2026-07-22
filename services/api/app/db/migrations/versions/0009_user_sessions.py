@@ -5,10 +5,9 @@ Revises: 0008_audit_events
 Create Date: 2026-06-29
 """
 
-from alembic import op
 import sqlalchemy as sa
+from alembic import op
 from sqlalchemy.dialects import postgresql
-
 
 revision = "0009_user_sessions"
 down_revision = "0008_audit_events"

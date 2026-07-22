@@ -5,11 +5,11 @@ from __future__ import annotations
 import uuid as _uuid
 
 import pytest
+from helpers import create_tenant_with_user, login
 from httpx import AsyncClient
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.modules.documents.models import Document, DocumentChunk, DocumentStatus, DocumentVersion
-from helpers import create_tenant_with_user, login
 
 
 def _seed_chunk(

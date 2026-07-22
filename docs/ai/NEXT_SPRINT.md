@@ -2,45 +2,22 @@
 
 ## Status
 
-Sprint 73 (open-source maturity track) is complete. Sprint 74 through Sprint 86
-have been executed and documented as the first increments of the new planning cycle.
+Sprint 93 (Frontend Type Contract Hardening) is complete.
 
 ## What Was Done
 
-Sprint 88 - Chat Authorization Surface And Domain Guard Expansion:
+Sprint 93 made the existing strict frontend compiler contract materially stronger.
 
-- Centralized role-aware chat domain decisions in a backend-owned policy
-  contract so publication, sports, governance, disciplinary, personal-finance,
-  and tenant-finance assistant surfaces stay aligned with real capabilities and
-  tenant module toggles
-- Added `GET /api/v1/chat/domain-policy` so the frontend suggestion surface no
-  longer guesses assistant scope from roles alone
-- Updated chat structured-context preparation so protected structured data is
-  refused before prompt assembly whenever the role or tenant module contract
-  does not authorize that domain
-- Aligned the chat view suggested prompts with the backend domain-policy
-  response instead of static role heuristics
-- Added backend regressions for hidden publication domains, publication refusal,
-  sports refusal, and tenant-finance stream refusal when the corresponding
-  tenant modules are disabled
-- Tightened French publication-intent matching so “contexte officiel de
-  publication” now reaches the domain-specific refusal path
-- Verified: `python -m pytest services/api/tests/test_chat.py -q`
-  (20 passed), `npm run type-check`, and `npm run build` passed on
-  July 17, 2026
+Key fixes:
+- Enabled `exactOptionalPropertyTypes` and `noUncheckedIndexedAccess` in the Vue TypeScript configuration.
+- Corrected optional HTTP payloads, filters, streaming request options, stores, and list access to make absent values explicit rather than sending `undefined`.
+- Aligned the notification-history Playwright fixture with the current `{ items, summary }` API response and query-string request contract.
+
+Verified: frontend type-check and production build pass; the localization browser suite passes 20/20.
 
 ## Next Planning Cycle
 
-Sprint 74 through Sprint 88 now cover the broader recovery-UX rollout, the
-observability packaging baseline, the three currently live operator
-notification channels, the acceptance-level reconciliation/audit baseline, the
-secure provider callback seam, the replay-safe plus pollable reconciliation
-baseline, the operator triage/retry workflow on top of it, the frontend
-role-entry parity pass, and the backend-owned chat authorization-surface
-alignment. The next agent session should execute
-`Sprint 89 - Quality Gate Expansion And CI Hardening`, expanding validation
-coverage carefully across linting, typing, backend safety, and browser flows
-without destabilizing the current mature role and chat surfaces.
+Sprint 94 - Role Journey Browser Coverage Expansion should add focused browser journeys for the highest-risk member and office permissions, beginning with tenant switching, member finance self-service, and direct-route denials. The backend remains the source of authorization truth; browser checks only prove that the UI follows it.
 
 ## Continuity Rule
 

@@ -1,20 +1,20 @@
 """Alembic migration environment — async psycopg3 edition."""
 import asyncio
+import os
+
+# Make app importable when running alembic from services/api/
+import sys
 from logging.config import fileConfig
 
 from alembic import context
 from sqlalchemy import pool
 from sqlalchemy.ext.asyncio import async_engine_from_config
 
-# Make app importable when running alembic from services/api/
-import sys
-import os
-
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.dirname(os.path.dirname(__file__)))))
 
+import app.db.models  # noqa: E402, F401 — registers all models
 from app.core.config import settings  # noqa: E402
 from app.db.base import Base  # noqa: E402
-import app.db.models  # noqa: E402, F401 — registers all models
 
 config = context.config
 

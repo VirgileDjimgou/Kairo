@@ -601,8 +601,8 @@ async function handleBatchReminder() {
     const result = await sendContributionReminderBatch({
       year: selectedYear.value,
       due_scope: reminderBatchForm.value.due_scope,
-      status: reminderBatchForm.value.status || undefined,
       limit: reminderBatchForm.value.limit,
+      ...(reminderBatchForm.value.status ? { status: reminderBatchForm.value.status } : {}),
     })
     notice.value = `Processed ${result.attempted_count} reminder target(s).`
     await refreshFinanceData()

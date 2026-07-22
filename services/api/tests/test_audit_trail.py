@@ -6,10 +6,9 @@ import json
 import uuid as _uuid
 
 import pytest
+from helpers import create_tenant_with_user, login
 from httpx import AsyncClient
 from sqlalchemy.ext.asyncio import AsyncSession
-
-from helpers import create_tenant_with_user, login
 
 pytestmark = pytest.mark.asyncio
 

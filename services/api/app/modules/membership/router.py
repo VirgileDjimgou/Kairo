@@ -16,10 +16,10 @@ from app.core.module_guard import require_module
 from app.modules.contributions.schemas import ContributionRecordResponse
 from app.modules.membership.schemas import (
     MemberBalanceResponse,
-    MemberStatementResponse,
     MembershipProfileCreate,
     MembershipProfileResponse,
     MembershipProfileUpdate,
+    MemberStatementResponse,
 )
 from app.modules.membership.service import MembershipService
 

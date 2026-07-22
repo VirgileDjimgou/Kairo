@@ -38,14 +38,21 @@ User credentials:
 import asyncio
 import json
 import uuid
-from datetime import datetime, timedelta, timezone
+from datetime import UTC, datetime, timedelta
 
 import structlog
 
 from app.core.logging import setup_logging
 from app.core.security import hash_password
 from app.db.session import async_session_factory
+from app.modules.announcements.models import Announcement
+from app.modules.contributions.models import ContributionRecord, PaymentRecord
+from app.modules.disciplinary.models import DisciplinaryRecord
+from app.modules.documents.models import Document, DocumentChunk, DocumentVersion
+from app.modules.events.models import Event
 from app.modules.identity.models import User
+from app.modules.membership.models import MembershipProfile
+from app.modules.policies.models import PolicyRecord
 from app.modules.tenancy.models import (
     Permission,
     Role,
@@ -54,13 +61,6 @@ from app.modules.tenancy.models import (
     role_permissions,
     user_roles,
 )
-from app.modules.membership.models import MembershipProfile
-from app.modules.contributions.models import ContributionRecord, PaymentRecord
-from app.modules.policies.models import PolicyRecord
-from app.modules.disciplinary.models import DisciplinaryRecord
-from app.modules.events.models import Event
-from app.modules.announcements.models import Announcement
-from app.modules.documents.models import Document, DocumentChunk, DocumentVersion
 from app.modules.tenancy.role_catalog import canonical_role_definitions
 
 setup_logging()
@@ -104,7 +104,7 @@ MEMBER_ROLE_CODE = "member"
 TREASURER_ROLE_CODE = "treasurer"
 PRINCIPAL_ADMIN_ROLE_CODE = "principal_admin"
 
-NOW = datetime.now(timezone.utc)
+NOW = datetime.now(UTC)
 
 PERMISSION_DEFS: list[tuple[str, str]] = [
     ("admin:all", "Superadmin permission — full access to all resources"),
@@ -870,10 +870,10 @@ async def seed_database() -> None:
             ]
             for event_def in event_defs:
                 if len(event_def) == 7:
-                    title, desc, start, end, location, visibility, status = event_def
-                    metadata = {}
+                    title, desc, start, end, location, visibility, status = event_def  # type: ignore[assignment,misc]
+                    metadata: dict[str, object] = {}
                 else:
-                    title, desc, start, end, location, visibility, status, metadata = event_def
+                    title, desc, start, end, location, visibility, status, metadata = event_def  # type: ignore[assignment,misc]
                 existing = await db.execute(
                     select(Event).where(
                         Event.tenant_id == tenant.id,

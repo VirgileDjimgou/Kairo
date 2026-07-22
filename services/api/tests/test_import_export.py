@@ -1,6 +1,7 @@
 import csv
 import io
 import uuid as _uuid
+from datetime import UTC
 
 import pytest
 from httpx import AsyncClient
@@ -351,13 +352,13 @@ class TestContributionImport:
 class TestExports:
 
     async def _seed_event(self, client, headers, tenant):
-        from datetime import datetime, timezone
+        from datetime import datetime
         resp = await client.post(
             "/api/v1/events/",
             headers=headers,
             json={
                 "title": "Test Event",
-                "start_at": datetime.now(timezone.utc).isoformat(),
+                "start_at": datetime.now(UTC).isoformat(),
                 "visibility_scope": "members_only",
                 "status": "published",
             },

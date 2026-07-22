@@ -1,8 +1,6 @@
 from __future__ import annotations
 
 import re
-from io import BytesIO
-
 
 WHATSAPP_LINE_PATTERN = re.compile(
     r"^\[?(?P<date>\d{1,2}/\d{1,2}/\d{2,4}),?\s+(?P<time>\d{1,2}:\d{2}(?::\d{2})?)\]?"

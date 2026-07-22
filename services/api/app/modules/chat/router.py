@@ -18,8 +18,8 @@ from app.modules.chat.schemas import (
     ChatConversationCreate,
     ChatConversationDetailResponse,
     ChatConversationResponse,
-    ChatDomainPolicyResponse,
     ChatConversationUpdate,
+    ChatDomainPolicyResponse,
     ChatQueryRequest,
     ChatQueryResponse,
 )

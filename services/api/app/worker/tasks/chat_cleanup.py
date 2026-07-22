@@ -1,12 +1,8 @@
 from __future__ import annotations
 
-from sqlalchemy import select, delete as sa_delete
-from datetime import datetime, timedelta, timezone
-
-from app.worker.celery_app import celery_app
 from app.db.session import async_session_factory
-from app.modules.chat.models import ChatConversation
 from app.modules.chat.repository import ChatRepository
+from app.worker.celery_app import celery_app
 
 
 @celery_app.task(name="chat.cleanup_old_conversations", bind=True, max_retries=2)

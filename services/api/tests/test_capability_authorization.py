@@ -3,11 +3,9 @@ from __future__ import annotations
 import uuid as _uuid
 
 import pytest
+from helpers import create_tenant_with_user, create_user_for_tenant, login
 from httpx import AsyncClient
 from sqlalchemy.ext.asyncio import AsyncSession
-
-from helpers import create_tenant_with_user, create_user_for_tenant, login
-
 
 pytestmark = pytest.mark.asyncio
 
@@ -441,10 +439,10 @@ async def test_treasurer_can_send_reminders_and_member_cannot_read_reminder_hist
     client: AsyncClient,
     db_session: AsyncSession,
 ) -> None:
+    from fakes import FakeEmailNotificationProvider
+
     from app.core.dependencies import get_notification_providers
     from app.main import app
-
-    from fakes import FakeEmailNotificationProvider
 
     admin = await create_tenant_with_user(db_session, f"reminder-admin-{_uuid.uuid4().hex[:6]}")
     treasurer = await create_user_for_tenant(

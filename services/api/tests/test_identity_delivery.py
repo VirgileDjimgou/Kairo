@@ -1,11 +1,10 @@
 import pytest
+from fakes import FakeEmailNotificationProvider
 from httpx import AsyncClient
 from sqlalchemy.ext.asyncio import AsyncSession
+from test_identity_lifecycle import _create_member_role, _login_as_admin
 
 from app.core.config import settings
-
-from fakes import FakeEmailNotificationProvider
-from test_identity_lifecycle import _create_member_role, _login_as_admin
 
 
 @pytest.mark.asyncio

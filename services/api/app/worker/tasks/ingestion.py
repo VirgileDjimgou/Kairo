@@ -34,7 +34,7 @@ def process_ingestion_job(self, job_id: str) -> None:
         asyncio.run(_process_ingestion_job(UUID(job_id)))
     except Exception as exc:
         logger.exception("ingestion_task_failed", job_id=job_id)
-        raise self.retry(exc=exc, countdown=30)
+        raise self.retry(exc=exc, countdown=30) from exc
 
 
 def enqueue_ingestion_job(job_id: UUID) -> None:

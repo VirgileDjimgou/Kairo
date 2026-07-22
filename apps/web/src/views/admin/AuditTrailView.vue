@@ -167,7 +167,12 @@
 
 <script setup lang="ts">
 import { computed, onMounted, ref, watch } from 'vue'
-import { exportAuditEventsCsv, listAuditEvents, type AuditEventResponse } from '@/api/audit.api'
+import {
+  exportAuditEventsCsv,
+  listAuditEvents,
+  type AuditEventFilters,
+  type AuditEventResponse,
+} from '@/api/audit.api'
 
 const loading = ref(false)
 const events = ref<AuditEventResponse[]>([])
@@ -206,30 +211,15 @@ const stats = computed(() => {
 async function refreshEvents() {
   loading.value = true
   try {
-    events.value = await listAuditEvents({
-      limit: limit.value,
-      actor_user_id: actorUserId.value || undefined,
-      action: actionFilter.value || undefined,
-      entity_type: entityTypeFilter.value || undefined,
-      search: searchText.value || undefined,
-      created_from: toIso(createdFrom.value),
-      created_to: toIso(createdTo.value),
-    })
+    events.value = await listAuditEvents(buildFilters())
   } finally {
     loading.value = false
   }
 }
 
 async function downloadCsv() {
-  const blob = await exportAuditEventsCsv({
-    limit: limit.value,
-    actor_user_id: actorUserId.value || undefined,
-    action: actionFilter.value || undefined,
-    entity_type: entityTypeFilter.value || undefined,
-    search: searchText.value || undefined,
-    created_from: toIso(createdFrom.value),
-    created_to: toIso(createdTo.value),
-  })
+  const blob = await exportAuditEventsCsv(buildFilters())
+
   const url = window.URL.createObjectURL(blob)
   const link = document.createElement('a')
   link.href = url
@@ -238,6 +228,21 @@ async function downloadCsv() {
   link.click()
   link.remove()
   window.URL.revokeObjectURL(url)
+}
+
+function buildFilters(): AuditEventFilters {
+  const filters: AuditEventFilters = {
+    limit: limit.value,
+  }
+  const createdFromValue = toIso(createdFrom.value)
+  const createdToValue = toIso(createdTo.value)
+  if (actorUserId.value) filters.actor_user_id = actorUserId.value
+  if (actionFilter.value) filters.action = actionFilter.value
+  if (entityTypeFilter.value) filters.entity_type = entityTypeFilter.value
+  if (searchText.value) filters.search = searchText.value
+  if (createdFromValue) filters.created_from = createdFromValue
+  if (createdToValue) filters.created_to = createdToValue
+  return filters
 }
 
 function toIso(value: string): string | undefined {
@@ -308,4 +313,3 @@ onMounted(async () => {
   word-break: break-word;
 }
 </style>
-

@@ -25,6 +25,7 @@ from app.modules.documents.schemas import (
     BulkUploadResponse,
     DocumentAccessUpdateRequest,
     DocumentListItemResponse,
+    DocumentVersionResponse,
     IngestionJobResponse,
     IngestionJobRetryResponse,
     UploadDocumentResponse,
@@ -171,16 +172,16 @@ class DocumentService:
             owner_user_id=document.owner_user_id,
             created_at=document.created_at,
             duplicate_of_document_id=duplicate.id if duplicate else None,
-            current_version={
-                "id": version.id,
-                "file_name": version.file_name,
-                "mime_type": version.mime_type,
-                "file_size_bytes": version.file_size_bytes,
-                "storage_bucket": version.storage_bucket,
-                "storage_key": version.storage_key,
-                "checksum": version.checksum,
-                "created_at": version.created_at,
-            },
+            current_version=DocumentVersionResponse(
+                id=version.id,
+                file_name=version.file_name,
+                mime_type=version.mime_type,
+                file_size_bytes=version.file_size_bytes,
+                storage_bucket=version.storage_bucket,
+                storage_key=version.storage_key,
+                checksum=version.checksum,
+                created_at=version.created_at,
+            ),
             ingestion_job_id=job.id,
         )
 
@@ -488,16 +489,16 @@ class DocumentService:
     ) -> DocumentListItemResponse:
         current_version = None
         if version is not None:
-            current_version = {
-                "id": version.id,
-                "file_name": version.file_name,
-                "mime_type": version.mime_type,
-                "file_size_bytes": version.file_size_bytes,
-                "storage_bucket": version.storage_bucket,
-                "storage_key": version.storage_key,
-                "checksum": version.checksum,
-                "created_at": version.created_at,
-            }
+            current_version = DocumentVersionResponse(
+                id=version.id,
+                file_name=version.file_name,
+                mime_type=version.mime_type,
+                file_size_bytes=version.file_size_bytes,
+                storage_bucket=version.storage_bucket,
+                storage_key=version.storage_key,
+                checksum=version.checksum,
+                created_at=version.created_at,
+            )
 
         return DocumentListItemResponse(
             id=document.id,

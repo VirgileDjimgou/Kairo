@@ -1,18 +1,17 @@
 """Operational recovery evidence tests."""
 
-from datetime import datetime, timedelta, timezone
+from datetime import UTC, datetime, timedelta
 
 import pytest
+from helpers import create_tenant_with_user, login
 from httpx import AsyncClient
 from sqlalchemy.ext.asyncio import AsyncSession
-
-from helpers import create_tenant_with_user, login
 
 pytestmark = pytest.mark.integration
 
 
 def _iso(days_ago: int) -> str:
-    return (datetime.now(timezone.utc) - timedelta(days=days_ago)).isoformat()
+    return (datetime.now(UTC) - timedelta(days=days_ago)).isoformat()
 
 
 @pytest.mark.asyncio

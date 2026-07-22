@@ -5,10 +5,9 @@ Revises: 0011_chat_query_source_types
 Create Date: 2026-07-03
 """
 
-from alembic import op
 import sqlalchemy as sa
+from alembic import op
 from sqlalchemy.dialects import postgresql
-
 
 revision = "0012_contribution_reminders"
 down_revision = "0011_chat_query_source_types"
