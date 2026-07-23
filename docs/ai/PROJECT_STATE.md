@@ -39,7 +39,7 @@ association product with:
 - Productization track completed through Sprint 65
 - Stabilization and open-source maturity track completed: Sprint 72 and Sprint 73
 - New planning cycle status: Sprint 74 through Sprint 97 complete
-- Current sprint: Sprint 98 - Operational Pilot Acceptance (external pilot inputs required)
+- Current sprint: Sprint 98 - Operational Pilot Acceptance (isolated restore evidence required)
 
 ## Current State
 
@@ -53,7 +53,9 @@ association product with:
 - **Executive oversight**: president and vice president have a dedicated cross-module governance cockpit with limited, backend-governed actions
 - **Principal admin control plane**: the broadest tenant administration surfaces recognize `principal_admin` explicitly
 - **Multi-tenant operations**: reproducible second-tenant provisioning, tenant-switch browser coverage, and the tenant operations command center exist
-- **Validation status**: Sprint 96 automated checks remain green; Sprint 97 built the production web image and passed the isolated gateway smoke check. Sprint 98 added a non-disclosing pilot preflight that correctly fails closed against the local development environment until real secrets, HTTPS exposure, and restore-drill inputs are available, plus an automated no-domain Quick Tunnel demonstration path that keeps `.env` unchanged and exposes only web/API endpoints
+- **Validation status**: Sprint 96 automated checks remain green; Sprint 97 built the production web image and passed the isolated gateway smoke check. Sprint 98 now has a named Cloudflare Tunnel at `https://app.combissportverein.org`, a generated local production secret set, a pre-rotation PostgreSQL backup, and a public HTTPS production smoke check passing 6/6. The remaining acceptance evidence is an isolated restore drill.
+- **Pilot data posture**: a controlled workbook-import path can replace only ordinary member accounts and related finance data after a private backup, while preserving office accounts and non-member tenant content
+- **Public entry experience**: the sign-in screen uses a compact, high-contrast responsive layout that fits a standard desktop viewport without vertical scrolling and puts the authentication form first on mobile
 - **Communications posture**: live notifications now support callback-updated final states, replay-safe updates, controlled provider polling, and backend-enforced retry eligibility without trusting the frontend
 - **Commercial posture**: strong association-focused pilot and disciplined self-hosted release candidate
 - **License**: MIT

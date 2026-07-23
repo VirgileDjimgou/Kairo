@@ -3956,11 +3956,13 @@ Progress:
 - Added a non-disclosing PowerShell pilot preflight that verifies production mode, non-placeholder JWT/PostgreSQL/MinIO secrets, HTTPS, CORS, and a Cloudflare Tunnel token without printing values.
 - The current local `.env` correctly fails the preflight: it is a development configuration, lacks acceptable production secrets and a tunnel token, and uses a non-HTTPS base URL.
 - Added a PowerShell Quick Tunnel demo launcher/stopping pair that creates an ignored temporary environment file, configures ephemeral web/API URLs and CORS automatically, and never exposes data stores or edits the base `.env`. The Vite development server permits only the `.trycloudflare.com` suffix required by this flow, rather than arbitrary external hosts.
+- Added a controlled local workbook import flow for operational pilots. It blocks active Quick Tunnels, makes a private PostgreSQL backup, replaces only member-only accounts and their dependent finance/disciplinary records, generates unique technical logins and passwords, and preserves office accounts plus documents, policies, events, and tenant settings.
+- Deployed the named Cloudflare Tunnel at `https://app.combissportverein.org` with non-placeholder local production secrets, same-origin `http://web:80` routing, Docker restart policies, and a private pre-rotation PostgreSQL backup. The public production smoke check passed 6/6: root, health, metrics, and blocking of `/docs`, `/redoc`, and `/openapi.json`.
+- Removed the production environment file from the `cloudflared` container so the connector receives no unrelated application secrets and does not log the tunnel token from its environment.
+- Corrected production-only Docker health checks for the minimal runtime images and removed the host port mapping for the web service; the Cloudflare Tunnel is the only intended public ingress.
 
 Completion blockers:
 
-- A customer-ready environment file with real secrets is required.
-- A real domain or Cloudflare Tunnel token is required for HTTPS exposure validation.
 - A backup archive and an approved isolated restore target are required for a non-destructive restore drill.
 
 ## Roadmap Status

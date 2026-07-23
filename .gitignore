@@ -18,6 +18,8 @@ build/
 .env.local
 .env.*.local
 .env.quick-demo
+services/api/.private/
+backups/
 
 # Testing
 .pytest_cache/

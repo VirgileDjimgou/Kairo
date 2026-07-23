@@ -167,6 +167,44 @@ Cloudflare Tunnel creates an encrypted outbound-only connection from your machin
    docker compose --profile tunnel up -d
    ```
 
+### Combis Sport Verein Production Tunnel
+
+Kairo production uses one same-origin hostname:
+
+```text
+https://app.combissportverein.org
+```
+
+Create a remotely managed Cloudflare Tunnel named `kairo-production`, then add
+the public hostname `app.combissportverein.org`. Set its service type to `HTTP`
+and its URL to `http://web:80`. `web` is the production Nginx container on the
+private Docker network; do not use `localhost`, and never add public hostnames
+for PostgreSQL, Redis, Qdrant, MinIO, or Ollama.
+
+On Windows PowerShell, generate the ignored production environment file without
+printing its secrets:
+
+```powershell
+.\scripts\initialize_production_env.ps1
+notepad .env.production.local
+```
+
+Set only `CLOUDFLARE_TUNNEL_TOKEN` in that file using the token copied from the
+Cloudflare Tunnel dashboard. Then validate and start the production stack:
+
+```powershell
+.\scripts\stop_quick_demo.ps1
+.\scripts\activate_production_database_credentials.ps1
+.\scripts\start_production_tunnel.ps1
+.\scripts\production_smoke.ps1 -BaseUrl https://app.combissportverein.org
+```
+
+The production Compose override uses `restart: unless-stopped`. Enable Docker
+Desktop's **Start Docker Desktop when you log in** option so the stack resumes
+after a Windows restart. The one-time database credential activation creates a
+private backup before changing the PostgreSQL role password; do not run it again
+unless you intentionally rotate the password in `.env.production.local`.
+
 ### Option B: Standalone cloudflared
 
 1. Install cloudflared: https://developers.cloudflare.com/cloudflare-one/connections/connect-apps/install/
@@ -197,6 +235,10 @@ application URL to share. It exposes only the Vite web service and the API;
 PostgreSQL, Redis, Qdrant, MinIO, and Ollama remain private.
 The Vite development server accepts only the `.trycloudflare.com` suffix for
 this pilot flow; it does not allow arbitrary external host headers.
+
+`infra/cloudflare/quick-demo.psd1` controls the local session-label prefix
+(default `combissportverein`). Cloudflare always generates the public Quick
+Tunnel hostname; a custom public prefix requires a named tunnel and a domain.
 
 When the demonstration ends, stop the public tunnels and restore the regular
 local API and web configuration:
@@ -233,6 +275,34 @@ The cloudflare config sample (`infra/cloudflare/config.yml.example`) shows:
 bash scripts/backup.sh              # creates ./backups/kairo-backup-<timestamp>.tar.gz
 bash scripts/backup.sh /mnt/backups # custom directory
 ```
+
+### Controlled Member Workbook Import
+
+For a local pilot, the PowerShell import helper replaces only tenant members
+whose sole role is `member`, along with their dependent contribution, payment,
+reminder, and disciplinary data. It preserves office accounts, documents,
+policies, events, and tenant settings.
+
+The helper refuses to run while the Quick Tunnel is active, creates a private
+PostgreSQL dump first, and generates one unique `NNNN-last-name@demo.local`
+login plus password per imported member. Neither the backup nor the credentials
+CSV is committed to Git.
+
+The generated `@demo.local` identifiers are accepted only by the login contract
+when they match the constrained `NNNN-name@demo.local` pattern. They are local
+pilot credentials, not delivery email addresses.
+
+```powershell
+.\scripts\import_real_members.ps1 -WorkbookPath '..\ImportExcel\Année 2026.xlsx'
+```
+
+The source workbook must expose the `Feuille 2` sheet with the expected name,
+first-name, payment tranche, total, and optional remark columns. The imported
+`Total` is recorded as the 2026 paid contribution; non-zero tranche values are
+stored as individual payment records.
+
+Treat the generated credentials CSV as highly confidential. Move it to secure
+storage after distributing credentials, then delete the local copy.
 
 The script backs up all persistent data:
 

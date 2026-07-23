@@ -1,13 +1,13 @@
 <template>
-  <div class="login-shell min-vh-100 position-relative overflow-hidden">
+  <div class="login-shell position-relative">
     <div class="login-orb login-orb-one"></div>
     <div class="login-orb login-orb-two"></div>
-    <div class="container-fluid position-relative px-0">
-      <div class="row g-0 min-vh-100 align-items-stretch">
-        <section class="col-lg-7 p-3 p-md-4 p-lg-5 d-flex">
-          <div class="hero-panel w-100 p-4 p-md-5 d-flex flex-column justify-content-between">
-            <div>
-              <div class="d-flex flex-wrap align-items-center gap-2 mb-4">
+    <div class="container-fluid position-relative px-0 login-container">
+      <div class="row g-0 login-grid align-items-stretch">
+        <section class="login-hero-column col-lg-7 p-3 p-md-4 p-lg-5 d-flex">
+          <div class="hero-panel w-100 p-4 p-md-5 d-flex flex-column justify-content-center">
+            <div class="hero-content">
+              <div class="d-flex flex-wrap align-items-center gap-2 hero-brand-row">
                 <span class="brand-mark">
                   <i class="bi bi-building-fill-gear"></i>
                 </span>
@@ -15,20 +15,20 @@
                   <div class="text-uppercase fw-semibold small hero-kicker">
                     {{ localeStore.t('app.name') }}
                   </div>
-                  <div class="small text-secondary-emphasis">
+                  <div class="small hero-subtitle">
                     {{ localeStore.t('login.brandSubtitle') }}
                   </div>
                 </div>
-                <div class="ms-auto">
+                <div class="ms-auto hero-language">
                   <LanguageSelector />
                 </div>
               </div>
 
-              <div class="mb-4" data-testid="commercial-hero">
+              <div data-testid="commercial-hero">
                 <p class="eyebrow mb-2">{{ localeStore.t('login.kicker') }}</p>
                 <h1
                   data-testid="commercial-hero-title"
-                  class="display-5 fw-bold lh-sm hero-title mb-3"
+                  class="fw-bold lh-sm hero-title mb-3"
                 >
                   {{ localeStore.t('login.heroTitle') }}
                 </h1>
@@ -36,28 +36,18 @@
                   {{ localeStore.t('login.heroCopy') }}
                 </p>
 
-                <div class="d-flex flex-wrap gap-2 mb-4">
-                  <span
-                    v-for="badge in commercialBadges"
-                    :key="badge"
-                    class="badge rounded-pill text-bg-light hero-badge"
-                  >
-                    {{ badge }}
-                  </span>
-                </div>
-
-                <div id="highlights" class="row g-3">
+                <div id="highlights" class="row g-2 hero-features">
                   <div
                     v-for="highlight in heroHighlights"
                     :key="highlight.title"
                     class="col-md-4"
                   >
-                    <article class="highlight-card h-100 p-3 p-xl-4">
-                      <div class="highlight-icon mb-3">
+                    <article class="feature-card h-100 p-3">
+                      <div class="highlight-icon mb-2">
                         <i :class="highlight.icon"></i>
                       </div>
-                      <h2 class="h6 fw-bold mb-2">{{ highlight.title }}</h2>
-                      <p class="small text-secondary-emphasis mb-0">
+                      <h2 class="h6 fw-bold mb-1">{{ highlight.title }}</h2>
+                      <p class="small hero-highlight-copy mb-0">
                         {{ highlight.text }}
                       </p>
                     </article>
@@ -65,34 +55,17 @@
                 </div>
               </div>
             </div>
-
-            <div class="trust-strip mt-4 p-3 p-md-4">
-              <div class="row g-3">
-                <div
-                  v-for="signal in trustSignals"
-                  :key="signal.label"
-                  class="col-md-4"
-                >
-                  <div class="trust-item">
-                    <div class="small text-uppercase fw-semibold trust-label">
-                      {{ signal.label }}
-                    </div>
-                    <div class="fw-medium">{{ signal.value }}</div>
-                  </div>
-                </div>
-              </div>
-            </div>
           </div>
         </section>
 
-        <section class="col-lg-5 p-3 p-md-4 p-lg-5 d-flex align-items-center justify-content-center">
+        <section class="login-auth-column col-lg-5 p-3 p-md-4 p-lg-5 d-flex align-items-center justify-content-center">
           <div
             id="signin-card"
             class="auth-card card shadow-lg border-0 p-4 p-md-5 w-100"
           >
-            <div class="text-center mb-4">
-              <div class="brand-icon mb-3">
-                <i class="bi bi-shield-lock fs-1 text-primary"></i>
+            <div class="text-center auth-heading">
+              <div class="brand-icon mb-2">
+                <i class="bi bi-shield-lock fs-3 text-primary"></i>
               </div>
               <h2 class="h4 fw-bold mb-1">{{ localeStore.t('login.signInTitle') }}</h2>
               <p class="text-muted small mb-0">
@@ -147,11 +120,6 @@
                 role="alert"
               >
                 <i class="bi bi-exclamation-circle me-1"></i>{{ errorMessage }}
-              </div>
-
-              <div class="alert alert-light border py-2 small" role="status">
-                <i class="bi bi-shield-check me-1"></i>
-                {{ localeStore.t('login.mfaHint') }}
               </div>
 
               <button
@@ -304,13 +272,6 @@ const tenantStore = useTenantStore();
 const localeStore = useLocaleStore();
 const isDev = import.meta.env.DEV;
 
-const commercialBadges = computed(() => [
-  localeStore.t('login.badge1'),
-  localeStore.t('login.badge2'),
-  localeStore.t('login.badge3'),
-  localeStore.t('login.badge4'),
-]);
-
 const heroHighlights = computed(() => [
   {
     icon: "bi bi-file-earmark-text",
@@ -327,12 +288,6 @@ const heroHighlights = computed(() => [
     title: localeStore.t('login.highlight3Title'),
     text: localeStore.t('login.highlight3Text'),
   },
-]);
-
-const trustSignals = computed(() => [
-  { label: localeStore.t('login.trustArchitecture'), value: localeStore.t('login.trustArchitectureValue') },
-  { label: localeStore.t('login.trustSafety'), value: localeStore.t('login.trustSafetyValue') },
-  { label: localeStore.t('login.trustOffer'), value: localeStore.t('login.trustOfferValue') },
 ]);
 
 const form = reactive({ email: "", password: "" });
@@ -459,10 +414,17 @@ function handleLogout() {
 
 <style scoped>
 .login-shell {
+  min-height: 100dvh;
+  overflow-x: clip;
   background:
     radial-gradient(circle at top left, rgba(31, 79, 143, 0.14), transparent 32%),
     radial-gradient(circle at bottom right, rgba(15, 23, 42, 0.12), transparent 28%),
     linear-gradient(180deg, #f5f7fb 0%, #eef3f8 100%);
+}
+
+.login-container,
+.login-grid {
+  min-height: 100dvh;
 }
 
 .login-orb {
@@ -497,18 +459,41 @@ function handleLogout() {
   box-shadow: 0 1.5rem 3.5rem rgba(15, 23, 42, 0.18);
 }
 
+.hero-content {
+  width: min(100%, 66rem);
+}
+
+.hero-brand-row {
+  margin-bottom: clamp(1.25rem, 2.5vh, 2.25rem);
+}
+
 .hero-kicker {
   color: rgba(234, 241, 251, 0.72);
   letter-spacing: 0.12em;
 }
 
 .hero-title {
-  max-width: 12ch;
+  max-width: 18ch;
+  color: #ffffff;
+  font-size: clamp(2.35rem, 3.4vw, 4rem);
+  letter-spacing: -0.04em;
 }
 
 .hero-copy {
-  max-width: 62ch;
-  color: rgba(234, 241, 251, 0.82);
+  max-width: 52ch;
+  margin-bottom: clamp(1.15rem, 2.2vh, 1.75rem) !important;
+  color: rgba(255, 255, 255, 0.88);
+  font-size: clamp(1rem, 1.2vw, 1.2rem);
+  line-height: 1.55;
+}
+
+.hero-subtitle,
+.hero-highlight-copy {
+  color: rgba(255, 255, 255, 0.82);
+}
+
+.hero-language :deep(label) {
+  color: rgba(255, 255, 255, 0.82) !important;
 }
 
 .eyebrow {
@@ -542,13 +527,7 @@ function handleLogout() {
   box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.08);
 }
 
-.hero-badge {
-  background: rgba(255, 255, 255, 0.12) !important;
-  color: rgba(255, 255, 255, 0.9) !important;
-  border: 1px solid rgba(255, 255, 255, 0.08);
-}
-
-.highlight-card {
+.feature-card {
   background: rgba(255, 255, 255, 0.08);
   border: 1px solid rgba(255, 255, 255, 0.08);
   border-radius: 1.1rem;
@@ -567,30 +546,20 @@ function handleLogout() {
   color: #fff;
 }
 
-.trust-strip {
-  border-radius: 1.1rem;
-  background: rgba(255, 255, 255, 0.08);
-  border: 1px solid rgba(255, 255, 255, 0.08);
-}
-
-.trust-label {
-  color: rgba(234, 241, 251, 0.72);
-  letter-spacing: 0.08em;
-}
-
-.trust-item {
-  min-height: 4.25rem;
-}
-
 .auth-card {
   background-color: var(--om-card-bg, #ffffff);
   border-radius: 1.25rem !important;
   max-width: 460px;
+  padding: clamp(1.5rem, 3vw, 2.5rem) !important;
+}
+
+.auth-heading {
+  margin-bottom: 1.5rem;
 }
 
 .brand-icon {
-  width: 68px;
-  height: 68px;
+  width: 54px;
+  height: 54px;
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -612,13 +581,71 @@ function handleLogout() {
 }
 
 @media (max-width: 991.98px) {
+  .login-auth-column {
+    order: -1;
+  }
+
+  .login-hero-column {
+    min-height: auto;
+  }
+
   .hero-title {
     max-width: none;
-    font-size: calc(1.5rem + 2vw);
+    font-size: clamp(2rem, 8vw, 3.15rem);
   }
 
   .hero-panel {
     min-height: auto;
+  }
+}
+
+@media (min-width: 992px) {
+  .login-grid {
+    align-items: center !important;
+  }
+
+  .login-hero-column,
+  .login-auth-column {
+    min-height: 100dvh;
+  }
+}
+
+@media (min-width: 992px) and (max-height: 780px) {
+  .login-hero-column,
+  .login-auth-column {
+    padding: 1rem !important;
+  }
+
+  .hero-panel,
+  .auth-card {
+    padding: 1.5rem !important;
+  }
+
+  .hero-brand-row {
+    margin-bottom: 1rem;
+  }
+
+  .hero-title {
+    font-size: clamp(2rem, 3vw, 3rem);
+    margin-bottom: 0.75rem !important;
+  }
+
+  .hero-copy {
+    font-size: 1rem;
+    margin-bottom: 1rem !important;
+  }
+
+  .feature-card {
+    padding: 0.8rem !important;
+  }
+
+  .highlight-icon {
+    width: 2rem;
+    height: 2rem;
+  }
+
+  .auth-heading {
+    margin-bottom: 1rem;
   }
 }
 </style>

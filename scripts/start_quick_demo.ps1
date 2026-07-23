@@ -2,6 +2,7 @@
 param(
   [string]$EnvFile = '.env',
   [string]$DemoEnvFile = '.env.quick-demo',
+  [string]$ConfigFile = 'infra/cloudflare/quick-demo.psd1',
   [int]$StartupTimeoutSeconds = 180
 )
 
@@ -104,10 +105,19 @@ function Wait-ForApi {
 if (-not (Test-Path -LiteralPath $EnvFile)) {
   throw "Environment file not found: $EnvFile"
 }
+if (-not (Test-Path -LiteralPath $ConfigFile)) {
+  throw "Quick Demo configuration file not found: $ConfigFile"
+}
 if (-not (Get-Command docker -ErrorAction SilentlyContinue)) {
   throw 'Docker CLI was not found. Install and start Docker Desktop before running this script.'
 }
 
+$quickDemoConfig = Import-PowerShellDataFile -LiteralPath $ConfigFile
+$instancePrefix = [string]$quickDemoConfig.InstanceLabelPrefix
+if ($instancePrefix -notmatch '^[a-z0-9-]{1,40}$') {
+  throw 'InstanceLabelPrefix must contain only lowercase letters, digits, and hyphens.'
+}
+$instanceLabel = '{0}-{1:D4}' -f $instancePrefix, (Get-Random -Minimum 0 -Maximum 10000)
 $sourceEnv = Get-Content -LiteralPath $EnvFile -Raw
 $demoEnvPath = Join-Path (Get-Location) $DemoEnvFile
 $apiTunnelName = 'kairo-quick-demo-api'
@@ -149,6 +159,7 @@ try {
   Wait-ForApi -TimeoutSeconds $StartupTimeoutSeconds
   Write-Output ''
   Write-Output '--- Kairo Quick Demo Ready ---'
+  Write-Output "Local session label: $instanceLabel"
   Write-Output "Share this temporary application URL: $webUrl"
   Write-Output 'Only share the application URL. Do not share tunnel logs, .env files, or internal service URLs.'
   Write-Output 'To stop the demo and return to the standard local environment, run:'
