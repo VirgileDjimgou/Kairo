@@ -53,5 +53,5 @@ Write-Output ''
 Write-Output "--- Results: $passed passed, $failed failed ---"
 
 if ($failed -gt 0 -and -not $AllowIncomplete) {
-  exit 1
+  throw 'Operational pilot preflight failed.'
 }

@@ -1,19 +1,33 @@
+import re
 from datetime import datetime
 from uuid import UUID
 
-from pydantic import BaseModel, EmailStr, Field
+from pydantic import BaseModel, EmailStr, Field, TypeAdapter, field_validator
 
 from app.modules.tenancy.schemas import BrandingConfig, ModuleToggles
 
 # ── Auth Request DTOs ──────────────────────────────────────────────────────────
 
+TECHNICAL_DEMO_LOGIN_PATTERN = re.compile(
+    r"^\d{4}-[a-z0-9]+(?:-[a-z0-9]+)*@demo\.local$"
+)
+email_validator = TypeAdapter(EmailStr)
+
 class LoginRequest(BaseModel):
-    email: EmailStr
+    email: str
     password: str = Field(min_length=1)
     tenant_slug: str | None = Field(
         default=None,
         description="Slug of the tenant to log into. Uses first membership if omitted.",
     )
+
+    @field_validator("email")
+    @classmethod
+    def validate_email(cls, value: str) -> str:
+        normalized = value.strip().lower()
+        if TECHNICAL_DEMO_LOGIN_PATTERN.fullmatch(normalized):
+            return normalized
+        return str(email_validator.validate_python(normalized))
 
 
 class SwitchTenantRequest(BaseModel):

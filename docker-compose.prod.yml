@@ -15,14 +15,14 @@ services:
       target: production
       args:
         VITE_API_BASE_URL: /api/v1
-    ports: !override
-      - "80:80"
+    ports: !reset []
     volumes: !reset []
     environment:
       - NODE_ENV=production
       - APP_ENV=production
       - APP_DEBUG=false
       - VITE_API_BASE_URL=/api/v1
+    restart: unless-stopped
 
   api:
     build:
@@ -32,27 +32,37 @@ services:
       - APP_DEBUG=false
     volumes: !reset []
     ports: !reset []
+    restart: unless-stopped
 
   worker:
     build:
       target: production
     volumes: !reset []
     ports: !reset []
+    restart: unless-stopped
     environment:
       - APP_ENV=production
       - APP_DEBUG=false
 
   postgres:
     ports: !reset []
+    restart: unless-stopped
 
   redis:
     ports: !reset []
+    restart: unless-stopped
 
   qdrant:
     ports: !reset []
+    restart: unless-stopped
 
   minio:
     ports: !reset []
+    restart: unless-stopped
 
   ollama:
     ports: !reset []
+    restart: unless-stopped
+
+  cloudflared:
+    restart: unless-stopped

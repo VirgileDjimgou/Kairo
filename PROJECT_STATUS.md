@@ -1,6 +1,6 @@
 # Project Status
 
-Last updated: 2026-07-22
+Last updated: 2026-07-23
 
 ## Current Sprint
 
@@ -19,7 +19,9 @@ Status: In Progress - External pilot inputs required
 - Target outcome: a stable, professional, mature open-source association-management product with secure role-aware workspaces and a trustworthy chatbot
 - Intended operational scope: usable by an association or organization of about 200 members with differentiated office roles
 - Remaining planned execution window: 1
-- Delivery status: Sprint 98 added a non-disclosing pilot preflight; the local development environment correctly fails it until real pilot secrets, HTTPS exposure, and restore-drill inputs exist. It also provides a PowerShell Quick Tunnel demonstration helper that uses temporary web/API-only exposure without a Cloudflare account, domain, token, or edits to `.env`; it is explicitly not a production path.
+- Delivery status: Sprint 98 deployed the named Cloudflare Tunnel at `https://app.combissportverein.org` using a generated local production environment, same-origin routing, and Docker restart policies. The HTTPS public smoke check passed 6/6, including the blocking of API documentation endpoints.
+- Local pilot preparation now includes a controlled workbook import that replaces only member-only accounts and their finance records after a private backup, while preserving office accounts and tenant operational content.
+- A private PostgreSQL backup was created before the production credential rotation. The remaining Sprint 98 acceptance evidence is a non-destructive restore drill into an approved isolated target.
 
 ## Source Of Truth
 
@@ -51,7 +53,8 @@ Status: In Progress - External pilot inputs required
   - the notification module now accepts backend-owned provider reconciliation callbacks through a shared-secret endpoint, correlates them to live dispatches by tenant and provider reference, and updates operator history toward final delivered or failed states
   - the admin notifications workspace now exposes backend-owned triage summaries, filtered history, stale-pending cues, and safe retry actions for eligible failed deliveries only
   - release-candidate regression matrix, professional handoff checklist, and a reproducible role-and-tenant screenshot gallery
-  - French-first interface foundation with persistent user language preference and English/German alternates
+   - French-first interface foundation with persistent user language preference and English/German alternates
+   - compact responsive public sign-in screen with high-contrast hero copy, desktop viewport-fit coverage, and mobile-first access to the authentication form
   - recovered validation baseline with root-level backend test execution, a portable Playwright browser pack, a scoped Ruff guardrail, and an operational initial Mypy target
   - modularized chat seams for prompt assembly, retrieval-query shaping, citation/context payload assembly, and shared query/query-stream preparation
   - configurable AI provider selection for Ollama or OpenAI-compatible local servers such as LM Studio

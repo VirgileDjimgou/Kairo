@@ -93,6 +93,21 @@ Launch a temporary Quick Tunnel demonstration without changing `.env`:
 .\scripts\start_quick_demo.ps1
 ```
 
+Validate a workbook import without changing data:
+
+```powershell
+docker compose exec -T api python -m app.db.import_members_workbook `
+  --workbook /tmp/kairo-member-import.xlsx `
+  --credentials-output /app/.private/member-imports/dry-run.csv
+```
+
+Validate the named production tunnel after the Cloudflare token is set:
+
+```powershell
+.\scripts\pilot_acceptance_preflight.ps1 -EnvFile .env.production.local
+.\scripts\production_smoke.ps1 -BaseUrl https://app.combissportverein.org
+```
+
 Notes:
 
 - `apps/web/playwright.config.ts` now selects `npm.cmd` on Windows and `npm` elsewhere so the same Playwright suite can run locally and in Linux CI.
@@ -103,4 +118,6 @@ Notes:
 - The PowerShell smoke check mirrors the Bash production gate for Windows operators: root, health, metrics, and the public blocking of `/docs`, `/redoc`, and `/openapi.json`.
 - The pilot preflight reports only pass/fail requirements for production mode, non-placeholder secrets, HTTPS, CORS, and a Cloudflare Tunnel token. It never prints secret values.
 - The Quick Tunnel helper is demonstration-only. It writes an ignored `.env.quick-demo`, exposes only web and API endpoints, and restores the standard local web/API environment through `./scripts/stop_quick_demo.ps1`.
+- The controlled member import runs only from `scripts/import_real_members.ps1`; it blocks active Quick Tunnels, makes a private database dump, and preserves all non-member-only tenant data.
+- The named production tunnel uses the same-origin `app.combissportverein.org` hostname. Rotate the existing local PostgreSQL password through `scripts/activate_production_database_credentials.ps1` only after the production environment is generated and before the first production Compose start.
 - `vue-tsc` runs with `strict`, `exactOptionalPropertyTypes`, and `noUncheckedIndexedAccess`, so optional API fields and list access must be handled explicitly.

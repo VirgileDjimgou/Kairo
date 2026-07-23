@@ -51,12 +51,57 @@ test.describe('Login flow', () => {
   test('login page renders correctly', async ({ page }) => {
     await page.goto('/login')
     await expect(page.getByTestId('commercial-hero-title')).toBeVisible()
-    await expect(page.getByTestId('commercial-hero')).toContainText('Private AI for organizations')
+    await expect(page.getByTestId('commercial-hero')).toContainText('Votre association, simplement.')
     await expect(page.locator('input[type="email"]')).toBeVisible()
     await expect(page.locator('input[type="password"]')).toBeVisible()
     await expect(page.locator('button[type="submit"]')).toBeVisible()
     await expect(page.locator('#signin-card')).toBeVisible()
-    await expect(page.locator('#highlights .highlight-card')).toHaveCount(3)
+    await expect(page.locator('#highlights .feature-card')).toHaveCount(3)
+  })
+
+  test('desktop login screen fits within the available viewport', async ({ page }) => {
+    await page.setViewportSize({ width: 1440, height: 900 })
+    await page.goto('/login')
+
+    await expect(page.locator('#signin-card')).toBeVisible()
+    for (const locale of ['fr', 'en', 'de']) {
+      await page.locator('.language-select').selectOption(locale)
+      const viewportFit = await page.evaluate(() => {
+        const selectors = ['[data-testid="commercial-hero-title"]', '#highlights', '#signin-card']
+        const allVisible = selectors.every((selector) => {
+          const element = document.querySelector(selector)
+          if (!element) return false
+          const rect = element.getBoundingClientRect()
+          return rect.top >= 0 && rect.bottom <= window.innerHeight
+        })
+        return {
+          allVisible,
+          noVerticalOverflow: document.documentElement.scrollHeight <= window.innerHeight + 1,
+          noHorizontalOverflow: document.documentElement.scrollWidth <= window.innerWidth + 1,
+        }
+      })
+
+      expect(viewportFit).toEqual({
+        allVisible: true,
+        noVerticalOverflow: true,
+        noHorizontalOverflow: true,
+      })
+    }
+  })
+
+  test('mobile login keeps the form and presentation accessible without horizontal overflow', async ({ page }) => {
+    await page.setViewportSize({ width: 390, height: 844 })
+    await page.goto('/login')
+
+    await expect(page.locator('#signin-card')).toBeVisible()
+    await expect(page.getByTestId('commercial-hero-title')).toBeAttached()
+    const hasHorizontalOverflow = await page.evaluate(
+      () => document.documentElement.scrollWidth > window.innerWidth + 1,
+    )
+    expect(hasHorizontalOverflow).toBe(false)
+
+    await page.getByTestId('commercial-hero-title').scrollIntoViewIfNeeded()
+    await expect(page.getByTestId('commercial-hero-title')).toBeVisible()
   })
 
   test('login form shows validation on empty submit', async ({ page }) => {
