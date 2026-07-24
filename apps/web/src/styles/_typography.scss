@@ -1,0 +1,114 @@
+// Kairo Typography — Swiss-style hierarchy
+// Relies on size, weight, spacing, contrast. Never on color alone.
+
+@use 'variables';
+
+body {
+  font-family: var(--om-font-sans);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
+  color: var(--om-neutral-900);
+  background-color: var(--om-neutral-50);
+}
+
+// ── Typographic Scale ────────────────────────────────────────────────────────
+// Mobile base sizes scale up at ≥768px for larger viewports
+.om-text-display {
+  font-size: 2.5rem;
+  font-weight: 700;
+  line-height: 1.1;
+  letter-spacing: -0.02em;
+  color: var(--om-neutral-900);
+}
+
+.om-text-h1 {
+  font-size: 2rem;
+  font-weight: 700;
+  line-height: 1.15;
+  letter-spacing: -0.015em;
+  color: var(--om-neutral-900);
+}
+
+.om-text-h2 {
+  font-size: 1.5rem;
+  font-weight: 700;
+  line-height: 1.2;
+  color: var(--om-neutral-900);
+}
+
+.om-text-h3 {
+  font-size: 1.25rem;
+  font-weight: 600;
+  line-height: 1.25;
+  color: var(--om-neutral-800);
+}
+
+.om-text-h4 {
+  font-size: 1.125rem;
+  font-weight: 600;
+  line-height: 1.3;
+  color: var(--om-neutral-800);
+}
+
+.om-text-body-lg {
+  font-size: 1.0625rem;
+  font-weight: 400;
+  line-height: 1.55;
+  color: var(--om-neutral-700);
+}
+
+.om-text-body {
+  font-size: 0.9375rem;
+  font-weight: 400;
+  line-height: 1.55;
+  color: var(--om-neutral-700);
+}
+
+.om-text-label {
+  font-size: 0.8125rem;
+  font-weight: 500;
+  line-height: 1.35;
+  letter-spacing: 0.01em;
+  text-transform: uppercase;
+  color: var(--om-neutral-500);
+}
+
+.om-text-caption {
+  font-size: 0.75rem;
+  font-weight: 400;
+  line-height: 1.4;
+  color: var(--om-neutral-500);
+}
+
+// ── Desktop scale-up (≥768px) ──
+@media (min-width: 768px) {
+  .om-text-display { font-size: 3rem; }
+  .om-text-h1 { font-size: 2.5rem; }
+  .om-text-h2 { font-size: 2rem; }
+  .om-text-h3 { font-size: 1.5rem; }
+  .om-text-h4 { font-size: 1.25rem; }
+  .om-text-body-lg { font-size: 1.125rem; }
+  .om-text-body { font-size: 1rem; }
+}
+
+// ── Modifiers ──
+.om-text-strong { font-weight: 600; }
+.om-text-muted { color: var(--om-neutral-500); }
+.om-text-accent { color: var(--om-primary); }
+.om-text-mono { font-family: var(--om-font-mono); font-size: 0.875rem; }
+
+// ── Heading utility mixin-compatible classes ──
+h1, .h1 { font-size: 2rem; font-weight: 700; line-height: 1.15; }
+h2, .h2 { font-size: 1.5rem; font-weight: 700; line-height: 1.2; }
+h3, .h3 { font-size: 1.25rem; font-weight: 600; line-height: 1.25; }
+h4, .h4 { font-size: 1.125rem; font-weight: 600; line-height: 1.3; }
+h5, .h5 { font-size: 1rem; font-weight: 600; line-height: 1.35; }
+h6, .h6 { font-size: 0.9375rem; font-weight: 600; line-height: 1.35; }
+
+@media (min-width: 768px) {
+  h1, .h1 { font-size: 2.5rem; }
+  h2, .h2 { font-size: 2rem; }
+  h3, .h3 { font-size: 1.5rem; }
+  h4, .h4 { font-size: 1.25rem; }
+}

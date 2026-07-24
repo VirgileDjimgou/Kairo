@@ -3,16 +3,15 @@
     <div class="card shadow-sm border-0 p-4">
       <div class="text-center mb-4">
         <i class="bi bi-shield-check fs-1 text-primary"></i>
-        <h2 class="h5 fw-bold mt-2 mb-1">Two-factor authentication</h2>
+        <h2 class="h5 fw-bold mt-2 mb-1">{{ t('auth.mfa.title') }}</h2>
         <p class="text-muted small mb-0">
-          Add an extra layer of security to your account.
+          {{ t('auth.mfa.subtitle') }}
         </p>
       </div>
 
-      <!-- Enrollment step 1: generate secret -->
       <div v-if="step === 'enroll'">
         <p class="small text-muted">
-          Scan this QR code with your authenticator app (e.g. Google Authenticator, Authy).
+          {{ t('auth.mfa.scanInstructions') }}
         </p>
 
         <div class="text-center mb-3">
@@ -25,11 +24,11 @@
         </div>
 
         <p class="small text-muted text-center">
-          Can't scan? Manually enter the key: <code class="text-break">{{ secret }}</code>
+          {{ t('auth.mfa.cantScan') }} <code class="text-break">{{ secret }}</code>
         </p>
 
         <hr />
-        <label for="verify-code" class="form-label fw-medium">Verify the code</label>
+        <label for="verify-code" class="form-label fw-medium">{{ t('auth.mfa.verifyCode') }}</label>
         <div class="input-group mb-3">
           <input
             id="verify-code"
@@ -50,7 +49,7 @@
               class="spinner-border spinner-border-sm me-1"
               role="status"
             ></span>
-            Verify
+            {{ t('auth.mfa.verify') }}
           </button>
         </div>
 
@@ -59,19 +58,17 @@
         </div>
       </div>
 
-      <!-- MFA enabled -->
       <div v-else-if="step === 'done'" class="text-center">
         <i class="bi bi-check-circle fs-1 text-success"></i>
-        <p class="mt-2 mb-1 fw-medium">MFA is now enabled</p>
+        <p class="mt-2 mb-1 fw-medium">{{ t('auth.mfa.enabledTitle') }}</p>
         <p class="text-muted small">
-          You'll be prompted for a code each time you sign in.
+          {{ t('auth.mfa.enabledMessage') }}
         </p>
         <router-link to="/members/profile" class="btn btn-primary mt-2">
-          Back to profile
+          {{ t('auth.mfa.backToProfile') }}
         </router-link>
       </div>
 
-      <!-- Error / not started -->
       <div v-else>
         <button class="btn btn-primary w-100" :disabled="loading" @click="handleEnroll">
           <span
@@ -79,7 +76,7 @@
             class="spinner-border spinner-border-sm me-1"
             role="status"
           ></span>
-          Set up two-factor authentication
+          {{ t('auth.mfa.setupButton') }}
         </button>
       </div>
     </div>
@@ -89,8 +86,12 @@
 <script setup lang="ts">
 import { ref } from "vue";
 import { enrollMfa, verifyMfa } from "@/api/auth.api";
+import { useLocaleStore } from "@/stores/locale.store";
 
 type Step = "idle" | "enroll" | "done";
+
+const localeStore = useLocaleStore();
+const t = (key: string) => localeStore.t(key);
 
 const step = ref<Step>("idle");
 const secret = ref("");
@@ -109,7 +110,7 @@ async function handleEnroll() {
     step.value = "enroll";
   } catch (err: unknown) {
     const e = err as { response?: { data?: { detail?: string } } };
-    errorMessage.value = e.response?.data?.detail || "Failed to set up MFA.";
+    errorMessage.value = e.response?.data?.detail || t('auth.mfa.failedSetup');
   } finally {
     loading.value = false;
   }
@@ -124,7 +125,7 @@ async function handleVerify() {
     step.value = "done";
   } catch (err: unknown) {
     const e = err as { response?: { data?: { detail?: string } } };
-    errorMessage.value = e.response?.data?.detail || "Invalid code. Try again.";
+    errorMessage.value = e.response?.data?.detail || t('auth.mfa.invalidCode');
   } finally {
     loading.value = false;
   }

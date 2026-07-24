@@ -1,61 +1,124 @@
+// Kairo Design System — Main entry point
+// Swiss-style mobile-first: precise, restrained, typographic.
+
 @use 'variables';
+@use 'typography';
+@use 'animations';
+@use 'safe-areas';
+@use 'mobile-utils';
 
-// ── Body ───────────────────────────────────────────────────────────────────────
-body {
-  background-color: var(--om-bg);
-  color: var(--om-text);
-  font-family: 'Aptos', 'Segoe UI Variable', 'Trebuchet MS', sans-serif;
-  -webkit-font-smoothing: antialiased;
-}
+// ── Bootstrap overrides ──────────────────────────────────────────────────────
 
-// ── Bootstrap overrides ────────────────────────────────────────────────────────
+// Primary button
 .btn-primary {
   --bs-btn-bg: var(--om-primary);
   --bs-btn-border-color: var(--om-primary);
-  --bs-btn-hover-bg: var(--om-primary-dark);
-  --bs-btn-hover-border-color: var(--om-primary-dark);
+  --bs-btn-hover-bg: var(--om-primary-hover);
+  --bs-btn-hover-border-color: var(--om-primary-hover);
+  --bs-btn-active-bg: var(--om-primary-dark);
+  --bs-btn-active-border-color: var(--om-primary-dark);
+  --bs-btn-disabled-bg: var(--om-primary);
+  --bs-btn-disabled-border-color: var(--om-primary);
 }
 
+// Secondary / outline buttons — cleaner Swiss feel
+.btn-outline-secondary {
+  --bs-btn-color: var(--om-neutral-700);
+  --bs-btn-border-color: var(--om-neutral-300);
+  --bs-btn-hover-bg: var(--om-neutral-100);
+  --bs-btn-hover-border-color: var(--om-neutral-400);
+  --bs-btn-active-bg: var(--om-neutral-200);
+}
+
+// Custom primary accent button (for tenant branding)
+.om-primary-btn {
+  background-color: var(--om-primary);
+  border-color: var(--om-primary);
+  color: #fff;
+}
+
+.om-primary-btn:hover,
+.om-primary-btn:focus-visible {
+  background-color: var(--om-primary-hover);
+  border-color: var(--om-primary-hover);
+  color: #fff;
+}
+
+// Text primary override
 .text-primary {
   color: var(--om-primary) !important;
 }
 
+// ── Card overrides ───────────────────────────────────────────────────────────
+
 .card {
-  border-radius: 0.75rem;
+  border-radius: var(--om-radius-lg);
+  border: 1px solid var(--om-neutral-200);
+  box-shadow: none;
 }
 
-// ── Utility ────────────────────────────────────────────────────────────────────
-.font-monospace {
-  font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, monospace;
+.card.shadow-sm {
+  box-shadow: var(--om-shadow-card) !important;
 }
 
-// ── Page transitions ───────────────────────────────────────────────────────────
-.fade-enter-active,
-.fade-leave-active {
-  transition: opacity 0.15s ease;
+// ── Form overrides ───────────────────────────────────────────────────────────
+
+.form-control,
+.form-select {
+  border-color: var(--om-neutral-300);
+  border-radius: var(--om-radius-base);
+  font-size: 0.9375rem;
 }
 
-.fade-enter-from,
-.fade-leave-to {
-  opacity: 0;
+.form-control:focus,
+.form-select:focus {
+  border-color: var(--om-primary);
+  box-shadow: 0 0 0 3px rgba(var(--om-primary-rgb), 0.12);
 }
 
-// ── Empty state ────────────────────────────────────────────────────────────
+.form-label {
+  font-size: 0.8125rem;
+  font-weight: 500;
+  color: var(--om-neutral-700);
+  margin-bottom: 0.375rem;
+}
+
+// ── Badge overrides ──────────────────────────────────────────────────────────
+
+.badge {
+  font-weight: 500;
+  border-radius: var(--om-radius-sm);
+  font-size: 0.75rem;
+  letter-spacing: 0.01em;
+}
+
+// ── Alert overrides ──────────────────────────────────────────────────────────
+
+.alert {
+  border-radius: var(--om-radius-base);
+  border: 1px solid var(--om-neutral-200);
+  font-size: 0.9375rem;
+}
+
+// ── Empty state ──────────────────────────────────────────────────────────────
+
 .empty-state {
   text-align: center;
   padding: 3rem 1rem;
-  background: var(--om-card-bg, #fff);
-  border-radius: 0.75rem;
-  border: 1px dashed var(--om-border, #dee2e6);
+  background: var(--om-neutral-0);
+  border-radius: var(--om-radius-lg);
+  border: 1px solid var(--om-neutral-200);
 }
 
 .empty-state i {
   margin-bottom: 0.75rem;
+  color: var(--om-neutral-400);
 }
 
-// ── Focus visible ─────────────────────────────────────────────────────────
+// ── Focus visible ────────────────────────────────────────────────────────────
+
 :focus-visible {
-  outline: 2px solid var(--om-primary, #1f4f8f);
+  outline: 2px solid var(--om-primary);
   outline-offset: 2px;
 }
 
@@ -65,4 +128,55 @@ body {
 
 .sidebar-link:focus-visible {
   outline-offset: 1px;
+}
+
+// ── Sidebar link (shared across layouts) ─────────────────────────────────────
+
+.sidebar-link {
+  color: var(--om-neutral-700);
+  font-size: 0.875rem;
+  padding: 0.5rem 0.75rem;
+  text-decoration: none;
+  border-radius: var(--om-radius-base);
+  transition: background-color var(--om-transition-fast), color var(--om-transition-fast);
+}
+
+.sidebar-link:hover,
+.sidebar-link.active {
+  background: var(--om-primary-subtle);
+  color: var(--om-primary);
+  font-weight: 500;
+}
+
+// ── Monospace utility ────────────────────────────────────────────────────────
+
+.font-monospace {
+  font-family: var(--om-font-mono);
+}
+
+// ── Touch-optimized admin table actions ──────────────────────────────────────
+// Icon-only buttons in tables must meet WCAG 2.2 AA 44×44px
+
+.table .btn-sm,
+.table-responsive .btn-sm {
+  min-width: 44px;
+  min-height: 44px;
+  padding: 0.5rem;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.table .btn-group-sm .btn,
+.table-responsive .btn-group-sm .btn {
+  min-height: 44px;
+  padding: 0.5rem 0.75rem;
+  font-size: 0.8125rem;
+}
+
+// Table rows with action buttons should have comfortable spacing
+.table td:last-child,
+.table-responsive td:last-child {
+  white-space: nowrap;
+  min-width: 120px;
 }

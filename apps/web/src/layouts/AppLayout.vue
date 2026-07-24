@@ -1,5 +1,5 @@
 <template>
-  <div class="d-flex min-vh-100 shell-bg" :style="brandStyle">
+  <div class="d-flex om-min-viewport-height shell-bg" :style="brandStyle">
     <aside class="sidebar d-none d-md-flex flex-column p-3">
       <div class="brand d-flex align-items-center gap-2 mb-4 px-1">
         <i class="bi bi-building-fill-gear" :style="{ color: primaryColor, fontSize: '1.25rem' }"></i>
@@ -92,7 +92,7 @@
       </div>
     </aside>
 
-    <main class="flex-grow-1 overflow-auto">
+    <main class="flex-grow-1 overflow-auto app-main-content">
       <header class="topbar sticky-top border-bottom" :style="{ backgroundColor: headerBg }">
         <div class="d-flex align-items-center justify-content-between gap-3 px-3 px-lg-4 py-3">
           <div>
@@ -116,7 +116,7 @@
 
             <LanguageSelector :show-label="false" />
 
-            <div v-if="tenantStore.hasMultipleTenants" class="dropdown tenant-switcher">
+            <div v-if="tenantStore.hasMultipleTenants" class="dropdown tenant-switcher d-none d-sm-flex">
               <button
                 class="btn btn-outline-secondary btn-sm dropdown-toggle"
                 type="button"
@@ -157,23 +157,33 @@
         </div>
       </header>
 
-      <section class="content-shell">
+      <section class="content-shell" :class="{ 'content-shell--with-bottom-nav': hasBottomNav }">
         <RouterView />
       </section>
     </main>
+
+    <MobileBottomNavigation
+      v-if="hasBottomNav"
+      :items="bottomNavItems"
+      class="d-md-none"
+      @navigate="handleBottomNav"
+    />
   </div>
 </template>
 
 <script setup lang="ts">
 import { computed } from "vue";
-import { RouterLink, RouterView, useRouter } from "vue-router";
+import { RouterLink, RouterView, useRouter, useRoute } from "vue-router";
 import { useAuthStore } from "@/stores/auth.store";
 import { useRoleNavigation } from "@/composables/useRoleNavigation";
 import { useTenantStore } from "@/stores/tenant.store";
 import { useLocaleStore } from "@/stores/locale.store";
 import LanguageSelector from "@/components/LanguageSelector.vue";
+import MobileBottomNavigation from "@/components/ui/MobileBottomNavigation.vue";
+import type { BottomNavItem } from "@/components/ui/MobileBottomNavigation.vue";
 
 const router = useRouter();
+const route = useRoute();
 const authStore = useAuthStore();
 const tenantStore = useTenantStore();
 const localeStore = useLocaleStore();
@@ -187,6 +197,42 @@ const headerBg = computed(() => "#ffffff");
 const brandStyle = computed(() => ({
   "--om-primary": primaryColor.value,
 }));
+
+const bottomNavItems = computed<BottomNavItem[]>(() => {
+  const allItems = appNavigation.value.flatMap((s) => s.items);
+  const items: BottomNavItem[] = allItems.slice(0, 5).map((item) => ({
+    id: item.to,
+    label: item.label,
+    icon: item.icon,
+    active: route.path === item.to || (item.to !== '/dashboard' && route.path.startsWith(item.to)),
+  }));
+  if (items.length < 5) {
+    items.push({
+      id: '__more__',
+      label: localeStore.t('nav.more'),
+      icon: 'bi-three-dots',
+      active: false,
+    });
+  }
+  return items;
+});
+
+const hasBottomNav = computed(() => bottomNavItems.value.length > 0);
+
+function handleBottomNav(id: string) {
+  if (id === '__more__') {
+    const offcanvasEl = document.getElementById('appMobileSidebar');
+    if (offcanvasEl) {
+      const bs = (window as any).bootstrap;
+      if (bs?.Offcanvas) {
+        const instance = bs.Offcanvas.getInstance(offcanvasEl) || new bs.Offcanvas(offcanvasEl);
+        instance.show();
+      }
+    }
+    return;
+  }
+  router.push(id);
+}
 
 async function switchTenant(tenantId: string) {
   const ok = await tenantStore.selectTenant(tenantId);
@@ -203,37 +249,33 @@ async function handleLogout() {
 
 <style scoped>
 .shell-bg {
-  background: linear-gradient(180deg, rgba(245, 247, 251, 1) 0%, rgba(245, 247, 251, 0.92) 100%);
+  background: var(--om-neutral-50);
 }
 
 .sidebar {
-  background: #ffffff;
-  border-right: 1px solid var(--om-border, #d9e2ec);
-  width: 260px;
+  background: var(--om-neutral-0);
+  border-right: 1px solid var(--om-neutral-200);
+  width: var(--om-sidebar-width);
   min-height: 100vh;
-  box-shadow: inset -1px 0 0 rgba(0, 0, 0, 0.02);
+  min-height: 100dvh;
+  flex-shrink: 0;
 }
 
 .topbar {
   z-index: 1020;
-}
-
-.sidebar-link {
-  color: var(--om-text, #1f2937);
-  font-size: 0.875rem;
-  padding: 0.45rem 0.75rem;
-  text-decoration: none;
-}
-
-.sidebar-link:hover,
-.sidebar-link.active {
-  background: rgba(31, 79, 143, 0.08);
-  color: var(--om-primary, #1f4f8f);
-  font-weight: 500;
+  background: var(--om-neutral-0);
 }
 
 .content-shell {
   padding: 0;
+}
+
+.content-shell--with-bottom-nav {
+  padding-bottom: calc(var(--om-bottomnav-height) + env(safe-area-inset-bottom, 0px));
+}
+
+.app-main-content {
+  padding-bottom: 0;
 }
 
 .smaller {

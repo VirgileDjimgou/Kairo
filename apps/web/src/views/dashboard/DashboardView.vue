@@ -1,5 +1,5 @@
 <template>
-  <div class="p-4 p-lg-5">
+  <div class="p-3 p-md-4 p-lg-5">
     <div class="d-flex flex-column flex-lg-row align-items-lg-end justify-content-between gap-3 mb-4">
       <div>
         <div class="text-uppercase small fw-semibold text-secondary mb-2">
@@ -66,9 +66,9 @@
     </div>
 
     <div class="row g-4">
-      <div class="col-xl-8">
+      <div class="col-lg-8">
         <div class="card shadow-sm border-0 onboarding-card h-100" data-testid="tenant-onboarding">
-          <div class="card-body p-4 p-xl-5">
+          <div class="card-body p-3 p-md-4 p-lg-5">
             <div class="d-flex flex-column flex-md-row justify-content-between gap-3 mb-4">
               <div>
                 <div class="text-uppercase small fw-semibold text-secondary mb-2">
@@ -154,7 +154,7 @@
         </div>
       </div>
 
-      <div class="col-xl-4">
+      <div class="col-lg-4">
         <div class="card shadow-sm border-0 mb-4">
           <div class="card-body p-4">
             <div class="d-flex align-items-center justify-content-between gap-3 mb-3">

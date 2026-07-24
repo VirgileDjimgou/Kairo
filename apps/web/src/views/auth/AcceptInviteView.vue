@@ -1,31 +1,31 @@
 <template>
-  <div class="auth-wrapper d-flex align-items-center justify-content-center min-vh-100">
+  <div class="auth-wrapper d-flex align-items-center justify-content-center om-min-viewport-height om-safe-bottom">
     <div class="auth-card card shadow-sm border-0 p-4 p-md-5 w-100" style="max-width: 440px">
       <div class="text-center mb-4">
         <div class="brand-icon mb-3">
           <i class="bi bi-envelope-paper fs-1 text-primary"></i>
         </div>
-        <h1 class="h4 fw-bold mb-1">Accept invitation</h1>
+        <h1 class="h4 fw-bold mb-1">{{ t('auth.acceptInvite.title') }}</h1>
         <p class="text-muted small mb-0">
-          You've been invited to join an organization. Set up your account to get started.
+          {{ t('auth.acceptInvite.subtitle') }}
         </p>
       </div>
 
       <div v-if="!hasToken" class="alert alert-warning py-2 small" role="alert">
         <i class="bi bi-exclamation-triangle me-1"></i>
-        Missing invitation token. Use the link from your invitation email.
+        {{ t('auth.acceptInvite.missingToken') }}
       </div>
 
       <form v-else-if="!success" @submit.prevent="handleSubmit" novalidate>
         <div class="mb-3">
-          <label for="display-name" class="form-label fw-medium">Display name</label>
+          <label for="display-name" class="form-label fw-medium">{{ t('auth.acceptInvite.displayNameLabel') }}</label>
           <input
             id="display-name"
             v-model.trim="displayName"
             type="text"
             class="form-control"
             :class="{ 'is-invalid': errors.name }"
-            placeholder="Your full name"
+            :placeholder="t('auth.acceptInvite.displayNamePlaceholder')"
             autocomplete="name"
             required
           />
@@ -33,14 +33,14 @@
         </div>
 
         <div class="mb-3">
-          <label for="password" class="form-label fw-medium">Password</label>
+          <label for="password" class="form-label fw-medium">{{ t('auth.acceptInvite.passwordLabel') }}</label>
           <input
             id="password"
             v-model="password"
             type="password"
             class="form-control"
             :class="{ 'is-invalid': errors.password }"
-            placeholder="At least 8 characters"
+            :placeholder="t('auth.acceptInvite.passwordPlaceholder')"
             autocomplete="new-password"
             required
           />
@@ -62,29 +62,29 @@
             role="status"
             aria-hidden="true"
           ></span>
-          {{ loading ? "Accepting\u2026" : "Accept invitation &amp; sign in" }}
+          {{ loading ? t('auth.acceptInvite.accepting') : t('auth.acceptInvite.acceptButton') }}
         </button>
       </form>
 
       <div v-else class="text-center">
         <i class="bi bi-check-circle fs-1 text-success"></i>
-        <p class="mt-2 mb-1 fw-medium">Welcome!</p>
+        <p class="mt-2 mb-1 fw-medium">{{ t('auth.acceptInvite.welcomeTitle') }}</p>
         <p class="text-muted small">
-          Your account has been set up and you're now signed in. The next recommended step is to review your account security.
+          {{ t('auth.acceptInvite.welcomeMessage') }}
         </p>
         <div class="d-flex flex-column flex-sm-row justify-content-center gap-2 mt-3">
           <router-link to="/account/security" class="btn btn-primary">
-            Secure account
+            {{ t('auth.acceptInvite.secureAccount') }}
           </router-link>
           <router-link to="/dashboard" class="btn btn-outline-secondary">
-            Go to dashboard
+            {{ t('auth.acceptInvite.goToDashboard') }}
           </router-link>
         </div>
       </div>
 
       <div class="text-center mt-3">
         <router-link to="/login" class="small text-muted">
-          Already have an account? Sign in
+          {{ t('auth.acceptInvite.alreadyHaveAccount') }}
         </router-link>
       </div>
     </div>
@@ -96,10 +96,13 @@ import { computed, reactive, ref } from "vue";
 import { useRoute } from "vue-router";
 import { acceptInvite } from "@/api/auth.api";
 import { useAuthStore } from "@/stores/auth.store";
+import { useLocaleStore } from "@/stores/locale.store";
 import { getApiErrorDetail, mapAcceptInviteError } from "@/utils/authErrors";
 
 const route = useRoute();
 const authStore = useAuthStore();
+const localeStore = useLocaleStore();
+const t = (key: string) => localeStore.t(key);
 
 const token = computed(() => (route.query.token as string) || "");
 const hasToken = computed(() => token.value.length > 0);
@@ -117,11 +120,11 @@ async function handleSubmit() {
   errorMessage.value = "";
 
   if (!displayName.value) {
-    errors.name = "Display name is required";
+    errors.name = t('auth.acceptInvite.nameRequired');
     return;
   }
   if (!password.value || password.value.length < 8) {
-    errors.password = "Password must be at least 8 characters";
+    errors.password = t('auth.acceptInvite.passwordTooShort');
     return;
   }
 
@@ -132,7 +135,6 @@ async function handleSubmit() {
       display_name: displayName.value,
       password: password.value,
     });
-    // Store the token and redirect
     localStorage.setItem("access_token", result.access_token);
     await authStore.restoreSession();
     success.value = true;

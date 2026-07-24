@@ -1,26 +1,26 @@
 <template>
-  <div class="auth-wrapper d-flex align-items-center justify-content-center min-vh-100">
+  <div class="auth-wrapper d-flex align-items-center justify-content-center om-min-viewport-height om-safe-bottom">
     <div class="auth-card card shadow-sm border-0 p-4 p-md-5 w-100" style="max-width: 440px">
       <div class="text-center mb-4">
         <div class="brand-icon mb-3">
           <i class="bi bi-key fs-1 text-primary"></i>
         </div>
-        <h1 class="h4 fw-bold mb-1">Reset password</h1>
+        <h1 class="h4 fw-bold mb-1">{{ t('auth.forgotPassword.title') }}</h1>
         <p class="text-muted small mb-0">
-          Enter your email and we'll send you a reset link. If you're already signed in, you can also trigger the same recovery flow from Account Security.
+          {{ t('auth.forgotPassword.subtitle') }}
         </p>
       </div>
 
       <form v-if="!submitted" @submit.prevent="handleSubmit" novalidate>
         <div class="mb-3">
-          <label for="email" class="form-label fw-medium">Email address</label>
+          <label for="email" class="form-label fw-medium">{{ t('auth.forgotPassword.emailLabel') }}</label>
           <input
             id="email"
             v-model.trim="email"
             type="email"
             class="form-control"
             :class="{ 'is-invalid': errorMessage }"
-            placeholder="you@organization.com"
+            :placeholder="t('auth.forgotPassword.emailPlaceholder')"
             autocomplete="email"
             required
           />
@@ -41,32 +41,32 @@
             role="status"
             aria-hidden="true"
           ></span>
-          {{ loading ? "Sending\u2026" : "Send reset link" }}
+          {{ loading ? t('auth.forgotPassword.sending') : t('auth.forgotPassword.sendLink') }}
         </button>
       </form>
 
       <div v-else class="text-center">
         <i class="bi bi-check-circle fs-1 text-success"></i>
-        <p class="mt-2 mb-1 fw-medium">Check your email</p>
+        <p class="mt-2 mb-1 fw-medium">{{ t('auth.forgotPassword.checkEmail') }}</p>
         <p class="text-muted small">
-          If an account with that email exists, we've sent a reset link.
+          {{ t('auth.forgotPassword.emailSentMessage') }}
         </p>
         <div v-if="devToken" class="mt-2 p-2 bg-light rounded small">
-          <p class="text-muted mb-1">Development token:</p>
+          <p class="text-muted mb-1">{{ t('auth.forgotPassword.devToken') }}</p>
           <code class="text-break">{{ devToken }}</code>
           <br />
           <router-link
             :to="{ path: '/reset-password', query: { token: devToken } }"
             class="btn btn-outline-secondary btn-sm mt-2"
           >
-            Reset password now
+            {{ t('auth.forgotPassword.resetNow') }}
           </router-link>
         </div>
       </div>
 
       <div class="text-center mt-3">
         <router-link to="/login" class="small text-muted">
-          Back to sign in
+          {{ t('auth.forgotPassword.backToSignIn') }}
         </router-link>
       </div>
     </div>
@@ -76,7 +76,11 @@
 <script setup lang="ts">
 import { ref } from "vue";
 import { forgotPassword } from "@/api/auth.api";
+import { useLocaleStore } from "@/stores/locale.store";
 import { getApiErrorDetail, mapForgotPasswordError } from "@/utils/authErrors";
+
+const localeStore = useLocaleStore();
+const t = (key: string) => localeStore.t(key);
 
 const email = ref("");
 const loading = ref(false);

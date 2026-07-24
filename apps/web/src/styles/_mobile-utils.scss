@@ -1,0 +1,216 @@
+// Kairo Mobile-First Utilities
+// Complements Bootstrap 5 with Swiss-style mobile patterns.
+
+// ── Touch targets ──
+// WCAG 2.2 AA: minimum 44x44px touch target
+.om-touch-target {
+  min-width: 44px;
+  min-height: 44px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+// ── Touch behavior ──
+.om-no-tap-highlight {
+  -webkit-tap-highlight-color: transparent;
+}
+
+.om-touch-manipulation {
+  touch-action: manipulation;
+}
+
+// Apply globally to all interactive elements
+a, button, input, select, textarea, [tabindex] {
+  -webkit-tap-highlight-color: transparent;
+  touch-action: manipulation;
+}
+
+// ── Prevent pull-to-refresh (overly sensitive on Android) ──
+body {
+  overscroll-behavior: none;
+}
+
+// ── Prevent text size adjustment on orientation change ──
+html {
+  -webkit-text-size-adjust: 100%;
+  -moz-text-size-adjust: 100%;
+  text-size-adjust: 100%;
+}
+
+// ── Smooth scrolling ──
+html {
+  scroll-behavior: smooth;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+}
+
+// ── Responsive visibility pattern ──
+// Hide on mobile (below 768px) — use for desktop-only sidebars
+.om-hide-mobile {
+  display: none !important;
+}
+
+@media (min-width: 768px) {
+  .om-hide-mobile {
+    display: initial !important;
+  }
+}
+
+// Show only on mobile
+.om-show-mobile {
+  display: initial !important;
+}
+
+@media (min-width: 768px) {
+  .om-show-mobile {
+    display: none !important;
+  }
+}
+
+// ── Responsive content padding ──
+.om-content-padding {
+  padding: var(--om-space-base);
+}
+
+@media (min-width: 768px) {
+  .om-content-padding {
+    padding: var(--om-space-lg);
+  }
+}
+
+@media (min-width: 1024px) {
+  .om-content-padding {
+    padding: var(--om-space-xl);
+  }
+}
+
+// ── Max-width content constraint ──
+.om-content-constrain {
+  max-width: var(--om-content-max-width);
+  margin-left: auto;
+  margin-right: auto;
+  width: 100%;
+}
+
+// ── Card list pattern (alternative to tables on mobile) ──
+.om-card-list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--om-space-sm);
+}
+
+.om-card-list-item {
+  background: var(--om-neutral-0);
+  border: 1px solid var(--om-neutral-200);
+  border-radius: var(--om-radius-lg);
+  padding: var(--om-space-base);
+  transition: border-color var(--om-transition-fast);
+}
+
+.om-card-list-item:active {
+  border-color: var(--om-primary);
+  background: var(--om-primary-subtle);
+}
+
+// ── Inline form (single-column on mobile, inline on desktop) ──
+.om-responsive-form-row {
+  display: flex;
+  flex-direction: column;
+  gap: var(--om-space-base);
+}
+
+@media (min-width: 768px) {
+  .om-responsive-form-row {
+    flex-direction: row;
+    align-items: flex-end;
+  }
+}
+
+// ── Two-column grid that collapses on mobile ──
+.om-responsive-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: var(--om-space-base);
+}
+
+@media (min-width: 576px) {
+  .om-responsive-grid {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+
+// ── Fluid container ──
+.om-fluid-container {
+  width: 100%;
+  padding-left: var(--om-space-base);
+  padding-right: var(--om-space-base);
+}
+
+@media (min-width: 768px) {
+  .om-fluid-container {
+    padding-left: var(--om-space-xl);
+    padding-right: var(--om-space-xl);
+  }
+}
+
+// ── Modal as bottom sheet on mobile ──
+.om-modal-bottom-sheet {
+  border-radius: var(--om-radius-xl) var(--om-radius-xl) 0 0;
+  max-height: 90dvh;
+  overflow-y: auto;
+}
+
+@media (min-width: 768px) {
+  .om-modal-bottom-sheet {
+    border-radius: var(--om-radius-lg);
+    max-height: 85vh;
+  }
+}
+
+// ── Data card (row → card pattern) ──
+.om-data-card {
+  background: var(--om-neutral-0);
+  border: 1px solid var(--om-neutral-200);
+  border-radius: var(--om-radius-lg);
+  padding: var(--om-space-base);
+  display: flex;
+  flex-direction: column;
+  gap: var(--om-space-sm);
+}
+
+.om-data-card-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: var(--om-space-sm);
+}
+
+.om-data-card-label {
+  font-size: 0.75rem;
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.02em;
+  color: var(--om-neutral-500);
+  flex-shrink: 0;
+}
+
+.om-data-card-value {
+  font-size: 0.9375rem;
+  font-weight: 400;
+  color: var(--om-neutral-900);
+  text-align: right;
+  word-break: break-word;
+}
+
+.om-data-card-actions {
+  display: flex;
+  gap: var(--om-space-sm);
+  justify-content: flex-end;
+  padding-top: var(--om-space-sm);
+  border-top: 1px solid var(--om-neutral-100);
+}

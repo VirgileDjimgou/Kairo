@@ -1,5 +1,5 @@
 <template>
-  <div class="chat-sidebar d-flex flex-column h-100 bg-light border-end">
+  <div class="chat-sidebar d-flex flex-column h-100 bg-light border-end" :class="{ 'chat-sidebar--visible': visible }">
     <div class="p-3 border-bottom">
       <button class="btn om-primary-btn w-100" @click="$emit('new')">
         <i class="bi bi-plus-lg me-1"></i>
@@ -49,6 +49,7 @@ import { useLocaleStore } from "@/stores/locale.store";
 defineProps<{
   conversations: ChatConversationResponse[];
   activeId: string | null;
+  visible?: boolean;
 }>();
 
 const emit = defineEmits<{

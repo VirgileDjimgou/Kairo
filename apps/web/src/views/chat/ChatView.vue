@@ -1,14 +1,24 @@
 <template>
-  <div class="chat-view d-flex h-100">
+  <div class="chat-view d-flex">
     <ChatSidebar
       :conversations="chatStore.conversations"
       :active-id="chatStore.activeConversationId"
+      :visible="showSidebar"
+      class="chat-sidebar-wrapper"
       @new="handleNewConversation"
       @select="handleSelectConversation"
       @delete="handleDeleteConversation"
     />
-    <div class="chat-main d-flex flex-column flex-grow-1">
-      <div v-if="chatStore.messages.length || chatStore.streamingContent" class="messages-area flex-grow-1 overflow-auto p-4">
+
+    <div v-if="!showSidebar || !isNarrow" class="chat-main d-flex flex-column flex-grow-1">
+      <div v-if="isNarrow && chatStore.activeConversationId" class="chat-mobile-header px-3 py-2 border-bottom bg-white">
+        <button class="btn btn-link p-0 text-decoration-none d-flex align-items-center gap-2" @click="showSidebar = true">
+          <i class="bi bi-chevron-left"></i>
+          <span class="fw-medium small">{{ localeStore.t('chat.conversations') }}</span>
+        </button>
+      </div>
+
+      <div v-if="chatStore.messages.length || chatStore.streamingContent" class="messages-area flex-grow-1 overflow-auto p-3 p-md-4">
         <ChatMessage
           v-for="(msg, i) in chatStore.messages"
           :key="i"
@@ -28,6 +38,7 @@
           @select="handleFollowUp"
         />
       </div>
+
       <div v-else class="empty-state flex-grow-1 d-flex flex-column align-items-center justify-content-center p-4">
         <i class="bi bi-chat-dots display-1 text-secondary mb-3"></i>
         <h2 class="h5 fw-bold mb-1">{{ localeStore.t('chat.title') }}</h2>
@@ -46,6 +57,7 @@
           </button>
         </div>
       </div>
+
       <div class="input-area p-3 border-top bg-white">
         <form class="d-flex gap-2" @submit.prevent="handleSubmit">
           <textarea
@@ -68,7 +80,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed, onMounted, ref } from "vue";
+import { computed, onMounted, onUnmounted, ref } from "vue";
 import { getChatDomainPolicy } from "@/api/chat.api";
 import ChatSidebar from "@/components/chat/ChatSidebar.vue";
 import ChatMessage from "@/components/chat/ChatMessage.vue";
@@ -81,6 +93,22 @@ const localeStore = useLocaleStore();
 
 const question = ref("");
 const allowedDomains = ref<string[]>([]);
+const windowWidth = ref(typeof window !== 'undefined' ? window.innerWidth : 1024);
+const showSidebar = ref(true);
+
+const isNarrow = computed(() => windowWidth.value < 768);
+
+let resizeTimer: ReturnType<typeof setTimeout> | null = null;
+
+function onResize() {
+  if (resizeTimer) clearTimeout(resizeTimer);
+  resizeTimer = setTimeout(() => {
+    windowWidth.value = window.innerWidth;
+    if (window.innerWidth >= 768) {
+      showSidebar.value = true;
+    }
+  }, 80);
+}
 
 const suggestedPrompts = computed(() => {
   const prompts = {
@@ -173,6 +201,12 @@ const suggestedPrompts = computed(() => {
 onMounted(() => {
   chatStore.loadConversations();
   void loadDomainPolicy();
+  window.addEventListener('resize', onResize);
+});
+
+onUnmounted(() => {
+  window.removeEventListener('resize', onResize);
+  if (resizeTimer) clearTimeout(resizeTimer);
 });
 
 async function loadDomainPolicy() {
@@ -198,12 +232,18 @@ async function handleSubmit() {
   await chatStore.sendMessage(q, () => undefined);
 }
 
-function handleNewConversation() {
-  void chatStore.createConversation(localeStore.t('chat.newConversationTitle'));
+async function handleNewConversation() {
+  await chatStore.createConversation(localeStore.t('chat.newConversationTitle'));
+  if (isNarrow.value) {
+    showSidebar.value = false;
+  }
 }
 
 function handleSelectConversation(id: string) {
   chatStore.selectConversation(id);
+  if (isNarrow.value) {
+    showSidebar.value = false;
+  }
 }
 
 function handleDeleteConversation(id: string) {
@@ -218,10 +258,40 @@ function handleFollowUp(text: string) {
 <style scoped>
 .chat-view {
   height: calc(100vh - 60px);
+  height: calc(100dvh - 60px);
+  padding-bottom: env(safe-area-inset-bottom, 0px);
+}
+
+.chat-sidebar-wrapper {
+  flex-shrink: 0;
+}
+
+@media (max-width: 767.98px) {
+  .chat-sidebar-wrapper {
+    position: absolute;
+    top: 0;
+    left: 0;
+    bottom: 0;
+    z-index: 10;
+    width: 100%;
+    display: none;
+  }
+
+  .chat-sidebar-wrapper.chat-sidebar--visible {
+    display: flex;
+  }
+}
+
+.chat-mobile-header button {
+  color: var(--om-neutral-700);
+}
+
+.chat-mobile-header button:hover {
+  color: var(--om-primary);
 }
 
 .messages-area {
-  background: #f8f9fa;
+  background: var(--om-neutral-50);
 }
 
 .input-area {
@@ -231,6 +301,7 @@ function handleFollowUp(text: string) {
 .chat-input {
   resize: none;
   min-height: 72px;
+  border-radius: var(--om-radius-base);
 }
 
 .spin {

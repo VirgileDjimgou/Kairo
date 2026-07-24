@@ -1,0 +1,58 @@
+// Kairo Safe Areas & Mobile Viewport Management
+// Ensures content respects device notches, dynamic islands, and system bars.
+
+// ── Viewport height fallback chain ──
+// 100dvh → 100vh (for browsers that don't support dvh)
+.om-viewport-height {
+  height: 100vh;
+  height: 100dvh;
+}
+
+.om-min-viewport-height {
+  min-height: 100vh;
+  min-height: 100dvh;
+}
+
+// ── Safe area padding ──
+.om-safe-top {
+  padding-top: env(safe-area-inset-top, 0px);
+}
+
+.om-safe-bottom {
+  padding-bottom: env(safe-area-inset-bottom, 0px);
+}
+
+.om-safe-left {
+  padding-left: env(safe-area-inset-left, 0px);
+}
+
+.om-safe-right {
+  padding-right: env(safe-area-inset-right, 0px);
+}
+
+// ── Bottom navigation container ──
+// Use this for any fixed element at the bottom of the viewport
+.om-fixed-bottom-safe {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  padding-bottom: env(safe-area-inset-bottom, 0px);
+  z-index: 1030;
+}
+
+// ── Top navigation container ──
+.om-fixed-top-safe {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  padding-top: env(safe-area-inset-top, 0px);
+  z-index: 1030;
+}
+
+// ── Content area offset for bottom nav ──
+// Apply padding-bottom equal to bottom nav height + safe area
+.om-content-with-bottom-nav {
+  padding-bottom: calc(var(--om-bottomnav-height) + env(safe-area-inset-bottom, 0px));
+}
