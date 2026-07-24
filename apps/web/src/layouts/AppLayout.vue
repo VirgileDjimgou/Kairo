@@ -1,6 +1,6 @@
 <template>
   <div class="d-flex om-min-viewport-height shell-bg" :style="brandStyle">
-    <aside class="sidebar d-none d-md-flex flex-column p-3">
+    <aside class="sidebar d-none d-lg-flex flex-column p-3">
       <div class="brand d-flex align-items-center gap-2 mb-4 px-1">
         <i class="bi bi-building-fill-gear" :style="{ color: primaryColor, fontSize: '1.25rem' }"></i>
         <span class="fw-bold" :style="{ color: textColor }">{{ tenantStore.currentTenantName }}</span>
@@ -43,7 +43,7 @@
 
     <aside
       id="appMobileSidebar"
-      class="offcanvas offcanvas-start d-md-none"
+      class="offcanvas offcanvas-start d-lg-none"
       tabindex="-1"
       aria-labelledby="appMobileSidebarLabel"
     >
@@ -93,7 +93,20 @@
     </aside>
 
     <main class="flex-grow-1 overflow-auto app-main-content">
-      <header class="topbar sticky-top border-bottom" :style="{ backgroundColor: headerBg }">
+      <MobileShellHeader
+        class="d-lg-none"
+        :eyebrow="appHomeLabel"
+        :title="tenantStore.currentTenantName"
+        icon="bi-grid-1x2"
+        :menu-label="localeStore.t('layout.toggleNavigation')"
+        @open-menu="showMobileMenu"
+      >
+        <template #actions>
+          <LanguageSelector :show-label="false" />
+        </template>
+      </MobileShellHeader>
+
+      <header class="topbar sticky-top border-bottom d-none d-lg-block" :style="{ backgroundColor: headerBg }">
         <div class="d-flex align-items-center justify-content-between gap-3 px-3 px-lg-4 py-3">
           <div>
             <div class="small text-uppercase fw-semibold" :style="{ color: mutedColor }">
@@ -105,15 +118,6 @@
           </div>
 
           <div class="d-flex align-items-center gap-2 ms-auto">
-            <button
-              class="btn btn-link d-md-none p-1 text-dark"
-              data-bs-toggle="offcanvas"
-              data-bs-target="#appMobileSidebar"
-              :aria-label="localeStore.t('layout.toggleNavigation')"
-            >
-              <i class="bi bi-list fs-4"></i>
-            </button>
-
             <LanguageSelector :show-label="false" />
 
             <div v-if="tenantStore.hasMultipleTenants" class="dropdown tenant-switcher d-none d-sm-flex">
@@ -158,14 +162,19 @@
       </header>
 
       <section class="content-shell" :class="{ 'content-shell--with-bottom-nav': hasBottomNav }">
-        <RouterView />
+        <RouterView v-slot="{ Component }">
+          <Transition name="app-route" mode="out-in">
+            <component :is="Component" />
+          </Transition>
+        </RouterView>
       </section>
     </main>
 
     <MobileBottomNavigation
       v-if="hasBottomNav"
       :items="bottomNavItems"
-      class="d-md-none"
+      :aria-label="localeStore.t('layout.mobileNavigation')"
+      class="d-lg-none"
       @navigate="handleBottomNav"
     />
   </div>
@@ -174,12 +183,14 @@
 <script setup lang="ts">
 import { computed } from "vue";
 import { RouterLink, RouterView, useRouter, useRoute } from "vue-router";
+import { Offcanvas } from "bootstrap";
 import { useAuthStore } from "@/stores/auth.store";
 import { useRoleNavigation } from "@/composables/useRoleNavigation";
 import { useTenantStore } from "@/stores/tenant.store";
 import { useLocaleStore } from "@/stores/locale.store";
 import LanguageSelector from "@/components/LanguageSelector.vue";
 import MobileBottomNavigation from "@/components/ui/MobileBottomNavigation.vue";
+import MobileShellHeader from "@/components/ui/MobileShellHeader.vue";
 import type { BottomNavItem } from "@/components/ui/MobileBottomNavigation.vue";
 
 const router = useRouter();
@@ -200,20 +211,35 @@ const brandStyle = computed(() => ({
 
 const bottomNavItems = computed<BottomNavItem[]>(() => {
   const allItems = appNavigation.value.flatMap((s) => s.items);
-  const items: BottomNavItem[] = allItems.slice(0, 5).map((item) => ({
+  const primaryRoutes = ['/dashboard', '/chat'];
+  const firstWorkspace = appNavigation.value.find(
+    (section) => section.label === localeStore.t('layout.workspaces'),
+  )?.items[0]?.to;
+  const communityRoute = allItems.find((item) => item.to === '/events')?.to
+    ?? allItems.find((item) => item.to === '/announcements')?.to;
+
+  if (firstWorkspace) primaryRoutes.push(firstWorkspace);
+  if (communityRoute) primaryRoutes.push(communityRoute);
+  primaryRoutes.push('/members/profile');
+
+  const selectedItems = primaryRoutes.reduce<typeof allItems>((items, destination) => {
+    const item = allItems.find((candidate) => candidate.to === destination);
+    if (item && !items.some((candidate) => candidate.to === item.to)) items.push(item);
+    return items;
+  }, []);
+
+  const items: BottomNavItem[] = selectedItems.slice(0, 4).map((item) => ({
     id: item.to,
     label: item.label,
     icon: item.icon,
     active: route.path === item.to || (item.to !== '/dashboard' && route.path.startsWith(item.to)),
   }));
-  if (items.length < 5) {
-    items.push({
-      id: '__more__',
-      label: localeStore.t('nav.more'),
-      icon: 'bi-three-dots',
-      active: false,
-    });
-  }
+  items.push({
+    id: '__more__',
+    label: localeStore.t('nav.more'),
+    icon: 'bi-grid-3x3-gap',
+    active: false,
+  });
   return items;
 });
 
@@ -221,17 +247,16 @@ const hasBottomNav = computed(() => bottomNavItems.value.length > 0);
 
 function handleBottomNav(id: string) {
   if (id === '__more__') {
-    const offcanvasEl = document.getElementById('appMobileSidebar');
-    if (offcanvasEl) {
-      const bs = (window as any).bootstrap;
-      if (bs?.Offcanvas) {
-        const instance = bs.Offcanvas.getInstance(offcanvasEl) || new bs.Offcanvas(offcanvasEl);
-        instance.show();
-      }
-    }
+    showMobileMenu();
     return;
   }
   router.push(id);
+}
+
+function showMobileMenu() {
+  const offcanvasEl = document.getElementById('appMobileSidebar');
+  if (!offcanvasEl) return;
+  (Offcanvas.getInstance(offcanvasEl) || new Offcanvas(offcanvasEl)).show();
 }
 
 async function switchTenant(tenantId: string) {
@@ -280,5 +305,11 @@ async function handleLogout() {
 
 .smaller {
   font-size: 0.75rem;
+}
+
+@media (min-width: 992px) {
+  .content-shell--with-bottom-nav {
+    padding-bottom: 0;
+  }
 }
 </style>

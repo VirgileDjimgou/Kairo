@@ -1,8 +1,8 @@
 # Kairo — Rapport de refonte Mobile-First
 
 **Date :** 2026-07-24  
-**Build :** OK (TypeScript + Vite, 285 modules)  
-**Tests E2E existants :** Non exécutés (backend non disponible)
+**Build :** OK (TypeScript + Vite, 285 modules, 94 entrées PWA)
+**Tests E2E responsive :** OK (25/25 sur 5 viewports)
 
 ---
 
@@ -187,35 +187,46 @@ apps/web/index.html
 
 ### Priorité moyenne
 4. **Transformation tableaux → cartes** : Les 15 vues utilisant `table-responsive` gagneraient à utiliser `ResponsiveDataView` pour une expérience carte sur mobile.
-5. **PWA** : Ajouter `vite-plugin-pwa`, manifest.json, service worker — phase indépendante recommandée après stabilisation.
-6. **Tests E2E responsive** : Ajouter des tests Playwright sur 5 viewports mobiles pour les vues principales (Dashboard, Chat, Events, Profile).
+5. **i18n résiduelle** : le contrôle automatisé signale encore 116 chaînes potentielles dans 12 fichiers historiques. Elles doivent être qualifiées puis migrées progressivement vers les clés trilingues.
 
 ### Priorité basse
-7. **Refonte LoginView hero** : Les orbes décoratives sont lourdes, pourraient être simplifiées.
-8. **Pattern `copy` computed** : Migrer progressivement vers `localeStore.t()` pour réduire la duplication.
+6. **Pattern `copy` computed** : Migrer progressivement vers `localeStore.t()` pour réduire la duplication.
 
 ---
 
-## 9. Recommandation PWA
+## 9. Validation PWA et production
 
-Une PWA est **recommandée** comme phase suivante (1-2 semaines supplémentaires). Approche :
+La PWA est intégrée et déployée sur `https://app.combissportverein.org`.
 
-1. Ajouter `vite-plugin-pwa` à la config Vite
-2. Générer `manifest.json` avec icônes 192/512px
-3. Service worker avec stratégie `NetworkFirst` pour API, `CacheFirst` pour assets
-4. Fallback hors-ligne basique
-5. Notifications push via Web Push API (backend Firebase Cloud Messaging optionnel)
+| Contrôle | Résultat |
+|----------|----------|
+| Manifest web | `200 application/manifest+json` |
+| Service worker | `200 application/javascript` |
+| Icône 192x192 | `200 image/png` |
+| Icône 512x512 | `200 image/png` |
+| Audit npm | 0 vulnérabilité |
+| Smoke test public | 6/6 |
+| Services Docker | 9/9 actifs, services applicatifs sains |
 
-La PWA permettra l'installation sur l'écran d'accueil Android/iOS sans passer par les Stores, tout en conservant une seule codebase.
+Le déploiement a recréé uniquement le service `web`. PostgreSQL, les volumes, l'API, le worker et le tunnel Cloudflare n'ont pas été remplacés.
 
 ---
 
 ## 10. Commandes exécutées
 
 ```bash
-npm run type-check   # OK — 0 erreurs
-npm run build        # OK — 285 modules, 2.05s
+npm run type-check
+npm run build
+npx playwright test e2e/responsive-mobile.spec.ts
+npm audit
+node scripts/check-i18n-coverage.mjs
 ```
+
+- TypeScript : OK, 0 erreur.
+- Build : OK, 285 modules et 94 entrées PWA précachées.
+- Playwright responsive : OK, 25/25 tests.
+- Audit npm : OK, 0 vulnérabilité.
+- i18n : 116 chaînes potentielles dans 12 fichiers, suivi requis.
 
 ---
 
@@ -234,3 +245,29 @@ npm run build        # OK — 285 modules, 2.05s
 | Touch targets | 31px (boutons tableaux) | 44px (nouveaux composants) |
 | Meta mobile | Viewport basic | theme-color, apple-mobile, viewport-fit |
 | Design identity | Bootstrap standard | Style suisse raffiné |
+
+---
+
+## 12. Mobile-native shell follow-up (2026-07-24)
+
+The first responsive pass made the screens fit mobile viewports. This follow-up changes the application shell so that phone use is the primary experience rather than a compressed desktop sidebar.
+
+- Added `MobileShellHeader`, a compact safe-area-aware header shared by the member, administration, and secretary shells.
+- Reworked `MobileBottomNavigation` as a five-destination thumb-friendly dock with an explicit active state, 44px-plus targets, safe-area spacing, and a dedicated `More` entry.
+- Curated primary destinations by role. The complete role-scoped navigation remains available in the `More` drawer; no frontend rule grants access beyond the backend authorization model.
+- Kept the full sidebar and desktop header at `lg` and above, while tablets and phones use the mobile shell.
+- Added short route transitions using only opacity and transform, with reduced-motion support.
+- Simplified the public sign-in surface on mobile: the form is first, decorative gradients are removed, and the product explanation is compact.
+- Added Playwright coverage confirming the dock exposes five actions and opens the complete mobile menu.
+
+Validation after this follow-up:
+
+```bash
+npm run type-check
+npm run build
+npx playwright test e2e/responsive-mobile.spec.ts --project=chromium
+```
+
+- TypeScript: OK.
+- Production build: OK, 288 modules and 96 PWA precache entries.
+- Responsive Playwright suite: OK, 26/26 tests across 320px to 1440px viewports.

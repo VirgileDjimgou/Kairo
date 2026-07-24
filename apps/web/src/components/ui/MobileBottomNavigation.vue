@@ -2,7 +2,7 @@
   <nav
     class="bottom-nav om-fixed-bottom-safe"
     role="navigation"
-    aria-label="Mobile navigation"
+    :aria-label="ariaLabel"
   >
     <button
       v-for="item in visibleItems"
@@ -38,6 +38,7 @@ export interface BottomNavItem {
 const props = defineProps<{
   items: BottomNavItem[]
   maxItems?: number
+  ariaLabel?: string
 }>()
 
 defineEmits<{
@@ -53,10 +54,15 @@ const visibleItems = computed(() => {
 <style scoped>
 .bottom-nav {
   display: flex;
-  background: var(--om-neutral-0);
-  border-top: 1px solid var(--om-neutral-200);
-  height: var(--om-bottomnav-height);
-  padding-bottom: env(safe-area-inset-bottom, 0px);
+  left: max(0.75rem, env(safe-area-inset-left, 0px));
+  right: max(0.75rem, env(safe-area-inset-right, 0px));
+  bottom: max(0.75rem, env(safe-area-inset-bottom, 0px));
+  height: 4.5rem;
+  padding: 0.375rem;
+  background: #14233a;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 1.375rem;
+  box-shadow: 0 0.75rem 1.75rem rgba(15, 33, 56, 0.22);
   z-index: 1040;
 }
 
@@ -66,44 +72,39 @@ const visibleItems = computed(() => {
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  gap: 2px;
+  gap: 0.1875rem;
   min-width: 48px;
-  min-height: 48px;
+  min-height: 3.5rem;
   border: none;
   background: transparent;
-  color: var(--om-neutral-500);
+  color: rgba(255, 255, 255, 0.68);
   cursor: pointer;
-  padding: 0 var(--om-space-sm);
+  padding: 0.375rem 0.25rem;
+  border-radius: 1rem;
   position: relative;
-  transition: color var(--om-transition-fast);
+  transition: background-color var(--om-transition-fast), color var(--om-transition-fast), transform var(--om-transition-fast);
   -webkit-tap-highlight-color: transparent;
   touch-action: manipulation;
 }
 
 .bottom-nav-item i {
-  font-size: 1.375rem;
+  font-size: 1.25rem;
   line-height: 1;
 }
 
 .bottom-nav-item.active {
+  background: #fff;
   color: var(--om-primary);
+  font-weight: 700;
 }
 
-.bottom-nav-item.active::before {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: 50%;
-  transform: translateX(-50%);
-  width: 24px;
-  height: 3px;
-  background: var(--om-primary);
-  border-radius: 0 0 3px 3px;
+.bottom-nav-item:active {
+  transform: scale(0.96);
 }
 
 .bottom-nav-label {
-  font-size: 0.6875rem;
-  font-weight: 500;
+  font-size: 0.625rem;
+  font-weight: 600;
   line-height: 1.2;
   white-space: nowrap;
   overflow: hidden;
@@ -113,12 +114,12 @@ const visibleItems = computed(() => {
 
 .bottom-nav-badge {
   position: absolute;
-  top: 4px;
-  right: calc(50% - 18px);
+  top: 0.25rem;
+  right: calc(50% - 1.125rem);
   min-width: 18px;
   height: 18px;
-  border-radius: 9px;
-  background: var(--om-danger);
+  border-radius: 999px;
+  background: #df3c35;
   color: #fff;
   font-size: 0.6875rem;
   font-weight: 600;

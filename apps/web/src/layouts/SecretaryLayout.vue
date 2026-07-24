@@ -67,7 +67,20 @@
     </aside>
 
     <main class="flex-grow-1 overflow-auto">
-      <header class="topbar sticky-top bg-white border-bottom">
+      <MobileShellHeader
+        class="d-lg-none"
+        :eyebrow="localeStore.t('layout.secretary')"
+        :title="localeStore.t('layout.secretaryWorkspace')"
+        icon="bi-journal-richtext"
+        :menu-label="localeStore.t('layout.toggleNavigation')"
+        @open-menu="showMobileMenu"
+      >
+        <template #actions>
+          <LanguageSelector :show-label="false" />
+        </template>
+      </MobileShellHeader>
+
+      <header class="topbar sticky-top bg-white border-bottom d-none d-lg-block">
         <div class="d-flex align-items-center justify-content-between gap-3 px-3 px-lg-4 py-3">
           <div>
             <div class="text-muted small text-uppercase fw-semibold">
@@ -76,14 +89,6 @@
             <div class="fw-semibold">{{ localeStore.t('layout.secretarySubtitle') }}</div>
           </div>
           <div class="d-flex align-items-center gap-2 ms-auto">
-            <button
-              class="btn btn-link d-lg-none p-1 text-dark"
-              data-bs-toggle="offcanvas"
-              data-bs-target="#secretaryMobileSidebar"
-              :aria-label="localeStore.t('layout.toggleNavigation')"
-            >
-              <i class="bi bi-list fs-4"></i>
-            </button>
             <LanguageSelector :show-label="false" />
             <RouterLink to="/dashboard" class="btn btn-outline-secondary btn-sm">
               <i class="bi bi-arrow-left me-1 d-none d-sm-inline"></i>{{ localeStore.t('layout.backToPortal') }}
@@ -92,25 +97,64 @@
         </div>
       </header>
 
-      <section class="content-shell om-content-constrain">
-        <RouterView />
+      <section class="content-shell content-shell--with-bottom-nav om-content-constrain">
+        <RouterView v-slot="{ Component }">
+          <Transition name="app-route" mode="out-in">
+            <component :is="Component" />
+          </Transition>
+        </RouterView>
       </section>
     </main>
+
+    <MobileBottomNavigation
+      :items="bottomNavItems"
+      :aria-label="localeStore.t('layout.mobileNavigation')"
+      class="d-lg-none"
+      @navigate="handleBottomNav"
+    />
   </div>
 </template>
 
 <script setup lang="ts">
 import { computed } from "vue";
-import { RouterLink, RouterView } from "vue-router";
+import { RouterLink, RouterView, useRoute, useRouter } from "vue-router";
+import { Offcanvas } from "bootstrap";
 import { useTenantStore } from "@/stores/tenant.store";
 import { useLocaleStore } from "@/stores/locale.store";
 import LanguageSelector from "@/components/LanguageSelector.vue";
+import MobileBottomNavigation from "@/components/ui/MobileBottomNavigation.vue";
+import MobileShellHeader from "@/components/ui/MobileShellHeader.vue";
+import type { BottomNavItem } from "@/components/ui/MobileBottomNavigation.vue";
 
+const route = useRoute();
+const router = useRouter();
 const tenantStore = useTenantStore();
 const localeStore = useLocaleStore();
 
 const primaryColor = computed(() => tenantStore.currentTenant?.branding.primary_color || "#1f4f8f");
 const textColor = computed(() => "#1f2937");
+
+const bottomNavItems = computed<BottomNavItem[]>(() => [
+  { id: '/secretary', label: localeStore.t('nav.overview'), icon: 'bi-speedometer2', active: route.path === '/secretary' },
+  { id: '/secretary/documents', label: localeStore.t('nav.documents'), icon: 'bi-file-earmark-text', active: route.path === '/secretary/documents' },
+  { id: '/secretary/policies', label: localeStore.t('nav.policies'), icon: 'bi-journal-text', active: route.path === '/secretary/policies' },
+  { id: '/secretary/announcements', label: localeStore.t('nav.announcements'), icon: 'bi-megaphone', active: route.path === '/secretary/announcements' },
+  { id: '__more__', label: localeStore.t('nav.more'), icon: 'bi-grid-3x3-gap', active: false },
+]);
+
+function handleBottomNav(id: string) {
+  if (id === '__more__') {
+    showMobileMenu();
+    return;
+  }
+  void router.push(id);
+}
+
+function showMobileMenu() {
+  const element = document.getElementById('secretaryMobileSidebar');
+  if (!element) return;
+  (Offcanvas.getInstance(element) || new Offcanvas(element)).show();
+}
 </script>
 
 <style scoped>
@@ -134,5 +178,15 @@ const textColor = computed(() => "#1f2937");
 
 .content-shell {
   padding: 0;
+}
+
+.content-shell--with-bottom-nav {
+  padding-bottom: calc(var(--om-bottomnav-height) + env(safe-area-inset-bottom, 0px));
+}
+
+@media (min-width: 992px) {
+  .content-shell--with-bottom-nav {
+    padding-bottom: 0;
+  }
 }
 </style>

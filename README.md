@@ -9,8 +9,8 @@ Upload internal documents, manage members and permissions, and run a private AI 
 ```
 ┌─────────────────────────────────────────────────────┐
 │                   Frontend (Vue 3)                   │
-│     apps/web/ — Vite · Pinia · Bootstrap 5           │
-│     Login · Dashboard · Admin · Member views         │
+│     Vite · Pinia · Bootstrap 5 · PWA                 │
+│     Responsive role workspaces · Mobile navigation  │
 └──────────────────┬──────────────────────────────────┘
                    │ HTTP (REST API)
 ┌──────────────────▼──────────────────────────────────┐
@@ -64,6 +64,27 @@ flowchart TB
 - **RAG retrieval** is filtered by tenant and access scope before the LLM sees anything
 - **Provider pattern** — all infrastructure behind interfaces (swap Ollama or LM Studio OpenAI-compatible endpoints, Qdrant → Pinecone, etc.)
 - **Autonomous tests** default to SQLite — portable on any machine or agentic IDE
+
+## Mobile-First Web Experience
+
+Kairo's Vue client is designed for phones, tablets, and desktop workstations without
+changing the backend authorization model.
+
+- Responsive role-aware shells for members, office roles, and tenant administrators
+- Mobile bottom navigation and off-canvas navigation with safe-area support
+- Adaptive chat flow that separates the conversation list and active thread on small screens
+- Reusable responsive data, loading, empty-state, status, header, and button components
+- French-first interface with English and German coverage
+- Installable PWA with automatic service-worker updates and production cache controls
+- Bootstrap 5 preserved as the layout foundation, extended by the Kairo design tokens
+
+The production entry point is [app.combissportverein.org](https://app.combissportverein.org/).
+Frontend architecture, responsive validation, and design conventions are documented in:
+
+- [`docs/FRONTEND_ARCHITECTURE.md`](docs/FRONTEND_ARCHITECTURE.md)
+- [`docs/RESPONSIVE_TEST_REPORT.md`](docs/RESPONSIVE_TEST_REPORT.md)
+- [`docs/DESIGN_SYSTEM.md`](docs/DESIGN_SYSTEM.md)
+- [`docs/UI_MOBILE_AUDIT.md`](docs/UI_MOBILE_AUDIT.md)
 
 ## Quick Start
 
@@ -358,9 +379,10 @@ python -m mypy --config-file services/api/pyproject.toml --explicit-package-base
 
 # Frontend quality gates
 cd apps/web
-npm install
+npm ci
 npm run type-check
 npm run build
+npx playwright test e2e/responsive-mobile.spec.ts --project=chromium
 npm run test:e2e:locale
 
 # Frontend dev server

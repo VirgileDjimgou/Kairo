@@ -63,7 +63,7 @@ async function setupAuth(page: any) {
       body: JSON.stringify(makeMemberAuth().user),
     })
   })
-  await page.evaluate(
+  await page.addInitScript(
     (auth: any) => {
       localStorage.setItem('access_token', auth.access_token)
       localStorage.setItem('tenant_id', auth.memberships[0].tenant_id)
@@ -103,8 +103,8 @@ test.describe('Mobile responsive — Login', () => {
 test.describe('Mobile responsive — Auth recovery views', () => {
   const recoveryRoutes = [
     { path: '/forgot-password', keyElement: 'input[type="email"]' },
-    { path: '/reset-password', keyElement: 'input[type="password"]' },
-    { path: '/accept-invite', keyElement: 'input[type="text"]' },
+    { path: '/reset-password?token=responsive-test-token', keyElement: 'input[type="password"]' },
+    { path: '/accept-invite?token=responsive-test-token', keyElement: 'input[type="text"]' },
   ]
 
   for (const vp of MOBILE_VIEWPORTS.slice(0, 2)) {
@@ -262,6 +262,26 @@ test.describe('Safe areas and touch targets', () => {
         expect(box.height).toBeGreaterThanOrEqual(44)
       }
     }
+  })
+
+  test('bottom navigation exposes primary actions and opens the complete menu', async ({ page }) => {
+    await page.setViewportSize({ width: 390, height: 844 })
+    await setupAuth(page)
+
+    await page.route('**/api/v1/dashboard/**', (route: any) => {
+      route.fulfill({ status: 200, contentType: 'application/json', body: JSON.stringify({ modules: {}, checklist: [], metrics: {} }) })
+    })
+    await page.route('**/api/v1/chat/**', (route: any) => {
+      route.fulfill({ status: 200, contentType: 'application/json', body: JSON.stringify({ conversations: [] }) })
+    })
+
+    await page.goto('/dashboard')
+    await page.waitForLoadState('networkidle')
+
+    const bottomNav = page.locator('.bottom-nav')
+    await expect(bottomNav.locator('.bottom-nav-item')).toHaveCount(5)
+    await bottomNav.locator('.bottom-nav-item').last().click()
+    await expect(page.locator('#appMobileSidebar')).toBeVisible()
   })
 
   test('auth card is fully visible on small mobile', async ({ page }) => {

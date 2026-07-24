@@ -416,10 +416,7 @@ function handleLogout() {
 .login-shell {
   min-height: 100dvh;
   overflow-x: clip;
-  background:
-    radial-gradient(circle at top left, rgba(31, 79, 143, 0.14), transparent 32%),
-    radial-gradient(circle at bottom right, rgba(15, 23, 42, 0.12), transparent 28%),
-    linear-gradient(180deg, #f5f7fb 0%, #eef3f8 100%);
+  background: #eef2f7;
 }
 
 .login-container,
@@ -428,11 +425,7 @@ function handleLogout() {
 }
 
 .login-orb {
-  position: absolute;
-  border-radius: 999px;
-  filter: blur(28px);
-  opacity: 0.4;
-  pointer-events: none;
+  display: none;
 }
 
 .login-orb-one {
@@ -452,11 +445,10 @@ function handleLogout() {
 }
 
 .hero-panel {
-  border-radius: 1.5rem;
+  border-radius: 1.25rem;
   color: #eaf1fb;
-  background:
-    linear-gradient(160deg, rgba(15, 23, 42, 0.97) 0%, rgba(17, 46, 86, 0.92) 100%);
-  box-shadow: 0 1.5rem 3.5rem rgba(15, 23, 42, 0.18);
+  background: #14233a;
+  box-shadow: 0 1rem 2.5rem rgba(15, 33, 56, 0.14);
 }
 
 .hero-content {
@@ -528,10 +520,9 @@ function handleLogout() {
 }
 
 .feature-card {
-  background: rgba(255, 255, 255, 0.08);
-  border: 1px solid rgba(255, 255, 255, 0.08);
-  border-radius: 1.1rem;
-  backdrop-filter: blur(10px);
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 0.875rem;
 }
 
 .highlight-icon {
@@ -551,6 +542,7 @@ function handleLogout() {
   border-radius: 1.25rem !important;
   max-width: 460px;
   padding: clamp(1.5rem, 3vw, 2.5rem) !important;
+  box-shadow: 0 1rem 2.5rem rgba(15, 33, 56, 0.1) !important;
 }
 
 .auth-heading {
@@ -581,21 +573,61 @@ function handleLogout() {
 }
 
 @media (max-width: 991.98px) {
+  .login-container,
+  .login-grid {
+    min-height: auto;
+  }
+
+  .login-auth-column {
+    min-height: 100svh;
+    padding: max(1rem, env(safe-area-inset-top, 0px)) 1rem 1rem !important;
+  }
+
   .login-auth-column {
     order: -1;
   }
 
   .login-hero-column {
     min-height: auto;
+    padding: 0 1rem calc(6.5rem + env(safe-area-inset-bottom, 0px)) !important;
   }
 
   .hero-title {
     max-width: none;
-    font-size: clamp(2rem, 8vw, 3.15rem);
+    font-size: clamp(2rem, 9vw, 2.65rem);
   }
 
   .hero-panel {
     min-height: auto;
+    padding: 1.5rem !important;
+  }
+
+  .hero-brand-row {
+    margin-bottom: 1.5rem;
+  }
+
+  .hero-features {
+    display: none;
+  }
+
+  .hero-copy {
+    margin-bottom: 0 !important;
+    font-size: 1rem;
+  }
+
+  .auth-card {
+    max-width: 34rem;
+    padding: 1.5rem !important;
+  }
+
+  .auth-heading {
+    margin-bottom: 1.25rem;
+  }
+
+  .brand-icon {
+    width: 3rem;
+    height: 3rem;
+    border-radius: 0.875rem;
   }
 }
 
