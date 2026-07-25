@@ -1,6 +1,48 @@
 // Kairo Mobile-First Utilities
 // Complements Bootstrap 5 with Swiss-style mobile patterns.
 
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html,
+body,
+#app {
+  width: 100%;
+  max-width: 100%;
+  min-height: 100%;
+}
+
+body {
+  overflow-x: clip;
+}
+
+img,
+svg,
+video,
+canvas,
+input,
+select,
+textarea {
+  max-width: 100%;
+}
+
+// Flex and grid children must be allowed to shrink inside constrained views.
+.d-flex > *,
+.row > *,
+.om-responsive-grid > * {
+  min-width: 0;
+}
+
+.om-content-constrain,
+.om-fluid-container,
+.card,
+.modal-content {
+  overflow-wrap: anywhere;
+}
+
 // ── Touch targets ──
 // WCAG 2.2 AA: minimum 44x44px touch target
 .om-touch-target {
@@ -209,6 +251,7 @@ html {
 
 .om-data-card-actions {
   display: flex;
+  flex-wrap: wrap;
   gap: var(--om-space-sm);
   justify-content: flex-end;
   padding-top: var(--om-space-sm);

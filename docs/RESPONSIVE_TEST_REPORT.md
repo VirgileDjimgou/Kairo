@@ -1,6 +1,6 @@
 # Kairo — Rapport de refonte Mobile-First
 
-**Date :** 2026-07-24  
+**Date :** 2026-07-24
 **Build :** OK (TypeScript + Vite, 285 modules, 94 entrées PWA)
 **Tests E2E responsive :** OK (25/25 sur 5 viewports)
 
@@ -22,70 +22,73 @@ La refonte mobile-first de l'interface Kairo a transformé l'application d'un de
 
 ### 2.1 Design System (fichiers créés/modifiés)
 
-| Fichier | Action |
-|---------|--------|
-| `src/styles/variables.scss` | Refonte — tokens CSS complets (neutres, sémantiques, espacement, typo, ombres) |
-| `src/styles/_typography.scss` | Création — échelle typographique mobile/desktop, classes `.om-text-*` |
-| `src/styles/_animations.scss` | Création — transitions 120/200/250ms, `prefers-reduced-motion` |
-| `src/styles/_safe-areas.scss` | Création — safe-area padding, `dvh` fallback, bottom/top nav containers |
+| Fichier                         | Action                                                                         |
+| ------------------------------- | ------------------------------------------------------------------------------ |
+| `src/styles/variables.scss`     | Refonte — tokens CSS complets (neutres, sémantiques, espacement, typo, ombres) |
+| `src/styles/_typography.scss`   | Création — échelle typographique mobile/desktop, classes `.om-text-*`          |
+| `src/styles/_animations.scss`   | Création — transitions 120/200/250ms, `prefers-reduced-motion`                 |
+| `src/styles/_safe-areas.scss`   | Création — safe-area padding, `dvh` fallback, bottom/top nav containers        |
 | `src/styles/_mobile-utils.scss` | Création — touch targets 44px, card-list pattern, responsive grid, modal sheet |
-| `src/styles/main.scss` | Refonte — imports réorganisés, Bootstrap overrides unifiés |
+| `src/styles/main.scss`          | Refonte — imports réorganisés, Bootstrap overrides unifiés                     |
 
 ### 2.2 Composants UI (créés)
 
-| Composant | Fichier |
-|-----------|---------|
+| Composant                | Fichier                                        |
+| ------------------------ | ---------------------------------------------- |
 | `MobileBottomNavigation` | `src/components/ui/MobileBottomNavigation.vue` |
-| `PageHeader` | `src/components/ui/PageHeader.vue` |
-| `EmptyState` | `src/components/ui/EmptyState.vue` |
-| `StatusBadge` | `src/components/ui/StatusBadge.vue` |
-| `AppButton` | `src/components/ui/AppButton.vue` |
-| `ResponsiveDataView` | `src/components/ui/ResponsiveDataView.vue` |
-| `SkeletonLoader` | `src/components/ui/SkeletonLoader.vue` |
+| `PageHeader`             | `src/components/ui/PageHeader.vue`             |
+| `EmptyState`             | `src/components/ui/EmptyState.vue`             |
+| `StatusBadge`            | `src/components/ui/StatusBadge.vue`            |
+| `AppButton`              | `src/components/ui/AppButton.vue`              |
+| `ResponsiveDataView`     | `src/components/ui/ResponsiveDataView.vue`     |
+| `SkeletonLoader`         | `src/components/ui/SkeletonLoader.vue`         |
 
 ### 2.3 Composables (créés)
 
-| Composable | Fichier |
-|-----------|---------|
+| Composable        | Fichier                              |
+| ----------------- | ------------------------------------ |
 | `useMobileDetect` | `src/composables/useMobileDetect.ts` |
 
 ### 2.4 Layouts (refondus)
 
-| Layout | Changements |
-|--------|------------|
-| `AppLayout` | Bottom navigation mobile, `100dvh`, safe areas, tenant switcher masqué sur mobile étroit |
-| `AdminLayout` | `100dvh`, sidebar-link styles migrés vers global |
-| `SecretaryLayout` | Offcanvas mobile ajouté (était absent), `100dvh`, lien "back to portal" dans header |
+| Layout        | Changements                                                                                                |
+| ------------- | ---------------------------------------------------------------------------------------------------------- |
+| `AppShell`    | Coque authentifiée unique : header, compte, navigation horizontale de rôle, sidebar desktop et dock mobile |
+| `AppLayout`   | Configure la navigation membre/espaces dans `AppShell`                                                     |
+| `AdminLayout` | Configure la navigation administration dans `AppShell`                                                     |
 
 ### 2.5 Vues modifiées
 
-| Vue | Changements |
-|-----|------------|
-| `ChatView.vue` | Refonte mobile : sidebar/conversation en vues séparées, back button, `100dvh`, resize listener |
-| `ChatSidebar.vue` | Prop `visible` pour toggle mobile |
-| `DashboardView.vue` | `col-xl` → `col-lg`, padding responsive, meilleur wrapping |
-| `ForgotPasswordView.vue` | `min-vh-100` → `om-min-viewport-height` + safe bottom |
-| `ResetPasswordView.vue` | Idem |
-| `AcceptInviteView.vue` | Idem |
-| `index.html` | Meta viewport-fit, theme-color, apple-mobile-web-app, format-detection |
+| Vue                      | Changements                                                                                    |
+| ------------------------ | ---------------------------------------------------------------------------------------------- |
+| `ChatView.vue`           | Refonte mobile : sidebar/conversation en vues séparées, back button, `100dvh`, resize listener |
+| `ChatSidebar.vue`        | Prop `visible` pour toggle mobile                                                              |
+| `DashboardView.vue`      | `col-xl` → `col-lg`, padding responsive, meilleur wrapping                                     |
+| `ForgotPasswordView.vue` | `min-vh-100` → `om-min-viewport-height` + safe bottom                                          |
+| `ResetPasswordView.vue`  | Idem                                                                                           |
+| `AcceptInviteView.vue`   | Idem                                                                                           |
+| `index.html`             | Meta viewport-fit, theme-color, apple-mobile-web-app, format-detection                         |
 
 ---
 
 ## 3. Expérience mobile
 
 ### Navigation
-- **Membres/tous rôles (AppLayout)** : Bottom navigation bar 5 onglets (Dashboard + 3-4 workspaces + Plus) visible sur écran <768px. Sur desktop, sidebar 260px.
-- **Admins (AdminLayout)** : Offcanvas hamburger conservé.
-- **Secrétaires (SecretaryLayout)** : Offcanvas hamburger ajouté (absent auparavant).
+
+- **Tous les rôles** : barre inférieure stable de cinq actions et modules métier dans une barre horizontale défilante, visible sous `992px`.
+- **Admins** : même coque et même modèle mobile; la sidebar `.admin-sidebar` apparaît à partir de `992px`.
+- **Secrétaires** : les routes secrétaire sont rendues par `AppLayout`; aucune coque imbriquée, hamburger ou offcanvas métier.
 - **Chat** : Sur mobile, la liste des conversations et le chat actif sont des vues séparées (une seule visible à la fois).
 
 ### Safe areas
+
 - `env(safe-area-inset-*)` utilisé partout
 - `100dvh` avec fallback `100vh`
 - `viewport-fit=cover` dans le meta viewport
 - Bottom nav respecte la barre de navigation système
 
 ### Touch
+
 - `touch-action: manipulation` global
 - `-webkit-tap-highlight-color: transparent` global
 - `overscroll-behavior: none` sur body
@@ -98,16 +101,17 @@ La refonte mobile-first de l'interface Kairo a transformé l'application d'un de
 
 ### Breakpoints testés (design system)
 
-| Nom | Min-width | Appareils |
-|-----|-----------|-----------|
-| xs | 320px | Galaxy Fold, iPhone SE |
-| sm | 375px | iPhone 6/7/8/SE |
-| md | 414px | iPhone 11, Pixel 5 |
-| lg | 768px | iPad Mini portrait |
-| xl | 1024px | iPad paysage |
-| 2xl | 1280px | Desktop |
+| Nom | Min-width | Appareils              |
+| --- | --------- | ---------------------- |
+| xs  | 320px     | Galaxy Fold, iPhone SE |
+| sm  | 375px     | iPhone 6/7/8/SE        |
+| md  | 414px     | iPhone 11, Pixel 5     |
+| lg  | 768px     | iPad Mini portrait     |
+| xl  | 1024px    | iPad paysage           |
+| 2xl | 1280px    | Desktop                |
 
 ### Comportements
+
 - **320-767px** : Single column, bottom nav, cartes empilées, formulaires single column
 - **768-1023px** : Sidebar apparait, bottom nav disparait, grille 2 colonnes
 - **1024px+** : Sidebar + contenu, grille 12 colonnes, largeur max 1280px
@@ -116,32 +120,33 @@ La refonte mobile-first de l'interface Kairo a transformé l'application d'un de
 
 ## 5. Accessibilité
 
-| Critère | État |
-|---------|------|
-| Cibles tactiles ≥44px | Composants UI oui, vues legacy partiel |
-| Focus visible | Oui (`:focus-visible` avec outline 2px) |
-| Contrastes | Améliorés (palette neutre raffinée) |
-| `prefers-reduced-motion` | Respecté (animations désactivées) |
-| ARIA labels | Ajoutés sur MobileBottomNavigation, AppButton |
-| `aria-current="page"` | Sur l'onglet actif de la bottom nav |
+| Critère                  | État                                          |
+| ------------------------ | --------------------------------------------- |
+| Cibles tactiles ≥44px    | Composants UI oui, vues legacy partiel        |
+| Focus visible            | Oui (`:focus-visible` avec outline 2px)       |
+| Contrastes               | Améliorés (palette neutre raffinée)           |
+| `prefers-reduced-motion` | Respecté (animations désactivées)             |
+| ARIA labels              | Ajoutés sur MobileBottomNavigation, AppButton |
+| `aria-current="page"`    | Sur l'onglet actif de la bottom nav           |
 
 ---
 
 ## 6. Performance
 
-| Métrique | Avant | Après |
-|----------|-------|-------|
-| CSS bundle (global) | 313 KB | 323 KB (+10 KB, nouveau design system) |
-| JS bundle (global) | 290.79 KB | 290.81 KB (+0.02 KB) |
-| Build time | 2.00s | 2.05s |
-| Nouveaux composants | — | 7 composants (lazy-loadés via routes) |
-| Polices | Bootstrap Icons (180 KB woff) | Inchangé (pas de nouvelle police chargée) |
+| Métrique            | Avant                         | Après                                     |
+| ------------------- | ----------------------------- | ----------------------------------------- |
+| CSS bundle (global) | 313 KB                        | 323 KB (+10 KB, nouveau design system)    |
+| JS bundle (global)  | 290.79 KB                     | 290.81 KB (+0.02 KB)                      |
+| Build time          | 2.00s                         | 2.05s                                     |
+| Nouveaux composants | —                             | 7 composants (lazy-loadés via routes)     |
+| Polices             | Bootstrap Icons (180 KB woff) | Inchangé (pas de nouvelle police chargée) |
 
 ---
 
 ## 7. Fichiers modifiés/créés
 
 ### Créés (12)
+
 ```
 docs/UI_MOBILE_AUDIT.md
 docs/DESIGN_SYSTEM.md
@@ -161,12 +166,15 @@ apps/web/src/components/ui/SkeletonLoader.vue
 ```
 
 ### Modifiés (13)
+
 ```
 apps/web/src/styles/variables.scss
 apps/web/src/styles/main.scss
 apps/web/src/layouts/AppLayout.vue
 apps/web/src/layouts/AdminLayout.vue
-apps/web/src/layouts/SecretaryLayout.vue
+apps/web/src/components/ui/AppShell.vue
+apps/web/src/components/ui/AppTopBar.vue
+apps/web/src/components/ui/RoleTopNavigation.vue
 apps/web/src/views/chat/ChatView.vue
 apps/web/src/components/chat/ChatSidebar.vue
 apps/web/src/views/dashboard/DashboardView.vue
@@ -181,15 +189,18 @@ apps/web/index.html
 ## 8. Travaux restants
 
 ### Priorité haute
+
 1. **i18n des vues auth** : ForgotPassword, ResetPassword, AcceptInvite, MfaSetup — entièrement en anglais hardcodé. Critique pour l'expérience mobile.
 2. **i18n des vues admin** : AdminAccess, AuditTrail, AdminChatQueries, TenantOperations, MyDisciplinary — partiellement non localisées.
 3. **Cibles tactiles dans les tableaux** : Les boutons `.btn-sm` icône-seule dans les tableaux admin (31px) doivent passer à 44px minimum.
 
 ### Priorité moyenne
-4. **Transformation tableaux → cartes** : Les 15 vues utilisant `table-responsive` gagneraient à utiliser `ResponsiveDataView` pour une expérience carte sur mobile.
+
+4. **Transformation tableaux → cartes** : Contributions administration et finances utilisent désormais `ResponsiveDataView`; les autres tableaux larges restent à migrer progressivement.
 5. **i18n résiduelle** : le contrôle automatisé signale encore 116 chaînes potentielles dans 12 fichiers historiques. Elles doivent être qualifiées puis migrées progressivement vers les clés trilingues.
 
 ### Priorité basse
+
 6. **Pattern `copy` computed** : Migrer progressivement vers `localeStore.t()` pour réduire la duplication.
 
 ---
@@ -198,15 +209,15 @@ apps/web/index.html
 
 La PWA est intégrée et déployée sur `https://app.combissportverein.org`.
 
-| Contrôle | Résultat |
-|----------|----------|
-| Manifest web | `200 application/manifest+json` |
-| Service worker | `200 application/javascript` |
-| Icône 192x192 | `200 image/png` |
-| Icône 512x512 | `200 image/png` |
-| Audit npm | 0 vulnérabilité |
-| Smoke test public | 6/6 |
-| Services Docker | 9/9 actifs, services applicatifs sains |
+| Contrôle          | Résultat                               |
+| ----------------- | -------------------------------------- |
+| Manifest web      | `200 application/manifest+json`        |
+| Service worker    | `200 application/javascript`           |
+| Icône 192x192     | `200 image/png`                        |
+| Icône 512x512     | `200 image/png`                        |
+| Audit npm         | 0 vulnérabilité                        |
+| Smoke test public | 6/6                                    |
+| Services Docker   | 9/9 actifs, services applicatifs sains |
 
 Le déploiement a recréé uniquement le service `web`. PostgreSQL, les volumes, l'API, le worker et le tunnel Cloudflare n'ont pas été remplacés.
 
@@ -232,19 +243,19 @@ node scripts/check-i18n-coverage.mjs
 
 ## 11. Avant / Après — Synthèse
 
-| Aspect | Avant | Après |
-|--------|-------|-------|
-| Navigation mobile | Offcanvas hamburger seulement | Bottom tab bar + offcanvas |
-| SecretaryLayout | Aucune navigation mobile | Offcanvas hamburger |
-| Chat mobile | Sidebar 280px + chat côte à côte | Vues séparées (liste OU chat) |
-| Viewport height | `100vh` (cassé sur mobile) | `100dvh` avec fallback |
-| Safe areas | Aucune | `safe-area-inset-*` partout |
-| Palette | 6 variables CSS | 40+ tokens design |
-| Typographie | Bootstrap par défaut | Échelle complète mobile/desktop |
-| Composants UI | 4 (ConfirmModal, chat seulement) | 11 (7 nouveaux) |
-| Touch targets | 31px (boutons tableaux) | 44px (nouveaux composants) |
-| Meta mobile | Viewport basic | theme-color, apple-mobile, viewport-fit |
-| Design identity | Bootstrap standard | Style suisse raffiné |
+| Aspect            | Avant                            | Après                                   |
+| ----------------- | -------------------------------- | --------------------------------------- |
+| Navigation mobile | Offcanvas hamburger seulement    | Bottom tab bar + offcanvas              |
+| SecretaryLayout   | Aucune navigation mobile         | Offcanvas hamburger                     |
+| Chat mobile       | Sidebar 280px + chat côte à côte | Vues séparées (liste OU chat)           |
+| Viewport height   | `100vh` (cassé sur mobile)       | `100dvh` avec fallback                  |
+| Safe areas        | Aucune                           | `safe-area-inset-*` partout             |
+| Palette           | 6 variables CSS                  | 40+ tokens design                       |
+| Typographie       | Bootstrap par défaut             | Échelle complète mobile/desktop         |
+| Composants UI     | 4 (ConfirmModal, chat seulement) | 11 (7 nouveaux)                         |
+| Touch targets     | 31px (boutons tableaux)          | 44px (nouveaux composants)              |
+| Meta mobile       | Viewport basic                   | theme-color, apple-mobile, viewport-fit |
+| Design identity   | Bootstrap standard               | Style suisse raffiné                    |
 
 ---
 

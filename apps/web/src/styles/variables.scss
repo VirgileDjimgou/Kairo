@@ -3,12 +3,12 @@
 
 :root {
   // ── Primary (overridden per tenant via inline style) ──
-  --om-primary: #1a3f6b;
-  --om-primary-hover: #15325a;
-  --om-primary-dark: #0f2640;
-  --om-primary-rgb: 26, 63, 107;
-  --om-primary-subtle: rgba(26, 63, 107, 0.06);
-  --om-primary-muted: rgba(26, 63, 107, 0.12);
+  --om-primary: #1e63b5;
+  --om-primary-hover: #18539a;
+  --om-primary-dark: #123f75;
+  --om-primary-rgb: 30, 99, 181;
+  --om-primary-subtle: rgba(30, 99, 181, 0.08);
+  --om-primary-muted: rgba(30, 99, 181, 0.14);
 
   // ── Neutrals (Swiss-inspired restrained palette) ──
   --om-neutral-0: #ffffff;
@@ -70,7 +70,8 @@
 
   // ── Layout ──
   --om-topbar-height: 56px;
-  --om-bottomnav-height: 96px;
+  --om-mobile-topbar-height: 4.75rem;
+  --om-bottomnav-height: 4.5rem;
   --om-sidebar-width: 260px;
   --om-content-max-width: 1280px;
 

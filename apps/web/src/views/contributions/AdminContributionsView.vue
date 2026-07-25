@@ -64,50 +64,65 @@
     </div>
 
     <!-- Contributions table -->
-    <div v-else-if="contributions.length > 0" class="card shadow-sm border-0">
-      <div class="table-responsive">
-        <table class="table table-hover mb-0 align-middle" aria-label="Contributions list">
-          <thead class="table-light">
-            <tr>
-              <th class="ps-4" scope="col">{{ t('common.year') }}</th>
-              <th scope="col">{{ t('common.member') }}</th>
-              <th scope="col">{{ t('contributions.expected') }}</th>
-              <th scope="col">{{ t('contributions.paid') }}</th>
-              <th scope="col">{{ t('contributions.balance') }}</th>
-              <th scope="col">{{ t('common.status') }}</th>
-              <th scope="col">{{ t('contributions.due') }}</th>
-              <th class="text-end pe-4" scope="col">{{ t('common.actions') }}</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr v-for="c in contributions" :key="c.id">
-              <td class="ps-4">{{ c.year }}</td>
-              <td class="fw-medium font-monospace small">{{ c.membership_profile_id.slice(0, 8) }}…</td>
-              <td>{{ c.expected_amount }}</td>
-              <td>{{ c.paid_amount }}</td>
-              <td class="fw-medium" :class="Number(c.balance) > 0 ? 'text-danger' : 'text-success'">
-                {{ c.balance }}
-              </td>
-              <td>
-                <span class="badge"
-                  :class="statusBadgeClass(c.status)">{{ c.status }}</span>
-              </td>
-              <td class="small">{{ c.due_date ? formatDate(c.due_date) : '—' }}</td>
-              <td class="text-end pe-4">
-                <button class="btn btn-sm btn-outline-primary me-1" :aria-label="t('contributions.recordPayment')"
-                  @click="openPaymentModal(c)">
-                  <i class="bi bi-cash"></i>
-                </button>
-                <button class="btn btn-sm btn-outline-danger" :aria-label="t('contributions.deleteContribution')"
-                  @click="confirmDeleteContribution(c)">
-                  <i class="bi bi-trash"></i>
-                </button>
-              </td>
-            </tr>
-          </tbody>
-        </table>
-      </div>
-    </div>
+    <ResponsiveDataView v-else-if="contributions.length > 0" :items="contributions" :aria-label="t('contributions.listAriaLabel')">
+      <template #thead>
+        <tr>
+          <th class="ps-4" scope="col">{{ t('common.year') }}</th>
+          <th scope="col">{{ t('common.member') }}</th>
+          <th scope="col">{{ t('contributions.expected') }}</th>
+          <th scope="col">{{ t('contributions.paid') }}</th>
+          <th scope="col">{{ t('contributions.balance') }}</th>
+          <th scope="col">{{ t('common.status') }}</th>
+          <th scope="col">{{ t('contributions.due') }}</th>
+          <th class="text-end pe-4" scope="col">{{ t('common.actions') }}</th>
+        </tr>
+      </template>
+      <template #rows>
+        <tr v-for="contribution in contributions" :key="contribution.id">
+          <td class="ps-4">{{ contribution.year }}</td>
+          <td class="fw-medium font-monospace small">{{ contribution.membership_profile_id.slice(0, 8) }}...</td>
+          <td>{{ contribution.expected_amount }}</td>
+          <td>{{ contribution.paid_amount }}</td>
+          <td class="fw-medium" :class="Number(contribution.balance) > 0 ? 'text-danger' : 'text-success'">
+            {{ contribution.balance }}
+          </td>
+          <td><span class="badge" :class="statusBadgeClass(contribution.status)">{{ contribution.status }}</span></td>
+          <td class="small">{{ contribution.due_date ? formatDate(contribution.due_date) : '-' }}</td>
+          <td class="text-end pe-4">
+            <button class="btn btn-sm btn-outline-primary me-1" :aria-label="t('contributions.recordPayment')" @click="openPaymentModal(contribution)">
+              <i class="bi bi-cash"></i>
+            </button>
+            <button class="btn btn-sm btn-outline-danger" :aria-label="t('contributions.deleteContribution')" @click="confirmDeleteContribution(contribution)">
+              <i class="bi bi-trash"></i>
+            </button>
+          </td>
+        </tr>
+      </template>
+      <template #card="{ item: contribution }">
+        <div class="d-flex align-items-start justify-content-between gap-3">
+          <div class="min-w-0">
+            <div class="fw-semibold">{{ t('common.member') }}</div>
+            <div class="small text-muted font-monospace text-break">{{ contribution.membership_profile_id }}</div>
+          </div>
+          <span class="badge" :class="statusBadgeClass(contribution.status)">{{ contribution.status }}</span>
+        </div>
+        <div class="row g-2 small mt-1">
+          <div class="col-6"><div class="text-muted">{{ t('common.year') }}</div><div class="fw-semibold">{{ contribution.year }}</div></div>
+          <div class="col-6"><div class="text-muted">{{ t('contributions.due') }}</div><div class="fw-semibold">{{ contribution.due_date ? formatDate(contribution.due_date) : '-' }}</div></div>
+          <div class="col-4"><div class="text-muted">{{ t('contributions.expected') }}</div><div>{{ contribution.expected_amount }}</div></div>
+          <div class="col-4"><div class="text-muted">{{ t('contributions.paid') }}</div><div>{{ contribution.paid_amount }}</div></div>
+          <div class="col-4"><div class="text-muted">{{ t('contributions.balance') }}</div><div class="fw-semibold" :class="Number(contribution.balance) > 0 ? 'text-danger' : 'text-success'">{{ contribution.balance }}</div></div>
+        </div>
+        <div class="om-data-card-actions">
+          <button class="btn btn-sm btn-outline-primary" type="button" @click="openPaymentModal(contribution)">
+            <i class="bi bi-cash me-1"></i>{{ t('contributions.recordPayment') }}
+          </button>
+          <button class="btn btn-sm btn-outline-danger" type="button" @click="confirmDeleteContribution(contribution)">
+            <i class="bi bi-trash me-1"></i>{{ t('common.delete') }}
+          </button>
+        </div>
+      </template>
+    </ResponsiveDataView>
     <div v-else class="empty-state">
       <i class="bi bi-cash-stack display-6 text-secondary"></i>
       <p class="mb-1 fw-semibold">{{ t('contributions.noRecords').replace('{year}', String(selectedYear)) }}</p>
@@ -266,6 +281,7 @@
 import { ref, onMounted, nextTick } from 'vue'
 import * as bootstrap from 'bootstrap'
 import ConfirmModal from '@/components/ConfirmModal.vue'
+import ResponsiveDataView from '@/components/ui/ResponsiveDataView.vue'
 import { listContributions, createContribution, deleteContribution, recordPayment, getContributionSummary, importContributionsCsv, exportContributionsCsv } from '@/api/contributions.api'
 import { listMembers } from '@/api/membership.api'
 import type { ContributionRecordResponse, ContributionSummary, ImportResult } from '@/api/contributions.api'

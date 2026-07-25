@@ -291,13 +291,14 @@ onMounted(async () => {
 
 .detail-pill {
   display: inline-flex;
+  min-width: min(100%, 180px);
+  max-width: 100%;
   flex-direction: column;
   gap: 0.15rem;
   background: #f8fafc;
   border: 1px solid #e2e8f0;
   border-radius: 0.75rem;
   padding: 0.55rem 0.75rem;
-  min-width: 180px;
 }
 
 .detail-key {

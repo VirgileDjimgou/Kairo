@@ -69,8 +69,8 @@ function handleDelete(id: string) {
 
 <style scoped>
 .chat-sidebar {
-  width: 280px;
-  min-width: 280px;
+  width: clamp(15rem, 24vw, 17.5rem);
+  min-width: 0;
 }
 
 .sidebar-item {

@@ -59,7 +59,7 @@
       </div>
 
       <div class="input-area p-3 border-top bg-white">
-        <form class="d-flex gap-2" @submit.prevent="handleSubmit">
+        <form class="chat-input-form d-flex gap-2" @submit.prevent="handleSubmit">
           <textarea
             v-model.trim="question"
             class="form-control chat-input"
@@ -257,13 +257,15 @@ function handleFollowUp(text: string) {
 
 <style scoped>
 .chat-view {
-  height: calc(100vh - 60px);
-  height: calc(100dvh - 60px);
+  min-width: 0;
+  height: calc(100vh - var(--om-mobile-topbar-height) - 3.75rem);
+  height: calc(100dvh - var(--om-mobile-topbar-height) - 3.75rem);
   padding-bottom: env(safe-area-inset-bottom, 0px);
 }
 
 .chat-sidebar-wrapper {
   flex-shrink: 0;
+  min-width: 0;
 }
 
 @media (max-width: 767.98px) {
@@ -279,6 +281,11 @@ function handleFollowUp(text: string) {
 
   .chat-sidebar-wrapper.chat-sidebar--visible {
     display: flex;
+  }
+
+  .chat-sidebar-wrapper :deep(.chat-sidebar) {
+    width: 100%;
+    min-width: 0;
   }
 }
 
@@ -302,6 +309,17 @@ function handleFollowUp(text: string) {
   resize: none;
   min-height: 72px;
   border-radius: var(--om-radius-base);
+}
+
+@media (max-width: 359.98px) {
+  .chat-input-form {
+    flex-direction: column;
+  }
+
+  .chat-input-form button {
+    width: 100%;
+    min-height: 2.75rem;
+  }
 }
 
 .spin {

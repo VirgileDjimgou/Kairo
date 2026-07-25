@@ -36,9 +36,9 @@
   </div>
 </template>
 
-<script setup lang="ts">
+<script setup lang="ts" generic="T extends object">
 defineProps<{
-  items: Record<string, unknown>[]
+  items: T[]
 }>()
 </script>
 

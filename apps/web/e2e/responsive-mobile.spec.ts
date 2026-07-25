@@ -1,303 +1,380 @@
-import { test, expect } from '@playwright/test'
+import { test, expect } from "@playwright/test";
 
 const MOBILE_VIEWPORTS = [
-  { width: 320, height: 568, label: 'iPhone SE / Galaxy Fold' },
-  { width: 360, height: 800, label: 'Galaxy S8 / Pixel 2' },
-  { width: 390, height: 844, label: 'iPhone 14' },
-  { width: 412, height: 915, label: 'Pixel 7 / Galaxy S20' },
-  { width: 430, height: 932, label: 'iPhone 14 Pro Max' },
-]
+  { width: 320, height: 568, label: "iPhone SE / Galaxy Fold" },
+  { width: 360, height: 800, label: "Galaxy S8 / Pixel 2" },
+  { width: 375, height: 812, label: "iPhone X / 13 mini" },
+  { width: 390, height: 844, label: "iPhone 14" },
+  { width: 412, height: 915, label: "Pixel 7 / Galaxy S20" },
+  { width: 430, height: 932, label: "iPhone 14 Pro Max" },
+];
 
 const TABLET_VIEWPORTS = [
-  { width: 768, height: 1024, label: 'iPad Mini' },
-  { width: 820, height: 1180, label: 'iPad Air' },
-]
+  { width: 768, height: 1024, label: "iPad Mini" },
+  { width: 820, height: 1180, label: "iPad Air" },
+];
 
 const DESKTOP_VIEWPORTS = [
-  { width: 1280, height: 720, label: 'Desktop HD' },
-  { width: 1440, height: 900, label: 'Desktop WXGA+' },
-]
+  { width: 1280, height: 720, label: "Desktop HD" },
+  { width: 1440, height: 900, label: "Desktop WXGA+" },
+  { width: 1920, height: 1080, label: "Desktop Full HD" },
+];
 
 function makeMemberAuth() {
   return {
-    access_token: 'test-access-token-member',
-    token_type: 'bearer',
+    access_token: "test-access-token-member",
+    token_type: "bearer",
     user: {
-      id: 'user-member-1',
-      email: 'member@demo.org',
-      display_name: 'Jean Dupont',
-      roles: ['member'],
-      locale: 'fr',
+      id: "user-member-1",
+      email: "member@demo.org",
+      display_name: "Jean Dupont",
+      roles: ["member"],
+      locale: "fr",
     },
     memberships: [
       {
-        tenant_id: 'tenant-demo-1',
-        slug: 'demo',
-        name: 'Combis Sport Verein',
-        roles: ['member'],
-        branding: { primary_color: '#1a3f6b', logo_url: '' },
+        tenant_id: "tenant-demo-1",
+        slug: "demo",
+        name: "Combis Sport Verein",
+        roles: ["member"],
+        branding: { primary_color: "#1a3f6b", logo_url: "" },
         modules: {
-          membership: true, contributions: true, policies: true,
-          disciplinary: true, events: true, announcements: true,
-          chat: true, notifications: true,
+          membership: true,
+          contributions: true,
+          policies: true,
+          disciplinary: true,
+          events: true,
+          announcements: true,
+          chat: true,
+          notifications: true,
         },
-        profile_type: 'member',
+        profile_type: "member",
       },
     ],
     requires_mfa: false,
-  }
+  };
+}
+
+function makeRoleAuth(role: string) {
+  const auth = makeMemberAuth();
+  auth.user.roles = [role];
+  auth.user.email = `${role}@demo.org`;
+  auth.user.display_name = role.replace("_", " ");
+  auth.memberships[0].roles = [role];
+  auth.memberships[0].profile_type = role === "member" ? "member" : "staff";
+  return auth;
 }
 
 async function assertNoHorizontalOverflow(page: any) {
-  const overflow = await page.evaluate(
-    () => document.documentElement.scrollWidth > window.innerWidth + 1,
-  )
-  expect(overflow).toBe(false)
+  const dimensions = await page.evaluate(() => ({
+    scrollWidth: document.documentElement.scrollWidth,
+    clientWidth: document.documentElement.clientWidth,
+  }));
+  expect(dimensions.scrollWidth).toBeLessThanOrEqual(
+    dimensions.clientWidth + 1,
+  );
 }
 
-async function setupAuth(page: any) {
-  await page.route('**/api/v1/auth/profile', (route: any) => {
+async function setupAuth(page: any, auth = makeMemberAuth()) {
+  const profile = {
+    ...auth.user,
+    tenant_id: auth.memberships[0].tenant_id,
+    preferred_language: auth.user.locale,
+    status: "active",
+    last_login_at: null,
+    memberships: auth.memberships,
+  };
+
+  await page.route("**/api/v1/auth/me", (route: any) => {
     route.fulfill({
       status: 200,
-      contentType: 'application/json',
-      body: JSON.stringify(makeMemberAuth().user),
-    })
-  })
-  await page.addInitScript(
-    (auth: any) => {
-      localStorage.setItem('access_token', auth.access_token)
-      localStorage.setItem('tenant_id', auth.memberships[0].tenant_id)
-    },
-    makeMemberAuth(),
-  )
+      contentType: "application/json",
+      body: JSON.stringify(profile),
+    });
+  });
+  await page.addInitScript((auth: any) => {
+    localStorage.setItem("access_token", auth.access_token);
+    localStorage.setItem("tenant_id", auth.memberships[0].tenant_id);
+  }, auth);
 }
 
-test.describe('Mobile responsive — Login', () => {
+async function mockDashboardApi(page: any) {
+  await page.route("**/api/v1/dashboard/**", (route: any) => {
+    route.fulfill({
+      status: 200,
+      contentType: "application/json",
+      body: JSON.stringify({ modules: {}, checklist: [], metrics: {} }),
+    });
+  });
+  await page.route("**/api/v1/chat/**", (route: any) => {
+    route.fulfill({
+      status: 200,
+      contentType: "application/json",
+      body: JSON.stringify({ conversations: [] }),
+    });
+  });
+}
+
+async function openAuthenticatedPage(page: any, path: string) {
+  await page.goto(path, { waitUntil: "domcontentloaded" });
+  await expect(page.locator(".app-shell")).toBeVisible();
+}
+
+test.describe("Mobile responsive — Login", () => {
   for (const vp of MOBILE_VIEWPORTS) {
-    test(`login at ${vp.width}x${vp.height} (${vp.label})`, async ({ page }) => {
-      await page.setViewportSize({ width: vp.width, height: vp.height })
-      await page.goto('/login')
+    test(`login at ${vp.width}x${vp.height} (${vp.label})`, async ({
+      page,
+    }) => {
+      await page.setViewportSize({ width: vp.width, height: vp.height });
+      await page.goto("/login");
 
-      await expect(page.locator('#signin-card')).toBeVisible()
-      await expect(page.locator('input[type="email"]')).toBeVisible()
-      await expect(page.locator('input[type="password"]')).toBeVisible()
-      await expect(page.locator('button[type="submit"]')).toBeVisible()
+      await expect(page.locator("#signin-card")).toBeVisible();
+      await expect(page.locator('input[type="email"]')).toBeVisible();
+      await expect(page.locator('input[type="password"]')).toBeVisible();
+      await expect(page.locator('button[type="submit"]')).toBeVisible();
 
-      await assertNoHorizontalOverflow(page)
+      await assertNoHorizontalOverflow(page);
 
       // Verify the form is above the hero on mobile (order swap)
-      const formCard = page.locator('#signin-card')
-      const formRect = await formCard.boundingBox()
-      const heroTitle = page.getByTestId('commercial-hero-title')
+      const formCard = page.locator("#signin-card");
+      const formRect = await formCard.boundingBox();
+      const heroTitle = page.getByTestId("commercial-hero-title");
       if (await heroTitle.isVisible()) {
-        const heroRect = await heroTitle.boundingBox()
+        const heroRect = await heroTitle.boundingBox();
         // Form should be above hero on mobile
         if (formRect && heroRect) {
-          expect(formRect.y + formRect.height).toBeLessThanOrEqual(heroRect.y + heroRect.height)
+          expect(formRect.y + formRect.height).toBeLessThanOrEqual(
+            heroRect.y + heroRect.height,
+          );
         }
       }
-    })
+    });
   }
-})
+});
 
-test.describe('Mobile responsive — Auth recovery views', () => {
+test.describe("Mobile responsive — Auth recovery views", () => {
   const recoveryRoutes = [
-    { path: '/forgot-password', keyElement: 'input[type="email"]' },
-    { path: '/reset-password?token=responsive-test-token', keyElement: 'input[type="password"]' },
-    { path: '/accept-invite?token=responsive-test-token', keyElement: 'input[type="text"]' },
-  ]
+    { path: "/forgot-password", keyElement: 'input[type="email"]' },
+    {
+      path: "/reset-password?token=responsive-test-token",
+      keyElement: 'input[type="password"]',
+    },
+    {
+      path: "/accept-invite?token=responsive-test-token",
+      keyElement: 'input[type="text"]',
+    },
+  ];
 
   for (const vp of MOBILE_VIEWPORTS.slice(0, 2)) {
     for (const route of recoveryRoutes) {
       test(`${route.path} at ${vp.width}x${vp.height}`, async ({ page }) => {
-        await page.setViewportSize({ width: vp.width, height: vp.height })
-        await page.goto(route.path)
+        await page.setViewportSize({ width: vp.width, height: vp.height });
+        await page.goto(route.path);
 
-        await expect(page.locator(route.keyElement).first()).toBeVisible()
-        await assertNoHorizontalOverflow(page)
-      })
+        await expect(page.locator(route.keyElement).first()).toBeVisible();
+        await assertNoHorizontalOverflow(page);
+      });
     }
   }
-})
+});
 
-test.describe('Mobile responsive — Dashboard', () => {
+test.describe("Mobile responsive — Dashboard", () => {
   for (const vp of MOBILE_VIEWPORTS) {
-    test(`dashboard at ${vp.width}x${vp.height} (${vp.label})`, async ({ page }) => {
-      await page.setViewportSize({ width: vp.width, height: vp.height })
-      await setupAuth(page)
+    test(`dashboard at ${vp.width}x${vp.height} (${vp.label})`, async ({
+      page,
+    }) => {
+      await page.setViewportSize({ width: vp.width, height: vp.height });
+      await setupAuth(page);
 
-      // Mock dashboard API
-      await page.route('**/api/v1/dashboard/**', (route: any) => {
-        route.fulfill({
-          status: 200,
-          contentType: 'application/json',
-          body: JSON.stringify({ modules: {}, checklist: [], metrics: {} }),
-        })
-      })
-      await page.route('**/api/v1/chat/**', (route: any) => {
-        route.fulfill({ status: 200, contentType: 'application/json', body: JSON.stringify({ conversations: [] }) })
-      })
+      await mockDashboardApi(page);
+      await openAuthenticatedPage(page, "/dashboard");
 
-      await page.goto('/dashboard')
-      await page.waitForLoadState('networkidle')
-
-      await assertNoHorizontalOverflow(page)
+      await assertNoHorizontalOverflow(page);
 
       // Bottom navigation should be visible on mobile
       if (vp.width < 768) {
-        const bottomNav = page.locator('.bottom-nav')
-        await expect(bottomNav).toBeVisible()
+        const bottomNav = page.locator(".bottom-nav");
+        await expect(bottomNav).toBeVisible();
       }
-    })
+    });
   }
-})
+});
 
-test.describe('Mobile responsive — Chat', () => {
-  const mobileVps = MOBILE_VIEWPORTS.slice(0, 3)
+test.describe("Mobile responsive — Chat", () => {
+  const mobileVps = MOBILE_VIEWPORTS.slice(0, 3);
 
   for (const vp of mobileVps) {
     test(`chat at ${vp.width}x${vp.height}`, async ({ page }) => {
-      await page.setViewportSize({ width: vp.width, height: vp.height })
-      await setupAuth(page)
+      await page.setViewportSize({ width: vp.width, height: vp.height });
+      await setupAuth(page);
 
-      await page.route('**/api/v1/chat/**', (route: any) => {
+      await page.route("**/api/v1/chat/**", (route: any) => {
         route.fulfill({
           status: 200,
-          contentType: 'application/json',
+          contentType: "application/json",
           body: JSON.stringify({
             conversations: [
-              { id: 'conv-1', title: 'Test conversation', message_count: 3, last_message_preview: 'Hello' },
+              {
+                id: "conv-1",
+                title: "Test conversation",
+                message_count: 3,
+                last_message_preview: "Hello",
+              },
             ],
-            allowed_domains: ['governance', 'member_finance'],
+            allowed_domains: ["governance", "member_finance"],
           }),
-        })
-      })
+        });
+      });
 
-      await page.goto('/chat')
-      await page.waitForLoadState('networkidle')
+      await openAuthenticatedPage(page, "/chat");
 
-      await assertNoHorizontalOverflow(page)
+      await assertNoHorizontalOverflow(page);
 
       // On mobile, chat sidebar should be visible as full-screen list
       if (vp.width < 768) {
-        const sidebar = page.locator('.chat-sidebar-wrapper')
-        await expect(sidebar).toBeAttached()
+        const sidebar = page.locator(".chat-sidebar-wrapper");
+        await expect(sidebar).toBeAttached();
       }
-    })
+    });
   }
-})
+});
 
-test.describe('Tablet responsive', () => {
+test.describe("Tablet responsive", () => {
   for (const vp of TABLET_VIEWPORTS) {
     test(`dashboard at ${vp.width}x${vp.height}`, async ({ page }) => {
-      await page.setViewportSize({ width: vp.width, height: vp.height })
-      await setupAuth(page)
+      await page.setViewportSize({ width: vp.width, height: vp.height });
+      await setupAuth(page);
 
-      await page.route('**/api/v1/dashboard/**', (route: any) => {
-        route.fulfill({
-          status: 200,
-          contentType: 'application/json',
-          body: JSON.stringify({ modules: {}, checklist: [], metrics: {} }),
-        })
-      })
-      await page.route('**/api/v1/chat/**', (route: any) => {
-        route.fulfill({ status: 200, contentType: 'application/json', body: JSON.stringify({ conversations: [] }) })
-      })
-
-      await page.goto('/dashboard')
-      await page.waitForLoadState('networkidle')
-      await assertNoHorizontalOverflow(page)
-    })
+      await mockDashboardApi(page);
+      await openAuthenticatedPage(page, "/dashboard");
+      await assertNoHorizontalOverflow(page);
+    });
   }
-})
+});
 
-test.describe('Desktop responsive', () => {
+test.describe("Desktop responsive", () => {
   for (const vp of DESKTOP_VIEWPORTS) {
     test(`dashboard at ${vp.width}x${vp.height}`, async ({ page }) => {
-      await page.setViewportSize({ width: vp.width, height: vp.height })
-      await setupAuth(page)
+      await page.setViewportSize({ width: vp.width, height: vp.height });
+      await setupAuth(page);
 
-      await page.route('**/api/v1/dashboard/**', (route: any) => {
-        route.fulfill({
-          status: 200,
-          contentType: 'application/json',
-          body: JSON.stringify({ modules: {}, checklist: [], metrics: {} }),
-        })
-      })
-
-      await page.goto('/dashboard')
-      await page.waitForLoadState('networkidle')
-      await assertNoHorizontalOverflow(page)
+      await mockDashboardApi(page);
+      await openAuthenticatedPage(page, "/dashboard");
+      await assertNoHorizontalOverflow(page);
 
       // Sidebar should be visible on desktop
-      const sidebar = page.locator('.sidebar').first()
-      await expect(sidebar).toBeVisible()
-    })
+      const sidebar = page.locator(".sidebar").first();
+      await expect(sidebar).toBeVisible();
+    });
   }
-})
+});
 
-test.describe('Safe areas and touch targets', () => {
-  test('bottom nav has adequate touch targets', async ({ page }) => {
-    await page.setViewportSize({ width: 390, height: 844 })
-    await setupAuth(page)
+test.describe("Role-driven mobile navigation", () => {
+  const roles = [
+    "admin",
+    "principal_admin",
+    "president",
+    "vice_president",
+    "secretary_general",
+    "treasurer",
+    "auditor",
+    "censor",
+    "sports_manager",
+    "member",
+  ];
 
-    await page.route('**/api/v1/dashboard/**', (route: any) => {
-      route.fulfill({ status: 200, contentType: 'application/json', body: JSON.stringify({ modules: {}, checklist: [], metrics: {} }) })
-    })
-    await page.route('**/api/v1/chat/**', (route: any) => {
-      route.fulfill({ status: 200, contentType: 'application/json', body: JSON.stringify({ conversations: [] }) })
-    })
+  for (const role of roles) {
+    test(`${role} receives the shared shell at 390x844`, async ({ page }) => {
+      await page.setViewportSize({ width: 390, height: 844 });
+      await setupAuth(page, makeRoleAuth(role));
+      await mockDashboardApi(page);
+      await openAuthenticatedPage(page, "/dashboard");
 
-    await page.goto('/dashboard')
-    await page.waitForLoadState('networkidle')
+      const topNavigation = page.locator(".role-top-navigation");
+      const bottomNavigation = page.locator(".bottom-nav");
+      await expect(topNavigation).toBeVisible();
+      await expect(
+        topNavigation.locator('[aria-current="page"]'),
+      ).toBeVisible();
+      await expect(bottomNavigation.locator(".bottom-nav-item")).toHaveCount(5);
+      await expect(
+        page.locator(
+          "#appMobileSidebar, #adminMobileSidebar, #secretaryMobileSidebar",
+        ),
+      ).toHaveCount(0);
+      await assertNoHorizontalOverflow(page);
+    });
+  }
+});
 
-    const navItems = page.locator('.bottom-nav-item')
-    const count = await navItems.count()
+test.describe("Safe areas and touch targets", () => {
+  test("bottom nav has adequate touch targets", async ({ page }) => {
+    await page.setViewportSize({ width: 390, height: 844 });
+    await setupAuth(page);
+
+    await mockDashboardApi(page);
+    await openAuthenticatedPage(page, "/dashboard");
+
+    const navItems = page.locator(".bottom-nav-item");
+    const count = await navItems.count();
 
     for (let i = 0; i < count; i++) {
-      const box = await navItems.nth(i).boundingBox()
+      const box = await navItems.nth(i).boundingBox();
       if (box) {
         // WCAG 2.2 AA: minimum 44×44px touch target
-        expect(box.width).toBeGreaterThanOrEqual(44)
-        expect(box.height).toBeGreaterThanOrEqual(44)
+        expect(box.width).toBeGreaterThanOrEqual(44);
+        expect(box.height).toBeGreaterThanOrEqual(44);
       }
     }
-  })
+  });
 
-  test('bottom navigation exposes primary actions and opens the complete menu', async ({ page }) => {
-    await page.setViewportSize({ width: 390, height: 844 })
-    await setupAuth(page)
+  test("bottom navigation stays regular while role modules remain in the top navigation", async ({
+    page,
+  }) => {
+    await page.setViewportSize({ width: 390, height: 844 });
+    await setupAuth(page);
 
-    await page.route('**/api/v1/dashboard/**', (route: any) => {
-      route.fulfill({ status: 200, contentType: 'application/json', body: JSON.stringify({ modules: {}, checklist: [], metrics: {} }) })
-    })
-    await page.route('**/api/v1/chat/**', (route: any) => {
-      route.fulfill({ status: 200, contentType: 'application/json', body: JSON.stringify({ conversations: [] }) })
-    })
+    await mockDashboardApi(page);
+    await openAuthenticatedPage(page, "/dashboard");
 
-    await page.goto('/dashboard')
-    await page.waitForLoadState('networkidle')
+    const bottomNav = page.locator(".bottom-nav");
+    await expect(bottomNav.locator(".bottom-nav-item")).toHaveCount(5);
+    const itemBoxes = await bottomNav
+      .locator(".bottom-nav-item")
+      .evaluateAll((items) =>
+        items.map((item) => item.getBoundingClientRect().width),
+      );
+    expect(Math.max(...itemBoxes) - Math.min(...itemBoxes)).toBeLessThanOrEqual(
+      1,
+    );
 
-    const bottomNav = page.locator('.bottom-nav')
-    await expect(bottomNav.locator('.bottom-nav-item')).toHaveCount(5)
-    await bottomNav.locator('.bottom-nav-item').last().click()
-    await expect(page.locator('#appMobileSidebar')).toBeVisible()
-  })
+    const topNavigation = page.locator(".role-top-navigation");
+    await expect(topNavigation).toBeVisible();
+    const navigationStyle = await topNavigation.evaluate(
+      (element) => getComputedStyle(element).overflowX,
+    );
+    expect(navigationStyle).toBe("auto");
+    await expect(
+      page.locator(
+        "#appMobileSidebar, #adminMobileSidebar, #secretaryMobileSidebar",
+      ),
+    ).toHaveCount(0);
+  });
 
-  test('auth card is fully visible on small mobile', async ({ page }) => {
-    await page.setViewportSize({ width: 320, height: 568 })
-    await page.goto('/login')
+  test("auth card is fully visible on small mobile", async ({ page }) => {
+    await page.setViewportSize({ width: 320, height: 568 });
+    await page.goto("/login");
 
-    const card = page.locator('.auth-card').first()
+    const card = page.locator(".auth-card").first();
     if (await card.isVisible()) {
-      const box = await card.boundingBox()
+      const box = await card.boundingBox();
       if (box) {
         // Card should fit within viewport
-        expect(box.x).toBeGreaterThanOrEqual(0)
-        expect(box.x + box.width).toBeLessThanOrEqual(320)
+        expect(box.x).toBeGreaterThanOrEqual(0);
+        expect(box.x + box.width).toBeLessThanOrEqual(320);
       }
     }
 
-    await assertNoHorizontalOverflow(page)
-  })
-})
+    await assertNoHorizontalOverflow(page);
+  });
+});

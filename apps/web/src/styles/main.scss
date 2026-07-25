@@ -174,9 +174,11 @@
   font-size: 0.8125rem;
 }
 
-// Table rows with action buttons should have comfortable spacing
-.table td:last-child,
-.table-responsive td:last-child {
-  white-space: nowrap;
-  min-width: 120px;
+// Tables remain dense on desktop; mobile views must switch to cards or allow wrapping.
+@media (min-width: 992px) {
+  .table td:last-child,
+  .table-responsive td:last-child {
+    white-space: nowrap;
+    min-width: 120px;
+  }
 }
