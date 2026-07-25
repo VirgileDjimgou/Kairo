@@ -43,6 +43,17 @@ apps/web/.vite/
 # Docker
 docker-compose.override.yml
 
+# Local databases, backups, and source financial workbooks
+*.sqlite
+*.sqlite3
+*.db
+*.bak
+*.backup
+*.dump
+*.xlsx
+*.xls
+*.ods
+
 # Logs
 *.log
 logs/
