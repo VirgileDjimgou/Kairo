@@ -13,9 +13,9 @@ class Settings(BaseSettings):
     )
 
     # App
-    app_name: str = "Combis Sport Verein"
+    app_name: str = "Kairo"
     app_env: str = "development"
-    app_debug: bool = True
+    app_debug: bool = False
 
     # CORS
     cors_origins: list[str] = ["http://localhost:5173", "http://localhost:3000"]
@@ -31,6 +31,19 @@ class Settings(BaseSettings):
     @classmethod
     def normalize_provider_kind(cls, v: str) -> str:
         return v.strip().lower() if isinstance(v, str) else v
+
+    @field_validator("jwt_secret_key", mode="after")
+    @classmethod
+    def validate_jwt_secret_key(cls, v: str, info) -> str:
+        placeholder = "change-me-in-production-use-a-long-random-string"
+        env = info.data.get("app_env", "development")
+        if v == placeholder and env == "production":
+            raise ValueError(
+                "JWT_SECRET_KEY must be changed from the default placeholder "
+                "in production. Generate a strong random key and set it "
+                "in your .env file."
+            )
+        return v
 
     # Security — MUST be changed in production
     jwt_secret_key: str = "change-me-in-production-use-a-long-random-string"

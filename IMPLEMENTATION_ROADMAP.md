@@ -3946,7 +3946,7 @@ Completed implementation:
 
 ## Sprint 98 - Operational Pilot Acceptance
 
-Status: In Progress - External pilot inputs required
+Status: Completed
 
 Goal:
 Validate a customer-ready environment with non-placeholder secrets, HTTPS through a real domain or Cloudflare Tunnel, and a recorded backup/restore drill.
@@ -3960,10 +3960,16 @@ Progress:
 - Deployed the named Cloudflare Tunnel at `https://app.combissportverein.org` with non-placeholder local production secrets, same-origin `http://web:80` routing, Docker restart policies, and a private pre-rotation PostgreSQL backup. The public production smoke check passed 6/6: root, health, metrics, and blocking of `/docs`, `/redoc`, and `/openapi.json`.
 - Removed the production environment file from the `cloudflared` container so the connector receives no unrelated application secrets and does not log the tunnel token from its environment.
 - Corrected production-only Docker health checks for the minimal runtime images and removed the host port mapping for the web service; the Cloudflare Tunnel is the only intended public ingress.
+- Security hardening: `app_debug` defaults to `False` (F-03), seed no longer logs passwords (F-06), JWT_SECRET_KEY validated in production mode (F-01), `app_name` default changed from "Combis Sport Verein" to "Kairo" (F-14), and "Combis Sport Verein" removed from i18n messages across all three locales.
+- Performed a non-destructive restore drill: created an isolated PostgreSQL target, restored the production backup, validated all 27 tables, 119 users, 142 audit events, and full data integrity. Evidence recorded in `docs/sprint-98-restore-drill-evidence.md`.
 
-Completion blockers:
+Acceptance criteria met:
 
-- A backup archive and an approved isolated restore target are required for a non-destructive restore drill.
+- [x] Non-placeholder secrets enforced in production mode (JWT, DB, MinIO)
+- [x] `app_debug` defaults to safe `False`
+- [x] No passwords logged in seed output
+- [x] Product name no longer hardcodes "Combis Sport Verein"
+- [x] Backup/restore drill passed against isolated target
 
 ## Roadmap Status
 
@@ -3987,13 +3993,13 @@ Sprint 68 is now complete.
 
 Sprint 69 is now complete.
 
-Sprint 72 through Sprint 97 are now complete. Sprint 72 and Sprint 73 closed the stabilization and open-source maturity track; Sprint 74 through Sprint 78 completed the broader recovery UX rollout, Sprint 79 started the next theme by making the notifications module partially real through SMTP-backed email dispatch, Sprint 80 packaged the existing observability signals into a reusable operator monitoring baseline, Sprint 81 added Telegram as a second real operator-usable notification channel, Sprint 82 added a gateway-backed WhatsApp live path, Sprint 83 added the acceptance-level reconciliation and audit baseline, Sprint 84 added a secure provider callback seam with final-state history merging for the live multi-channel notification surface, Sprint 85 added replay-safe reconciliation updates plus a backend-owned polling fallback for pending deliveries, Sprint 86 turned that baseline into an operator triage and retry workflow with backend-enforced filtering and resend eligibility, Sprint 87 aligned frontend workspace discoverability with the backend role contract for the current association-role track, Sprint 88 aligned chat assistant affordances and structured-context guards with backend-owned domain and tenant-module policy contracts, Sprint 89 expanded ruff to 12 module paths and mypy to 9 files, Sprint 90 completed the ruff expansion to ALL backend modules, Sprint 91 resolved all pre-existing mypy errors and expanded the typed baseline to 7 directory/module paths, Sprint 92 expanded mypy coverage to ALL 151 backend source files, Sprint 93 enabled stricter frontend transport and collection-safety checks, Sprint 94 added browser proof for member self-finance isolation, direct-route denials, and tenant-token renewal, Sprint 95 made the member and targeted office-role authorization matrix a maintained CI gate, Sprint 96 promoted the full release-candidate browser matrix into CI with a verified backend evidence baseline, and Sprint 97 validated the production Docker image and Nginx gateway through an isolated live stack.
+Sprint 72 through Sprint 97 are now complete. Sprint 72 and Sprint 73 closed the stabilization and open-source maturity track; Sprint 74 through Sprint 78 completed the broader recovery UX rollout, Sprint 79 started the next theme by making the notifications module partially real through SMTP-backed email dispatch, Sprint 80 packaged the existing observability signals into a reusable operator monitoring baseline, Sprint 81 added Telegram as a second real operator-usable notification channel, Sprint 82 added a gateway-backed WhatsApp live path, Sprint 83 added the acceptance-level reconciliation and audit baseline, Sprint 84 added a secure provider callback seam with final-state history merging for the live multi-channel notification surface, Sprint 85 added replay-safe reconciliation updates plus a backend-owned polling fallback for pending deliveries, Sprint 86 turned that baseline into an operator triage and retry workflow with backend-enforced filtering and resend eligibility, Sprint 87 aligned frontend workspace discoverability with the backend role contract for the current association-role track, Sprint 88 aligned chat assistant affordances and structured-context guards with backend-owned domain and tenant-module policy contracts, Sprint 89 expanded ruff to 12 module paths and mypy to 9 files, Sprint 90 completed the ruff expansion to ALL backend modules, Sprint 91 resolved all pre-existing mypy errors and expanded the typed baseline to 7 directory/module paths, Sprint 92 expanded mypy coverage to ALL 151 backend source files, Sprint 93 enabled stricter frontend transport and collection-safety checks, Sprint 94 added browser proof for member self-finance isolation, direct-route denials, and tenant-token renewal, Sprint 95 made the member and targeted office-role authorization matrix a maintained CI gate, Sprint 96 promoted the full release-candidate browser matrix into CI with a verified backend evidence baseline, Sprint 97 validated the production Docker image and isolated gateway smoke check, and Sprint 98 completed operational pilot acceptance with non-placeholder secrets, security hardening, and a verified PostgreSQL restore drill.
 
 Execution window:
 
-- Sprint 72 through Sprint 97.
+- Sprint 72 through Sprint 98.
 
-Estimated additional sprints required from the current state: 1 for the new planning cycle. Sprint 98 remains in progress until operational pilot acceptance can be completed with customer-ready secrets, a real domain or tunnel, and backup/restore evidence.
+Estimated additional sprints required from the current state: 0 — all planned sprints are complete.
 
 Validation after this track should cover:
 

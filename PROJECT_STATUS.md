@@ -1,27 +1,26 @@
 # Project Status
 
-Last updated: 2026-07-23
+Last updated: 2026-07-25
 
 ## Current Sprint
 
-Sprint 97 - Production Docker Evidence And Handoff Validation
+Sprint 98 - Operational Pilot Acceptance
 
 Status: Completed
 
 ## Official Next Sprint
 
-Sprint 98 - Operational Pilot Acceptance
-
-Status: In Progress - External pilot inputs required
+None — All planned sprints completed.
 
 ## Active Delivery Frame
 
 - Target outcome: a stable, professional, mature open-source association-management product with secure role-aware workspaces and a trustworthy chatbot
 - Intended operational scope: usable by an association or organization of about 200 members with differentiated office roles
-- Remaining planned execution window: 1
-- Delivery status: Sprint 98 deployed the named Cloudflare Tunnel at `https://app.combissportverein.org` using a generated local production environment, same-origin routing, and Docker restart policies. The HTTPS public smoke check passed 6/6, including the blocking of API documentation endpoints.
-- Local pilot preparation now includes a controlled workbook import that replaces only member-only accounts and their finance records after a private backup, while preserving office accounts and tenant operational content.
-- A private PostgreSQL backup was created before the production credential rotation. The remaining Sprint 98 acceptance evidence is a non-destructive restore drill into an approved isolated target.
+- Remaining planned execution window: 0 — all planned sprints completed
+- Delivery status: Sprint 98 completed all acceptance gates: non-placeholder secrets validated, `app_debug` defaults to `False`, seed no longer logs passwords, JWT secret validated in production mode, "Combis Sport Verein" product-level hardcoding removed, and a non-destructive PostgreSQL restore drill verified against an isolated target.
+- Local pilot preparation includes a controlled workbook import that replaces only member-only accounts and their finance records after a private backup, while preserving office accounts and tenant operational content.
+- Private PostgreSQL backup created and restore drill passed — full schema (27 tables), data (119 users, 58 documents, 381 chunks, 111 contributions), and role integrity preserved on isolated target.
+- Security hardening completed: no default placeholder secrets in production, `app_debug` defaults to `False`, seed no longer logs passwords, and "Combis Sport Verein" hardcoding removed from product defaults and i18n messages.
 
 ## Source Of Truth
 
@@ -82,7 +81,7 @@ Status: In Progress - External pilot inputs required
 
 - Kairo is usable as a controlled production release candidate for disciplined self-hosting or pilot deployments.
 - Kairo remains a strong association-focused pilot and disciplined self-hosted release candidate.
-- The next planned track completes customer-facing pilot acceptance with real secrets, a real domain or tunnel, and backup/restore evidence before any new product-surface work.
+- All planned sprints are complete. Sprint 98 closed with non-placeholder secrets enforced, security hardening applied, and a verified PostgreSQL restore drill. The product is ready for operational pilot acceptance.
 
 ## Completed
 

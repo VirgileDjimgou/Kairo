@@ -4,12 +4,12 @@ type MessageDictionary = Record<SupportedLocale, Record<string, string>>;
 
 export const messages: MessageDictionary = {
   fr: {
-    "app.name": "Combis Sport Verein",
+    "app.name": "Kairo",
     "language.label": "Langue",
     "language.fr": "Français",
     "language.en": "English",
     "language.de": "Deutsch",
-    "login.brandSubtitle": "L’espace numérique du Combis Sport Verein",
+    "login.brandSubtitle": "Votre espace num\u00e9rique",
     "login.kicker": "Bienvenue",
     "login.heroTitle": "Votre association, simplement.",
     "login.heroCopy":
@@ -454,12 +454,12 @@ export const messages: MessageDictionary = {
     "auth.mfa.invalidCode": "Code invalide. Réessayez.",
   },
   en: {
-    "app.name": "Combis Sport Verein",
+    "app.name": "Kairo",
     "language.label": "Language",
     "language.fr": "Français",
     "language.en": "English",
     "language.de": "Deutsch",
-    "login.brandSubtitle": "The online home of Combis Sport Verein",
+    "login.brandSubtitle": "Your online hub",
     "login.kicker": "Welcome",
     "login.heroTitle": "Your association, all in one place.",
     "login.heroCopy":
@@ -893,13 +893,13 @@ export const messages: MessageDictionary = {
     "auth.mfa.invalidCode": "Invalid code. Try again.",
   },
   de: {
-    "app.name": "Combis Sport Verein",
+    "app.name": "Kairo",
     "language.label": "Sprache",
     "language.fr": "Français",
     "language.en": "English",
     "language.de": "Deutsch",
     "login.brandSubtitle":
-      "Der digitale Vereinsbereich des Combis Sport Verein",
+      "Ihr digitaler Vereinsbereich",
     "login.kicker": "Willkommen",
     "login.heroTitle": "Ihr Verein. Einfach organisiert.",
     "login.heroCopy":

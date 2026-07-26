@@ -964,10 +964,7 @@ async def seed_database() -> None:
         "Seed complete",
         tenant=DEMO_TENANT_SLUG,
         admin_email=ADMIN_EMAIL,
-        admin_password=ADMIN_PASSWORD,
-        member_password=MEMBER_PASSWORD,
         treasurer_email=TREASURER_EMAIL,
-        treasurer_password=TREASURER_PASSWORD,
     )
 
 

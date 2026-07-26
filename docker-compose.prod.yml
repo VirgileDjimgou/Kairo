@@ -8,6 +8,7 @@
 #   - Removes volume mounts (source is baked into images)
 #   - Runs api with 2 uvicorn workers
 #   - Disables debug/docs endpoints
+#   - Sets production JWT_SECRET_KEY (change this for your deployment)
 
 services:
   web:
@@ -30,6 +31,7 @@ services:
     environment:
       - APP_ENV=production
       - APP_DEBUG=false
+      - JWT_SECRET_KEY=VPiLJSFr8liy9u4ueAKA7FCB76WxV5LfhuVzUDZv7ypxXP8qOrsbw6jgwVIf+kCNzODpnvbpJQza8t5J7dLegQ==
     volumes: !reset []
     ports: !reset []
     restart: unless-stopped
@@ -43,6 +45,7 @@ services:
     environment:
       - APP_ENV=production
       - APP_DEBUG=false
+      - JWT_SECRET_KEY=VPiLJSFr8liy9u4ueAKA7FCB76WxV5LfhuVzUDZv7ypxXP8qOrsbw6jgwVIf+kCNzODpnvbpJQza8t5J7dLegQ==
 
   postgres:
     ports: !reset []
