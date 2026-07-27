@@ -11,7 +11,7 @@
             {{ t('auditor.subtitle') }}
           </p>
         </div>
-        <div class="d-flex gap-2 align-items-start">
+        <div class="auditor-actions">
           <select v-model="selectedYear" class="form-select form-select-sm" style="width: auto" @change="refreshAll">
             <option v-for="year in years" :key="year" :value="year">{{ year }}</option>
           </select>
@@ -94,9 +94,8 @@
               </div>
             </div>
 
-            <div v-else class="table-responsive">
-              <table class="table table-hover align-middle mb-0" aria-label="Auditor member balances">
-                <thead class="table-light">
+            <ResponsiveDataView v-else :items="memberRows" :item-key="(row) => row.id" :mobile-aria-label="t('auditor.memberBalances')">
+              <template #thead>
                   <tr>
                     <th class="ps-4" scope="col">{{ t('common.member') }}</th>
                     <th scope="col">{{ t('contributions.expected') }}</th>
@@ -104,8 +103,8 @@
                     <th scope="col">Balance</th>
                     <th class="pe-4" scope="col">{{ t('common.records') }}</th>
                   </tr>
-                </thead>
-                <tbody>
+              </template>
+              <template #rows>
                   <tr v-for="row in memberRows" :key="row.id">
                     <td class="ps-4">
                       <div class="fw-medium">{{ row.display_name }}</div>
@@ -118,9 +117,23 @@
                     </td>
                     <td class="pe-4">{{ row.contributionCount }}</td>
                   </tr>
-                </tbody>
-              </table>
-            </div>
+              </template>
+              <template #mobile-title="{ item: row }">
+                <div>{{ row.display_name }}</div>
+                <div class="small text-muted font-monospace">{{ row.member_code }}</div>
+              </template>
+              <template #mobile-status="{ item: row }">
+                <span class="badge" :class="Number(row.totalBalance) > 0 ? 'text-bg-danger' : 'text-bg-success'">
+                  {{ Number(row.totalBalance) > 0 ? t('finance.outstandingBalance') : t('contributions.paid') }}
+                </span>
+              </template>
+              <template #mobile-fields="{ item: row }">
+                <div class="om-data-card-row"><span class="om-data-card-label">{{ t('contributions.expected') }}</span><span class="om-data-card-value text-nowrap">{{ row.totalExpected }} EUR</span></div>
+                <div class="om-data-card-row"><span class="om-data-card-label">{{ t('contributions.paid') }}</span><span class="om-data-card-value text-nowrap">{{ row.totalPaid }} EUR</span></div>
+                <div class="om-data-card-row"><span class="om-data-card-label">{{ t('finance.outstandingBalance') }}</span><span class="om-data-card-value text-nowrap fw-semibold" :class="Number(row.totalBalance) > 0 ? 'text-danger' : 'text-success'">{{ row.totalBalance }} EUR</span></div>
+                <div class="om-data-card-row"><span class="om-data-card-label">{{ t('common.records') }}</span><span class="om-data-card-value">{{ row.contributionCount }}</span></div>
+              </template>
+            </ResponsiveDataView>
           </div>
         </div>
       </div>
@@ -183,6 +196,7 @@ import { listMembers, type MembershipProfileResponse } from '@/api/membership.ap
 import { useCsvExport } from '@/composables/useCsvExport'
 import { useRecoveryState } from '@/composables/useRecoveryState'
 import { useLocaleStore } from '@/stores/locale.store'
+import ResponsiveDataView from '@/components/ui/ResponsiveDataView.vue'
 import { computed, onMounted, ref } from 'vue'
 
 const localeStore = useLocaleStore()
@@ -316,5 +330,37 @@ onMounted(refreshAll)
   border-radius: 1rem;
   padding: 1rem 1.1rem;
   border: 1px solid #dde6ef;
+}
+
+.auditor-actions {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.5rem;
+}
+
+.auditor-actions .btn,
+.auditor-actions .form-select {
+  min-height: 44px;
+}
+
+@media (max-width: 767.98px) {
+  .auditor-actions {
+    display: grid;
+    width: 100%;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  }
+
+  .auditor-actions .form-select {
+    width: 100% !important;
+  }
+
+  .auditor-actions .btn {
+    width: 100%;
+    white-space: normal;
+  }
+
+  .auditor-actions .btn-primary {
+    grid-column: 1 / -1;
+  }
 }
 </style>

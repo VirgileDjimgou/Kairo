@@ -3,10 +3,8 @@
     :eyebrow="consoleSubtitle"
     :title="consoleTitle"
     icon="bi-shield-lock"
-    :navigation="adminNavigation"
     :module-items="adminModuleNavigation"
     :bottom-navigation="bottomNavigation"
-    sidebar-class="admin-sidebar"
   >
     <RouterView v-slot="{ Component }">
       <Transition name="app-route" mode="out-in">
@@ -28,7 +26,7 @@ import type { BottomNavItem } from '@/components/ui/AppBottomNavigation.vue'
 const route = useRoute()
 const tenantStore = useTenantStore()
 const localeStore = useLocaleStore()
-const { adminNavigation, adminModuleNavigation, isPrincipalAdmin } = useRoleNavigation()
+const { adminModuleNavigation, isPrincipalAdmin } = useRoleNavigation()
 
 const consoleTitle = computed(() =>
   isPrincipalAdmin.value ? localeStore.t('layout.principalAdminConsole') : localeStore.t('layout.adminConsole'),

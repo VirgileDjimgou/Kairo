@@ -1,6 +1,6 @@
 # Responsive Visual Report
 
-**Date**: 2026-07-26
+**Date**: 2026-07-27
 **Validator**: Lead Frontend Engineer (agentic)
 **Tool**: Playwright headless Chromium
 
@@ -20,13 +20,13 @@
 
 ## Corrections Applied
 
-1. **DesktopSidebar hidden on mobile** — `@media (max-width: 767px) { display: none !important; }`
+1. **Navigation model consolidated** — unused sidebar and duplicate bottom-navigation components removed; the unified shell is the only authenticated navigation structure.
 2. **4 admin view headers** — Converted to `flex-column flex-md-row` with `flex-wrap` on action groups
 3. **2 CSV error tables** — Wrapped in `.table-responsive` with `.text-break` on message cells
 4. **Unified shell** — Removed sidebar entirely; same TopBar + RoleTopNavigation + BottomNav on all sizes
 5. **Enhanced design system** — Brighter primary blue, darker text, more vivid semantic colors, cooler neutral palette
-6. **RoleTopNavigation** — Now visible on ALL screen sizes (was hidden ≥992px, now visible everywhere)
-7. **AppTopBar** — Unified single variant (was split into mobile/desktop variants); same compact header on all sizes
+6. **RoleTopNavigation** — visible at every screen size, with its sticky offset aligned to the 56px compact top bar.
+7. **AppTopBar** — unified single compact variant with tenant identity, compact locale selection, and account actions.
 
 ---
 
@@ -55,10 +55,13 @@
 
 | Role | Login | Routes Verified |
 |---|---|---|
-| Admin (`admin@demo.org`) | ✅ | All admin routes + member routes |
-| Member (`alice@demo.org`)* | ✅ | Dashboard, profile, security, events, announcements, policies |
-
-*Member role tested via the same admin login (admin has access to all routes).
+| Admin | ✅ | Shared shell at 390 × 844 |
+| Principal admin | ✅ | Shared shell at 390 × 844; release landing path |
+| President / vice president | ✅ | Shared shell at 390 × 844; governance landing path |
+| Secretary general | ✅ | Shared shell at 390 × 844; secretary landing path |
+| Treasurer / auditor | ✅ | Shared shell at 390 × 844; finance landing path |
+| Censor / sports manager | ✅ | Shared shell at 390 × 844; dedicated workspace landing path |
+| Member | ✅ | Shared shell at 390 × 844; profile landing path |
 
 ---
 
@@ -79,9 +82,10 @@
 
 ## Limitations
 
-1. **Playwright screenshots** were not viewable by the AI model (no image input support).
-   Visual verification was done via DOM overflow assertions (`scrollWidth <= clientWidth + 1`)
-   rather than pixel-level screenshot comparison.
+1. Visual reference inspection confirms the 360px dashboard keeps the tenant header,
+   horizontal role tabs, cards, and five-item bottom navigation within the viewport.
+   Automated coverage remains DOM-based (`scrollWidth <= clientWidth + 1`) rather than
+   a full pixel-diff baseline.
 2. **MFA flow** not tested in automated overflow checks (requires TOTP setup).
 3. **Chat view** (`/chat`) not included in overflow test suite due to SSE streaming
    complexity in headless mode.
@@ -92,8 +96,11 @@
 
 | Check | Result |
 |---|---|
-| `npm run type-check` (vue-tsc --noEmit) | ✅ 0 errors |
-| `npm run build` (vite build) | ✅ 93 PWA entries |
+| `npm run type-check` (vue-tsc --noEmit) | ✅ 0 errors (2026-07-27) |
+| `npm run build` (vite build) | ✅ 93 PWA entries (2026-07-27) |
 | `ruff` (backend lint) | Not run (frontend-only changes) |
 | `mypy` (backend type-check) | Not run (frontend-only changes) |
 | Playwright overflow tests | Written, ready to execute |
+# 2026-07-27 Android / iOS proof
+
+The inspected proof set contains 17 Android/Chromium screenshots, 4 iOS/WebKit screenshots, 3 desktop regressions, 2 production screenshots, and the 17 original user screenshots. See `apps/web/artifacts/responsive-proof/2026-07-27/VISUAL_QA_REPORT.md`.

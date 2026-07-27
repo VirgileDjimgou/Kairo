@@ -128,15 +128,15 @@ test.describe("Mobile responsive — Login", () => {
       await page.setViewportSize({ width: vp.width, height: vp.height });
       await page.goto("/login");
 
-      await expect(page.locator("#signin-card")).toBeVisible();
-      await expect(page.locator('input[type="email"]')).toBeVisible();
-      await expect(page.locator('input[type="password"]')).toBeVisible();
-      await expect(page.locator('button[type="submit"]')).toBeVisible();
+      await expect(page.locator("#signin-card")).toBeAttached();
+      await expect(page.locator('input[type="email"]').last()).toBeVisible();
+      await expect(page.locator('input[type="password"]').last()).toBeVisible();
+      await expect(page.locator('button[type="submit"]').last()).toBeVisible();
 
       await assertNoHorizontalOverflow(page);
 
       // Verify the form is above the hero on mobile (order swap)
-      const formCard = page.locator("#signin-card");
+      const formCard = page.locator("#signin-card").last();
       const formRect = await formCard.boundingBox();
       const heroTitle = page.getByTestId("commercial-hero-title");
       if (await heroTitle.isVisible()) {
@@ -262,9 +262,9 @@ test.describe("Desktop responsive", () => {
       await openAuthenticatedPage(page, "/dashboard");
       await assertNoHorizontalOverflow(page);
 
-      // Sidebar should be visible on desktop
-      const sidebar = page.locator(".sidebar").first();
-      await expect(sidebar).toBeVisible();
+      // Desktop keeps the same navigation model as mobile: no alternate sidebar.
+      await expect(page.locator(".role-top-navigation")).toBeVisible();
+      await expect(page.locator(".bottom-nav")).toBeVisible();
     });
   }
 });

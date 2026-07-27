@@ -339,7 +339,7 @@ test.describe('Censor workspace', () => {
     await expect(page).toHaveURL(/\/censor$/)
     await expect(page.getByRole('heading', { name: 'Censor workspace' })).toBeVisible()
     await expect(page.getByTestId('censor-workspace-hero')).toContainText('explicit privacy boundaries')
-    await expect(page.getByText('Late arrival warning')).toBeVisible()
+    await expect(page.locator('.desktop-data-table').getByText('Late arrival warning')).toBeVisible()
     await expect(page.getByRole('button', { name: 'Create record' })).toBeVisible()
 
     await page.getByLabel('Member').selectOption('member-2')
@@ -349,8 +349,8 @@ test.describe('Censor workspace', () => {
     await page.getByLabel('Amount').fill('15.00')
     await page.getByRole('button', { name: 'Create record' }).click()
 
-    await expect(page.getByText('Attendance follow-up')).toBeVisible()
-    await expect(page.getByText('Bob Example', { exact: true })).toBeVisible()
+    await expect(page.locator('.desktop-data-table').getByText('Attendance follow-up')).toBeVisible()
+    await expect(page.locator('.desktop-data-table').getByText('Bob Example', { exact: true })).toBeVisible()
   })
 
   test('treasurer cannot enter the censor workspace route', async ({ page }) => {

@@ -85,7 +85,7 @@ export const messages: MessageDictionary = {
     "nav.dashboard": "Tableau de bord",
     "nav.home": "Accueil",
     "nav.profile": "Profil",
-    "nav.security": "Securite",
+    "nav.security": "Sécurité",
     "nav.workspace": "Espace",
     "nav.myProfile": "Mon profil",
     "nav.accountSecurity": "Sécurité du compte",

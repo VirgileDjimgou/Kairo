@@ -718,19 +718,17 @@ test.describe('Dashboard onboarding', () => {
     await expect(page.locator('a[href="/admin/tenants"]').first()).toBeVisible()
   })
 
-  test('keeps the member sidebar compact and personal', async ({ page }) => {
+  test('keeps member modules in the shared horizontal navigation', async ({ page }) => {
     await mockMemberDashboard(page)
     await page.goto('/dashboard')
 
-    const sidebar = page.locator('aside.sidebar')
+    const topNavigation = page.locator('.role-top-navigation')
     await expect(page.getByRole('heading', { name: welcomeBackPattern('Member User') })).toBeVisible()
-    await expect(sidebar.locator('a[href="/members/profile"]')).toBeVisible()
-    await expect(sidebar.locator('a[href="/account/security"]')).toBeVisible()
-    await expect(sidebar.locator('a[href="/chat"]')).toBeVisible()
-    await expect(sidebar.locator('a[href="/events"]')).toBeVisible()
-    await expect(sidebar.locator('a[href="/announcements"]')).toBeVisible()
-    await expect(sidebar.locator('a[href="/finance"]')).toHaveCount(0)
-    await expect(sidebar.locator('a[href="/admin/settings"]')).toHaveCount(0)
-    await expect(sidebar.locator('a[href="/governance"]')).toHaveCount(0)
+    await expect(topNavigation.locator('a[href="/dashboard"]')).toBeVisible()
+    await expect(topNavigation.locator('a[href="/events"]')).toBeVisible()
+    await expect(topNavigation.locator('a[href="/announcements"]')).toBeVisible()
+    await expect(topNavigation.locator('a[href="/finance"]')).toHaveCount(0)
+    await expect(topNavigation.locator('a[href="/admin/settings"]')).toHaveCount(0)
+    await expect(topNavigation.locator('a[href="/governance"]')).toHaveCount(0)
   })
 })

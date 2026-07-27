@@ -145,7 +145,7 @@
                 </div>
               </div>
               <div class="d-flex gap-2 flex-wrap">
-                <span class="badge text-bg-light text-dark border">{{ event.entity_id ?? 'no entity id' }}</span>
+                <span class="badge text-bg-light text-dark border om-technical-value audit-entity-id">{{ event.entity_id ?? 'no entity id' }}</span>
               </div>
             </div>
 
@@ -312,5 +312,12 @@ onMounted(async () => {
   font-size: 0.875rem;
   color: #0f172a;
   word-break: break-word;
+}
+
+.audit-entity-id {
+  display: inline-block;
+  max-width: 100%;
+  white-space: normal;
+  text-align: left;
 }
 </style>

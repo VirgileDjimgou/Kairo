@@ -257,6 +257,7 @@ function handleFollowUp(text: string) {
 
 <style scoped>
 .chat-view {
+  position: relative;
   min-width: 0;
   height: calc(100vh - var(--om-mobile-topbar-height) - 3.75rem);
   height: calc(100dvh - var(--om-mobile-topbar-height) - 3.75rem);
@@ -270,11 +271,8 @@ function handleFollowUp(text: string) {
 
 @media (max-width: 767.98px) {
   .chat-sidebar-wrapper {
-    position: absolute;
-    top: 0;
-    left: 0;
-    bottom: 0;
-    z-index: 10;
+    position: static;
+    height: 100%;
     width: 100%;
     display: none;
   }

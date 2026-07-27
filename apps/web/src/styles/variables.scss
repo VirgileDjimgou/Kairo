@@ -71,7 +71,10 @@
 
   // ── Layout ──
   --om-topbar-height: 56px;
-  --om-mobile-topbar-height: 4.75rem;
+  // The single compact top bar is 56px at every viewport. Keep the sticky
+  // module navigation directly below it instead of preserving a former desktop
+  // header offset on mobile.
+  --om-mobile-topbar-height: var(--om-topbar-height);
   --om-bottomnav-height: 4.5rem;
   --om-sidebar-width: 260px;
   --om-content-max-width: 1280px;

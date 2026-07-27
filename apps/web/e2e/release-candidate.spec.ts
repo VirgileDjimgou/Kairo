@@ -19,8 +19,6 @@ type RoleCase = {
   landingPath: string
   landingHeading: string
   roleLinkLabel?: string
-  landingTitleTestId?: string
-  landingTitleText?: string
   deniedPath?: string
 }
 
@@ -435,7 +433,6 @@ const roleCases: RoleCase[] = [
     profileType: 'member',
     landingPath: '/members/profile',
     landingHeading: 'My profile and contribution statement',
-    roleLinkLabel: 'My profile',
     deniedPath: '/finance',
   },
   {
@@ -515,26 +512,26 @@ const roleCases: RoleCase[] = [
     profileType: 'admin',
     landingPath: '/admin',
     landingHeading: 'Principal admin overview',
-    landingTitleTestId: 'admin-layout-title',
-    landingTitleText: 'Principal Admin Control Plane',
   },
 ]
 
 test.describe('Release candidate regression matrix', () => {
   for (const caseItem of roleCases) {
-    test(`${caseItem.role} lands in the expected workspace and keeps the right sidebar link`, async ({ page }) => {
+    test(`${caseItem.role} lands in the expected workspace and keeps the right module link`, async ({ page }) => {
       await installBaseRoutes(page, caseItem)
       await installRoleRoutes(page, caseItem)
       await page.goto(caseItem.landingPath)
 
       await expect(page.getByRole('heading', { name: caseItem.landingHeading })).toBeVisible()
       if (caseItem.roleLinkLabel) {
-        await expect(page.locator('aside.sidebar').getByRole('link', { name: caseItem.roleLinkLabel })).toBeVisible()
+        const moduleLink = page.locator('.role-top-navigation').getByRole('link', { name: caseItem.roleLinkLabel })
+        const globalDestination = page.locator(`.bottom-nav-item[aria-label="${caseItem.roleLinkLabel}"]`)
+        if (await moduleLink.count()) {
+          await expect(moduleLink).toBeVisible()
+        } else {
+          await expect(globalDestination).toBeVisible()
+        }
       }
-      if (caseItem.landingTitleTestId && caseItem.landingTitleText) {
-        await expect(page.getByTestId(caseItem.landingTitleTestId)).toHaveText(caseItem.landingTitleText)
-      }
-
       if (caseItem.deniedPath) {
         await page.goto(caseItem.deniedPath)
         await expect(page).toHaveURL(/\/dashboard$/)

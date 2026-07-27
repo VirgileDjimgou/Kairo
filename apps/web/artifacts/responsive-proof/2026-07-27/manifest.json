@@ -1,0 +1,21 @@
+{
+  "date": "2026-07-27",
+  "status": "PASS",
+  "physical_devices_used": false,
+  "engines": ["chromium", "webkit"],
+  "counts": {
+    "before": 17,
+    "android": 17,
+    "ios": 4,
+    "desktop": 3,
+    "production": 2,
+    "pending": 0
+  },
+  "production": {
+    "url": "https://app.combissportverein.org/",
+    "health": "https://app.combissportverein.org/health",
+    "metrics": "https://app.combissportverein.org/metrics",
+    "entry_asset": "assets/index-DA61x8BX.js",
+    "http_status": 200
+  }
+}

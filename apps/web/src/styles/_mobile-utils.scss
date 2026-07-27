@@ -37,10 +37,24 @@ textarea {
 }
 
 .om-content-constrain,
-.om-fluid-container,
+.om-fluid-container {
+  overflow-wrap: break-word;
+  word-break: normal;
+  hyphens: auto;
+}
+
 .card,
 .modal-content {
+  overflow-wrap: break-word;
+  word-break: normal;
+  hyphens: auto;
+}
+
+.om-technical-value {
+  max-width: 100%;
   overflow-wrap: anywhere;
+  word-break: break-word;
+  font-family: var(--bs-font-monospace);
 }
 
 // ── Touch targets ──
@@ -246,7 +260,8 @@ html {
   font-weight: 400;
   color: var(--om-neutral-900);
   text-align: right;
-  word-break: break-word;
+  overflow-wrap: break-word;
+  word-break: normal;
 }
 
 .om-data-card-actions {
@@ -256,4 +271,42 @@ html {
   justify-content: flex-end;
   padding-top: var(--om-space-sm);
   border-top: 1px solid var(--om-neutral-100);
+}
+
+.mobile-access-actions {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(9rem, 100%), 1fr));
+  gap: var(--om-space-sm);
+  margin-top: var(--om-space-base);
+  padding-top: var(--om-space-base);
+  border-top: 1px solid var(--om-neutral-100);
+}
+
+.mobile-access-actions .btn {
+  min-height: 44px;
+  width: 100%;
+  white-space: normal;
+}
+
+@media (max-width: 767.98px) {
+  .btn {
+    word-break: normal;
+    overflow-wrap: break-word;
+  }
+
+  .om-data-card-row {
+    min-width: 0;
+  }
+}
+
+@media (max-width: 359.98px) {
+  .om-data-card-row {
+    flex-direction: column;
+    gap: 0.25rem;
+  }
+
+  .om-data-card-value {
+    width: 100%;
+    text-align: left;
+  }
 }

@@ -10,7 +10,7 @@
           {{ overviewSubtitle }}
         </p>
       </div>
-      <div class="d-flex align-items-start gap-2">
+      <div class="admin-header-actions">
         <RouterLink to="/admin/onboarding" class="btn btn-outline-secondary" data-testid="admin-overview-onboarding-button">
           <i class="bi bi-stars me-1"></i>{{ copy.onboardingWizard }}
         </RouterLink>
@@ -477,5 +477,33 @@ onMounted(refresh)
 .quick-action:hover {
   border-color: rgba(31, 79, 143, 0.24);
   background: rgba(31, 79, 143, 0.03);
+}
+
+.admin-header-actions {
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, auto));
+  align-items: start;
+  gap: 0.5rem;
+}
+
+.admin-header-actions .btn {
+  min-height: 44px;
+  white-space: normal;
+}
+
+@media (max-width: 767.98px) {
+  .admin-header-actions {
+    width: 100%;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .admin-header-actions .btn {
+    width: 100%;
+  }
+
+  .admin-header-actions .om-primary-btn {
+    grid-column: 1 / -1;
+    grid-row: 1;
+  }
 }
 </style>

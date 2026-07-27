@@ -27,10 +27,8 @@
       </div>
     </div>
 
-    <div v-else-if="events.length > 0" class="card shadow-sm border-0">
-      <div class="table-responsive">
-        <table class="table table-hover mb-0 align-middle" aria-label="Events list">
-          <thead class="table-light">
+    <ResponsiveDataView v-else-if="events.length > 0" class="card shadow-sm border-0" :items="events" :item-key="(event) => event.id" :mobile-aria-label="t('events.title')">
+      <template #thead>
             <tr>
               <th class="ps-4" scope="col">{{ t('common.title') }}</th>
               <th scope="col">{{ t('common.start') }}</th>
@@ -40,8 +38,8 @@
               <th scope="col">{{ t('common.status') }}</th>
               <th class="text-end pe-4" scope="col">{{ t('common.actions') }}</th>
             </tr>
-          </thead>
-          <tbody>
+      </template>
+      <template #rows>
             <tr v-for="event in events" :key="event.id">
               <td class="ps-4 fw-medium">{{ event.title }}</td>
               <td class="small">{{ formatDate(event.start_at) }}</td>
@@ -65,10 +63,22 @@
                 </button>
               </td>
             </tr>
-          </tbody>
-        </table>
-      </div>
-    </div>
+      </template>
+      <template #mobile-title="{ item: event }">{{ event.title }}</template>
+      <template #mobile-status="{ item: event }">
+        <span class="badge" :class="event.status === 'published' ? 'bg-success-subtle text-success' : event.status === 'cancelled' ? 'bg-danger-subtle text-danger' : 'bg-secondary-subtle text-secondary'">{{ event.status }}</span>
+      </template>
+      <template #mobile-fields="{ item: event }">
+        <div class="om-data-card-row"><span class="om-data-card-label">{{ t('common.start') }}</span><span class="om-data-card-value">{{ formatDate(event.start_at) }}</span></div>
+        <div class="om-data-card-row"><span class="om-data-card-label">{{ t('common.end') }}</span><span class="om-data-card-value">{{ event.end_at ? formatDate(event.end_at) : '—' }}</span></div>
+        <div class="om-data-card-row"><span class="om-data-card-label">{{ t('common.location') }}</span><span class="om-data-card-value">{{ event.location || '—' }}</span></div>
+        <div class="om-data-card-row"><span class="om-data-card-label">{{ t('common.visibility') }}</span><span class="om-data-card-value">{{ event.visibility_scope }}</span></div>
+      </template>
+      <template #mobile-actions="{ item: event }">
+        <button class="btn btn-outline-secondary" type="button" @click="editEvent(event)"><i class="bi bi-pencil me-2"></i>{{ t('events.editEvent') }}</button>
+        <button class="btn btn-outline-danger" type="button" @click="confirmDelete(event)"><i class="bi bi-trash me-2"></i>{{ t('events.deleteEvent') }}</button>
+      </template>
+    </ResponsiveDataView>
     <div v-else class="empty-state">
       <i class="bi bi-calendar-event display-6 text-secondary"></i>
       <p class="mb-1 fw-semibold">{{ t('events.noEvents') }}</p>
@@ -200,6 +210,7 @@ import ConfirmModal from '@/components/ConfirmModal.vue'
 import { listAllEvents, createEvent, updateEvent, deleteEvent, exportEventsCsv, type EventResponse } from '@/api/events.api'
 import { useCsvExport } from '@/composables/useCsvExport'
 import { useLocaleStore } from '@/stores/locale.store'
+import ResponsiveDataView from '@/components/ui/ResponsiveDataView.vue'
 
 const localeStore = useLocaleStore()
 const t = (key: string) => localeStore.t(key)

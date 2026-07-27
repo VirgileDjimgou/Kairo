@@ -80,7 +80,10 @@
       <template #rows>
         <tr v-for="contribution in contributions" :key="contribution.id">
           <td class="ps-4">{{ contribution.year }}</td>
-          <td class="fw-medium font-monospace small">{{ contribution.membership_profile_id.slice(0, 8) }}...</td>
+          <td>
+            <div class="fw-medium">{{ memberFor(contribution.membership_profile_id)?.display_name || t('common.member') }}</div>
+            <div class="font-monospace small text-muted">{{ memberFor(contribution.membership_profile_id)?.member_code || contribution.membership_profile_id.slice(0, 8) }}</div>
+          </td>
           <td>{{ contribution.expected_amount }}</td>
           <td>{{ contribution.paid_amount }}</td>
           <td class="fw-medium" :class="Number(contribution.balance) > 0 ? 'text-danger' : 'text-success'">
@@ -101,8 +104,9 @@
       <template #card="{ item: contribution }">
         <div class="d-flex align-items-start justify-content-between gap-3">
           <div class="min-w-0">
-            <div class="fw-semibold">{{ t('common.member') }}</div>
-            <div class="small text-muted font-monospace text-break">{{ contribution.membership_profile_id }}</div>
+            <div class="fw-semibold">{{ memberFor(contribution.membership_profile_id)?.display_name || t('common.member') }}</div>
+            <div class="small text-muted font-monospace">{{ memberFor(contribution.membership_profile_id)?.member_code || contribution.membership_profile_id.slice(0, 8) }}</div>
+            <div class="small text-muted om-technical-value">{{ contribution.membership_profile_id }}</div>
           </div>
           <span class="badge" :class="statusBadgeClass(contribution.status)">{{ contribution.status }}</span>
         </div>
@@ -299,6 +303,10 @@ const error = ref('')
 const saving = ref(false)
 const contributions = ref<ContributionRecordResponse[]>([])
 const members = ref<MembershipProfileResponse[]>([])
+
+function memberFor(profileId: string) {
+  return members.value.find((member) => member.id === profileId)
+}
 const summary = ref<ContributionSummary | null>(null)
 const selectedYear = ref(new Date().getFullYear())
 const years = Array.from({ length: 5 }, (_, i) => new Date().getFullYear() - i)

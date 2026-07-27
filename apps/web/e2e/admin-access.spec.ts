@@ -42,7 +42,7 @@ async function mockAdminAccess(page: Page) {
       email: 'pending@example.org',
       role_code: 'member',
       status: 'pending',
-      expires_at: '2026-07-10T10:00:00Z',
+      expires_at: '2026-08-10T10:00:00Z',
       created_at: '2026-06-29T10:00:00Z',
     },
     {
@@ -138,7 +138,7 @@ async function mockAdminAccess(page: Page) {
         email: payload.email,
         role_code: payload.role_code,
         status: 'pending',
-        expires_at: '2026-07-12T09:00:00Z',
+        expires_at: '2026-08-12T09:00:00Z',
         delivery_status: 'simulated',
         delivery_message: 'Email provider is running in simulation mode.',
         delivery_simulation_only: true,
@@ -229,7 +229,7 @@ test.describe('Admin access operations', () => {
     await mockAdminAccess(page)
     await page.goto('/admin/access')
 
-    await page.getByRole('button', { name: 'Cancel' }).click()
+    await page.getByRole('table', { name: 'Tenant invitations' }).getByRole('button', { name: 'Cancel' }).click()
     await expect(page.getByRole('row', { name: /pending@example\.org/i })).toContainText('cancelled')
     await expect(page.getByRole('cell', { name: 'accepted@example.org' })).toBeVisible()
   })

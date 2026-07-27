@@ -43,10 +43,8 @@
       </div>
     </div>
 
-    <div v-else-if="announcements.length > 0" class="card shadow-sm border-0">
-      <div class="table-responsive">
-        <table class="table table-hover mb-0 align-middle" :aria-label="copy.title">
-          <thead class="table-light">
+    <ResponsiveDataView v-else-if="announcements.length > 0" class="card shadow-sm border-0" :items="announcements" :item-key="(item) => item.id" :mobile-aria-label="copy.title">
+      <template #thead>
             <tr>
               <th class="ps-4" scope="col">{{ copy.titleColumn }}</th>
               <th scope="col">{{ copy.publishedColumn }}</th>
@@ -54,8 +52,8 @@
               <th scope="col">{{ copy.visibilityColumn }}</th>
               <th class="text-end pe-4" scope="col">{{ copy.actionsColumn }}</th>
             </tr>
-          </thead>
-          <tbody>
+      </template>
+      <template #rows>
             <tr v-for="a in announcements" :key="a.id">
               <td class="ps-4 fw-medium">{{ a.title }}</td>
               <td class="small">{{ a.published_at ? formatDate(a.published_at) : '—' }}</td>
@@ -72,10 +70,19 @@
                 </button>
               </td>
             </tr>
-          </tbody>
-        </table>
-      </div>
-    </div>
+      </template>
+      <template #mobile-title="{ item }">{{ item.title }}</template>
+      <template #mobile-status="{ item }"><span class="badge bg-info-subtle text-info border border-info-subtle">{{ visibilityLabel(item.visibility_scope) }}</span></template>
+      <template #mobile-fields="{ item }">
+        <div class="om-data-card-row"><span class="om-data-card-label">{{ copy.publishedColumn }}</span><span class="om-data-card-value">{{ item.published_at ? formatDate(item.published_at) : '—' }}</span></div>
+        <div class="om-data-card-row"><span class="om-data-card-label">{{ copy.expiresColumn }}</span><span class="om-data-card-value">{{ item.expires_at ? formatDate(item.expires_at) : '—' }}</span></div>
+        <p class="small text-muted mb-0">{{ item.body }}</p>
+      </template>
+      <template #mobile-actions="{ item }">
+        <button class="btn btn-outline-secondary" type="button" @click="editItem(item)"><i class="bi bi-pencil me-2"></i>{{ copy.editAnnouncement }}</button>
+        <button class="btn btn-outline-danger" type="button" @click="confirmDelete(item)"><i class="bi bi-trash me-2"></i>{{ copy.deleteAnnouncement }}</button>
+      </template>
+    </ResponsiveDataView>
     <div v-else class="empty-state">
       <i class="bi bi-megaphone display-6 text-secondary"></i>
       <p class="mb-1 fw-semibold">{{ copy.emptyTitle }}</p>
@@ -139,6 +146,7 @@ import { listAnnouncements, createAnnouncement, updateAnnouncement, deleteAnnoun
 import { useRecoveryState } from '@/composables/useRecoveryState'
 import { useCsvExport } from '@/composables/useCsvExport'
 import { useLocaleStore } from '@/stores/locale.store'
+import ResponsiveDataView from '@/components/ui/ResponsiveDataView.vue'
 
 const localeStore = useLocaleStore()
 const t = (key: string) => localeStore.t(key)

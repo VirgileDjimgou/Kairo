@@ -39,23 +39,19 @@ import { useRoute, useRouter } from 'vue-router'
 import { useAuthStore } from '@/stores/auth.store'
 import { useLocaleStore } from '@/stores/locale.store'
 import { useTenantStore } from '@/stores/tenant.store'
-import type { NavItem, NavSection } from '@/composables/useRoleNavigation'
+import type { NavItem } from '@/composables/useRoleNavigation'
 import AppTopBar from '@/components/ui/AppTopBar.vue'
 import AppBottomNavigation from '@/components/ui/AppBottomNavigation.vue'
 import RoleTopNavigation from '@/components/ui/RoleTopNavigation.vue'
 import type { BottomNavItem } from '@/components/ui/AppBottomNavigation.vue'
 
-withDefaults(defineProps<{
+defineProps<{
   eyebrow: string
   title: string
   icon: string
-  navigation: NavSection[]
   moduleItems: NavItem[]
   bottomNavigation: BottomNavItem[]
-  sidebarClass?: string
-}>(), {
-  sidebarClass: '',
-})
+}>()
 
 const route = useRoute()
 const router = useRouter()

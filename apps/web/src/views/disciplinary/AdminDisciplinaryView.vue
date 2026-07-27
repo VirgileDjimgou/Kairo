@@ -106,9 +106,8 @@
               </p>
             </div>
 
-            <div v-else class="table-responsive">
-              <table class="table align-middle">
-                <thead>
+            <ResponsiveDataView v-else :items="records" :item-key="(record) => record.id" :mobile-aria-label="t('disciplinary.adminTitle')">
+              <template #thead>
                   <tr>
                     <th>{{ t('common.member') }}</th>
                     <th>{{ t('common.title') }}</th>
@@ -118,8 +117,8 @@
                     <th>Recorded</th>
                     <th class="text-end">{{ t('common.actions') }}</th>
                   </tr>
-                </thead>
-                <tbody>
+              </template>
+              <template #rows>
                   <tr v-for="record in records" :key="record.id">
                     <td>
                       <div class="fw-semibold">{{ record.membership_display_name || 'Unknown member' }}</div>
@@ -146,9 +145,25 @@
                       </div>
                     </td>
                   </tr>
-                </tbody>
-              </table>
-            </div>
+              </template>
+              <template #mobile-title="{ item: record }">
+                <div>{{ record.membership_display_name || t('common.member') }}</div>
+                <div class="small text-muted">{{ record.title }}</div>
+              </template>
+              <template #mobile-status="{ item: record }">
+                <span class="badge" :class="statusClass(record.status)">{{ record.status }}</span>
+              </template>
+              <template #mobile-fields="{ item: record }">
+                <div class="om-data-card-row"><span class="om-data-card-label">{{ t('policies.kicker') }}</span><span class="om-data-card-value">{{ record.policy_title || '—' }}</span></div>
+                <div class="om-data-card-row"><span class="om-data-card-label">{{ t('common.amount') }}</span><span class="om-data-card-value text-nowrap fw-semibold">{{ record.amount }} {{ record.currency }}</span></div>
+                <div class="om-data-card-row"><span class="om-data-card-label">Recorded</span><span class="om-data-card-value">{{ formatDate(record.recorded_at) }}</span></div>
+                <p v-if="record.description" class="small text-muted mb-0">{{ record.description }}</p>
+              </template>
+              <template #mobile-actions="{ item: record }">
+                <button class="btn btn-outline-primary" type="button" @click="editRecord(record)">{{ t('common.edit') }}</button>
+                <button class="btn btn-outline-danger" type="button" @click="removeRecord(record)">{{ t('common.delete') }}</button>
+              </template>
+            </ResponsiveDataView>
           </div>
         </div>
       </div>
@@ -178,6 +193,7 @@ import {
   type UpdateDisciplinaryPayload,
 } from '@/api/disciplinary.api'
 import { useLocaleStore } from '@/stores/locale.store'
+import ResponsiveDataView from '@/components/ui/ResponsiveDataView.vue'
 
 const localeStore = useLocaleStore()
 const t = (key: string) => localeStore.t(key)

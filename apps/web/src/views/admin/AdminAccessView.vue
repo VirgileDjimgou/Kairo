@@ -170,7 +170,23 @@
               </p>
             </div>
 
-            <div v-else class="table-responsive">
+            <div v-else>
+              <div class="mobile-data-list d-md-none" aria-label="Tenant invitations">
+                <article v-for="invitation in invitations" :key="invitation.id" class="mobile-data-card om-card-list-item mb-3">
+                  <header class="d-flex justify-content-between align-items-start gap-2 mb-3">
+                    <div class="fw-semibold om-technical-value">{{ invitation.email }}</div>
+                    <span class="badge flex-shrink-0" :class="statusBadgeClass(invitation.status)">{{ invitation.status }}</span>
+                  </header>
+                  <div class="vstack gap-2">
+                    <div class="om-data-card-row"><span class="om-data-card-label">Role</span><span class="om-data-card-value">{{ invitation.role_code }}</span></div>
+                    <div class="om-data-card-row"><span class="om-data-card-label">Expires</span><span class="om-data-card-value">{{ formatDateTime(invitation.expires_at) }}</span></div>
+                  </div>
+                  <button v-if="invitation.status === 'pending'" class="btn btn-outline-danger w-100 mt-3" type="button" :disabled="cancellingId === invitation.id" @click="cancelInvite(invitation.id)">
+                    {{ cancellingId === invitation.id ? 'Cancelling...' : 'Cancel' }}
+                  </button>
+                </article>
+              </div>
+              <div class="table-responsive d-none d-md-block">
               <table class="table align-middle mb-0" aria-label="Tenant invitations">
                 <thead class="table-light">
                   <tr>
@@ -206,6 +222,7 @@
                   </tr>
                 </tbody>
               </table>
+              </div>
             </div>
           </div>
         </div>
@@ -241,7 +258,30 @@
               </p>
             </div>
 
-            <div v-else class="table-responsive">
+            <div v-else>
+              <div class="mobile-data-list d-md-none" aria-label="Tenant user lifecycle" data-testid="admin-user-lifecycle-mobile">
+                <article v-for="managedUser in managedUsers" :key="managedUser.user_id" class="mobile-data-card om-card-list-item mb-3">
+                  <header class="d-flex justify-content-between align-items-start gap-2 mb-3">
+                    <div class="min-w-0">
+                      <div class="fw-semibold">{{ managedUser.display_name }}</div>
+                      <div class="small text-muted om-technical-value">{{ managedUser.email }}</div>
+                    </div>
+                    <span class="badge flex-shrink-0" :class="membershipStatusBadgeClass(managedUser.membership_status)">{{ managedUser.membership_status }}</span>
+                  </header>
+                  <div class="vstack gap-2">
+                    <div class="om-data-card-row"><span class="om-data-card-label">Profile</span><span class="om-data-card-value">{{ managedUser.profile_type }}</span></div>
+                    <div class="d-flex flex-wrap gap-1"><span v-for="role in managedUser.roles" :key="role" class="badge text-bg-light border text-dark">{{ role }}</span></div>
+                    <div class="om-data-card-row"><span class="om-data-card-label">Sessions</span><span class="om-data-card-value">{{ managedUser.active_session_count }}</span></div>
+                    <div class="om-data-card-row"><span class="om-data-card-label">Last activity</span><span class="om-data-card-value">{{ managedUser.last_security_event_at ? formatDateTime(managedUser.last_security_event_at) : 'No recent event' }}</span></div>
+                  </div>
+                  <div class="mobile-access-actions">
+                    <button v-if="managedUser.membership_status === 'active'" class="btn btn-outline-danger" type="button" @click="suspendUser(managedUser.user_id)">Suspend</button>
+                    <button v-else class="btn btn-outline-success" type="button" @click="reactivateUser(managedUser.user_id)">Reactivate</button>
+                    <button class="btn btn-outline-secondary" type="button" @click="revokeUserSessions(managedUser.user_id)">Revoke sessions</button>
+                  </div>
+                </article>
+              </div>
+              <div class="table-responsive d-none d-md-block">
               <table class="table align-middle mb-0" aria-label="Tenant user lifecycle" data-testid="admin-user-lifecycle">
                 <thead class="table-light">
                   <tr>
@@ -309,6 +349,7 @@
                   </tr>
                 </tbody>
               </table>
+              </div>
             </div>
           </div>
         </div>
