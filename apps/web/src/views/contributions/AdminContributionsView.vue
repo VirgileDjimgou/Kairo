@@ -1,11 +1,11 @@
 <template>
   <div class="p-4">
-    <div class="d-flex align-items-center justify-content-between mb-4">
+    <div class="d-flex flex-column flex-md-row align-items-md-start align-items-center justify-content-between gap-3 mb-4">
       <div>
         <h1 class="h4 fw-bold mb-0">{{ t('contributions.title') }}</h1>
         <p class="text-muted small mb-0">{{ t('contributions.subtitle') }}</p>
       </div>
-      <div class="d-flex gap-2 align-items-center">
+      <div class="d-flex flex-wrap gap-2 align-items-center w-100 w-md-auto justify-content-end">
         <select v-model="selectedYear" class="form-select form-select-sm" style="width: auto" @change="loadData">
           <option v-for="y in years" :key="y" :value="y">{{ y }}</option>
         </select>
@@ -163,15 +163,17 @@
               </div>
               <div v-if="contribImportResult.errors.length > 0" class="mb-3">
                 <h6 class="small fw-bold text-danger">{{ t('common.validationErrors') }}</h6>
-                <table class="table table-sm small mb-0">
-                  <thead><tr><th>{{ t('common.row') }}</th><th>{{ t('common.errorColumn') }}</th></tr></thead>
-                  <tbody>
-                    <tr v-for="err in contribImportResult.errors" :key="err.row">
-                      <td>{{ err.row }}</td>
-                      <td>{{ err.message }}</td>
-                    </tr>
-                  </tbody>
-                </table>
+                <div class="table-responsive">
+                  <table class="table table-sm small mb-0">
+                    <thead><tr><th>{{ t('common.row') }}</th><th>{{ t('common.errorColumn') }}</th></tr></thead>
+                    <tbody>
+                      <tr v-for="err in contribImportResult.errors" :key="err.row">
+                        <td>{{ err.row }}</td>
+                        <td><div class="text-break">{{ err.message }}</div></td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </div>
               </div>
               <div v-if="contribImportResult.error_count === 0 && !contribImportDryRun" class="alert alert-success small py-2 mb-0">
                 {{ t('contributions.importSuccess').replace('{count}', String(contribImportResult.success_count)) }}

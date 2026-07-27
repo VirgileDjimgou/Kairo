@@ -4,6 +4,7 @@
     :title="tenantStore.currentTenantName"
     icon="bi-grid-1x2"
     :navigation="appNavigation"
+    :module-items="moduleNavigation"
     :bottom-navigation="bottomNavigation"
     sidebar-class="sidebar"
   >
@@ -22,37 +23,39 @@ import { useRoleNavigation } from "@/composables/useRoleNavigation";
 import { useTenantStore } from "@/stores/tenant.store";
 import { useLocaleStore } from "@/stores/locale.store";
 import AppShell from '@/components/ui/AppShell.vue'
-import type { BottomNavItem } from '@/components/ui/MobileBottomNavigation.vue'
+import type { BottomNavItem } from '@/components/ui/AppBottomNavigation.vue'
 
 const route = useRoute()
 const tenantStore = useTenantStore()
 const localeStore = useLocaleStore()
-const { appNavigation, appHomeLabel } = useRoleNavigation()
+const { appNavigation, moduleNavigation, appHomeLabel } = useRoleNavigation()
 
 function isActive(destination: string) {
   return route.path === destination || (destination !== '/dashboard' && route.path.startsWith(`${destination}/`))
 }
 
 const bottomNavigation = computed<BottomNavItem[]>(() => {
-  const workspace = appNavigation.value
-    .flatMap((section) => section.items)
-    .find((item) => !['/dashboard', '/members/profile', '/account/security', '/chat'].includes(item.to))
-
-  const fifthDestination = workspace?.to || '/events'
-  const fifthIcon = workspace?.icon || 'bi-grid-3x3-gap'
   const chatEnabled = tenantStore.isModuleEnabled('chat')
+  const workspace = moduleNavigation.value.find(
+    (item) => !['/dashboard', '/members/profile', '/account/security', '/chat'].includes(item.to),
+  )
 
   return [
     { id: '/dashboard', label: localeStore.t('nav.home'), icon: 'bi-house-door', active: isActive('/dashboard') },
     { id: '/members/profile', label: localeStore.t('nav.profile'), icon: 'bi-person', active: isActive('/members/profile') },
     { id: '/account/security', label: localeStore.t('nav.security'), icon: 'bi-shield-check', active: isActive('/account/security') },
     {
-      id: chatEnabled ? '/chat' : fifthDestination,
-      label: chatEnabled ? localeStore.t('nav.chat') : localeStore.t('nav.workspace'),
-      icon: chatEnabled ? 'bi-chat-dots' : fifthIcon,
-      active: isActive(chatEnabled ? '/chat' : fifthDestination),
+      id: chatEnabled ? '/chat' : (workspace?.to || '/events'),
+      label: chatEnabled ? localeStore.t('nav.chat') : localeStore.t('nav.more'),
+      icon: chatEnabled ? 'bi-chat-dots' : 'bi-grid-3x3-gap',
+      active: isActive(chatEnabled ? '/chat' : (workspace?.to || '/events')),
     },
-    { id: fifthDestination, label: localeStore.t('nav.workspace'), icon: fifthIcon, active: isActive(fifthDestination) },
+    {
+      id: chatEnabled ? (workspace?.to || '/events') : '/events',
+      label: chatEnabled ? localeStore.t('nav.more') : localeStore.t('nav.events'),
+      icon: 'bi-three-dots',
+      active: isActive(chatEnabled ? (workspace?.to || '/events') : '/events'),
+    },
   ]
 })
 </script>

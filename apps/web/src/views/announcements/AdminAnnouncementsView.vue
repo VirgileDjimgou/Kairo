@@ -1,11 +1,11 @@
 <template>
   <div class="p-4">
-    <div class="d-flex align-items-center justify-content-between mb-4">
+    <div class="d-flex flex-column flex-md-row align-items-md-start align-items-center justify-content-between gap-3 mb-4">
       <div>
         <h1 class="h4 fw-bold mb-0">{{ copy.title }}</h1>
         <p class="text-muted small mb-0">{{ copy.subtitle }}</p>
       </div>
-      <div class="d-flex gap-2">
+      <div class="d-flex flex-wrap gap-2 justify-content-end w-100 w-md-auto">
         <button class="btn btn-outline-secondary btn-sm" @click="exportAnnouncements" :disabled="exporting">
           <i v-if="exporting" class="spinner-border spinner-border-sm me-1"></i>
           <i v-else class="bi bi-download me-1"></i>{{ copy.exportCsv }}

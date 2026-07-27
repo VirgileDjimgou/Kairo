@@ -1,257 +1,379 @@
 <template>
-  <div class="login-shell position-relative">
-    <div class="login-orb login-orb-one"></div>
-    <div class="login-orb login-orb-two"></div>
-    <div class="container-fluid position-relative px-0 login-container">
-      <div class="row g-0 login-grid align-items-stretch">
-        <section class="login-hero-column col-lg-7 p-3 p-md-4 p-lg-5 d-flex">
-          <div class="hero-panel w-100 p-4 p-md-5 d-flex flex-column justify-content-center">
-            <div class="hero-content">
-              <div class="d-flex flex-wrap align-items-center gap-2 hero-brand-row">
-                <span class="brand-mark">
-                  <i class="bi bi-building-fill-gear"></i>
-                </span>
-                <div>
-                  <div class="text-uppercase fw-semibold small hero-kicker">
-                    {{ localeStore.t('app.name') }}
-                  </div>
-                  <div class="small hero-subtitle">
-                    {{ localeStore.t('login.brandSubtitle') }}
-                  </div>
-                </div>
-                <div class="ms-auto hero-language">
-                  <LanguageSelector />
-                </div>
-              </div>
+  <div class="login-shell">
+    <!-- ===== Mobile single-screen layout (<992px) ===== -->
+    <div class="login-mobile">
+      <header class="login-mobile__header">
+        <span class="login-mobile__brand">
+          <i class="bi bi-building-fill-gear"></i>
+        </span>
+        <div class="login-mobile__brand-info">
+          <strong>{{ localeStore.t('app.name') }}</strong>
+          <span>{{ localeStore.t('login.brandSubtitle') }}</span>
+        </div>
+        <LanguageSelector compact :show-label="false" />
+      </header>
 
-              <div data-testid="commercial-hero">
-                <p class="eyebrow mb-2">{{ localeStore.t('login.kicker') }}</p>
-                <h1
-                  data-testid="commercial-hero-title"
-                  class="fw-bold lh-sm hero-title mb-3"
-                >
-                  {{ localeStore.t('login.heroTitle') }}
-                </h1>
-                <p class="lead hero-copy mb-4">
-                  {{ localeStore.t('login.heroCopy') }}
-                </p>
+      <main class="login-mobile__main">
+        <div class="login-mobile__icon">
+          <i class="bi bi-shield-lock"></i>
+        </div>
+        <h2 class="login-mobile__title">{{ localeStore.t('login.signInTitle') }}</h2>
+        <p class="login-mobile__subtitle">{{ localeStore.t('login.signInSubtitle') }}</p>
 
-                <div id="highlights" class="row g-2 hero-features">
-                  <div
-                    v-for="highlight in heroHighlights"
-                    :key="highlight.title"
-                    class="col-md-4"
-                  >
-                    <article class="feature-card h-100 p-3">
-                      <div class="highlight-icon mb-2">
-                        <i :class="highlight.icon"></i>
-                      </div>
-                      <h2 class="h6 fw-bold mb-1">{{ highlight.title }}</h2>
-                      <p class="small hero-highlight-copy mb-0">
-                        {{ highlight.text }}
-                      </p>
-                    </article>
-                  </div>
-                </div>
-              </div>
+        <!-- Login form -->
+        <form v-if="!showTenantPicker && !needsMfa" @submit.prevent="handleLogin" novalidate
+              class="login-mobile__form">
+          <div class="mb-2">
+            <label for="email" class="form-label fw-medium small">{{ localeStore.t('login.email') }}</label>
+            <input
+              id="email"
+              v-model.trim="form.email"
+              type="email"
+              class="form-control"
+              :class="{ 'is-invalid': errors.email }"
+              :placeholder="localeStore.t('login.emailPlaceholder')"
+              autocomplete="email"
+              required
+            />
+            <div v-if="errors.email" class="invalid-feedback">{{ errors.email }}</div>
+          </div>
+
+          <div class="mb-2">
+            <label for="password" class="form-label fw-medium small">{{ localeStore.t('login.password') }}</label>
+            <input
+              id="password"
+              v-model="form.password"
+              type="password"
+              class="form-control"
+              :class="{ 'is-invalid': errors.password }"
+              placeholder="••••••••"
+              autocomplete="current-password"
+              required
+            />
+            <div v-if="errors.password" class="invalid-feedback">{{ errors.password }}</div>
+            <div class="mt-1 text-end">
+              <router-link to="/forgot-password" class="small text-muted">
+                {{ localeStore.t('login.forgotPassword') }}
+              </router-link>
             </div>
           </div>
-        </section>
 
-        <section class="login-auth-column col-lg-5 p-3 p-md-4 p-lg-5 d-flex align-items-center justify-content-center">
-          <div
-            id="signin-card"
-            class="auth-card card shadow-lg border-0 p-4 p-md-5 w-100"
+          <div v-if="errorMessage" class="alert alert-danger py-2 small" role="alert">
+            <i class="bi bi-exclamation-circle me-1"></i>{{ errorMessage }}
+          </div>
+
+          <button
+            type="submit"
+            class="btn btn-primary w-100 py-2 fw-medium"
+            :disabled="loading"
           >
-            <div class="text-center auth-heading">
-              <div class="brand-icon mb-2">
-                <i class="bi bi-shield-lock fs-3 text-primary"></i>
+            <span v-if="loading" class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
+            {{ loading ? localeStore.t('login.signingIn') : localeStore.t('login.signIn') }}
+          </button>
+        </form>
+
+        <!-- MFA challenge step -->
+        <form v-else-if="needsMfa" @submit.prevent="handleMfa" novalidate class="login-mobile__form">
+          <div class="text-center mb-3">
+            <h3 class="h6 fw-bold mb-1">{{ localeStore.t('login.mfaTitle') }}</h3>
+            <p class="text-muted small mb-0">{{ localeStore.t('login.mfaSubtitle') }}</p>
+          </div>
+          <div class="mb-3">
+            <input
+              v-model="mfaCode"
+              type="text"
+              id="mfa-code"
+              class="form-control text-center"
+              :class="{ 'is-invalid': errors.mfaCode }"
+              placeholder="000000"
+              maxlength="6"
+              autocomplete="off"
+              required
+            />
+            <div v-if="errors.mfaCode" class="invalid-feedback">{{ errors.mfaCode }}</div>
+          </div>
+          <div v-if="errorMessage" class="alert alert-danger py-2 small" role="alert">
+            <i class="bi bi-exclamation-circle me-1"></i>{{ errorMessage }}
+          </div>
+          <button type="submit" class="btn btn-primary w-100 py-2 fw-medium" :disabled="loading">
+            <span v-if="loading" class="spinner-border spinner-border-sm me-2" role="status"></span>
+            {{ loading ? localeStore.t('login.verifying') : localeStore.t('login.verify') }}
+          </button>
+          <button type="button" class="btn btn-link btn-sm w-100 mt-2 text-muted" @click="cancelMfa">
+            {{ localeStore.t('login.backToSignIn') }}
+          </button>
+        </form>
+
+        <!-- Tenant picker -->
+        <div v-else class="login-mobile__form">
+          <div class="text-center mb-3">
+            <h3 class="h6 fw-bold mb-1">{{ localeStore.t('login.chooseOrganization') }}</h3>
+            <p class="text-muted small mb-0">{{ localeStore.t('login.chooseOrganizationSubtitle') }}</p>
+          </div>
+          <div class="vstack gap-2">
+            <button
+              v-for="membership in tenantStore.memberships"
+              :key="membership.tenant_id"
+              class="btn btn-outline-secondary text-start p-2 tenant-option"
+              :disabled="switchingTenant"
+              @click="selectTenant(membership.tenant_id)"
+            >
+              <div class="fw-medium small">{{ membership.name }}</div>
+              <div class="small text-muted">
+                <span class="badge bg-light text-dark me-1">{{ membership.slug }}</span>
+                {{ membership.roles.join(', ') }}
               </div>
-              <h2 class="h4 fw-bold mb-1">{{ localeStore.t('login.signInTitle') }}</h2>
-              <p class="text-muted small mb-0">
-                {{ localeStore.t('login.signInSubtitle') }}
-              </p>
-            </div>
+            </button>
+          </div>
+          <hr class="my-2" />
+          <button class="btn btn-link btn-sm w-100 text-muted" @click="handleLogout">
+            {{ localeStore.t('login.signOutTryAnother') }}
+          </button>
+        </div>
 
-            <!-- Login form (hidden during MFA or tenant selection) -->
-            <form v-if="!showTenantPicker && !needsMfa" @submit.prevent="handleLogin" novalidate>
-              <div class="mb-3">
-                <label for="email" class="form-label fw-medium">{{ localeStore.t('login.email') }}</label>
-                <input
-                  id="email"
-                  v-model.trim="form.email"
-                  type="email"
-                  class="form-control"
-                  :class="{ 'is-invalid': errors.email }"
-                  :placeholder="localeStore.t('login.emailPlaceholder')"
-                  autocomplete="email"
-                  required
-                />
-                <div v-if="errors.email" class="invalid-feedback">
-                  {{ errors.email }}
-                </div>
-              </div>
+        <!-- Dev credentials hint -->
+        <div
+          v-if="isDev && !showTenantPicker && !needsMfa"
+          class="login-mobile__dev"
+        >
+          <p class="text-muted small mb-1 fw-medium">
+            <i class="bi bi-info-circle me-1"></i>{{ localeStore.t('login.devCredentials') }}
+          </p>
+          <code class="small d-block text-secondary">admin@demo.org / Admin123!</code>
+          <button class="btn btn-outline-secondary btn-sm mt-1" @click="fillDemoCredentials">
+            {{ localeStore.t('login.fillDemoCredentials') }}
+          </button>
+        </div>
+      </main>
 
-              <div class="mb-3">
-                <label for="password" class="form-label fw-medium">{{ localeStore.t('login.password') }}</label>
-                <input
-                  id="password"
-                  v-model="form.password"
-                  type="password"
-                  class="form-control"
-                  :class="{ 'is-invalid': errors.password }"
-                  placeholder="••••••••"
-                  autocomplete="current-password"
-                  required
-                />
-                <div v-if="errors.password" class="invalid-feedback">
-                  {{ errors.password }}
-                </div>
-                <div class="mt-1 text-end">
-                  <router-link to="/forgot-password" class="small text-muted">
-                    {{ localeStore.t('login.forgotPassword') }}
-                  </router-link>
-                </div>
-              </div>
+      <footer class="login-mobile__footer">
+        <span>{{ localeStore.t('app.name') }}</span>
+        <span class="text-muted">{{ localeStore.t('login.heroTitle') }}</span>
+      </footer>
+    </div>
 
-              <div
-                v-if="errorMessage"
-                class="alert alert-danger py-2 small"
-                role="alert"
-              >
-                <i class="bi bi-exclamation-circle me-1"></i>{{ errorMessage }}
-              </div>
-
-              <button
-                type="submit"
-                class="btn btn-primary w-100 py-2 mt-1 fw-medium"
-                :disabled="loading"
-              >
-                <span
-                  v-if="loading"
-                  class="spinner-border spinner-border-sm me-2"
-                  role="status"
-                  aria-hidden="true"
-                ></span>
-                {{ loading ? localeStore.t('login.signingIn') : localeStore.t('login.signIn') }}
-              </button>
-            </form>
-
-            <!-- MFA challenge step -->
-            <form v-else-if="needsMfa" @submit.prevent="handleMfa" novalidate>
-              <div class="text-center mb-4">
-                <i class="bi bi-shield-lock fs-1 text-primary"></i>
-                <h3 class="h5 fw-bold mt-2 mb-1">{{ localeStore.t('login.mfaTitle') }}</h3>
-                <p class="text-muted small mb-0">
-                  {{ localeStore.t('login.mfaSubtitle') }}
-                </p>
-              </div>
-
-              <div class="mb-3">
-                <label for="mfa-code" class="form-label fw-medium">{{ localeStore.t('login.mfaCode') }}</label>
-                <input
-                  id="mfa-code"
-                  v-model="mfaCode"
-                  type="text"
-                  class="form-control text-center"
-                  :class="{ 'is-invalid': errors.mfaCode }"
-                  placeholder="000000"
-                  maxlength="6"
-                  autocomplete="off"
-                  required
-                />
-                <div v-if="errors.mfaCode" class="invalid-feedback">
-                  {{ errors.mfaCode }}
-                </div>
-              </div>
-
-              <div
-                v-if="errorMessage"
-                class="alert alert-danger py-2 small"
-                role="alert"
-              >
-                <i class="bi bi-exclamation-circle me-1"></i>{{ errorMessage }}
-              </div>
-
-              <button
-                type="submit"
-                class="btn btn-primary w-100 py-2 mt-1 fw-medium"
-                :disabled="loading"
-              >
-                <span
-                  v-if="loading"
-                  class="spinner-border spinner-border-sm me-2"
-                  role="status"
-                  aria-hidden="true"
-                ></span>
-                {{ loading ? localeStore.t('login.verifying') : localeStore.t('login.verify') }}
-              </button>
-
-              <button
-                type="button"
-                class="btn btn-link btn-sm w-100 mt-2 text-muted"
-                @click="cancelMfa"
-              >
-                {{ localeStore.t('login.backToSignIn') }}
-              </button>
-            </form>
-
-            <!-- Tenant picker (after login when multiple memberships) -->
-            <div v-else>
-              <div class="text-center mb-4">
-                <i class="bi bi-building fs-1 text-primary"></i>
-                <h3 class="h5 fw-bold mt-2 mb-1">{{ localeStore.t('login.chooseOrganization') }}</h3>
-                <p class="text-muted small mb-0">
-                  {{ localeStore.t('login.chooseOrganizationSubtitle') }}
-                </p>
-              </div>
-
-              <div class="vstack gap-2">
-                <button
-                  v-for="membership in tenantStore.memberships"
-                  :key="membership.tenant_id"
-                  class="btn btn-outline-secondary text-start p-3 tenant-option"
-                  :disabled="switchingTenant"
-                  @click="selectTenant(membership.tenant_id)"
-                >
-                  <div class="fw-medium">{{ membership.name }}</div>
-                  <div class="small text-muted">
-                    <span class="badge bg-light text-dark me-1">{{ membership.slug }}</span>
-                    {{ membership.roles.join(', ') }}
+    <!-- ===== Desktop two-column layout (≥992px) ===== -->
+    <div class="login-desktop">
+      <div class="login-orb login-orb-one"></div>
+      <div class="login-orb login-orb-two"></div>
+      <div class="container-fluid position-relative px-0 login-container">
+        <div class="row g-0 login-grid align-items-stretch">
+          <section class="login-hero-column col-lg-7 p-3 p-md-4 p-lg-5 d-flex">
+            <div class="hero-panel w-100 p-4 p-md-5 d-flex flex-column justify-content-center">
+              <div class="hero-content">
+                <div class="d-flex flex-wrap align-items-center gap-2 hero-brand-row">
+                  <span class="brand-mark">
+                    <i class="bi bi-building-fill-gear"></i>
+                  </span>
+                  <div>
+                    <div class="text-uppercase fw-semibold small hero-kicker">
+                      {{ localeStore.t('app.name') }}
+                    </div>
+                    <div class="small hero-subtitle">
+                      {{ localeStore.t('login.brandSubtitle') }}
+                    </div>
                   </div>
+                  <div class="ms-auto hero-language">
+                    <LanguageSelector />
+                  </div>
+                </div>
+
+                <div data-testid="commercial-hero">
+                  <p class="eyebrow mb-2">{{ localeStore.t('login.kicker') }}</p>
+                  <h1
+                    data-testid="commercial-hero-title"
+                    class="fw-bold lh-sm hero-title mb-3"
+                  >
+                    {{ localeStore.t('login.heroTitle') }}
+                  </h1>
+                  <p class="lead hero-copy mb-4">
+                    {{ localeStore.t('login.heroCopy') }}
+                  </p>
+
+                  <div id="highlights" class="row g-2 hero-features">
+                    <div
+                      v-for="highlight in heroHighlights"
+                      :key="highlight.title"
+                      class="col-md-4"
+                    >
+                      <article class="feature-card h-100 p-3">
+                        <div class="highlight-icon mb-2">
+                          <i :class="highlight.icon"></i>
+                        </div>
+                        <h2 class="h6 fw-bold mb-1">{{ highlight.title }}</h2>
+                        <p class="small hero-highlight-copy mb-0">
+                          {{ highlight.text }}
+                        </p>
+                      </article>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </section>
+
+          <section class="login-auth-column col-lg-5 p-3 p-md-4 p-lg-5 d-flex align-items-center justify-content-center">
+            <div
+              id="signin-card"
+              class="auth-card card shadow-lg border-0 p-4 p-md-5 w-100"
+            >
+              <div class="text-center auth-heading">
+                <div class="brand-icon mb-2">
+                  <i class="bi bi-shield-lock fs-3 text-primary"></i>
+                </div>
+                <h2 class="h4 fw-bold mb-1">{{ localeStore.t('login.signInTitle') }}</h2>
+                <p class="text-muted small mb-0">
+                  {{ localeStore.t('login.signInSubtitle') }}
+                </p>
+              </div>
+
+              <form v-if="!showTenantPicker && !needsMfa" @submit.prevent="handleLogin" novalidate>
+                <div class="mb-3">
+                  <label for="email" class="form-label fw-medium">{{ localeStore.t('login.email') }}</label>
+                  <input
+                    id="email"
+                    v-model.trim="form.email"
+                    type="email"
+                    class="form-control"
+                    :class="{ 'is-invalid': errors.email }"
+                    :placeholder="localeStore.t('login.emailPlaceholder')"
+                    autocomplete="email"
+                    required
+                  />
+                  <div v-if="errors.email" class="invalid-feedback">
+                    {{ errors.email }}
+                  </div>
+                </div>
+
+                <div class="mb-3">
+                  <label for="password" class="form-label fw-medium">{{ localeStore.t('login.password') }}</label>
+                  <input
+                    id="password"
+                    v-model="form.password"
+                    type="password"
+                    class="form-control"
+                    :class="{ 'is-invalid': errors.password }"
+                    placeholder="••••••••"
+                    autocomplete="current-password"
+                    required
+                  />
+                  <div v-if="errors.password" class="invalid-feedback">
+                    {{ errors.password }}
+                  </div>
+                  <div class="mt-1 text-end">
+                    <router-link to="/forgot-password" class="small text-muted">
+                      {{ localeStore.t('login.forgotPassword') }}
+                    </router-link>
+                  </div>
+                </div>
+
+                <div
+                  v-if="errorMessage"
+                  class="alert alert-danger py-2 small"
+                  role="alert"
+                >
+                  <i class="bi bi-exclamation-circle me-1"></i>{{ errorMessage }}
+                </div>
+
+                <button
+                  type="submit"
+                  class="btn btn-primary w-100 py-2 mt-1 fw-medium"
+                  :disabled="loading"
+                >
+                  <span
+                    v-if="loading"
+                    class="spinner-border spinner-border-sm me-2"
+                    role="status"
+                    aria-hidden="true"
+                  ></span>
+                  {{ loading ? localeStore.t('login.signingIn') : localeStore.t('login.signIn') }}
+                </button>
+              </form>
+
+              <form v-else-if="needsMfa" @submit.prevent="handleMfa" novalidate>
+                <div class="text-center mb-4">
+                  <i class="bi bi-shield-lock fs-1 text-primary"></i>
+                  <h3 class="h5 fw-bold mt-2 mb-1">{{ localeStore.t('login.mfaTitle') }}</h3>
+                  <p class="text-muted small mb-0">
+                    {{ localeStore.t('login.mfaSubtitle') }}
+                  </p>
+                </div>
+                <div class="mb-3">
+                  <label for="mfa-code" class="form-label fw-medium">{{ localeStore.t('login.mfaCode') }}</label>
+                  <input
+                    id="mfa-code"
+                    v-model="mfaCode"
+                    type="text"
+                    class="form-control text-center"
+                    :class="{ 'is-invalid': errors.mfaCode }"
+                    placeholder="000000"
+                    maxlength="6"
+                    autocomplete="off"
+                    required
+                  />
+                  <div v-if="errors.mfaCode" class="invalid-feedback">
+                    {{ errors.mfaCode }}
+                  </div>
+                </div>
+                <div v-if="errorMessage" class="alert alert-danger py-2 small" role="alert">
+                  <i class="bi bi-exclamation-circle me-1"></i>{{ errorMessage }}
+                </div>
+                <button type="submit" class="btn btn-primary w-100 py-2 mt-1 fw-medium" :disabled="loading">
+                  <span v-if="loading" class="spinner-border spinner-border-sm me-2" role="status"></span>
+                  {{ loading ? localeStore.t('login.verifying') : localeStore.t('login.verify') }}
+                </button>
+                <button type="button" class="btn btn-link btn-sm w-100 mt-2 text-muted" @click="cancelMfa">
+                  {{ localeStore.t('login.backToSignIn') }}
+                </button>
+              </form>
+
+              <div v-else>
+                <div class="text-center mb-4">
+                  <i class="bi bi-building fs-1 text-primary"></i>
+                  <h3 class="h5 fw-bold mt-2 mb-1">{{ localeStore.t('login.chooseOrganization') }}</h3>
+                  <p class="text-muted small mb-0">
+                    {{ localeStore.t('login.chooseOrganizationSubtitle') }}
+                  </p>
+                </div>
+                <div class="vstack gap-2">
+                  <button
+                    v-for="membership in tenantStore.memberships"
+                    :key="membership.tenant_id"
+                    class="btn btn-outline-secondary text-start p-3 tenant-option"
+                    :disabled="switchingTenant"
+                    @click="selectTenant(membership.tenant_id)"
+                  >
+                    <div class="fw-medium">{{ membership.name }}</div>
+                    <div class="small text-muted">
+                      <span class="badge bg-light text-dark me-1">{{ membership.slug }}</span>
+                      {{ membership.roles.join(', ') }}
+                    </div>
+                  </button>
+                </div>
+                <hr class="my-3" />
+                <button class="btn btn-link btn-sm w-100 text-muted" @click="handleLogout">
+                  {{ localeStore.t('login.signOutTryAnother') }}
                 </button>
               </div>
 
-              <hr class="my-3" />
-              <button
-                class="btn btn-link btn-sm w-100 text-muted"
-                @click="handleLogout"
+              <div
+                v-if="isDev && !showTenantPicker && !needsMfa"
+                class="mt-4 p-3 rounded bg-light border border-dashed"
               >
-                {{ localeStore.t('login.signOutTryAnother') }}
-              </button>
+                <p class="text-muted small mb-1 fw-medium">
+                  <i class="bi bi-info-circle me-1"></i>{{ localeStore.t('login.devCredentials') }}
+                </p>
+                <code class="small d-block text-secondary">admin@demo.org</code>
+                <code class="small d-block text-secondary">Admin123!</code>
+                <code class="small d-block text-secondary">alice@demo.org</code>
+                <code class="small d-block text-secondary">Member123!</code>
+                <button class="btn btn-outline-secondary btn-sm mt-2" @click="fillDemoCredentials">
+                  {{ localeStore.t('login.fillDemoCredentials') }}
+                </button>
+              </div>
             </div>
-
-            <!-- Dev credentials hint -->
-            <div
-              v-if="isDev && !showTenantPicker && !needsMfa"
-              class="mt-4 p-3 rounded bg-light border border-dashed"
-            >
-              <p class="text-muted small mb-1 fw-medium">
-                <i class="bi bi-info-circle me-1"></i>{{ localeStore.t('login.devCredentials') }}
-              </p>
-              <code class="small d-block text-secondary">admin@demo.org</code>
-              <code class="small d-block text-secondary">Admin123!</code>
-              <code class="small d-block text-secondary">alice@demo.org</code>
-              <code class="small d-block text-secondary">Member123!</code>
-              <button
-                class="btn btn-outline-secondary btn-sm mt-2"
-                @click="fillDemoCredentials"
-              >
-                {{ localeStore.t('login.fillDemoCredentials') }}
-              </button>
-            </div>
-          </div>
-        </section>
+          </section>
+        </div>
       </div>
     </div>
   </div>
@@ -415,10 +537,163 @@ function handleLogout() {
 <style scoped>
 .login-shell {
   min-height: 100dvh;
-  overflow-x: clip;
+  overflow: hidden;
   background: #eef2f7;
 }
 
+/* ===== Mobile layout (<992px) ===== */
+.login-mobile {
+  display: flex;
+  flex-direction: column;
+  min-height: 100dvh;
+  max-width: 480px;
+  margin: 0 auto;
+  background: #eef2f7;
+  padding:
+    max(0.5rem, env(safe-area-inset-top, 0px))
+    1rem
+    max(0.5rem, env(safe-area-inset-bottom, 0px));
+}
+
+.login-mobile__header {
+  display: flex;
+  align-items: center;
+  gap: 0.625rem;
+  padding: 0.25rem 0 0.5rem;
+  flex: 0 0 auto;
+}
+
+.login-mobile__brand {
+  display: inline-flex;
+  width: 2.25rem;
+  height: 2.25rem;
+  align-items: center;
+  justify-content: center;
+  border-radius: 0.625rem;
+  background: #14233a;
+  color: #fff;
+  font-size: 0.9rem;
+  flex: 0 0 auto;
+}
+
+.login-mobile__brand-info {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  flex: 1 1 auto;
+}
+
+.login-mobile__brand-info strong {
+  font-size: 0.85rem;
+  line-height: 1.2;
+  color: #14233a;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.login-mobile__brand-info span {
+  font-size: 0.6875rem;
+  color: #6c757d;
+  line-height: 1.2;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.login-mobile__header :deep(.language-selector--compact) {
+  flex: 0 0 auto;
+}
+
+.login-mobile__main {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  flex: 1 1 auto;
+  gap: 0.5rem;
+  padding: 0.75rem 0;
+  min-height: 0;
+}
+
+.login-mobile__icon {
+  display: inline-flex;
+  width: 2.75rem;
+  height: 2.75rem;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  background: rgba(31, 79, 143, 0.08);
+  color: var(--om-primary, #1e63b5);
+  font-size: 1.25rem;
+  flex: 0 0 auto;
+}
+
+.login-mobile__title {
+  font-size: 1.15rem;
+  font-weight: 700;
+  color: #14233a;
+  margin: 0;
+  text-align: center;
+}
+
+.login-mobile__subtitle {
+  font-size: 0.8rem;
+  color: #6c757d;
+  text-align: center;
+  margin: 0 0 0.25rem;
+}
+
+.login-mobile__form {
+  width: 100%;
+  max-width: 340px;
+}
+
+.login-mobile__dev {
+  width: 100%;
+  max-width: 340px;
+  margin-top: 0.75rem;
+  padding: 0.625rem;
+  border-radius: 0.625rem;
+  background: #f8f9fa;
+  border: 1px dashed #dee2e6;
+}
+
+.login-mobile__footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.25rem 0;
+  flex: 0 0 auto;
+}
+
+.login-mobile__footer span {
+  font-size: 0.6875rem;
+  font-weight: 600;
+  color: #14233a;
+}
+
+.login-mobile__footer .text-muted {
+  font-weight: 400;
+  font-size: 0.6875rem;
+}
+
+/* ===== Desktop layout (≥992px) ===== */
+.login-desktop {
+  display: none;
+}
+
+@media (min-width: 992px) {
+  .login-mobile {
+    display: none;
+  }
+
+  .login-desktop {
+    display: block;
+  }
+}
+
+/* — Desktop two-column styles — */
 .login-container,
 .login-grid {
   min-height: 100dvh;
@@ -570,65 +845,6 @@ function handleLogout() {
 
 .tenant-option:hover {
   background: rgba(31, 79, 143, 0.06);
-}
-
-@media (max-width: 991.98px) {
-  .login-container,
-  .login-grid {
-    min-height: auto;
-  }
-
-  .login-auth-column {
-    min-height: 100svh;
-    padding: max(1rem, env(safe-area-inset-top, 0px)) 1rem 1rem !important;
-  }
-
-  .login-auth-column {
-    order: -1;
-  }
-
-  .login-hero-column {
-    min-height: auto;
-    padding: 0 1rem calc(6.5rem + env(safe-area-inset-bottom, 0px)) !important;
-  }
-
-  .hero-title {
-    max-width: none;
-    font-size: clamp(2rem, 9vw, 2.65rem);
-  }
-
-  .hero-panel {
-    min-height: auto;
-    padding: 1.5rem !important;
-  }
-
-  .hero-brand-row {
-    margin-bottom: 1.5rem;
-  }
-
-  .hero-features {
-    display: none;
-  }
-
-  .hero-copy {
-    margin-bottom: 0 !important;
-    font-size: 1rem;
-  }
-
-  .auth-card {
-    max-width: 34rem;
-    padding: 1.5rem !important;
-  }
-
-  .auth-heading {
-    margin-bottom: 1.25rem;
-  }
-
-  .brand-icon {
-    width: 3rem;
-    height: 3rem;
-    border-radius: 0.875rem;
-  }
 }
 
 @media (min-width: 992px) {

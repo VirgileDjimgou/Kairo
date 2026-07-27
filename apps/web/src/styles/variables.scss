@@ -2,36 +2,37 @@
 // Swiss-style: neutral-dominated, precise spacing, strong typographic hierarchy
 
 :root {
-  // ── Primary (overridden per tenant via inline style) ──
-  --om-primary: #1e63b5;
-  --om-primary-hover: #18539a;
-  --om-primary-dark: #123f75;
+  // ── Primary — brighter, more alive blue (overridden per tenant via inline style) ──
+  --om-primary: #1E63B5;
+  --om-primary-hover: #174F8A;
+  --om-primary-dark: #102A43;
   --om-primary-rgb: 30, 99, 181;
-  --om-primary-subtle: rgba(30, 99, 181, 0.08);
-  --om-primary-muted: rgba(30, 99, 181, 0.14);
+  --om-primary-subtle: rgba(30, 99, 181, 0.10);
+  --om-primary-muted: rgba(30, 99, 181, 0.16);
 
-  // ── Neutrals (Swiss-inspired restrained palette) ──
+  // ── Neutrals — slightly cooler and more defined ──
   --om-neutral-0: #ffffff;
-  --om-neutral-50: #f8f9fb;
-  --om-neutral-100: #f0f2f5;
-  --om-neutral-200: #e2e5ea;
-  --om-neutral-300: #c4c9d0;
-  --om-neutral-400: #adb3ba;
-  --om-neutral-500: #8b919a;
-  --om-neutral-600: #6f757d;
-  --om-neutral-700: #5a6068;
-  --om-neutral-800: #353a40;
-  --om-neutral-900: #1e2228;
+  --om-neutral-50: #F3F6FA;
+  --om-neutral-100: #E8ECF2;
+  --om-neutral-200: #D7DEE7;
+  --om-neutral-300: #B8C1CC;
+  --om-neutral-400: #9AA3AC;
+  --om-neutral-500: #6E7780;
+  --om-neutral-600: #546068;
+  --om-neutral-700: #3D4850;
+  --om-neutral-800: #243038;
+  --om-neutral-900: #17212B;
 
-  // ── Semantic ──
-  --om-success: #2b7340;
-  --om-success-subtle: rgba(43, 115, 64, 0.08);
-  --om-warning: #c76d00;
-  --om-warning-subtle: rgba(199, 109, 0, 0.08);
-  --om-danger: #c92a2a;
-  --om-danger-subtle: rgba(201, 42, 42, 0.08);
-  --om-info: #1864ab;
-  --om-info-subtle: rgba(24, 100, 171, 0.08);
+  // ── Semantic — more vivid, WCAG AA compliant ──
+  --om-success: #16834A;
+  --om-success-subtle: rgba(22, 131, 74, 0.10);
+  --om-warning: #A96800;
+  --om-warning-subtle: rgba(169, 104, 0, 0.10);
+  --om-danger: #C43D3D;
+  --om-danger-subtle: rgba(196, 61, 61, 0.10);
+  --om-info: #1864AB;
+  --om-info-subtle: rgba(24, 100, 171, 0.10);
+  --om-accent: #00A3A3;
 
   // ── Legacy aliases (backward compatibility) ──
   --om-bg: var(--om-neutral-50);

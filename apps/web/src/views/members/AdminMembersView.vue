@@ -1,11 +1,11 @@
 <template>
   <div class="p-4">
-    <div class="d-flex align-items-center justify-content-between mb-4">
+    <div class="d-flex flex-column flex-md-row align-items-md-start align-items-center justify-content-between gap-3 mb-4">
       <div>
         <h1 class="h4 fw-bold mb-0">{{ t('members.title') }}</h1>
         <p class="text-muted small mb-0">{{ t('members.subtitle') }}</p>
       </div>
-      <div class="d-flex gap-2">
+      <div class="d-flex flex-wrap gap-2 justify-content-end w-100 w-md-auto">
         <button class="btn btn-outline-secondary btn-sm" @click="exportMembers" :disabled="exporting">
           <i v-if="exporting" class="spinner-border spinner-border-sm me-1"></i>
           <i v-else class="bi bi-download me-1"></i>{{ t('common.exportCsv') }}
@@ -118,15 +118,17 @@
               </div>
               <div v-if="importResult.errors.length > 0" class="mb-3">
                 <h6 class="small fw-bold text-danger">{{ t('common.validationErrors') }}</h6>
-                <table class="table table-sm small mb-0">
-                  <thead><tr><th>{{ t('common.row') }}</th><th>{{ t('common.errorColumn') }}</th></tr></thead>
-                  <tbody>
-                    <tr v-for="err in importResult.errors" :key="err.row">
-                      <td>{{ err.row }}</td>
-                      <td>{{ err.message }}</td>
-                    </tr>
-                  </tbody>
-                </table>
+                <div class="table-responsive">
+                  <table class="table table-sm small mb-0">
+                    <thead><tr><th>{{ t('common.row') }}</th><th>{{ t('common.errorColumn') }}</th></tr></thead>
+                    <tbody>
+                      <tr v-for="err in importResult.errors" :key="err.row">
+                        <td>{{ err.row }}</td>
+                        <td><div class="text-break">{{ err.message }}</div></td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </div>
               </div>
               <div v-if="importResult.error_count === 0 && !importDryRun" class="alert alert-success small py-2 mb-0">
                 {{ t('members.successfullyImported').replace('{count}', String(importResult.success_count)) }}

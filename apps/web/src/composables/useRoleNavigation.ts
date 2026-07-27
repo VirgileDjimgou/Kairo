@@ -374,6 +374,22 @@ export function useRoleNavigation() {
       : localeStore.t("home.organizationPortal");
   });
 
+  const personalRouteIds = new Set([
+    "/members/profile",
+    "/account/security",
+    "/chat",
+  ]);
+
+  const moduleNavigation = computed<NavItem[]>(() =>
+    appNavigation.value
+      .flatMap((section) => section.items)
+      .filter((item) => !personalRouteIds.has(item.to)),
+  );
+
+  const adminModuleNavigation = computed<NavItem[]>(() =>
+    adminNavigation.value.flatMap((section) => section.items),
+  );
+
   const adminConsoleLabel = computed(() =>
     isPrincipalAdmin.value
       ? localeStore.t("layout.principalAdminConsole")
@@ -392,6 +408,8 @@ export function useRoleNavigation() {
     showSportsWorkspace,
     appNavigation,
     adminNavigation,
+    moduleNavigation,
+    adminModuleNavigation,
     appHomeLabel,
     adminConsoleLabel,
   };

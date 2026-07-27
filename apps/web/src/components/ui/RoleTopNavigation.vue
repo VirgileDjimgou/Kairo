@@ -16,21 +16,21 @@
 </template>
 
 <script setup lang="ts">
-import { computed, nextTick, onMounted, ref, watch } from 'vue'
+import { nextTick, onMounted, ref, watch } from 'vue'
 import { RouterLink, useRoute } from 'vue-router'
-import type { NavSection } from '@/composables/useRoleNavigation'
+import type { NavItem } from '@/composables/useRoleNavigation'
 
 const props = defineProps<{
-  sections: NavSection[]
+  items: NavItem[]
   label: string
 }>()
 
 const route = useRoute()
 const navigationElement = ref<HTMLElement | null>(null)
-const items = computed(() => props.sections.flatMap((section) => section.items))
 
 function isActive(destination: string) {
-  return route.path === destination || (destination !== '/dashboard' && destination !== '/admin' && route.path.startsWith(`${destination}/`))
+  return route.path === destination
+    || (destination !== '/dashboard' && destination !== '/admin' && route.path.startsWith(`${destination}/`))
 }
 
 async function revealActiveTab() {
@@ -40,7 +40,7 @@ async function revealActiveTab() {
 }
 
 watch(() => route.fullPath, revealActiveTab)
-watch(items, revealActiveTab, { deep: true })
+watch(() => props.items, revealActiveTab, { deep: true })
 onMounted(revealActiveTab)
 </script>
 
@@ -94,9 +94,9 @@ onMounted(revealActiveTab)
   color: var(--om-primary);
 }
 
-@media (min-width: 992px) {
+@media (min-width: 768px) {
   .role-top-navigation {
-    display: none;
+    padding-inline: clamp(1.5rem, 3vw, 2.5rem);
   }
 }
 </style>

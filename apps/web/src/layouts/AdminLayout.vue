@@ -4,6 +4,7 @@
     :title="consoleTitle"
     icon="bi-shield-lock"
     :navigation="adminNavigation"
+    :module-items="adminModuleNavigation"
     :bottom-navigation="bottomNavigation"
     sidebar-class="admin-sidebar"
   >
@@ -22,12 +23,12 @@ import { useRoleNavigation } from "@/composables/useRoleNavigation";
 import { useTenantStore } from "@/stores/tenant.store";
 import { useLocaleStore } from "@/stores/locale.store";
 import AppShell from '@/components/ui/AppShell.vue'
-import type { BottomNavItem } from '@/components/ui/MobileBottomNavigation.vue'
+import type { BottomNavItem } from '@/components/ui/AppBottomNavigation.vue'
 
 const route = useRoute()
 const tenantStore = useTenantStore()
 const localeStore = useLocaleStore()
-const { adminNavigation, isPrincipalAdmin } = useRoleNavigation()
+const { adminNavigation, adminModuleNavigation, isPrincipalAdmin } = useRoleNavigation()
 
 const consoleTitle = computed(() =>
   isPrincipalAdmin.value ? localeStore.t('layout.principalAdminConsole') : localeStore.t('layout.adminConsole'),
@@ -48,10 +49,10 @@ const bottomNavigation = computed<BottomNavItem[]>(() => [
   { id: '/account/security', label: localeStore.t('nav.security'), icon: 'bi-shield-check', active: isActive('/account/security') },
   {
     id: tenantStore.isModuleEnabled('chat') ? '/chat' : '/admin/documents',
-    label: tenantStore.isModuleEnabled('chat') ? localeStore.t('nav.chat') : localeStore.t('nav.workspace'),
+    label: tenantStore.isModuleEnabled('chat') ? localeStore.t('nav.chat') : localeStore.t('nav.documents'),
     icon: tenantStore.isModuleEnabled('chat') ? 'bi-chat-dots' : 'bi-file-earmark-text',
     active: isActive(tenantStore.isModuleEnabled('chat') ? '/chat' : '/admin/documents'),
   },
-  { id: '/admin/settings', label: localeStore.t('nav.workspace'), icon: 'bi-gear', active: isActive('/admin/settings') },
+  { id: '/admin/settings', label: localeStore.t('nav.more'), icon: 'bi-three-dots', active: isActive('/admin/settings') },
 ])
 </script>

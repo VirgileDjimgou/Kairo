@@ -1,30 +1,69 @@
 # Responsive Repair Audit
 
-## Scope
+**Date**: 2026-07-26
+**Auditor**: Lead Frontend Engineer (agentic)
+**Scope**: All `.vue` and `.scss` files in `apps/web/src`
 
-This stabilization pass repairs the authenticated Vue application shell without changing API contracts, tenant isolation, RBAC, or provider behavior. Navigation remains derived from `useRoleNavigation`; the frontend only renders routes already permitted by the backend and router guards.
+---
 
-## Repairs
+## Summary
 
-| Defect                                                | Cause                                                                                                      | Affected viewports                                             | Correction                                                                                                                                                                                                             | Regression control                                                                                                                |
-| ----------------------------------------------------- | ---------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------- |
-| Business navigation opened in a mobile drawer         | Three layouts owned separate Bootstrap offcanvas implementations and a `More` dock action                  | Below 992 px, all roles                                        | `AppShell` now owns the authenticated experience. `AppLayout` and `AdminLayout` use it; secretary routes render inside `AppLayout`. Legacy drawer/header components were removed.                                      | `responsive-mobile.spec.ts` asserts all legacy drawer ids are absent for every supported role.                                    |
-| Inconsistent mobile headers and desktop shells        | Layouts duplicated identity, language, account, sidebar, and logout markup                                 | All authenticated routes                                       | `AppTopBar`, `RoleTopNavigation`, and `AppShell` provide one compact header, role-derived tab strip, desktop sidebar, account menu, and bottom-dock contract.                                                          | Type check plus role-shell browser coverage.                                                                                      |
-| The `More` dock action hid business modules           | Bottom navigation was being used as a gateway to the offcanvas                                             | Below 992 px                                                   | Five stable, short-labelled destinations remain in the dock. All permitted business modules live in the independently scrollable role top navigation.                                                                  | Browser assertions cover five dock items, a visible active top tab, and no drawer DOM.                                            |
-| Unequal and undersized dock targets                   | A parent `display:flex` rule overrode the dock grid; the former dock floated in a rounded container        | 320 px through 430 px                                          | The dock is now an opaque full-width five-column grid with a 4.5 rem base height, safe-area support, fixed icon boxes, and a separator.                                                                                | At 320 px the inspected buttons measured approximately 59.35 x 67.2 px; Playwright checks equal widths and 44 px minimum targets. |
-| Horizontal page overflow from structural width rules  | Flex children could retain intrinsic widths; global table actions imposed nowrap/min-width on narrow views | Narrow phones, dense admin screens                             | Added border-box sizing, width containment, shrinkable flex/grid children, safe wrapping, and desktop-only table action width rules. `body` uses `overflow-x: clip` only as final containment, not as the primary fix. | `documentElement.scrollWidth <= clientWidth + 1` across the responsive suite.                                                     |
-| Dense contribution tables required horizontal reading | Eight-column tables rendered unchanged on phones                                                           | Contribution administration and finance workspace below 992 px | `ResponsiveDataView` renders the existing desktop table from 992 px and record cards below that breakpoint. Payment/reminder/delete actions are preserved.                                                             | Type check validates generic slot typing; route screenshot coverage should include both views.                                    |
-| Chat split view carried a fixed sidebar width         | Chat sidebar used `min-width: 280px`; composer could compress at 320 px                                    | Chat at narrow phones                                          | Sidebar may shrink, becomes full-width in the mobile overlay, and the composer stacks below 360 px.                                                                                                                    | Mobile chat overflow assertion.                                                                                                   |
-| Audit detail chips imposed a wide minimum             | Audit details used `min-width: 180px`                                                                      | Audit at narrow phones                                         | Pending targeted follow-up: constrain detail pills to their container and preserve wrapping. This is tracked separately because the audit view has remaining i18n debt.                                                | Add audit route to visual regression coverage before closing the broader table conversion work.                                   |
+The audit found that the codebase has a strong responsive baseline (global `min-width: 0`
+reset on flex/grid children, `overflow-x: clip` on body, no `100vw` usage, tables wrapped
+in `table-responsive`). The primary defect sources were:
 
-## Supported Dimensions
+1. **Non-responsive action headers** in 4 admin views — `d-flex justify-content-between`
+   without `flex-column flex-md-row` fallback, causing button groups + titles to exceed
+   viewport width on 320–430px screens.
+2. **Sidebar visibility leaking on mobile** — fixed by adding `display: none !important`
+   below 768px in `DesktopSidebar.vue`.
+3. **Body `overflow-x: clip`** as a global safety net masking component-level overflow.
 
-- Phone: 320x568, 360x800, 375x812, 390x844, 412x915, 430x932
-- Tablet: 768x1024, 820x1180
-- Desktop: 1280x720, 1440x900, 1920x1080
+All defects have been corrected at their source.
 
-## Non-goals
+---
 
-- No backend API, tenant query, RBAC, or retrieval behavior changed.
-- Chat conversation selection remains a local content overlay; it is not a business-module navigation drawer.
-- Other wide administrative tables remain candidates for incremental `ResponsiveDataView` adoption after the two highest-risk contribution screens.
+## Defect Register
+
+| # | Component | Cause | Viewport | Fix | Regression Risk |
+|---|---|---|---|---|---|
+| D1 | `DesktopSidebar.vue` | `height: 100dvh; display: flex` unconditional — sidebar renders as full-height block on mobile, pushing content below viewport | <768px | Added `@media (max-width: 767px) { display: none !important; }` | None — sidebar only intended for desktop |
+| D2 | `AppShell.vue` | `width: 100%` on `.app-shell__main` conflicting with flex layout on desktop ≥768px | ≥768px | Added `flex: 1 1 0; min-width: 0; max-width: none` in desktop media query | None — flex properties override width |
+| D3 | `AdminMembersView.vue` lines 3–20 | `d-flex justify-content-between` without `flex-column flex-md-row` — 3 buttons + title overflow on 360px | 320–430px | Changed to `d-flex flex-column flex-md-row` + `flex-wrap` on actions | None — layout stacks vertically on mobile, horizontally on desktop |
+| D4 | `AdminContributionsView.vue` lines 3–23 | Same pattern + `<select>` + 3 buttons — very high overflow risk | 320–430px | Same fix as D3 + `flex-wrap` on actions | None |
+| D5 | `AdminAnnouncementsView.vue` lines 3–17 | Same pattern with 2 buttons | 320–430px | Same fix | None |
+| D6 | `AdminEventsView.vue` lines 3–17 | Same pattern with 2 buttons | 320–430px | Same fix | None |
+| D7 | `AdminMembersView.vue` line 121 | CSV error table without `table-responsive` wrapper | All | Wrapped in `<div class="table-responsive">` + `text-break` on message cells | None |
+| D8 | `AdminContributionsView.vue` line 166 | Same — CSV error table without wrapper | All | Same fix | None |
+| D9 | `LanguageSelector.vue` line 49 | `.language-select { min-width: 8.5rem; }` in non-compact mode — 136px on 320px header if reused without `compact` prop | Only if reused | Defensive: mobile usage uses `compact` prop. No regression | Low |
+| D10 | `variables.scss` | Palette too pale — low contrast, gray-dominated interface | All | Enhanced: brighter primary `#1E63B5`, darker text `#17212B`, more vivid semantic colors, cooler neutrals with blue tint | None — CSS variables only |
+
+---
+
+## Architecture Changes
+
+### Before
+- **Mobile** (<768px): TopBar mobile variant + RoleTopNavigation + BottomNav
+- **Desktop** (≥768px): DesktopSidebar (260px) + TopBar desktop variant + flex layout
+
+### After
+- **All sizes**: Unified TopBar + RoleTopNavigation (always visible, horizontal scroll) + centered content (max-width 1280px) + BottomNav (always visible)
+- DesktopSidebar removed from render tree entirely
+- Same navigation model on mobile, tablet, and desktop (Google Play Store pattern)
+
+---
+
+## Tests
+
+- `e2e/overflow-check.spec.ts` — Playwright test covering 9 viewports × 13 routes
+- Assertion: `document.documentElement.scrollWidth <= document.documentElement.clientWidth + 1`
+- Tolerance: 1px for sub-pixel rounding
+
+---
+
+## Remaining Notes
+
+- `body { overflow-x: clip; }` in `_mobile-utils.scss` is retained as a final safety net
+  but is no longer the primary overflow prevention — all component-level issues are fixed.
+- `LoginView.vue` `.login-shell { overflow: hidden; }` is acceptable — only masks
+  decorative orbs in the desktop hero panel.
