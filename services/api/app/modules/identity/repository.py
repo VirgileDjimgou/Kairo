@@ -1,7 +1,7 @@
 from datetime import UTC, datetime
 from uuid import UUID
 
-from sqlalchemy import func, select, update
+from sqlalchemy import func, or_, select, update
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.modules.identity.models import Invitation, PasswordResetToken, User, UserSession
@@ -32,18 +32,47 @@ class UserRepository:
         )
         return result.scalar_one_or_none()
 
+    async def get_by_login_identifier(self, login_identifier: str) -> User | None:
+        result = await self._db.execute(
+            select(User).where(User.login_identifier == login_identifier.lower().strip())
+        )
+        return result.scalar_one_or_none()
+
+    async def get_by_phone(self, phone: str) -> User | None:
+        result = await self._db.execute(select(User).where(User.phone == phone))
+        return result.scalar_one_or_none()
+
+    async def get_by_login(self, identifier: str) -> User | None:
+        normalized = identifier.lower().strip()
+        result = await self._db.execute(
+            select(User).where(
+                or_(
+                    func.lower(User.email) == normalized,
+                    func.lower(User.login_identifier) == normalized,
+                    User.phone == identifier,
+                )
+            )
+        )
+        return result.scalar_one_or_none()
+
     async def create(
         self,
         email: str,
         password_hash: str,
         display_name: str,
         status: str = "active",
+        login_identifier: str | None = None,
+        phone: str | None = None,
+        password_change_required: bool = False,
     ) -> User:
         user = User(
             email=email.lower().strip(),
             password_hash=password_hash,
             display_name=display_name,
             status=status,
+            login_identifier=login_identifier.lower().strip() if login_identifier else None,
+            phone=phone,
+            password_change_required=password_change_required,
         )
         self._db.add(user)
         await self._db.flush()
@@ -60,14 +89,19 @@ class UserRepository:
             )
         )
 
-    async def update_password(self, user_id: UUID, new_password_hash: str) -> None:
+    async def update_password(
+        self, user_id: UUID, new_password_hash: str, *, password_change_required: bool | None = None
+    ) -> None:
+        values: dict[str, object] = {
+            "password_hash": new_password_hash,
+            "updated_at": datetime.now(UTC),
+        }
+        if password_change_required is not None:
+            values["password_change_required"] = password_change_required
         await self._db.execute(
             update(User)
             .where(User.id == user_id)
-            .values(
-                password_hash=new_password_hash,
-                updated_at=datetime.now(UTC),
-            )
+            .values(**values)
         )
 
     async def update_preferred_language(self, user_id: UUID, preferred_language: str) -> None:

@@ -32,6 +32,8 @@ from app.modules.identity.repository import (
 from app.modules.identity.schemas import (
     AcceptInviteRequest,
     AcceptInviteResponse,
+    ChangeInitialPasswordRequest,
+    ChangeInitialPasswordResponse,
     ActiveSessionResponse,
     ForgotPasswordRequest,
     ForgotPasswordResponse,
@@ -124,11 +126,11 @@ class AuthService:
     # ── Login / Session ───────────────────────────────────────────────────────
 
     async def login(self, request: LoginRequest) -> TokenResponse | MfaRequiredResponse:
-        user = await self._user_repo.get_by_email(request.email)
+        user = await self._user_repo.get_by_login(request.email)
         if not user or not verify_password(request.password, user.password_hash):
             raise HTTPException(
                 status_code=status.HTTP_401_UNAUTHORIZED,
-                detail="Invalid email or password",
+                detail="Invalid identifier or password",
                 headers={"WWW-Authenticate": "Bearer"},
             )
 
@@ -176,7 +178,52 @@ class AuthService:
             expires_in=settings.access_token_expire_minutes * 60,
             tenant_id=tenant.id,
             user_id=user.id,
+            password_change_required=user.password_change_required,
         )
+
+    async def change_initial_password(
+        self,
+        *,
+        user_id: UUID,
+        tenant_id: UUID,
+        current_session_id: UUID,
+        request: ChangeInitialPasswordRequest,
+    ) -> ChangeInitialPasswordResponse:
+        user = await self._user_repo.get_by_id(user_id)
+        if user is None:
+            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="User not found")
+        if not user.password_change_required:
+            raise HTTPException(
+                status_code=status.HTTP_409_CONFLICT,
+                detail="This account does not require an initial password change",
+            )
+        await self._user_repo.update_password(
+            user_id,
+            hash_password(request.new_password),
+            password_change_required=False,
+        )
+        revoked_sessions = await self._session_repo.revoke_other_sessions(
+            user_id=user_id,
+            keep_session_id=current_session_id,
+            revoked_reason="initial_password_changed",
+        )
+        await self._audit.record_event(
+            tenant_id=tenant_id,
+            actor_user_id=user_id,
+            action="initial_password_changed",
+            entity_type="user",
+            entity_id=user_id,
+            module_key="identity",
+            details={"revoked_session_count": len(revoked_sessions)},
+        )
+        await self._record_session_revocation_events(
+            tenant_id=tenant_id,
+            actor_user_id=user_id,
+            revoked_sessions=revoked_sessions,
+            reason="initial_password_changed",
+        )
+        await self._db.commit()
+        return ChangeInitialPasswordResponse()
 
     async def complete_mfa_login(
         self, request: MfaCompleteLoginRequest

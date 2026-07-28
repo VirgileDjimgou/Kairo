@@ -3785,6 +3785,14 @@
         "documentation": {}
     },
     {
+        "label": "or_",
+        "importPath": "sqlalchemy",
+        "description": "sqlalchemy",
+        "isExtraImport": true,
+        "detail": "sqlalchemy",
+        "documentation": {}
+    },
+    {
         "label": "select",
         "importPath": "sqlalchemy",
         "description": "sqlalchemy",
@@ -6989,6 +6997,22 @@
         "documentation": {}
     },
     {
+        "label": "field_validator",
+        "importPath": "pydantic",
+        "description": "pydantic",
+        "isExtraImport": true,
+        "detail": "pydantic",
+        "documentation": {}
+    },
+    {
+        "label": "model_validator",
+        "importPath": "pydantic",
+        "description": "pydantic",
+        "isExtraImport": true,
+        "detail": "pydantic",
+        "documentation": {}
+    },
+    {
         "label": "BaseModel",
         "importPath": "pydantic",
         "description": "pydantic",
@@ -7639,6 +7663,14 @@
     },
     {
         "label": "verify_totp",
+        "importPath": "app.core.security",
+        "description": "app.core.security",
+        "isExtraImport": true,
+        "detail": "app.core.security",
+        "documentation": {}
+    },
+    {
+        "label": "hash_password",
         "importPath": "app.core.security",
         "description": "app.core.security",
         "isExtraImport": true,
@@ -8366,6 +8398,22 @@
         "description": "app.modules.tenancy.repository",
         "isExtraImport": true,
         "detail": "app.modules.tenancy.repository",
+        "documentation": {}
+    },
+    {
+        "label": "TenancyRepository",
+        "importPath": "app.modules.tenancy.repository",
+        "description": "app.modules.tenancy.repository",
+        "isExtraImport": true,
+        "detail": "app.modules.tenancy.repository",
+        "documentation": {}
+    },
+    {
+        "label": "jsonable_encoder",
+        "importPath": "fastapi.encoders",
+        "description": "fastapi.encoders",
+        "isExtraImport": true,
+        "detail": "fastapi.encoders",
         "documentation": {}
     },
     {
@@ -9176,6 +9224,14 @@
         "description": "passlib.context",
         "isExtraImport": true,
         "detail": "passlib.context",
+        "documentation": {}
+    },
+    {
+        "label": "op",
+        "importPath": "alembic",
+        "description": "alembic",
+        "isExtraImport": true,
+        "detail": "alembic",
         "documentation": {}
     },
     {
@@ -12973,6 +13029,22 @@
         "documentation": {}
     },
     {
+        "label": "ChangeInitialPasswordRequest",
+        "importPath": "app.modules.identity.schemas",
+        "description": "app.modules.identity.schemas",
+        "isExtraImport": true,
+        "detail": "app.modules.identity.schemas",
+        "documentation": {}
+    },
+    {
+        "label": "ChangeInitialPasswordResponse",
+        "importPath": "app.modules.identity.schemas",
+        "description": "app.modules.identity.schemas",
+        "isExtraImport": true,
+        "detail": "app.modules.identity.schemas",
+        "documentation": {}
+    },
+    {
         "label": "ActiveSessionResponse",
         "importPath": "app.modules.identity.schemas",
         "description": "app.modules.identity.schemas",
@@ -13222,6 +13294,22 @@
     },
     {
         "label": "AcceptInviteResponse",
+        "importPath": "app.modules.identity.schemas",
+        "description": "app.modules.identity.schemas",
+        "isExtraImport": true,
+        "detail": "app.modules.identity.schemas",
+        "documentation": {}
+    },
+    {
+        "label": "ChangeInitialPasswordRequest",
+        "importPath": "app.modules.identity.schemas",
+        "description": "app.modules.identity.schemas",
+        "isExtraImport": true,
+        "detail": "app.modules.identity.schemas",
+        "documentation": {}
+    },
+    {
+        "label": "ChangeInitialPasswordResponse",
         "importPath": "app.modules.identity.schemas",
         "description": "app.modules.identity.schemas",
         "isExtraImport": true,
@@ -13638,6 +13726,14 @@
     },
     {
         "label": "UserSessionRepository",
+        "importPath": "app.modules.identity.repository",
+        "description": "app.modules.identity.repository",
+        "isExtraImport": true,
+        "detail": "app.modules.identity.repository",
+        "documentation": {}
+    },
+    {
+        "label": "UserRepository",
         "importPath": "app.modules.identity.repository",
         "description": "app.modules.identity.repository",
         "isExtraImport": true,
@@ -23250,6 +23346,60 @@
         "documentation": {}
     },
     {
+        "label": "upgrade",
+        "kind": 2,
+        "importPath": "services.api.app.db.migrations.versions.0017_member_direct_account_access",
+        "description": "services.api.app.db.migrations.versions.0017_member_direct_account_access",
+        "peekOfCode": "def upgrade() -> None:\n    op.add_column(\"users\", sa.Column(\"login_identifier\", sa.String(length=64), nullable=True))\n    op.add_column(\"users\", sa.Column(\"phone\", sa.String(length=20), nullable=True))\n    op.add_column(\n        \"users\",\n        sa.Column(\"password_change_required\", sa.Boolean(), nullable=False, server_default=sa.text(\"false\")),\n    )\n    op.create_index(\"ix_users_login_identifier\", \"users\", [\"login_identifier\"], unique=True)\n    op.create_index(\"ix_users_phone\", \"users\", [\"phone\"], unique=True)\ndef downgrade() -> None:",
+        "detail": "services.api.app.db.migrations.versions.0017_member_direct_account_access",
+        "documentation": {}
+    },
+    {
+        "label": "downgrade",
+        "kind": 2,
+        "importPath": "services.api.app.db.migrations.versions.0017_member_direct_account_access",
+        "description": "services.api.app.db.migrations.versions.0017_member_direct_account_access",
+        "peekOfCode": "def downgrade() -> None:\n    op.drop_index(\"ix_users_phone\", table_name=\"users\")\n    op.drop_index(\"ix_users_login_identifier\", table_name=\"users\")\n    op.drop_column(\"users\", \"password_change_required\")\n    op.drop_column(\"users\", \"phone\")\n    op.drop_column(\"users\", \"login_identifier\")",
+        "detail": "services.api.app.db.migrations.versions.0017_member_direct_account_access",
+        "documentation": {}
+    },
+    {
+        "label": "revision",
+        "kind": 5,
+        "importPath": "services.api.app.db.migrations.versions.0017_member_direct_account_access",
+        "description": "services.api.app.db.migrations.versions.0017_member_direct_account_access",
+        "peekOfCode": "revision = \"0017\"\ndown_revision = \"0016\"\nbranch_labels = None\ndepends_on = None\ndef upgrade() -> None:\n    op.add_column(\"users\", sa.Column(\"login_identifier\", sa.String(length=64), nullable=True))\n    op.add_column(\"users\", sa.Column(\"phone\", sa.String(length=20), nullable=True))\n    op.add_column(\n        \"users\",\n        sa.Column(\"password_change_required\", sa.Boolean(), nullable=False, server_default=sa.text(\"false\")),",
+        "detail": "services.api.app.db.migrations.versions.0017_member_direct_account_access",
+        "documentation": {}
+    },
+    {
+        "label": "down_revision",
+        "kind": 5,
+        "importPath": "services.api.app.db.migrations.versions.0017_member_direct_account_access",
+        "description": "services.api.app.db.migrations.versions.0017_member_direct_account_access",
+        "peekOfCode": "down_revision = \"0016\"\nbranch_labels = None\ndepends_on = None\ndef upgrade() -> None:\n    op.add_column(\"users\", sa.Column(\"login_identifier\", sa.String(length=64), nullable=True))\n    op.add_column(\"users\", sa.Column(\"phone\", sa.String(length=20), nullable=True))\n    op.add_column(\n        \"users\",\n        sa.Column(\"password_change_required\", sa.Boolean(), nullable=False, server_default=sa.text(\"false\")),\n    )",
+        "detail": "services.api.app.db.migrations.versions.0017_member_direct_account_access",
+        "documentation": {}
+    },
+    {
+        "label": "branch_labels",
+        "kind": 5,
+        "importPath": "services.api.app.db.migrations.versions.0017_member_direct_account_access",
+        "description": "services.api.app.db.migrations.versions.0017_member_direct_account_access",
+        "peekOfCode": "branch_labels = None\ndepends_on = None\ndef upgrade() -> None:\n    op.add_column(\"users\", sa.Column(\"login_identifier\", sa.String(length=64), nullable=True))\n    op.add_column(\"users\", sa.Column(\"phone\", sa.String(length=20), nullable=True))\n    op.add_column(\n        \"users\",\n        sa.Column(\"password_change_required\", sa.Boolean(), nullable=False, server_default=sa.text(\"false\")),\n    )\n    op.create_index(\"ix_users_login_identifier\", \"users\", [\"login_identifier\"], unique=True)",
+        "detail": "services.api.app.db.migrations.versions.0017_member_direct_account_access",
+        "documentation": {}
+    },
+    {
+        "label": "depends_on",
+        "kind": 5,
+        "importPath": "services.api.app.db.migrations.versions.0017_member_direct_account_access",
+        "description": "services.api.app.db.migrations.versions.0017_member_direct_account_access",
+        "peekOfCode": "depends_on = None\ndef upgrade() -> None:\n    op.add_column(\"users\", sa.Column(\"login_identifier\", sa.String(length=64), nullable=True))\n    op.add_column(\"users\", sa.Column(\"phone\", sa.String(length=20), nullable=True))\n    op.add_column(\n        \"users\",\n        sa.Column(\"password_change_required\", sa.Boolean(), nullable=False, server_default=sa.text(\"false\")),\n    )\n    op.create_index(\"ix_users_login_identifier\", \"users\", [\"login_identifier\"], unique=True)\n    op.create_index(\"ix_users_phone\", \"users\", [\"phone\"], unique=True)",
+        "detail": "services.api.app.db.migrations.versions.0017_member_direct_account_access",
+        "documentation": {}
+    },
+    {
         "label": "run_migrations_offline",
         "kind": 2,
         "importPath": "services.api.app.db.migrations.env",
@@ -25081,7 +25231,7 @@
         "kind": 6,
         "importPath": "services.api.app.modules.identity.schemas",
         "description": "services.api.app.modules.identity.schemas",
-        "peekOfCode": "class SwitchTenantRequest(BaseModel):\n    tenant_id: UUID\n# ── Auth Response DTOs ─────────────────────────────────────────────────────────\nclass TokenResponse(BaseModel):\n    access_token: str\n    token_type: str = \"bearer\"\n    expires_in: int = Field(description=\"Seconds until the token expires\")\n    tenant_id: UUID\n    user_id: UUID\nclass MfaRequiredResponse(BaseModel):",
+        "peekOfCode": "class SwitchTenantRequest(BaseModel):\n    tenant_id: UUID\n# ── Auth Response DTOs ─────────────────────────────────────────────────────────\nclass TokenResponse(BaseModel):\n    access_token: str\n    token_type: str = \"bearer\"\n    expires_in: int = Field(description=\"Seconds until the token expires\")\n    tenant_id: UUID\n    user_id: UUID\n    password_change_required: bool = False",
         "detail": "services.api.app.modules.identity.schemas",
         "documentation": {}
     },
@@ -25090,7 +25240,7 @@
         "kind": 6,
         "importPath": "services.api.app.modules.identity.schemas",
         "description": "services.api.app.modules.identity.schemas",
-        "peekOfCode": "class TokenResponse(BaseModel):\n    access_token: str\n    token_type: str = \"bearer\"\n    expires_in: int = Field(description=\"Seconds until the token expires\")\n    tenant_id: UUID\n    user_id: UUID\nclass MfaRequiredResponse(BaseModel):\n    mfa_required: bool = True\n    mfa_token: str\n    expires_in: int",
+        "peekOfCode": "class TokenResponse(BaseModel):\n    access_token: str\n    token_type: str = \"bearer\"\n    expires_in: int = Field(description=\"Seconds until the token expires\")\n    tenant_id: UUID\n    user_id: UUID\n    password_change_required: bool = False\nclass MfaRequiredResponse(BaseModel):\n    mfa_required: bool = True\n    mfa_token: str",
         "detail": "services.api.app.modules.identity.schemas",
         "documentation": {}
     },
@@ -25117,7 +25267,7 @@
         "kind": 6,
         "importPath": "services.api.app.modules.identity.schemas",
         "description": "services.api.app.modules.identity.schemas",
-        "peekOfCode": "class UserResponse(BaseModel):\n    id: UUID\n    email: str\n    display_name: str\n    preferred_language: str | None = None\n    status: str\n    tenant_id: UUID\n    roles: list[str]\n    last_login_at: datetime | None = None\n    model_config = {\"from_attributes\": True}",
+        "peekOfCode": "class UserResponse(BaseModel):\n    id: UUID\n    email: str\n    display_name: str\n    preferred_language: str | None = None\n    status: str\n    tenant_id: UUID\n    roles: list[str]\n    last_login_at: datetime | None = None\n    password_change_required: bool = False",
         "detail": "services.api.app.modules.identity.schemas",
         "documentation": {}
     },
@@ -25288,7 +25438,7 @@
         "kind": 6,
         "importPath": "services.api.app.modules.identity.schemas",
         "description": "services.api.app.modules.identity.schemas",
-        "peekOfCode": "class ResetPasswordRequest(BaseModel):\n    token: str\n    new_password: str = Field(min_length=8, max_length=128)\nclass ResetPasswordResponse(BaseModel):\n    message: str = \"Password has been reset successfully\"\n# ── MFA DTOs ───────────────────────────────────────────────────────────────────\nclass MfaEnrollResponse(BaseModel):\n    secret: str\n    uri: str\n    qr_code_url: str = \"\"",
+        "peekOfCode": "class ResetPasswordRequest(BaseModel):\n    token: str\n    new_password: str = Field(min_length=8, max_length=128)\nclass ResetPasswordResponse(BaseModel):\n    message: str = \"Password has been reset successfully\"\nclass ChangeInitialPasswordRequest(BaseModel):\n    new_password: str = Field(min_length=8, max_length=128)\nclass ChangeInitialPasswordResponse(BaseModel):\n    message: str = \"Password has been updated\"\n# ── MFA DTOs ───────────────────────────────────────────────────────────────────",
         "detail": "services.api.app.modules.identity.schemas",
         "documentation": {}
     },
@@ -25297,7 +25447,25 @@
         "kind": 6,
         "importPath": "services.api.app.modules.identity.schemas",
         "description": "services.api.app.modules.identity.schemas",
-        "peekOfCode": "class ResetPasswordResponse(BaseModel):\n    message: str = \"Password has been reset successfully\"\n# ── MFA DTOs ───────────────────────────────────────────────────────────────────\nclass MfaEnrollResponse(BaseModel):\n    secret: str\n    uri: str\n    qr_code_url: str = \"\"\nclass MfaVerifyRequest(BaseModel):\n    code: str = Field(min_length=6, max_length=6)\nclass MfaVerifyResponse(BaseModel):",
+        "peekOfCode": "class ResetPasswordResponse(BaseModel):\n    message: str = \"Password has been reset successfully\"\nclass ChangeInitialPasswordRequest(BaseModel):\n    new_password: str = Field(min_length=8, max_length=128)\nclass ChangeInitialPasswordResponse(BaseModel):\n    message: str = \"Password has been updated\"\n# ── MFA DTOs ───────────────────────────────────────────────────────────────────\nclass MfaEnrollResponse(BaseModel):\n    secret: str\n    uri: str",
+        "detail": "services.api.app.modules.identity.schemas",
+        "documentation": {}
+    },
+    {
+        "label": "ChangeInitialPasswordRequest",
+        "kind": 6,
+        "importPath": "services.api.app.modules.identity.schemas",
+        "description": "services.api.app.modules.identity.schemas",
+        "peekOfCode": "class ChangeInitialPasswordRequest(BaseModel):\n    new_password: str = Field(min_length=8, max_length=128)\nclass ChangeInitialPasswordResponse(BaseModel):\n    message: str = \"Password has been updated\"\n# ── MFA DTOs ───────────────────────────────────────────────────────────────────\nclass MfaEnrollResponse(BaseModel):\n    secret: str\n    uri: str\n    qr_code_url: str = \"\"\nclass MfaVerifyRequest(BaseModel):",
+        "detail": "services.api.app.modules.identity.schemas",
+        "documentation": {}
+    },
+    {
+        "label": "ChangeInitialPasswordResponse",
+        "kind": 6,
+        "importPath": "services.api.app.modules.identity.schemas",
+        "description": "services.api.app.modules.identity.schemas",
+        "peekOfCode": "class ChangeInitialPasswordResponse(BaseModel):\n    message: str = \"Password has been updated\"\n# ── MFA DTOs ───────────────────────────────────────────────────────────────────\nclass MfaEnrollResponse(BaseModel):\n    secret: str\n    uri: str\n    qr_code_url: str = \"\"\nclass MfaVerifyRequest(BaseModel):\n    code: str = Field(min_length=6, max_length=6)\nclass MfaVerifyResponse(BaseModel):",
         "detail": "services.api.app.modules.identity.schemas",
         "documentation": {}
     },
@@ -25378,7 +25546,7 @@
         "kind": 5,
         "importPath": "services.api.app.modules.identity.schemas",
         "description": "services.api.app.modules.identity.schemas",
-        "peekOfCode": "TECHNICAL_DEMO_LOGIN_PATTERN = re.compile(\n    r\"^\\d{4}-[a-z0-9]+(?:-[a-z0-9]+)*@demo\\.local$\"\n)\nemail_validator = TypeAdapter(EmailStr)\nclass LoginRequest(BaseModel):\n    email: str\n    password: str = Field(min_length=1)\n    tenant_slug: str | None = Field(\n        default=None,\n        description=\"Slug of the tenant to log into. Uses first membership if omitted.\",",
+        "peekOfCode": "TECHNICAL_DEMO_LOGIN_PATTERN = re.compile(\n    r\"^\\d{4}-[a-z0-9]+(?:-[a-z0-9]+)*@demo\\.local$\"\n)\nemail_validator = TypeAdapter(EmailStr)\nPHONE_LOGIN_PATTERN = re.compile(r\"^\\+[1-9]\\d{7,14}$\")\nUSERNAME_LOGIN_PATTERN = re.compile(r\"^[a-z0-9][a-z0-9._-]{2,63}$\")\nclass LoginRequest(BaseModel):\n    email: str\n    password: str = Field(min_length=1)\n    tenant_slug: str | None = Field(",
         "detail": "services.api.app.modules.identity.schemas",
         "documentation": {}
     },
@@ -25387,7 +25555,25 @@
         "kind": 5,
         "importPath": "services.api.app.modules.identity.schemas",
         "description": "services.api.app.modules.identity.schemas",
-        "peekOfCode": "email_validator = TypeAdapter(EmailStr)\nclass LoginRequest(BaseModel):\n    email: str\n    password: str = Field(min_length=1)\n    tenant_slug: str | None = Field(\n        default=None,\n        description=\"Slug of the tenant to log into. Uses first membership if omitted.\",\n    )\n    @field_validator(\"email\")\n    @classmethod",
+        "peekOfCode": "email_validator = TypeAdapter(EmailStr)\nPHONE_LOGIN_PATTERN = re.compile(r\"^\\+[1-9]\\d{7,14}$\")\nUSERNAME_LOGIN_PATTERN = re.compile(r\"^[a-z0-9][a-z0-9._-]{2,63}$\")\nclass LoginRequest(BaseModel):\n    email: str\n    password: str = Field(min_length=1)\n    tenant_slug: str | None = Field(\n        default=None,\n        description=\"Slug of the tenant to log into. Uses first membership if omitted.\",\n    )",
+        "detail": "services.api.app.modules.identity.schemas",
+        "documentation": {}
+    },
+    {
+        "label": "PHONE_LOGIN_PATTERN",
+        "kind": 5,
+        "importPath": "services.api.app.modules.identity.schemas",
+        "description": "services.api.app.modules.identity.schemas",
+        "peekOfCode": "PHONE_LOGIN_PATTERN = re.compile(r\"^\\+[1-9]\\d{7,14}$\")\nUSERNAME_LOGIN_PATTERN = re.compile(r\"^[a-z0-9][a-z0-9._-]{2,63}$\")\nclass LoginRequest(BaseModel):\n    email: str\n    password: str = Field(min_length=1)\n    tenant_slug: str | None = Field(\n        default=None,\n        description=\"Slug of the tenant to log into. Uses first membership if omitted.\",\n    )\n    @field_validator(\"email\")",
+        "detail": "services.api.app.modules.identity.schemas",
+        "documentation": {}
+    },
+    {
+        "label": "USERNAME_LOGIN_PATTERN",
+        "kind": 5,
+        "importPath": "services.api.app.modules.identity.schemas",
+        "description": "services.api.app.modules.identity.schemas",
+        "peekOfCode": "USERNAME_LOGIN_PATTERN = re.compile(r\"^[a-z0-9][a-z0-9._-]{2,63}$\")\nclass LoginRequest(BaseModel):\n    email: str\n    password: str = Field(min_length=1)\n    tenant_slug: str | None = Field(\n        default=None,\n        description=\"Slug of the tenant to log into. Uses first membership if omitted.\",\n    )\n    @field_validator(\"email\")\n    @classmethod",
         "detail": "services.api.app.modules.identity.schemas",
         "documentation": {}
     },
@@ -25522,7 +25708,7 @@
         "kind": 6,
         "importPath": "services.api.app.modules.membership.schemas",
         "description": "services.api.app.modules.membership.schemas",
-        "peekOfCode": "class MembershipProfileCreate(BaseModel):\n    member_code: str = Field(..., min_length=1, max_length=50)\n    first_name: str = Field(..., min_length=1, max_length=100)\n    last_name: str = Field(..., min_length=1, max_length=100)\n    display_name: str = Field(..., min_length=1, max_length=255)\n    email: EmailStr | None = None\n    phone: str | None = Field(None, max_length=50)\n    status: MembershipStatus = MembershipStatus.active\n    membership_type: MembershipType | None = None\nclass MembershipProfileUpdate(BaseModel):",
+        "peekOfCode": "class MembershipProfileCreate(BaseModel):\n    member_code: str = Field(..., min_length=1, max_length=50)\n    first_name: str = Field(..., min_length=1, max_length=100)\n    last_name: str = Field(..., min_length=1, max_length=100)\n    display_name: str = Field(..., min_length=1, max_length=255)\n    email: EmailStr | None = None\n    phone: str | None = Field(None, max_length=50)\n    status: MembershipStatus = MembershipStatus.active\n    membership_type: MembershipType | None = None\n    provision_access: bool = False",
         "detail": "services.api.app.modules.membership.schemas",
         "documentation": {}
     },
@@ -25563,11 +25749,29 @@
         "documentation": {}
     },
     {
+        "label": "PHONE_PATTERN",
+        "kind": 5,
+        "importPath": "services.api.app.modules.membership.schemas",
+        "description": "services.api.app.modules.membership.schemas",
+        "peekOfCode": "PHONE_PATTERN = re.compile(r\"^\\+[1-9]\\d{7,14}$\")\nLOGIN_IDENTIFIER_PATTERN = re.compile(r\"^[a-z0-9][a-z0-9._-]{2,63}$\")\nclass MembershipProfileCreate(BaseModel):\n    member_code: str = Field(..., min_length=1, max_length=50)\n    first_name: str = Field(..., min_length=1, max_length=100)\n    last_name: str = Field(..., min_length=1, max_length=100)\n    display_name: str = Field(..., min_length=1, max_length=255)\n    email: EmailStr | None = None\n    phone: str | None = Field(None, max_length=50)\n    status: MembershipStatus = MembershipStatus.active",
+        "detail": "services.api.app.modules.membership.schemas",
+        "documentation": {}
+    },
+    {
+        "label": "LOGIN_IDENTIFIER_PATTERN",
+        "kind": 5,
+        "importPath": "services.api.app.modules.membership.schemas",
+        "description": "services.api.app.modules.membership.schemas",
+        "peekOfCode": "LOGIN_IDENTIFIER_PATTERN = re.compile(r\"^[a-z0-9][a-z0-9._-]{2,63}$\")\nclass MembershipProfileCreate(BaseModel):\n    member_code: str = Field(..., min_length=1, max_length=50)\n    first_name: str = Field(..., min_length=1, max_length=100)\n    last_name: str = Field(..., min_length=1, max_length=100)\n    display_name: str = Field(..., min_length=1, max_length=255)\n    email: EmailStr | None = None\n    phone: str | None = Field(None, max_length=50)\n    status: MembershipStatus = MembershipStatus.active\n    membership_type: MembershipType | None = None",
+        "detail": "services.api.app.modules.membership.schemas",
+        "documentation": {}
+    },
+    {
         "label": "MembershipService",
         "kind": 6,
         "importPath": "services.api.app.modules.membership.service",
         "description": "services.api.app.modules.membership.service",
-        "peekOfCode": "class MembershipService:\n    def __init__(self, db: AsyncSession) -> None:\n        self._db = db\n        self._repo = MembershipRepository(db)\n        self._contrib_repo = ContributionRepository(db)\n        self._audit = AuditService(db)\n    async def create_profile(\n        self,\n        tenant_id: UUID,\n        data: MembershipProfileCreate,",
+        "peekOfCode": "class MembershipService:\n    def __init__(self, db: AsyncSession) -> None:\n        self._db = db\n        self._repo = MembershipRepository(db)\n        self._contrib_repo = ContributionRepository(db)\n        self._audit = AuditService(db)\n        self._user_repo = UserRepository(db)\n        self._tenancy_repo = TenancyRepository(db)\n    async def create_profile(\n        self,",
         "detail": "services.api.app.modules.membership.service",
         "documentation": {}
     },
@@ -26836,7 +27040,7 @@
         "kind": 2,
         "importPath": "services.api.tests.test_identity_login_schema",
         "description": "services.api.tests.test_identity_login_schema",
-        "peekOfCode": "def test_login_accepts_generated_technical_demo_identifier() -> None:\n    request = LoginRequest(email=\"0001-member-name@demo.local\", password=\"password\")\n    assert request.email == \"0001-member-name@demo.local\"\ndef test_login_keeps_standard_email_validation() -> None:\n    request = LoginRequest(email=\"member@example.org\", password=\"password\")\n    assert request.email == \"member@example.org\"\ndef test_login_rejects_other_reserved_email_domains() -> None:\n    with pytest.raises(ValidationError):\n        LoginRequest(email=\"member@demo.local\", password=\"password\")",
+        "peekOfCode": "def test_login_accepts_generated_technical_demo_identifier() -> None:\n    request = LoginRequest(email=\"0001-member-name@demo.local\", password=\"password\")\n    assert request.email == \"0001-member-name@demo.local\"\ndef test_login_keeps_standard_email_validation() -> None:\n    request = LoginRequest(email=\"member@example.org\", password=\"password\")\n    assert request.email == \"member@example.org\"\ndef test_login_accepts_phone_or_simple_identifier() -> None:\n    assert LoginRequest(email=\"+49123456789\", password=\"password\").email == \"+49123456789\"\n    assert LoginRequest(email=\"Marie.Club\", password=\"password\").email == \"marie.club\"\ndef test_login_rejects_other_reserved_email_domains() -> None:",
         "detail": "services.api.tests.test_identity_login_schema",
         "documentation": {}
     },
@@ -26845,7 +27049,16 @@
         "kind": 2,
         "importPath": "services.api.tests.test_identity_login_schema",
         "description": "services.api.tests.test_identity_login_schema",
-        "peekOfCode": "def test_login_keeps_standard_email_validation() -> None:\n    request = LoginRequest(email=\"member@example.org\", password=\"password\")\n    assert request.email == \"member@example.org\"\ndef test_login_rejects_other_reserved_email_domains() -> None:\n    with pytest.raises(ValidationError):\n        LoginRequest(email=\"member@demo.local\", password=\"password\")",
+        "peekOfCode": "def test_login_keeps_standard_email_validation() -> None:\n    request = LoginRequest(email=\"member@example.org\", password=\"password\")\n    assert request.email == \"member@example.org\"\ndef test_login_accepts_phone_or_simple_identifier() -> None:\n    assert LoginRequest(email=\"+49123456789\", password=\"password\").email == \"+49123456789\"\n    assert LoginRequest(email=\"Marie.Club\", password=\"password\").email == \"marie.club\"\ndef test_login_rejects_other_reserved_email_domains() -> None:\n    with pytest.raises(ValidationError):\n        LoginRequest(email=\"member@demo.local\", password=\"password\")",
+        "detail": "services.api.tests.test_identity_login_schema",
+        "documentation": {}
+    },
+    {
+        "label": "test_login_accepts_phone_or_simple_identifier",
+        "kind": 2,
+        "importPath": "services.api.tests.test_identity_login_schema",
+        "description": "services.api.tests.test_identity_login_schema",
+        "peekOfCode": "def test_login_accepts_phone_or_simple_identifier() -> None:\n    assert LoginRequest(email=\"+49123456789\", password=\"password\").email == \"+49123456789\"\n    assert LoginRequest(email=\"Marie.Club\", password=\"password\").email == \"marie.club\"\ndef test_login_rejects_other_reserved_email_domains() -> None:\n    with pytest.raises(ValidationError):\n        LoginRequest(email=\"member@demo.local\", password=\"password\")",
         "detail": "services.api.tests.test_identity_login_schema",
         "documentation": {}
     },

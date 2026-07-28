@@ -66,6 +66,33 @@ async def test_validation_errors_use_structured_taxonomy(
 
 
 @pytest.mark.asyncio
+async def test_membership_validation_with_value_error_returns_422_not_500(
+    client: AsyncClient, seeded_tenant_and_admin: dict
+) -> None:
+    data = seeded_tenant_and_admin
+    token = await login(client, data["user"].email, data["password"])
+
+    response = await client.post(
+        "/api/v1/memberships/",
+        headers={"Authorization": f"Bearer {token}"},
+        json={
+            "member_code": "PHONE-INVALID",
+            "first_name": "Phone",
+            "last_name": "Invalid",
+            "display_name": "Phone Invalid",
+            "email": "phone-invalid@example.org",
+            "phone": "0123456",
+            "provision_access": True,
+            "temporary_password": "CombisPass#",
+        },
+    )
+
+    assert response.status_code == 422, response.text
+    assert response.headers["X-Error-Code"] == "validation_error"
+    assert response.json()["detail"][0]["msg"].startswith("Value error, Phone number must use international format")
+
+
+@pytest.mark.asyncio
 async def test_metrics_and_ingestion_health_surface_job_state(
     client: AsyncClient, db_session
 ) -> None:

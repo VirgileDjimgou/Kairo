@@ -8,6 +8,8 @@ from app.core.rate_limiter import rate_limiter
 from app.modules.identity.schemas import (
     AcceptInviteRequest,
     AcceptInviteResponse,
+    ChangeInitialPasswordRequest,
+    ChangeInitialPasswordResponse,
     ActiveSessionResponse,
     ForgotPasswordRequest,
     ForgotPasswordResponse,
@@ -113,6 +115,7 @@ async def get_me(current: AuthDep, db: DbDep) -> UserWithMembershipsResponse:
         tenant_id=current.tenant_id,
         roles=current.roles,
         last_login_at=current.user.last_login_at,
+        password_change_required=current.user.password_change_required,
         memberships=memberships,
     )
 
@@ -350,6 +353,31 @@ async def reset_password(
         user_agent=fastapi_request.headers.get("User-Agent"),
     )
     return await service.reset_password(request)
+
+
+@router.post("/change-initial-password", response_model=ChangeInitialPasswordResponse)
+async def change_initial_password(
+    request: ChangeInitialPasswordRequest,
+    current: AuthDep,
+    db: DbDep,
+    fastapi_request: Request,
+) -> ChangeInitialPasswordResponse:
+    """Replace a bureau-issued temporary password after the first sign-in."""
+    _rate_limit_or_429(
+        f"change-initial-password:{current.user.id}:{_client_ip(fastapi_request)}",
+        max_requests=5,
+        window_seconds=300,
+    )
+    service = AuthService(db).with_request_context(
+        ip_address=_client_ip(fastapi_request),
+        user_agent=fastapi_request.headers.get("User-Agent"),
+    )
+    return await service.change_initial_password(
+        user_id=current.user.id,
+        tenant_id=current.tenant_id,
+        current_session_id=current.session_id,
+        request=request,
+    )
 
 
 # ── MFA Endpoints ─────────────────────────────────────────────────────────────

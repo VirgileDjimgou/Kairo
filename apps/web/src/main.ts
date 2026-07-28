@@ -1,5 +1,6 @@
 import { createApp } from 'vue'
 import { createPinia } from 'pinia'
+import { registerSW } from 'virtual:pwa-register'
 
 import App from './App.vue'
 import router from './router'
@@ -18,3 +19,18 @@ app.use(createPinia())
 app.use(router)
 
 app.mount('#app')
+
+const updateServiceWorker = registerSW({
+  immediate: true,
+  onNeedRefresh() {
+    window.dispatchEvent(new Event('kairo:pwa-update-available'))
+  },
+})
+
+window.addEventListener('kairo:pwa-apply-update', () => {
+  void updateServiceWorker(true)
+})
+
+window.setInterval(() => {
+  void updateServiceWorker()
+}, 60_000)

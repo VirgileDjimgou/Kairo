@@ -12,6 +12,8 @@ TECHNICAL_DEMO_LOGIN_PATTERN = re.compile(
     r"^\d{4}-[a-z0-9]+(?:-[a-z0-9]+)*@demo\.local$"
 )
 email_validator = TypeAdapter(EmailStr)
+PHONE_LOGIN_PATTERN = re.compile(r"^\+[1-9]\d{7,14}$")
+USERNAME_LOGIN_PATTERN = re.compile(r"^[a-z0-9][a-z0-9._-]{2,63}$")
 
 class LoginRequest(BaseModel):
     email: str
@@ -26,6 +28,10 @@ class LoginRequest(BaseModel):
     def validate_email(cls, value: str) -> str:
         normalized = value.strip().lower()
         if TECHNICAL_DEMO_LOGIN_PATTERN.fullmatch(normalized):
+            return normalized
+        if PHONE_LOGIN_PATTERN.fullmatch(normalized):
+            return normalized
+        if USERNAME_LOGIN_PATTERN.fullmatch(normalized):
             return normalized
         return str(email_validator.validate_python(normalized))
 
@@ -42,6 +48,7 @@ class TokenResponse(BaseModel):
     expires_in: int = Field(description="Seconds until the token expires")
     tenant_id: UUID
     user_id: UUID
+    password_change_required: bool = False
 
 
 class MfaRequiredResponse(BaseModel):
@@ -70,6 +77,7 @@ class UserResponse(BaseModel):
     tenant_id: UUID
     roles: list[str]
     last_login_at: datetime | None = None
+    password_change_required: bool = False
 
     model_config = {"from_attributes": True}
 
@@ -223,6 +231,14 @@ class ResetPasswordRequest(BaseModel):
 
 class ResetPasswordResponse(BaseModel):
     message: str = "Password has been reset successfully"
+
+
+class ChangeInitialPasswordRequest(BaseModel):
+    new_password: str = Field(min_length=8, max_length=128)
+
+
+class ChangeInitialPasswordResponse(BaseModel):
+    message: str = "Password has been updated"
 
 
 # ── MFA DTOs ───────────────────────────────────────────────────────────────────

@@ -5,6 +5,7 @@ from uuid import uuid4
 
 import structlog
 from fastapi import Request
+from fastapi.encoders import jsonable_encoder
 from fastapi.exceptions import RequestValidationError
 from fastapi.responses import JSONResponse
 from starlette.middleware.base import BaseHTTPMiddleware
@@ -77,7 +78,7 @@ async def validation_exception_handler(request: Request, exc: RequestValidationE
         content=_error_payload(
             request_id=request_id,
             error_code=error_code,
-            detail=exc.errors(),
+            detail=jsonable_encoder(exc.errors()),
         ),
         headers={
             "X-Request-ID": request_id,

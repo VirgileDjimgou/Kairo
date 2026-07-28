@@ -31,7 +31,16 @@ class User(Base):
         nullable=False,
         index=True,
     )
+    login_identifier: Mapped[str | None] = mapped_column(
+        String(64), unique=True, nullable=True, index=True
+    )
+    phone: Mapped[str | None] = mapped_column(
+        String(20), unique=True, nullable=True, index=True
+    )
     password_hash: Mapped[str] = mapped_column(String(255), nullable=False)
+    password_change_required: Mapped[bool] = mapped_column(
+        Boolean, nullable=False, server_default=text("false")
+    )
     display_name: Mapped[str] = mapped_column(String(255), nullable=False)
     preferred_language: Mapped[str | None] = mapped_column(String(10), nullable=True)
     status: Mapped[str] = mapped_column(

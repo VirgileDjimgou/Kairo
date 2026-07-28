@@ -31,6 +31,12 @@ const router = createRouter({
       meta: { requiresGuest: true },
     },
     {
+      path: "/initial-password",
+      name: "initial-password",
+      component: () => import("@/views/auth/InitialPasswordView.vue"),
+      meta: { requiresAuth: true },
+    },
+    {
       path: "/mfa/setup",
       name: "mfa-setup",
       redirect: "/account/security",
@@ -340,6 +346,23 @@ router.beforeEach(async (to) => {
   }
 
   const currentRoles = auth.user?.roles ?? [];
+
+  if (
+    auth.isAuthenticated &&
+    auth.user?.password_change_required &&
+    to.name !== "initial-password"
+  ) {
+    return { name: "initial-password" };
+  }
+
+  if (
+    auth.isAuthenticated &&
+    auth.user &&
+    !auth.user.password_change_required &&
+    to.name === "initial-password"
+  ) {
+    return { name: "dashboard" };
+  }
 
   if (to.meta.requiresGuest && auth.isAuthenticated) {
     return { name: "dashboard" };

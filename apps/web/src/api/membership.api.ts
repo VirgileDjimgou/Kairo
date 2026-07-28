@@ -41,6 +41,9 @@ export interface CreateMemberPayload {
   phone?: string
   status?: string
   membership_type: 'individual' | 'family'
+  provision_access?: boolean
+  login_identifier?: string
+  temporary_password?: string
 }
 
 export interface UpdateMemberPayload {

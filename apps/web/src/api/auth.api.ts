@@ -14,6 +14,7 @@ export interface TokenResponse {
   expires_in: number
   tenant_id: string
   user_id: string
+  password_change_required: boolean
 }
 
 export interface MfaRequiredResponse {
@@ -58,6 +59,7 @@ export interface UserResponse {
   tenant_id: string
   roles: string[]
   last_login_at: string | null
+  password_change_required: boolean
 }
 
 export interface UserWithMembershipsResponse extends UserResponse {
@@ -188,6 +190,10 @@ export interface ForgotPasswordResponse {
 
 export interface ResetPasswordRequest {
   token: string
+  new_password: string
+}
+
+export interface ChangeInitialPasswordRequest {
   new_password: string
 }
 
@@ -328,6 +334,10 @@ export async function forgotPassword(payload: ForgotPasswordRequest): Promise<Fo
 
 export async function resetPassword(payload: ResetPasswordRequest): Promise<void> {
   await http.post('/auth/reset-password', payload)
+}
+
+export async function changeInitialPassword(payload: ChangeInitialPasswordRequest): Promise<void> {
+  await http.post('/auth/change-initial-password', payload)
 }
 
 export async function enrollMfa(): Promise<MfaEnrollResponse> {

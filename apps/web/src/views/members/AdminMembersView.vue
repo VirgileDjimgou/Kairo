@@ -213,31 +213,47 @@
             <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
           </div>
           <div class="modal-body">
+            <template v-if="!reviewMode">
             <div class="mb-3">
-              <label class="form-label small fw-medium">{{ t('members.memberCode') }}</label>
-              <input v-model="form.member_code" class="form-control form-control-sm" required />
+              <label class="form-label small fw-medium" for="member-code">{{ t('members.memberCode') }}</label>
+              <input id="member-code" v-model="form.member_code" class="form-control form-control-sm" required />
             </div>
             <div class="row g-2 mb-3">
               <div class="col">
-                <label class="form-label small fw-medium">{{ t('members.firstName') }}</label>
-                <input v-model="form.first_name" class="form-control form-control-sm" required />
+                <label class="form-label small fw-medium" for="member-first-name">{{ t('members.firstName') }}</label>
+                <input id="member-first-name" v-model="form.first_name" class="form-control form-control-sm" required />
               </div>
               <div class="col">
-                <label class="form-label small fw-medium">{{ t('members.lastName') }}</label>
-                <input v-model="form.last_name" class="form-control form-control-sm" required />
+                <label class="form-label small fw-medium" for="member-last-name">{{ t('members.lastName') }}</label>
+                <input id="member-last-name" v-model="form.last_name" class="form-control form-control-sm" required />
               </div>
             </div>
             <div class="mb-3">
-              <label class="form-label small fw-medium">{{ t('members.displayName') }}</label>
-              <input v-model="form.display_name" class="form-control form-control-sm" required />
+              <label class="form-label small fw-medium" for="member-display-name">{{ t('members.displayName') }}</label>
+              <input id="member-display-name" v-model="form.display_name" class="form-control form-control-sm" required />
             </div>
             <div class="mb-3">
-              <label class="form-label small fw-medium">{{ t('common.email') }}</label>
-              <input v-model="form.email" type="email" class="form-control form-control-sm" />
+              <label class="form-label small fw-medium" for="member-email">{{ t('common.email') }}</label>
+              <input id="member-email" v-model="form.email" type="email" class="form-control form-control-sm" />
             </div>
             <div class="mb-3">
               <label class="form-label small fw-medium">{{ t('members.phone') }}</label>
-              <input v-model="form.phone" class="form-control form-control-sm" />
+              <div class="row g-2">
+                <div class="col-7">
+                  <label class="visually-hidden" for="member-phone-country">{{ t('members.phoneCountry') }}</label>
+                  <select id="member-phone-country" v-model="selectedPhoneCountry" class="form-select form-select-sm" data-testid="member-phone-country">
+                    <option v-for="country in phoneCountries" :key="country.code" :value="country.code">{{ country.flag }} {{ country.name }} (+{{ country.callingCode }})</option>
+                  </select>
+                </div>
+                <div class="col-5">
+                  <label class="visually-hidden" for="member-phone-number">{{ t('members.phoneNumber') }}</label>
+                  <div class="input-group input-group-sm">
+                    <span class="input-group-text">+{{ selectedPhoneCallingCode }}</span>
+                    <input id="member-phone-number" v-model="phoneNationalNumber" class="form-control" type="tel" inputmode="tel" :placeholder="t('members.phonePlaceholder')" />
+                  </div>
+                </div>
+              </div>
+              <div class="form-text">{{ t('members.phoneHelp') }}</div>
             </div>
             <fieldset class="mb-1">
               <legend class="form-label small fw-medium mb-2">{{ t('members.membershipType') }}</legend>
@@ -252,11 +268,56 @@
                 </label>
               </div>
             </fieldset>
+            <hr class="my-4" />
+            <div class="form-check form-switch mb-3">
+              <input id="provision-access" v-model="form.provision_access" class="form-check-input" type="checkbox" />
+              <label for="provision-access" class="form-check-label fw-medium">{{ t('members.directAccess') }}</label>
+              <div class="form-text">{{ t('members.directAccessHelp') }}</div>
+            </div>
+            <template v-if="form.provision_access">
+              <div class="mb-3">
+                <label class="form-label small fw-medium">{{ t('members.loginIdentifier') }}</label>
+                <input v-model.trim="form.login_identifier" class="form-control form-control-sm" autocomplete="username" />
+                <div class="form-text">{{ t('members.loginIdentifierHelp') }}</div>
+              </div>
+              <div class="mb-3">
+                <label class="form-label small fw-medium">{{ t('members.temporaryPassword') }}</label>
+                <div class="input-group input-group-sm">
+                  <input v-model="form.temporary_password" data-testid="direct-temporary-password" class="form-control" :type="showTemporaryPassword ? 'text' : 'password'" autocomplete="new-password" minlength="8" />
+                  <button data-testid="direct-temporary-password-visibility" class="btn btn-outline-secondary" type="button" @click="showTemporaryPassword = !showTemporaryPassword">
+                    <i :class="showTemporaryPassword ? 'bi bi-eye-slash' : 'bi bi-eye'" class="me-1"></i>{{ showTemporaryPassword ? t('members.hidePassword') : t('members.showPassword') }}
+                  </button>
+                </div>
+                <div data-testid="direct-temporary-password-help" class="form-text">{{ t('members.defaultTemporaryPasswordHelp') }}</div>
+              </div>
+              <div class="mb-3">
+                <label class="form-label small fw-medium">{{ t('members.confirmTemporaryPassword') }}</label>
+                <input v-model="temporaryPasswordConfirmation" class="form-control form-control-sm" type="password" autocomplete="new-password" minlength="8" />
+              </div>
+            </template>
+            </template>
+            <template v-else>
+              <div class="alert alert-primary small mb-3" role="status">{{ t('members.reviewSubmissionHelp') }}</div>
+              <dl class="row small mb-0">
+                <dt class="col-5">{{ t('members.memberCode') }}</dt><dd class="col-7">{{ form.member_code }}</dd>
+                <dt class="col-5">{{ t('common.name') }}</dt><dd class="col-7">{{ form.display_name }}</dd>
+                <dt class="col-5">{{ t('common.email') }}</dt><dd class="col-7 text-break">{{ form.email || '—' }}</dd>
+                <dt class="col-5">{{ t('members.phone') }}</dt><dd class="col-7">{{ completePhoneNumber || '—' }}</dd>
+                <dt class="col-5">{{ t('members.membershipType') }}</dt><dd class="col-7">{{ form.membership_type === 'family' ? t('members.familyContribution') : t('members.individualContribution') }}</dd>
+                <dt class="col-5">{{ t('members.initialBalance') }}</dt><dd class="col-7">{{ expectedContributionAmount }} €</dd>
+                <dt class="col-5">{{ t('members.directAccess') }}</dt><dd class="col-7">{{ form.provision_access ? t('members.accessEnabled') : t('members.accessDisabled') }}</dd>
+                <template v-if="form.provision_access">
+                  <dt class="col-5">{{ t('members.loginIdentifier') }}</dt><dd class="col-7">{{ form.login_identifier || '—' }}</dd>
+                  <dt class="col-5">{{ t('members.temporaryPassword') }}</dt><dd class="col-7">{{ t('members.temporaryPasswordSet') }}</dd>
+                </template>
+              </dl>
+            </template>
           </div>
           <div class="modal-footer">
-            <button type="button" class="btn btn-sm btn-secondary" data-bs-dismiss="modal">{{ t('common.cancel') }}</button>
-            <button type="button" class="btn btn-sm btn-primary" @click="handleCreate" :disabled="saving">
-              {{ saving ? t('common.saving') : t('common.save') }}
+            <button v-if="reviewMode" type="button" class="btn btn-sm btn-outline-secondary" @click="reviewMode = false">{{ t('common.edit') }}</button>
+            <button v-else type="button" class="btn btn-sm btn-secondary" data-bs-dismiss="modal">{{ t('common.cancel') }}</button>
+            <button type="button" class="btn btn-sm btn-primary" @click="reviewMode ? confirmCreate() : reviewCreate()" :disabled="saving">
+              {{ saving ? t('common.saving') : reviewMode ? t('members.confirmCreateMember') : t('members.reviewSubmission') }}
             </button>
           </div>
         </div>
@@ -345,6 +406,7 @@
 import { computed, ref, onMounted, nextTick } from 'vue'
 import { RouterLink } from 'vue-router'
 import * as bootstrap from 'bootstrap'
+import { getCountries, getCountryCallingCode, type CountryCode } from 'libphonenumber-js'
 import { listMembers, createMember, updateMember, deleteMember, importMembersCsv, exportMembersCsv } from '@/api/membership.api'
 import type { MembershipProfileResponse, CreateMemberPayload, UpdateMemberPayload, ImportResult } from '@/api/membership.api'
 import { useCsvExport } from '@/composables/useCsvExport'
@@ -377,6 +439,31 @@ const form = ref<CreateMemberPayload>({
   email: '',
   phone: '',
   membership_type: 'individual',
+  provision_access: false,
+  login_identifier: '',
+  temporary_password: 'CombisPass#',
+})
+const temporaryPasswordConfirmation = ref('CombisPass#')
+const showTemporaryPassword = ref(false)
+const reviewMode = ref(false)
+const selectedPhoneCountry = ref<CountryCode>('DE')
+const phoneNationalNumber = ref('')
+const selectedPhoneCallingCode = computed(() => getCountryCallingCode(selectedPhoneCountry.value))
+const completePhoneNumber = computed(() => {
+  const nationalNumber = phoneNationalNumber.value.replace(/[\s()-]/g, '').replace(/^0+/, '')
+  return nationalNumber ? `+${selectedPhoneCallingCode.value}${nationalNumber}` : ''
+})
+const expectedContributionAmount = computed(() => form.value.membership_type === 'family' ? '100' : '60')
+const phoneCountries = computed(() => {
+  const displayNames = new Intl.DisplayNames([localeStore.currentLocale], { type: 'region' })
+  return getCountries()
+    .map((code) => ({
+      code,
+      callingCode: getCountryCallingCode(code),
+      flag: String.fromCodePoint(...code.split('').map((character) => 127397 + character.charCodeAt(0))),
+      name: displayNames.of(code) ?? code,
+    }))
+    .sort((left, right) => left.name.localeCompare(right.name, localeStore.currentLocale))
 })
 
 const editForm = ref<UpdateMemberPayload>({})
@@ -450,13 +537,48 @@ function clearSearch() {
 }
 
 function resetForm() {
-  form.value = { member_code: '', first_name: '', last_name: '', display_name: '', email: '', phone: '', membership_type: 'individual' }
+  form.value = { member_code: '', first_name: '', last_name: '', display_name: '', email: '', phone: '', membership_type: 'individual', provision_access: false, login_identifier: '', temporary_password: 'CombisPass#' }
+  temporaryPasswordConfirmation.value = 'CombisPass#'
+  showTemporaryPassword.value = false
+  reviewMode.value = false
+  selectedPhoneCountry.value = 'DE'
+  phoneNationalNumber.value = ''
 }
 
-async function handleCreate() {
+function reviewCreate() {
+  if (form.value.provision_access) {
+    if (!form.value.email?.trim() && !completePhoneNumber.value && !form.value.login_identifier?.trim()) {
+      setError(new Error(t('members.accountContactRequired')))
+      return
+    }
+    if (form.value.temporary_password !== temporaryPasswordConfirmation.value) {
+      setError(new Error(t('members.passwordMismatch')))
+      return
+    }
+    if (completePhoneNumber.value && !/^\+[1-9]\d{7,14}$/.test(completePhoneNumber.value)) {
+      setError(new Error(t('members.phoneFormatRequired')))
+      return
+    }
+  }
+  reviewMode.value = true
+}
+
+async function confirmCreate() {
   saving.value = true
   try {
-    await createMember(form.value)
+    const payload: CreateMemberPayload = {
+      member_code: form.value.member_code,
+      first_name: form.value.first_name,
+      last_name: form.value.last_name,
+      display_name: form.value.display_name,
+      membership_type: form.value.membership_type,
+      provision_access: Boolean(form.value.provision_access),
+    }
+    if (form.value.email?.trim()) payload.email = form.value.email.trim()
+    if (completePhoneNumber.value) payload.phone = completePhoneNumber.value
+    if (form.value.login_identifier?.trim()) payload.login_identifier = form.value.login_identifier.trim()
+    if (form.value.temporary_password) payload.temporary_password = form.value.temporary_password
+    await createMember(payload)
     resetForm()
     await loadMembers()
     const modal = bootstrap.Modal.getInstance(document.getElementById('createMemberModal')!)

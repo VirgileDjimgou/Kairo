@@ -20,6 +20,9 @@ from app.modules.membership.schemas import (
     MembershipProfileUpdate,
     MemberStatementResponse,
 )
+from app.modules.identity.repository import UserRepository
+from app.modules.tenancy.repository import TenancyRepository
+from app.core.security import hash_password
 
 
 class MembershipService:
@@ -28,6 +31,8 @@ class MembershipService:
         self._repo = MembershipRepository(db)
         self._contrib_repo = ContributionRepository(db)
         self._audit = AuditService(db)
+        self._user_repo = UserRepository(db)
+        self._tenancy_repo = TenancyRepository(db)
 
     async def create_profile(
         self,
@@ -44,7 +49,18 @@ class MembershipService:
             )
         profile_data = data.model_dump(exclude_unset=True)
         membership_type = profile_data.pop("membership_type", None)
+        provision_access = profile_data.pop("provision_access", False)
+        login_identifier = profile_data.pop("login_identifier", None)
+        temporary_password = profile_data.pop("temporary_password", None)
         profile = await self._repo.create(tenant_id, profile_data)
+        account_user_id = None
+        if provision_access:
+            account_user_id = await self._provision_direct_member_access(
+                tenant_id=tenant_id,
+                profile=profile,
+                login_identifier=login_identifier,
+                temporary_password=temporary_password,
+            )
         contribution = None
         if membership_type is not None:
             expected_amount = Decimal("60.00") if membership_type == MembershipType.individual else Decimal("100.00")
@@ -74,10 +90,63 @@ class MembershipService:
                 "membership_type": profile.membership_type,
                 "initial_contribution_id": str(contribution.id) if contribution else None,
                 "initial_expected_amount": str(contribution.expected_amount) if contribution else None,
+                "direct_account_provisioned": account_user_id is not None,
+                "account_user_id": str(account_user_id) if account_user_id else None,
             },
         )
         await self._db.commit()
         return MembershipProfileResponse.model_validate(profile)
+
+    async def _provision_direct_member_access(
+        self,
+        *,
+        tenant_id: UUID,
+        profile: MembershipProfile,
+        login_identifier: str | None,
+        temporary_password: str | None,
+    ) -> UUID:
+        if temporary_password is None:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail="A temporary password is required for direct member access",
+            )
+        phone = profile.phone.strip() if profile.phone else None
+        if profile.email and await self._user_repo.get_by_email(profile.email):
+            raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail="This email address is already linked to an account")
+        if login_identifier and await self._user_repo.get_by_login_identifier(login_identifier):
+            raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail="This login identifier is already in use")
+        if phone and await self._user_repo.get_by_phone(phone):
+            raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail="This phone number is already linked to an account")
+
+        internal_email = profile.email or f"member-{profile.id.hex}@member.kairo.local"
+        user = await self._user_repo.create(
+            email=internal_email,
+            password_hash=hash_password(temporary_password),
+            display_name=profile.display_name,
+            status=profile.status,
+            login_identifier=login_identifier,
+            phone=phone,
+            password_change_required=True,
+        )
+        await self._tenancy_repo.create_tenant_user(
+            tenant_id=tenant_id,
+            user_id=user.id,
+            profile_type="member",
+            membership_status="active",
+        )
+        member_role = await self._tenancy_repo.get_role_by_code(tenant_id, "member")
+        if member_role is None:
+            member_role = await self._tenancy_repo.create_role(
+                tenant_id=tenant_id,
+                code="member",
+                name="Member",
+                description="Ordinary association member",
+                is_system_role=True,
+            )
+        await self._tenancy_repo.assign_role_to_user(tenant_id, user.id, member_role.id)
+        profile.user_id = user.id
+        await self._db.flush()
+        return user.id
 
     async def get_profile(
         self, tenant_id: UUID, profile_id: UUID

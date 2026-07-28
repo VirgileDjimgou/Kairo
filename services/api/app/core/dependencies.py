@@ -37,6 +37,7 @@ class CurrentUser:
     tenant_id: UUID
     roles: list[str]
     session_id: UUID
+    password_change_required: bool = False
 
     def has_role(self, *role_codes: str) -> bool:
         return any(r in self.roles for r in role_codes)
@@ -108,6 +109,15 @@ async def get_current_user(
     ):
         raise unauthorized
 
+    if user.password_change_required and request.url.path not in {
+        "/api/v1/auth/me",
+        "/api/v1/auth/change-initial-password",
+    }:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Initial password change required",
+        )
+
     forwarded = request.headers.get("X-Forwarded-For") if request else None
     ip_address = (
         forwarded.split(",")[0].strip()
@@ -122,7 +132,13 @@ async def get_current_user(
         user_agent=user_agent,
     )
 
-    return CurrentUser(user=user, tenant_id=tenant_id, roles=roles, session_id=session_id)
+    return CurrentUser(
+        user=user,
+        tenant_id=tenant_id,
+        roles=roles,
+        session_id=session_id,
+        password_change_required=user.password_change_required,
+    )
 
 
 # Convenience type alias for route signatures

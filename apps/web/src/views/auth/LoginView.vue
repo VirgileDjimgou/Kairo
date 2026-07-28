@@ -24,15 +24,15 @@
         <form v-if="!showTenantPicker && !needsMfa" @submit.prevent="handleLogin" novalidate
               class="login-mobile__form">
           <div class="mb-2">
-            <label for="email" class="form-label fw-medium small">{{ localeStore.t('login.email') }}</label>
+            <label for="email" class="form-label fw-medium small">{{ localeStore.t('login.identifier') }}</label>
             <input
               id="email"
               v-model.trim="form.email"
-              type="email"
+              type="text"
               class="form-control"
               :class="{ 'is-invalid': errors.email }"
-              :placeholder="localeStore.t('login.emailPlaceholder')"
-              autocomplete="email"
+              :placeholder="localeStore.t('login.identifierPlaceholder')"
+              autocomplete="username"
               required
             />
             <div v-if="errors.email" class="invalid-feedback">{{ errors.email }}</div>
@@ -229,15 +229,15 @@
 
               <form v-if="!showTenantPicker && !needsMfa" @submit.prevent="handleLogin" novalidate>
                 <div class="mb-3">
-                  <label for="email" class="form-label fw-medium">{{ localeStore.t('login.email') }}</label>
+                  <label for="email" class="form-label fw-medium">{{ localeStore.t('login.identifier') }}</label>
                   <input
                     id="email"
                     v-model.trim="form.email"
-                    type="email"
+                    type="text"
                     class="form-control"
                     :class="{ 'is-invalid': errors.email }"
-                    :placeholder="localeStore.t('login.emailPlaceholder')"
-                    autocomplete="email"
+                    :placeholder="localeStore.t('login.identifierPlaceholder')"
+                    autocomplete="username"
                     required
                   />
                   <div v-if="errors.email" class="invalid-feedback">
@@ -430,7 +430,7 @@ function validate(): boolean {
   errors.email = "";
   errors.password = "";
   if (!form.email) {
-    errors.email = localeStore.t('login.errorEmailRequired');
+    errors.email = localeStore.t('login.errorIdentifierRequired');
     return false;
   }
   if (!form.password) {

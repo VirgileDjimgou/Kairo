@@ -35,6 +35,69 @@ async def test_create_member_profile(client: AsyncClient, db_session: AsyncSessi
 
 
 @pytest.mark.asyncio
+async def test_direct_member_access_requires_initial_password_change(
+    client: AsyncClient, db_session: AsyncSession
+):
+    ctx = await create_tenant_with_user(db_session, "member-direct-access")
+    office_token = await login(client, ctx["user"].email, "TestIsolation1!", ctx["tenant"].slug)
+
+    created = await client.post(
+        "/api/v1/memberships/",
+        json={
+            "member_code": "DIRECT-001",
+            "first_name": "Marie",
+            "last_name": "Sans Email",
+            "display_name": "Marie Sans Email",
+            "phone": "+49123456789",
+            "login_identifier": "marie.club",
+            "provision_access": True,
+            "temporary_password": "TempPass123!",
+            "membership_type": "individual",
+        },
+        headers={"Authorization": f"Bearer {office_token}"},
+    )
+    assert created.status_code == 201, created.text
+    profile = created.json()
+    assert profile["email"] is None
+    assert profile["user_id"] is not None
+
+    first_login = await client.post(
+        "/api/v1/auth/login",
+        json={"email": "+49123456789", "password": "TempPass123!", "tenant_slug": ctx["tenant"].slug},
+    )
+    assert first_login.status_code == 200, first_login.text
+    assert first_login.json()["password_change_required"] is True
+    member_token = first_login.json()["access_token"]
+
+    me = await client.get("/api/v1/auth/me", headers={"Authorization": f"Bearer {member_token}"})
+    assert me.status_code == 200
+    assert me.json()["password_change_required"] is True
+    blocked = await client.get(
+        "/api/v1/memberships/me", headers={"Authorization": f"Bearer {member_token}"}
+    )
+    assert blocked.status_code == 403
+
+    changed = await client.post(
+        "/api/v1/auth/change-initial-password",
+        json={"new_password": "PersonalPass123!"},
+        headers={"Authorization": f"Bearer {member_token}"},
+    )
+    assert changed.status_code == 200, changed.text
+    active_profile = await client.get(
+        "/api/v1/memberships/me", headers={"Authorization": f"Bearer {member_token}"}
+    )
+    assert active_profile.status_code == 200
+    assert active_profile.json()["id"] == profile["id"]
+
+    username_login = await client.post(
+        "/api/v1/auth/login",
+        json={"email": "marie.club", "password": "PersonalPass123!", "tenant_slug": ctx["tenant"].slug},
+    )
+    assert username_login.status_code == 200, username_login.text
+    assert username_login.json()["password_change_required"] is False
+
+
+@pytest.mark.asyncio
 @pytest.mark.parametrize(
     ("membership_type", "expected_amount"),
     [("individual", "60.00"), ("family", "100.00")],
