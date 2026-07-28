@@ -6,6 +6,7 @@ from uuid import UUID
 from pydantic import BaseModel, Field, field_serializer
 
 from app.modules.contributions.models import (
+    ContributionReceiptStatus,
     ContributionStatus,
     PaymentMethod,
     ReminderDeliveryStatus,
@@ -77,6 +78,81 @@ class PaymentRecordResponse(BaseModel):
     @field_serializer("amount")
     def serialize_decimal(self, value: Decimal) -> str:
         return str(value.quantize(Decimal("0.01"), rounding=ROUND_HALF_UP))
+
+
+class ContributionReceiptDeclarationCreate(BaseModel):
+    membership_profile_id: UUID
+    amount: Decimal = Field(..., gt=0)
+    currency: str = Field(default="EUR", min_length=3, max_length=3)
+    received_at: datetime | None = None
+    payment_method: PaymentMethod = PaymentMethod.cash
+    note: str | None = Field(default=None, max_length=2000)
+    reference: str | None = Field(default=None, max_length=255)
+    evidence_json: str = Field(default="{}", max_length=10000)
+
+
+class ContributionReceiptMemberOption(BaseModel):
+    """Read-only member identity available to authorized receipt declarants."""
+
+    id: UUID
+    display_name: str
+    member_code: str
+    first_name: str
+    last_name: str
+    email: str | None
+    phone: str | None
+    membership_type: str
+    status: str
+    joined_at: datetime
+
+
+class ContributionReceiptDeclarationUpdate(BaseModel):
+    membership_profile_id: UUID | None = None
+    amount: Decimal | None = Field(default=None, gt=0)
+    currency: str | None = Field(default=None, min_length=3, max_length=3)
+    received_at: datetime | None = None
+    payment_method: PaymentMethod | None = None
+    note: str | None = Field(default=None, max_length=2000)
+    reference: str | None = Field(default=None, max_length=255)
+    evidence_json: str | None = Field(default=None, max_length=10000)
+
+
+class ContributionReceiptDeclarationProcess(BaseModel):
+    action: Literal["validated", "partially_validated", "rejected", "clarification_requested", "cancelled"]
+    contribution_record_id: UUID | None = None
+    processed_amount: Decimal | None = Field(default=None, gt=0)
+    note: str | None = Field(default=None, max_length=2000)
+
+
+class ContributionReceiptDeclarationResponse(BaseModel):
+    id: UUID
+    tenant_id: UUID
+    membership_profile_id: UUID
+    declarant_user_id: UUID
+    declarant_role_code: str
+    amount: Decimal
+    currency: str
+    received_at: datetime
+    payment_method: str
+    note: str | None
+    reference: str | None
+    evidence_json: str
+    status: ContributionReceiptStatus
+    submitted_at: datetime | None
+    processed_at: datetime | None
+    processed_by_user_id: UUID | None
+    processed_amount: Decimal | None
+    processing_note: str | None
+    contribution_record_id: UUID | None
+    payment_record_id: UUID | None
+    created_at: datetime
+    updated_at: datetime
+
+    model_config = {"from_attributes": True}
+
+    @field_serializer("amount", "processed_amount")
+    def serialize_receipt_decimal(self, value: Decimal | None) -> str | None:
+        return None if value is None else str(value.quantize(Decimal("0.01"), rounding=ROUND_HALF_UP))
 
 
 class ContributionReminderSendRequest(BaseModel):

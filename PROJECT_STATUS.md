@@ -1,22 +1,23 @@
 # Project Status
 
-Last updated: 2026-07-25
+Last updated: 2026-07-28
 
 ## Current Sprint
 
-Sprint 98 - Operational Pilot Acceptance
+Sprint 99 - Association Workflow Alignment And Receipt Declarations
 
 Status: Completed
 
 ## Official Next Sprint
 
-None — All planned sprints completed.
+No additional sprint is currently scheduled.
 
 ## Active Delivery Frame
 
 - Target outcome: a stable, professional, mature open-source association-management product with secure role-aware workspaces and a trustworthy chatbot
 - Intended operational scope: usable by an association or organization of about 200 members with differentiated office roles
 - Remaining planned execution window: 0 — all planned sprints completed
+- Delivery status: Sprint 99 completed: canonical office roles can declare a cash receipt without changing official finance, the treasurer alone can validate it into an official payment, and the member, declarant, and audit trail retain the corresponding status evidence.
 - Delivery status: Sprint 98 completed all acceptance gates: non-placeholder secrets validated, `app_debug` defaults to `False`, seed no longer logs passwords, JWT secret validated in production mode, "Combis Sport Verein" product-level hardcoding removed, and a non-destructive PostgreSQL restore drill verified against an isolated target.
 - Local pilot preparation includes a controlled workbook import that replaces only member-only accounts and their finance records after a private backup, while preserving office accounts and tenant operational content.
 - Private PostgreSQL backup created and restore drill passed — full schema (27 tables), data (119 users, 58 documents, 381 chunks, 111 contributions), and role integrity preserved on isolated target.

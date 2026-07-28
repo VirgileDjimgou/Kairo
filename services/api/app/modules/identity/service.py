@@ -7,7 +7,7 @@ import jwt
 from fastapi import HTTPException, status
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.core.capabilities import CAP_ROLE_ASSIGN, has_capability
+from app.core.capabilities import CAP_MEMBERSHIP_INVITE, CAP_ROLE_ASSIGN, has_capability
 from app.core.config import settings
 from app.core.security import (
     create_access_token,
@@ -422,11 +422,17 @@ class AuthService:
                 detail="Organization not found",
             )
 
-        # Verify inviter is an admin of the target tenant
+        # President and secretary general may invite ordinary members without
+        # receiving broad role-management or lifecycle permissions.
         inviter_roles = await self._tenancy_repo.get_user_role_codes(
             request.tenant_id, invited_by_user_id
         )
-        if not has_capability(inviter_roles, CAP_ROLE_ASSIGN):
+        can_assign_any_role = has_capability(inviter_roles, CAP_ROLE_ASSIGN)
+        can_invite_member = (
+            request.role_code == "member"
+            and has_capability(inviter_roles, CAP_MEMBERSHIP_INVITE)
+        )
+        if not (can_assign_any_role or can_invite_member):
             raise HTTPException(
                 status_code=status.HTTP_403_FORBIDDEN,
                 detail="Only authorized tenant administrators can invite users",

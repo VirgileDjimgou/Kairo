@@ -1,4 +1,4 @@
-from datetime import datetime
+from datetime import datetime, timezone
 from decimal import Decimal
 from uuid import UUID
 
@@ -9,8 +9,9 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from app.core.import_export import ImportResult, ImportRowError, generate_csv, parse_csv
 from app.modules.audit.service import AuditService
 from app.modules.contributions.repository import ContributionRepository
+from app.modules.contributions.models import ContributionStatus
 from app.modules.contributions.schemas import ContributionRecordResponse
-from app.modules.membership.models import MembershipProfile, MembershipStatus
+from app.modules.membership.models import MembershipProfile, MembershipStatus, MembershipType
 from app.modules.membership.repository import MembershipRepository
 from app.modules.membership.schemas import (
     MemberBalanceResponse,
@@ -41,9 +42,24 @@ class MembershipService:
                 status_code=status.HTTP_409_CONFLICT,
                 detail="A member with this code already exists",
             )
-        profile = await self._repo.create(
-            tenant_id, data.model_dump(exclude_unset=True)
-        )
+        profile_data = data.model_dump(exclude_unset=True)
+        membership_type = profile_data.pop("membership_type", None)
+        profile = await self._repo.create(tenant_id, profile_data)
+        contribution = None
+        if membership_type is not None:
+            expected_amount = Decimal("60.00") if membership_type == MembershipType.individual else Decimal("100.00")
+            contribution = await self._contrib_repo.create_contribution(
+                tenant_id,
+                {
+                    "membership_profile_id": profile.id,
+                    "year": datetime.now(timezone.utc).year,
+                    "expected_amount": expected_amount,
+                    "paid_amount": Decimal("0.00"),
+                    "currency": "EUR",
+                    "status": ContributionStatus.pending.value,
+                },
+            )
+            profile.membership_type = membership_type.value
         await self._audit.record_event(
             tenant_id=tenant_id,
             actor_user_id=actor_user_id,
@@ -55,6 +71,9 @@ class MembershipService:
                 "member_code": profile.member_code,
                 "display_name": profile.display_name,
                 "status": profile.status,
+                "membership_type": profile.membership_type,
+                "initial_contribution_id": str(contribution.id) if contribution else None,
+                "initial_expected_amount": str(contribution.expected_amount) if contribution else None,
             },
         )
         await self._db.commit()
@@ -83,9 +102,9 @@ class MembershipService:
         return MembershipProfileResponse.model_validate(profile)
 
     async def list_profiles(
-        self, tenant_id: UUID, status: str | None = None
+        self, tenant_id: UUID, status: str | None = None, query_text: str | None = None
     ) -> list[MembershipProfileResponse]:
-        profiles = await self._repo.list_by_tenant(tenant_id, status)
+        profiles = await self._repo.list_by_tenant(tenant_id, status, query_text)
         return [MembershipProfileResponse.model_validate(p) for p in profiles]
 
     async def update_profile(

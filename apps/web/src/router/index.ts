@@ -63,6 +63,27 @@ const router = createRouter({
           meta: { module: "membership" },
         },
         {
+          path: "members/manage",
+          name: "member-management",
+          component: () => import("@/views/members/AdminMembersView.vue"),
+          meta: {
+            module: "membership",
+            allowedRoles: ["president", "secretary_general", "principal_admin", "admin"],
+          },
+        },
+        {
+          path: "receipts",
+          name: "receipt-declarations",
+          component: () => import("@/views/contributions/ReceiptDeclarationsView.vue"),
+          meta: {
+            module: "contributions",
+            allowedRoles: [
+              "president", "vice_president", "secretary_general", "treasurer",
+              "auditor", "censor", "sports_manager", "principal_admin", "admin",
+            ],
+          },
+        },
+        {
           path: "account/security",
           name: "account-security",
           component: () => import("@/views/account/AccountSecurityView.vue"),

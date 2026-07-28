@@ -17,6 +17,11 @@ class MembershipStatus(StrEnum):
     resigned = "resigned"
 
 
+class MembershipType(StrEnum):
+    individual = "individual"
+    family = "family"
+
+
 class MembershipProfile(Base):
     """
     Structured member profile within a tenant.
@@ -48,6 +53,9 @@ class MembershipProfile(Base):
     display_name: Mapped[str] = mapped_column(String(255), nullable=False)
     email: Mapped[str | None] = mapped_column(String(255), nullable=True)
     phone: Mapped[str | None] = mapped_column(String(50), nullable=True)
+    membership_type: Mapped[str] = mapped_column(
+        String(32), nullable=False, server_default=MembershipType.individual.value
+    )
     status: Mapped[str] = mapped_column(
         String(50), nullable=False, server_default=MembershipStatus.active.value
     )

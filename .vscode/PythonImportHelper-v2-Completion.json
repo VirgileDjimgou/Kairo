@@ -3833,6 +3833,14 @@
         "documentation": {}
     },
     {
+        "label": "or_",
+        "importPath": "sqlalchemy",
+        "description": "sqlalchemy",
+        "isExtraImport": true,
+        "detail": "sqlalchemy",
+        "documentation": {}
+    },
+    {
         "label": "select",
         "importPath": "sqlalchemy",
         "description": "sqlalchemy",
@@ -7526,6 +7534,14 @@
         "documentation": {}
     },
     {
+        "label": "AsyncSession",
+        "importPath": "sqlalchemy.ext.asyncio",
+        "description": "sqlalchemy.ext.asyncio",
+        "isExtraImport": true,
+        "detail": "sqlalchemy.ext.asyncio",
+        "documentation": {}
+    },
+    {
         "label": "decode_access_token",
         "importPath": "app.core.security",
         "description": "app.core.security",
@@ -7864,6 +7880,14 @@
     },
     {
         "label": "ASGITransport",
+        "importPath": "httpx",
+        "description": "httpx",
+        "isExtraImport": true,
+        "detail": "httpx",
+        "documentation": {}
+    },
+    {
+        "label": "AsyncClient",
         "importPath": "httpx",
         "description": "httpx",
         "isExtraImport": true,
@@ -8922,6 +8946,14 @@
         "documentation": {}
     },
     {
+        "label": "timezone",
+        "importPath": "datetime",
+        "description": "datetime",
+        "isExtraImport": true,
+        "detail": "datetime",
+        "documentation": {}
+    },
+    {
         "label": "datetime",
         "importPath": "datetime",
         "description": "datetime",
@@ -9144,6 +9176,22 @@
         "description": "passlib.context",
         "isExtraImport": true,
         "detail": "passlib.context",
+        "documentation": {}
+    },
+    {
+        "label": "op",
+        "importPath": "alembic",
+        "description": "alembic",
+        "isExtraImport": true,
+        "detail": "alembic",
+        "documentation": {}
+    },
+    {
+        "label": "op",
+        "importPath": "alembic",
+        "description": "alembic",
+        "isExtraImport": true,
+        "detail": "alembic",
         "documentation": {}
     },
     {
@@ -9853,47 +9901,7 @@
         "documentation": {}
     },
     {
-        "label": "ContributionReminder",
-        "importPath": "app.modules.contributions.models",
-        "description": "app.modules.contributions.models",
-        "isExtraImport": true,
-        "detail": "app.modules.contributions.models",
-        "documentation": {}
-    },
-    {
-        "label": "PaymentRecord",
-        "importPath": "app.modules.contributions.models",
-        "description": "app.modules.contributions.models",
-        "isExtraImport": true,
-        "detail": "app.modules.contributions.models",
-        "documentation": {}
-    },
-    {
-        "label": "ContributionRecord",
-        "importPath": "app.modules.contributions.models",
-        "description": "app.modules.contributions.models",
-        "isExtraImport": true,
-        "detail": "app.modules.contributions.models",
-        "documentation": {}
-    },
-    {
-        "label": "PaymentRecord",
-        "importPath": "app.modules.contributions.models",
-        "description": "app.modules.contributions.models",
-        "isExtraImport": true,
-        "detail": "app.modules.contributions.models",
-        "documentation": {}
-    },
-    {
-        "label": "ContributionRecord",
-        "importPath": "app.modules.contributions.models",
-        "description": "app.modules.contributions.models",
-        "isExtraImport": true,
-        "detail": "app.modules.contributions.models",
-        "documentation": {}
-    },
-    {
-        "label": "ContributionRecord",
+        "label": "ContributionReceiptDeclaration",
         "importPath": "app.modules.contributions.models",
         "description": "app.modules.contributions.models",
         "isExtraImport": true,
@@ -9910,6 +9918,70 @@
     },
     {
         "label": "PaymentRecord",
+        "importPath": "app.modules.contributions.models",
+        "description": "app.modules.contributions.models",
+        "isExtraImport": true,
+        "detail": "app.modules.contributions.models",
+        "documentation": {}
+    },
+    {
+        "label": "ContributionRecord",
+        "importPath": "app.modules.contributions.models",
+        "description": "app.modules.contributions.models",
+        "isExtraImport": true,
+        "detail": "app.modules.contributions.models",
+        "documentation": {}
+    },
+    {
+        "label": "PaymentRecord",
+        "importPath": "app.modules.contributions.models",
+        "description": "app.modules.contributions.models",
+        "isExtraImport": true,
+        "detail": "app.modules.contributions.models",
+        "documentation": {}
+    },
+    {
+        "label": "ContributionRecord",
+        "importPath": "app.modules.contributions.models",
+        "description": "app.modules.contributions.models",
+        "isExtraImport": true,
+        "detail": "app.modules.contributions.models",
+        "documentation": {}
+    },
+    {
+        "label": "ContributionRecord",
+        "importPath": "app.modules.contributions.models",
+        "description": "app.modules.contributions.models",
+        "isExtraImport": true,
+        "detail": "app.modules.contributions.models",
+        "documentation": {}
+    },
+    {
+        "label": "ContributionReceiptDeclaration",
+        "importPath": "app.modules.contributions.models",
+        "description": "app.modules.contributions.models",
+        "isExtraImport": true,
+        "detail": "app.modules.contributions.models",
+        "documentation": {}
+    },
+    {
+        "label": "ContributionReminder",
+        "importPath": "app.modules.contributions.models",
+        "description": "app.modules.contributions.models",
+        "isExtraImport": true,
+        "detail": "app.modules.contributions.models",
+        "documentation": {}
+    },
+    {
+        "label": "PaymentRecord",
+        "importPath": "app.modules.contributions.models",
+        "description": "app.modules.contributions.models",
+        "isExtraImport": true,
+        "detail": "app.modules.contributions.models",
+        "documentation": {}
+    },
+    {
+        "label": "ContributionReceiptStatus",
         "importPath": "app.modules.contributions.models",
         "description": "app.modules.contributions.models",
         "isExtraImport": true,
@@ -9941,6 +10013,14 @@
         "documentation": {}
     },
     {
+        "label": "ContributionReceiptStatus",
+        "importPath": "app.modules.contributions.models",
+        "description": "app.modules.contributions.models",
+        "isExtraImport": true,
+        "detail": "app.modules.contributions.models",
+        "documentation": {}
+    },
+    {
         "label": "ContributionStatus",
         "importPath": "app.modules.contributions.models",
         "description": "app.modules.contributions.models",
@@ -9950,6 +10030,14 @@
     },
     {
         "label": "ReminderDeliveryStatus",
+        "importPath": "app.modules.contributions.models",
+        "description": "app.modules.contributions.models",
+        "isExtraImport": true,
+        "detail": "app.modules.contributions.models",
+        "documentation": {}
+    },
+    {
+        "label": "ContributionStatus",
         "importPath": "app.modules.contributions.models",
         "description": "app.modules.contributions.models",
         "isExtraImport": true,
@@ -10077,6 +10165,14 @@
         "documentation": {}
     },
     {
+        "label": "MembershipType",
+        "importPath": "app.modules.membership.models",
+        "description": "app.modules.membership.models",
+        "isExtraImport": true,
+        "detail": "app.modules.membership.models",
+        "documentation": {}
+    },
+    {
         "label": "MembershipProfile",
         "importPath": "app.modules.membership.models",
         "description": "app.modules.membership.models",
@@ -10086,6 +10182,14 @@
     },
     {
         "label": "MembershipStatus",
+        "importPath": "app.modules.membership.models",
+        "description": "app.modules.membership.models",
+        "isExtraImport": true,
+        "detail": "app.modules.membership.models",
+        "documentation": {}
+    },
+    {
+        "label": "MembershipType",
         "importPath": "app.modules.membership.models",
         "description": "app.modules.membership.models",
         "isExtraImport": true,
@@ -10701,6 +10805,46 @@
         "documentation": {}
     },
     {
+        "label": "CAP_CONTRIBUTION_RECEIPT_DECLARE",
+        "importPath": "app.core.capabilities",
+        "description": "app.core.capabilities",
+        "isExtraImport": true,
+        "detail": "app.core.capabilities",
+        "documentation": {}
+    },
+    {
+        "label": "CAP_CONTRIBUTION_RECEIPT_MEMBER_SELF_READ",
+        "importPath": "app.core.capabilities",
+        "description": "app.core.capabilities",
+        "isExtraImport": true,
+        "detail": "app.core.capabilities",
+        "documentation": {}
+    },
+    {
+        "label": "CAP_CONTRIBUTION_RECEIPT_OWN_READ",
+        "importPath": "app.core.capabilities",
+        "description": "app.core.capabilities",
+        "isExtraImport": true,
+        "detail": "app.core.capabilities",
+        "documentation": {}
+    },
+    {
+        "label": "CAP_CONTRIBUTION_RECEIPT_PROCESS",
+        "importPath": "app.core.capabilities",
+        "description": "app.core.capabilities",
+        "isExtraImport": true,
+        "detail": "app.core.capabilities",
+        "documentation": {}
+    },
+    {
+        "label": "CAP_CONTRIBUTION_RECEIPT_TENANT_READ",
+        "importPath": "app.core.capabilities",
+        "description": "app.core.capabilities",
+        "isExtraImport": true,
+        "detail": "app.core.capabilities",
+        "documentation": {}
+    },
+    {
         "label": "CAP_FINANCE_AUDIT",
         "importPath": "app.core.capabilities",
         "description": "app.core.capabilities",
@@ -10805,6 +10949,14 @@
         "documentation": {}
     },
     {
+        "label": "CAP_MEMBERSHIP_INVITE",
+        "importPath": "app.core.capabilities",
+        "description": "app.core.capabilities",
+        "isExtraImport": true,
+        "detail": "app.core.capabilities",
+        "documentation": {}
+    },
+    {
         "label": "CAP_ROLE_ASSIGN",
         "importPath": "app.core.capabilities",
         "description": "app.core.capabilities",
@@ -10894,6 +11046,46 @@
     },
     {
         "label": "CAP_CHAT_USE",
+        "importPath": "app.core.capabilities",
+        "description": "app.core.capabilities",
+        "isExtraImport": true,
+        "detail": "app.core.capabilities",
+        "documentation": {}
+    },
+    {
+        "label": "CAP_CONTRIBUTION_RECEIPT_DECLARE",
+        "importPath": "app.core.capabilities",
+        "description": "app.core.capabilities",
+        "isExtraImport": true,
+        "detail": "app.core.capabilities",
+        "documentation": {}
+    },
+    {
+        "label": "CAP_CONTRIBUTION_RECEIPT_MEMBER_SELF_READ",
+        "importPath": "app.core.capabilities",
+        "description": "app.core.capabilities",
+        "isExtraImport": true,
+        "detail": "app.core.capabilities",
+        "documentation": {}
+    },
+    {
+        "label": "CAP_CONTRIBUTION_RECEIPT_OWN_READ",
+        "importPath": "app.core.capabilities",
+        "description": "app.core.capabilities",
+        "isExtraImport": true,
+        "detail": "app.core.capabilities",
+        "documentation": {}
+    },
+    {
+        "label": "CAP_CONTRIBUTION_RECEIPT_PROCESS",
+        "importPath": "app.core.capabilities",
+        "description": "app.core.capabilities",
+        "isExtraImport": true,
+        "detail": "app.core.capabilities",
+        "documentation": {}
+    },
+    {
+        "label": "CAP_CONTRIBUTION_RECEIPT_TENANT_READ",
         "importPath": "app.core.capabilities",
         "description": "app.core.capabilities",
         "isExtraImport": true,
@@ -11014,6 +11206,14 @@
     },
     {
         "label": "CAP_MEMBERSHIP_TENANT_READ",
+        "importPath": "app.core.capabilities",
+        "description": "app.core.capabilities",
+        "isExtraImport": true,
+        "detail": "app.core.capabilities",
+        "documentation": {}
+    },
+    {
+        "label": "CAP_MEMBERSHIP_INVITE",
         "importPath": "app.core.capabilities",
         "description": "app.core.capabilities",
         "isExtraImport": true,
@@ -12205,6 +12405,46 @@
         "documentation": {}
     },
     {
+        "label": "ContributionReceiptDeclarationCreate",
+        "importPath": "app.modules.contributions.schemas",
+        "description": "app.modules.contributions.schemas",
+        "isExtraImport": true,
+        "detail": "app.modules.contributions.schemas",
+        "documentation": {}
+    },
+    {
+        "label": "ContributionReceiptMemberOption",
+        "importPath": "app.modules.contributions.schemas",
+        "description": "app.modules.contributions.schemas",
+        "isExtraImport": true,
+        "detail": "app.modules.contributions.schemas",
+        "documentation": {}
+    },
+    {
+        "label": "ContributionReceiptDeclarationProcess",
+        "importPath": "app.modules.contributions.schemas",
+        "description": "app.modules.contributions.schemas",
+        "isExtraImport": true,
+        "detail": "app.modules.contributions.schemas",
+        "documentation": {}
+    },
+    {
+        "label": "ContributionReceiptDeclarationResponse",
+        "importPath": "app.modules.contributions.schemas",
+        "description": "app.modules.contributions.schemas",
+        "isExtraImport": true,
+        "detail": "app.modules.contributions.schemas",
+        "documentation": {}
+    },
+    {
+        "label": "ContributionReceiptDeclarationUpdate",
+        "importPath": "app.modules.contributions.schemas",
+        "description": "app.modules.contributions.schemas",
+        "isExtraImport": true,
+        "detail": "app.modules.contributions.schemas",
+        "documentation": {}
+    },
+    {
         "label": "ContributionReminderBatchRequest",
         "importPath": "app.modules.contributions.schemas",
         "description": "app.modules.contributions.schemas",
@@ -12277,6 +12517,38 @@
         "documentation": {}
     },
     {
+        "label": "ContributionReceiptDeclarationCreate",
+        "importPath": "app.modules.contributions.schemas",
+        "description": "app.modules.contributions.schemas",
+        "isExtraImport": true,
+        "detail": "app.modules.contributions.schemas",
+        "documentation": {}
+    },
+    {
+        "label": "ContributionReceiptDeclarationProcess",
+        "importPath": "app.modules.contributions.schemas",
+        "description": "app.modules.contributions.schemas",
+        "isExtraImport": true,
+        "detail": "app.modules.contributions.schemas",
+        "documentation": {}
+    },
+    {
+        "label": "ContributionReceiptDeclarationResponse",
+        "importPath": "app.modules.contributions.schemas",
+        "description": "app.modules.contributions.schemas",
+        "isExtraImport": true,
+        "detail": "app.modules.contributions.schemas",
+        "documentation": {}
+    },
+    {
+        "label": "ContributionReceiptDeclarationUpdate",
+        "importPath": "app.modules.contributions.schemas",
+        "description": "app.modules.contributions.schemas",
+        "isExtraImport": true,
+        "detail": "app.modules.contributions.schemas",
+        "documentation": {}
+    },
+    {
         "label": "ContributionReminderBatchRequest",
         "importPath": "app.modules.contributions.schemas",
         "description": "app.modules.contributions.schemas",
@@ -12349,6 +12621,38 @@
         "documentation": {}
     },
     {
+        "label": "MembershipRepository",
+        "importPath": "app.modules.membership.repository",
+        "description": "app.modules.membership.repository",
+        "isExtraImport": true,
+        "detail": "app.modules.membership.repository",
+        "documentation": {}
+    },
+    {
+        "label": "MembershipRepository",
+        "importPath": "app.modules.membership.repository",
+        "description": "app.modules.membership.repository",
+        "isExtraImport": true,
+        "detail": "app.modules.membership.repository",
+        "documentation": {}
+    },
+    {
+        "label": "MembershipRepository",
+        "importPath": "app.modules.membership.repository",
+        "description": "app.modules.membership.repository",
+        "isExtraImport": true,
+        "detail": "app.modules.membership.repository",
+        "documentation": {}
+    },
+    {
+        "label": "MembershipRepository",
+        "importPath": "app.modules.membership.repository",
+        "description": "app.modules.membership.repository",
+        "isExtraImport": true,
+        "detail": "app.modules.membership.repository",
+        "documentation": {}
+    },
+    {
         "label": "ContributionRepository",
         "importPath": "app.modules.contributions.repository",
         "description": "app.modules.contributions.repository",
@@ -12362,30 +12666,6 @@
         "description": "app.modules.contributions.repository",
         "isExtraImport": true,
         "detail": "app.modules.contributions.repository",
-        "documentation": {}
-    },
-    {
-        "label": "MembershipRepository",
-        "importPath": "app.modules.membership.repository",
-        "description": "app.modules.membership.repository",
-        "isExtraImport": true,
-        "detail": "app.modules.membership.repository",
-        "documentation": {}
-    },
-    {
-        "label": "MembershipRepository",
-        "importPath": "app.modules.membership.repository",
-        "description": "app.modules.membership.repository",
-        "isExtraImport": true,
-        "detail": "app.modules.membership.repository",
-        "documentation": {}
-    },
-    {
-        "label": "MembershipRepository",
-        "importPath": "app.modules.membership.repository",
-        "description": "app.modules.membership.repository",
-        "isExtraImport": true,
-        "detail": "app.modules.membership.repository",
         "documentation": {}
     },
     {
@@ -14467,6 +14747,30 @@
     },
     {
         "label": "create_tenant_with_user",
+        "importPath": "helpers",
+        "description": "helpers",
+        "isExtraImport": true,
+        "detail": "helpers",
+        "documentation": {}
+    },
+    {
+        "label": "login",
+        "importPath": "helpers",
+        "description": "helpers",
+        "isExtraImport": true,
+        "detail": "helpers",
+        "documentation": {}
+    },
+    {
+        "label": "create_tenant_with_user",
+        "importPath": "helpers",
+        "description": "helpers",
+        "isExtraImport": true,
+        "detail": "helpers",
+        "documentation": {}
+    },
+    {
+        "label": "create_user_for_tenant",
         "importPath": "helpers",
         "description": "helpers",
         "isExtraImport": true,
@@ -21564,7 +21868,7 @@
         "kind": 5,
         "importPath": "services.api.app.core.capabilities",
         "description": "services.api.app.core.capabilities",
-        "peekOfCode": "CAP_TENANT_ADMINISTRATION = \"tenant:administration\"\nCAP_TENANT_SETTINGS_WRITE = \"tenant:settings_write\"\nCAP_ROLE_CATALOG_READ = \"roles:read_catalog\"\nCAP_ROLE_ASSIGN = \"roles:assign\"\nCAP_AUDIT_READ = \"audit:read\"\nCAP_MEMBERSHIP_SELF_READ = \"membership:self_read\"\nCAP_MEMBERSHIP_TENANT_READ = \"membership:tenant_read\"\nCAP_MEMBERSHIP_WRITE = \"membership:write\"\nCAP_FINANCE_SELF_READ = \"finance:self_read\"\nCAP_FINANCE_TENANT_READ = \"finance:tenant_read\"",
+        "peekOfCode": "CAP_TENANT_ADMINISTRATION = \"tenant:administration\"\nCAP_TENANT_SETTINGS_WRITE = \"tenant:settings_write\"\nCAP_ROLE_CATALOG_READ = \"roles:read_catalog\"\nCAP_ROLE_ASSIGN = \"roles:assign\"\nCAP_AUDIT_READ = \"audit:read\"\nCAP_MEMBERSHIP_SELF_READ = \"membership:self_read\"\nCAP_MEMBERSHIP_TENANT_READ = \"membership:tenant_read\"\nCAP_MEMBERSHIP_WRITE = \"membership:write\"\nCAP_MEMBERSHIP_INVITE = \"membership:invite\"\nCAP_FINANCE_SELF_READ = \"finance:self_read\"",
         "detail": "services.api.app.core.capabilities",
         "documentation": {}
     },
@@ -21573,7 +21877,7 @@
         "kind": 5,
         "importPath": "services.api.app.core.capabilities",
         "description": "services.api.app.core.capabilities",
-        "peekOfCode": "CAP_TENANT_SETTINGS_WRITE = \"tenant:settings_write\"\nCAP_ROLE_CATALOG_READ = \"roles:read_catalog\"\nCAP_ROLE_ASSIGN = \"roles:assign\"\nCAP_AUDIT_READ = \"audit:read\"\nCAP_MEMBERSHIP_SELF_READ = \"membership:self_read\"\nCAP_MEMBERSHIP_TENANT_READ = \"membership:tenant_read\"\nCAP_MEMBERSHIP_WRITE = \"membership:write\"\nCAP_FINANCE_SELF_READ = \"finance:self_read\"\nCAP_FINANCE_TENANT_READ = \"finance:tenant_read\"\nCAP_FINANCE_WRITE = \"finance:write\"",
+        "peekOfCode": "CAP_TENANT_SETTINGS_WRITE = \"tenant:settings_write\"\nCAP_ROLE_CATALOG_READ = \"roles:read_catalog\"\nCAP_ROLE_ASSIGN = \"roles:assign\"\nCAP_AUDIT_READ = \"audit:read\"\nCAP_MEMBERSHIP_SELF_READ = \"membership:self_read\"\nCAP_MEMBERSHIP_TENANT_READ = \"membership:tenant_read\"\nCAP_MEMBERSHIP_WRITE = \"membership:write\"\nCAP_MEMBERSHIP_INVITE = \"membership:invite\"\nCAP_FINANCE_SELF_READ = \"finance:self_read\"\nCAP_FINANCE_TENANT_READ = \"finance:tenant_read\"",
         "detail": "services.api.app.core.capabilities",
         "documentation": {}
     },
@@ -21582,7 +21886,7 @@
         "kind": 5,
         "importPath": "services.api.app.core.capabilities",
         "description": "services.api.app.core.capabilities",
-        "peekOfCode": "CAP_ROLE_CATALOG_READ = \"roles:read_catalog\"\nCAP_ROLE_ASSIGN = \"roles:assign\"\nCAP_AUDIT_READ = \"audit:read\"\nCAP_MEMBERSHIP_SELF_READ = \"membership:self_read\"\nCAP_MEMBERSHIP_TENANT_READ = \"membership:tenant_read\"\nCAP_MEMBERSHIP_WRITE = \"membership:write\"\nCAP_FINANCE_SELF_READ = \"finance:self_read\"\nCAP_FINANCE_TENANT_READ = \"finance:tenant_read\"\nCAP_FINANCE_WRITE = \"finance:write\"\nCAP_FINANCE_AUDIT = \"finance:audit\"",
+        "peekOfCode": "CAP_ROLE_CATALOG_READ = \"roles:read_catalog\"\nCAP_ROLE_ASSIGN = \"roles:assign\"\nCAP_AUDIT_READ = \"audit:read\"\nCAP_MEMBERSHIP_SELF_READ = \"membership:self_read\"\nCAP_MEMBERSHIP_TENANT_READ = \"membership:tenant_read\"\nCAP_MEMBERSHIP_WRITE = \"membership:write\"\nCAP_MEMBERSHIP_INVITE = \"membership:invite\"\nCAP_FINANCE_SELF_READ = \"finance:self_read\"\nCAP_FINANCE_TENANT_READ = \"finance:tenant_read\"\nCAP_FINANCE_WRITE = \"finance:write\"",
         "detail": "services.api.app.core.capabilities",
         "documentation": {}
     },
@@ -21591,7 +21895,7 @@
         "kind": 5,
         "importPath": "services.api.app.core.capabilities",
         "description": "services.api.app.core.capabilities",
-        "peekOfCode": "CAP_ROLE_ASSIGN = \"roles:assign\"\nCAP_AUDIT_READ = \"audit:read\"\nCAP_MEMBERSHIP_SELF_READ = \"membership:self_read\"\nCAP_MEMBERSHIP_TENANT_READ = \"membership:tenant_read\"\nCAP_MEMBERSHIP_WRITE = \"membership:write\"\nCAP_FINANCE_SELF_READ = \"finance:self_read\"\nCAP_FINANCE_TENANT_READ = \"finance:tenant_read\"\nCAP_FINANCE_WRITE = \"finance:write\"\nCAP_FINANCE_AUDIT = \"finance:audit\"\nCAP_DOCUMENTS_READ = \"documents:read\"",
+        "peekOfCode": "CAP_ROLE_ASSIGN = \"roles:assign\"\nCAP_AUDIT_READ = \"audit:read\"\nCAP_MEMBERSHIP_SELF_READ = \"membership:self_read\"\nCAP_MEMBERSHIP_TENANT_READ = \"membership:tenant_read\"\nCAP_MEMBERSHIP_WRITE = \"membership:write\"\nCAP_MEMBERSHIP_INVITE = \"membership:invite\"\nCAP_FINANCE_SELF_READ = \"finance:self_read\"\nCAP_FINANCE_TENANT_READ = \"finance:tenant_read\"\nCAP_FINANCE_WRITE = \"finance:write\"\nCAP_FINANCE_AUDIT = \"finance:audit\"",
         "detail": "services.api.app.core.capabilities",
         "documentation": {}
     },
@@ -21600,7 +21904,7 @@
         "kind": 5,
         "importPath": "services.api.app.core.capabilities",
         "description": "services.api.app.core.capabilities",
-        "peekOfCode": "CAP_AUDIT_READ = \"audit:read\"\nCAP_MEMBERSHIP_SELF_READ = \"membership:self_read\"\nCAP_MEMBERSHIP_TENANT_READ = \"membership:tenant_read\"\nCAP_MEMBERSHIP_WRITE = \"membership:write\"\nCAP_FINANCE_SELF_READ = \"finance:self_read\"\nCAP_FINANCE_TENANT_READ = \"finance:tenant_read\"\nCAP_FINANCE_WRITE = \"finance:write\"\nCAP_FINANCE_AUDIT = \"finance:audit\"\nCAP_DOCUMENTS_READ = \"documents:read\"\nCAP_DOCUMENTS_WRITE = \"documents:write\"",
+        "peekOfCode": "CAP_AUDIT_READ = \"audit:read\"\nCAP_MEMBERSHIP_SELF_READ = \"membership:self_read\"\nCAP_MEMBERSHIP_TENANT_READ = \"membership:tenant_read\"\nCAP_MEMBERSHIP_WRITE = \"membership:write\"\nCAP_MEMBERSHIP_INVITE = \"membership:invite\"\nCAP_FINANCE_SELF_READ = \"finance:self_read\"\nCAP_FINANCE_TENANT_READ = \"finance:tenant_read\"\nCAP_FINANCE_WRITE = \"finance:write\"\nCAP_FINANCE_AUDIT = \"finance:audit\"\nCAP_DOCUMENTS_READ = \"documents:read\"",
         "detail": "services.api.app.core.capabilities",
         "documentation": {}
     },
@@ -21609,7 +21913,7 @@
         "kind": 5,
         "importPath": "services.api.app.core.capabilities",
         "description": "services.api.app.core.capabilities",
-        "peekOfCode": "CAP_MEMBERSHIP_SELF_READ = \"membership:self_read\"\nCAP_MEMBERSHIP_TENANT_READ = \"membership:tenant_read\"\nCAP_MEMBERSHIP_WRITE = \"membership:write\"\nCAP_FINANCE_SELF_READ = \"finance:self_read\"\nCAP_FINANCE_TENANT_READ = \"finance:tenant_read\"\nCAP_FINANCE_WRITE = \"finance:write\"\nCAP_FINANCE_AUDIT = \"finance:audit\"\nCAP_DOCUMENTS_READ = \"documents:read\"\nCAP_DOCUMENTS_WRITE = \"documents:write\"\nCAP_POLICIES_READ = \"policies:read\"",
+        "peekOfCode": "CAP_MEMBERSHIP_SELF_READ = \"membership:self_read\"\nCAP_MEMBERSHIP_TENANT_READ = \"membership:tenant_read\"\nCAP_MEMBERSHIP_WRITE = \"membership:write\"\nCAP_MEMBERSHIP_INVITE = \"membership:invite\"\nCAP_FINANCE_SELF_READ = \"finance:self_read\"\nCAP_FINANCE_TENANT_READ = \"finance:tenant_read\"\nCAP_FINANCE_WRITE = \"finance:write\"\nCAP_FINANCE_AUDIT = \"finance:audit\"\nCAP_DOCUMENTS_READ = \"documents:read\"\nCAP_DOCUMENTS_WRITE = \"documents:write\"",
         "detail": "services.api.app.core.capabilities",
         "documentation": {}
     },
@@ -21618,7 +21922,7 @@
         "kind": 5,
         "importPath": "services.api.app.core.capabilities",
         "description": "services.api.app.core.capabilities",
-        "peekOfCode": "CAP_MEMBERSHIP_TENANT_READ = \"membership:tenant_read\"\nCAP_MEMBERSHIP_WRITE = \"membership:write\"\nCAP_FINANCE_SELF_READ = \"finance:self_read\"\nCAP_FINANCE_TENANT_READ = \"finance:tenant_read\"\nCAP_FINANCE_WRITE = \"finance:write\"\nCAP_FINANCE_AUDIT = \"finance:audit\"\nCAP_DOCUMENTS_READ = \"documents:read\"\nCAP_DOCUMENTS_WRITE = \"documents:write\"\nCAP_POLICIES_READ = \"policies:read\"\nCAP_POLICIES_WRITE = \"policies:write\"",
+        "peekOfCode": "CAP_MEMBERSHIP_TENANT_READ = \"membership:tenant_read\"\nCAP_MEMBERSHIP_WRITE = \"membership:write\"\nCAP_MEMBERSHIP_INVITE = \"membership:invite\"\nCAP_FINANCE_SELF_READ = \"finance:self_read\"\nCAP_FINANCE_TENANT_READ = \"finance:tenant_read\"\nCAP_FINANCE_WRITE = \"finance:write\"\nCAP_FINANCE_AUDIT = \"finance:audit\"\nCAP_DOCUMENTS_READ = \"documents:read\"\nCAP_DOCUMENTS_WRITE = \"documents:write\"\nCAP_POLICIES_READ = \"policies:read\"",
         "detail": "services.api.app.core.capabilities",
         "documentation": {}
     },
@@ -21627,7 +21931,16 @@
         "kind": 5,
         "importPath": "services.api.app.core.capabilities",
         "description": "services.api.app.core.capabilities",
-        "peekOfCode": "CAP_MEMBERSHIP_WRITE = \"membership:write\"\nCAP_FINANCE_SELF_READ = \"finance:self_read\"\nCAP_FINANCE_TENANT_READ = \"finance:tenant_read\"\nCAP_FINANCE_WRITE = \"finance:write\"\nCAP_FINANCE_AUDIT = \"finance:audit\"\nCAP_DOCUMENTS_READ = \"documents:read\"\nCAP_DOCUMENTS_WRITE = \"documents:write\"\nCAP_POLICIES_READ = \"policies:read\"\nCAP_POLICIES_WRITE = \"policies:write\"\nCAP_DISCIPLINARY_SELF_READ = \"disciplinary:self_read\"",
+        "peekOfCode": "CAP_MEMBERSHIP_WRITE = \"membership:write\"\nCAP_MEMBERSHIP_INVITE = \"membership:invite\"\nCAP_FINANCE_SELF_READ = \"finance:self_read\"\nCAP_FINANCE_TENANT_READ = \"finance:tenant_read\"\nCAP_FINANCE_WRITE = \"finance:write\"\nCAP_FINANCE_AUDIT = \"finance:audit\"\nCAP_DOCUMENTS_READ = \"documents:read\"\nCAP_DOCUMENTS_WRITE = \"documents:write\"\nCAP_POLICIES_READ = \"policies:read\"\nCAP_POLICIES_WRITE = \"policies:write\"",
+        "detail": "services.api.app.core.capabilities",
+        "documentation": {}
+    },
+    {
+        "label": "CAP_MEMBERSHIP_INVITE",
+        "kind": 5,
+        "importPath": "services.api.app.core.capabilities",
+        "description": "services.api.app.core.capabilities",
+        "peekOfCode": "CAP_MEMBERSHIP_INVITE = \"membership:invite\"\nCAP_FINANCE_SELF_READ = \"finance:self_read\"\nCAP_FINANCE_TENANT_READ = \"finance:tenant_read\"\nCAP_FINANCE_WRITE = \"finance:write\"\nCAP_FINANCE_AUDIT = \"finance:audit\"\nCAP_DOCUMENTS_READ = \"documents:read\"\nCAP_DOCUMENTS_WRITE = \"documents:write\"\nCAP_POLICIES_READ = \"policies:read\"\nCAP_POLICIES_WRITE = \"policies:write\"\nCAP_DISCIPLINARY_SELF_READ = \"disciplinary:self_read\"",
         "detail": "services.api.app.core.capabilities",
         "documentation": {}
     },
@@ -21717,7 +22030,7 @@
         "kind": 5,
         "importPath": "services.api.app.core.capabilities",
         "description": "services.api.app.core.capabilities",
-        "peekOfCode": "CAP_DISCIPLINARY_TENANT_READ = \"disciplinary:tenant_read\"\nCAP_DISCIPLINARY_WRITE = \"disciplinary:write\"\nCAP_EVENTS_READ = \"events:read\"\nCAP_EVENTS_WRITE = \"events:write\"\nCAP_EVENTS_SPORTS_WRITE = \"events:sports_write\"\nCAP_ANNOUNCEMENTS_READ = \"announcements:read\"\nCAP_ANNOUNCEMENTS_WRITE = \"announcements:write\"\nCAP_CHAT_USE = \"chat:use\"\nCAP_EXPORT_SENSITIVE = \"exports:sensitive\"\nCAPABILITY_ORDER = (",
+        "peekOfCode": "CAP_DISCIPLINARY_TENANT_READ = \"disciplinary:tenant_read\"\nCAP_DISCIPLINARY_WRITE = \"disciplinary:write\"\nCAP_EVENTS_READ = \"events:read\"\nCAP_EVENTS_WRITE = \"events:write\"\nCAP_EVENTS_SPORTS_WRITE = \"events:sports_write\"\nCAP_ANNOUNCEMENTS_READ = \"announcements:read\"\nCAP_ANNOUNCEMENTS_WRITE = \"announcements:write\"\nCAP_CHAT_USE = \"chat:use\"\nCAP_EXPORT_SENSITIVE = \"exports:sensitive\"\nCAP_CONTRIBUTION_RECEIPT_DECLARE = \"contribution_receipt:declare\"",
         "detail": "services.api.app.core.capabilities",
         "documentation": {}
     },
@@ -21726,7 +22039,7 @@
         "kind": 5,
         "importPath": "services.api.app.core.capabilities",
         "description": "services.api.app.core.capabilities",
-        "peekOfCode": "CAP_DISCIPLINARY_WRITE = \"disciplinary:write\"\nCAP_EVENTS_READ = \"events:read\"\nCAP_EVENTS_WRITE = \"events:write\"\nCAP_EVENTS_SPORTS_WRITE = \"events:sports_write\"\nCAP_ANNOUNCEMENTS_READ = \"announcements:read\"\nCAP_ANNOUNCEMENTS_WRITE = \"announcements:write\"\nCAP_CHAT_USE = \"chat:use\"\nCAP_EXPORT_SENSITIVE = \"exports:sensitive\"\nCAPABILITY_ORDER = (\n    CAP_TENANT_ADMINISTRATION,",
+        "peekOfCode": "CAP_DISCIPLINARY_WRITE = \"disciplinary:write\"\nCAP_EVENTS_READ = \"events:read\"\nCAP_EVENTS_WRITE = \"events:write\"\nCAP_EVENTS_SPORTS_WRITE = \"events:sports_write\"\nCAP_ANNOUNCEMENTS_READ = \"announcements:read\"\nCAP_ANNOUNCEMENTS_WRITE = \"announcements:write\"\nCAP_CHAT_USE = \"chat:use\"\nCAP_EXPORT_SENSITIVE = \"exports:sensitive\"\nCAP_CONTRIBUTION_RECEIPT_DECLARE = \"contribution_receipt:declare\"\nCAP_CONTRIBUTION_RECEIPT_OWN_READ = \"contribution_receipt:own_read\"",
         "detail": "services.api.app.core.capabilities",
         "documentation": {}
     },
@@ -21735,7 +22048,7 @@
         "kind": 5,
         "importPath": "services.api.app.core.capabilities",
         "description": "services.api.app.core.capabilities",
-        "peekOfCode": "CAP_EVENTS_READ = \"events:read\"\nCAP_EVENTS_WRITE = \"events:write\"\nCAP_EVENTS_SPORTS_WRITE = \"events:sports_write\"\nCAP_ANNOUNCEMENTS_READ = \"announcements:read\"\nCAP_ANNOUNCEMENTS_WRITE = \"announcements:write\"\nCAP_CHAT_USE = \"chat:use\"\nCAP_EXPORT_SENSITIVE = \"exports:sensitive\"\nCAPABILITY_ORDER = (\n    CAP_TENANT_ADMINISTRATION,\n    CAP_TENANT_SETTINGS_WRITE,",
+        "peekOfCode": "CAP_EVENTS_READ = \"events:read\"\nCAP_EVENTS_WRITE = \"events:write\"\nCAP_EVENTS_SPORTS_WRITE = \"events:sports_write\"\nCAP_ANNOUNCEMENTS_READ = \"announcements:read\"\nCAP_ANNOUNCEMENTS_WRITE = \"announcements:write\"\nCAP_CHAT_USE = \"chat:use\"\nCAP_EXPORT_SENSITIVE = \"exports:sensitive\"\nCAP_CONTRIBUTION_RECEIPT_DECLARE = \"contribution_receipt:declare\"\nCAP_CONTRIBUTION_RECEIPT_OWN_READ = \"contribution_receipt:own_read\"\nCAP_CONTRIBUTION_RECEIPT_MEMBER_SELF_READ = \"contribution_receipt:member_self_read\"",
         "detail": "services.api.app.core.capabilities",
         "documentation": {}
     },
@@ -21744,7 +22057,7 @@
         "kind": 5,
         "importPath": "services.api.app.core.capabilities",
         "description": "services.api.app.core.capabilities",
-        "peekOfCode": "CAP_EVENTS_WRITE = \"events:write\"\nCAP_EVENTS_SPORTS_WRITE = \"events:sports_write\"\nCAP_ANNOUNCEMENTS_READ = \"announcements:read\"\nCAP_ANNOUNCEMENTS_WRITE = \"announcements:write\"\nCAP_CHAT_USE = \"chat:use\"\nCAP_EXPORT_SENSITIVE = \"exports:sensitive\"\nCAPABILITY_ORDER = (\n    CAP_TENANT_ADMINISTRATION,\n    CAP_TENANT_SETTINGS_WRITE,\n    CAP_ROLE_CATALOG_READ,",
+        "peekOfCode": "CAP_EVENTS_WRITE = \"events:write\"\nCAP_EVENTS_SPORTS_WRITE = \"events:sports_write\"\nCAP_ANNOUNCEMENTS_READ = \"announcements:read\"\nCAP_ANNOUNCEMENTS_WRITE = \"announcements:write\"\nCAP_CHAT_USE = \"chat:use\"\nCAP_EXPORT_SENSITIVE = \"exports:sensitive\"\nCAP_CONTRIBUTION_RECEIPT_DECLARE = \"contribution_receipt:declare\"\nCAP_CONTRIBUTION_RECEIPT_OWN_READ = \"contribution_receipt:own_read\"\nCAP_CONTRIBUTION_RECEIPT_MEMBER_SELF_READ = \"contribution_receipt:member_self_read\"\nCAP_CONTRIBUTION_RECEIPT_TENANT_READ = \"contribution_receipt:tenant_read\"",
         "detail": "services.api.app.core.capabilities",
         "documentation": {}
     },
@@ -21753,7 +22066,7 @@
         "kind": 5,
         "importPath": "services.api.app.core.capabilities",
         "description": "services.api.app.core.capabilities",
-        "peekOfCode": "CAP_EVENTS_SPORTS_WRITE = \"events:sports_write\"\nCAP_ANNOUNCEMENTS_READ = \"announcements:read\"\nCAP_ANNOUNCEMENTS_WRITE = \"announcements:write\"\nCAP_CHAT_USE = \"chat:use\"\nCAP_EXPORT_SENSITIVE = \"exports:sensitive\"\nCAPABILITY_ORDER = (\n    CAP_TENANT_ADMINISTRATION,\n    CAP_TENANT_SETTINGS_WRITE,\n    CAP_ROLE_CATALOG_READ,\n    CAP_ROLE_ASSIGN,",
+        "peekOfCode": "CAP_EVENTS_SPORTS_WRITE = \"events:sports_write\"\nCAP_ANNOUNCEMENTS_READ = \"announcements:read\"\nCAP_ANNOUNCEMENTS_WRITE = \"announcements:write\"\nCAP_CHAT_USE = \"chat:use\"\nCAP_EXPORT_SENSITIVE = \"exports:sensitive\"\nCAP_CONTRIBUTION_RECEIPT_DECLARE = \"contribution_receipt:declare\"\nCAP_CONTRIBUTION_RECEIPT_OWN_READ = \"contribution_receipt:own_read\"\nCAP_CONTRIBUTION_RECEIPT_MEMBER_SELF_READ = \"contribution_receipt:member_self_read\"\nCAP_CONTRIBUTION_RECEIPT_TENANT_READ = \"contribution_receipt:tenant_read\"\nCAP_CONTRIBUTION_RECEIPT_PROCESS = \"contribution_receipt:process\"",
         "detail": "services.api.app.core.capabilities",
         "documentation": {}
     },
@@ -21762,7 +22075,7 @@
         "kind": 5,
         "importPath": "services.api.app.core.capabilities",
         "description": "services.api.app.core.capabilities",
-        "peekOfCode": "CAP_ANNOUNCEMENTS_READ = \"announcements:read\"\nCAP_ANNOUNCEMENTS_WRITE = \"announcements:write\"\nCAP_CHAT_USE = \"chat:use\"\nCAP_EXPORT_SENSITIVE = \"exports:sensitive\"\nCAPABILITY_ORDER = (\n    CAP_TENANT_ADMINISTRATION,\n    CAP_TENANT_SETTINGS_WRITE,\n    CAP_ROLE_CATALOG_READ,\n    CAP_ROLE_ASSIGN,\n    CAP_AUDIT_READ,",
+        "peekOfCode": "CAP_ANNOUNCEMENTS_READ = \"announcements:read\"\nCAP_ANNOUNCEMENTS_WRITE = \"announcements:write\"\nCAP_CHAT_USE = \"chat:use\"\nCAP_EXPORT_SENSITIVE = \"exports:sensitive\"\nCAP_CONTRIBUTION_RECEIPT_DECLARE = \"contribution_receipt:declare\"\nCAP_CONTRIBUTION_RECEIPT_OWN_READ = \"contribution_receipt:own_read\"\nCAP_CONTRIBUTION_RECEIPT_MEMBER_SELF_READ = \"contribution_receipt:member_self_read\"\nCAP_CONTRIBUTION_RECEIPT_TENANT_READ = \"contribution_receipt:tenant_read\"\nCAP_CONTRIBUTION_RECEIPT_PROCESS = \"contribution_receipt:process\"\nCAPABILITY_ORDER = (",
         "detail": "services.api.app.core.capabilities",
         "documentation": {}
     },
@@ -21771,7 +22084,7 @@
         "kind": 5,
         "importPath": "services.api.app.core.capabilities",
         "description": "services.api.app.core.capabilities",
-        "peekOfCode": "CAP_ANNOUNCEMENTS_WRITE = \"announcements:write\"\nCAP_CHAT_USE = \"chat:use\"\nCAP_EXPORT_SENSITIVE = \"exports:sensitive\"\nCAPABILITY_ORDER = (\n    CAP_TENANT_ADMINISTRATION,\n    CAP_TENANT_SETTINGS_WRITE,\n    CAP_ROLE_CATALOG_READ,\n    CAP_ROLE_ASSIGN,\n    CAP_AUDIT_READ,\n    CAP_MEMBERSHIP_SELF_READ,",
+        "peekOfCode": "CAP_ANNOUNCEMENTS_WRITE = \"announcements:write\"\nCAP_CHAT_USE = \"chat:use\"\nCAP_EXPORT_SENSITIVE = \"exports:sensitive\"\nCAP_CONTRIBUTION_RECEIPT_DECLARE = \"contribution_receipt:declare\"\nCAP_CONTRIBUTION_RECEIPT_OWN_READ = \"contribution_receipt:own_read\"\nCAP_CONTRIBUTION_RECEIPT_MEMBER_SELF_READ = \"contribution_receipt:member_self_read\"\nCAP_CONTRIBUTION_RECEIPT_TENANT_READ = \"contribution_receipt:tenant_read\"\nCAP_CONTRIBUTION_RECEIPT_PROCESS = \"contribution_receipt:process\"\nCAPABILITY_ORDER = (\n    CAP_TENANT_ADMINISTRATION,",
         "detail": "services.api.app.core.capabilities",
         "documentation": {}
     },
@@ -21780,7 +22093,7 @@
         "kind": 5,
         "importPath": "services.api.app.core.capabilities",
         "description": "services.api.app.core.capabilities",
-        "peekOfCode": "CAP_CHAT_USE = \"chat:use\"\nCAP_EXPORT_SENSITIVE = \"exports:sensitive\"\nCAPABILITY_ORDER = (\n    CAP_TENANT_ADMINISTRATION,\n    CAP_TENANT_SETTINGS_WRITE,\n    CAP_ROLE_CATALOG_READ,\n    CAP_ROLE_ASSIGN,\n    CAP_AUDIT_READ,\n    CAP_MEMBERSHIP_SELF_READ,\n    CAP_MEMBERSHIP_TENANT_READ,",
+        "peekOfCode": "CAP_CHAT_USE = \"chat:use\"\nCAP_EXPORT_SENSITIVE = \"exports:sensitive\"\nCAP_CONTRIBUTION_RECEIPT_DECLARE = \"contribution_receipt:declare\"\nCAP_CONTRIBUTION_RECEIPT_OWN_READ = \"contribution_receipt:own_read\"\nCAP_CONTRIBUTION_RECEIPT_MEMBER_SELF_READ = \"contribution_receipt:member_self_read\"\nCAP_CONTRIBUTION_RECEIPT_TENANT_READ = \"contribution_receipt:tenant_read\"\nCAP_CONTRIBUTION_RECEIPT_PROCESS = \"contribution_receipt:process\"\nCAPABILITY_ORDER = (\n    CAP_TENANT_ADMINISTRATION,\n    CAP_TENANT_SETTINGS_WRITE,",
         "detail": "services.api.app.core.capabilities",
         "documentation": {}
     },
@@ -21789,7 +22102,52 @@
         "kind": 5,
         "importPath": "services.api.app.core.capabilities",
         "description": "services.api.app.core.capabilities",
-        "peekOfCode": "CAP_EXPORT_SENSITIVE = \"exports:sensitive\"\nCAPABILITY_ORDER = (\n    CAP_TENANT_ADMINISTRATION,\n    CAP_TENANT_SETTINGS_WRITE,\n    CAP_ROLE_CATALOG_READ,\n    CAP_ROLE_ASSIGN,\n    CAP_AUDIT_READ,\n    CAP_MEMBERSHIP_SELF_READ,\n    CAP_MEMBERSHIP_TENANT_READ,\n    CAP_MEMBERSHIP_WRITE,",
+        "peekOfCode": "CAP_EXPORT_SENSITIVE = \"exports:sensitive\"\nCAP_CONTRIBUTION_RECEIPT_DECLARE = \"contribution_receipt:declare\"\nCAP_CONTRIBUTION_RECEIPT_OWN_READ = \"contribution_receipt:own_read\"\nCAP_CONTRIBUTION_RECEIPT_MEMBER_SELF_READ = \"contribution_receipt:member_self_read\"\nCAP_CONTRIBUTION_RECEIPT_TENANT_READ = \"contribution_receipt:tenant_read\"\nCAP_CONTRIBUTION_RECEIPT_PROCESS = \"contribution_receipt:process\"\nCAPABILITY_ORDER = (\n    CAP_TENANT_ADMINISTRATION,\n    CAP_TENANT_SETTINGS_WRITE,\n    CAP_ROLE_CATALOG_READ,",
+        "detail": "services.api.app.core.capabilities",
+        "documentation": {}
+    },
+    {
+        "label": "CAP_CONTRIBUTION_RECEIPT_DECLARE",
+        "kind": 5,
+        "importPath": "services.api.app.core.capabilities",
+        "description": "services.api.app.core.capabilities",
+        "peekOfCode": "CAP_CONTRIBUTION_RECEIPT_DECLARE = \"contribution_receipt:declare\"\nCAP_CONTRIBUTION_RECEIPT_OWN_READ = \"contribution_receipt:own_read\"\nCAP_CONTRIBUTION_RECEIPT_MEMBER_SELF_READ = \"contribution_receipt:member_self_read\"\nCAP_CONTRIBUTION_RECEIPT_TENANT_READ = \"contribution_receipt:tenant_read\"\nCAP_CONTRIBUTION_RECEIPT_PROCESS = \"contribution_receipt:process\"\nCAPABILITY_ORDER = (\n    CAP_TENANT_ADMINISTRATION,\n    CAP_TENANT_SETTINGS_WRITE,\n    CAP_ROLE_CATALOG_READ,\n    CAP_ROLE_ASSIGN,",
+        "detail": "services.api.app.core.capabilities",
+        "documentation": {}
+    },
+    {
+        "label": "CAP_CONTRIBUTION_RECEIPT_OWN_READ",
+        "kind": 5,
+        "importPath": "services.api.app.core.capabilities",
+        "description": "services.api.app.core.capabilities",
+        "peekOfCode": "CAP_CONTRIBUTION_RECEIPT_OWN_READ = \"contribution_receipt:own_read\"\nCAP_CONTRIBUTION_RECEIPT_MEMBER_SELF_READ = \"contribution_receipt:member_self_read\"\nCAP_CONTRIBUTION_RECEIPT_TENANT_READ = \"contribution_receipt:tenant_read\"\nCAP_CONTRIBUTION_RECEIPT_PROCESS = \"contribution_receipt:process\"\nCAPABILITY_ORDER = (\n    CAP_TENANT_ADMINISTRATION,\n    CAP_TENANT_SETTINGS_WRITE,\n    CAP_ROLE_CATALOG_READ,\n    CAP_ROLE_ASSIGN,\n    CAP_AUDIT_READ,",
+        "detail": "services.api.app.core.capabilities",
+        "documentation": {}
+    },
+    {
+        "label": "CAP_CONTRIBUTION_RECEIPT_MEMBER_SELF_READ",
+        "kind": 5,
+        "importPath": "services.api.app.core.capabilities",
+        "description": "services.api.app.core.capabilities",
+        "peekOfCode": "CAP_CONTRIBUTION_RECEIPT_MEMBER_SELF_READ = \"contribution_receipt:member_self_read\"\nCAP_CONTRIBUTION_RECEIPT_TENANT_READ = \"contribution_receipt:tenant_read\"\nCAP_CONTRIBUTION_RECEIPT_PROCESS = \"contribution_receipt:process\"\nCAPABILITY_ORDER = (\n    CAP_TENANT_ADMINISTRATION,\n    CAP_TENANT_SETTINGS_WRITE,\n    CAP_ROLE_CATALOG_READ,\n    CAP_ROLE_ASSIGN,\n    CAP_AUDIT_READ,\n    CAP_MEMBERSHIP_SELF_READ,",
+        "detail": "services.api.app.core.capabilities",
+        "documentation": {}
+    },
+    {
+        "label": "CAP_CONTRIBUTION_RECEIPT_TENANT_READ",
+        "kind": 5,
+        "importPath": "services.api.app.core.capabilities",
+        "description": "services.api.app.core.capabilities",
+        "peekOfCode": "CAP_CONTRIBUTION_RECEIPT_TENANT_READ = \"contribution_receipt:tenant_read\"\nCAP_CONTRIBUTION_RECEIPT_PROCESS = \"contribution_receipt:process\"\nCAPABILITY_ORDER = (\n    CAP_TENANT_ADMINISTRATION,\n    CAP_TENANT_SETTINGS_WRITE,\n    CAP_ROLE_CATALOG_READ,\n    CAP_ROLE_ASSIGN,\n    CAP_AUDIT_READ,\n    CAP_MEMBERSHIP_SELF_READ,\n    CAP_MEMBERSHIP_TENANT_READ,",
+        "detail": "services.api.app.core.capabilities",
+        "documentation": {}
+    },
+    {
+        "label": "CAP_CONTRIBUTION_RECEIPT_PROCESS",
+        "kind": 5,
+        "importPath": "services.api.app.core.capabilities",
+        "description": "services.api.app.core.capabilities",
+        "peekOfCode": "CAP_CONTRIBUTION_RECEIPT_PROCESS = \"contribution_receipt:process\"\nCAPABILITY_ORDER = (\n    CAP_TENANT_ADMINISTRATION,\n    CAP_TENANT_SETTINGS_WRITE,\n    CAP_ROLE_CATALOG_READ,\n    CAP_ROLE_ASSIGN,\n    CAP_AUDIT_READ,\n    CAP_MEMBERSHIP_SELF_READ,\n    CAP_MEMBERSHIP_TENANT_READ,\n    CAP_MEMBERSHIP_WRITE,",
         "detail": "services.api.app.core.capabilities",
         "documentation": {}
     },
@@ -21798,7 +22156,7 @@
         "kind": 5,
         "importPath": "services.api.app.core.capabilities",
         "description": "services.api.app.core.capabilities",
-        "peekOfCode": "CAPABILITY_ORDER = (\n    CAP_TENANT_ADMINISTRATION,\n    CAP_TENANT_SETTINGS_WRITE,\n    CAP_ROLE_CATALOG_READ,\n    CAP_ROLE_ASSIGN,\n    CAP_AUDIT_READ,\n    CAP_MEMBERSHIP_SELF_READ,\n    CAP_MEMBERSHIP_TENANT_READ,\n    CAP_MEMBERSHIP_WRITE,\n    CAP_FINANCE_SELF_READ,",
+        "peekOfCode": "CAPABILITY_ORDER = (\n    CAP_TENANT_ADMINISTRATION,\n    CAP_TENANT_SETTINGS_WRITE,\n    CAP_ROLE_CATALOG_READ,\n    CAP_ROLE_ASSIGN,\n    CAP_AUDIT_READ,\n    CAP_MEMBERSHIP_SELF_READ,\n    CAP_MEMBERSHIP_TENANT_READ,\n    CAP_MEMBERSHIP_WRITE,\n    CAP_MEMBERSHIP_INVITE,",
         "detail": "services.api.app.core.capabilities",
         "documentation": {}
     },
@@ -22781,6 +23139,114 @@
         "description": "services.api.app.db.migrations.versions.0014_chat_conversations",
         "peekOfCode": "def downgrade() -> None:\n    op.drop_table(\"chat_messages\")\n    op.drop_table(\"chat_conversations\")",
         "detail": "services.api.app.db.migrations.versions.0014_chat_conversations",
+        "documentation": {}
+    },
+    {
+        "label": "upgrade",
+        "kind": 2,
+        "importPath": "services.api.app.db.migrations.versions.0015_contribution_receipt_declarations",
+        "description": "services.api.app.db.migrations.versions.0015_contribution_receipt_declarations",
+        "peekOfCode": "def upgrade() -> None:\n    op.create_table(\n        \"contribution_receipt_declarations\",\n        sa.Column(\"id\", sa.UUID(as_uuid=True), primary_key=True),\n        sa.Column(\"tenant_id\", sa.UUID(as_uuid=True), sa.ForeignKey(\"tenants.id\", ondelete=\"CASCADE\"), nullable=False),\n        sa.Column(\"membership_profile_id\", sa.UUID(as_uuid=True), sa.ForeignKey(\"membership_profiles.id\", ondelete=\"CASCADE\"), nullable=False),\n        sa.Column(\"declarant_user_id\", sa.UUID(as_uuid=True), sa.ForeignKey(\"users.id\", ondelete=\"RESTRICT\"), nullable=False),\n        sa.Column(\"declarant_role_code\", sa.String(64), nullable=False),\n        sa.Column(\"amount\", sa.Numeric(12, 2), nullable=False),\n        sa.Column(\"currency\", sa.String(3), nullable=False, server_default=\"EUR\"),",
+        "detail": "services.api.app.db.migrations.versions.0015_contribution_receipt_declarations",
+        "documentation": {}
+    },
+    {
+        "label": "downgrade",
+        "kind": 2,
+        "importPath": "services.api.app.db.migrations.versions.0015_contribution_receipt_declarations",
+        "description": "services.api.app.db.migrations.versions.0015_contribution_receipt_declarations",
+        "peekOfCode": "def downgrade() -> None:\n    op.drop_table(\"contribution_receipt_declarations\")",
+        "detail": "services.api.app.db.migrations.versions.0015_contribution_receipt_declarations",
+        "documentation": {}
+    },
+    {
+        "label": "revision",
+        "kind": 5,
+        "importPath": "services.api.app.db.migrations.versions.0015_contribution_receipt_declarations",
+        "description": "services.api.app.db.migrations.versions.0015_contribution_receipt_declarations",
+        "peekOfCode": "revision = \"0015\"\ndown_revision = \"0014\"\nbranch_labels = None\ndepends_on = None\ndef upgrade() -> None:\n    op.create_table(\n        \"contribution_receipt_declarations\",\n        sa.Column(\"id\", sa.UUID(as_uuid=True), primary_key=True),\n        sa.Column(\"tenant_id\", sa.UUID(as_uuid=True), sa.ForeignKey(\"tenants.id\", ondelete=\"CASCADE\"), nullable=False),\n        sa.Column(\"membership_profile_id\", sa.UUID(as_uuid=True), sa.ForeignKey(\"membership_profiles.id\", ondelete=\"CASCADE\"), nullable=False),",
+        "detail": "services.api.app.db.migrations.versions.0015_contribution_receipt_declarations",
+        "documentation": {}
+    },
+    {
+        "label": "down_revision",
+        "kind": 5,
+        "importPath": "services.api.app.db.migrations.versions.0015_contribution_receipt_declarations",
+        "description": "services.api.app.db.migrations.versions.0015_contribution_receipt_declarations",
+        "peekOfCode": "down_revision = \"0014\"\nbranch_labels = None\ndepends_on = None\ndef upgrade() -> None:\n    op.create_table(\n        \"contribution_receipt_declarations\",\n        sa.Column(\"id\", sa.UUID(as_uuid=True), primary_key=True),\n        sa.Column(\"tenant_id\", sa.UUID(as_uuid=True), sa.ForeignKey(\"tenants.id\", ondelete=\"CASCADE\"), nullable=False),\n        sa.Column(\"membership_profile_id\", sa.UUID(as_uuid=True), sa.ForeignKey(\"membership_profiles.id\", ondelete=\"CASCADE\"), nullable=False),\n        sa.Column(\"declarant_user_id\", sa.UUID(as_uuid=True), sa.ForeignKey(\"users.id\", ondelete=\"RESTRICT\"), nullable=False),",
+        "detail": "services.api.app.db.migrations.versions.0015_contribution_receipt_declarations",
+        "documentation": {}
+    },
+    {
+        "label": "branch_labels",
+        "kind": 5,
+        "importPath": "services.api.app.db.migrations.versions.0015_contribution_receipt_declarations",
+        "description": "services.api.app.db.migrations.versions.0015_contribution_receipt_declarations",
+        "peekOfCode": "branch_labels = None\ndepends_on = None\ndef upgrade() -> None:\n    op.create_table(\n        \"contribution_receipt_declarations\",\n        sa.Column(\"id\", sa.UUID(as_uuid=True), primary_key=True),\n        sa.Column(\"tenant_id\", sa.UUID(as_uuid=True), sa.ForeignKey(\"tenants.id\", ondelete=\"CASCADE\"), nullable=False),\n        sa.Column(\"membership_profile_id\", sa.UUID(as_uuid=True), sa.ForeignKey(\"membership_profiles.id\", ondelete=\"CASCADE\"), nullable=False),\n        sa.Column(\"declarant_user_id\", sa.UUID(as_uuid=True), sa.ForeignKey(\"users.id\", ondelete=\"RESTRICT\"), nullable=False),\n        sa.Column(\"declarant_role_code\", sa.String(64), nullable=False),",
+        "detail": "services.api.app.db.migrations.versions.0015_contribution_receipt_declarations",
+        "documentation": {}
+    },
+    {
+        "label": "depends_on",
+        "kind": 5,
+        "importPath": "services.api.app.db.migrations.versions.0015_contribution_receipt_declarations",
+        "description": "services.api.app.db.migrations.versions.0015_contribution_receipt_declarations",
+        "peekOfCode": "depends_on = None\ndef upgrade() -> None:\n    op.create_table(\n        \"contribution_receipt_declarations\",\n        sa.Column(\"id\", sa.UUID(as_uuid=True), primary_key=True),\n        sa.Column(\"tenant_id\", sa.UUID(as_uuid=True), sa.ForeignKey(\"tenants.id\", ondelete=\"CASCADE\"), nullable=False),\n        sa.Column(\"membership_profile_id\", sa.UUID(as_uuid=True), sa.ForeignKey(\"membership_profiles.id\", ondelete=\"CASCADE\"), nullable=False),\n        sa.Column(\"declarant_user_id\", sa.UUID(as_uuid=True), sa.ForeignKey(\"users.id\", ondelete=\"RESTRICT\"), nullable=False),\n        sa.Column(\"declarant_role_code\", sa.String(64), nullable=False),\n        sa.Column(\"amount\", sa.Numeric(12, 2), nullable=False),",
+        "detail": "services.api.app.db.migrations.versions.0015_contribution_receipt_declarations",
+        "documentation": {}
+    },
+    {
+        "label": "upgrade",
+        "kind": 2,
+        "importPath": "services.api.app.db.migrations.versions.0016_membership_type",
+        "description": "services.api.app.db.migrations.versions.0016_membership_type",
+        "peekOfCode": "def upgrade() -> None:\n    op.add_column(\n        \"membership_profiles\",\n        sa.Column(\"membership_type\", sa.String(length=32), nullable=False, server_default=\"individual\"),\n    )\ndef downgrade() -> None:\n    op.drop_column(\"membership_profiles\", \"membership_type\")",
+        "detail": "services.api.app.db.migrations.versions.0016_membership_type",
+        "documentation": {}
+    },
+    {
+        "label": "downgrade",
+        "kind": 2,
+        "importPath": "services.api.app.db.migrations.versions.0016_membership_type",
+        "description": "services.api.app.db.migrations.versions.0016_membership_type",
+        "peekOfCode": "def downgrade() -> None:\n    op.drop_column(\"membership_profiles\", \"membership_type\")",
+        "detail": "services.api.app.db.migrations.versions.0016_membership_type",
+        "documentation": {}
+    },
+    {
+        "label": "revision",
+        "kind": 5,
+        "importPath": "services.api.app.db.migrations.versions.0016_membership_type",
+        "description": "services.api.app.db.migrations.versions.0016_membership_type",
+        "peekOfCode": "revision = \"0016\"\ndown_revision = \"0015\"\nbranch_labels = None\ndepends_on = None\ndef upgrade() -> None:\n    op.add_column(\n        \"membership_profiles\",\n        sa.Column(\"membership_type\", sa.String(length=32), nullable=False, server_default=\"individual\"),\n    )\ndef downgrade() -> None:",
+        "detail": "services.api.app.db.migrations.versions.0016_membership_type",
+        "documentation": {}
+    },
+    {
+        "label": "down_revision",
+        "kind": 5,
+        "importPath": "services.api.app.db.migrations.versions.0016_membership_type",
+        "description": "services.api.app.db.migrations.versions.0016_membership_type",
+        "peekOfCode": "down_revision = \"0015\"\nbranch_labels = None\ndepends_on = None\ndef upgrade() -> None:\n    op.add_column(\n        \"membership_profiles\",\n        sa.Column(\"membership_type\", sa.String(length=32), nullable=False, server_default=\"individual\"),\n    )\ndef downgrade() -> None:\n    op.drop_column(\"membership_profiles\", \"membership_type\")",
+        "detail": "services.api.app.db.migrations.versions.0016_membership_type",
+        "documentation": {}
+    },
+    {
+        "label": "branch_labels",
+        "kind": 5,
+        "importPath": "services.api.app.db.migrations.versions.0016_membership_type",
+        "description": "services.api.app.db.migrations.versions.0016_membership_type",
+        "peekOfCode": "branch_labels = None\ndepends_on = None\ndef upgrade() -> None:\n    op.add_column(\n        \"membership_profiles\",\n        sa.Column(\"membership_type\", sa.String(length=32), nullable=False, server_default=\"individual\"),\n    )\ndef downgrade() -> None:\n    op.drop_column(\"membership_profiles\", \"membership_type\")",
+        "detail": "services.api.app.db.migrations.versions.0016_membership_type",
+        "documentation": {}
+    },
+    {
+        "label": "depends_on",
+        "kind": 5,
+        "importPath": "services.api.app.db.migrations.versions.0016_membership_type",
+        "description": "services.api.app.db.migrations.versions.0016_membership_type",
+        "peekOfCode": "depends_on = None\ndef upgrade() -> None:\n    op.add_column(\n        \"membership_profiles\",\n        sa.Column(\"membership_type\", sa.String(length=32), nullable=False, server_default=\"individual\"),\n    )\ndef downgrade() -> None:\n    op.drop_column(\"membership_profiles\", \"membership_type\")",
+        "detail": "services.api.app.db.migrations.versions.0016_membership_type",
         "documentation": {}
     },
     {
@@ -23931,7 +24397,16 @@
         "kind": 6,
         "importPath": "services.api.app.modules.contributions.models",
         "description": "services.api.app.modules.contributions.models",
-        "peekOfCode": "class ReminderDeliveryStatus(StrEnum):\n    sent = \"sent\"\n    simulated = \"simulated\"\n    failed = \"failed\"\n    skipped = \"skipped\"\nclass ContributionRecord(Base):\n    \"\"\"\n    Expected and paid contribution for a member in a specific year/period.\n    Balance is calculated as expected_amount - paid_amount.\n    \"\"\"",
+        "peekOfCode": "class ReminderDeliveryStatus(StrEnum):\n    sent = \"sent\"\n    simulated = \"simulated\"\n    failed = \"failed\"\n    skipped = \"skipped\"\nclass ContributionReceiptStatus(StrEnum):\n    draft = \"draft\"\n    submitted = \"submitted\"\n    clarification_requested = \"clarification_requested\"\n    validated = \"validated\"",
+        "detail": "services.api.app.modules.contributions.models",
+        "documentation": {}
+    },
+    {
+        "label": "ContributionReceiptStatus",
+        "kind": 6,
+        "importPath": "services.api.app.modules.contributions.models",
+        "description": "services.api.app.modules.contributions.models",
+        "peekOfCode": "class ContributionReceiptStatus(StrEnum):\n    draft = \"draft\"\n    submitted = \"submitted\"\n    clarification_requested = \"clarification_requested\"\n    validated = \"validated\"\n    partially_validated = \"partially_validated\"\n    rejected = \"rejected\"\n    cancelled = \"cancelled\"\nclass ContributionRecord(Base):\n    \"\"\"",
         "detail": "services.api.app.modules.contributions.models",
         "documentation": {}
     },
@@ -23950,6 +24425,15 @@
         "importPath": "services.api.app.modules.contributions.models",
         "description": "services.api.app.modules.contributions.models",
         "peekOfCode": "class PaymentRecord(Base):\n    \"\"\"\n    Individual payment toward a contribution record.\n    \"\"\"\n    __tablename__ = \"payment_records\"\n    id: Mapped[uuid.UUID] = mapped_column(\n        UUID(as_uuid=True), primary_key=True, default=uuid.uuid4\n    )\n    tenant_id: Mapped[uuid.UUID] = mapped_column(\n        UUID(as_uuid=True),",
+        "detail": "services.api.app.modules.contributions.models",
+        "documentation": {}
+    },
+    {
+        "label": "ContributionReceiptDeclaration",
+        "kind": 6,
+        "importPath": "services.api.app.modules.contributions.models",
+        "description": "services.api.app.modules.contributions.models",
+        "peekOfCode": "class ContributionReceiptDeclaration(Base):\n    \"\"\"A reported physical receipt that is not an official payment until processed.\"\"\"\n    __tablename__ = \"contribution_receipt_declarations\"\n    id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)\n    tenant_id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), ForeignKey(\"tenants.id\", ondelete=\"CASCADE\"), nullable=False, index=True)\n    membership_profile_id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), ForeignKey(\"membership_profiles.id\", ondelete=\"CASCADE\"), nullable=False, index=True)\n    declarant_user_id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), ForeignKey(\"users.id\", ondelete=\"RESTRICT\"), nullable=False, index=True)\n    declarant_role_code: Mapped[str] = mapped_column(String(64), nullable=False)\n    amount: Mapped[Decimal] = mapped_column(Numeric(12, 2), nullable=False)\n    currency: Mapped[str] = mapped_column(String(3), nullable=False, server_default=\"EUR\")",
         "detail": "services.api.app.modules.contributions.models",
         "documentation": {}
     },
@@ -23976,7 +24460,7 @@
         "kind": 5,
         "importPath": "services.api.app.modules.contributions.router",
         "description": "services.api.app.modules.contributions.router",
-        "peekOfCode": "router = APIRouter(\n    prefix=\"/contributions\",\n    tags=[\"contributions\"],\n    dependencies=[require_module(\"contributions\")],\n)\n@router.post(\"/\", response_model=ContributionRecordResponse, status_code=201)\nasync def create_contribution(\n    data: ContributionRecordCreate, current: AuthDep, db: DbDep\n) -> ContributionRecordResponse:\n    \"\"\"Create a contribution record (admin/treasurer only).\"\"\"",
+        "peekOfCode": "router = APIRouter(\n    prefix=\"/contributions\",\n    tags=[\"contributions\"],\n    dependencies=[require_module(\"contributions\")],\n)\n@router.post(\"/receipt-declarations\", response_model=ContributionReceiptDeclarationResponse, status_code=201)\nasync def create_receipt_declaration(\n    data: ContributionReceiptDeclarationCreate, current: AuthDep, db: DbDep\n) -> ContributionReceiptDeclarationResponse:\n    require_capability(current, CAP_CONTRIBUTION_RECEIPT_DECLARE, detail=\"Receipt declaration capability required\")",
         "detail": "services.api.app.modules.contributions.router",
         "documentation": {}
     },
@@ -24022,6 +24506,51 @@
         "importPath": "services.api.app.modules.contributions.schemas",
         "description": "services.api.app.modules.contributions.schemas",
         "peekOfCode": "class PaymentRecordResponse(BaseModel):\n    id: UUID\n    tenant_id: UUID\n    contribution_record_id: UUID\n    amount: Decimal\n    currency: str\n    paid_at: datetime\n    payment_method: str\n    reference: str | None\n    recorded_by: UUID | None",
+        "detail": "services.api.app.modules.contributions.schemas",
+        "documentation": {}
+    },
+    {
+        "label": "ContributionReceiptDeclarationCreate",
+        "kind": 6,
+        "importPath": "services.api.app.modules.contributions.schemas",
+        "description": "services.api.app.modules.contributions.schemas",
+        "peekOfCode": "class ContributionReceiptDeclarationCreate(BaseModel):\n    membership_profile_id: UUID\n    amount: Decimal = Field(..., gt=0)\n    currency: str = Field(default=\"EUR\", min_length=3, max_length=3)\n    received_at: datetime | None = None\n    payment_method: PaymentMethod = PaymentMethod.cash\n    note: str | None = Field(default=None, max_length=2000)\n    reference: str | None = Field(default=None, max_length=255)\n    evidence_json: str = Field(default=\"{}\", max_length=10000)\nclass ContributionReceiptMemberOption(BaseModel):",
+        "detail": "services.api.app.modules.contributions.schemas",
+        "documentation": {}
+    },
+    {
+        "label": "ContributionReceiptMemberOption",
+        "kind": 6,
+        "importPath": "services.api.app.modules.contributions.schemas",
+        "description": "services.api.app.modules.contributions.schemas",
+        "peekOfCode": "class ContributionReceiptMemberOption(BaseModel):\n    \"\"\"Read-only member identity available to authorized receipt declarants.\"\"\"\n    id: UUID\n    display_name: str\n    member_code: str\n    first_name: str\n    last_name: str\n    email: str | None\n    phone: str | None\n    membership_type: str",
+        "detail": "services.api.app.modules.contributions.schemas",
+        "documentation": {}
+    },
+    {
+        "label": "ContributionReceiptDeclarationUpdate",
+        "kind": 6,
+        "importPath": "services.api.app.modules.contributions.schemas",
+        "description": "services.api.app.modules.contributions.schemas",
+        "peekOfCode": "class ContributionReceiptDeclarationUpdate(BaseModel):\n    membership_profile_id: UUID | None = None\n    amount: Decimal | None = Field(default=None, gt=0)\n    currency: str | None = Field(default=None, min_length=3, max_length=3)\n    received_at: datetime | None = None\n    payment_method: PaymentMethod | None = None\n    note: str | None = Field(default=None, max_length=2000)\n    reference: str | None = Field(default=None, max_length=255)\n    evidence_json: str | None = Field(default=None, max_length=10000)\nclass ContributionReceiptDeclarationProcess(BaseModel):",
+        "detail": "services.api.app.modules.contributions.schemas",
+        "documentation": {}
+    },
+    {
+        "label": "ContributionReceiptDeclarationProcess",
+        "kind": 6,
+        "importPath": "services.api.app.modules.contributions.schemas",
+        "description": "services.api.app.modules.contributions.schemas",
+        "peekOfCode": "class ContributionReceiptDeclarationProcess(BaseModel):\n    action: Literal[\"validated\", \"partially_validated\", \"rejected\", \"clarification_requested\", \"cancelled\"]\n    contribution_record_id: UUID | None = None\n    processed_amount: Decimal | None = Field(default=None, gt=0)\n    note: str | None = Field(default=None, max_length=2000)\nclass ContributionReceiptDeclarationResponse(BaseModel):\n    id: UUID\n    tenant_id: UUID\n    membership_profile_id: UUID\n    declarant_user_id: UUID",
+        "detail": "services.api.app.modules.contributions.schemas",
+        "documentation": {}
+    },
+    {
+        "label": "ContributionReceiptDeclarationResponse",
+        "kind": 6,
+        "importPath": "services.api.app.modules.contributions.schemas",
+        "description": "services.api.app.modules.contributions.schemas",
+        "peekOfCode": "class ContributionReceiptDeclarationResponse(BaseModel):\n    id: UUID\n    tenant_id: UUID\n    membership_profile_id: UUID\n    declarant_user_id: UUID\n    declarant_role_code: str\n    amount: Decimal\n    currency: str\n    received_at: datetime\n    payment_method: str",
         "detail": "services.api.app.modules.contributions.schemas",
         "documentation": {}
     },
@@ -24948,7 +25477,16 @@
         "kind": 6,
         "importPath": "services.api.app.modules.membership.models",
         "description": "services.api.app.modules.membership.models",
-        "peekOfCode": "class MembershipStatus(StrEnum):\n    active = \"active\"\n    inactive = \"inactive\"\n    suspended = \"suspended\"\n    resigned = \"resigned\"\nclass MembershipProfile(Base):\n    \"\"\"\n    Structured member profile within a tenant.\n    Can be linked to a platform User (if the member has login access)\n    or exist independently (for non-digital members).",
+        "peekOfCode": "class MembershipStatus(StrEnum):\n    active = \"active\"\n    inactive = \"inactive\"\n    suspended = \"suspended\"\n    resigned = \"resigned\"\nclass MembershipType(StrEnum):\n    individual = \"individual\"\n    family = \"family\"\nclass MembershipProfile(Base):\n    \"\"\"",
+        "detail": "services.api.app.modules.membership.models",
+        "documentation": {}
+    },
+    {
+        "label": "MembershipType",
+        "kind": 6,
+        "importPath": "services.api.app.modules.membership.models",
+        "description": "services.api.app.modules.membership.models",
+        "peekOfCode": "class MembershipType(StrEnum):\n    individual = \"individual\"\n    family = \"family\"\nclass MembershipProfile(Base):\n    \"\"\"\n    Structured member profile within a tenant.\n    Can be linked to a platform User (if the member has login access)\n    or exist independently (for non-digital members).\n    \"\"\"\n    __tablename__ = \"membership_profiles\"",
         "detail": "services.api.app.modules.membership.models",
         "documentation": {}
     },
@@ -24984,7 +25522,7 @@
         "kind": 6,
         "importPath": "services.api.app.modules.membership.schemas",
         "description": "services.api.app.modules.membership.schemas",
-        "peekOfCode": "class MembershipProfileCreate(BaseModel):\n    member_code: str = Field(..., min_length=1, max_length=50)\n    first_name: str = Field(..., min_length=1, max_length=100)\n    last_name: str = Field(..., min_length=1, max_length=100)\n    display_name: str = Field(..., min_length=1, max_length=255)\n    email: EmailStr | None = None\n    phone: str | None = Field(None, max_length=50)\n    status: MembershipStatus = MembershipStatus.active\nclass MembershipProfileUpdate(BaseModel):\n    member_code: str | None = Field(None, min_length=1, max_length=50)",
+        "peekOfCode": "class MembershipProfileCreate(BaseModel):\n    member_code: str = Field(..., min_length=1, max_length=50)\n    first_name: str = Field(..., min_length=1, max_length=100)\n    last_name: str = Field(..., min_length=1, max_length=100)\n    display_name: str = Field(..., min_length=1, max_length=255)\n    email: EmailStr | None = None\n    phone: str | None = Field(None, max_length=50)\n    status: MembershipStatus = MembershipStatus.active\n    membership_type: MembershipType | None = None\nclass MembershipProfileUpdate(BaseModel):",
         "detail": "services.api.app.modules.membership.schemas",
         "documentation": {}
     },
@@ -24993,7 +25531,7 @@
         "kind": 6,
         "importPath": "services.api.app.modules.membership.schemas",
         "description": "services.api.app.modules.membership.schemas",
-        "peekOfCode": "class MembershipProfileUpdate(BaseModel):\n    member_code: str | None = Field(None, min_length=1, max_length=50)\n    first_name: str | None = Field(None, min_length=1, max_length=100)\n    last_name: str | None = Field(None, min_length=1, max_length=100)\n    display_name: str | None = Field(None, min_length=1, max_length=255)\n    email: EmailStr | None = None\n    phone: str | None = Field(None, max_length=50)\n    status: MembershipStatus | None = None\nclass MembershipProfileResponse(BaseModel):\n    id: UUID",
+        "peekOfCode": "class MembershipProfileUpdate(BaseModel):\n    member_code: str | None = Field(None, min_length=1, max_length=50)\n    first_name: str | None = Field(None, min_length=1, max_length=100)\n    last_name: str | None = Field(None, min_length=1, max_length=100)\n    display_name: str | None = Field(None, min_length=1, max_length=255)\n    email: EmailStr | None = None\n    phone: str | None = Field(None, max_length=50)\n    status: MembershipStatus | None = None\n    membership_type: MembershipType | None = None\nclass MembershipProfileResponse(BaseModel):",
         "detail": "services.api.app.modules.membership.schemas",
         "documentation": {}
     },

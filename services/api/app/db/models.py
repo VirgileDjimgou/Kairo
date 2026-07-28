@@ -7,6 +7,7 @@ from app.modules.audit.models import AuditEvent  # noqa: F401
 from app.modules.chat.models import ChatConversation, ChatMessage, ChatQueryLog  # noqa: F401
 from app.modules.contributions.models import (  # noqa: F401
     ContributionRecord,
+    ContributionReceiptDeclaration,
     ContributionReminder,
     PaymentRecord,
 )

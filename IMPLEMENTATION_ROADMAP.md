@@ -4009,3 +4009,19 @@ Validation after this track should cover:
 - modular chat orchestration and role-based evaluation scenarios
 - language-aware document ingestion, archive safety, and retrieval quality validation
 - workspace clarity, recovery-oriented UX, and open-source publication readiness
+
+## Sprint 99 - Association Workflow Alignment And Receipt Declarations
+
+Status: Completed
+
+Goal: align normal association workflows with president/secretary member administration, treasurer-only official finance processing, and auditable office-reported cash receipt declarations.
+
+Completed deliverables:
+
+- capability alignment for canonical association roles while retaining legacy break-glass compatibility;
+- tenant-scoped contribution receipt declarations with an explicit state machine;
+- treasurer-only conversion of a submitted declaration into an official payment;
+- personal declaration visibility for the member and the office declarant;
+- integration tests for role denials, validation, and balance integrity.
+- responsive declaration and treasurer-validation screens, with member pending-status detail;
+- mobile visual regression proof at 390 × 844 on Chromium and WebKit, stored under `apps/web/artifacts/role-workflow-proof/2026-07-28/`.

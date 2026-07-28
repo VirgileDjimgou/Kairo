@@ -1,6 +1,6 @@
 from uuid import UUID
 
-from sqlalchemy import select
+from sqlalchemy import or_, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.modules.membership.models import MembershipProfile
@@ -45,13 +45,22 @@ class MembershipRepository:
         return result.scalar_one_or_none()
 
     async def list_by_tenant(
-        self, tenant_id: UUID, status: str | None = None
+        self, tenant_id: UUID, status: str | None = None, query_text: str | None = None
     ) -> list[MembershipProfile]:
         query = select(MembershipProfile).where(
             MembershipProfile.tenant_id == tenant_id
         )
         if status:
             query = query.where(MembershipProfile.status == status)
+        if query_text:
+            search = f"%{query_text.strip()}%"
+            query = query.where(or_(
+                MembershipProfile.member_code.ilike(search),
+                MembershipProfile.first_name.ilike(search),
+                MembershipProfile.last_name.ilike(search),
+                MembershipProfile.display_name.ilike(search),
+                MembershipProfile.email.ilike(search),
+            ))
         query = query.order_by(MembershipProfile.display_name)
         result = await self._db.execute(query)
         return list(result.scalars().all())

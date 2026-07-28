@@ -5,7 +5,7 @@ from uuid import UUID
 from pydantic import BaseModel, EmailStr, Field, field_serializer
 
 from app.modules.contributions.schemas import ContributionRecordResponse
-from app.modules.membership.models import MembershipStatus
+from app.modules.membership.models import MembershipStatus, MembershipType
 
 
 class MembershipProfileCreate(BaseModel):
@@ -16,6 +16,7 @@ class MembershipProfileCreate(BaseModel):
     email: EmailStr | None = None
     phone: str | None = Field(None, max_length=50)
     status: MembershipStatus = MembershipStatus.active
+    membership_type: MembershipType | None = None
 
 
 class MembershipProfileUpdate(BaseModel):
@@ -26,6 +27,7 @@ class MembershipProfileUpdate(BaseModel):
     email: EmailStr | None = None
     phone: str | None = Field(None, max_length=50)
     status: MembershipStatus | None = None
+    membership_type: MembershipType | None = None
 
 
 class MembershipProfileResponse(BaseModel):
@@ -39,6 +41,7 @@ class MembershipProfileResponse(BaseModel):
     email: str | None
     phone: str | None
     status: str
+    membership_type: str
     joined_at: datetime
     created_at: datetime
     updated_at: datetime

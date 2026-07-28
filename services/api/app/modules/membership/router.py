@@ -141,7 +141,7 @@ async def get_member_balance(
 
 @router.get("/", response_model=list[MembershipProfileResponse])
 async def list_profiles(
-    current: AuthDep, db: DbDep, status: str | None = None
+    current: AuthDep, db: DbDep, status: str | None = None, q: str | None = Query(None, min_length=1, max_length=100)
 ) -> list[MembershipProfileResponse]:
     """List all member profiles for the current tenant (admin/treasurer only)."""
     require_capability(
@@ -150,7 +150,7 @@ async def list_profiles(
         detail="Membership directory read capability required",
     )
     service = MembershipService(db)
-    return await service.list_profiles(current.tenant_id, status)
+    return await service.list_profiles(current.tenant_id, status, q)
 
 
 @router.post("/", response_model=MembershipProfileResponse, status_code=201)

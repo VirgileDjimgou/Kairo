@@ -82,6 +82,64 @@ export interface ContributionSummary {
   total_balance: string
 }
 
+export type ContributionReceiptStatus = 'draft' | 'submitted' | 'clarification_requested' | 'validated' | 'partially_validated' | 'rejected' | 'cancelled'
+
+export interface ContributionReceiptDeclarationResponse {
+  id: string
+  tenant_id: string
+  membership_profile_id: string
+  declarant_user_id: string
+  declarant_role_code: string
+  amount: string
+  currency: string
+  received_at: string
+  payment_method: string
+  note: string | null
+  reference: string | null
+  evidence_json: string
+  status: ContributionReceiptStatus
+  submitted_at: string | null
+  processed_at: string | null
+  processed_by_user_id: string | null
+  processed_amount: string | null
+  processing_note: string | null
+  contribution_record_id: string | null
+  payment_record_id: string | null
+  created_at: string
+  updated_at: string
+}
+
+export interface CreateContributionReceiptDeclarationPayload {
+  membership_profile_id: string
+  amount: string
+  currency?: string
+  received_at?: string | null
+  payment_method?: string
+  note?: string | null
+  reference?: string | null
+  evidence_json?: string
+}
+
+export interface ContributionReceiptMemberOption {
+  id: string
+  display_name: string
+  member_code: string
+  first_name: string
+  last_name: string
+  email: string | null
+  phone: string | null
+  membership_type: string
+  status: string
+  joined_at: string
+}
+
+export interface ProcessContributionReceiptDeclarationPayload {
+  action: 'validated' | 'partially_validated' | 'rejected' | 'clarification_requested' | 'cancelled'
+  contribution_record_id?: string
+  processed_amount?: string
+  note?: string
+}
+
 export interface SendContributionReminderPayload {
   channel?: 'email'
 }
@@ -181,6 +239,41 @@ export async function sendContributionReminderBatch(
 export async function getContributionSummary(year?: number): Promise<ContributionSummary> {
   const params = year ? { year } : {}
   const response = await http.get<ContributionSummary>('/contributions/summary', { params })
+  return response.data
+}
+
+export async function createContributionReceiptDeclaration(payload: CreateContributionReceiptDeclarationPayload): Promise<ContributionReceiptDeclarationResponse> {
+  const response = await http.post<ContributionReceiptDeclarationResponse>('/contributions/receipt-declarations', payload)
+  return response.data
+}
+
+export async function listMyContributionReceiptDeclarations(): Promise<ContributionReceiptDeclarationResponse[]> {
+  const response = await http.get<ContributionReceiptDeclarationResponse[]>('/contributions/receipt-declarations/mine')
+  return response.data
+}
+
+export async function listMemberContributionReceiptDeclarations(): Promise<ContributionReceiptDeclarationResponse[]> {
+  const response = await http.get<ContributionReceiptDeclarationResponse[]>('/contributions/receipt-declarations/me')
+  return response.data
+}
+
+export async function listContributionReceiptDeclarations(): Promise<ContributionReceiptDeclarationResponse[]> {
+  const response = await http.get<ContributionReceiptDeclarationResponse[]>('/contributions/receipt-declarations')
+  return response.data
+}
+
+export async function listContributionReceiptDeclarationMemberOptions(): Promise<ContributionReceiptMemberOption[]> {
+  const response = await http.get<ContributionReceiptMemberOption[]>('/contributions/receipt-declarations/member-options')
+  return response.data
+}
+
+export async function submitContributionReceiptDeclaration(id: string): Promise<ContributionReceiptDeclarationResponse> {
+  const response = await http.post<ContributionReceiptDeclarationResponse>(`/contributions/receipt-declarations/${id}/submit`)
+  return response.data
+}
+
+export async function processContributionReceiptDeclaration(id: string, payload: ProcessContributionReceiptDeclarationPayload): Promise<ContributionReceiptDeclarationResponse> {
+  const response = await http.post<ContributionReceiptDeclarationResponse>(`/contributions/receipt-declarations/${id}/process`, payload)
   return response.data
 }
 

@@ -188,6 +188,24 @@
               </div>
             </div>
           </div>
+
+          <div class="card border-0 shadow-sm mt-4">
+            <div class="card-body p-4">
+              <div class="text-uppercase small fw-semibold text-secondary mb-1">{{ copy.receiptDeclarations }}</div>
+              <h2 class="h6 fw-bold mb-3">{{ copy.receiptDeclarationsLead }}</h2>
+              <p v-if="receiptDeclarations.length === 0" class="text-muted small mb-0">{{ copy.noReceiptDeclarations }}</p>
+              <div v-else class="vstack gap-2">
+                <div v-for="item in receiptDeclarations" :key="item.id" class="border rounded-3 p-3 d-flex justify-content-between gap-3">
+                  <div>
+                    <div class="fw-semibold">{{ item.amount }} {{ item.currency }}</div>
+                    <div class="small text-muted">{{ copy.receivedBy }} {{ item.declarant_role_code }} · {{ formatDate(item.received_at) }}</div>
+                    <div v-if="item.processing_note" class="small mt-1">{{ item.processing_note }}</div>
+                  </div>
+                  <span class="badge align-self-start" :class="receiptBadgeClass(item.status)">{{ receiptStatusLabel(item.status) }}</span>
+                </div>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
     </template>
@@ -201,6 +219,7 @@ import {
   getMyStatement,
   type MemberStatementResponse,
 } from '@/api/membership.api'
+import { listMemberContributionReceiptDeclarations, type ContributionReceiptDeclarationResponse } from '@/api/contributions.api'
 import { useLocaleStore } from '@/stores/locale.store'
 import { useRecoveryState } from '@/composables/useRecoveryState'
 
@@ -208,6 +227,7 @@ const localeStore = useLocaleStore()
 const { loading, error, isRecovering, run, retry, clearError } = useRecoveryState()
 const downloadingPdf = ref(false)
 const statement = ref<MemberStatementResponse | null>(null)
+const receiptDeclarations = ref<ContributionReceiptDeclarationResponse[]>([])
 
 const copy = computed(() => {
   if (localeStore.currentLocale === 'de') {
@@ -242,6 +262,7 @@ const copy = computed(() => {
       year: 'Jahr',
       balance: 'Saldo',
       dueDate: 'Fälligkeit',
+      receiptDeclarations: 'Gemeldete Zahlungen', receiptDeclarationsLead: 'Von einem Vorstandsmitglied gemeldete Zahlungen', noReceiptDeclarations: 'Keine gemeldete Zahlung.', receivedBy: 'Erhalten von',
     }
   }
   if (localeStore.currentLocale === 'en') {
@@ -276,6 +297,7 @@ const copy = computed(() => {
       year: 'Year',
       balance: 'Balance',
       dueDate: 'Due date',
+      receiptDeclarations: 'Reported receipts', receiptDeclarationsLead: 'Payments reported by an office role', noReceiptDeclarations: 'No reported receipt yet.', receivedBy: 'Received by',
     }
   }
   return {
@@ -309,6 +331,7 @@ const copy = computed(() => {
     year: 'Année',
     balance: 'Solde',
     dueDate: 'Échéance',
+    receiptDeclarations: 'Encaissements déclarés', receiptDeclarationsLead: 'Paiements signalés par un membre du bureau', noReceiptDeclarations: 'Aucun encaissement déclaré pour le moment.', receivedBy: 'Reçu par',
   }
 })
 
@@ -352,15 +375,39 @@ function statusBadgeClass(status: string): string {
   return classes[status] || 'bg-light text-dark border'
 }
 
+function receiptStatusLabel(status: string): string {
+  const labels: Record<string, string> = {
+    draft: localeStore.currentLocale === 'de' ? 'Entwurf' : localeStore.currentLocale === 'en' ? 'Draft' : 'Brouillon',
+    submitted: localeStore.currentLocale === 'de' ? 'Bestätigung ausstehend' : localeStore.currentLocale === 'en' ? 'Awaiting validation' : 'En attente de validation',
+    clarification_requested: localeStore.currentLocale === 'de' ? 'Klärung erforderlich' : localeStore.currentLocale === 'en' ? 'Clarification requested' : 'Clarification demandée',
+    validated: localeStore.currentLocale === 'de' ? 'Bestätigt und verbucht' : localeStore.currentLocale === 'en' ? 'Validated and recorded' : 'Validé et comptabilisé',
+    partially_validated: localeStore.currentLocale === 'de' ? 'Teilweise bestätigt' : localeStore.currentLocale === 'en' ? 'Partially validated' : 'Partiellement validé',
+    rejected: localeStore.currentLocale === 'de' ? 'Abgelehnt' : localeStore.currentLocale === 'en' ? 'Rejected' : 'Rejeté',
+    cancelled: localeStore.currentLocale === 'de' ? 'Storniert' : localeStore.currentLocale === 'en' ? 'Cancelled' : 'Annulé',
+  }
+  return labels[status] || status
+}
+
+function receiptBadgeClass(status: string): string {
+  return status === 'validated' || status === 'partially_validated'
+    ? 'text-bg-success'
+    : status === 'submitted' ? 'text-bg-warning'
+      : status === 'rejected' ? 'text-bg-danger' : 'text-bg-secondary'
+}
+
 async function loadStatement() {
   await run(async () => {
-    statement.value = await getMyStatement()
+    const [statementData, declarationData] = await Promise.all([getMyStatement(), listMemberContributionReceiptDeclarations()])
+    statement.value = statementData
+    receiptDeclarations.value = declarationData
   })
 }
 
 async function retryLoad() {
   await retry(async () => {
-    statement.value = await getMyStatement()
+    const [statementData, declarationData] = await Promise.all([getMyStatement(), listMemberContributionReceiptDeclarations()])
+    statement.value = statementData
+    receiptDeclarations.value = declarationData
   })
 }
 

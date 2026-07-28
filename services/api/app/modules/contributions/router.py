@@ -6,6 +6,11 @@ from fastapi.responses import StreamingResponse
 from app.core.authorization import require_capability
 from app.core.capabilities import (
     CAP_EXPORT_SENSITIVE,
+    CAP_CONTRIBUTION_RECEIPT_DECLARE,
+    CAP_CONTRIBUTION_RECEIPT_MEMBER_SELF_READ,
+    CAP_CONTRIBUTION_RECEIPT_OWN_READ,
+    CAP_CONTRIBUTION_RECEIPT_PROCESS,
+    CAP_CONTRIBUTION_RECEIPT_TENANT_READ,
     CAP_FINANCE_AUDIT,
     CAP_FINANCE_TENANT_READ,
     CAP_FINANCE_WRITE,
@@ -18,6 +23,11 @@ from app.modules.contributions.schemas import (
     ContributionRecordCreate,
     ContributionRecordResponse,
     ContributionRecordUpdate,
+    ContributionReceiptDeclarationCreate,
+    ContributionReceiptMemberOption,
+    ContributionReceiptDeclarationProcess,
+    ContributionReceiptDeclarationResponse,
+    ContributionReceiptDeclarationUpdate,
     ContributionReminderBatchRequest,
     ContributionReminderBatchResponse,
     ContributionReminderResponse,
@@ -25,6 +35,7 @@ from app.modules.contributions.schemas import (
     PaymentRecordCreate,
     PaymentRecordResponse,
 )
+from app.modules.membership.repository import MembershipRepository
 from app.modules.contributions.service import ContributionService
 
 router = APIRouter(
@@ -32,6 +43,92 @@ router = APIRouter(
     tags=["contributions"],
     dependencies=[require_module("contributions")],
 )
+
+
+@router.post("/receipt-declarations", response_model=ContributionReceiptDeclarationResponse, status_code=201)
+async def create_receipt_declaration(
+    data: ContributionReceiptDeclarationCreate, current: AuthDep, db: DbDep
+) -> ContributionReceiptDeclarationResponse:
+    require_capability(current, CAP_CONTRIBUTION_RECEIPT_DECLARE, detail="Receipt declaration capability required")
+    declarant_role = next((role for role in current.roles if role != "member"), current.roles[0] if current.roles else "unknown")
+    return await ContributionService(db).create_receipt_declaration(
+        current.tenant_id, data, declarant_user_id=current.user.id, declarant_role_code=declarant_role
+    )
+
+
+@router.get("/receipt-declarations/mine", response_model=list[ContributionReceiptDeclarationResponse])
+async def list_my_receipt_declarations(current: AuthDep, db: DbDep) -> list[ContributionReceiptDeclarationResponse]:
+    require_capability(current, CAP_CONTRIBUTION_RECEIPT_OWN_READ, detail="Own receipt declaration capability required")
+    return await ContributionService(db).list_receipt_declarations(
+        current.tenant_id, declarant_user_id=current.user.id
+    )
+
+
+@router.get("/receipt-declarations/me", response_model=list[ContributionReceiptDeclarationResponse])
+async def list_member_receipt_declarations(current: AuthDep, db: DbDep) -> list[ContributionReceiptDeclarationResponse]:
+    require_capability(current, CAP_CONTRIBUTION_RECEIPT_MEMBER_SELF_READ, detail="Personal receipt declaration capability required")
+    profile = await MembershipRepository(db).get_by_user_id(current.tenant_id, current.user.id)
+    if profile is None:
+        return []
+    return await ContributionService(db).list_receipt_declarations(
+        current.tenant_id, membership_profile_id=profile.id
+    )
+
+
+@router.get("/receipt-declarations", response_model=list[ContributionReceiptDeclarationResponse])
+async def list_receipt_declarations(current: AuthDep, db: DbDep) -> list[ContributionReceiptDeclarationResponse]:
+    require_capability(current, CAP_CONTRIBUTION_RECEIPT_TENANT_READ, detail="Receipt declaration review capability required")
+    return await ContributionService(db).list_receipt_declarations(current.tenant_id)
+
+
+@router.get("/receipt-declarations/member-options", response_model=list[ContributionReceiptMemberOption])
+async def list_receipt_declaration_member_options(current: AuthDep, db: DbDep) -> list[ContributionReceiptMemberOption]:
+    """Return read-only member identity details for authorized receipt declarants."""
+    require_capability(current, CAP_CONTRIBUTION_RECEIPT_DECLARE, detail="Receipt declaration capability required")
+    profiles = await MembershipRepository(db).list_by_tenant(current.tenant_id)
+    return [
+        ContributionReceiptMemberOption(
+            id=profile.id,
+            display_name=profile.display_name,
+            member_code=profile.member_code,
+            first_name=profile.first_name,
+            last_name=profile.last_name,
+            email=profile.email,
+            phone=profile.phone,
+            membership_type=profile.membership_type,
+            status=profile.status,
+            joined_at=profile.joined_at,
+        )
+        for profile in profiles
+    ]
+
+
+@router.patch("/receipt-declarations/{declaration_id}", response_model=ContributionReceiptDeclarationResponse)
+async def update_receipt_declaration(
+    declaration_id: UUID, data: ContributionReceiptDeclarationUpdate, current: AuthDep, db: DbDep
+) -> ContributionReceiptDeclarationResponse:
+    require_capability(current, CAP_CONTRIBUTION_RECEIPT_DECLARE, detail="Receipt declaration capability required")
+    return await ContributionService(db).update_receipt_declaration(
+        current.tenant_id, declaration_id, data, declarant_user_id=current.user.id
+    )
+
+
+@router.post("/receipt-declarations/{declaration_id}/submit", response_model=ContributionReceiptDeclarationResponse)
+async def submit_receipt_declaration(declaration_id: UUID, current: AuthDep, db: DbDep) -> ContributionReceiptDeclarationResponse:
+    require_capability(current, CAP_CONTRIBUTION_RECEIPT_DECLARE, detail="Receipt declaration capability required")
+    return await ContributionService(db).submit_receipt_declaration(
+        current.tenant_id, declaration_id, declarant_user_id=current.user.id
+    )
+
+
+@router.post("/receipt-declarations/{declaration_id}/process", response_model=ContributionReceiptDeclarationResponse)
+async def process_receipt_declaration(
+    declaration_id: UUID, data: ContributionReceiptDeclarationProcess, current: AuthDep, db: DbDep
+) -> ContributionReceiptDeclarationResponse:
+    require_capability(current, CAP_CONTRIBUTION_RECEIPT_PROCESS, detail="Receipt declaration processing capability required")
+    return await ContributionService(db).process_receipt_declaration(
+        current.tenant_id, declaration_id, data, processor_user_id=current.user.id
+    )
 
 
 @router.post("/", response_model=ContributionRecordResponse, status_code=201)

@@ -35,6 +35,47 @@ async def test_create_member_profile(client: AsyncClient, db_session: AsyncSessi
 
 
 @pytest.mark.asyncio
+@pytest.mark.parametrize(
+    ("membership_type", "expected_amount"),
+    [("individual", "60.00"), ("family", "100.00")],
+)
+async def test_member_creation_initializes_selected_annual_contribution(
+    client: AsyncClient,
+    db_session: AsyncSession,
+    membership_type: str,
+    expected_amount: str,
+):
+    ctx = await create_tenant_with_user(db_session, f"member-plan-{membership_type}")
+    token = await login(client, ctx["user"].email, "TestIsolation1!", ctx["tenant"].slug)
+
+    created = await client.post(
+        "/api/v1/memberships/",
+        json={
+            "member_code": f"PLAN-{membership_type}",
+            "first_name": "Plan",
+            "last_name": "Member",
+            "display_name": "Plan Member",
+            "membership_type": membership_type,
+        },
+        headers={"Authorization": f"Bearer {token}"},
+    )
+    assert created.status_code == 201, created.text
+    profile = created.json()
+    assert profile["membership_type"] == membership_type
+
+    contributions = await client.get(
+        f"/api/v1/contributions/by-member/{profile['id']}",
+        headers={"Authorization": f"Bearer {token}"},
+    )
+    assert contributions.status_code == 200, contributions.text
+    records = contributions.json()
+    assert len(records) == 1
+    assert records[0]["expected_amount"] == expected_amount
+    assert records[0]["paid_amount"] == "0.00"
+    assert records[0]["balance"] == expected_amount
+
+
+@pytest.mark.asyncio
 async def test_list_member_profiles(client: AsyncClient, db_session: AsyncSession):
     ctx = await create_tenant_with_user(db_session, "member-list")
     token = await login(client, ctx["user"].email, "TestIsolation1!", ctx["tenant"].slug)
@@ -310,6 +351,24 @@ async def test_contribution_summary(client: AsyncClient, db_session: AsyncSessio
     assert summary["total_expected"] == "200.00", summary
     assert summary["total_paid"] == "170.00"
     assert summary["total_balance"] == "30.00"
+
+
+@pytest.mark.asyncio
+@pytest.mark.parametrize("query", ["al", "MEM-SEARCH", "example.org"])
+async def test_member_directory_search_matches_partial_identity_fields(
+    client: AsyncClient, db_session: AsyncSession, query: str
+):
+    ctx = await create_tenant_with_user(db_session, f"member-search-{uuid.uuid4().hex[:6]}")
+    token = await login(client, ctx["user"].email, "TestIsolation1!", ctx["tenant"].slug)
+    created = await client.post(
+        "/api/v1/memberships/",
+        json={"member_code": "MEM-SEARCH-01", "first_name": "Alice", "last_name": "Martin", "display_name": "Alice Martin", "email": "alice@example.org"},
+        headers={"Authorization": f"Bearer {token}"},
+    )
+    assert created.status_code == 201
+    response = await client.get("/api/v1/memberships/", params={"q": query}, headers={"Authorization": f"Bearer {token}"})
+    assert response.status_code == 200, response.text
+    assert [item["id"] for item in response.json()] == [created.json()["id"]]
 
 
 @pytest.mark.asyncio

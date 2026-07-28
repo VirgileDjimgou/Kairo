@@ -6,6 +6,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.modules.contributions.models import (
     ContributionRecord,
+    ContributionReceiptDeclaration,
     ContributionReminder,
     PaymentRecord,
 )
@@ -134,6 +135,52 @@ class ContributionRepository:
         await self._db.delete(record)
         await self._db.flush()
         return True
+
+    async def create_receipt_declaration(
+        self, tenant_id: UUID, data: dict
+    ) -> ContributionReceiptDeclaration:
+        data["tenant_id"] = tenant_id
+        record = ContributionReceiptDeclaration(**data)
+        self._db.add(record)
+        await self._db.flush()
+        await self._db.refresh(record)
+        return record
+
+    async def get_receipt_declaration(
+        self, tenant_id: UUID, declaration_id: UUID
+    ) -> ContributionReceiptDeclaration | None:
+        result = await self._db.execute(select(ContributionReceiptDeclaration).where(
+            ContributionReceiptDeclaration.tenant_id == tenant_id,
+            ContributionReceiptDeclaration.id == declaration_id,
+        ))
+        return result.scalar_one_or_none()
+
+    async def list_receipt_declarations(
+        self, tenant_id: UUID, *, declarant_user_id: UUID | None = None,
+        membership_profile_id: UUID | None = None,
+    ) -> list[ContributionReceiptDeclaration]:
+        query = select(ContributionReceiptDeclaration).where(
+            ContributionReceiptDeclaration.tenant_id == tenant_id
+        )
+        if declarant_user_id is not None:
+            query = query.where(ContributionReceiptDeclaration.declarant_user_id == declarant_user_id)
+        if membership_profile_id is not None:
+            query = query.where(ContributionReceiptDeclaration.membership_profile_id == membership_profile_id)
+        result = await self._db.execute(query.order_by(ContributionReceiptDeclaration.created_at.desc()))
+        return list(result.scalars().all())
+
+    async def update_receipt_declaration(
+        self, tenant_id: UUID, declaration_id: UUID, data: dict
+    ) -> ContributionReceiptDeclaration | None:
+        record = await self.get_receipt_declaration(tenant_id, declaration_id)
+        if record is None:
+            return None
+        for key, value in data.items():
+            if value is not None:
+                setattr(record, key, value)
+        await self._db.flush()
+        await self._db.refresh(record)
+        return record
 
     async def create_reminder(self, tenant_id: UUID, data: dict) -> ContributionReminder:
         data["tenant_id"] = tenant_id

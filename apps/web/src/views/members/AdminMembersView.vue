@@ -6,11 +6,11 @@
         <p class="text-muted small mb-0">{{ t('members.subtitle') }}</p>
       </div>
       <div class="d-flex flex-wrap gap-2 justify-content-end w-100 w-md-auto">
-        <button class="btn btn-outline-secondary btn-sm" @click="exportMembers" :disabled="exporting">
+        <button v-if="canUseBulkMemberTools" class="btn btn-outline-secondary btn-sm" @click="exportMembers" :disabled="exporting">
           <i v-if="exporting" class="spinner-border spinner-border-sm me-1"></i>
           <i v-else class="bi bi-download me-1"></i>{{ t('common.exportCsv') }}
         </button>
-        <button class="btn btn-outline-primary btn-sm" data-bs-toggle="modal" data-bs-target="#importMemberModal">
+        <button v-if="canUseBulkMemberTools" class="btn btn-outline-primary btn-sm" data-bs-toggle="modal" data-bs-target="#importMemberModal">
           <i class="bi bi-upload me-1"></i>{{ t('common.importCsv') }}
         </button>
         <button class="btn btn-primary btn-sm" data-bs-toggle="modal" data-bs-target="#createMemberModal">
@@ -22,6 +22,12 @@
     <div v-if="error" class="alert alert-danger alert-dismissible small py-2 mb-3" role="alert">
       <i class="bi bi-exclamation-triangle me-1"></i>{{ error }}
       <button type="button" class="btn-close py-2" @click="error = ''"></button>
+    </div>
+
+    <div class="input-group mb-3">
+      <span class="input-group-text"><i class="bi bi-search"></i></span>
+      <input v-model.trim="searchQuery" class="form-control" :placeholder="t('members.searchPlaceholder')" @input="scheduleSearch" />
+      <button v-if="searchQuery" class="btn btn-outline-secondary" type="button" @click="clearSearch">{{ t('common.reset') }}</button>
     </div>
 
     <div v-if="loading" class="text-center py-5">
@@ -233,6 +239,19 @@
               <label class="form-label small fw-medium">{{ t('members.phone') }}</label>
               <input v-model="form.phone" class="form-control form-control-sm" />
             </div>
+            <fieldset class="mb-1">
+              <legend class="form-label small fw-medium mb-2">{{ t('members.membershipType') }}</legend>
+              <div class="vstack gap-2">
+                <label class="border rounded-3 p-2 d-flex gap-2 align-items-start">
+                  <input v-model="form.membership_type" class="form-check-input mt-1" type="radio" value="individual" />
+                  <span><strong>{{ t('members.individualContribution') }}</strong><br /><small class="text-muted">{{ t('members.individualContributionDescription') }}</small></span>
+                </label>
+                <label class="border rounded-3 p-2 d-flex gap-2 align-items-start">
+                  <input v-model="form.membership_type" class="form-check-input mt-1" type="radio" value="family" />
+                  <span><strong>{{ t('members.familyContribution') }}</strong><br /><small class="text-muted">{{ t('members.familyContributionDescription') }}</small></span>
+                </label>
+              </div>
+            </fieldset>
           </div>
           <div class="modal-footer">
             <button type="button" class="btn btn-sm btn-secondary" data-bs-dismiss="modal">{{ t('common.cancel') }}</button>
@@ -323,22 +342,27 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted, nextTick } from 'vue'
+import { computed, ref, onMounted, nextTick } from 'vue'
 import { RouterLink } from 'vue-router'
 import * as bootstrap from 'bootstrap'
 import { listMembers, createMember, updateMember, deleteMember, importMembersCsv, exportMembersCsv } from '@/api/membership.api'
 import type { MembershipProfileResponse, CreateMemberPayload, UpdateMemberPayload, ImportResult } from '@/api/membership.api'
 import { useCsvExport } from '@/composables/useCsvExport'
 import { useLocaleStore } from '@/stores/locale.store'
+import { useAuthStore } from '@/stores/auth.store'
 import ResponsiveDataView from '@/components/ui/ResponsiveDataView.vue'
 
 const localeStore = useLocaleStore()
+const authStore = useAuthStore()
+const canUseBulkMemberTools = computed(() => authStore.user?.roles.some((role) => ['admin', 'principal_admin'].includes(role)) ?? false)
 const t = (key: string) => localeStore.t(key)
 
 const loading = ref(true)
 const error = ref('')
 const members = ref<MembershipProfileResponse[]>([])
 const saving = ref(false)
+const searchQuery = ref('')
+let searchTimer: ReturnType<typeof setTimeout> | undefined
 const deletingMember = ref<MembershipProfileResponse | null>(null)
 
 function setError(err: unknown) {
@@ -352,6 +376,7 @@ const form = ref<CreateMemberPayload>({
   display_name: '',
   email: '',
   phone: '',
+  membership_type: 'individual',
 })
 
 const editForm = ref<UpdateMemberPayload>({})
@@ -407,15 +432,25 @@ function formatDate(dateStr: string): string {
   return new Date(dateStr).toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' })
 }
 
-async function loadMembers() {
+async function loadMembers(query = searchQuery.value) {
   try {
-    members.value = await listMembers()
+    members.value = await listMembers(query)
   } catch (err) { setError(err) }
   finally { loading.value = false }
 }
 
+function scheduleSearch() {
+  if (searchTimer) clearTimeout(searchTimer)
+  searchTimer = setTimeout(() => loadMembers(), 250)
+}
+
+function clearSearch() {
+  searchQuery.value = ''
+  void loadMembers('')
+}
+
 function resetForm() {
-  form.value = { member_code: '', first_name: '', last_name: '', display_name: '', email: '', phone: '' }
+  form.value = { member_code: '', first_name: '', last_name: '', display_name: '', email: '', phone: '', membership_type: 'individual' }
 }
 
 async function handleCreate() {

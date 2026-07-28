@@ -34,6 +34,16 @@ class ReminderDeliveryStatus(StrEnum):
     skipped = "skipped"
 
 
+class ContributionReceiptStatus(StrEnum):
+    draft = "draft"
+    submitted = "submitted"
+    clarification_requested = "clarification_requested"
+    validated = "validated"
+    partially_validated = "partially_validated"
+    rejected = "rejected"
+    cancelled = "cancelled"
+
+
 class ContributionRecord(Base):
     """
     Expected and paid contribution for a member in a specific year/period.
@@ -126,6 +136,35 @@ class PaymentRecord(Base):
 
     def __repr__(self) -> str:
         return f"<PaymentRecord tenant={self.tenant_id} contribution={self.contribution_record_id} amount={self.amount}>"
+
+
+class ContributionReceiptDeclaration(Base):
+    """A reported physical receipt that is not an official payment until processed."""
+
+    __tablename__ = "contribution_receipt_declarations"
+
+    id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
+    tenant_id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), ForeignKey("tenants.id", ondelete="CASCADE"), nullable=False, index=True)
+    membership_profile_id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), ForeignKey("membership_profiles.id", ondelete="CASCADE"), nullable=False, index=True)
+    declarant_user_id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), ForeignKey("users.id", ondelete="RESTRICT"), nullable=False, index=True)
+    declarant_role_code: Mapped[str] = mapped_column(String(64), nullable=False)
+    amount: Mapped[Decimal] = mapped_column(Numeric(12, 2), nullable=False)
+    currency: Mapped[str] = mapped_column(String(3), nullable=False, server_default="EUR")
+    received_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False)
+    payment_method: Mapped[str] = mapped_column(String(50), nullable=False, server_default=PaymentMethod.cash.value)
+    note: Mapped[str | None] = mapped_column(Text, nullable=True)
+    reference: Mapped[str | None] = mapped_column(String(255), nullable=True)
+    evidence_json: Mapped[str] = mapped_column(Text, nullable=False, server_default=sql_text("'{}'"))
+    status: Mapped[str] = mapped_column(String(50), nullable=False, server_default=ContributionReceiptStatus.draft.value, index=True)
+    submitted_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
+    processed_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
+    processed_by_user_id: Mapped[uuid.UUID | None] = mapped_column(UUID(as_uuid=True), ForeignKey("users.id", ondelete="SET NULL"), nullable=True)
+    processed_amount: Mapped[Decimal | None] = mapped_column(Numeric(12, 2), nullable=True)
+    processing_note: Mapped[str | None] = mapped_column(Text, nullable=True)
+    contribution_record_id: Mapped[uuid.UUID | None] = mapped_column(UUID(as_uuid=True), ForeignKey("contribution_records.id", ondelete="SET NULL"), nullable=True)
+    payment_record_id: Mapped[uuid.UUID | None] = mapped_column(UUID(as_uuid=True), ForeignKey("payment_records.id", ondelete="SET NULL"), nullable=True)
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False, server_default=sql_text("CURRENT_TIMESTAMP"))
+    updated_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False, server_default=sql_text("CURRENT_TIMESTAMP"))
 
 
 class ContributionReminder(Base):

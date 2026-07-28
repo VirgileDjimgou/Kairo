@@ -149,6 +149,20 @@ export function useRoleNavigation() {
         icon: "bi-journal-richtext",
       });
     }
+    if (isPresident.value || isSecretaryGeneral.value) {
+      workspaceItems.push({
+        label: localeStore.t("nav.members"),
+        to: "/members/manage",
+        icon: "bi-people",
+      });
+    }
+    if (!isMember.value) {
+      workspaceItems.push({
+        label: localeStore.currentLocale === 'de' ? 'Zahlungen melden' : localeStore.currentLocale === 'en' ? 'Report receipts' : 'Déclarer un encaissement',
+        to: "/receipts",
+        icon: "bi-cash-coin",
+      });
+    }
     if (showFinanceWorkspace.value) {
       workspaceItems.push({
         label: localeStore.t("nav.financeWorkspace"),

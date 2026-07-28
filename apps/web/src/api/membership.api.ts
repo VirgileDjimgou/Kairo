@@ -12,6 +12,7 @@ export interface MembershipProfileResponse {
   email: string | null
   phone: string | null
   status: string
+  membership_type: 'individual' | 'family'
   joined_at: string
   created_at: string
   updated_at: string
@@ -39,6 +40,7 @@ export interface CreateMemberPayload {
   email?: string
   phone?: string
   status?: string
+  membership_type: 'individual' | 'family'
 }
 
 export interface UpdateMemberPayload {
@@ -76,8 +78,8 @@ export async function downloadMyStatementPdf(): Promise<Blob> {
   return response.data
 }
 
-export async function listMembers(): Promise<MembershipProfileResponse[]> {
-  const response = await http.get<MembershipProfileResponse[]>('/memberships/')
+export async function listMembers(query?: string): Promise<MembershipProfileResponse[]> {
+  const response = await http.get<MembershipProfileResponse[]>('/memberships/', { params: query?.trim() ? { q: query.trim() } : {} })
   return response.data
 }
 
