@@ -55,6 +55,57 @@
 
     <div class="row g-4">
       <div class="col-xl-4">
+        <div v-if="canSearchMembers" class="card shadow-sm border-0 mb-4">
+          <div class="card-body p-4">
+            <h2 class="h6 fw-bold mb-1">{{ t('censor.memberLookupTitle') }}</h2>
+            <p class="small text-muted mb-3">{{ t('censor.memberLookupLead') }}</p>
+
+            <div class="position-relative mb-3">
+              <label class="visually-hidden" for="censor-member-search">{{ t('censor.searchMember') }}</label>
+              <input
+                id="censor-member-search"
+                v-model.trim="memberSearch"
+                class="form-control"
+                :placeholder="t('censor.searchMember')"
+                autocomplete="off"
+                @focus="showMemberResults = true"
+              />
+              <div v-if="showMemberResults && memberSearch" class="list-group position-absolute w-100 shadow-sm discipline-member-results">
+                <button
+                  v-for="member in filteredMembers.slice(0, 8)"
+                  :key="member.id"
+                  class="list-group-item list-group-item-action text-start"
+                  type="button"
+                  @click="selectMember(member)"
+                >
+                  <span class="fw-semibold d-block">{{ member.display_name }}</span>
+                  <span class="small text-muted">{{ member.member_code }} · {{ member.email || member.phone || t('censor.notProvided') }}</span>
+                </button>
+                <div v-if="filteredMembers.length === 0" class="list-group-item small text-muted">{{ t('censor.noMemberFound') }}</div>
+              </div>
+            </div>
+
+            <label class="form-label" for="censor-member-list">{{ t('censor.chooseMemberFromList') }}</label>
+            <select id="censor-member-list" v-model="selectedMemberId" class="form-select" @change="selectMemberById">
+              <option value="">{{ t('censor.chooseMemberFromList') }}</option>
+              <option v-for="member in members" :key="member.id" :value="member.id">
+                {{ member.display_name }} · {{ member.member_code }}
+              </option>
+            </select>
+
+            <div v-if="selectedMember" class="discipline-member-summary mt-3">
+              <div class="d-flex justify-content-between gap-2 align-items-start">
+                <div>
+                  <div class="fw-semibold">{{ selectedMember.display_name }}</div>
+                  <div class="small text-muted">{{ selectedMember.member_code }}</div>
+                </div>
+                <button class="btn btn-sm btn-link p-0" type="button" @click="clearSelectedMember">{{ t('common.reset') }}</button>
+              </div>
+              <div class="small text-muted mt-2 text-break">{{ selectedMember.email || selectedMember.phone || t('censor.notProvided') }}</div>
+            </div>
+          </div>
+        </div>
+
         <div v-if="canManageRecords" class="card shadow-sm border-0 mb-4">
           <div class="card-body p-4">
             <div class="d-flex align-items-center justify-content-between mb-3">
@@ -72,6 +123,7 @@
                   v-model="form.membership_profile_id"
                   class="form-select"
                   required
+                  @change="selectMemberById"
                 >
                   <option value="" disabled>{{ t('censor.selectMember') }}</option>
                   <option v-for="member in members" :key="member.id" :value="member.id">
@@ -161,20 +213,19 @@
           <div class="card-body p-4">
             <div class="d-flex align-items-center gap-2 mb-3">
               <i class="bi bi-shield-lock fs-5 text-secondary"></i>
-              <h2 class="h6 fw-bold mb-0">Read-only oversight</h2>
+              <h2 class="h6 fw-bold mb-0">{{ t('censor.readOnlyTitle') }}</h2>
             </div>
             <p class="text-muted small mb-3">
-              Your role can review disciplinary records for the current tenant, but mutations stay
-              reserved for censor and principal administrator sessions.
+              {{ t('censor.readOnlyDescription') }}
             </p>
             <div class="vstack gap-2 small">
               <div class="d-flex justify-content-between gap-2">
-                <span class="text-muted">Visible records</span>
+                <span class="text-muted">{{ t('censor.visibleRecords') }}</span>
                 <span class="fw-semibold">{{ records.length }}</span>
               </div>
               <div class="d-flex justify-content-between gap-2">
-                <span class="text-muted">Status</span>
-                <span class="fw-semibold">Review only</span>
+                <span class="text-muted">{{ t('common.status') }}</span>
+                <span class="fw-semibold">{{ t('censor.reviewOnly') }}</span>
               </div>
             </div>
           </div>
@@ -196,6 +247,51 @@
       </div>
 
       <div class="col-xl-8">
+        <div v-if="selectedMember" class="card shadow-sm border-0 mb-4 discipline-history-card">
+          <div class="card-body p-4">
+            <div class="d-flex flex-column flex-md-row justify-content-between gap-3 mb-3">
+              <div>
+                <div class="text-uppercase small fw-semibold text-primary mb-1">{{ t('censor.memberHistoryKicker') }}</div>
+                <h2 class="h5 fw-bold mb-1">{{ selectedMember.display_name }}</h2>
+                <p class="text-muted small mb-0">{{ t('censor.memberHistoryLead') }}</p>
+              </div>
+              <span class="badge text-bg-primary align-self-start">{{ selectedMemberHistory.length }} {{ t('common.records') }}</span>
+            </div>
+
+            <div class="row g-2 mb-3">
+              <div class="col-sm-4"><div class="history-metric"><span>{{ t('censor.historyTotal') }}</span><strong>{{ selectedMemberHistory.length }}</strong></div></div>
+              <div class="col-sm-4"><div class="history-metric"><span>{{ t('censor.historyOpen') }}</span><strong class="text-danger">{{ selectedMemberOpenCount }}</strong></div></div>
+              <div class="col-sm-4"><div class="history-metric"><span>{{ t('censor.historyAmount') }}</span><strong>{{ selectedMemberTotalAmount }}</strong></div></div>
+            </div>
+
+            <div v-if="selectedMemberHistory.length === 0" class="alert alert-light border mb-0">{{ t('censor.noMemberHistory') }}</div>
+            <div v-else class="table-responsive">
+              <table class="table table-hover align-middle mb-0 discipline-history-table">
+                <thead>
+                  <tr>
+                    <th>{{ t('censor.historyDate') }}</th>
+                    <th>{{ t('common.title') }}</th>
+                    <th>{{ t('censor.historyCircumstances') }}</th>
+                    <th>{{ t('censor.historyPolicy') }}</th>
+                    <th>{{ t('common.amount') }}</th>
+                    <th>{{ t('common.status') }}</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr v-for="record in selectedMemberHistory" :key="record.id">
+                    <td class="text-nowrap small">{{ formatDate(record.recorded_at) }}</td>
+                    <td class="fw-semibold">{{ record.title }}</td>
+                    <td class="small text-muted history-description">{{ record.description || t('censor.noCircumstances') }}</td>
+                    <td class="small">{{ record.policy_title || '—' }}</td>
+                    <td class="fw-semibold text-nowrap">{{ formatMoney(record.amount, record.currency) }}</td>
+                    <td><span class="badge" :class="statusClass(record.status)">{{ statusLabel(record.status) }}</span></td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+
         <div class="card shadow-sm border-0">
           <div class="card-body p-4">
             <div class="d-flex align-items-center justify-content-between gap-3 mb-3">
@@ -301,7 +397,7 @@ import { useLocaleStore } from '@/stores/locale.store'
 import ResponsiveDataView from '@/components/ui/ResponsiveDataView.vue'
 import { useRecoveryState } from '@/composables/useRecoveryState'
 import { listMembers, type MembershipProfileResponse } from '@/api/membership.api'
-import { listPolicies, type PolicyRecordResponse } from '@/api/policies.api'
+import { listPublicPolicies, type PolicyRecordResponse } from '@/api/policies.api'
 import {
   createDisciplinaryRecord,
   deleteDisciplinaryRecord,
@@ -324,6 +420,9 @@ const policies = ref<PolicyRecordResponse[]>([])
 const editingId = ref<string | null>(null)
 const showDeleteModal = ref(false)
 const deletingItem = ref<DisciplinaryRecordResponse | null>(null)
+const memberSearch = ref('')
+const showMemberResults = ref(false)
+const selectedMemberId = ref('')
 
 const form = ref<CreateDisciplinaryPayload>({
   membership_profile_id: '',
@@ -338,6 +437,38 @@ const form = ref<CreateDisciplinaryPayload>({
 const canManageRecords = computed(() =>
   authStore.hasAnyRole(['censor', 'principal_admin', 'admin']).value,
 )
+const canSearchMembers = computed(() =>
+  authStore.hasAnyRole(['censor', 'president', 'secretary_general', 'principal_admin', 'admin']).value,
+)
+const filteredMembers = computed(() => {
+  const query = memberSearch.value.toLocaleLowerCase()
+  if (!query) return members.value
+  return members.value.filter((member) =>
+    [member.display_name, member.first_name, member.last_name, member.member_code, member.email, member.phone]
+      .filter(Boolean)
+      .join(' ')
+      .toLocaleLowerCase()
+      .includes(query),
+  )
+})
+const selectedMember = computed(() =>
+  members.value.find((member) => member.id === selectedMemberId.value) ?? null,
+)
+const selectedMemberHistory = computed(() =>
+  records.value
+    .filter((record) => record.membership_profile_id === selectedMemberId.value)
+    .sort((left, right) => new Date(right.recorded_at).getTime() - new Date(left.recorded_at).getTime()),
+)
+const selectedMemberOpenCount = computed(() =>
+  selectedMemberHistory.value.filter((record) => record.status === 'open' || record.status === 'under_review').length,
+)
+const selectedMemberTotalAmount = computed(() => {
+  const totals = new Map<string, number>()
+  selectedMemberHistory.value.forEach((record) => {
+    totals.set(record.currency, (totals.get(record.currency) ?? 0) + Number(record.amount))
+  })
+  return [...totals.entries()].map(([currency, amount]) => formatMoney(amount, currency)).join(' · ') || '0.00 EUR'
+})
 
 const openCount = computed(() => records.value.filter((record) => record.status === 'open').length)
 const reviewCount = computed(() => records.value.filter((record) => record.status === 'under_review').length)
@@ -363,14 +494,16 @@ function statusClass(status: string): string {
 }
 
 async function refreshData() {
-  const [recordList, memberList, policyList] = await Promise.all([
-    listDisciplinaryRecords(),
-    listMembers(),
-    listPolicies(),
-  ])
-  records.value = recordList
-  members.value = memberList
-  policies.value = policyList
+  records.value = await listDisciplinaryRecords()
+
+  if (canSearchMembers.value) {
+    members.value = await listMembers()
+  } else {
+    members.value = []
+  }
+
+  // Published policies are needed solely for a censor's creation form.
+  policies.value = canManageRecords.value ? await listPublicPolicies() : []
 }
 
 async function refreshAll() {
@@ -394,8 +527,36 @@ function resetForm() {
   }
 }
 
+function selectMember(member: MembershipProfileResponse) {
+  selectedMemberId.value = member.id
+  memberSearch.value = member.display_name
+  showMemberResults.value = false
+  if (canManageRecords.value) {
+    form.value.membership_profile_id = member.id
+  }
+}
+
+function selectMemberById() {
+  const member = members.value.find((item) => item.id === form.value.membership_profile_id)
+    ?? members.value.find((item) => item.id === selectedMemberId.value)
+  if (member) {
+    selectMember(member)
+  }
+}
+
+function clearSelectedMember() {
+  selectedMemberId.value = ''
+  memberSearch.value = ''
+  showMemberResults.value = true
+  if (canManageRecords.value) {
+    form.value.membership_profile_id = ''
+  }
+}
+
 function editRecord(record: DisciplinaryRecordResponse) {
   editingId.value = record.id
+  selectedMemberId.value = record.membership_profile_id
+  memberSearch.value = members.value.find((member) => member.id === record.membership_profile_id)?.display_name ?? ''
   form.value = {
     membership_profile_id: record.membership_profile_id,
     policy_record_id: record.policy_record_id,
@@ -467,7 +628,24 @@ async function handleDelete() {
 }
 
 function formatDate(value: string): string {
-  return new Date(value).toLocaleDateString()
+  return new Date(value).toLocaleDateString(localeStore.currentLocale === 'fr' ? 'fr-FR' : localeStore.currentLocale === 'de' ? 'de-DE' : 'en-US')
+}
+
+function formatMoney(amount: string | number, currency: string): string {
+  return new Intl.NumberFormat(localeStore.currentLocale === 'fr' ? 'fr-FR' : localeStore.currentLocale === 'de' ? 'de-DE' : 'en-US', {
+    style: 'currency',
+    currency,
+  }).format(Number(amount))
+}
+
+function statusLabel(status: string): string {
+  const keyByStatus: Record<string, string> = {
+    open: 'disciplinary.open',
+    under_review: 'disciplinary.underReview',
+    resolved: 'disciplinary.resolved',
+    waived: 'disciplinary.waived',
+  }
+  return t(keyByStatus[status] || 'common.status')
 }
 
 onMounted(async () => {
@@ -492,5 +670,54 @@ onMounted(async () => {
   padding: 1rem 1.1rem;
   border: 1px solid #e5ddd1;
   background: #fff;
+}
+
+.discipline-member-results {
+  z-index: 1050;
+  max-height: 17rem;
+  overflow-y: auto;
+}
+
+.discipline-member-summary {
+  border: 1px solid rgba(13, 110, 253, 0.25);
+  border-radius: 0.75rem;
+  background: rgba(13, 110, 253, 0.06);
+  padding: 0.75rem;
+}
+
+.discipline-history-card {
+  border-top: 4px solid var(--bs-primary) !important;
+}
+
+.history-metric {
+  min-height: 4.75rem;
+  padding: 0.75rem;
+  border-radius: 0.75rem;
+  background: var(--bs-light);
+}
+
+.history-metric span,
+.history-metric strong {
+  display: block;
+}
+
+.history-metric span {
+  color: var(--bs-secondary-color);
+  font-size: 0.8rem;
+}
+
+.history-metric strong {
+  font-size: 1.1rem;
+}
+
+.discipline-history-table thead th {
+  color: var(--bs-primary);
+  background: rgba(13, 110, 253, 0.06);
+  border-bottom-width: 2px;
+}
+
+.history-description {
+  min-width: 14rem;
+  max-width: 22rem;
 }
 </style>

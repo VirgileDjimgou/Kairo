@@ -72,8 +72,50 @@ function makeTreasurerMeResponse() {
   }
 }
 
-async function mockDisciplinaryWorkspace(page: Page) {
+function makePresidentMeResponse() {
+  return {
+    ...makeCensorMeResponse(),
+    id: 'user-president-1',
+    email: 'president@demo.org',
+    display_name: 'President Demo',
+    roles: ['president'],
+    memberships: [
+      {
+        ...makeCensorMeResponse().memberships[0],
+        roles: ['president'],
+      },
+    ],
+  }
+}
+
+function makeSecretaryMeResponse() {
+  return {
+    ...makeCensorMeResponse(),
+    id: 'user-secretary-1',
+    email: 'secretary@demo.org',
+    display_name: 'Secretary General Demo',
+    roles: ['secretary_general'],
+    memberships: [
+      {
+        ...makeCensorMeResponse().memberships[0],
+        roles: ['secretary_general'],
+      },
+    ],
+  }
+}
+
+async function captureRoleProof(page: Page, filename: string) {
+  if (process.env.KAIRO_CAPTURE_ROLE_PROOF === '1') {
+    await page.screenshot({
+      path: `artifacts/role-workflow-proof/2026-07-28/${filename}`,
+      fullPage: true,
+    })
+  }
+}
+
+async function mockDisciplinaryWorkspace(page: Page, meResponse = makeCensorMeResponse()) {
   const financeRequests: string[] = []
+  const policyRequests: string[] = []
 
   const members = [
     {
@@ -100,7 +142,7 @@ async function mockDisciplinaryWorkspace(page: Page) {
       last_name: 'Example',
       display_name: 'Bob Example',
       email: 'bob@example.org',
-      phone: null,
+      phone: '+49 151 23456789',
       status: 'active',
       joined_at: '2026-02-15T09:00:00Z',
       created_at: '2026-02-15T09:00:00Z',
@@ -157,7 +199,7 @@ async function mockDisciplinaryWorkspace(page: Page) {
     await route.fulfill({
       status: 200,
       contentType: 'application/json',
-      body: JSON.stringify(makeCensorMeResponse()),
+      body: JSON.stringify(meResponse),
     })
   })
 
@@ -169,7 +211,8 @@ async function mockDisciplinaryWorkspace(page: Page) {
     })
   })
 
-  await page.route('http://localhost:8000/api/v1/policies/', async (route) => {
+  await page.route('http://localhost:8000/api/v1/policies/public', async (route) => {
+    policyRequests.push(route.request().url())
     await route.fulfill({
       status: 200,
       contentType: 'application/json',
@@ -290,7 +333,7 @@ async function mockDisciplinaryWorkspace(page: Page) {
     })
   })
 
-  return { financeRequests }
+  return { financeRequests, policyRequests }
 }
 
 async function mockTreasurerDenied(page: Page) {
@@ -333,7 +376,7 @@ async function mockTreasurerDenied(page: Page) {
 
 test.describe('Censor workspace', () => {
   test('censor sees the dedicated disciplinary console and can create records', async ({ page }) => {
-    await mockDisciplinaryWorkspace(page)
+    const { policyRequests } = await mockDisciplinaryWorkspace(page)
     await page.goto('/censor')
 
     await expect(page).toHaveURL(/\/censor$/)
@@ -342,7 +385,18 @@ test.describe('Censor workspace', () => {
     await expect(page.locator('.desktop-data-table').getByText('Late arrival warning')).toBeVisible()
     await expect(page.getByRole('button', { name: 'Create record' })).toBeVisible()
 
-    await page.getByLabel('Member').selectOption('member-2')
+    const memberSearch = page.getByPlaceholder('Search for a member…')
+    await expect(memberSearch).toHaveCount(1)
+    await memberSearch.fill('bob@example')
+    const memberResults = page.locator('.discipline-member-results')
+    await expect(memberResults).toHaveCount(1)
+    const bobResult = memberResults.getByText('Bob Example', { exact: true })
+    await expect(bobResult).toHaveCount(1)
+    await bobResult.click()
+    await expect(page.getByRole('heading', { name: 'Bob Example' })).toBeVisible()
+    await expect(page.getByText('No sanction is recorded for this member.')).toBeVisible()
+
+    await page.getByLabel('Member', { exact: true }).selectOption('member-2')
     await page.getByLabel('Policy').selectOption('policy-1')
     await page.getByLabel('Title').fill('Attendance follow-up')
     await page.getByLabel('Description').fill('Escalation for repeated absence.')
@@ -351,6 +405,10 @@ test.describe('Censor workspace', () => {
 
     await expect(page.locator('.desktop-data-table').getByText('Attendance follow-up')).toBeVisible()
     await expect(page.locator('.desktop-data-table').getByText('Bob Example', { exact: true })).toBeVisible()
+    await expect(page.locator('.discipline-history-table').getByText('Attendance follow-up')).toBeVisible()
+    expect(policyRequests.length).toBeGreaterThan(0)
+    expect(policyRequests.every((request) => request.endsWith('/api/v1/policies/public'))).toBe(true)
+    await captureRoleProof(page, 'discipline-censor-read-write.png')
   })
 
   test('treasurer cannot enter the censor workspace route', async ({ page }) => {
@@ -360,6 +418,41 @@ test.describe('Censor workspace', () => {
     await expect(page.getByRole('heading', { name: 'Welcome back, Treasurer Demo' })).toBeVisible()
     await expect(page).toHaveURL(/\/dashboard$/)
     await expect(page.getByRole('link', { name: 'Disciplinary Console' })).toHaveCount(0)
+  })
+
+  test('president can review disciplinary records without requesting policy management data', async ({ page }) => {
+    const { policyRequests } = await mockDisciplinaryWorkspace(page, makePresidentMeResponse())
+    await page.goto('/censor')
+
+    await expect(page).toHaveURL(/\/censor$/)
+    await expect(page.getByRole('heading', { name: 'Censor workspace' })).toBeVisible()
+    await expect(page.getByRole('heading', { name: 'Read-only oversight' })).toBeVisible()
+    await expect(page.locator('.desktop-data-table').getByText('Late arrival warning')).toBeVisible()
+    await expect(page.getByRole('button', { name: 'Create record' })).toHaveCount(0)
+    expect(policyRequests).toEqual([])
+
+    const memberSearch = page.getByPlaceholder('Search for a member…')
+    await expect(memberSearch).toHaveCount(1)
+    await memberSearch.fill('M001')
+    const memberResults = page.locator('.discipline-member-results')
+    const aliceResult = memberResults.getByText('Alice Example', { exact: true })
+    await expect(aliceResult).toHaveCount(1)
+    await aliceResult.click()
+    await expect(page.getByRole('heading', { name: 'Alice Example' })).toBeVisible()
+    await expect(page.locator('.discipline-history-table').getByText('Late arrival warning')).toBeVisible()
+    await captureRoleProof(page, 'discipline-president-read-only.png')
+  })
+
+  test('secretary general can review disciplinary records without mutation controls', async ({ page }) => {
+    const { policyRequests } = await mockDisciplinaryWorkspace(page, makeSecretaryMeResponse())
+    await page.goto('/censor')
+
+    await expect(page).toHaveURL(/\/censor$/)
+    await expect(page.getByRole('heading', { name: 'Read-only oversight' })).toBeVisible()
+    await expect(page.locator('.desktop-data-table').getByText('Late arrival warning')).toBeVisible()
+    await expect(page.getByRole('button', { name: 'Create record' })).toHaveCount(0)
+    expect(policyRequests).toEqual([])
+    await captureRoleProof(page, 'discipline-secretary-read-only.png')
   })
 
   test('censor cannot enter the treasurer finance workspace or load contribution data', async ({ page }) => {

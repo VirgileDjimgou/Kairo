@@ -152,6 +152,44 @@ async def test_secretary_general_can_manage_documents_policies_and_announcements
     assert disciplinary_mutation.status_code == 403, disciplinary_mutation.text
 
 
+async def test_president_and_secretary_can_read_disciplinary_records_but_cannot_mutate_them(
+    client: AsyncClient,
+    db_session: AsyncSession,
+) -> None:
+    admin = await create_tenant_with_user(db_session, f"disciplinary-read-{_uuid.uuid4().hex[:6]}")
+    admin_token = await login(client, admin["user"].email, admin["password"], admin["tenant"].slug)
+    profile = await _create_profile(
+        client,
+        admin_token,
+        member_code="DISC-001",
+        display_name="Disciplinary Read Member",
+        email="disciplinary-read-member@test.org",
+    )
+
+    for role_code in ("president", "secretary_general"):
+        office_holder = await create_user_for_tenant(
+            db_session,
+            tenant_id=admin["tenant"].id,
+            email=f"{role_code}-{_uuid.uuid4().hex[:6]}@test.org",
+            password="OfficePass1!",
+            display_name=role_code.replace("_", " ").title(),
+            role_code=role_code,
+            profile_type="staff",
+        )
+        await db_session.commit()
+        token = await login(client, office_holder["user"].email, office_holder["password"], admin["tenant"].slug)
+
+        records = await client.get("/api/v1/disciplinary/", headers={"Authorization": f"Bearer {token}"})
+        assert records.status_code == 200, records.text
+
+        mutation = await client.post(
+            "/api/v1/disciplinary/",
+            headers={"Authorization": f"Bearer {token}"},
+            json={"membership_profile_id": profile["id"], "title": "Blocked disciplinary change", "status": "open"},
+        )
+        assert mutation.status_code == 403, mutation.text
+
+
 async def test_sports_manager_can_manage_sports_events_but_not_general_events_or_announcements(
     client: AsyncClient,
     db_session: AsyncSession,

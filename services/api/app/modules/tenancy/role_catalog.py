@@ -143,6 +143,7 @@ ROLE_DEFINITIONS: tuple[RoleDefinition, ...] = (
             CAP_DOCUMENTS_WRITE,
             CAP_POLICIES_READ,
             CAP_POLICIES_WRITE,
+            CAP_DISCIPLINARY_TENANT_READ,
             CAP_EVENTS_READ,
             CAP_ANNOUNCEMENTS_READ,
             CAP_ANNOUNCEMENTS_WRITE,

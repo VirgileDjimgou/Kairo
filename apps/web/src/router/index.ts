@@ -114,7 +114,7 @@ const router = createRouter({
             import("@/views/disciplinary/CensorWorkspaceView.vue"),
           meta: {
             module: "disciplinary",
-            allowedRoles: ["censor", "president", "principal_admin", "admin"],
+            allowedRoles: ["censor", "president", "secretary_general", "principal_admin", "admin"],
           },
         },
         {

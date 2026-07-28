@@ -74,6 +74,7 @@ export function useRoleNavigation() {
     () =>
       (isCensor.value ||
         isPresident.value ||
+        isSecretaryGeneral.value ||
         isPrincipalAdmin.value ||
         isAdmin.value) &&
       tenantStore.isModuleEnabled("disciplinary"),
