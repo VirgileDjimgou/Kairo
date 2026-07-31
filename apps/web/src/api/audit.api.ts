@@ -1,9 +1,16 @@
 import http from './http'
 
+export interface AuditActorSummary {
+  display_name: string
+  email: string
+  roles: string[]
+}
+
 export interface AuditEventResponse {
   id: string
   tenant_id: string
   actor_user_id: string | null
+  actor: AuditActorSummary | null
   module_key: string | null
   action: string
   entity_type: string
@@ -34,6 +41,13 @@ export async function exportAuditEventsCsv(filters: AuditEventFilters = {}): Pro
   const response = await http.get('/admin/audit/events/export', {
     params: { ...filters, format: 'csv' },
     responseType: 'blob',
+  })
+  return response.data
+}
+
+export async function listOperationJournal(search?: string): Promise<AuditEventResponse[]> {
+  const response = await http.get<AuditEventResponse[]>('/admin/audit/operation-journal', {
+    params: search ? { search } : undefined,
   })
   return response.data
 }

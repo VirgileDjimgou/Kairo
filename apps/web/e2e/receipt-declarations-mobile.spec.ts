@@ -58,6 +58,16 @@ test.describe('Receipt declarations mobile proof', () => {
     await expect(page.locator('form .alert-primary')).toContainText('Membre Démonstration (MEM-001)')
   })
 
+  test('highlights an incomplete receipt declaration and displays a validation notification', async ({ page }) => {
+    await mockReceiptApi(page, 'vice_president')
+    await page.goto('/receipts')
+    await page.getByRole('button', { name: 'Soumettre la déclaration' }).click()
+
+    await expect(page.getByText('Corrigez les champs signalés en rouge avant de continuer.')).toBeVisible()
+    await expect(page.getByRole('combobox', { name: 'Choisir dans la liste complète' })).toHaveClass(/is-invalid/)
+    await expect(page.getByPlaceholder('Montant')).toHaveClass(/is-invalid/)
+  })
+
   test('shows the treasurer validation queue without horizontal overflow', async ({ page, browserName }) => {
     await mockReceiptApi(page, 'treasurer')
     await page.goto('/receipts')

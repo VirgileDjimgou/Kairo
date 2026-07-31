@@ -33,7 +33,7 @@ export interface MemberStatementResponse {
 }
 
 export interface CreateMemberPayload {
-  member_code: string
+  member_code?: string
   first_name: string
   last_name: string
   display_name: string

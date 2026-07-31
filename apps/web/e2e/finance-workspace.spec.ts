@@ -394,10 +394,33 @@ async function mockFinanceWorkspace(page: Page) {
 }
 
 function financeNavLink(page: Page) {
-  return page.locator('aside a[href="/finance"]').first()
+  return page.locator('a[href="/finance"]').first()
 }
 
 test.describe('Finance workspace', () => {
+  test('treasurer mobile export controls are full-width and readable', async ({ page }, testInfo) => {
+    await page.setViewportSize({ width: 390, height: 844 })
+    await mockFinanceWorkspace(page)
+    await page.goto('/finance')
+
+    const exportExcel = page.getByRole('button', { name: 'Export Excel' })
+    const exportPdf = page.getByRole('button', { name: 'Export PDF' })
+    const shareWhatsapp = page.getByRole('button', { name: 'Copy for WhatsApp' })
+    await expect(exportExcel).toBeVisible()
+    await expect(exportPdf).toBeVisible()
+    await expect(shareWhatsapp).toBeVisible()
+
+    const excelBox = await exportExcel.boundingBox()
+    const pdfBox = await exportPdf.boundingBox()
+    const whatsappBox = await shareWhatsapp.boundingBox()
+    expect(excelBox?.width).toBeGreaterThan(240)
+    expect(pdfBox?.width).toBeGreaterThan(240)
+    expect(whatsappBox?.width).toBeGreaterThan(240)
+    expect(pdfBox?.y).toBeGreaterThan(excelBox?.y ?? 0)
+    expect(whatsappBox?.y).toBeGreaterThan(pdfBox?.y ?? 0)
+    await page.screenshot({ path: testInfo.outputPath('treasurer-finance-mobile.png'), fullPage: true })
+  })
+
   test('shows the dedicated finance workspace to the treasurer role', async ({ page }) => {
     await mockFinanceWorkspace(page)
     await page.goto('/login')

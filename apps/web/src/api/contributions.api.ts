@@ -307,3 +307,16 @@ export async function exportFinanceReportCsv(): Promise<Blob> {
   const response = await http.get('/contributions/report/export', { responseType: 'blob' })
   return response.data
 }
+
+export type MemberFinanceExportFormat = 'xlsx' | 'pdf' | 'whatsapp'
+
+export async function exportMemberFinanceReport(
+  format: MemberFinanceExportFormat,
+  year: number,
+): Promise<Blob> {
+  const response = await http.get(`/contributions/report/export/${format}`, {
+    params: { year },
+    responseType: 'blob',
+  })
+  return response.data
+}

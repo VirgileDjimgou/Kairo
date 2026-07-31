@@ -15,7 +15,7 @@ LOGIN_IDENTIFIER_PATTERN = re.compile(r"^[a-z0-9][a-z0-9._-]{2,63}$")
 
 
 class MembershipProfileCreate(BaseModel):
-    member_code: str = Field(..., min_length=1, max_length=50)
+    member_code: str | None = Field(None, min_length=1, max_length=50)
     first_name: str = Field(..., min_length=1, max_length=100)
     last_name: str = Field(..., min_length=1, max_length=100)
     display_name: str = Field(..., min_length=1, max_length=255)

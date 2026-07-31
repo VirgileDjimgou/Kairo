@@ -1,3 +1,4 @@
+from typing import Literal
 from uuid import UUID
 
 from fastapi import APIRouter, Query, UploadFile
@@ -5,12 +6,12 @@ from fastapi.responses import StreamingResponse
 
 from app.core.authorization import require_capability
 from app.core.capabilities import (
-    CAP_EXPORT_SENSITIVE,
     CAP_CONTRIBUTION_RECEIPT_DECLARE,
     CAP_CONTRIBUTION_RECEIPT_MEMBER_SELF_READ,
     CAP_CONTRIBUTION_RECEIPT_OWN_READ,
     CAP_CONTRIBUTION_RECEIPT_PROCESS,
     CAP_CONTRIBUTION_RECEIPT_TENANT_READ,
+    CAP_EXPORT_SENSITIVE,
     CAP_FINANCE_AUDIT,
     CAP_FINANCE_TENANT_READ,
     CAP_FINANCE_WRITE,
@@ -19,15 +20,16 @@ from app.core.capabilities import (
 from app.core.dependencies import AuthDep, DbDep, NotificationsDep
 from app.core.import_export import ImportResult
 from app.core.module_guard import require_module
+from app.modules.audit.service import AuditService
 from app.modules.contributions.schemas import (
-    ContributionRecordCreate,
-    ContributionRecordResponse,
-    ContributionRecordUpdate,
     ContributionReceiptDeclarationCreate,
-    ContributionReceiptMemberOption,
     ContributionReceiptDeclarationProcess,
     ContributionReceiptDeclarationResponse,
     ContributionReceiptDeclarationUpdate,
+    ContributionReceiptMemberOption,
+    ContributionRecordCreate,
+    ContributionRecordResponse,
+    ContributionRecordUpdate,
     ContributionReminderBatchRequest,
     ContributionReminderBatchResponse,
     ContributionReminderResponse,
@@ -35,8 +37,8 @@ from app.modules.contributions.schemas import (
     PaymentRecordCreate,
     PaymentRecordResponse,
 )
-from app.modules.membership.repository import MembershipRepository
 from app.modules.contributions.service import ContributionService
+from app.modules.membership.repository import MembershipRepository
 
 router = APIRouter(
     prefix="/contributions",
@@ -307,6 +309,45 @@ async def export_finance_report(current: AuthDep, db: DbDep) -> StreamingRespons
         iter([csv_content]),
         media_type="text/csv",
         headers={"Content-Disposition": 'attachment; filename="finance-report.csv"'},
+    )
+
+
+@router.get("/report/export/{export_format}")
+async def export_member_finance_report(
+    export_format: Literal["xlsx", "pdf", "whatsapp"],
+    current: AuthDep,
+    db: DbDep,
+    year: int = Query(..., ge=2000, le=2100),
+) -> StreamingResponse:
+    """Export the member finance register for the treasurer and auditor roles."""
+    if not (
+        current.has_capability(CAP_FINANCE_AUDIT)
+        or current.has_capability(CAP_FINANCE_WRITE)
+        or current.has_capability(CAP_EXPORT_SENSITIVE)
+    ):
+        require_capability(
+            current,
+            CAP_FINANCE_AUDIT,
+            detail="Finance audit capability required",
+        )
+    content, media_type, filename = await ContributionService(db).export_member_finance_report(
+        current.tenant_id,
+        year=year,
+        export_format=export_format,
+    )
+    await AuditService(db).record_event(
+        tenant_id=current.tenant_id,
+        actor_user_id=current.user.id,
+        action="export",
+        entity_type="member_finance_report",
+        module_key="contributions",
+        details={"format": export_format, "year": year},
+    )
+    await db.commit()
+    return StreamingResponse(
+        iter([content]),
+        media_type=media_type,
+        headers={"Content-Disposition": f'attachment; filename="{filename}"'},
     )
 
 

@@ -452,6 +452,7 @@ const copy = computed(() => {
       allowedRoles: "Erlaubte Rollen: {roles}",
       statusUnknown: "unbekannt",
       statusPending: "ausstehend",
+      statusAwaitingAi: "wartet auf KI-Laufzeit",
       statusProcessing: "in Bearbeitung",
       statusCompleted: "abgeschlossen",
       statusUploaded: "hochgeladen",
@@ -538,6 +539,7 @@ const copy = computed(() => {
       allowedRoles: "Allowed roles: {roles}",
       statusUnknown: "unknown",
       statusPending: "pending",
+      statusAwaitingAi: "waiting for AI runtime",
       statusProcessing: "processing",
       statusCompleted: "completed",
       statusUploaded: "uploaded",
@@ -623,6 +625,7 @@ const copy = computed(() => {
     allowedRoles: "Rôles autorisés : {roles}",
     statusUnknown: "inconnu",
     statusPending: "en attente",
+    statusAwaitingAi: "en attente de l'assistant IA",
     statusProcessing: "en traitement",
     statusCompleted: "terminé",
     statusUploaded: "importé",
@@ -798,6 +801,8 @@ function formatStatusToken(status: string): string {
       return copy.value.statusUnknown;
     case "pending":
       return copy.value.statusPending;
+    case "awaiting_ai":
+      return copy.value.statusAwaitingAi;
     case "processing":
       return copy.value.statusProcessing;
     case "completed":

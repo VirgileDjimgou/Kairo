@@ -68,9 +68,7 @@ async def _check_minio() -> dict:
 
     start = time.monotonic()
     try:
-        await asyncio.wait_for(
-            asyncio.to_thread(_sync_check), timeout=5
-        )
+        await asyncio.wait_for(asyncio.to_thread(_sync_check), timeout=5)
         elapsed = int((time.monotonic() - start) * 1000)
         return {"status": "ok", "latency_ms": elapsed}
     except (TimeoutError, Exception) as exc:
@@ -80,6 +78,10 @@ async def _check_minio() -> dict:
 
 
 async def _check_qdrant() -> dict:
+    if not settings.ai_runtime_enabled:
+        return {"status": "disabled", "latency_ms": 0}
+    if settings.ai_runtime_mode == "remote":
+        return await _check_remote_ai_runtime()
     start = time.monotonic()
     try:
         client = AsyncQdrantClient(url=settings.qdrant_url, timeout=5)
@@ -94,6 +96,10 @@ async def _check_qdrant() -> dict:
 
 
 async def _check_llm_provider() -> dict:
+    if not settings.ai_runtime_enabled:
+        return {"status": "disabled", "latency_ms": 0}
+    if settings.llm_provider_kind == "remote_ai_runtime":
+        return await _check_remote_ai_runtime()
     start = time.monotonic()
     try:
         if settings.llm_provider_kind == "openai_compatible":
@@ -103,9 +109,7 @@ async def _check_llm_provider() -> dict:
             ) as c:
                 resp = await c.get("/models")
         else:
-            async with httpx.AsyncClient(
-                base_url=settings.ollama_base_url, timeout=5
-            ) as c:
+            async with httpx.AsyncClient(base_url=settings.ollama_base_url, timeout=5) as c:
                 resp = await c.get("/api/tags")
             resp.raise_for_status()
         elapsed = int((time.monotonic() - start) * 1000)
@@ -117,6 +121,10 @@ async def _check_llm_provider() -> dict:
 
 
 async def _check_embedding_provider() -> dict:
+    if not settings.ai_runtime_enabled:
+        return {"status": "disabled", "latency_ms": 0}
+    if settings.embedding_provider_kind == "remote_ai_runtime":
+        return await _check_remote_ai_runtime()
     start = time.monotonic()
     try:
         if settings.embedding_provider_kind == "openai_compatible":
@@ -126,9 +134,7 @@ async def _check_embedding_provider() -> dict:
             ) as c:
                 resp = await c.get("/models")
         else:
-            async with httpx.AsyncClient(
-                base_url=settings.ollama_base_url, timeout=5
-            ) as c:
+            async with httpx.AsyncClient(base_url=settings.ollama_base_url, timeout=5) as c:
                 resp = await c.get("/api/tags")
         resp.raise_for_status()
         elapsed = int((time.monotonic() - start) * 1000)
@@ -137,6 +143,22 @@ async def _check_embedding_provider() -> dict:
         elapsed = int((time.monotonic() - start) * 1000)
         logger.warning("Embedding provider health probe failed", error=str(exc), latency_ms=elapsed)
         return {"status": "unavailable", "latency_ms": elapsed}
+
+
+async def _check_remote_ai_runtime() -> dict:
+    from app.providers.ai_runtime.remote import _RemoteAiRuntimeClient
+
+    start = time.monotonic()
+    try:
+        client = _RemoteAiRuntimeClient()
+        await client.request("GET", "/health")
+        return {"status": "ok", "latency_ms": int((time.monotonic() - start) * 1000)}
+    except Exception as exc:
+        return {
+            "status": "unavailable",
+            "latency_ms": int((time.monotonic() - start) * 1000),
+            "detail": str(exc),
+        }
 
 
 async def run_all_checks(db: AsyncSession) -> dict[str, object]:

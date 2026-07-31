@@ -23,6 +23,15 @@
             <span v-if="exporting" class="spinner-border spinner-border-sm me-1" aria-hidden="true"></span>
             {{ exporting ? t('auditor.exporting') : t('auditor.exportReport') }}
           </button>
+          <button class="btn btn-outline-primary btn-sm" type="button" @click="downloadMemberReport('xlsx')" :disabled="exporting">
+            {{ t('finance.exportExcel') }}
+          </button>
+          <button class="btn btn-outline-primary btn-sm" type="button" @click="downloadMemberReport('pdf')" :disabled="exporting">
+            {{ t('finance.exportPdf') }}
+          </button>
+          <button class="btn btn-outline-success btn-sm" type="button" @click="shareWhatsappSummary" :disabled="exporting">
+            {{ t('finance.copyForWhatsapp') }}
+          </button>
         </div>
       </div>
     </div>
@@ -185,18 +194,21 @@
 <script setup lang="ts">
 import {
   exportFinanceReportCsv,
+  exportMemberFinanceReport,
   getContributionSummary,
   listContributions,
   listTenantPayments,
   type ContributionRecordResponse,
   type ContributionSummary,
   type PaymentRecordResponse,
+  type MemberFinanceExportFormat,
 } from '@/api/contributions.api'
 import { listMembers, type MembershipProfileResponse } from '@/api/membership.api'
 import { useCsvExport } from '@/composables/useCsvExport'
 import { useRecoveryState } from '@/composables/useRecoveryState'
 import { useLocaleStore } from '@/stores/locale.store'
 import ResponsiveDataView from '@/components/ui/ResponsiveDataView.vue'
+import { notifyOperation } from '@/services/operation-notifications'
 import { computed, onMounted, ref } from 'vue'
 
 const localeStore = useLocaleStore()
@@ -309,6 +321,46 @@ async function downloadReport() {
   }
 }
 
+async function downloadMemberReport(format: Exclude<MemberFinanceExportFormat, 'whatsapp'>) {
+  exporting.value = true
+  actionError.value = ''
+  try {
+    const blob = await exportMemberFinanceReport(format, selectedYear.value)
+    downloadBlob(blob, `rapport-financier-${selectedYear.value}.${format}`)
+  } catch (err) {
+    actionError.value = err instanceof Error ? err.message : t('finance.exportFailed')
+  } finally {
+    exporting.value = false
+  }
+}
+
+async function shareWhatsappSummary() {
+  exporting.value = true
+  actionError.value = ''
+  try {
+    const summary = await (await exportMemberFinanceReport('whatsapp', selectedYear.value)).text()
+    if (navigator.clipboard?.writeText) {
+      await navigator.clipboard.writeText(summary)
+      notifyOperation({ level: 'success', messageKey: 'finance.whatsappCopied' })
+    } else {
+      downloadBlob(new Blob([summary], { type: 'text/plain;charset=utf-8' }), `rapport-financier-${selectedYear.value}-whatsapp.txt`)
+      notifyOperation({ level: 'info', messageKey: 'finance.whatsappFileDownloaded' })
+    }
+  } catch (err) {
+    if ((err as DOMException)?.name !== 'AbortError') actionError.value = err instanceof Error ? err.message : t('finance.exportFailed')
+  } finally {
+    exporting.value = false
+  }
+}
+
+function downloadBlob(blob: Blob, filename: string) {
+  const link = document.createElement('a')
+  link.href = URL.createObjectURL(blob)
+  link.download = filename
+  link.click()
+  URL.revokeObjectURL(link.href)
+}
+
 const errorMessage = computed(() => actionError.value || error.value)
 
 onMounted(refreshAll)
@@ -347,7 +399,7 @@ onMounted(refreshAll)
   .auditor-actions {
     display: grid;
     width: 100%;
-    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 
   .auditor-actions .form-select {
@@ -359,7 +411,9 @@ onMounted(refreshAll)
     white-space: normal;
   }
 
-  .auditor-actions .btn-primary {
+  .auditor-actions .btn-primary,
+  .auditor-actions .btn-outline-primary,
+  .auditor-actions .btn-outline-success {
     grid-column: 1 / -1;
   }
 }

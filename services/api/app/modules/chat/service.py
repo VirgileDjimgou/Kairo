@@ -66,6 +66,7 @@ from app.modules.rag.ranking import compute_keyword_overlap_ratio
 from app.modules.rag.retrieval import build_access_policy
 from app.modules.tenancy.repository import TenancyRepository
 from app.providers.reranker.interface import RerankerProvider
+from app.providers.ai_runtime.remote import AiRuntimeUnavailableError
 
 logger = structlog.get_logger(__name__)
 
@@ -1131,12 +1132,16 @@ class ChatService:
         request: ChatQueryRequest,
     ) -> AsyncGenerator[str, None]:
         """Stream the answer token-by-token via SSE, persist on completion."""
-        prepared_turn, refusal_response = await self._prepare_chat_turn(
-            tenant_id=tenant_id,
-            user_id=user_id,
-            roles=roles,
-            request=request,
-        )
+        try:
+            prepared_turn, refusal_response = await self._prepare_chat_turn(
+                tenant_id=tenant_id,
+                user_id=user_id,
+                roles=roles,
+                request=request,
+            )
+        except AiRuntimeUnavailableError:
+            yield f"data: {json.dumps({'type': 'error', 'content': 'Assistant IA temporairement indisponible'})}\n\n"
+            return
         if refusal_response is not None:
             await self._log_query(
                 tenant_id=tenant_id,
@@ -1151,13 +1156,17 @@ class ChatService:
         full_answer_parts: list[str] = []
         yield f"data: {json.dumps({'type': 'start', 'conversation_id': str(prepared_turn.conversation_id) if prepared_turn.conversation_id else None})}\n\n"
 
-        async for token in self._llm.generate_stream(
-            system_prompt=prepared_turn.system_prompt,
-            user_prompt=prepared_turn.user_prompt,
-            max_tokens=settings.llm_max_tokens,
-        ):
-            full_answer_parts.append(token)
-            yield f"data: {json.dumps({'type': 'token', 'content': token})}\n\n"
+        try:
+            async for token in self._llm.generate_stream(
+                system_prompt=prepared_turn.system_prompt,
+                user_prompt=prepared_turn.user_prompt,
+                max_tokens=settings.llm_max_tokens,
+            ):
+                full_answer_parts.append(token)
+                yield f"data: {json.dumps({'type': 'token', 'content': token})}\n\n"
+        except AiRuntimeUnavailableError:
+            yield f"data: {json.dumps({'type': 'error', 'content': 'Assistant IA temporairement indisponible'})}\n\n"
+            return
 
         full_answer = "".join(full_answer_parts).strip()
         conversation_id = await self._persist_conversation_turn(

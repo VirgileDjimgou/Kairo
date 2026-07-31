@@ -1,10 +1,13 @@
 from __future__ import annotations
 
 import uuid as _uuid
+from io import BytesIO
+from zipfile import ZipFile
 
 import pytest
 from helpers import create_tenant_with_user, create_user_for_tenant, login
 from httpx import AsyncClient
+from openpyxl import load_workbook
 from sqlalchemy.ext.asyncio import AsyncSession
 
 pytestmark = pytest.mark.asyncio
@@ -182,6 +185,14 @@ async def test_president_and_secretary_can_read_disciplinary_records_but_cannot_
         records = await client.get("/api/v1/disciplinary/", headers={"Authorization": f"Bearer {token}"})
         assert records.status_code == 200, records.text
 
+        paused_member = await client.patch(
+            f"/api/v1/memberships/{profile['id']}",
+            headers={"Authorization": f"Bearer {token}"},
+            json={"status": "suspended"},
+        )
+        assert paused_member.status_code == 200, paused_member.text
+        assert paused_member.json()["status"] == "suspended"
+
         mutation = await client.post(
             "/api/v1/disciplinary/",
             headers={"Authorization": f"Bearer {token}"},
@@ -349,6 +360,39 @@ async def test_auditor_can_read_finance_and_audit_but_cannot_mutate_finance(
         headers={"Authorization": f"Bearer {treasurer_token}"},
     )
     assert blocked_report.status_code == 403, blocked_report.text
+
+    treasurer_xlsx = await client.get(
+        "/api/v1/contributions/report/export/xlsx?year=2026",
+        headers={"Authorization": f"Bearer {treasurer_token}"},
+    )
+    assert treasurer_xlsx.status_code == 200, treasurer_xlsx.text
+    assert treasurer_xlsx.headers["content-type"].startswith(
+        "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+    )
+    assert treasurer_xlsx.content[:2] == b"PK"
+    workbook = load_workbook(BytesIO(treasurer_xlsx.content))
+    worksheet = workbook["Cotisations"]
+    assert worksheet.auto_filter.ref == "A4:M5"
+    assert list(worksheet.tables) == []
+    assert worksheet["A5"].value == "AUD-001"
+    with ZipFile(BytesIO(treasurer_xlsx.content)) as archive:
+        assert not any(name.startswith("xl/tables/") for name in archive.namelist())
+
+    auditor_pdf = await client.get(
+        "/api/v1/contributions/report/export/pdf?year=2026",
+        headers={"Authorization": f"Bearer {auditor_token}"},
+    )
+    assert auditor_pdf.status_code == 200, auditor_pdf.text
+    assert auditor_pdf.content.startswith(b"%PDF")
+
+    auditor_whatsapp = await client.get(
+        "/api/v1/contributions/report/export/whatsapp?year=2026",
+        headers={"Authorization": f"Bearer {auditor_token}"},
+    )
+    assert auditor_whatsapp.status_code == 200, auditor_whatsapp.text
+    assert "Situation complète des cotisations" in auditor_whatsapp.text
+    assert "1 membre(s) inclus" in auditor_whatsapp.text
+    assert "Audit Member" in auditor_whatsapp.text
 
 
 async def test_censor_can_manage_disciplinary_records_and_treasurer_cannot(

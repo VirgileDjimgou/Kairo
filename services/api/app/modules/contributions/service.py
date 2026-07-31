@@ -1,8 +1,10 @@
+import io
 from datetime import UTC, datetime, timedelta
 from decimal import Decimal
 from uuid import UUID
 
 from fastapi import HTTPException, status
+from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core.import_export import ImportResult, ImportRowError, generate_csv, parse_csv
@@ -14,13 +16,13 @@ from app.modules.contributions.models import (
 )
 from app.modules.contributions.repository import ContributionRepository
 from app.modules.contributions.schemas import (
-    ContributionRecordCreate,
-    ContributionRecordResponse,
-    ContributionRecordUpdate,
     ContributionReceiptDeclarationCreate,
     ContributionReceiptDeclarationProcess,
     ContributionReceiptDeclarationResponse,
     ContributionReceiptDeclarationUpdate,
+    ContributionRecordCreate,
+    ContributionRecordResponse,
+    ContributionRecordUpdate,
     ContributionReminderBatchRequest,
     ContributionReminderBatchResponse,
     ContributionReminderResponse,
@@ -28,8 +30,10 @@ from app.modules.contributions.schemas import (
     PaymentRecordCreate,
     PaymentRecordResponse,
 )
+from app.modules.disciplinary.models import DisciplinaryRecord
 from app.modules.membership.models import MembershipProfile
 from app.modules.membership.repository import MembershipRepository
+from app.modules.tenancy.models import Tenant
 from app.providers.notifications.base import NotificationDispatchResult, NotificationProvider
 
 
@@ -479,6 +483,178 @@ class ContributionService:
             for record in records
         ]
         return generate_csv(rows)
+
+    async def export_member_finance_report(
+        self,
+        tenant_id: UUID,
+        *,
+        year: int,
+        export_format: str,
+    ) -> tuple[bytes | str, str, str]:
+        """Build a share-safe, human-readable finance export for audit roles."""
+        tenant = await self._db.get(Tenant, tenant_id)
+        profiles = await MembershipRepository(self._db).list_by_tenant(tenant_id)
+        contributions = await self._repo.list_by_tenant(tenant_id, year)
+        sanctions_result = await self._db.execute(
+            select(DisciplinaryRecord).where(
+                DisciplinaryRecord.tenant_id == tenant_id,
+                DisciplinaryRecord.status.in_(("open", "under_review")),
+            )
+        )
+        sanctions = list(sanctions_result.scalars().all())
+
+        contribution_totals: dict[UUID, dict[str, Decimal]] = {}
+        for record in contributions:
+            totals = contribution_totals.setdefault(
+                record.membership_profile_id,
+                {"expected": Decimal("0"), "paid": Decimal("0"), "balance": Decimal("0")},
+            )
+            totals["expected"] += record.expected_amount
+            totals["paid"] += record.paid_amount
+            totals["balance"] += record.balance
+
+        sanctions_by_member: dict[UUID, Decimal] = {}
+        for sanction in sanctions:
+            sanctions_by_member[sanction.membership_profile_id] = (
+                sanctions_by_member.get(sanction.membership_profile_id, Decimal("0")) + sanction.amount
+            )
+
+        rows: list[dict[str, object]] = []
+        for profile in sorted(profiles, key=lambda item: (item.last_name.lower(), item.first_name.lower())):
+            totals = contribution_totals.get(
+                profile.id,
+                {"expected": Decimal("0"), "paid": Decimal("0"), "balance": Decimal("0")},
+            )
+            contribution_balance = totals["balance"]
+            sanctions_due = sanctions_by_member.get(profile.id, Decimal("0"))
+            if totals["expected"] == Decimal("0"):
+                contribution_status = "Non enregistrée"
+            elif contribution_balance <= Decimal("0"):
+                contribution_status = "Soldée"
+            elif totals["paid"] > Decimal("0"):
+                contribution_status = "Partiellement payée"
+            else:
+                contribution_status = "À payer"
+            rows.append(
+                {
+                    "member_code": profile.member_code,
+                    "last_name": profile.last_name,
+                    "first_name": profile.first_name,
+                    "email": profile.email or "",
+                    "phone": profile.phone or "",
+                    "membership_type": "Famille" if profile.membership_type == "family" else "Individuel",
+                    "membership_status": profile.status,
+                    "expected": totals["expected"],
+                    "paid": totals["paid"],
+                    "contribution_balance": contribution_balance,
+                    "contribution_status": contribution_status,
+                    "sanctions_due": sanctions_due,
+                    "total_due": contribution_balance + sanctions_due,
+                }
+            )
+
+        organization_name = tenant.name if tenant else "Association"
+        if export_format == "xlsx":
+            return self._build_finance_xlsx(organization_name, year, rows), "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", f"rapport-financier-{year}.xlsx"
+        if export_format == "pdf":
+            return self._build_finance_pdf(organization_name, year, rows), "application/pdf", f"rapport-financier-{year}.pdf"
+        if export_format == "whatsapp":
+            return self._build_whatsapp_summary(organization_name, year, rows), "text/plain; charset=utf-8", f"rapport-financier-{year}-whatsapp.txt"
+        raise ValueError(f"Unsupported finance export format: {export_format}")
+
+    def _build_finance_xlsx(self, organization_name: str, year: int, rows: list[dict[str, object]]) -> bytes:
+        from openpyxl import Workbook
+        from openpyxl.styles import Alignment, Font, PatternFill
+
+        workbook = Workbook()
+        sheet = workbook.active
+        sheet.title = "Cotisations"
+        sheet.sheet_view.showGridLines = False
+        headers = ["Matricule", "Nom", "Prénom", "E-mail", "Téléphone", "Adhésion", "Statut membre", "Cotisation attendue (EUR)", "Cotisation versée (EUR)", "Reste cotisation (EUR)", "Statut cotisation", "Sanctions à payer (EUR)", "Total à payer (EUR)"]
+        sheet.merge_cells(start_row=1, start_column=1, end_row=1, end_column=len(headers))
+        sheet["A1"] = f"{organization_name} - Rapport des cotisations {year}"
+        sheet["A1"].font = Font(bold=True, size=16, color="FFFFFF")
+        sheet["A1"].fill = PatternFill("solid", fgColor="1F4F8F")
+        sheet["A1"].alignment = Alignment(horizontal="center")
+        sheet.merge_cells(start_row=2, start_column=1, end_row=2, end_column=len(headers))
+        sheet["A2"] = "Document de suivi financier confidentiel - trésorerie et commissariat aux comptes"
+        sheet["A2"].font = Font(italic=True, color="5B677A")
+        sheet["A2"].alignment = Alignment(horizontal="center")
+        sheet.append([])
+        sheet.append(headers)
+        for row in rows:
+            sheet.append([
+                row["member_code"],
+                row["last_name"],
+                row["first_name"],
+                row["email"] or None,
+                row["phone"] or None,
+                row["membership_type"],
+                row["membership_status"],
+                float(row["expected"]),
+                float(row["paid"]),
+                float(row["contribution_balance"]),
+                row["contribution_status"],
+                float(row["sanctions_due"]),
+                float(row["total_due"]),
+            ])
+        header_row = 4
+        header_fill = PatternFill("solid", fgColor="DCE6F1")
+        for cell in sheet[header_row]:
+            cell.font = Font(bold=True, color="17365D")
+            cell.fill = header_fill
+            cell.alignment = Alignment(wrap_text=True, vertical="center")
+        for column in (8, 9, 10, 12, 13):
+            for cell in sheet.iter_cols(
+                min_col=column,
+                max_col=column,
+                min_row=header_row + 1,
+                max_row=header_row + len(rows),
+            ):
+                cell[0].number_format = '#,##0.00 "EUR"'
+        widths = [18, 18, 18, 28, 18, 14, 16, 20, 20, 22, 20, 22, 18]
+        for index, width in enumerate(widths, start=1):
+            sheet.column_dimensions[chr(64 + index)].width = width
+        sheet.freeze_panes = "A5"
+        # Use a standard worksheet filter instead of an Excel Table.  Some mobile
+        # spreadsheet readers repair the generated table XML and consequently make
+        # the workbook appear corrupted, while a native filter is universally read.
+        sheet.auto_filter.ref = f"A{header_row}:M{max(header_row, header_row + len(rows))}"
+        output = io.BytesIO()
+        workbook.save(output)
+        return output.getvalue()
+
+    def _build_finance_pdf(self, organization_name: str, year: int, rows: list[dict[str, object]]) -> bytes:
+        from reportlab.lib import colors
+        from reportlab.lib.pagesizes import A4, landscape
+        from reportlab.lib.styles import getSampleStyleSheet
+        from reportlab.lib.units import mm
+        from reportlab.platypus import Paragraph, SimpleDocTemplate, Spacer, Table, TableStyle
+
+        output = io.BytesIO()
+        document = SimpleDocTemplate(output, pagesize=landscape(A4), leftMargin=10 * mm, rightMargin=10 * mm, topMargin=12 * mm, bottomMargin=12 * mm)
+        styles = getSampleStyleSheet()
+        story = [Paragraph(f"<b>{organization_name}</b>", styles["Title"]), Paragraph(f"Rapport des cotisations et sanctions - {year}", styles["Heading2"]), Paragraph("Document confidentiel destiné à la trésorerie et au commissariat aux comptes.", styles["BodyText"]), Spacer(1, 6 * mm)]
+        header = ["Matricule", "Nom", "Prénom", "E-mail", "Téléphone", "Cotisation attendue", "Versée", "Reste", "Statut", "Sanctions", "Total dû"]
+        data = [header]
+        for row in rows:
+            data.append([str(row["member_code"]), str(row["last_name"]), str(row["first_name"]), str(row["email"]), str(row["phone"]), f"{row['expected']:.2f} EUR", f"{row['paid']:.2f} EUR", f"{row['contribution_balance']:.2f} EUR", str(row["contribution_status"]), f"{row['sanctions_due']:.2f} EUR", f"{row['total_due']:.2f} EUR"])
+        table = Table(data, repeatRows=1, colWidths=[30 * mm, 18 * mm, 18 * mm, 32 * mm, 21 * mm, 21 * mm, 19 * mm, 19 * mm, 24 * mm, 19 * mm, 19 * mm])
+        table.setStyle(TableStyle([("BACKGROUND", (0, 0), (-1, 0), colors.HexColor("#1F4F8F")), ("TEXTCOLOR", (0, 0), (-1, 0), colors.white), ("FONTNAME", (0, 0), (-1, 0), "Helvetica-Bold"), ("FONTSIZE", (0, 0), (-1, -1), 6), ("LEADING", (0, 0), (-1, -1), 7), ("GRID", (0, 0), (-1, -1), 0.25, colors.HexColor("#D9E2EC")), ("VALIGN", (0, 0), (-1, -1), "MIDDLE"), ("ROWBACKGROUNDS", (0, 1), (-1, -1), [colors.white, colors.HexColor("#F6F8FB")]), ("ALIGN", (5, 1), (-1, -1), "RIGHT")]))
+        story.append(table)
+        document.build(story)
+        return output.getvalue()
+
+    def _build_whatsapp_summary(self, organization_name: str, year: int, rows: list[dict[str, object]]) -> str:
+        lines = [
+            f"*{organization_name}*",
+            f"*Situation complète des cotisations - {year}*",
+            f"{len(rows)} membre(s) inclus.",
+            "",
+        ]
+        for index, row in enumerate(rows, start=1):
+            lines.extend([f"*{index}. {row['first_name']} {row['last_name']}* ({row['member_code']})", f"Cotisation : {row['expected']:.2f} EUR | Versée : {row['paid']:.2f} EUR | Reste : {row['contribution_balance']:.2f} EUR", f"Sanctions à payer : {row['sanctions_due']:.2f} EUR | *Total dû : {row['total_due']:.2f} EUR*", f"Statut : {row['contribution_status']}", ""])
+        return "\n".join(lines).strip() + "\n"
 
     async def list_reminders(
         self,

@@ -9,12 +9,16 @@
 <script setup lang="ts">
 import { onBeforeUnmount, onMounted, ref } from "vue";
 import { RouterView } from "vue-router";
+import { useToast } from "vue-toastification";
 import { useAuthStore } from "@/stores/auth.store";
 import { useLocaleStore } from "@/stores/locale.store";
+import { listenForOperationNotifications, type OperationNotification } from "@/services/operation-notifications";
 
 const authStore = useAuthStore();
 const localeStore = useLocaleStore();
 const updateAvailable = ref(false)
+const toast = useToast()
+let removeNotificationListener: (() => void) | undefined
 
 function markUpdateAvailable() {
   updateAvailable.value = true
@@ -24,14 +28,24 @@ function applyUpdate() {
   window.dispatchEvent(new Event('kairo:pwa-apply-update'))
 }
 
+function displayOperationNotification(notification: OperationNotification) {
+  const message = notification.detail
+    ? `${localeStore.t(notification.messageKey)} ${notification.detail}`
+    : localeStore.t(notification.messageKey)
+  const options = { timeout: 5000, closeButton: true }
+  toast[notification.level](message, options)
+}
+
 onMounted(() => {
   localeStore.initialize();
   void authStore.restoreSession();
   window.addEventListener('kairo:pwa-update-available', markUpdateAvailable)
+  removeNotificationListener = listenForOperationNotifications(displayOperationNotification)
 });
 
 onBeforeUnmount(() => {
   window.removeEventListener('kairo:pwa-update-available', markUpdateAvailable)
+  removeNotificationListener?.()
 })
 </script>
 

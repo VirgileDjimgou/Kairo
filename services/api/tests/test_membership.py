@@ -35,6 +35,26 @@ async def test_create_member_profile(client: AsyncClient, db_session: AsyncSessi
 
 
 @pytest.mark.asyncio
+async def test_create_member_profile_generates_code_when_not_provided(client: AsyncClient, db_session: AsyncSession):
+    ctx = await create_tenant_with_user(db_session, "member-auto-code")
+    token = await login(client, ctx["user"].email, "TestIsolation1!", ctx["tenant"].slug)
+
+    response = await client.post(
+        "/api/v1/memberships/",
+        json={
+            "first_name": "Zoé",
+            "last_name": "Dùpont",
+            "display_name": "Zoé Dùpont",
+        },
+        headers={"Authorization": f"Bearer {token}"},
+    )
+
+    assert response.status_code == 201, response.text
+    assert response.json()["member_code"].startswith("DUPONT-COMBIS-")
+    assert 0 <= int(response.json()["member_code"].rsplit("-", maxsplit=1)[1]) <= 10_000
+
+
+@pytest.mark.asyncio
 async def test_direct_member_access_requires_initial_password_change(
     client: AsyncClient, db_session: AsyncSession
 ):

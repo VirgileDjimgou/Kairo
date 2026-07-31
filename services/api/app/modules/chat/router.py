@@ -2,9 +2,10 @@ from __future__ import annotations
 
 from uuid import UUID
 
-from fastapi import APIRouter, HTTPException
+from fastapi import APIRouter, Depends, HTTPException
 from fastapi.responses import StreamingResponse
 
+from app.core.ai_runtime import require_ai_runtime
 from app.core.dependencies import (
     AuthDep,
     DbDep,
@@ -24,6 +25,7 @@ from app.modules.chat.schemas import (
     ChatQueryResponse,
 )
 from app.modules.chat.service import ChatService
+from app.providers.ai_runtime.remote import AiRuntimeUnavailableError
 
 router = APIRouter(
     prefix="/chat",
@@ -41,6 +43,7 @@ async def query_chat_stream(
     vector_store: VectorStoreDep,
     llm: LlmDep,
     reranker: RerankerDep,
+    _: None = Depends(require_ai_runtime),
 ) -> StreamingResponse:
     service = ChatService(
         db,
@@ -86,6 +89,7 @@ async def query_chat(
     vector_store: VectorStoreDep,
     llm: LlmDep,
     reranker: RerankerDep,
+    _: None = Depends(require_ai_runtime),
 ) -> ChatQueryResponse:
     service = ChatService(
         db,
@@ -94,12 +98,17 @@ async def query_chat(
         llm_provider=llm,
         reranker_provider=reranker,
     )
-    return await service.query(
-        tenant_id=current.tenant_id,
-        user_id=current.user.id,
-        roles=current.roles,
-        request=request,
-    )
+    try:
+        return await service.query(
+            tenant_id=current.tenant_id,
+            user_id=current.user.id,
+            roles=current.roles,
+            request=request,
+        )
+    except AiRuntimeUnavailableError as exc:
+        raise HTTPException(
+            status_code=503, detail="Assistant IA temporairement indisponible"
+        ) from exc
 
 
 # --- Conversation CRUD ---

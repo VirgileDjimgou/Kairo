@@ -1,4 +1,4 @@
-import http from "./http";
+import http, { API_BASE_URL } from "./http";
 
 export interface ChatQueryRequest {
   question: string;
@@ -79,7 +79,7 @@ export async function queryChatStream(
 ): Promise<void> {
   try {
     const token = localStorage.getItem("access_token");
-    const baseUrl = (import.meta.env.VITE_API_BASE_URL || "http://localhost:8000/api/v1").replace(/\/$/, "");
+    const baseUrl = API_BASE_URL.replace(/\/$/, "");
     const response = await fetch(`${baseUrl}/chat/query-stream`, {
       method: "POST",
       headers: {
@@ -91,7 +91,8 @@ export async function queryChatStream(
     });
 
     if (!response.ok) {
-      onError(fallbackError);
+      const body = await response.json().catch(() => null);
+      onError(typeof body?.detail === "string" ? body.detail : fallbackError);
       return;
     }
 

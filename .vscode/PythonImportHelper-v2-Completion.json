@@ -877,6 +877,38 @@
         "documentation": {}
     },
     {
+        "label": "annotations",
+        "importPath": "__future__",
+        "description": "__future__",
+        "isExtraImport": true,
+        "detail": "__future__",
+        "documentation": {}
+    },
+    {
+        "label": "annotations",
+        "importPath": "__future__",
+        "description": "__future__",
+        "isExtraImport": true,
+        "detail": "__future__",
+        "documentation": {}
+    },
+    {
+        "label": "annotations",
+        "importPath": "__future__",
+        "description": "__future__",
+        "isExtraImport": true,
+        "detail": "__future__",
+        "documentation": {}
+    },
+    {
+        "label": "annotations",
+        "importPath": "__future__",
+        "description": "__future__",
+        "isExtraImport": true,
+        "detail": "__future__",
+        "documentation": {}
+    },
+    {
         "label": "asyncio",
         "kind": 6,
         "isExtraImport": true,
@@ -1408,6 +1440,14 @@
         "documentation": {}
     },
     {
+        "label": "UUID",
+        "importPath": "uuid",
+        "description": "uuid",
+        "isExtraImport": true,
+        "detail": "uuid",
+        "documentation": {}
+    },
+    {
         "label": "uuid4",
         "importPath": "uuid",
         "description": "uuid",
@@ -1713,6 +1753,46 @@
     },
     {
         "label": "settings",
+        "importPath": "app.core.config",
+        "description": "app.core.config",
+        "isExtraImport": true,
+        "detail": "app.core.config",
+        "documentation": {}
+    },
+    {
+        "label": "settings",
+        "importPath": "app.core.config",
+        "description": "app.core.config",
+        "isExtraImport": true,
+        "detail": "app.core.config",
+        "documentation": {}
+    },
+    {
+        "label": "settings",
+        "importPath": "app.core.config",
+        "description": "app.core.config",
+        "isExtraImport": true,
+        "detail": "app.core.config",
+        "documentation": {}
+    },
+    {
+        "label": "settings",
+        "importPath": "app.core.config",
+        "description": "app.core.config",
+        "isExtraImport": true,
+        "detail": "app.core.config",
+        "documentation": {}
+    },
+    {
+        "label": "settings",
+        "importPath": "app.core.config",
+        "description": "app.core.config",
+        "isExtraImport": true,
+        "detail": "app.core.config",
+        "documentation": {}
+    },
+    {
+        "label": "Settings",
         "importPath": "app.core.config",
         "description": "app.core.config",
         "isExtraImport": true,
@@ -2696,6 +2776,14 @@
         "documentation": {}
     },
     {
+        "label": "DocumentRepository",
+        "importPath": "app.modules.documents.repository",
+        "description": "app.modules.documents.repository",
+        "isExtraImport": true,
+        "detail": "app.modules.documents.repository",
+        "documentation": {}
+    },
+    {
         "label": "User",
         "importPath": "app.modules.identity.models",
         "description": "app.modules.identity.models",
@@ -2737,6 +2825,14 @@
     },
     {
         "label": "UserSession",
+        "importPath": "app.modules.identity.models",
+        "description": "app.modules.identity.models",
+        "isExtraImport": true,
+        "detail": "app.modules.identity.models",
+        "documentation": {}
+    },
+    {
+        "label": "User",
         "importPath": "app.modules.identity.models",
         "description": "app.modules.identity.models",
         "isExtraImport": true,
@@ -3033,6 +3129,38 @@
     },
     {
         "label": "Role",
+        "importPath": "app.modules.tenancy.models",
+        "description": "app.modules.tenancy.models",
+        "isExtraImport": true,
+        "detail": "app.modules.tenancy.models",
+        "documentation": {}
+    },
+    {
+        "label": "Tenant",
+        "importPath": "app.modules.tenancy.models",
+        "description": "app.modules.tenancy.models",
+        "isExtraImport": true,
+        "detail": "app.modules.tenancy.models",
+        "documentation": {}
+    },
+    {
+        "label": "Role",
+        "importPath": "app.modules.tenancy.models",
+        "description": "app.modules.tenancy.models",
+        "isExtraImport": true,
+        "detail": "app.modules.tenancy.models",
+        "documentation": {}
+    },
+    {
+        "label": "TenantUser",
+        "importPath": "app.modules.tenancy.models",
+        "description": "app.modules.tenancy.models",
+        "isExtraImport": true,
+        "detail": "app.modules.tenancy.models",
+        "documentation": {}
+    },
+    {
+        "label": "user_roles",
         "importPath": "app.modules.tenancy.models",
         "description": "app.modules.tenancy.models",
         "isExtraImport": true,
@@ -3457,6 +3585,14 @@
         "documentation": {}
     },
     {
+        "label": "select",
+        "importPath": "sqlalchemy",
+        "description": "sqlalchemy",
+        "isExtraImport": true,
+        "detail": "sqlalchemy",
+        "documentation": {}
+    },
+    {
         "label": "Boolean",
         "importPath": "sqlalchemy",
         "description": "sqlalchemy",
@@ -3570,6 +3706,14 @@
     },
     {
         "label": "func",
+        "importPath": "sqlalchemy",
+        "description": "sqlalchemy",
+        "isExtraImport": true,
+        "detail": "sqlalchemy",
+        "documentation": {}
+    },
+    {
+        "label": "select",
         "importPath": "sqlalchemy",
         "description": "sqlalchemy",
         "isExtraImport": true,
@@ -4418,6 +4562,14 @@
         "documentation": {}
     },
     {
+        "label": "deque",
+        "importPath": "collections",
+        "description": "collections",
+        "isExtraImport": true,
+        "detail": "collections",
+        "documentation": {}
+    },
+    {
         "label": "Counter",
         "importPath": "collections",
         "description": "collections",
@@ -4486,6 +4638,14 @@
     },
     {
         "label": "StringIO",
+        "importPath": "io",
+        "description": "io",
+        "isExtraImport": true,
+        "detail": "io",
+        "documentation": {}
+    },
+    {
+        "label": "BytesIO",
         "importPath": "io",
         "description": "io",
         "isExtraImport": true,
@@ -4701,6 +4861,14 @@
     },
     {
         "label": "Sequence",
+        "importPath": "collections.abc",
+        "description": "collections.abc",
+        "isExtraImport": true,
+        "detail": "collections.abc",
+        "documentation": {}
+    },
+    {
+        "label": "AsyncGenerator",
         "importPath": "collections.abc",
         "description": "collections.abc",
         "isExtraImport": true,
@@ -5657,6 +5825,14 @@
         "documentation": {}
     },
     {
+        "label": "Any",
+        "importPath": "typing",
+        "description": "typing",
+        "isExtraImport": true,
+        "detail": "typing",
+        "documentation": {}
+    },
+    {
         "label": "Literal",
         "importPath": "typing",
         "description": "typing",
@@ -5745,6 +5921,14 @@
         "documentation": {}
     },
     {
+        "label": "Literal",
+        "importPath": "typing",
+        "description": "typing",
+        "isExtraImport": true,
+        "detail": "typing",
+        "documentation": {}
+    },
+    {
         "label": "Annotated",
         "importPath": "typing",
         "description": "typing",
@@ -5770,6 +5954,14 @@
     },
     {
         "label": "Literal",
+        "importPath": "typing",
+        "description": "typing",
+        "isExtraImport": true,
+        "detail": "typing",
+        "documentation": {}
+    },
+    {
+        "label": "Any",
         "importPath": "typing",
         "description": "typing",
         "isExtraImport": true,
@@ -6197,6 +6389,320 @@
         "documentation": {}
     },
     {
+        "label": "hmac",
+        "kind": 6,
+        "isExtraImport": true,
+        "importPath": "hmac",
+        "description": "hmac",
+        "detail": "hmac",
+        "documentation": {}
+    },
+    {
+        "label": "httpx",
+        "kind": 6,
+        "isExtraImport": true,
+        "importPath": "httpx",
+        "description": "httpx",
+        "detail": "httpx",
+        "documentation": {}
+    },
+    {
+        "label": "ASGITransport",
+        "importPath": "httpx",
+        "description": "httpx",
+        "isExtraImport": true,
+        "detail": "httpx",
+        "documentation": {}
+    },
+    {
+        "label": "AsyncClient",
+        "importPath": "httpx",
+        "description": "httpx",
+        "isExtraImport": true,
+        "detail": "httpx",
+        "documentation": {}
+    },
+    {
+        "label": "AsyncClient",
+        "importPath": "httpx",
+        "description": "httpx",
+        "isExtraImport": true,
+        "detail": "httpx",
+        "documentation": {}
+    },
+    {
+        "label": "AsyncClient",
+        "importPath": "httpx",
+        "description": "httpx",
+        "isExtraImport": true,
+        "detail": "httpx",
+        "documentation": {}
+    },
+    {
+        "label": "AsyncClient",
+        "importPath": "httpx",
+        "description": "httpx",
+        "isExtraImport": true,
+        "detail": "httpx",
+        "documentation": {}
+    },
+    {
+        "label": "AsyncClient",
+        "importPath": "httpx",
+        "description": "httpx",
+        "isExtraImport": true,
+        "detail": "httpx",
+        "documentation": {}
+    },
+    {
+        "label": "AsyncClient",
+        "importPath": "httpx",
+        "description": "httpx",
+        "isExtraImport": true,
+        "detail": "httpx",
+        "documentation": {}
+    },
+    {
+        "label": "AsyncClient",
+        "importPath": "httpx",
+        "description": "httpx",
+        "isExtraImport": true,
+        "detail": "httpx",
+        "documentation": {}
+    },
+    {
+        "label": "AsyncClient",
+        "importPath": "httpx",
+        "description": "httpx",
+        "isExtraImport": true,
+        "detail": "httpx",
+        "documentation": {}
+    },
+    {
+        "label": "AsyncClient",
+        "importPath": "httpx",
+        "description": "httpx",
+        "isExtraImport": true,
+        "detail": "httpx",
+        "documentation": {}
+    },
+    {
+        "label": "AsyncClient",
+        "importPath": "httpx",
+        "description": "httpx",
+        "isExtraImport": true,
+        "detail": "httpx",
+        "documentation": {}
+    },
+    {
+        "label": "AsyncClient",
+        "importPath": "httpx",
+        "description": "httpx",
+        "isExtraImport": true,
+        "detail": "httpx",
+        "documentation": {}
+    },
+    {
+        "label": "AsyncClient",
+        "importPath": "httpx",
+        "description": "httpx",
+        "isExtraImport": true,
+        "detail": "httpx",
+        "documentation": {}
+    },
+    {
+        "label": "AsyncClient",
+        "importPath": "httpx",
+        "description": "httpx",
+        "isExtraImport": true,
+        "detail": "httpx",
+        "documentation": {}
+    },
+    {
+        "label": "AsyncClient",
+        "importPath": "httpx",
+        "description": "httpx",
+        "isExtraImport": true,
+        "detail": "httpx",
+        "documentation": {}
+    },
+    {
+        "label": "AsyncClient",
+        "importPath": "httpx",
+        "description": "httpx",
+        "isExtraImport": true,
+        "detail": "httpx",
+        "documentation": {}
+    },
+    {
+        "label": "AsyncClient",
+        "importPath": "httpx",
+        "description": "httpx",
+        "isExtraImport": true,
+        "detail": "httpx",
+        "documentation": {}
+    },
+    {
+        "label": "AsyncClient",
+        "importPath": "httpx",
+        "description": "httpx",
+        "isExtraImport": true,
+        "detail": "httpx",
+        "documentation": {}
+    },
+    {
+        "label": "AsyncClient",
+        "importPath": "httpx",
+        "description": "httpx",
+        "isExtraImport": true,
+        "detail": "httpx",
+        "documentation": {}
+    },
+    {
+        "label": "AsyncClient",
+        "importPath": "httpx",
+        "description": "httpx",
+        "isExtraImport": true,
+        "detail": "httpx",
+        "documentation": {}
+    },
+    {
+        "label": "AsyncClient",
+        "importPath": "httpx",
+        "description": "httpx",
+        "isExtraImport": true,
+        "detail": "httpx",
+        "documentation": {}
+    },
+    {
+        "label": "AsyncClient",
+        "importPath": "httpx",
+        "description": "httpx",
+        "isExtraImport": true,
+        "detail": "httpx",
+        "documentation": {}
+    },
+    {
+        "label": "AsyncClient",
+        "importPath": "httpx",
+        "description": "httpx",
+        "isExtraImport": true,
+        "detail": "httpx",
+        "documentation": {}
+    },
+    {
+        "label": "AsyncClient",
+        "importPath": "httpx",
+        "description": "httpx",
+        "isExtraImport": true,
+        "detail": "httpx",
+        "documentation": {}
+    },
+    {
+        "label": "AsyncClient",
+        "importPath": "httpx",
+        "description": "httpx",
+        "isExtraImport": true,
+        "detail": "httpx",
+        "documentation": {}
+    },
+    {
+        "label": "AsyncClient",
+        "importPath": "httpx",
+        "description": "httpx",
+        "isExtraImport": true,
+        "detail": "httpx",
+        "documentation": {}
+    },
+    {
+        "label": "AsyncClient",
+        "importPath": "httpx",
+        "description": "httpx",
+        "isExtraImport": true,
+        "detail": "httpx",
+        "documentation": {}
+    },
+    {
+        "label": "AsyncClient",
+        "importPath": "httpx",
+        "description": "httpx",
+        "isExtraImport": true,
+        "detail": "httpx",
+        "documentation": {}
+    },
+    {
+        "label": "AsyncClient",
+        "importPath": "httpx",
+        "description": "httpx",
+        "isExtraImport": true,
+        "detail": "httpx",
+        "documentation": {}
+    },
+    {
+        "label": "AsyncClient",
+        "importPath": "httpx",
+        "description": "httpx",
+        "isExtraImport": true,
+        "detail": "httpx",
+        "documentation": {}
+    },
+    {
+        "label": "AsyncClient",
+        "importPath": "httpx",
+        "description": "httpx",
+        "isExtraImport": true,
+        "detail": "httpx",
+        "documentation": {}
+    },
+    {
+        "label": "AsyncClient",
+        "importPath": "httpx",
+        "description": "httpx",
+        "isExtraImport": true,
+        "detail": "httpx",
+        "documentation": {}
+    },
+    {
+        "label": "FastAPI",
+        "importPath": "fastapi",
+        "description": "fastapi",
+        "isExtraImport": true,
+        "detail": "fastapi",
+        "documentation": {}
+    },
+    {
+        "label": "HTTPException",
+        "importPath": "fastapi",
+        "description": "fastapi",
+        "isExtraImport": true,
+        "detail": "fastapi",
+        "documentation": {}
+    },
+    {
+        "label": "Request",
+        "importPath": "fastapi",
+        "description": "fastapi",
+        "isExtraImport": true,
+        "detail": "fastapi",
+        "documentation": {}
+    },
+    {
+        "label": "HTTPException",
+        "importPath": "fastapi",
+        "description": "fastapi",
+        "isExtraImport": true,
+        "detail": "fastapi",
+        "documentation": {}
+    },
+    {
+        "label": "status",
+        "importPath": "fastapi",
+        "description": "fastapi",
+        "isExtraImport": true,
+        "detail": "fastapi",
+        "documentation": {}
+    },
+    {
         "label": "HTTPException",
         "importPath": "fastapi",
         "description": "fastapi",
@@ -6318,6 +6824,14 @@
     },
     {
         "label": "APIRouter",
+        "importPath": "fastapi",
+        "description": "fastapi",
+        "isExtraImport": true,
+        "detail": "fastapi",
+        "documentation": {}
+    },
+    {
+        "label": "HTTPException",
         "importPath": "fastapi",
         "description": "fastapi",
         "isExtraImport": true,
@@ -6341,7 +6855,23 @@
         "documentation": {}
     },
     {
+        "label": "status",
+        "importPath": "fastapi",
+        "description": "fastapi",
+        "isExtraImport": true,
+        "detail": "fastapi",
+        "documentation": {}
+    },
+    {
         "label": "APIRouter",
+        "importPath": "fastapi",
+        "description": "fastapi",
+        "isExtraImport": true,
+        "detail": "fastapi",
+        "documentation": {}
+    },
+    {
+        "label": "Depends",
         "importPath": "fastapi",
         "description": "fastapi",
         "isExtraImport": true,
@@ -6749,6 +7279,22 @@
         "documentation": {}
     },
     {
+        "label": "BaseModel",
+        "importPath": "pydantic",
+        "description": "pydantic",
+        "isExtraImport": true,
+        "detail": "pydantic",
+        "documentation": {}
+    },
+    {
+        "label": "Field",
+        "importPath": "pydantic",
+        "description": "pydantic",
+        "isExtraImport": true,
+        "detail": "pydantic",
+        "documentation": {}
+    },
+    {
         "label": "field_validator",
         "importPath": "pydantic",
         "description": "pydantic",
@@ -7085,6 +7631,174 @@
         "documentation": {}
     },
     {
+        "label": "BaseSettings",
+        "importPath": "pydantic_settings",
+        "description": "pydantic_settings",
+        "isExtraImport": true,
+        "detail": "pydantic_settings",
+        "documentation": {}
+    },
+    {
+        "label": "SettingsConfigDict",
+        "importPath": "pydantic_settings",
+        "description": "pydantic_settings",
+        "isExtraImport": true,
+        "detail": "pydantic_settings",
+        "documentation": {}
+    },
+    {
+        "label": "QdrantClient",
+        "importPath": "qdrant_client",
+        "description": "qdrant_client",
+        "isExtraImport": true,
+        "detail": "qdrant_client",
+        "documentation": {}
+    },
+    {
+        "label": "AsyncQdrantClient",
+        "importPath": "qdrant_client",
+        "description": "qdrant_client",
+        "isExtraImport": true,
+        "detail": "qdrant_client",
+        "documentation": {}
+    },
+    {
+        "label": "QdrantClient",
+        "importPath": "qdrant_client",
+        "description": "qdrant_client",
+        "isExtraImport": true,
+        "detail": "qdrant_client",
+        "documentation": {}
+    },
+    {
+        "label": "Distance",
+        "importPath": "qdrant_client.models",
+        "description": "qdrant_client.models",
+        "isExtraImport": true,
+        "detail": "qdrant_client.models",
+        "documentation": {}
+    },
+    {
+        "label": "FieldCondition",
+        "importPath": "qdrant_client.models",
+        "description": "qdrant_client.models",
+        "isExtraImport": true,
+        "detail": "qdrant_client.models",
+        "documentation": {}
+    },
+    {
+        "label": "Filter",
+        "importPath": "qdrant_client.models",
+        "description": "qdrant_client.models",
+        "isExtraImport": true,
+        "detail": "qdrant_client.models",
+        "documentation": {}
+    },
+    {
+        "label": "MatchValue",
+        "importPath": "qdrant_client.models",
+        "description": "qdrant_client.models",
+        "isExtraImport": true,
+        "detail": "qdrant_client.models",
+        "documentation": {}
+    },
+    {
+        "label": "PointStruct",
+        "importPath": "qdrant_client.models",
+        "description": "qdrant_client.models",
+        "isExtraImport": true,
+        "detail": "qdrant_client.models",
+        "documentation": {}
+    },
+    {
+        "label": "VectorParams",
+        "importPath": "qdrant_client.models",
+        "description": "qdrant_client.models",
+        "isExtraImport": true,
+        "detail": "qdrant_client.models",
+        "documentation": {}
+    },
+    {
+        "label": "FieldCondition",
+        "importPath": "qdrant_client.models",
+        "description": "qdrant_client.models",
+        "isExtraImport": true,
+        "detail": "qdrant_client.models",
+        "documentation": {}
+    },
+    {
+        "label": "Filter",
+        "importPath": "qdrant_client.models",
+        "description": "qdrant_client.models",
+        "isExtraImport": true,
+        "detail": "qdrant_client.models",
+        "documentation": {}
+    },
+    {
+        "label": "MatchValue",
+        "importPath": "qdrant_client.models",
+        "description": "qdrant_client.models",
+        "isExtraImport": true,
+        "detail": "qdrant_client.models",
+        "documentation": {}
+    },
+    {
+        "label": "Distance",
+        "importPath": "qdrant_client.models",
+        "description": "qdrant_client.models",
+        "isExtraImport": true,
+        "detail": "qdrant_client.models",
+        "documentation": {}
+    },
+    {
+        "label": "FieldCondition",
+        "importPath": "qdrant_client.models",
+        "description": "qdrant_client.models",
+        "isExtraImport": true,
+        "detail": "qdrant_client.models",
+        "documentation": {}
+    },
+    {
+        "label": "Filter",
+        "importPath": "qdrant_client.models",
+        "description": "qdrant_client.models",
+        "isExtraImport": true,
+        "detail": "qdrant_client.models",
+        "documentation": {}
+    },
+    {
+        "label": "MatchValue",
+        "importPath": "qdrant_client.models",
+        "description": "qdrant_client.models",
+        "isExtraImport": true,
+        "detail": "qdrant_client.models",
+        "documentation": {}
+    },
+    {
+        "label": "PointStruct",
+        "importPath": "qdrant_client.models",
+        "description": "qdrant_client.models",
+        "isExtraImport": true,
+        "detail": "qdrant_client.models",
+        "documentation": {}
+    },
+    {
+        "label": "SparseVectorParams",
+        "importPath": "qdrant_client.models",
+        "description": "qdrant_client.models",
+        "isExtraImport": true,
+        "detail": "qdrant_client.models",
+        "documentation": {}
+    },
+    {
+        "label": "VectorParams",
+        "importPath": "qdrant_client.models",
+        "description": "qdrant_client.models",
+        "isExtraImport": true,
+        "detail": "qdrant_client.models",
+        "documentation": {}
+    },
+    {
         "label": "jwt",
         "kind": 6,
         "isExtraImport": true,
@@ -7383,6 +8097,14 @@
     },
     {
         "label": "create_async_engine",
+        "importPath": "sqlalchemy.ext.asyncio",
+        "description": "sqlalchemy.ext.asyncio",
+        "isExtraImport": true,
+        "detail": "sqlalchemy.ext.asyncio",
+        "documentation": {}
+    },
+    {
+        "label": "AsyncSession",
         "importPath": "sqlalchemy.ext.asyncio",
         "description": "sqlalchemy.ext.asyncio",
         "isExtraImport": true,
@@ -7902,285 +8624,12 @@
         "documentation": {}
     },
     {
-        "label": "httpx",
-        "kind": 6,
-        "isExtraImport": true,
-        "importPath": "httpx",
-        "description": "httpx",
-        "detail": "httpx",
-        "documentation": {}
-    },
-    {
-        "label": "ASGITransport",
-        "importPath": "httpx",
-        "description": "httpx",
-        "isExtraImport": true,
-        "detail": "httpx",
-        "documentation": {}
-    },
-    {
-        "label": "AsyncClient",
-        "importPath": "httpx",
-        "description": "httpx",
-        "isExtraImport": true,
-        "detail": "httpx",
-        "documentation": {}
-    },
-    {
-        "label": "AsyncClient",
-        "importPath": "httpx",
-        "description": "httpx",
-        "isExtraImport": true,
-        "detail": "httpx",
-        "documentation": {}
-    },
-    {
-        "label": "AsyncClient",
-        "importPath": "httpx",
-        "description": "httpx",
-        "isExtraImport": true,
-        "detail": "httpx",
-        "documentation": {}
-    },
-    {
-        "label": "AsyncClient",
-        "importPath": "httpx",
-        "description": "httpx",
-        "isExtraImport": true,
-        "detail": "httpx",
-        "documentation": {}
-    },
-    {
-        "label": "AsyncClient",
-        "importPath": "httpx",
-        "description": "httpx",
-        "isExtraImport": true,
-        "detail": "httpx",
-        "documentation": {}
-    },
-    {
-        "label": "AsyncClient",
-        "importPath": "httpx",
-        "description": "httpx",
-        "isExtraImport": true,
-        "detail": "httpx",
-        "documentation": {}
-    },
-    {
-        "label": "AsyncClient",
-        "importPath": "httpx",
-        "description": "httpx",
-        "isExtraImport": true,
-        "detail": "httpx",
-        "documentation": {}
-    },
-    {
-        "label": "AsyncClient",
-        "importPath": "httpx",
-        "description": "httpx",
-        "isExtraImport": true,
-        "detail": "httpx",
-        "documentation": {}
-    },
-    {
-        "label": "AsyncClient",
-        "importPath": "httpx",
-        "description": "httpx",
-        "isExtraImport": true,
-        "detail": "httpx",
-        "documentation": {}
-    },
-    {
-        "label": "AsyncClient",
-        "importPath": "httpx",
-        "description": "httpx",
-        "isExtraImport": true,
-        "detail": "httpx",
-        "documentation": {}
-    },
-    {
-        "label": "AsyncClient",
-        "importPath": "httpx",
-        "description": "httpx",
-        "isExtraImport": true,
-        "detail": "httpx",
-        "documentation": {}
-    },
-    {
-        "label": "AsyncClient",
-        "importPath": "httpx",
-        "description": "httpx",
-        "isExtraImport": true,
-        "detail": "httpx",
-        "documentation": {}
-    },
-    {
-        "label": "AsyncClient",
-        "importPath": "httpx",
-        "description": "httpx",
-        "isExtraImport": true,
-        "detail": "httpx",
-        "documentation": {}
-    },
-    {
-        "label": "AsyncClient",
-        "importPath": "httpx",
-        "description": "httpx",
-        "isExtraImport": true,
-        "detail": "httpx",
-        "documentation": {}
-    },
-    {
-        "label": "AsyncClient",
-        "importPath": "httpx",
-        "description": "httpx",
-        "isExtraImport": true,
-        "detail": "httpx",
-        "documentation": {}
-    },
-    {
-        "label": "AsyncClient",
-        "importPath": "httpx",
-        "description": "httpx",
-        "isExtraImport": true,
-        "detail": "httpx",
-        "documentation": {}
-    },
-    {
-        "label": "AsyncClient",
-        "importPath": "httpx",
-        "description": "httpx",
-        "isExtraImport": true,
-        "detail": "httpx",
-        "documentation": {}
-    },
-    {
-        "label": "AsyncClient",
-        "importPath": "httpx",
-        "description": "httpx",
-        "isExtraImport": true,
-        "detail": "httpx",
-        "documentation": {}
-    },
-    {
-        "label": "AsyncClient",
-        "importPath": "httpx",
-        "description": "httpx",
-        "isExtraImport": true,
-        "detail": "httpx",
-        "documentation": {}
-    },
-    {
-        "label": "AsyncClient",
-        "importPath": "httpx",
-        "description": "httpx",
-        "isExtraImport": true,
-        "detail": "httpx",
-        "documentation": {}
-    },
-    {
-        "label": "AsyncClient",
-        "importPath": "httpx",
-        "description": "httpx",
-        "isExtraImport": true,
-        "detail": "httpx",
-        "documentation": {}
-    },
-    {
-        "label": "AsyncClient",
-        "importPath": "httpx",
-        "description": "httpx",
-        "isExtraImport": true,
-        "detail": "httpx",
-        "documentation": {}
-    },
-    {
-        "label": "AsyncClient",
-        "importPath": "httpx",
-        "description": "httpx",
-        "isExtraImport": true,
-        "detail": "httpx",
-        "documentation": {}
-    },
-    {
-        "label": "AsyncClient",
-        "importPath": "httpx",
-        "description": "httpx",
-        "isExtraImport": true,
-        "detail": "httpx",
-        "documentation": {}
-    },
-    {
-        "label": "AsyncClient",
-        "importPath": "httpx",
-        "description": "httpx",
-        "isExtraImport": true,
-        "detail": "httpx",
-        "documentation": {}
-    },
-    {
-        "label": "AsyncClient",
-        "importPath": "httpx",
-        "description": "httpx",
-        "isExtraImport": true,
-        "detail": "httpx",
-        "documentation": {}
-    },
-    {
-        "label": "AsyncClient",
-        "importPath": "httpx",
-        "description": "httpx",
-        "isExtraImport": true,
-        "detail": "httpx",
-        "documentation": {}
-    },
-    {
-        "label": "AsyncClient",
-        "importPath": "httpx",
-        "description": "httpx",
-        "isExtraImport": true,
-        "detail": "httpx",
-        "documentation": {}
-    },
-    {
-        "label": "AsyncClient",
-        "importPath": "httpx",
-        "description": "httpx",
-        "isExtraImport": true,
-        "detail": "httpx",
-        "documentation": {}
-    },
-    {
-        "label": "AsyncClient",
-        "importPath": "httpx",
-        "description": "httpx",
-        "isExtraImport": true,
-        "detail": "httpx",
-        "documentation": {}
-    },
-    {
         "label": "structlog",
         "kind": 6,
         "isExtraImport": true,
         "importPath": "structlog",
         "description": "structlog",
         "detail": "structlog",
-        "documentation": {}
-    },
-    {
-        "label": "AsyncQdrantClient",
-        "importPath": "qdrant_client",
-        "description": "qdrant_client",
-        "isExtraImport": true,
-        "detail": "qdrant_client",
-        "documentation": {}
-    },
-    {
-        "label": "QdrantClient",
-        "importPath": "qdrant_client",
-        "description": "qdrant_client",
-        "isExtraImport": true,
-        "detail": "qdrant_client",
         "documentation": {}
     },
     {
@@ -9917,6 +10366,14 @@
         "documentation": {}
     },
     {
+        "label": "load_workbook",
+        "importPath": "openpyxl",
+        "description": "openpyxl",
+        "isExtraImport": true,
+        "detail": "openpyxl",
+        "documentation": {}
+    },
+    {
         "label": "Workbook",
         "importPath": "openpyxl",
         "description": "openpyxl",
@@ -10106,6 +10563,14 @@
         "description": "app.modules.contributions.models",
         "isExtraImport": true,
         "detail": "app.modules.contributions.models",
+        "documentation": {}
+    },
+    {
+        "label": "DisciplinaryRecord",
+        "importPath": "app.modules.disciplinary.models",
+        "description": "app.modules.disciplinary.models",
+        "isExtraImport": true,
+        "detail": "app.modules.disciplinary.models",
         "documentation": {}
     },
     {
@@ -10853,14 +11318,6 @@
         "documentation": {}
     },
     {
-        "label": "CAP_EXPORT_SENSITIVE",
-        "importPath": "app.core.capabilities",
-        "description": "app.core.capabilities",
-        "isExtraImport": true,
-        "detail": "app.core.capabilities",
-        "documentation": {}
-    },
-    {
         "label": "CAP_CONTRIBUTION_RECEIPT_DECLARE",
         "importPath": "app.core.capabilities",
         "description": "app.core.capabilities",
@@ -10894,6 +11351,14 @@
     },
     {
         "label": "CAP_CONTRIBUTION_RECEIPT_TENANT_READ",
+        "importPath": "app.core.capabilities",
+        "description": "app.core.capabilities",
+        "isExtraImport": true,
+        "detail": "app.core.capabilities",
+        "documentation": {}
+    },
+    {
+        "label": "CAP_EXPORT_SENSITIVE",
         "importPath": "app.core.capabilities",
         "description": "app.core.capabilities",
         "isExtraImport": true,
@@ -12077,7 +12542,31 @@
         "documentation": {}
     },
     {
+        "label": "AuditService",
+        "importPath": "app.modules.audit.service",
+        "description": "app.modules.audit.service",
+        "isExtraImport": true,
+        "detail": "app.modules.audit.service",
+        "documentation": {}
+    },
+    {
         "label": "AuditEventResponse",
+        "importPath": "app.modules.audit.schemas",
+        "description": "app.modules.audit.schemas",
+        "isExtraImport": true,
+        "detail": "app.modules.audit.schemas",
+        "documentation": {}
+    },
+    {
+        "label": "OperationFailureCreate",
+        "importPath": "app.modules.audit.schemas",
+        "description": "app.modules.audit.schemas",
+        "isExtraImport": true,
+        "detail": "app.modules.audit.schemas",
+        "documentation": {}
+    },
+    {
+        "label": "AuditActorSummary",
         "importPath": "app.modules.audit.schemas",
         "description": "app.modules.audit.schemas",
         "isExtraImport": true,
@@ -12141,11 +12630,51 @@
         "documentation": {}
     },
     {
+        "label": "require_ai_runtime",
+        "importPath": "app.core.ai_runtime",
+        "description": "app.core.ai_runtime",
+        "isExtraImport": true,
+        "detail": "app.core.ai_runtime",
+        "documentation": {}
+    },
+    {
         "label": "ChatService",
         "importPath": "app.modules.chat.service",
         "description": "app.modules.chat.service",
         "isExtraImport": true,
         "detail": "app.modules.chat.service",
+        "documentation": {}
+    },
+    {
+        "label": "AiRuntimeUnavailableError",
+        "importPath": "app.providers.ai_runtime.remote",
+        "description": "app.providers.ai_runtime.remote",
+        "isExtraImport": true,
+        "detail": "app.providers.ai_runtime.remote",
+        "documentation": {}
+    },
+    {
+        "label": "AiRuntimeUnavailableError",
+        "importPath": "app.providers.ai_runtime.remote",
+        "description": "app.providers.ai_runtime.remote",
+        "isExtraImport": true,
+        "detail": "app.providers.ai_runtime.remote",
+        "documentation": {}
+    },
+    {
+        "label": "AiRuntimeUnavailableError",
+        "importPath": "app.providers.ai_runtime.remote",
+        "description": "app.providers.ai_runtime.remote",
+        "isExtraImport": true,
+        "detail": "app.providers.ai_runtime.remote",
+        "documentation": {}
+    },
+    {
+        "label": "_RemoteAiRuntimeClient",
+        "importPath": "app.providers.ai_runtime.remote",
+        "description": "app.providers.ai_runtime.remote",
+        "isExtraImport": true,
+        "detail": "app.providers.ai_runtime.remote",
         "documentation": {}
     },
     {
@@ -12437,39 +12966,7 @@
         "documentation": {}
     },
     {
-        "label": "ContributionRecordCreate",
-        "importPath": "app.modules.contributions.schemas",
-        "description": "app.modules.contributions.schemas",
-        "isExtraImport": true,
-        "detail": "app.modules.contributions.schemas",
-        "documentation": {}
-    },
-    {
-        "label": "ContributionRecordResponse",
-        "importPath": "app.modules.contributions.schemas",
-        "description": "app.modules.contributions.schemas",
-        "isExtraImport": true,
-        "detail": "app.modules.contributions.schemas",
-        "documentation": {}
-    },
-    {
-        "label": "ContributionRecordUpdate",
-        "importPath": "app.modules.contributions.schemas",
-        "description": "app.modules.contributions.schemas",
-        "isExtraImport": true,
-        "detail": "app.modules.contributions.schemas",
-        "documentation": {}
-    },
-    {
         "label": "ContributionReceiptDeclarationCreate",
-        "importPath": "app.modules.contributions.schemas",
-        "description": "app.modules.contributions.schemas",
-        "isExtraImport": true,
-        "detail": "app.modules.contributions.schemas",
-        "documentation": {}
-    },
-    {
-        "label": "ContributionReceiptMemberOption",
         "importPath": "app.modules.contributions.schemas",
         "description": "app.modules.contributions.schemas",
         "isExtraImport": true,
@@ -12494,6 +12991,38 @@
     },
     {
         "label": "ContributionReceiptDeclarationUpdate",
+        "importPath": "app.modules.contributions.schemas",
+        "description": "app.modules.contributions.schemas",
+        "isExtraImport": true,
+        "detail": "app.modules.contributions.schemas",
+        "documentation": {}
+    },
+    {
+        "label": "ContributionReceiptMemberOption",
+        "importPath": "app.modules.contributions.schemas",
+        "description": "app.modules.contributions.schemas",
+        "isExtraImport": true,
+        "detail": "app.modules.contributions.schemas",
+        "documentation": {}
+    },
+    {
+        "label": "ContributionRecordCreate",
+        "importPath": "app.modules.contributions.schemas",
+        "description": "app.modules.contributions.schemas",
+        "isExtraImport": true,
+        "detail": "app.modules.contributions.schemas",
+        "documentation": {}
+    },
+    {
+        "label": "ContributionRecordResponse",
+        "importPath": "app.modules.contributions.schemas",
+        "description": "app.modules.contributions.schemas",
+        "isExtraImport": true,
+        "detail": "app.modules.contributions.schemas",
+        "documentation": {}
+    },
+    {
+        "label": "ContributionRecordUpdate",
         "importPath": "app.modules.contributions.schemas",
         "description": "app.modules.contributions.schemas",
         "isExtraImport": true,
@@ -12549,30 +13078,6 @@
         "documentation": {}
     },
     {
-        "label": "ContributionRecordCreate",
-        "importPath": "app.modules.contributions.schemas",
-        "description": "app.modules.contributions.schemas",
-        "isExtraImport": true,
-        "detail": "app.modules.contributions.schemas",
-        "documentation": {}
-    },
-    {
-        "label": "ContributionRecordResponse",
-        "importPath": "app.modules.contributions.schemas",
-        "description": "app.modules.contributions.schemas",
-        "isExtraImport": true,
-        "detail": "app.modules.contributions.schemas",
-        "documentation": {}
-    },
-    {
-        "label": "ContributionRecordUpdate",
-        "importPath": "app.modules.contributions.schemas",
-        "description": "app.modules.contributions.schemas",
-        "isExtraImport": true,
-        "detail": "app.modules.contributions.schemas",
-        "documentation": {}
-    },
-    {
         "label": "ContributionReceiptDeclarationCreate",
         "importPath": "app.modules.contributions.schemas",
         "description": "app.modules.contributions.schemas",
@@ -12598,6 +13103,30 @@
     },
     {
         "label": "ContributionReceiptDeclarationUpdate",
+        "importPath": "app.modules.contributions.schemas",
+        "description": "app.modules.contributions.schemas",
+        "isExtraImport": true,
+        "detail": "app.modules.contributions.schemas",
+        "documentation": {}
+    },
+    {
+        "label": "ContributionRecordCreate",
+        "importPath": "app.modules.contributions.schemas",
+        "description": "app.modules.contributions.schemas",
+        "isExtraImport": true,
+        "detail": "app.modules.contributions.schemas",
+        "documentation": {}
+    },
+    {
+        "label": "ContributionRecordResponse",
+        "importPath": "app.modules.contributions.schemas",
+        "description": "app.modules.contributions.schemas",
+        "isExtraImport": true,
+        "detail": "app.modules.contributions.schemas",
+        "documentation": {}
+    },
+    {
+        "label": "ContributionRecordUpdate",
         "importPath": "app.modules.contributions.schemas",
         "description": "app.modules.contributions.schemas",
         "isExtraImport": true,
@@ -14182,86 +14711,6 @@
         "documentation": {}
     },
     {
-        "label": "FieldCondition",
-        "importPath": "qdrant_client.models",
-        "description": "qdrant_client.models",
-        "isExtraImport": true,
-        "detail": "qdrant_client.models",
-        "documentation": {}
-    },
-    {
-        "label": "Filter",
-        "importPath": "qdrant_client.models",
-        "description": "qdrant_client.models",
-        "isExtraImport": true,
-        "detail": "qdrant_client.models",
-        "documentation": {}
-    },
-    {
-        "label": "MatchValue",
-        "importPath": "qdrant_client.models",
-        "description": "qdrant_client.models",
-        "isExtraImport": true,
-        "detail": "qdrant_client.models",
-        "documentation": {}
-    },
-    {
-        "label": "Distance",
-        "importPath": "qdrant_client.models",
-        "description": "qdrant_client.models",
-        "isExtraImport": true,
-        "detail": "qdrant_client.models",
-        "documentation": {}
-    },
-    {
-        "label": "FieldCondition",
-        "importPath": "qdrant_client.models",
-        "description": "qdrant_client.models",
-        "isExtraImport": true,
-        "detail": "qdrant_client.models",
-        "documentation": {}
-    },
-    {
-        "label": "Filter",
-        "importPath": "qdrant_client.models",
-        "description": "qdrant_client.models",
-        "isExtraImport": true,
-        "detail": "qdrant_client.models",
-        "documentation": {}
-    },
-    {
-        "label": "MatchValue",
-        "importPath": "qdrant_client.models",
-        "description": "qdrant_client.models",
-        "isExtraImport": true,
-        "detail": "qdrant_client.models",
-        "documentation": {}
-    },
-    {
-        "label": "PointStruct",
-        "importPath": "qdrant_client.models",
-        "description": "qdrant_client.models",
-        "isExtraImport": true,
-        "detail": "qdrant_client.models",
-        "documentation": {}
-    },
-    {
-        "label": "SparseVectorParams",
-        "importPath": "qdrant_client.models",
-        "description": "qdrant_client.models",
-        "isExtraImport": true,
-        "detail": "qdrant_client.models",
-        "documentation": {}
-    },
-    {
-        "label": "VectorParams",
-        "importPath": "qdrant_client.models",
-        "description": "qdrant_client.models",
-        "isExtraImport": true,
-        "detail": "qdrant_client.models",
-        "documentation": {}
-    },
-    {
         "label": "AccessPolicy",
         "importPath": "app.modules.rag.policy",
         "description": "app.modules.rag.policy",
@@ -14325,6 +14774,14 @@
         "description": "xml.etree",
         "isExtraImport": true,
         "detail": "xml.etree",
+        "documentation": {}
+    },
+    {
+        "label": "ZipFile",
+        "importPath": "zipfile",
+        "description": "zipfile",
+        "isExtraImport": true,
+        "detail": "zipfile",
         "documentation": {}
     },
     {
@@ -14834,6 +15291,30 @@
         "documentation": {}
     },
     {
+        "label": "create_user_for_tenant",
+        "importPath": "helpers",
+        "description": "helpers",
+        "isExtraImport": true,
+        "detail": "helpers",
+        "documentation": {}
+    },
+    {
+        "label": "login",
+        "importPath": "helpers",
+        "description": "helpers",
+        "isExtraImport": true,
+        "detail": "helpers",
+        "documentation": {}
+    },
+    {
+        "label": "create_tenant_with_user",
+        "importPath": "helpers",
+        "description": "helpers",
+        "isExtraImport": true,
+        "detail": "helpers",
+        "documentation": {}
+    },
+    {
         "label": "login",
         "importPath": "helpers",
         "description": "helpers",
@@ -15135,6 +15616,23 @@
         "description": "app.providers.vector_store.qdrant",
         "isExtraImport": true,
         "detail": "app.providers.vector_store.qdrant",
+        "documentation": {}
+    },
+    {
+        "label": "importlib",
+        "kind": 6,
+        "isExtraImport": true,
+        "importPath": "importlib",
+        "description": "importlib",
+        "detail": "importlib",
+        "documentation": {}
+    },
+    {
+        "label": "Request",
+        "importPath": "starlette.requests",
+        "description": "starlette.requests",
+        "isExtraImport": true,
+        "detail": "starlette.requests",
         "documentation": {}
     },
     {
@@ -21933,6 +22431,51 @@
         "documentation": {}
     },
     {
+        "label": "GatewaySettings",
+        "kind": 6,
+        "importPath": "services.api.ai_gateway.main",
+        "description": "services.api.ai_gateway.main",
+        "peekOfCode": "class GatewaySettings(BaseSettings):\n    model_config = SettingsConfigDict(env_file=\".env.ai-local\", extra=\"ignore\")\n    ai_gateway_shared_secret: str\n    ai_gateway_request_ttl_seconds: int = 60\n    ollama_base_url: str = \"http://ollama:11434\"\n    ollama_llm_model: str = \"qwen2.5:7b-instruct\"\n    ollama_embedding_model: str = \"nomic-embed-text\"\n    qdrant_url: str = \"http://qdrant:6333\"\n    qdrant_collection: str = \"orgmind_document_chunks\"\n    embedding_dimensions: int = 768",
+        "detail": "services.api.ai_gateway.main",
+        "documentation": {}
+    },
+    {
+        "label": "ChatRequest",
+        "kind": 6,
+        "importPath": "services.api.ai_gateway.main",
+        "description": "services.api.ai_gateway.main",
+        "peekOfCode": "class ChatRequest(BaseModel):\n    system_prompt: str\n    user_prompt: str\n    temperature: float = 0.3\n    top_p: float = 0.9\n    max_tokens: int = Field(default=1024, ge=1, le=4096)\n@app.get(\"/health\")\nasync def health(request: Request) -> dict[str, Any]:\n    await _verify_request(request)\n    try:",
+        "detail": "services.api.ai_gateway.main",
+        "documentation": {}
+    },
+    {
+        "label": "settings",
+        "kind": 5,
+        "importPath": "services.api.ai_gateway.main",
+        "description": "services.api.ai_gateway.main",
+        "peekOfCode": "settings = GatewaySettings()\napp = FastAPI(title=\"Kairo private AI runtime gateway\", docs_url=None, redoc_url=None)\n_nonces: deque[tuple[int, str]] = deque(maxlen=5000)\nasync def _verify_request(request: Request) -> dict[str, Any]:\n    raw_body = await request.body()\n    timestamp = request.headers.get(\"X-Kairo-AI-Timestamp\", \"\")\n    nonce = request.headers.get(\"X-Kairo-AI-Nonce\", \"\")\n    signature = request.headers.get(\"X-Kairo-AI-Signature\", \"\")\n    try:\n        sent_at = int(timestamp)",
+        "detail": "services.api.ai_gateway.main",
+        "documentation": {}
+    },
+    {
+        "label": "app",
+        "kind": 5,
+        "importPath": "services.api.ai_gateway.main",
+        "description": "services.api.ai_gateway.main",
+        "peekOfCode": "app = FastAPI(title=\"Kairo private AI runtime gateway\", docs_url=None, redoc_url=None)\n_nonces: deque[tuple[int, str]] = deque(maxlen=5000)\nasync def _verify_request(request: Request) -> dict[str, Any]:\n    raw_body = await request.body()\n    timestamp = request.headers.get(\"X-Kairo-AI-Timestamp\", \"\")\n    nonce = request.headers.get(\"X-Kairo-AI-Nonce\", \"\")\n    signature = request.headers.get(\"X-Kairo-AI-Signature\", \"\")\n    try:\n        sent_at = int(timestamp)\n    except ValueError as exc:",
+        "detail": "services.api.ai_gateway.main",
+        "documentation": {}
+    },
+    {
+        "label": "require_ai_runtime",
+        "kind": 2,
+        "importPath": "services.api.app.core.ai_runtime",
+        "description": "services.api.app.core.ai_runtime",
+        "peekOfCode": "def require_ai_runtime() -> None:\n    \"\"\"Reject AI operations while leaving all business modules operational.\"\"\"\n    if not settings.ai_runtime_enabled:\n        raise HTTPException(\n            status_code=status.HTTP_503_SERVICE_UNAVAILABLE,\n            detail=\"Assistant IA désactivé par l’association\",\n        )",
+        "detail": "services.api.app.core.ai_runtime",
+        "documentation": {}
+    },
+    {
         "label": "require_capability",
         "kind": 2,
         "importPath": "services.api.app.core.authorization",
@@ -22288,7 +22831,7 @@
         "kind": 2,
         "importPath": "services.api.app.core.dependencies",
         "description": "services.api.app.core.dependencies",
-        "peekOfCode": "def get_object_storage_provider() -> ObjectStorageProvider:\n    \"\"\"Return the singleton object storage provider (MinIO in production).\"\"\"\n    from app.providers.object_storage.minio import MinIOObjectStorageProvider\n    return MinIOObjectStorageProvider()\nObjectStorageDep = Annotated[ObjectStorageProvider, Depends(get_object_storage_provider)]\n@lru_cache(maxsize=1)\ndef get_embedding_provider() -> EmbeddingProvider:\n    if settings.embedding_provider_kind == \"openai_compatible\":\n        from app.providers.embeddings.openai_compatible import (\n            OpenAICompatibleEmbeddingProvider,",
+        "peekOfCode": "def get_object_storage_provider() -> ObjectStorageProvider:\n    \"\"\"Return the singleton object storage provider (MinIO in production).\"\"\"\n    from app.providers.object_storage.minio import MinIOObjectStorageProvider\n    return MinIOObjectStorageProvider()\nObjectStorageDep = Annotated[ObjectStorageProvider, Depends(get_object_storage_provider)]\n@lru_cache(maxsize=1)\ndef get_embedding_provider() -> EmbeddingProvider:\n    if settings.embedding_provider_kind == \"remote_ai_runtime\":\n        from app.providers.ai_runtime.remote import RemoteAiRuntimeEmbeddingProvider\n        return RemoteAiRuntimeEmbeddingProvider()",
         "detail": "services.api.app.core.dependencies",
         "documentation": {}
     },
@@ -22297,7 +22840,7 @@
         "kind": 2,
         "importPath": "services.api.app.core.dependencies",
         "description": "services.api.app.core.dependencies",
-        "peekOfCode": "def get_embedding_provider() -> EmbeddingProvider:\n    if settings.embedding_provider_kind == \"openai_compatible\":\n        from app.providers.embeddings.openai_compatible import (\n            OpenAICompatibleEmbeddingProvider,\n        )\n        return OpenAICompatibleEmbeddingProvider()\n    from app.providers.embeddings.ollama import OllamaEmbeddingProvider\n    return OllamaEmbeddingProvider()\n@lru_cache(maxsize=1)\ndef get_vector_store_provider() -> VectorStoreProvider:",
+        "peekOfCode": "def get_embedding_provider() -> EmbeddingProvider:\n    if settings.embedding_provider_kind == \"remote_ai_runtime\":\n        from app.providers.ai_runtime.remote import RemoteAiRuntimeEmbeddingProvider\n        return RemoteAiRuntimeEmbeddingProvider()\n    if settings.embedding_provider_kind == \"openai_compatible\":\n        from app.providers.embeddings.openai_compatible import (\n            OpenAICompatibleEmbeddingProvider,\n        )\n        return OpenAICompatibleEmbeddingProvider()\n    from app.providers.embeddings.ollama import OllamaEmbeddingProvider",
         "detail": "services.api.app.core.dependencies",
         "documentation": {}
     },
@@ -22306,7 +22849,7 @@
         "kind": 2,
         "importPath": "services.api.app.core.dependencies",
         "description": "services.api.app.core.dependencies",
-        "peekOfCode": "def get_vector_store_provider() -> VectorStoreProvider:\n    from app.providers.vector_store.qdrant import QdrantVectorStoreProvider\n    return QdrantVectorStoreProvider()\nEmbeddingDep = Annotated[EmbeddingProvider, Depends(get_embedding_provider)]\nVectorStoreDep = Annotated[VectorStoreProvider, Depends(get_vector_store_provider)]\n@lru_cache(maxsize=1)\ndef get_llm_provider() -> LLMProvider:\n    if settings.llm_provider_kind == \"openai_compatible\":\n        from app.providers.llm.openai_compatible import OpenAICompatibleLLMProvider\n        return OpenAICompatibleLLMProvider()",
+        "peekOfCode": "def get_vector_store_provider() -> VectorStoreProvider:\n    if settings.ai_runtime_mode == \"remote\":\n        from app.providers.ai_runtime.remote import RemoteAiRuntimeVectorStoreProvider\n        return RemoteAiRuntimeVectorStoreProvider()\n    from app.providers.vector_store.qdrant import QdrantVectorStoreProvider\n    return QdrantVectorStoreProvider()\nEmbeddingDep = Annotated[EmbeddingProvider, Depends(get_embedding_provider)]\nVectorStoreDep = Annotated[VectorStoreProvider, Depends(get_vector_store_provider)]\n@lru_cache(maxsize=1)\ndef get_llm_provider() -> LLMProvider:",
         "detail": "services.api.app.core.dependencies",
         "documentation": {}
     },
@@ -22315,7 +22858,7 @@
         "kind": 2,
         "importPath": "services.api.app.core.dependencies",
         "description": "services.api.app.core.dependencies",
-        "peekOfCode": "def get_llm_provider() -> LLMProvider:\n    if settings.llm_provider_kind == \"openai_compatible\":\n        from app.providers.llm.openai_compatible import OpenAICompatibleLLMProvider\n        return OpenAICompatibleLLMProvider()\n    from app.providers.llm.ollama import OllamaLLMProvider\n    return OllamaLLMProvider()\nLlmDep = Annotated[LLMProvider, Depends(get_llm_provider)]\n@lru_cache(maxsize=1)\ndef get_notification_providers() -> list[NotificationProvider]:\n    from app.providers.notifications import (",
+        "peekOfCode": "def get_llm_provider() -> LLMProvider:\n    if settings.llm_provider_kind == \"remote_ai_runtime\":\n        from app.providers.ai_runtime.remote import RemoteAiRuntimeLLMProvider\n        return RemoteAiRuntimeLLMProvider()\n    if settings.llm_provider_kind == \"openai_compatible\":\n        from app.providers.llm.openai_compatible import OpenAICompatibleLLMProvider\n        return OpenAICompatibleLLMProvider()\n    from app.providers.llm.ollama import OllamaLLMProvider\n    return OllamaLLMProvider()\nLlmDep = Annotated[LLMProvider, Depends(get_llm_provider)]",
         "detail": "services.api.app.core.dependencies",
         "documentation": {}
     },
@@ -22360,7 +22903,7 @@
         "kind": 5,
         "importPath": "services.api.app.core.dependencies",
         "description": "services.api.app.core.dependencies",
-        "peekOfCode": "DbDep = Annotated[AsyncSession, Depends(get_db)]\n@lru_cache(maxsize=1)\ndef get_object_storage_provider() -> ObjectStorageProvider:\n    \"\"\"Return the singleton object storage provider (MinIO in production).\"\"\"\n    from app.providers.object_storage.minio import MinIOObjectStorageProvider\n    return MinIOObjectStorageProvider()\nObjectStorageDep = Annotated[ObjectStorageProvider, Depends(get_object_storage_provider)]\n@lru_cache(maxsize=1)\ndef get_embedding_provider() -> EmbeddingProvider:\n    if settings.embedding_provider_kind == \"openai_compatible\":",
+        "peekOfCode": "DbDep = Annotated[AsyncSession, Depends(get_db)]\n@lru_cache(maxsize=1)\ndef get_object_storage_provider() -> ObjectStorageProvider:\n    \"\"\"Return the singleton object storage provider (MinIO in production).\"\"\"\n    from app.providers.object_storage.minio import MinIOObjectStorageProvider\n    return MinIOObjectStorageProvider()\nObjectStorageDep = Annotated[ObjectStorageProvider, Depends(get_object_storage_provider)]\n@lru_cache(maxsize=1)\ndef get_embedding_provider() -> EmbeddingProvider:\n    if settings.embedding_provider_kind == \"remote_ai_runtime\":",
         "detail": "services.api.app.core.dependencies",
         "documentation": {}
     },
@@ -22369,7 +22912,7 @@
         "kind": 5,
         "importPath": "services.api.app.core.dependencies",
         "description": "services.api.app.core.dependencies",
-        "peekOfCode": "ObjectStorageDep = Annotated[ObjectStorageProvider, Depends(get_object_storage_provider)]\n@lru_cache(maxsize=1)\ndef get_embedding_provider() -> EmbeddingProvider:\n    if settings.embedding_provider_kind == \"openai_compatible\":\n        from app.providers.embeddings.openai_compatible import (\n            OpenAICompatibleEmbeddingProvider,\n        )\n        return OpenAICompatibleEmbeddingProvider()\n    from app.providers.embeddings.ollama import OllamaEmbeddingProvider\n    return OllamaEmbeddingProvider()",
+        "peekOfCode": "ObjectStorageDep = Annotated[ObjectStorageProvider, Depends(get_object_storage_provider)]\n@lru_cache(maxsize=1)\ndef get_embedding_provider() -> EmbeddingProvider:\n    if settings.embedding_provider_kind == \"remote_ai_runtime\":\n        from app.providers.ai_runtime.remote import RemoteAiRuntimeEmbeddingProvider\n        return RemoteAiRuntimeEmbeddingProvider()\n    if settings.embedding_provider_kind == \"openai_compatible\":\n        from app.providers.embeddings.openai_compatible import (\n            OpenAICompatibleEmbeddingProvider,\n        )",
         "detail": "services.api.app.core.dependencies",
         "documentation": {}
     },
@@ -22378,7 +22921,7 @@
         "kind": 5,
         "importPath": "services.api.app.core.dependencies",
         "description": "services.api.app.core.dependencies",
-        "peekOfCode": "EmbeddingDep = Annotated[EmbeddingProvider, Depends(get_embedding_provider)]\nVectorStoreDep = Annotated[VectorStoreProvider, Depends(get_vector_store_provider)]\n@lru_cache(maxsize=1)\ndef get_llm_provider() -> LLMProvider:\n    if settings.llm_provider_kind == \"openai_compatible\":\n        from app.providers.llm.openai_compatible import OpenAICompatibleLLMProvider\n        return OpenAICompatibleLLMProvider()\n    from app.providers.llm.ollama import OllamaLLMProvider\n    return OllamaLLMProvider()\nLlmDep = Annotated[LLMProvider, Depends(get_llm_provider)]",
+        "peekOfCode": "EmbeddingDep = Annotated[EmbeddingProvider, Depends(get_embedding_provider)]\nVectorStoreDep = Annotated[VectorStoreProvider, Depends(get_vector_store_provider)]\n@lru_cache(maxsize=1)\ndef get_llm_provider() -> LLMProvider:\n    if settings.llm_provider_kind == \"remote_ai_runtime\":\n        from app.providers.ai_runtime.remote import RemoteAiRuntimeLLMProvider\n        return RemoteAiRuntimeLLMProvider()\n    if settings.llm_provider_kind == \"openai_compatible\":\n        from app.providers.llm.openai_compatible import OpenAICompatibleLLMProvider\n        return OpenAICompatibleLLMProvider()",
         "detail": "services.api.app.core.dependencies",
         "documentation": {}
     },
@@ -22387,7 +22930,7 @@
         "kind": 5,
         "importPath": "services.api.app.core.dependencies",
         "description": "services.api.app.core.dependencies",
-        "peekOfCode": "VectorStoreDep = Annotated[VectorStoreProvider, Depends(get_vector_store_provider)]\n@lru_cache(maxsize=1)\ndef get_llm_provider() -> LLMProvider:\n    if settings.llm_provider_kind == \"openai_compatible\":\n        from app.providers.llm.openai_compatible import OpenAICompatibleLLMProvider\n        return OpenAICompatibleLLMProvider()\n    from app.providers.llm.ollama import OllamaLLMProvider\n    return OllamaLLMProvider()\nLlmDep = Annotated[LLMProvider, Depends(get_llm_provider)]\n@lru_cache(maxsize=1)",
+        "peekOfCode": "VectorStoreDep = Annotated[VectorStoreProvider, Depends(get_vector_store_provider)]\n@lru_cache(maxsize=1)\ndef get_llm_provider() -> LLMProvider:\n    if settings.llm_provider_kind == \"remote_ai_runtime\":\n        from app.providers.ai_runtime.remote import RemoteAiRuntimeLLMProvider\n        return RemoteAiRuntimeLLMProvider()\n    if settings.llm_provider_kind == \"openai_compatible\":\n        from app.providers.llm.openai_compatible import OpenAICompatibleLLMProvider\n        return OpenAICompatibleLLMProvider()\n    from app.providers.llm.ollama import OllamaLLMProvider",
         "detail": "services.api.app.core.dependencies",
         "documentation": {}
     },
@@ -24012,12 +24555,30 @@
         "documentation": {}
     },
     {
+        "label": "require_operation_journal_access",
+        "kind": 2,
+        "importPath": "services.api.app.modules.audit.router",
+        "description": "services.api.app.modules.audit.router",
+        "peekOfCode": "def require_operation_journal_access(current: AuthDep) -> None:\n    \"\"\"The association's operational journal is reserved for its two office roles.\"\"\"\n    if current.has_role(\"president\", \"secretary_general\"):\n        return\n    raise HTTPException(\n        status_code=status.HTTP_403_FORBIDDEN,\n        detail=\"President or secretary general role required\",\n    )\n@router.get(\"/operation-journal\", response_model=list[AuditEventResponse])\nasync def list_operation_journal(",
+        "detail": "services.api.app.modules.audit.router",
+        "documentation": {}
+    },
+    {
         "label": "router",
         "kind": 5,
         "importPath": "services.api.app.modules.audit.router",
         "description": "services.api.app.modules.audit.router",
-        "peekOfCode": "router = APIRouter(prefix=\"/admin/audit\", tags=[\"audit\"])\n@router.get(\"/events\", response_model=list[AuditEventResponse])\nasync def list_audit_events(\n    current: AuthDep,\n    db: DbDep,\n    limit: Annotated[int, Query(ge=1, le=200)] = 50,\n    offset: Annotated[int, Query(ge=0)] = 0,\n    actor_user_id: UUID | None = Query(default=None),\n    action: str | None = Query(default=None),\n    entity_type: str | None = Query(default=None),",
+        "peekOfCode": "router = APIRouter(prefix=\"/admin/audit\", tags=[\"audit\"])\ndef require_operation_journal_access(current: AuthDep) -> None:\n    \"\"\"The association's operational journal is reserved for its two office roles.\"\"\"\n    if current.has_role(\"president\", \"secretary_general\"):\n        return\n    raise HTTPException(\n        status_code=status.HTTP_403_FORBIDDEN,\n        detail=\"President or secretary general role required\",\n    )\n@router.get(\"/operation-journal\", response_model=list[AuditEventResponse])",
         "detail": "services.api.app.modules.audit.router",
+        "documentation": {}
+    },
+    {
+        "label": "AuditActorSummary",
+        "kind": 6,
+        "importPath": "services.api.app.modules.audit.schemas",
+        "description": "services.api.app.modules.audit.schemas",
+        "peekOfCode": "class AuditActorSummary(BaseModel):\n    \"\"\"Human-readable, tenant-scoped identity of an audit event author.\"\"\"\n    display_name: str\n    email: str\n    roles: list[str] = Field(default_factory=list)\nclass AuditEventResponse(BaseModel):\n    id: UUID\n    tenant_id: UUID\n    actor_user_id: UUID | None\n    actor: AuditActorSummary | None = None",
+        "detail": "services.api.app.modules.audit.schemas",
         "documentation": {}
     },
     {
@@ -24025,7 +24586,7 @@
         "kind": 6,
         "importPath": "services.api.app.modules.audit.schemas",
         "description": "services.api.app.modules.audit.schemas",
-        "peekOfCode": "class AuditEventResponse(BaseModel):\n    id: UUID\n    tenant_id: UUID\n    actor_user_id: UUID | None\n    module_key: str | None\n    action: str\n    entity_type: str\n    entity_id: str | None\n    details: dict[str, Any] = Field(default_factory=dict)\n    created_at: datetime",
+        "peekOfCode": "class AuditEventResponse(BaseModel):\n    id: UUID\n    tenant_id: UUID\n    actor_user_id: UUID | None\n    actor: AuditActorSummary | None = None\n    module_key: str | None\n    action: str\n    entity_type: str\n    entity_id: str | None\n    details: dict[str, Any] = Field(default_factory=dict)",
         "detail": "services.api.app.modules.audit.schemas",
         "documentation": {}
     },
@@ -24039,11 +24600,20 @@
         "documentation": {}
     },
     {
+        "label": "OperationFailureCreate",
+        "kind": 6,
+        "importPath": "services.api.app.modules.audit.schemas",
+        "description": "services.api.app.modules.audit.schemas",
+        "peekOfCode": "class OperationFailureCreate(BaseModel):\n    \"\"\"A deliberately small, non-sensitive client-side failure report.\"\"\"\n    method: str = Field(min_length=1, max_length=12)\n    path: str = Field(min_length=1, max_length=240)\n    status_code: int | None = Field(default=None, ge=0, le=599)",
+        "detail": "services.api.app.modules.audit.schemas",
+        "documentation": {}
+    },
+    {
         "label": "AuditService",
         "kind": 6,
         "importPath": "services.api.app.modules.audit.service",
         "description": "services.api.app.modules.audit.service",
-        "peekOfCode": "class AuditService:\n    def __init__(self, db: AsyncSession) -> None:\n        self._repo = AuditRepository(db)\n    async def record_event(\n        self,\n        *,\n        tenant_id: UUID,\n        actor_user_id: UUID | None,\n        action: str,\n        entity_type: str,",
+        "peekOfCode": "class AuditService:\n    def __init__(self, db: AsyncSession) -> None:\n        self._db = db\n        self._repo = AuditRepository(db)\n    async def record_event(\n        self,\n        *,\n        tenant_id: UUID,\n        actor_user_id: UUID | None,\n        action: str,",
         "detail": "services.api.app.modules.audit.service",
         "documentation": {}
     },
@@ -25708,7 +26278,7 @@
         "kind": 6,
         "importPath": "services.api.app.modules.membership.schemas",
         "description": "services.api.app.modules.membership.schemas",
-        "peekOfCode": "class MembershipProfileCreate(BaseModel):\n    member_code: str = Field(..., min_length=1, max_length=50)\n    first_name: str = Field(..., min_length=1, max_length=100)\n    last_name: str = Field(..., min_length=1, max_length=100)\n    display_name: str = Field(..., min_length=1, max_length=255)\n    email: EmailStr | None = None\n    phone: str | None = Field(None, max_length=50)\n    status: MembershipStatus = MembershipStatus.active\n    membership_type: MembershipType | None = None\n    provision_access: bool = False",
+        "peekOfCode": "class MembershipProfileCreate(BaseModel):\n    member_code: str | None = Field(None, min_length=1, max_length=50)\n    first_name: str = Field(..., min_length=1, max_length=100)\n    last_name: str = Field(..., min_length=1, max_length=100)\n    display_name: str = Field(..., min_length=1, max_length=255)\n    email: EmailStr | None = None\n    phone: str | None = Field(None, max_length=50)\n    status: MembershipStatus = MembershipStatus.active\n    membership_type: MembershipType | None = None\n    provision_access: bool = False",
         "detail": "services.api.app.modules.membership.schemas",
         "documentation": {}
     },
@@ -25753,7 +26323,7 @@
         "kind": 5,
         "importPath": "services.api.app.modules.membership.schemas",
         "description": "services.api.app.modules.membership.schemas",
-        "peekOfCode": "PHONE_PATTERN = re.compile(r\"^\\+[1-9]\\d{7,14}$\")\nLOGIN_IDENTIFIER_PATTERN = re.compile(r\"^[a-z0-9][a-z0-9._-]{2,63}$\")\nclass MembershipProfileCreate(BaseModel):\n    member_code: str = Field(..., min_length=1, max_length=50)\n    first_name: str = Field(..., min_length=1, max_length=100)\n    last_name: str = Field(..., min_length=1, max_length=100)\n    display_name: str = Field(..., min_length=1, max_length=255)\n    email: EmailStr | None = None\n    phone: str | None = Field(None, max_length=50)\n    status: MembershipStatus = MembershipStatus.active",
+        "peekOfCode": "PHONE_PATTERN = re.compile(r\"^\\+[1-9]\\d{7,14}$\")\nLOGIN_IDENTIFIER_PATTERN = re.compile(r\"^[a-z0-9][a-z0-9._-]{2,63}$\")\nclass MembershipProfileCreate(BaseModel):\n    member_code: str | None = Field(None, min_length=1, max_length=50)\n    first_name: str = Field(..., min_length=1, max_length=100)\n    last_name: str = Field(..., min_length=1, max_length=100)\n    display_name: str = Field(..., min_length=1, max_length=255)\n    email: EmailStr | None = None\n    phone: str | None = Field(None, max_length=50)\n    status: MembershipStatus = MembershipStatus.active",
         "detail": "services.api.app.modules.membership.schemas",
         "documentation": {}
     },
@@ -25762,7 +26332,7 @@
         "kind": 5,
         "importPath": "services.api.app.modules.membership.schemas",
         "description": "services.api.app.modules.membership.schemas",
-        "peekOfCode": "LOGIN_IDENTIFIER_PATTERN = re.compile(r\"^[a-z0-9][a-z0-9._-]{2,63}$\")\nclass MembershipProfileCreate(BaseModel):\n    member_code: str = Field(..., min_length=1, max_length=50)\n    first_name: str = Field(..., min_length=1, max_length=100)\n    last_name: str = Field(..., min_length=1, max_length=100)\n    display_name: str = Field(..., min_length=1, max_length=255)\n    email: EmailStr | None = None\n    phone: str | None = Field(None, max_length=50)\n    status: MembershipStatus = MembershipStatus.active\n    membership_type: MembershipType | None = None",
+        "peekOfCode": "LOGIN_IDENTIFIER_PATTERN = re.compile(r\"^[a-z0-9][a-z0-9._-]{2,63}$\")\nclass MembershipProfileCreate(BaseModel):\n    member_code: str | None = Field(None, min_length=1, max_length=50)\n    first_name: str = Field(..., min_length=1, max_length=100)\n    last_name: str = Field(..., min_length=1, max_length=100)\n    display_name: str = Field(..., min_length=1, max_length=255)\n    email: EmailStr | None = None\n    phone: str | None = Field(None, max_length=50)\n    status: MembershipStatus = MembershipStatus.active\n    membership_type: MembershipType | None = None",
         "detail": "services.api.app.modules.membership.schemas",
         "documentation": {}
     },
@@ -26086,7 +26656,7 @@
         "kind": 2,
         "importPath": "services.api.app.modules.rag.reindex",
         "description": "services.api.app.modules.rag.reindex",
-        "peekOfCode": "def check_embedding_model_changed() -> bool:\n    \"\"\"Return True if the embedding model changed since last run.\"\"\"\n    sentinel_path = _get_sentinel_path()\n    current = (\n        settings.openai_compatible_embedding_model\n        if settings.embedding_provider_kind == \"openai_compatible\"\n        else settings.ollama_embedding_model\n    )\n    previous: str | None = None\n    try:",
+        "peekOfCode": "def check_embedding_model_changed() -> bool:\n    \"\"\"Return True if the embedding model changed since last run.\"\"\"\n    sentinel_path = _get_sentinel_path()\n    current = _embedding_identity()\n    previous: str | None = None\n    previous_dimensions: int | None = None\n    try:\n        if os.path.isfile(sentinel_path):\n            with open(sentinel_path) as f:\n                data = json.load(f)",
         "detail": "services.api.app.modules.rag.reindex",
         "documentation": {}
     },
@@ -26095,7 +26665,7 @@
         "kind": 2,
         "importPath": "services.api.app.modules.rag.reindex",
         "description": "services.api.app.modules.rag.reindex",
-        "peekOfCode": "def persist_embedding_model() -> None:\n    \"\"\"Write the current embedding model to the sentinel file.\"\"\"\n    sentinel_path = _get_sentinel_path()\n    os.makedirs(os.path.dirname(sentinel_path), exist_ok=True)\n    with open(sentinel_path, \"w\") as f:\n        json.dump(\n            {\n                \"model\": (\n                    settings.openai_compatible_embedding_model\n                    if settings.embedding_provider_kind == \"openai_compatible\"",
+        "peekOfCode": "def persist_embedding_model() -> None:\n    \"\"\"Write the current embedding model to the sentinel file.\"\"\"\n    sentinel_path = _get_sentinel_path()\n    os.makedirs(os.path.dirname(sentinel_path), exist_ok=True)\n    with open(sentinel_path, \"w\") as f:\n        json.dump(\n            {\n                \"model\": _embedding_identity(),\n                \"identity\": _embedding_identity(),\n                \"dimensions\": settings.embedding_dimensions,",
         "detail": "services.api.app.modules.rag.reindex",
         "documentation": {}
     },
@@ -26424,6 +26994,51 @@
         "documentation": {}
     },
     {
+        "label": "AiRuntimeUnavailableError",
+        "kind": 6,
+        "importPath": "services.api.app.providers.ai_runtime.remote",
+        "description": "services.api.app.providers.ai_runtime.remote",
+        "peekOfCode": "class AiRuntimeUnavailableError(RuntimeError):\n    \"\"\"The optional local AI runtime cannot be reached safely.\"\"\"\nclass _RemoteAiRuntimeClient:\n    def __init__(self) -> None:\n        if not settings.ai_gateway_base_url or not settings.ai_gateway_shared_secret:\n            raise AiRuntimeUnavailableError(\"Assistant IA temporairement indisponible\")\n        self._base_url = settings.ai_gateway_base_url.rstrip(\"/\")\n        self._secret = settings.ai_gateway_shared_secret.encode(\"utf-8\")\n    @staticmethod\n    def _body(payload: Any | None = None) -> str:",
+        "detail": "services.api.app.providers.ai_runtime.remote",
+        "documentation": {}
+    },
+    {
+        "label": "_RemoteAiRuntimeClient",
+        "kind": 6,
+        "importPath": "services.api.app.providers.ai_runtime.remote",
+        "description": "services.api.app.providers.ai_runtime.remote",
+        "peekOfCode": "class _RemoteAiRuntimeClient:\n    def __init__(self) -> None:\n        if not settings.ai_gateway_base_url or not settings.ai_gateway_shared_secret:\n            raise AiRuntimeUnavailableError(\"Assistant IA temporairement indisponible\")\n        self._base_url = settings.ai_gateway_base_url.rstrip(\"/\")\n        self._secret = settings.ai_gateway_shared_secret.encode(\"utf-8\")\n    @staticmethod\n    def _body(payload: Any | None = None) -> str:\n        return json.dumps(payload or {}, separators=(\",\", \":\"), sort_keys=True)\n    def _headers(self, method: str, path: str, body: str) -> dict[str, str]:",
+        "detail": "services.api.app.providers.ai_runtime.remote",
+        "documentation": {}
+    },
+    {
+        "label": "RemoteAiRuntimeLLMProvider",
+        "kind": 6,
+        "importPath": "services.api.app.providers.ai_runtime.remote",
+        "description": "services.api.app.providers.ai_runtime.remote",
+        "peekOfCode": "class RemoteAiRuntimeLLMProvider(_RemoteAiRuntimeClient):\n    async def generate(\n        self,\n        *,\n        system_prompt: str,\n        user_prompt: str,\n        temperature: float = 0.3,\n        top_p: float = 0.9,\n        max_tokens: int = 2048,\n    ) -> str:",
+        "detail": "services.api.app.providers.ai_runtime.remote",
+        "documentation": {}
+    },
+    {
+        "label": "RemoteAiRuntimeEmbeddingProvider",
+        "kind": 6,
+        "importPath": "services.api.app.providers.ai_runtime.remote",
+        "description": "services.api.app.providers.ai_runtime.remote",
+        "peekOfCode": "class RemoteAiRuntimeEmbeddingProvider(_RemoteAiRuntimeClient):\n    def __init__(self) -> None:\n        super().__init__()\n        self._vector_size = settings.embedding_dimensions\n    @property\n    def vector_size(self) -> int:\n        return self._vector_size\n    async def embed_texts(self, texts: list[str]) -> list[list[float]]:\n        result = await self.request(\"POST\", \"/v1/embeddings\", {\"texts\": texts})\n        vectors = [[float(value) for value in vector] for vector in result.get(\"vectors\", [])]",
+        "detail": "services.api.app.providers.ai_runtime.remote",
+        "documentation": {}
+    },
+    {
+        "label": "RemoteAiRuntimeVectorStoreProvider",
+        "kind": 6,
+        "importPath": "services.api.app.providers.ai_runtime.remote",
+        "description": "services.api.app.providers.ai_runtime.remote",
+        "peekOfCode": "class RemoteAiRuntimeVectorStoreProvider(_RemoteAiRuntimeClient):\n    def ensure_collection(self, vector_size: int) -> None:\n        self._sync(\"POST\", \"/v1/vectors/ensure-collection\", {\"vector_size\": vector_size})\n    def delete_vectors_for_version(self, tenant_id: UUID, document_version_id: UUID) -> None:\n        self._sync(\n            \"POST\",\n            \"/v1/vectors/delete-version\",\n            {\"tenant_id\": str(tenant_id), \"document_version_id\": str(document_version_id)},\n        )\n    def upsert_chunk_vectors(self, points: list[tuple[UUID, list[float], dict[str, Any]]]) -> None:",
+        "detail": "services.api.app.providers.ai_runtime.remote",
+        "documentation": {}
+    },
+    {
         "label": "EmbeddingProvider",
         "kind": 6,
         "importPath": "services.api.app.providers.embeddings.base",
@@ -26716,7 +27331,7 @@
         "kind": 2,
         "importPath": "services.api.app.worker.tasks.ingestion",
         "description": "services.api.app.worker.tasks.ingestion",
-        "peekOfCode": "def process_ingestion_job(self, job_id: str) -> None:\n    try:\n        asyncio.run(_process_ingestion_job(UUID(job_id)))\n    except Exception as exc:\n        logger.exception(\"ingestion_task_failed\", job_id=job_id)\n        raise self.retry(exc=exc, countdown=30) from exc\ndef enqueue_ingestion_job(job_id: UUID) -> None:\n    from app.core.config import settings\n    if not settings.ingestion_auto_enqueue:\n        return",
+        "peekOfCode": "def process_ingestion_job(self, job_id: str) -> None:\n    try:\n        asyncio.run(_process_ingestion_job(UUID(job_id)))\n    except Exception as exc:\n        logger.exception(\"ingestion_task_failed\", job_id=job_id)\n        raise self.retry(exc=exc, countdown=30) from exc\ndef enqueue_ingestion_job(job_id: UUID) -> None:\n    if not settings.ingestion_auto_enqueue:\n        return\n    try:",
         "detail": "services.api.app.worker.tasks.ingestion",
         "documentation": {}
     },
@@ -26725,7 +27340,16 @@
         "kind": 2,
         "importPath": "services.api.app.worker.tasks.ingestion",
         "description": "services.api.app.worker.tasks.ingestion",
-        "peekOfCode": "def enqueue_ingestion_job(job_id: UUID) -> None:\n    from app.core.config import settings\n    if not settings.ingestion_auto_enqueue:\n        return\n    try:\n        process_ingestion_job.delay(str(job_id))\n    except Exception as exc:\n        logger.warning(\"ingestion_enqueue_failed\", job_id=str(job_id), error=str(exc))",
+        "peekOfCode": "def enqueue_ingestion_job(job_id: UUID) -> None:\n    if not settings.ingestion_auto_enqueue:\n        return\n    try:\n        process_ingestion_job.delay(str(job_id))\n    except Exception as exc:\n        logger.warning(\"ingestion_enqueue_failed\", job_id=str(job_id), error=str(exc))\n@celery_app.task(name=\"ingestion.resume_awaiting_ai_jobs\")\ndef resume_awaiting_ai_jobs() -> int:\n    if not settings.ai_runtime_enabled:",
+        "detail": "services.api.app.worker.tasks.ingestion",
+        "documentation": {}
+    },
+    {
+        "label": "resume_awaiting_ai_jobs",
+        "kind": 2,
+        "importPath": "services.api.app.worker.tasks.ingestion",
+        "description": "services.api.app.worker.tasks.ingestion",
+        "peekOfCode": "def resume_awaiting_ai_jobs() -> int:\n    if not settings.ai_runtime_enabled:\n        return 0\n    async def _resume() -> list[UUID]:\n        async with async_session_factory() as db:\n            return [job.id for job in await DocumentRepository(db).list_awaiting_ai_jobs()]\n    job_ids = asyncio.run(_resume())\n    for job_id in job_ids:\n        process_ingestion_job.delay(str(job_id))\n    return len(job_ids)",
         "detail": "services.api.app.worker.tasks.ingestion",
         "documentation": {}
     },
@@ -26734,7 +27358,7 @@
         "kind": 5,
         "importPath": "services.api.app.worker.tasks.ingestion",
         "description": "services.api.app.worker.tasks.ingestion",
-        "peekOfCode": "logger = structlog.get_logger(__name__)\nasync def _process_ingestion_job(job_id: UUID) -> None:\n    async with async_session_factory() as db:\n        service = IngestionService(\n            db,\n            get_object_storage_provider(),\n            embedding_provider=get_embedding_provider(),\n            vector_store_provider=get_vector_store_provider(),\n        )\n        await service.process_job(job_id)",
+        "peekOfCode": "logger = structlog.get_logger(__name__)\nasync def _process_ingestion_job(job_id: UUID) -> None:\n    async with async_session_factory() as db:\n        embedding_provider = None\n        vector_store_provider = None\n        if settings.ai_runtime_enabled:\n            embedding_provider = get_embedding_provider()\n            vector_store_provider = get_vector_store_provider()\n        service = IngestionService(\n            db,",
         "detail": "services.api.app.worker.tasks.ingestion",
         "documentation": {}
     },
@@ -26744,6 +27368,15 @@
         "importPath": "services.api.app.worker.celery_app",
         "description": "services.api.app.worker.celery_app",
         "peekOfCode": "celery_app = Celery(\n    \"kairo_worker\",\n    broker=settings.redis_url,\n    backend=settings.redis_url,\n    include=[\n        \"app.worker.tasks.ingestion\",\n        \"app.worker.tasks.chat_cleanup\",\n    ],\n    beat_schedule={\n        \"cleanup-old-conversations\": {",
+        "detail": "services.api.app.worker.celery_app",
+        "documentation": {}
+    },
+    {
+        "label": "celery_app.conf.beat_schedule[\"resume-awaiting-ai-ingestion\"]",
+        "kind": 5,
+        "importPath": "services.api.app.worker.celery_app",
+        "description": "services.api.app.worker.celery_app",
+        "peekOfCode": "celery_app.conf.beat_schedule[\"resume-awaiting-ai-ingestion\"] = {\n    \"task\": \"ingestion.resume_awaiting_ai_jobs\",\n    \"schedule\": 60.0,\n}\ncelery_app.conf.update(\n    task_serializer=\"json\",\n    result_serializer=\"json\",\n    accept_content=[\"json\"],\n    timezone=\"UTC\",\n    enable_utc=True,",
         "detail": "services.api.app.worker.celery_app",
         "documentation": {}
     },
@@ -27432,6 +28065,15 @@
         "documentation": {}
     },
     {
+        "label": "pytestmark",
+        "kind": 5,
+        "importPath": "services.api.tests.test_operation_journal",
+        "description": "services.api.tests.test_operation_journal",
+        "peekOfCode": "pytestmark = pytest.mark.asyncio\nasync def test_operation_journal_is_limited_to_president_and_secretary(\n    client: AsyncClient,\n    db_session: AsyncSession,\n) -> None:\n    data = await create_tenant_with_user(db_session, f\"journal-{_uuid.uuid4().hex[:6]}\")\n    secretary = await create_user_for_tenant(\n        db_session,\n        tenant_id=data[\"tenant\"].id,\n        email=f\"secretary-{_uuid.uuid4().hex[:6]}@test.org\",",
+        "detail": "services.api.tests.test_operation_journal",
+        "documentation": {}
+    },
+    {
         "label": "clear_provider_caches",
         "kind": 2,
         "importPath": "services.api.tests.test_provider_selection",
@@ -27528,6 +28170,24 @@
         "description": "services.api.tests.test_release_candidate_matrix",
         "peekOfCode": "MATRIX_CASES = (\n    MatrixCase(\n        role_code=\"member\",\n        display_name=\"Member User\",\n        email_prefix=\"member\",\n        password=\"MemberPass1!\",\n        profile_type=\"member\",\n        member_code=\"MEM-001\",\n        allowed_method=\"GET\",\n        allowed_path=\"/api/v1/memberships/me/statement\",",
         "detail": "services.api.tests.test_release_candidate_matrix",
+        "documentation": {}
+    },
+    {
+        "label": "test_ai_runtime_can_be_explicitly_disabled",
+        "kind": 2,
+        "importPath": "services.api.tests.test_remote_ai_runtime",
+        "description": "services.api.tests.test_remote_ai_runtime",
+        "peekOfCode": "def test_ai_runtime_can_be_explicitly_disabled() -> None:\n    assert Settings(ai_runtime_mode=\"disabled\").ai_runtime_enabled is False\n    assert Settings(ai_runtime_mode=\"remote\").ai_runtime_enabled is True\ndef test_remote_runtime_signs_the_exact_request_body(monkeypatch: pytest.MonkeyPatch) -> None:\n    monkeypatch.setattr(settings, \"ai_gateway_base_url\", \"https://ai.example.test\")\n    monkeypatch.setattr(settings, \"ai_gateway_shared_secret\", \"test-shared-secret\")\n    monkeypatch.setattr(settings, \"ai_gateway_access_client_id\", \"client-id\")\n    monkeypatch.setattr(settings, \"ai_gateway_access_client_secret\", \"client-secret\")\n    monkeypatch.setattr(\"app.providers.ai_runtime.remote.time.time\", lambda: 1_700_000_000)\n    monkeypatch.setattr(",
+        "detail": "services.api.tests.test_remote_ai_runtime",
+        "documentation": {}
+    },
+    {
+        "label": "test_remote_runtime_signs_the_exact_request_body",
+        "kind": 2,
+        "importPath": "services.api.tests.test_remote_ai_runtime",
+        "description": "services.api.tests.test_remote_ai_runtime",
+        "peekOfCode": "def test_remote_runtime_signs_the_exact_request_body(monkeypatch: pytest.MonkeyPatch) -> None:\n    monkeypatch.setattr(settings, \"ai_gateway_base_url\", \"https://ai.example.test\")\n    monkeypatch.setattr(settings, \"ai_gateway_shared_secret\", \"test-shared-secret\")\n    monkeypatch.setattr(settings, \"ai_gateway_access_client_id\", \"client-id\")\n    monkeypatch.setattr(settings, \"ai_gateway_access_client_secret\", \"client-secret\")\n    monkeypatch.setattr(\"app.providers.ai_runtime.remote.time.time\", lambda: 1_700_000_000)\n    monkeypatch.setattr(\n        \"app.providers.ai_runtime.remote.uuid.uuid4\", lambda: type(\"N\", (), {\"hex\": \"nonce\"})()\n    )\n    client = _RemoteAiRuntimeClient()",
+        "detail": "services.api.tests.test_remote_ai_runtime",
         "documentation": {}
     },
     {

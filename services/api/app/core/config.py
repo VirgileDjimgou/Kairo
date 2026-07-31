@@ -27,7 +27,9 @@ class Settings(BaseSettings):
             return [origin.strip() for origin in v.split(",") if origin.strip()]
         return v
 
-    @field_validator("llm_provider_kind", "embedding_provider_kind", mode="before")
+    @field_validator(
+        "llm_provider_kind", "embedding_provider_kind", "ai_runtime_mode", mode="before"
+    )
     @classmethod
     def normalize_provider_kind(cls, v: str) -> str:
         return v.strip().lower() if isinstance(v, str) else v
@@ -52,9 +54,7 @@ class Settings(BaseSettings):
     refresh_token_expire_days: int = 7
 
     # Database (psycopg3 async DSN)
-    database_url: str = (
-        "postgresql+psycopg://orgmind:orgmind_dev_password@postgres:5432/orgmind"
-    )
+    database_url: str = "postgresql+psycopg://orgmind:orgmind_dev_password@postgres:5432/orgmind"
 
     # Redis
     redis_url: str = "redis://redis:6379/0"
@@ -76,12 +76,25 @@ class Settings(BaseSettings):
     ollama_embedding_model: str = "bge-m3"
 
     # OpenAI-compatible local providers (LM Studio, OpenRouter-compatible mocks, etc.)
-    llm_provider_kind: Literal["ollama", "openai_compatible"] = "ollama"
-    embedding_provider_kind: Literal["ollama", "openai_compatible"] = "ollama"
+    llm_provider_kind: Literal["ollama", "openai_compatible", "remote_ai_runtime"] = "ollama"
+    embedding_provider_kind: Literal["ollama", "openai_compatible", "remote_ai_runtime"] = "ollama"
     openai_compatible_base_url: str = "http://127.0.0.1:1234/v1"
     openai_compatible_api_key: str = "lm-studio"
     openai_compatible_llm_model: str = "zai-org/glm-4.7-flash"
     openai_compatible_embedding_model: str = "text-embedding-nomic-embed-text-v1.5"
+
+    # AI runtime topology. The core API remains the policy enforcement point;
+    # the optional remote runtime only executes inference and vector operations.
+    ai_runtime_mode: Literal["disabled", "embedded", "remote"] = "embedded"
+    ai_gateway_base_url: str | None = None
+    ai_gateway_shared_secret: str | None = None
+    # Optional Cloudflare Access service-token headers. The HMAC signature is
+    # still required by the local gateway after Cloudflare authorizes the call.
+    ai_gateway_access_client_id: str | None = None
+    ai_gateway_access_client_secret: str | None = None
+    ai_gateway_request_ttl_seconds: int = 60
+    ai_gateway_health_timeout_seconds: int = 5
+    ai_embedding_profile: str | None = None
 
     # Optional notification channel placeholders
     smtp_host: str | None = None
@@ -136,6 +149,10 @@ class Settings(BaseSettings):
     @property
     def max_upload_bytes(self) -> int:
         return self.max_upload_mb * 1024 * 1024
+
+    @property
+    def ai_runtime_enabled(self) -> bool:
+        return self.ai_runtime_mode != "disabled"
 
 
 settings = Settings()

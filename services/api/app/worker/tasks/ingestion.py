@@ -5,12 +5,14 @@ from uuid import UUID
 
 import structlog
 
+from app.core.config import settings
 from app.core.dependencies import (
     get_embedding_provider,
     get_object_storage_provider,
     get_vector_store_provider,
 )
 from app.db.session import async_session_factory
+from app.modules.documents.repository import DocumentRepository
 from app.modules.ingestion.service import IngestionService
 from app.worker.celery_app import celery_app
 
@@ -19,11 +21,16 @@ logger = structlog.get_logger(__name__)
 
 async def _process_ingestion_job(job_id: UUID) -> None:
     async with async_session_factory() as db:
+        embedding_provider = None
+        vector_store_provider = None
+        if settings.ai_runtime_enabled:
+            embedding_provider = get_embedding_provider()
+            vector_store_provider = get_vector_store_provider()
         service = IngestionService(
             db,
             get_object_storage_provider(),
-            embedding_provider=get_embedding_provider(),
-            vector_store_provider=get_vector_store_provider(),
+            embedding_provider=embedding_provider,
+            vector_store_provider=vector_store_provider,
         )
         await service.process_job(job_id)
 
@@ -38,8 +45,6 @@ def process_ingestion_job(self, job_id: str) -> None:
 
 
 def enqueue_ingestion_job(job_id: UUID) -> None:
-    from app.core.config import settings
-
     if not settings.ingestion_auto_enqueue:
         return
 
@@ -47,3 +52,18 @@ def enqueue_ingestion_job(job_id: UUID) -> None:
         process_ingestion_job.delay(str(job_id))
     except Exception as exc:
         logger.warning("ingestion_enqueue_failed", job_id=str(job_id), error=str(exc))
+
+
+@celery_app.task(name="ingestion.resume_awaiting_ai_jobs")
+def resume_awaiting_ai_jobs() -> int:
+    if not settings.ai_runtime_enabled:
+        return 0
+
+    async def _resume() -> list[UUID]:
+        async with async_session_factory() as db:
+            return [job.id for job in await DocumentRepository(db).list_awaiting_ai_jobs()]
+
+    job_ids = asyncio.run(_resume())
+    for job_id in job_ids:
+        process_ingestion_job.delay(str(job_id))
+    return len(job_ids)

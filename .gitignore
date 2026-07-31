@@ -18,6 +18,8 @@ build/
 .env.local
 .env.*.local
 .env.quick-demo
+.env.core
+.env.ai-local
 services/api/.private/
 backups/
 

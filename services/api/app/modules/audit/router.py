@@ -4,16 +4,63 @@ from datetime import datetime
 from typing import Annotated, Literal
 from uuid import UUID
 
-from fastapi import APIRouter, Query, Response
+from fastapi import APIRouter, HTTPException, Query, Response, status
 from fastapi.responses import JSONResponse
 
 from app.core.authorization import require_capability
 from app.core.capabilities import CAP_AUDIT_READ
 from app.core.dependencies import AuthDep, DbDep
-from app.modules.audit.schemas import AuditEventResponse
+from app.modules.audit.schemas import AuditEventResponse, OperationFailureCreate
 from app.modules.audit.service import AuditService
 
 router = APIRouter(prefix="/admin/audit", tags=["audit"])
+
+
+def require_operation_journal_access(current: AuthDep) -> None:
+    """The association's operational journal is reserved for its two office roles."""
+    if current.has_role("president", "secretary_general"):
+        return
+    raise HTTPException(
+        status_code=status.HTTP_403_FORBIDDEN,
+        detail="President or secretary general role required",
+    )
+
+
+@router.get("/operation-journal", response_model=list[AuditEventResponse])
+async def list_operation_journal(
+    current: AuthDep,
+    db: DbDep,
+    limit: Annotated[int, Query(ge=1, le=200)] = 100,
+    search: str | None = Query(default=None),
+) -> list[AuditEventResponse]:
+    require_operation_journal_access(current)
+    return await AuditService(db).list_events(
+        current.tenant_id,
+        limit=limit,
+        search=search,
+    )
+
+
+@router.post("/operation-journal/failures", status_code=status.HTTP_204_NO_CONTENT)
+async def record_operation_failure(
+    payload: OperationFailureCreate,
+    current: AuthDep,
+    db: DbDep,
+) -> Response:
+    """Record only safe request metadata; never client payloads, tokens, or passwords."""
+    await AuditService(db).record_event(
+        tenant_id=current.tenant_id,
+        actor_user_id=current.user.id,
+        action="operation_failed",
+        entity_type="client_request",
+        module_key="operations",
+        details={
+            "method": payload.method.upper(),
+            "path": payload.path,
+            "status_code": payload.status_code,
+        },
+    )
+    return Response(status_code=status.HTTP_204_NO_CONTENT)
 
 
 @router.get("/events", response_model=list[AuditEventResponse])

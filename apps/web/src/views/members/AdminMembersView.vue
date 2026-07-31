@@ -1,5 +1,5 @@
 <template>
-  <div class="p-4">
+  <div class="p-4 members-view">
     <div class="d-flex flex-column flex-md-row align-items-md-start align-items-center justify-content-between gap-3 mb-4">
       <div>
         <h1 class="h4 fw-bold mb-0">{{ t('members.title') }}</h1>
@@ -81,6 +81,7 @@
           <td class="small">{{ formatDate(member.joined_at) }}</td>
           <td class="text-end pe-4">
             <button class="btn btn-sm btn-outline-secondary me-1" :aria-label="t('members.editMember')" @click="editMember(member)"><i class="bi bi-pencil"></i></button>
+            <button class="btn btn-sm btn-outline-warning me-1" :aria-label="member.status === 'active' ? t('members.pauseMember') : t('members.reactivateMember')" @click="toggleMemberPause(member)"><i :class="member.status === 'active' ? 'bi bi-pause-circle' : 'bi bi-play-circle'"></i></button>
             <button class="btn btn-sm btn-outline-danger" :aria-label="t('members.deleteMember')" @click="confirmDelete(member)"><i class="bi bi-trash"></i></button>
           </td>
         </tr>
@@ -98,6 +99,7 @@
       </template>
       <template #mobile-actions="{ item: member }">
         <button class="btn btn-outline-secondary" type="button" @click="editMember(member)"><i class="bi bi-pencil me-2"></i>{{ t('members.editMember') }}</button>
+        <button class="btn btn-outline-warning" type="button" @click="toggleMemberPause(member)"><i :class="member.status === 'active' ? 'bi bi-pause-circle me-2' : 'bi bi-play-circle me-2'"></i>{{ member.status === 'active' ? t('members.pauseMember') : t('members.reactivateMember') }}</button>
         <button class="btn btn-outline-danger" type="button" @click="confirmDelete(member)"><i class="bi bi-trash me-2"></i>{{ t('members.deleteMember') }}</button>
       </template>
     </ResponsiveDataView>
@@ -214,27 +216,30 @@
           </div>
           <div class="modal-body">
             <template v-if="!reviewMode">
-            <div class="mb-3">
-              <label class="form-label small fw-medium" for="member-code">{{ t('members.memberCode') }}</label>
-              <input id="member-code" v-model="form.member_code" class="form-control form-control-sm" required />
+            <div class="alert alert-light border small mb-3">
+              <i class="bi bi-magic me-1" aria-hidden="true"></i>{{ t('members.memberCodeAuto') }}
             </div>
             <div class="row g-2 mb-3">
               <div class="col">
                 <label class="form-label small fw-medium" for="member-first-name">{{ t('members.firstName') }}</label>
-                <input id="member-first-name" v-model="form.first_name" class="form-control form-control-sm" required />
+                <input id="member-first-name" v-model="form.first_name" class="form-control form-control-sm" :class="{ 'is-invalid': memberFieldErrors.first_name }" required @input="clearMemberFieldError('first_name')" />
+                <div v-if="memberFieldErrors.first_name" class="invalid-feedback">{{ memberFieldErrors.first_name }}</div>
               </div>
               <div class="col">
                 <label class="form-label small fw-medium" for="member-last-name">{{ t('members.lastName') }}</label>
-                <input id="member-last-name" v-model="form.last_name" class="form-control form-control-sm" required />
+                <input id="member-last-name" v-model="form.last_name" class="form-control form-control-sm" :class="{ 'is-invalid': memberFieldErrors.last_name }" required @input="clearMemberFieldError('last_name')" />
+                <div v-if="memberFieldErrors.last_name" class="invalid-feedback">{{ memberFieldErrors.last_name }}</div>
               </div>
             </div>
             <div class="mb-3">
               <label class="form-label small fw-medium" for="member-display-name">{{ t('members.displayName') }}</label>
-              <input id="member-display-name" v-model="form.display_name" class="form-control form-control-sm" required />
+              <input id="member-display-name" v-model="form.display_name" class="form-control form-control-sm" :class="{ 'is-invalid': memberFieldErrors.display_name }" required @input="clearMemberFieldError('display_name')" />
+              <div v-if="memberFieldErrors.display_name" class="invalid-feedback">{{ memberFieldErrors.display_name }}</div>
             </div>
             <div class="mb-3">
               <label class="form-label small fw-medium" for="member-email">{{ t('common.email') }}</label>
-              <input id="member-email" v-model="form.email" type="email" class="form-control form-control-sm" />
+              <input id="member-email" v-model="form.email" type="email" class="form-control form-control-sm" :class="{ 'is-invalid': memberFieldErrors.email }" @input="clearMemberFieldError('email')" />
+              <div v-if="memberFieldErrors.email" class="invalid-feedback">{{ memberFieldErrors.email }}</div>
             </div>
             <div class="mb-3">
               <label class="form-label small fw-medium">{{ t('members.phone') }}</label>
@@ -249,10 +254,11 @@
                   <label class="visually-hidden" for="member-phone-number">{{ t('members.phoneNumber') }}</label>
                   <div class="input-group input-group-sm">
                     <span class="input-group-text">+{{ selectedPhoneCallingCode }}</span>
-                    <input id="member-phone-number" v-model="phoneNationalNumber" class="form-control" type="tel" inputmode="tel" :placeholder="t('members.phonePlaceholder')" />
+                    <input id="member-phone-number" v-model="phoneNationalNumber" class="form-control" :class="{ 'is-invalid': memberFieldErrors.phone }" type="tel" inputmode="tel" :placeholder="t('members.phonePlaceholder')" @input="clearMemberFieldError('phone')" />
                   </div>
                 </div>
               </div>
+              <div v-if="memberFieldErrors.phone" class="invalid-feedback d-block">{{ memberFieldErrors.phone }}</div>
               <div class="form-text">{{ t('members.phoneHelp') }}</div>
             </div>
             <fieldset class="mb-1">
@@ -277,29 +283,32 @@
             <template v-if="form.provision_access">
               <div class="mb-3">
                 <label class="form-label small fw-medium">{{ t('members.loginIdentifier') }}</label>
-                <input v-model.trim="form.login_identifier" class="form-control form-control-sm" autocomplete="username" />
+                <input v-model.trim="form.login_identifier" class="form-control form-control-sm" :class="{ 'is-invalid': memberFieldErrors.login_identifier }" autocomplete="username" @input="clearMemberFieldError('login_identifier')" />
+                <div v-if="memberFieldErrors.login_identifier" class="invalid-feedback">{{ memberFieldErrors.login_identifier }}</div>
                 <div class="form-text">{{ t('members.loginIdentifierHelp') }}</div>
               </div>
               <div class="mb-3">
                 <label class="form-label small fw-medium">{{ t('members.temporaryPassword') }}</label>
                 <div class="input-group input-group-sm">
-                  <input v-model="form.temporary_password" data-testid="direct-temporary-password" class="form-control" :type="showTemporaryPassword ? 'text' : 'password'" autocomplete="new-password" minlength="8" />
+                  <input v-model="form.temporary_password" data-testid="direct-temporary-password" class="form-control" :class="{ 'is-invalid': memberFieldErrors.temporary_password }" :type="showTemporaryPassword ? 'text' : 'password'" autocomplete="new-password" minlength="8" @input="clearMemberFieldError('temporary_password')" />
                   <button data-testid="direct-temporary-password-visibility" class="btn btn-outline-secondary" type="button" @click="showTemporaryPassword = !showTemporaryPassword">
                     <i :class="showTemporaryPassword ? 'bi bi-eye-slash' : 'bi bi-eye'" class="me-1"></i>{{ showTemporaryPassword ? t('members.hidePassword') : t('members.showPassword') }}
                   </button>
                 </div>
+                <div v-if="memberFieldErrors.temporary_password" class="invalid-feedback d-block">{{ memberFieldErrors.temporary_password }}</div>
                 <div data-testid="direct-temporary-password-help" class="form-text">{{ t('members.defaultTemporaryPasswordHelp') }}</div>
               </div>
               <div class="mb-3">
                 <label class="form-label small fw-medium">{{ t('members.confirmTemporaryPassword') }}</label>
-                <input v-model="temporaryPasswordConfirmation" class="form-control form-control-sm" type="password" autocomplete="new-password" minlength="8" />
+                <input v-model="temporaryPasswordConfirmation" class="form-control form-control-sm" :class="{ 'is-invalid': memberFieldErrors.temporary_password_confirmation }" type="password" autocomplete="new-password" minlength="8" @input="clearMemberFieldError('temporary_password_confirmation')" />
+                <div v-if="memberFieldErrors.temporary_password_confirmation" class="invalid-feedback">{{ memberFieldErrors.temporary_password_confirmation }}</div>
               </div>
             </template>
             </template>
             <template v-else>
               <div class="alert alert-primary small mb-3" role="status">{{ t('members.reviewSubmissionHelp') }}</div>
               <dl class="row small mb-0">
-                <dt class="col-5">{{ t('members.memberCode') }}</dt><dd class="col-7">{{ form.member_code }}</dd>
+                <dt class="col-5">{{ t('members.memberCode') }}</dt><dd class="col-7">{{ t('members.memberCodeAutoReview') }}</dd>
                 <dt class="col-5">{{ t('common.name') }}</dt><dd class="col-7">{{ form.display_name }}</dd>
                 <dt class="col-5">{{ t('common.email') }}</dt><dd class="col-7 text-break">{{ form.email || '—' }}</dd>
                 <dt class="col-5">{{ t('members.phone') }}</dt><dd class="col-7">{{ completePhoneNumber || '—' }}</dd>
@@ -413,6 +422,7 @@ import { useCsvExport } from '@/composables/useCsvExport'
 import { useLocaleStore } from '@/stores/locale.store'
 import { useAuthStore } from '@/stores/auth.store'
 import ResponsiveDataView from '@/components/ui/ResponsiveDataView.vue'
+import { notifyOperation } from '@/services/operation-notifications'
 
 const localeStore = useLocaleStore()
 const authStore = useAuthStore()
@@ -426,13 +436,13 @@ const saving = ref(false)
 const searchQuery = ref('')
 let searchTimer: ReturnType<typeof setTimeout> | undefined
 const deletingMember = ref<MembershipProfileResponse | null>(null)
+const memberFieldErrors = ref<Record<string, string>>({})
 
 function setError(err: unknown) {
   error.value = (err as any)?.response?.data?.detail || (err as any)?.message || 'An unexpected error occurred'
 }
 
 const form = ref<CreateMemberPayload>({
-  member_code: '',
   first_name: '',
   last_name: '',
   display_name: '',
@@ -537,29 +547,44 @@ function clearSearch() {
 }
 
 function resetForm() {
-  form.value = { member_code: '', first_name: '', last_name: '', display_name: '', email: '', phone: '', membership_type: 'individual', provision_access: false, login_identifier: '', temporary_password: 'CombisPass#' }
+  form.value = { first_name: '', last_name: '', display_name: '', email: '', phone: '', membership_type: 'individual', provision_access: false, login_identifier: '', temporary_password: 'CombisPass#' }
   temporaryPasswordConfirmation.value = 'CombisPass#'
   showTemporaryPassword.value = false
   reviewMode.value = false
   selectedPhoneCountry.value = 'DE'
   phoneNationalNumber.value = ''
+  memberFieldErrors.value = {}
+}
+
+function clearMemberFieldError(field: string) {
+  if (!memberFieldErrors.value[field]) return
+  const next = { ...memberFieldErrors.value }
+  delete next[field]
+  memberFieldErrors.value = next
+}
+
+function validateMemberForm(): boolean {
+  const errors: Record<string, string> = {}
+  if (!form.value.first_name.trim()) errors.first_name = t('validation.firstNameRequired')
+  if (!form.value.last_name.trim()) errors.last_name = t('validation.lastNameRequired')
+  if (!form.value.display_name.trim()) errors.display_name = t('validation.displayNameRequired')
+  if (form.value.email?.trim() && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(form.value.email.trim())) errors.email = t('validation.emailInvalid')
+  if (phoneNationalNumber.value.trim() && !/^\+[1-9]\d{7,14}$/.test(completePhoneNumber.value)) errors.phone = t('validation.phoneInvalid')
+  if (form.value.provision_access) {
+    if (!form.value.email?.trim() && !completePhoneNumber.value && !form.value.login_identifier?.trim()) {
+      errors.login_identifier = t('members.accountContactRequired')
+    }
+    if (!form.value.temporary_password || form.value.temporary_password.length < 8) errors.temporary_password = t('validation.passwordTooShort')
+    if (form.value.temporary_password !== temporaryPasswordConfirmation.value) errors.temporary_password_confirmation = t('members.passwordMismatch')
+  }
+  memberFieldErrors.value = errors
+  if (Object.keys(errors).length === 0) return true
+  notifyOperation({ level: 'warning', messageKey: 'validation.correctHighlightedFields' })
+  return false
 }
 
 function reviewCreate() {
-  if (form.value.provision_access) {
-    if (!form.value.email?.trim() && !completePhoneNumber.value && !form.value.login_identifier?.trim()) {
-      setError(new Error(t('members.accountContactRequired')))
-      return
-    }
-    if (form.value.temporary_password !== temporaryPasswordConfirmation.value) {
-      setError(new Error(t('members.passwordMismatch')))
-      return
-    }
-    if (completePhoneNumber.value && !/^\+[1-9]\d{7,14}$/.test(completePhoneNumber.value)) {
-      setError(new Error(t('members.phoneFormatRequired')))
-      return
-    }
-  }
+  if (!validateMemberForm()) return
   reviewMode.value = true
 }
 
@@ -567,7 +592,6 @@ async function confirmCreate() {
   saving.value = true
   try {
     const payload: CreateMemberPayload = {
-      member_code: form.value.member_code,
       first_name: form.value.first_name,
       last_name: form.value.last_name,
       display_name: form.value.display_name,
@@ -616,8 +640,24 @@ async function handleUpdate() {
   finally { saving.value = false }
 }
 
+async function toggleMemberPause(member: MembershipProfileResponse) {
+  saving.value = true
+  try {
+    const isActive = member.status === 'active'
+    await updateMember(member.id, { status: isActive ? 'suspended' : 'active' })
+    notifyOperation({ level: 'success', messageKey: isActive ? 'members.pauseSuccess' : 'members.reactivateSuccess' })
+    await loadMembers()
+  } catch (err) {
+    setError(err)
+    notifyOperation({ level: 'error', messageKey: 'common.error' })
+  } finally {
+    saving.value = false
+  }
+}
+
 function confirmDelete(member: MembershipProfileResponse) {
   deletingMember.value = member
+  notifyOperation({ level: 'warning', messageKey: 'toast.deleteWarning' })
   nextTick(() => {
     const modal = new bootstrap.Modal(document.getElementById('deleteMemberModal')!)
     modal.show()
@@ -638,3 +678,11 @@ async function handleDelete() {
 
 onMounted(loadMembers)
 </script>
+
+<style scoped>
+@media (max-width: 767.98px) {
+  .members-view :deep(.mobile-data-card__actions) {
+    grid-template-columns: 1fr;
+  }
+}
+</style>

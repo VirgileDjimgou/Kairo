@@ -1,0 +1,35 @@
+# Private home-machine AI runtime. No Ollama or Qdrant ports are published.
+# Run with: docker compose --env-file .env.ai-local -f docker-compose.ai-local.yml --profile ai-tunnel up -d --build
+services:
+  qdrant:
+    image: qdrant/qdrant:latest
+    volumes: [qdrant_data:/qdrant/storage]
+    expose: ["6333", "6334"]
+    restart: unless-stopped
+
+  ollama:
+    image: ollama/ollama:latest
+    volumes: [ollama_data:/root/.ollama]
+    expose: ["11434"]
+    restart: unless-stopped
+
+  ai-gateway:
+    build:
+      context: ./services/api
+      target: production
+    command: uvicorn ai_gateway.main:app --host 0.0.0.0 --port 8081
+    env_file: ["${AI_LOCAL_ENV_FILE:-.env.ai-local}"]
+    expose: ["8081"]
+    depends_on: [qdrant, ollama]
+    restart: unless-stopped
+
+  cloudflared-ai:
+    image: cloudflare/cloudflared:latest
+    command: tunnel --no-autoupdate run --token ${AI_CLOUDFLARE_TUNNEL_TOKEN}
+    depends_on: [ai-gateway]
+    profiles: [ai-tunnel]
+    restart: unless-stopped
+
+volumes:
+  qdrant_data:
+  ollama_data:

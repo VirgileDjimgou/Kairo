@@ -11,13 +11,8 @@ export interface SystemHealthResponse {
   modules: string[]
 }
 
-const SYSTEM_BASE_URL = (import.meta.env.VITE_API_BASE_URL || 'http://localhost:8000/api/v1').replace(
-  /\/api\/v1\/?$/,
-  '',
-)
-
 export async function getSystemHealth(): Promise<SystemHealthResponse> {
-  const response = await fetch(`${SYSTEM_BASE_URL}/health`, {
+  const response = await fetch(`${getApiOrigin()}/health`, {
     headers: {
       'Content-Type': 'application/json',
     },
@@ -29,3 +24,4 @@ export async function getSystemHealth(): Promise<SystemHealthResponse> {
 
   return response.json() as Promise<SystemHealthResponse>
 }
+import { getApiOrigin } from './http'

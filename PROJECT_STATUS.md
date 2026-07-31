@@ -1,6 +1,6 @@
 # Project Status
 
-Last updated: 2026-07-28
+Last updated: 2026-07-31
 
 ## Current Sprint
 
@@ -18,6 +18,13 @@ No additional sprint is currently scheduled.
 - Intended operational scope: usable by an association or organization of about 200 members with differentiated office roles
 - Remaining planned execution window: 0 — all planned sprints completed
 - Delivery status: Sprint 99 completed: canonical office roles can declare a cash receipt without changing official finance, the treasurer alone can validate it into an official payment, and the member, declarant, and audit trail retain the corresponding status evidence.
+- Post-Sprint 99 stabilization: the client now provides centralized, dismissible top-right operation feedback for all API mutations and failures; sanitized failures are retained in a tenant-scoped operation journal visible only to the president and secretary general. Visual proof is stored under `apps/web/artifacts/role-workflow-proof/2026-07-29/`.
+- Form-validation stabilization: member creation and receipt declarations now stop invalid submissions locally, show a top-right warning, and mark every affected control in red with field-specific guidance.
+- HTTPS transport stabilization: the production API client, streaming chat transport, and health probe now share one same-origin URL resolver. An obsolete insecure same-host API setting is upgraded to HTTPS automatically, preventing mixed-content API calls from the public application.
+- Operations journal clarity: president and secretary general now see the author’s display name or email plus tenant role(s), and localized human-readable action and outcome summaries instead of internal actor, tenant, and request identifiers.
+- Finance export pack: treasurer and auditor can export the year-specific member finance register as a styled Excel workbook, a professional PDF, or a mobile-ready WhatsApp summary. Excel uses a broadly compatible worksheet filter rather than table XML, and the WhatsApp action opens the complete report directly in WhatsApp to avoid mobile share-sheet truncation. Every row contains the member identity, contact details, current contribution totals, open sanctions, and total due; sensitive exports are audited.
+- Optional remote AI runtime: the cloud core can now run without Ollama/Qdrant while a private local AI gateway proxies signed, short-lived cloud requests to local Ollama and Qdrant through a separate Cloudflare Tunnel. The AI runtime can be explicitly disabled or allowed to recover deferred ingestion automatically after a local-machine restart.
+- Membership lifecycle: the president and secretary general can pause or reactivate a member in addition to editing or deleting the profile; phone actions are stacked as full-width controls for safe touch use.
 - Delivery status: Sprint 98 completed all acceptance gates: non-placeholder secrets validated, `app_debug` defaults to `False`, seed no longer logs passwords, JWT secret validated in production mode, "Combis Sport Verein" product-level hardcoding removed, and a non-destructive PostgreSQL restore drill verified against an isolated target.
 - Local pilot preparation includes a controlled workbook import that replaces only member-only accounts and their finance records after a private backup, while preserving office accounts and tenant operational content.
 - Private PostgreSQL backup created and restore drill passed — full schema (27 tables), data (119 users, 58 documents, 381 chunks, 111 contributions), and role integrity preserved on isolated target.

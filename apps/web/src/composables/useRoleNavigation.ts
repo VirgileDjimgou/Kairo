@@ -156,6 +156,11 @@ export function useRoleNavigation() {
         to: "/members/manage",
         icon: "bi-people",
       });
+      workspaceItems.push({
+        label: localeStore.t("nav.operationJournal"),
+        to: "/operation-journal",
+        icon: "bi-journal-check",
+      });
     }
     if (!isMember.value) {
       workspaceItems.push({

@@ -9,15 +9,19 @@ from typing import Any
 from uuid import UUID
 
 from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy import select
 
 from app.core.privacy import redact_nested_data
 from app.modules.audit.models import AuditEvent
 from app.modules.audit.repository import AuditRepository
-from app.modules.audit.schemas import AuditEventResponse
+from app.modules.audit.schemas import AuditActorSummary, AuditEventResponse
+from app.modules.identity.models import User
+from app.modules.tenancy.models import Role, TenantUser, user_roles
 
 
 class AuditService:
     def __init__(self, db: AsyncSession) -> None:
+        self._db = db
         self._repo = AuditRepository(db)
 
     async def record_event(
@@ -71,7 +75,8 @@ class AuditService:
             created_from=created_from,
             created_to=created_to,
         )
-        return [self._to_response(row) for row in rows]
+        actors = await self._load_actor_summaries(tenant_id, rows)
+        return [self._to_response(row, actors.get(row.actor_user_id)) for row in rows]
 
     async def count_events(
         self,
@@ -160,11 +165,42 @@ class AuditService:
             )
         return buffer.getvalue()
 
-    def _to_response(self, event: AuditEvent) -> AuditEventResponse:
+    async def _load_actor_summaries(
+        self,
+        tenant_id: UUID,
+        events: list[AuditEvent],
+    ) -> dict[UUID, AuditActorSummary]:
+        actor_ids = {event.actor_user_id for event in events if event.actor_user_id is not None}
+        if not actor_ids:
+            return {}
+
+        result = await self._db.execute(
+            select(TenantUser.user_id, User.display_name, User.email, Role.code)
+            .join(User, User.id == TenantUser.user_id)
+            .outerjoin(user_roles, user_roles.c.tenant_user_id == TenantUser.id)
+            .outerjoin(Role, Role.id == user_roles.c.role_id)
+            .where(TenantUser.tenant_id == tenant_id, TenantUser.user_id.in_(actor_ids))
+        )
+        summaries: dict[UUID, AuditActorSummary] = {}
+        for user_id, display_name, email, role_code in result.all():
+            existing = summaries.get(user_id)
+            if existing is None:
+                existing = AuditActorSummary(display_name=display_name, email=email)
+                summaries[user_id] = existing
+            if role_code and role_code not in existing.roles:
+                existing.roles.append(role_code)
+        return summaries
+
+    def _to_response(
+        self,
+        event: AuditEvent,
+        actor: AuditActorSummary | None = None,
+    ) -> AuditEventResponse:
         return AuditEventResponse(
             id=event.id,
             tenant_id=event.tenant_id,
             actor_user_id=event.actor_user_id,
+            actor=actor,
             module_key=event.module_key,
             action=event.action,
             entity_type=event.entity_type,

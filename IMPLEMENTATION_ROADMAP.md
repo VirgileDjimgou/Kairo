@@ -3973,6 +3973,8 @@ Acceptance criteria met:
 
 ## Roadmap Status
 
+Post-Sprint 99 deployment stabilization: completed the modular remote AI runtime topology. `docker-compose.core.yml` provides the cloud core without Ollama/Qdrant; `docker-compose.ai-local.yml` provides the private local runtime and its separate tunnel. The cloud API uses a replay-safe HMAC request contract (optionally layered with Cloudflare Access service tokens), and disabled/offline AI states preserve business workflows and defer document indexing for automatic retry.
+
 The historical track through Sprint 57 is complete.
 
 Sprint 61 is now complete.
@@ -4025,3 +4027,9 @@ Completed deliverables:
 - integration tests for role denials, validation, and balance integrity.
 - responsive declaration and treasurer-validation screens, with member pending-status detail;
 - mobile visual regression proof at 390 × 844 on Chromium and WebKit, stored under `apps/web/artifacts/role-workflow-proof/2026-07-28/`.
+- Post-Sprint 99 stabilization: centralized Vue Toastification feedback at the top right for successful mutations, validation warnings, and API failures; safe failure metadata is recorded in the audit store and exposed through a president/secretary-only operations journal. Chromium proof is stored under `apps/web/artifacts/role-workflow-proof/2026-07-29/`.
+- Form-validation stabilization: member creation and cash receipt declarations now perform client-side validation before submission, use top-right warnings, and highlight each invalid field in red with localized corrective text.
+- HTTPS transport stabilization: the API client, streaming chat transport, and health probe share one same-origin resolver in production. Obsolete insecure same-host API URLs are upgraded to HTTPS automatically, preventing mixed-content API calls in the public application.
+- Operations journal clarity: the protected president/secretary journal resolves each author to their display name or email and tenant role(s), and translates common actions and outcomes into localized, human-readable summaries rather than exposing internal identifiers.
+- Finance export pack: treasurer and auditor can securely export the year-specific member finance register as a styled Excel workbook, a professional PDF, or a mobile-ready WhatsApp summary. The spreadsheet uses a compatible worksheet filter rather than table XML, WhatsApp receives the complete report through its direct share URL, and mobile export controls are stacked in readable full-width rows. Rows include member identity and contact details, contribution totals, open sanctions, and total due; each sensitive export is audited.
+- Member lifecycle refinement: president and secretary general can pause or reactivate a membership from the member list, with mobile-safe stacked action buttons alongside edit and delete.

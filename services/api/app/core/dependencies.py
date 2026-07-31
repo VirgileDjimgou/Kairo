@@ -122,7 +122,9 @@ async def get_current_user(
     ip_address = (
         forwarded.split(",")[0].strip()
         if forwarded
-        else request.client.host if request and request.client else None
+        else request.client.host
+        if request and request.client
+        else None
     )
     user_agent = request.headers.get("User-Agent") if request else None
     await session_repo.touch(
@@ -159,6 +161,10 @@ ObjectStorageDep = Annotated[ObjectStorageProvider, Depends(get_object_storage_p
 
 @lru_cache(maxsize=1)
 def get_embedding_provider() -> EmbeddingProvider:
+    if settings.embedding_provider_kind == "remote_ai_runtime":
+        from app.providers.ai_runtime.remote import RemoteAiRuntimeEmbeddingProvider
+
+        return RemoteAiRuntimeEmbeddingProvider()
     if settings.embedding_provider_kind == "openai_compatible":
         from app.providers.embeddings.openai_compatible import (
             OpenAICompatibleEmbeddingProvider,
@@ -173,6 +179,10 @@ def get_embedding_provider() -> EmbeddingProvider:
 
 @lru_cache(maxsize=1)
 def get_vector_store_provider() -> VectorStoreProvider:
+    if settings.ai_runtime_mode == "remote":
+        from app.providers.ai_runtime.remote import RemoteAiRuntimeVectorStoreProvider
+
+        return RemoteAiRuntimeVectorStoreProvider()
     from app.providers.vector_store.qdrant import QdrantVectorStoreProvider
 
     return QdrantVectorStoreProvider()
@@ -184,6 +194,10 @@ VectorStoreDep = Annotated[VectorStoreProvider, Depends(get_vector_store_provide
 
 @lru_cache(maxsize=1)
 def get_llm_provider() -> LLMProvider:
+    if settings.llm_provider_kind == "remote_ai_runtime":
+        from app.providers.ai_runtime.remote import RemoteAiRuntimeLLMProvider
+
+        return RemoteAiRuntimeLLMProvider()
     if settings.llm_provider_kind == "openai_compatible":
         from app.providers.llm.openai_compatible import OpenAICompatibleLLMProvider
 

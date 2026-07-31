@@ -19,6 +19,11 @@ celery_app = Celery(
     },
 )
 
+celery_app.conf.beat_schedule["resume-awaiting-ai-ingestion"] = {
+    "task": "ingestion.resume_awaiting_ai_jobs",
+    "schedule": 60.0,
+}
+
 celery_app.conf.update(
     task_serializer="json",
     result_serializer="json",

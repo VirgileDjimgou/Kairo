@@ -118,6 +118,12 @@ const router = createRouter({
           },
         },
         {
+          path: "operation-journal",
+          name: "operation-journal",
+          component: () => import("@/views/admin/OperationJournalView.vue"),
+          meta: { allowedRoles: ["president", "secretary_general"] },
+        },
+        {
           path: "sports",
           name: "sports-workspace",
           component: () => import("@/views/sports/SportsWorkspaceView.vue"),

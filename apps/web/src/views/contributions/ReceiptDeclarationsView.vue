@@ -22,7 +22,7 @@
             <p class="small text-muted">{{ copy.declareLead }}</p>
             <form class="vstack gap-3" @submit.prevent="createAndSubmit">
               <div class="position-relative">
-                <input v-model.trim="memberSearch" class="form-control" :placeholder="copy.searchMember" @focus="showMemberResults = true" />
+                <input v-model.trim="memberSearch" class="form-control" :class="{ 'is-invalid': declarationFieldErrors.membership_profile_id }" :placeholder="copy.searchMember" @focus="showMemberResults = true" @input="clearDeclarationFieldError('membership_profile_id')" />
                 <div v-if="showMemberResults && memberSearch" class="list-group position-absolute w-100 shadow-sm receipt-member-results">
                   <div v-for="member in filteredMembers.slice(0, 8)" :key="member.id" class="list-group-item d-flex align-items-center gap-2">
                     <button class="btn btn-link text-start text-decoration-none flex-grow-1 p-0" type="button" @click="selectMember(member)">
@@ -35,16 +35,17 @@
                   <div v-if="filteredMembers.length === 0" class="list-group-item small text-muted">{{ copy.noMemberFound }}</div>
                 </div>
               </div>
-              <select v-model="form.membership_profile_id" class="form-select" :aria-label="copy.chooseMemberFromList" @change="selectMemberById">
+              <select v-model="form.membership_profile_id" class="form-select" :class="{ 'is-invalid': declarationFieldErrors.membership_profile_id }" :aria-label="copy.chooseMemberFromList" @change="selectMemberById">
                 <option value="">{{ copy.chooseMemberFromList }}</option>
                 <option v-for="member in members" :key="member.id" :value="member.id">{{ member.display_name }} · {{ member.member_code }}</option>
               </select>
+              <div v-if="declarationFieldErrors.membership_profile_id" class="invalid-feedback d-block">{{ declarationFieldErrors.membership_profile_id }}</div>
               <div v-if="selectedMember" class="alert alert-primary small py-2 mb-0 d-flex justify-content-between align-items-center">
                 <span>{{ selectedMember.display_name }} ({{ selectedMember.member_code }})</span>
                 <button class="btn btn-sm btn-link p-0" type="button" @click="clearMember">{{ copy.changeMember }}</button>
               </div>
               <div class="row g-2">
-                <div class="col-7"><input v-model="form.amount" class="form-control" type="number" min="0.01" step="0.01" :placeholder="copy.amount" required /></div>
+                <div class="col-7"><input v-model="form.amount" class="form-control" :class="{ 'is-invalid': declarationFieldErrors.amount }" type="number" min="0.01" step="0.01" :placeholder="copy.amount" @input="clearDeclarationFieldError('amount')" /><div v-if="declarationFieldErrors.amount" class="invalid-feedback">{{ declarationFieldErrors.amount }}</div></div>
                 <div class="col-5"><select v-model="form.payment_method" class="form-select"><option value="cash">{{ copy.cash }}</option><option value="check">{{ copy.check }}</option><option value="bank_transfer">{{ copy.transfer }}</option></select></div>
               </div>
               <input v-model="form.reference" class="form-control" :placeholder="copy.reference" />
@@ -134,6 +135,7 @@ import {
 import { listContributions, type ContributionRecordResponse } from '@/api/contributions.api'
 import { useAuthStore } from '@/stores/auth.store'
 import { useLocaleStore } from '@/stores/locale.store'
+import { notifyOperation } from '@/services/operation-notifications'
 
 const auth = useAuthStore()
 const locale = useLocaleStore()
@@ -145,6 +147,7 @@ const loading = ref(false)
 const saving = ref(false)
 const error = ref('')
 const notice = ref('')
+const declarationFieldErrors = ref<Record<string, string>>({})
 const form = ref({ membership_profile_id: '', amount: '', payment_method: 'cash', reference: '', note: '' })
 const memberSearch = ref('')
 const showMemberResults = ref(false)
@@ -173,7 +176,7 @@ const copy = computed(() => {
   }
 })
 function memberLabel(id: string) { const member = memberById.value[id]; return member ? `${member.display_name} (${member.member_code})` : id }
-function selectMember(member: ContributionReceiptMemberOption) { form.value.membership_profile_id = member.id; memberSearch.value = member.display_name; showMemberResults.value = false }
+function selectMember(member: ContributionReceiptMemberOption) { form.value.membership_profile_id = member.id; memberSearch.value = member.display_name; showMemberResults.value = false; clearDeclarationFieldError('membership_profile_id') }
 function selectMemberById() { const member = selectedMember.value; if (member) selectMember(member); else clearMember() }
 function clearMember() { form.value.membership_profile_id = ''; memberSearch.value = ''; showMemberResults.value = true }
 function openMemberDetails(member: ContributionReceiptMemberOption) { detailMember.value = member; showMemberResults.value = false }
@@ -198,7 +201,24 @@ function statusLabel(status: string) {
 }
 function badgeClass(status: string) { return ({ submitted: 'text-bg-warning', validated: 'text-bg-success', partially_validated: 'text-bg-success', rejected: 'text-bg-danger', clarification_requested: 'text-bg-info', cancelled: 'text-bg-secondary' }[status] || 'text-bg-secondary') }
 async function load() { loading.value = true; error.value = ''; try { members.value = await listContributionReceiptDeclarationMemberOptions(); ownDeclarations.value = await listMyContributionReceiptDeclarations(); if (isTreasurer.value) { [allDeclarations.value, contributions.value] = await Promise.all([listContributionReceiptDeclarations(), listContributions()]) } } catch (err) { error.value = err instanceof Error ? err.message : copy.value.loadFailed } finally { loading.value = false } }
-async function createAndSubmit() { saving.value = true; error.value = ''; try { const item = await createContributionReceiptDeclaration({ ...form.value, reference: form.value.reference || null, note: form.value.note || null }); await submitContributionReceiptDeclaration(item.id); form.value = { membership_profile_id: '', amount: '', payment_method: 'cash', reference: '', note: '' }; notice.value = copy.value.submitted; await load() } catch (err) { error.value = err instanceof Error ? err.message : copy.value.submitFailed } finally { saving.value = false } }
+function clearDeclarationFieldError(field: string) {
+  if (!declarationFieldErrors.value[field]) return
+  const next = { ...declarationFieldErrors.value }
+  delete next[field]
+  declarationFieldErrors.value = next
+}
+
+function validateDeclarationForm(): boolean {
+  const errors: Record<string, string> = {}
+  if (!form.value.membership_profile_id) errors.membership_profile_id = locale.t('validation.memberRequired')
+  if (!form.value.amount || !Number.isFinite(Number(form.value.amount)) || Number(form.value.amount) <= 0) errors.amount = locale.t('validation.amountRequired')
+  declarationFieldErrors.value = errors
+  if (Object.keys(errors).length === 0) return true
+  notifyOperation({ level: 'warning', messageKey: 'validation.correctHighlightedFields' })
+  return false
+}
+
+async function createAndSubmit() { if (!validateDeclarationForm()) return; saving.value = true; error.value = ''; try { const item = await createContributionReceiptDeclaration({ ...form.value, reference: form.value.reference || null, note: form.value.note || null }); await submitContributionReceiptDeclaration(item.id); form.value = { membership_profile_id: '', amount: '', payment_method: 'cash', reference: '', note: '' }; memberSearch.value = ''; declarationFieldErrors.value = {}; notice.value = copy.value.submitted; await load() } catch (err) { error.value = err instanceof Error ? err.message : copy.value.submitFailed } finally { saving.value = false } }
 async function process(item: ContributionReceiptDeclarationResponse, action: 'validated' | 'rejected') { try { const contribution = contributions.value.find((row) => row.membership_profile_id === item.membership_profile_id && Number(row.balance) > 0); if (action === 'validated' && !contribution) { error.value = copy.value.noOutstanding; return } const payload = action === 'validated' ? { action, contribution_record_id: contribution!.id } : { action, note: copy.value.rejected }; await processContributionReceiptDeclaration(item.id, payload); notice.value = action === 'validated' ? copy.value.validated : copy.value.rejected; await load() } catch (err) { error.value = err instanceof Error ? err.message : copy.value.processFailed } }
 onMounted(load)
 </script>

@@ -65,6 +65,15 @@ class DocumentRepository:
         result = await self._db.execute(select(IngestionJob).where(IngestionJob.id == job_id))
         return result.scalar_one_or_none()
 
+    async def list_awaiting_ai_jobs(self, limit: int = 25) -> list[IngestionJob]:
+        result = await self._db.execute(
+            select(IngestionJob)
+            .where(IngestionJob.status == "awaiting_ai")
+            .order_by(IngestionJob.created_at.asc())
+            .limit(limit)
+        )
+        return list(result.scalars().all())
+
     async def get_version_for_tenant(
         self, tenant_id: UUID, version_id: UUID
     ) -> DocumentVersion | None:
@@ -160,7 +169,9 @@ class DocumentRepository:
         from app.modules.documents.models import IngestionJob
 
         result = await self._db.execute(
-            select(IngestionJob.id).where(IngestionJob.status.in_(["completed", "failed"]))
+            select(IngestionJob.id).where(
+                IngestionJob.status.in_(["completed", "failed", "awaiting_ai"])
+            )
         )
         job_ids = [row[0] for row in result.all()]
         if not job_ids:

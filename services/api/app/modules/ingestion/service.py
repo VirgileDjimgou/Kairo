@@ -11,6 +11,7 @@ from app.modules.documents.models import DocumentChunk, DocumentStatus, Ingestio
 from app.modules.documents.repository import DocumentRepository
 from app.modules.indexing.service import IndexingService
 from app.modules.ingestion.chunking import chunk_text, estimate_token_count
+from app.providers.ai_runtime.remote import AiRuntimeUnavailableError
 from app.providers.parsers import parse_document_bytes
 
 logger = structlog.get_logger(__name__)
@@ -39,6 +40,10 @@ class IngestionService:
             return
 
         if job.status in {"completed", "processing"}:
+            return
+
+        if not settings.ai_runtime_enabled:
+            await self._mark_awaiting_ai(job, "Assistant IA désactivé par l’association")
             return
 
         version = await self._repo.get_version_for_tenant(job.tenant_id, job.document_version_id)
@@ -106,12 +111,30 @@ class IngestionService:
                 chunk_count=len(chunks),
                 indexed_count=indexed_count,
             )
+        except AiRuntimeUnavailableError:
+            await self._db.rollback()
+            job = await self._repo.get_ingestion_job_by_id(job_id)
+            if job is not None:
+                await self._mark_awaiting_ai(job, "Assistant IA temporairement indisponible")
+            document = (
+                await self._repo.get_document(job.tenant_id, job.document_id)
+                if job is not None
+                else None
+            )
+            if document is not None and document.status != DocumentStatus.archived.value:
+                document.status = DocumentStatus.uploaded.value
+                await self._db.commit()
+            logger.info("ingestion_awaiting_ai", job_id=str(job_id))
         except Exception as exc:
             await self._db.rollback()
             job = await self._repo.get_ingestion_job_by_id(job_id)
             if job is not None:
                 await self._mark_failed(job, str(exc))
-            document = await self._repo.get_document(job.tenant_id, job.document_id) if job is not None else None
+            document = (
+                await self._repo.get_document(job.tenant_id, job.document_id)
+                if job is not None
+                else None
+            )
             if document is not None and document.status != DocumentStatus.archived.value:
                 document.status = DocumentStatus.uploaded.value
                 await self._db.commit()
@@ -143,4 +166,11 @@ class IngestionService:
         job.status = "failed"
         job.error_message = message[:2000]
         job.finished_at = datetime.now(UTC)
+        await self._db.commit()
+
+    async def _mark_awaiting_ai(self, job: IngestionJob, message: str) -> None:
+        job.status = "awaiting_ai"
+        job.error_message = message
+        job.started_at = None
+        job.finished_at = None
         await self._db.commit()

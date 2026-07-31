@@ -239,6 +239,9 @@ test.describe('Auditor finance workspace', () => {
     await expect(page.getByRole('heading', { name: 'Read-only finance oversight' })).toBeVisible()
     await expect(page.getByText('210.00 EUR')).toBeVisible()
     await expect(page.getByRole('button', { name: 'Export finance report' })).toBeVisible()
+    await expect(page.getByRole('button', { name: 'Export Excel' })).toBeVisible()
+    await expect(page.getByRole('button', { name: 'Export PDF' })).toBeVisible()
+    await expect(page.getByRole('button', { name: 'Copy for WhatsApp' })).toBeVisible()
     await expect(page.getByText('Alice Example (M001)')).toBeVisible()
     await expect(page.getByText('40.00 EUR · bank transfer')).toBeVisible()
     await expect(page.getByRole('button', { name: 'Record payment' })).toHaveCount(0)
@@ -253,5 +256,33 @@ test.describe('Auditor finance workspace', () => {
     await expect(page).toHaveURL(/\/dashboard$/)
     await expect(page.getByRole('heading', { name: 'Welcome back, Auditor Demo' })).toBeVisible()
     expect(financeRequests).toEqual([])
+  })
+
+  test('mobile export controls use full-width rows without clipped labels', async ({ page }, testInfo) => {
+    await page.setViewportSize({ width: 390, height: 844 })
+    await mockAuditorFinance(page)
+    await page.goto('/finance-audit')
+
+    const exportExcel = page.getByRole('button', { name: 'Export Excel' })
+    const exportPdf = page.getByRole('button', { name: 'Export PDF' })
+    const shareWhatsapp = page.getByRole('button', { name: 'Copy for WhatsApp' })
+
+    await expect(exportExcel).toBeVisible()
+    await expect(exportPdf).toBeVisible()
+    await expect(shareWhatsapp).toBeVisible()
+    await expect(exportExcel).toHaveCSS('white-space', 'normal')
+    await expect(exportPdf).toHaveCSS('white-space', 'normal')
+    await expect(shareWhatsapp).toHaveCSS('white-space', 'normal')
+
+    const excelBox = await exportExcel.boundingBox()
+    const pdfBox = await exportPdf.boundingBox()
+    const whatsappBox = await shareWhatsapp.boundingBox()
+    expect(excelBox?.width).toBeGreaterThan(240)
+    expect(pdfBox?.width).toBeGreaterThan(240)
+    expect(whatsappBox?.width).toBeGreaterThan(240)
+    expect(pdfBox?.y).toBeGreaterThan(excelBox?.y ?? 0)
+    expect(whatsappBox?.y).toBeGreaterThan(pdfBox?.y ?? 0)
+
+    await page.screenshot({ path: testInfo.outputPath('auditor-finance-mobile.png'), fullPage: true })
   })
 })

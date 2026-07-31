@@ -8,7 +8,7 @@
           {{ t('finance.workspaceSubtitle') }}
         </p>
       </div>
-      <div class="d-flex gap-2 align-items-start">
+      <div class="finance-actions">
         <select v-model="selectedYear" class="form-select form-select-sm" style="width: auto" @change="refreshFinanceData">
           <option v-for="year in years" :key="year" :value="year">{{ year }}</option>
         </select>
@@ -16,6 +16,9 @@
           <span v-if="loading" class="spinner-border spinner-border-sm me-1" aria-hidden="true"></span>
           {{ t('common.refresh') }}
         </button>
+        <button class="btn btn-outline-primary btn-sm" type="button" @click="downloadMemberReport('xlsx')" :disabled="exporting">{{ t('finance.exportExcel') }}</button>
+        <button class="btn btn-outline-primary btn-sm" type="button" @click="downloadMemberReport('pdf')" :disabled="exporting">{{ t('finance.exportPdf') }}</button>
+        <button class="btn btn-outline-success btn-sm" type="button" @click="shareWhatsappSummary" :disabled="exporting">{{ t('finance.copyForWhatsapp') }}</button>
       </div>
     </div>
 
@@ -369,7 +372,8 @@
 
 <script setup lang="ts">
 import {
-  createContribution,
+    createContribution,
+    exportMemberFinanceReport,
   getContributionSummary,
   listContributions,
   listContributionReminders,
@@ -380,7 +384,8 @@ import {
   type ContributionReminderResponse,
   type ContributionRecordResponse,
   type ContributionSummary,
-  type PaymentRecordResponse,
+    type PaymentRecordResponse,
+    type MemberFinanceExportFormat,
 } from '@/api/contributions.api'
 import {
   getMemberBalance,
@@ -398,7 +403,8 @@ const localeStore = useLocaleStore()
 const t = (key: string) => localeStore.t(key)
 
 const { loading, error, isRecovering, run, retry, clearError } = useRecoveryState()
-const notice = ref('')
+  const notice = ref('')
+  const exporting = ref(false)
 const savingContribution = ref(false)
 const savingPayment = ref(false)
 const sendingSingleReminderId = ref('')
@@ -567,7 +573,7 @@ async function refreshAll() {
   })
 }
 
-async function retryAll() {
+  async function retryAll() {
   await retry(async () => {
     members.value = await listMembers()
     await refreshFinanceData()
@@ -590,6 +596,40 @@ async function handleSingleReminder(contribution: ContributionRecordResponse) {
   } finally {
     sendingSingleReminderId.value = ''
   }
+}
+
+async function downloadMemberReport(format: Exclude<MemberFinanceExportFormat, 'whatsapp'>) {
+    exporting.value = true
+    try {
+      const blob = await exportMemberFinanceReport(format, selectedYear.value)
+      downloadBlob(blob, `rapport-financier-${selectedYear.value}.${format}`)
+    } finally {
+      exporting.value = false
+    }
+  }
+
+async function shareWhatsappSummary() {
+  exporting.value = true
+  try {
+    const summary = await (await exportMemberFinanceReport('whatsapp', selectedYear.value)).text()
+    if (navigator.clipboard?.writeText) {
+      await navigator.clipboard.writeText(summary)
+      notice.value = t('finance.whatsappCopied')
+    } else {
+      downloadBlob(new Blob([summary], { type: 'text/plain;charset=utf-8' }), `rapport-financier-${selectedYear.value}-whatsapp.txt`)
+      notice.value = t('finance.whatsappFileDownloaded')
+    }
+  } finally {
+    exporting.value = false
+  }
+}
+
+function downloadBlob(blob: Blob, filename: string) {
+    const link = document.createElement('a')
+    link.href = URL.createObjectURL(blob)
+    link.download = filename
+    link.click()
+    URL.revokeObjectURL(link.href)
 }
 
 async function handleBatchReminder() {
@@ -688,3 +728,38 @@ onMounted(async () => {
   await refreshAll()
 })
 </script>
+
+<style scoped>
+.finance-actions {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.5rem;
+}
+
+.finance-actions .btn,
+.finance-actions .form-select {
+  min-height: 44px;
+}
+
+@media (max-width: 767.98px) {
+  .finance-actions {
+    display: grid;
+    width: 100%;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .finance-actions .form-select,
+  .finance-actions .btn {
+    width: 100% !important;
+  }
+
+  .finance-actions .btn {
+    white-space: normal;
+  }
+
+  .finance-actions .btn-outline-primary,
+  .finance-actions .btn-outline-success {
+    grid-column: 1 / -1;
+  }
+}
+</style>

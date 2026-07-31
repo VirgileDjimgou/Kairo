@@ -1,5 +1,7 @@
 from datetime import datetime, timezone
 from decimal import Decimal
+import secrets
+import unicodedata
 from uuid import UUID
 
 import fitz
@@ -41,13 +43,21 @@ class MembershipService:
         *,
         actor_user_id: UUID | None = None,
     ) -> MembershipProfileResponse:
-        existing = await self._repo.get_by_member_code(tenant_id, data.member_code)
-        if existing:
-            raise HTTPException(
-                status_code=status.HTTP_409_CONFLICT,
-                detail="A member with this code already exists",
-            )
         profile_data = data.model_dump(exclude_unset=True)
+        requested_member_code = profile_data.pop("member_code", None)
+        if requested_member_code:
+            existing = await self._repo.get_by_member_code(tenant_id, requested_member_code)
+            if existing:
+                raise HTTPException(
+                    status_code=status.HTTP_409_CONFLICT,
+                    detail="A member with this code already exists",
+                )
+            profile_data["member_code"] = requested_member_code
+        else:
+            profile_data["member_code"] = await self._generate_member_code(
+                tenant_id=tenant_id,
+                last_name=data.last_name,
+            )
         membership_type = profile_data.pop("membership_type", None)
         provision_access = profile_data.pop("provision_access", False)
         login_identifier = profile_data.pop("login_identifier", None)
@@ -96,6 +106,19 @@ class MembershipService:
         )
         await self._db.commit()
         return MembershipProfileResponse.model_validate(profile)
+
+    async def _generate_member_code(self, *, tenant_id: UUID, last_name: str) -> str:
+        normalized_name = unicodedata.normalize("NFKD", last_name)
+        ascii_name = "".join(character for character in normalized_name if not unicodedata.combining(character))
+        name_token = "".join(character for character in ascii_name.upper() if character.isalnum())[:24] or "MEMBRE"
+        for _ in range(32):
+            candidate = f"{name_token}-COMBIS-{secrets.randbelow(10_001)}"
+            if await self._repo.get_by_member_code(tenant_id, candidate) is None:
+                return candidate
+        raise HTTPException(
+            status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
+            detail="Unable to allocate a unique member code. Please retry.",
+        )
 
     async def _provision_direct_member_access(
         self,
