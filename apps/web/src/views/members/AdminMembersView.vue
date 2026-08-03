@@ -55,8 +55,9 @@
       </div>
     </div>
 
+    <div v-else class="row g-4 align-items-start">
+    <div :class="selectedMember ? 'col-xl-8' : 'col-12'">
     <ResponsiveDataView
-      v-else
       class="card shadow-sm border-0"
       :items="members"
       :item-key="(member) => member.id"
@@ -73,16 +74,16 @@
         </tr>
       </template>
       <template #rows>
-        <tr v-for="member in members" :key="member.id">
+        <tr v-for="member in members" :key="member.id" class="member-row" tabindex="0" @click="selectMember(member)" @keydown.enter="selectMember(member)">
           <td class="ps-4 font-monospace small">{{ member.member_code }}</td>
           <td class="fw-medium">{{ member.display_name }}</td>
           <td class="small text-muted">{{ member.email || '—' }}</td>
           <td><span class="badge" :class="member.status === 'active' ? 'bg-success-subtle text-success' : 'bg-secondary-subtle text-secondary'">{{ member.status }}</span></td>
           <td class="small">{{ formatDate(member.joined_at) }}</td>
           <td class="text-end pe-4">
-            <button class="btn btn-sm btn-outline-secondary me-1" :aria-label="t('members.editMember')" @click="editMember(member)"><i class="bi bi-pencil"></i></button>
-            <button class="btn btn-sm btn-outline-warning me-1" :aria-label="member.status === 'active' ? t('members.pauseMember') : t('members.reactivateMember')" @click="toggleMemberPause(member)"><i :class="member.status === 'active' ? 'bi bi-pause-circle' : 'bi bi-play-circle'"></i></button>
-            <button class="btn btn-sm btn-outline-danger" :aria-label="t('members.deleteMember')" @click="confirmDelete(member)"><i class="bi bi-trash"></i></button>
+            <button class="btn btn-sm btn-outline-secondary me-1" :aria-label="t('members.editMember')" @click.stop="editMember(member)"><i class="bi bi-pencil"></i></button>
+            <button class="btn btn-sm btn-outline-warning me-1" :aria-label="member.status === 'active' ? t('members.pauseMember') : t('members.reactivateMember')" @click.stop="toggleMemberPause(member)"><i :class="member.status === 'active' ? 'bi bi-pause-circle' : 'bi bi-play-circle'"></i></button>
+            <button v-if="canDeleteMembers" class="btn btn-sm btn-outline-danger" :aria-label="t('members.deleteMember')" @click.stop="confirmDelete(member)"><i class="bi bi-trash"></i></button>
           </td>
         </tr>
       </template>
@@ -98,11 +99,22 @@
         <div class="om-data-card-row"><span class="om-data-card-label">{{ t('members.joined') }}</span><span class="om-data-card-value">{{ formatDate(member.joined_at) }}</span></div>
       </template>
       <template #mobile-actions="{ item: member }">
+        <button class="btn btn-outline-primary" type="button" @click="selectMember(member)"><i class="bi bi-person-vcard me-2"></i>{{ t('members.viewDetails') }}</button>
         <button class="btn btn-outline-secondary" type="button" @click="editMember(member)"><i class="bi bi-pencil me-2"></i>{{ t('members.editMember') }}</button>
         <button class="btn btn-outline-warning" type="button" @click="toggleMemberPause(member)"><i :class="member.status === 'active' ? 'bi bi-pause-circle me-2' : 'bi bi-play-circle me-2'"></i>{{ member.status === 'active' ? t('members.pauseMember') : t('members.reactivateMember') }}</button>
-        <button class="btn btn-outline-danger" type="button" @click="confirmDelete(member)"><i class="bi bi-trash me-2"></i>{{ t('members.deleteMember') }}</button>
+        <button v-if="canDeleteMembers" class="btn btn-outline-danger" type="button" @click="confirmDelete(member)"><i class="bi bi-trash me-2"></i>{{ t('members.deleteMember') }}</button>
       </template>
     </ResponsiveDataView>
+    </div>
+    <div v-if="selectedMember" class="col-xl-4">
+      <MemberInsightsPanel
+        :member="selectedMember"
+        :can-read-finance="canReadMemberFinance"
+        :can-read-disciplinary="canReadMemberDiscipline"
+        @close="selectedMember = null"
+      />
+    </div>
+    </div>
     <!--
       Desktop markup now lives in ResponsiveDataView; the mobile representation is
       rendered from the same member collection and permission-aware actions.
@@ -236,10 +248,42 @@
               <input id="member-display-name" v-model="form.display_name" class="form-control form-control-sm" :class="{ 'is-invalid': memberFieldErrors.display_name }" required @input="clearMemberFieldError('display_name')" />
               <div v-if="memberFieldErrors.display_name" class="invalid-feedback">{{ memberFieldErrors.display_name }}</div>
             </div>
+            <div class="row g-2 mb-3">
+              <div class="col-8">
+                <label class="form-label small fw-medium" for="member-street-name">{{ t('members.streetName') }}</label>
+                <input id="member-street-name" v-model.trim="form.street_name" class="form-control form-control-sm" :class="{ 'is-invalid': memberFieldErrors.street_name }" required @input="clearMemberFieldError('street_name')" />
+                <div v-if="memberFieldErrors.street_name" class="invalid-feedback">{{ memberFieldErrors.street_name }}</div>
+              </div>
+              <div class="col-4">
+                <label class="form-label small fw-medium" for="member-house-number">{{ t('members.houseNumber') }}</label>
+                <input id="member-house-number" v-model.trim="form.house_number" class="form-control form-control-sm" :class="{ 'is-invalid': memberFieldErrors.house_number }" required @input="clearMemberFieldError('house_number')" />
+                <div v-if="memberFieldErrors.house_number" class="invalid-feedback">{{ memberFieldErrors.house_number }}</div>
+              </div>
+            </div>
+            <div class="row g-2 mb-3">
+              <div class="col-4">
+                <label class="form-label small fw-medium" for="member-postal-code">{{ t('members.postalCode') }}</label>
+                <input id="member-postal-code" v-model.trim="form.postal_code" class="form-control form-control-sm" :class="{ 'is-invalid': memberFieldErrors.postal_code }" inputmode="numeric" maxlength="5" required @input="clearMemberFieldError('postal_code')" />
+                <div v-if="memberFieldErrors.postal_code" class="invalid-feedback">{{ memberFieldErrors.postal_code }}</div>
+              </div>
+              <div class="col-8">
+                <label class="form-label small fw-medium" for="member-city">{{ t('members.city') }}</label>
+                <input id="member-city" v-model.trim="form.city" class="form-control form-control-sm" :class="{ 'is-invalid': memberFieldErrors.city }" required @input="clearMemberFieldError('city')" />
+                <div v-if="memberFieldErrors.city" class="invalid-feedback">{{ memberFieldErrors.city }}</div>
+              </div>
+            </div>
             <div class="mb-3">
-              <label class="form-label small fw-medium" for="member-email">{{ t('common.email') }}</label>
-              <input id="member-email" v-model="form.email" type="email" class="form-control form-control-sm" :class="{ 'is-invalid': memberFieldErrors.email }" @input="clearMemberFieldError('email')" />
-              <div v-if="memberFieldErrors.email" class="invalid-feedback">{{ memberFieldErrors.email }}</div>
+              <label class="form-label small fw-medium" for="member-country">{{ t('members.country') }}</label>
+              <select id="member-country" v-model="form.country_code" class="form-select form-select-sm" :class="{ 'is-invalid': memberFieldErrors.country_code }" required @change="clearMemberFieldError('country_code')">
+                <option v-for="country in phoneCountries" :key="country.code" :value="country.code">{{ country.flag }} {{ country.name }}</option>
+              </select>
+              <div v-if="memberFieldErrors.country_code" class="invalid-feedback">{{ memberFieldErrors.country_code }}</div>
+              <div class="form-text">{{ t('members.germanAddressHelp') }}</div>
+            </div>
+            <div class="mb-3">
+              <label class="form-label small fw-medium" for="member-generated-email">{{ t('members.generatedEmail') }}</label>
+              <input id="member-generated-email" :value="generatedMemberEmailPreview" class="form-control form-control-sm" type="email" readonly aria-readonly="true" />
+              <div class="form-text">{{ t('members.generatedEmailHelp') }}</div>
             </div>
             <div class="mb-3">
               <label class="form-label small fw-medium">{{ t('members.phone') }}</label>
@@ -310,7 +354,8 @@
               <dl class="row small mb-0">
                 <dt class="col-5">{{ t('members.memberCode') }}</dt><dd class="col-7">{{ t('members.memberCodeAutoReview') }}</dd>
                 <dt class="col-5">{{ t('common.name') }}</dt><dd class="col-7">{{ form.display_name }}</dd>
-                <dt class="col-5">{{ t('common.email') }}</dt><dd class="col-7 text-break">{{ form.email || '—' }}</dd>
+                <dt class="col-5">{{ t('members.address') }}</dt><dd class="col-7">{{ formattedAddress }}</dd>
+                <dt class="col-5">{{ t('common.email') }}</dt><dd class="col-7 text-break">{{ generatedMemberEmailPreview }}</dd>
                 <dt class="col-5">{{ t('members.phone') }}</dt><dd class="col-7">{{ completePhoneNumber || '—' }}</dd>
                 <dt class="col-5">{{ t('members.membershipType') }}</dt><dd class="col-7">{{ form.membership_type === 'family' ? t('members.familyContribution') : t('members.individualContribution') }}</dd>
                 <dt class="col-5">{{ t('members.initialBalance') }}</dt><dd class="col-7">{{ expectedContributionAmount }} €</dd>
@@ -422,16 +467,21 @@ import { useCsvExport } from '@/composables/useCsvExport'
 import { useLocaleStore } from '@/stores/locale.store'
 import { useAuthStore } from '@/stores/auth.store'
 import ResponsiveDataView from '@/components/ui/ResponsiveDataView.vue'
+import MemberInsightsPanel from '@/components/members/MemberInsightsPanel.vue'
 import { notifyOperation } from '@/services/operation-notifications'
 
 const localeStore = useLocaleStore()
 const authStore = useAuthStore()
 const canUseBulkMemberTools = computed(() => authStore.user?.roles.some((role) => ['admin', 'principal_admin'].includes(role)) ?? false)
+const canDeleteMembers = computed(() => authStore.user?.roles.some((role) => ['president', 'secretary_general'].includes(role)) ?? false)
+const canReadMemberFinance = computed(() => authStore.user?.roles.some((role) => ['admin', 'principal_admin', 'president', 'vice_president', 'treasurer', 'auditor'].includes(role)) ?? false)
+const canReadMemberDiscipline = computed(() => authStore.user?.roles.some((role) => ['admin', 'principal_admin', 'president', 'secretary_general', 'censor'].includes(role)) ?? false)
 const t = (key: string) => localeStore.t(key)
 
 const loading = ref(true)
 const error = ref('')
 const members = ref<MembershipProfileResponse[]>([])
+const selectedMember = ref<MembershipProfileResponse | null>(null)
 const saving = ref(false)
 const searchQuery = ref('')
 let searchTimer: ReturnType<typeof setTimeout> | undefined
@@ -442,12 +492,20 @@ function setError(err: unknown) {
   error.value = (err as any)?.response?.data?.detail || (err as any)?.message || 'An unexpected error occurred'
 }
 
+function selectMember(member: MembershipProfileResponse) {
+  selectedMember.value = member
+}
+
 const form = ref<CreateMemberPayload>({
   first_name: '',
   last_name: '',
   display_name: '',
-  email: '',
   phone: '',
+  street_name: '',
+  house_number: '',
+  postal_code: '',
+  city: '',
+  country_code: 'DE',
   membership_type: 'individual',
   provision_access: false,
   login_identifier: '',
@@ -464,6 +522,7 @@ const completePhoneNumber = computed(() => {
   return nationalNumber ? `+${selectedPhoneCallingCode.value}${nationalNumber}` : ''
 })
 const expectedContributionAmount = computed(() => form.value.membership_type === 'family' ? '100' : '60')
+const generatedEmailPreviewSuffix = ref(Math.floor(Math.random() * 10_001))
 const phoneCountries = computed(() => {
   const displayNames = new Intl.DisplayNames([localeStore.currentLocale], { type: 'region' })
   return getCountries()
@@ -475,6 +534,13 @@ const phoneCountries = computed(() => {
     }))
     .sort((left, right) => left.name.localeCompare(right.name, localeStore.currentLocale))
 })
+const generatedMemberEmailPreview = computed(() => {
+  const source = form.value.login_identifier?.trim() || form.value.display_name.trim()
+  const normalized = source.normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase()
+  const localPart = normalized.replace(/[^a-z0-9]/g, '').slice(0, 48) || 'member'
+  return `${localPart}${generatedEmailPreviewSuffix.value}@combis.org`
+})
+const formattedAddress = computed(() => `${form.value.street_name} ${form.value.house_number}, ${form.value.postal_code} ${form.value.city}`)
 
 const editForm = ref<UpdateMemberPayload>({})
 const editingId = ref<string | null>(null)
@@ -547,7 +613,8 @@ function clearSearch() {
 }
 
 function resetForm() {
-  form.value = { first_name: '', last_name: '', display_name: '', email: '', phone: '', membership_type: 'individual', provision_access: false, login_identifier: '', temporary_password: 'CombisPass#' }
+  form.value = { first_name: '', last_name: '', display_name: '', phone: '', street_name: '', house_number: '', postal_code: '', city: '', country_code: 'DE', membership_type: 'individual', provision_access: false, login_identifier: '', temporary_password: 'CombisPass#' }
+  generatedEmailPreviewSuffix.value = Math.floor(Math.random() * 10_001)
   temporaryPasswordConfirmation.value = 'CombisPass#'
   showTemporaryPassword.value = false
   reviewMode.value = false
@@ -568,12 +635,14 @@ function validateMemberForm(): boolean {
   if (!form.value.first_name.trim()) errors.first_name = t('validation.firstNameRequired')
   if (!form.value.last_name.trim()) errors.last_name = t('validation.lastNameRequired')
   if (!form.value.display_name.trim()) errors.display_name = t('validation.displayNameRequired')
-  if (form.value.email?.trim() && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(form.value.email.trim())) errors.email = t('validation.emailInvalid')
+  if (!form.value.street_name?.trim()) errors.street_name = t('validation.streetNameRequired')
+  if (!form.value.house_number?.trim()) errors.house_number = t('validation.houseNumberRequired')
+  if (!form.value.postal_code?.trim()) errors.postal_code = t('validation.postalCodeRequired')
+  else if (!/^\d{5}$/.test(form.value.postal_code.trim())) errors.postal_code = t('validation.germanPostalCodeInvalid')
+  if (!form.value.city?.trim()) errors.city = t('validation.cityRequired')
+  if (!form.value.country_code?.trim()) errors.country_code = t('validation.countryRequired')
   if (phoneNationalNumber.value.trim() && !/^\+[1-9]\d{7,14}$/.test(completePhoneNumber.value)) errors.phone = t('validation.phoneInvalid')
   if (form.value.provision_access) {
-    if (!form.value.email?.trim() && !completePhoneNumber.value && !form.value.login_identifier?.trim()) {
-      errors.login_identifier = t('members.accountContactRequired')
-    }
     if (!form.value.temporary_password || form.value.temporary_password.length < 8) errors.temporary_password = t('validation.passwordTooShort')
     if (form.value.temporary_password !== temporaryPasswordConfirmation.value) errors.temporary_password_confirmation = t('members.passwordMismatch')
   }
@@ -595,10 +664,14 @@ async function confirmCreate() {
       first_name: form.value.first_name,
       last_name: form.value.last_name,
       display_name: form.value.display_name,
+      street_name: form.value.street_name ?? '',
+      house_number: form.value.house_number ?? '',
+      postal_code: form.value.postal_code ?? '',
+      city: form.value.city ?? '',
+      country_code: form.value.country_code ?? '',
       membership_type: form.value.membership_type,
       provision_access: Boolean(form.value.provision_access),
     }
-    if (form.value.email?.trim()) payload.email = form.value.email.trim()
     if (completePhoneNumber.value) payload.phone = completePhoneNumber.value
     if (form.value.login_identifier?.trim()) payload.login_identifier = form.value.login_identifier.trim()
     if (form.value.temporary_password) payload.temporary_password = form.value.temporary_password

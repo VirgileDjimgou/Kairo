@@ -83,11 +83,16 @@ export interface ContributionSummary {
 }
 
 export type ContributionReceiptStatus = 'draft' | 'submitted' | 'clarification_requested' | 'validated' | 'partially_validated' | 'rejected' | 'cancelled'
+export type FinancialIncomeType = 'membership_contribution' | 'donation' | 'sponsorship' | 'tournament_proceeds' | 'other_income' | 'disciplinary_payment'
+export type CashHandoverStatus = 'pending_handover' | 'handover_reported' | 'received_in_treasury'
 
 export interface ContributionReceiptDeclarationResponse {
   id: string
   tenant_id: string
-  membership_profile_id: string
+  membership_profile_id: string | null
+  income_type: FinancialIncomeType
+  source_name: string | null
+  disciplinary_record_id: string | null
   declarant_user_id: string
   declarant_role_code: string
   amount: string
@@ -105,12 +110,26 @@ export interface ContributionReceiptDeclarationResponse {
   processing_note: string | null
   contribution_record_id: string | null
   payment_record_id: string | null
+  cash_handover_status: CashHandoverStatus | null
+  handover_reminder_days: number | null
+  handover_due_at: string | null
+  handover_reminder_updated_at: string | null
+  handover_reminder_sent_at: string | null
+  handover_reported_at: string | null
+  handover_reported_by_user_id: string | null
+  handover_method: string | null
+  treasury_received_at: string | null
+  treasury_received_by_user_id: string | null
+  treasury_receipt_note: string | null
   created_at: string
   updated_at: string
 }
 
 export interface CreateContributionReceiptDeclarationPayload {
-  membership_profile_id: string
+  membership_profile_id?: string | null
+  income_type?: FinancialIncomeType
+  source_name?: string | null
+  disciplinary_record_id?: string | null
   amount: string
   currency?: string
   received_at?: string | null
@@ -138,7 +157,12 @@ export interface ProcessContributionReceiptDeclarationPayload {
   contribution_record_id?: string
   processed_amount?: string
   note?: string
+  handover_reminder_days?: number
 }
+
+export interface ReportContributionReceiptHandoverPayload { method: 'cash' | 'bank_transfer'; note?: string | null }
+export interface UpdateContributionReceiptHandoverReminderPayload { reminder_days: number }
+export interface ConfirmContributionReceiptInTreasuryPayload { method?: 'cash' | 'bank_transfer'; note?: string | null }
 
 export interface SendContributionReminderPayload {
   channel?: 'email'
@@ -274,6 +298,21 @@ export async function submitContributionReceiptDeclaration(id: string): Promise<
 
 export async function processContributionReceiptDeclaration(id: string, payload: ProcessContributionReceiptDeclarationPayload): Promise<ContributionReceiptDeclarationResponse> {
   const response = await http.post<ContributionReceiptDeclarationResponse>(`/contributions/receipt-declarations/${id}/process`, payload)
+  return response.data
+}
+
+export async function reportContributionReceiptHandover(id: string, payload: ReportContributionReceiptHandoverPayload): Promise<ContributionReceiptDeclarationResponse> {
+  const response = await http.post<ContributionReceiptDeclarationResponse>(`/contributions/receipt-declarations/${id}/handover`, payload)
+  return response.data
+}
+
+export async function updateContributionReceiptHandoverReminder(id: string, payload: UpdateContributionReceiptHandoverReminderPayload): Promise<ContributionReceiptDeclarationResponse> {
+  const response = await http.post<ContributionReceiptDeclarationResponse>(`/contributions/receipt-declarations/${id}/handover-reminder`, payload)
+  return response.data
+}
+
+export async function confirmContributionReceiptInTreasury(id: string, payload: ConfirmContributionReceiptInTreasuryPayload = {}): Promise<ContributionReceiptDeclarationResponse> {
+  const response = await http.post<ContributionReceiptDeclarationResponse>(`/contributions/receipt-declarations/${id}/confirm-treasury-receipt`, payload)
   return response.data
 }
 

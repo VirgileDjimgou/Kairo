@@ -21,6 +21,18 @@
             <h2 class="h6 fw-bold">{{ copy.declareTitle }}</h2>
             <p class="small text-muted">{{ copy.declareLead }}</p>
             <form class="vstack gap-3" @submit.prevent="createAndSubmit">
+              <div>
+                <label class="form-label small fw-semibold" for="receipt-income-type">{{ t('receipt.incomeType') }}</label>
+                <select id="receipt-income-type" v-model="form.income_type" class="form-select" @change="handleIncomeTypeChange">
+                  <option value="membership_contribution">{{ t('receipt.incomeType.membershipContribution') }}</option>
+                  <option value="donation">{{ t('receipt.incomeType.donation') }}</option>
+                  <option value="sponsorship">{{ t('receipt.incomeType.sponsorship') }}</option>
+                  <option value="tournament_proceeds">{{ t('receipt.incomeType.tournamentProceeds') }}</option>
+                  <option value="other_income">{{ t('receipt.incomeType.otherIncome') }}</option>
+                  <option value="disciplinary_payment">{{ t('receipt.incomeType.disciplinaryPayment') }}</option>
+                </select>
+              </div>
+              <template v-if="requiresMember">
               <div class="position-relative">
                 <input v-model.trim="memberSearch" class="form-control" :class="{ 'is-invalid': declarationFieldErrors.membership_profile_id }" :placeholder="copy.searchMember" @focus="showMemberResults = true" @input="clearDeclarationFieldError('membership_profile_id')" />
                 <div v-if="showMemberResults && memberSearch" class="list-group position-absolute w-100 shadow-sm receipt-member-results">
@@ -44,6 +56,20 @@
                 <span>{{ selectedMember.display_name }} ({{ selectedMember.member_code }})</span>
                 <button class="btn btn-sm btn-link p-0" type="button" @click="clearMember">{{ copy.changeMember }}</button>
               </div>
+              <div v-if="form.income_type === 'disciplinary_payment'">
+                <label class="form-label small fw-semibold" for="receipt-disciplinary-record">{{ t('receipt.incomeType.disciplinaryPayment') }}</label>
+                <select id="receipt-disciplinary-record" v-model="form.disciplinary_record_id" class="form-select" :class="{ 'is-invalid': declarationFieldErrors.disciplinary_record_id }">
+                  <option value="">{{ t('common.select') }}</option><option v-for="record in memberDisciplinaryRecords" :key="record.id" :value="record.id">{{ record.title }} · {{ record.amount }} {{ record.currency }}</option>
+                </select>
+                <div v-if="declarationFieldErrors.disciplinary_record_id" class="invalid-feedback d-block">{{ declarationFieldErrors.disciplinary_record_id }}</div>
+              </div>
+              </template>
+              <div v-else>
+                <label class="form-label small fw-semibold" for="receipt-source-name">{{ t('receipt.sourceName') }}</label>
+                <input id="receipt-source-name" v-model.trim="form.source_name" class="form-control" :class="{ 'is-invalid': declarationFieldErrors.source_name }" :placeholder="t('receipt.sourceName')" @input="clearDeclarationFieldError('source_name')" />
+                <div v-if="declarationFieldErrors.source_name" class="invalid-feedback d-block">{{ declarationFieldErrors.source_name }}</div>
+                <div class="form-text">{{ t('receipt.sourceNameHelp') }}</div>
+              </div>
               <div class="row g-2">
                 <div class="col-7"><input v-model="form.amount" class="form-control" :class="{ 'is-invalid': declarationFieldErrors.amount }" type="number" min="0.01" step="0.01" :placeholder="copy.amount" @input="clearDeclarationFieldError('amount')" /><div v-if="declarationFieldErrors.amount" class="invalid-feedback">{{ declarationFieldErrors.amount }}</div></div>
                 <div class="col-5"><select v-model="form.payment_method" class="form-select"><option value="cash">{{ copy.cash }}</option><option value="check">{{ copy.check }}</option><option value="bank_transfer">{{ copy.transfer }}</option></select></div>
@@ -57,33 +83,14 @@
       </div>
 
       <div class="col-xl-8">
-        <div v-if="isTreasurer" class="card shadow-sm border-0 mb-4">
-          <div class="card-body p-4">
-            <h2 class="h6 fw-bold">{{ copy.queueTitle }}</h2>
-            <p class="small text-muted">{{ copy.queueLead }}</p>
-            <div v-if="pendingDeclarations.length === 0" class="text-muted small">{{ copy.emptyQueue }}</div>
-            <div v-else class="vstack gap-3">
-              <article v-for="item in pendingDeclarations" :key="item.id" class="border rounded-3 p-3">
-                <div class="d-flex flex-column flex-md-row justify-content-between gap-2">
-                  <div><div class="fw-semibold">{{ memberLabel(item.membership_profile_id) }}</div><div class="small text-muted">{{ item.amount }} {{ item.currency }} · {{ item.declarant_role_code }} · {{ formatDate(item.received_at) }}</div><div v-if="item.note" class="small mt-2">{{ item.note }}</div></div>
-                  <div class="d-flex gap-2 align-items-start">
-                    <button class="btn btn-sm btn-success" type="button" @click="process(item, 'validated')">{{ copy.validate }}</button>
-                    <button class="btn btn-sm btn-outline-danger" type="button" @click="process(item, 'rejected')">{{ copy.reject }}</button>
-                  </div>
-                </div>
-              </article>
-            </div>
-          </div>
-        </div>
-
         <div class="card shadow-sm border-0">
           <div class="card-body p-4">
             <h2 class="h6 fw-bold">{{ copy.myTitle }}</h2>
             <div v-if="ownDeclarations.length === 0" class="text-muted small">{{ copy.emptyMine }}</div>
             <div v-else class="vstack gap-2">
               <div v-for="item in ownDeclarations" :key="item.id" class="border rounded-3 p-3 d-flex justify-content-between gap-3">
-                <div><div class="fw-semibold">{{ memberLabel(item.membership_profile_id) }}</div><div class="small text-muted">{{ item.amount }} {{ item.currency }} · {{ formatDate(item.received_at) }}</div></div>
-                <span class="badge align-self-start" :class="badgeClass(item.status)">{{ statusLabel(item.status) }}</span>
+                <div><div class="fw-semibold">{{ declarationLabel(item) }}</div><div class="small text-muted">{{ incomeTypeLabel(item.income_type) }} · {{ item.amount }} {{ item.currency }} · {{ formatDate(item.received_at) }}</div><div v-if="item.cash_handover_status" class="small mt-2 text-warning-emphasis">{{ handoverStatusLabel(item.cash_handover_status) }}</div></div>
+                <div class="vstack gap-2 align-self-start"><span class="badge" :class="badgeClass(item.status)">{{ statusLabel(item.status) }}</span><button v-if="item.cash_handover_status === 'pending_handover'" class="btn btn-sm btn-outline-primary" type="button" @click="reportHandover(item, 'cash')">{{ t('receipt.reportHandover') }}</button></div>
               </div>
             </div>
           </div>
@@ -128,32 +135,28 @@
 import { computed, onMounted, ref } from 'vue'
 import {
   createContributionReceiptDeclaration, listContributionReceiptDeclarationMemberOptions,
-  listContributionReceiptDeclarations, listMyContributionReceiptDeclarations,
-  processContributionReceiptDeclaration, submitContributionReceiptDeclaration,
-  type ContributionReceiptDeclarationResponse, type ContributionReceiptMemberOption,
+  listMyContributionReceiptDeclarations, submitContributionReceiptDeclaration,
+  reportContributionReceiptHandover,
+  type ContributionReceiptDeclarationResponse, type ContributionReceiptMemberOption, type FinancialIncomeType,
 } from '@/api/contributions.api'
-import { listContributions, type ContributionRecordResponse } from '@/api/contributions.api'
-import { useAuthStore } from '@/stores/auth.store'
 import { useLocaleStore } from '@/stores/locale.store'
 import { notifyOperation } from '@/services/operation-notifications'
+import { listDisciplinaryRecords, type DisciplinaryRecordResponse } from '@/api/disciplinary.api'
 
-const auth = useAuthStore()
 const locale = useLocaleStore()
+const t = locale.t
 const members = ref<ContributionReceiptMemberOption[]>([])
 const ownDeclarations = ref<ContributionReceiptDeclarationResponse[]>([])
-const allDeclarations = ref<ContributionReceiptDeclarationResponse[]>([])
-const contributions = ref<ContributionRecordResponse[]>([])
+const disciplinaryRecords = ref<DisciplinaryRecordResponse[]>([])
 const loading = ref(false)
 const saving = ref(false)
 const error = ref('')
 const notice = ref('')
 const declarationFieldErrors = ref<Record<string, string>>({})
-const form = ref({ membership_profile_id: '', amount: '', payment_method: 'cash', reference: '', note: '' })
+const form = ref<{ membership_profile_id: string; income_type: FinancialIncomeType; source_name: string; disciplinary_record_id: string; amount: string; payment_method: string; reference: string; note: string }>({ membership_profile_id: '', income_type: 'membership_contribution', source_name: '', disciplinary_record_id: '', amount: '', payment_method: 'cash', reference: '', note: '' })
 const memberSearch = ref('')
 const showMemberResults = ref(false)
 const detailMember = ref<ContributionReceiptMemberOption | null>(null)
-const isTreasurer = computed(() => auth.user?.roles.includes('treasurer') || auth.user?.roles.some((role) => ['admin', 'principal_admin'].includes(role)))
-const pendingDeclarations = computed(() => allDeclarations.value.filter((item) => item.status === 'submitted'))
 const memberById = computed(() => Object.fromEntries(members.value.map((member) => [member.id, member])))
 const filteredMembers = computed(() => {
   const query = memberSearch.value.toLocaleLowerCase()
@@ -161,6 +164,8 @@ const filteredMembers = computed(() => {
   return members.value.filter((member) => `${member.display_name} ${member.member_code}`.toLocaleLowerCase().includes(query))
 })
 const selectedMember = computed(() => members.value.find((member) => member.id === form.value.membership_profile_id) ?? null)
+const requiresMember = computed(() => ['membership_contribution', 'disciplinary_payment'].includes(form.value.income_type))
+const memberDisciplinaryRecords = computed(() => disciplinaryRecords.value.filter((record) => record.membership_profile_id === form.value.membership_profile_id && ['open', 'under_review'].includes(record.status)))
 const copy = computed(() => {
   const fr = locale.currentLocale === 'fr'
   const de = locale.currentLocale === 'de'
@@ -175,10 +180,23 @@ const copy = computed(() => {
     loadFailed: de ? 'Die Meldungen konnten nicht geladen werden.' : fr ? 'Impossible de charger les déclarations.' : 'Unable to load receipt declarations.', submitFailed: de ? 'Die Meldung konnte nicht eingereicht werden.' : fr ? 'Impossible de soumettre la déclaration.' : 'Unable to submit receipt declaration.', processFailed: de ? 'Die Meldung konnte nicht traitée werden.' : fr ? 'Impossible de traiter la déclaration.' : 'Unable to process declaration.', submitted: de ? 'Meldung eingereicht.' : fr ? 'Déclaration soumise.' : 'Declaration submitted.', validated: de ? 'Zahlung bestätigt.' : fr ? 'Encaissement validé.' : 'Receipt validated.', rejected: de ? 'Zahlung abgelehnt.' : fr ? 'Encaissement rejeté.' : 'Receipt rejected.', noOutstanding: de ? 'Für dieses Mitglied wurde keine offene Beitragsforderung gefunden.' : fr ? 'Aucune cotisation impayée n’a été trouvée pour ce membre.' : 'No outstanding contribution was found for this member.',
   }
 })
-function memberLabel(id: string) { const member = memberById.value[id]; return member ? `${member.display_name} (${member.member_code})` : id }
+function memberLabel(id: string | null) { if (!id) return t('receipt.externalIncome'); const member = memberById.value[id]; return member ? `${member.display_name} (${member.member_code})` : id }
+function incomeTypeLabel(incomeType: FinancialIncomeType) {
+  const keys: Record<FinancialIncomeType, string> = {
+    membership_contribution: 'receipt.incomeType.membershipContribution', donation: 'receipt.incomeType.donation', sponsorship: 'receipt.incomeType.sponsorship', tournament_proceeds: 'receipt.incomeType.tournamentProceeds', other_income: 'receipt.incomeType.otherIncome', disciplinary_payment: 'receipt.incomeType.disciplinaryPayment',
+  }
+  return t(keys[incomeType])
+}
+function declarationLabel(item: ContributionReceiptDeclarationResponse) { return item.income_type === 'membership_contribution' ? memberLabel(item.membership_profile_id) : (item.source_name || t('receipt.externalIncome')) }
 function selectMember(member: ContributionReceiptMemberOption) { form.value.membership_profile_id = member.id; memberSearch.value = member.display_name; showMemberResults.value = false; clearDeclarationFieldError('membership_profile_id') }
 function selectMemberById() { const member = selectedMember.value; if (member) selectMember(member); else clearMember() }
 function clearMember() { form.value.membership_profile_id = ''; memberSearch.value = ''; showMemberResults.value = true }
+function handleIncomeTypeChange() {
+  declarationFieldErrors.value = {}
+  form.value.disciplinary_record_id = ''
+  if (!requiresMember.value) clearMember()
+  if (requiresMember.value) form.value.source_name = ''
+}
 function openMemberDetails(member: ContributionReceiptMemberOption) { detailMember.value = member; showMemberResults.value = false }
 function closeMemberDetails() { detailMember.value = null }
 function selectMemberFromDetails() { if (detailMember.value) selectMember(detailMember.value); closeMemberDetails() }
@@ -200,7 +218,9 @@ function statusLabel(status: string) {
   return labels[status as keyof typeof labels] || status
 }
 function badgeClass(status: string) { return ({ submitted: 'text-bg-warning', validated: 'text-bg-success', partially_validated: 'text-bg-success', rejected: 'text-bg-danger', clarification_requested: 'text-bg-info', cancelled: 'text-bg-secondary' }[status] || 'text-bg-secondary') }
-async function load() { loading.value = true; error.value = ''; try { members.value = await listContributionReceiptDeclarationMemberOptions(); ownDeclarations.value = await listMyContributionReceiptDeclarations(); if (isTreasurer.value) { [allDeclarations.value, contributions.value] = await Promise.all([listContributionReceiptDeclarations(), listContributions()]) } } catch (err) { error.value = err instanceof Error ? err.message : copy.value.loadFailed } finally { loading.value = false } }
+function handoverStatusLabel(value: ContributionReceiptDeclarationResponse['cash_handover_status']) { return value === 'handover_reported' ? t('receipt.handoverReported') : value === 'received_in_treasury' ? t('receipt.treasuryReceived') : t('receipt.cashPending') }
+async function reportHandover(item: ContributionReceiptDeclarationResponse, method: 'cash' | 'bank_transfer') { try { await reportContributionReceiptHandover(item.id, { method }); notice.value = t('receipt.handoverReported'); await load() } catch (err) { error.value = err instanceof Error ? err.message : copy.value.processFailed } }
+async function load() { loading.value = true; error.value = ''; try { const [memberRows, declarationRows] = await Promise.all([listContributionReceiptDeclarationMemberOptions(), listMyContributionReceiptDeclarations()]); members.value = memberRows; ownDeclarations.value = declarationRows; try { disciplinaryRecords.value = await listDisciplinaryRecords() } catch { disciplinaryRecords.value = [] } } catch (err) { error.value = err instanceof Error ? err.message : copy.value.loadFailed } finally { loading.value = false } }
 function clearDeclarationFieldError(field: string) {
   if (!declarationFieldErrors.value[field]) return
   const next = { ...declarationFieldErrors.value }
@@ -210,7 +230,9 @@ function clearDeclarationFieldError(field: string) {
 
 function validateDeclarationForm(): boolean {
   const errors: Record<string, string> = {}
-  if (!form.value.membership_profile_id) errors.membership_profile_id = locale.t('validation.memberRequired')
+  if (requiresMember.value && !form.value.membership_profile_id) errors.membership_profile_id = locale.t('validation.memberRequired')
+  if (form.value.income_type === 'disciplinary_payment' && !form.value.disciplinary_record_id) errors.disciplinary_record_id = t('receipt.incomeType.disciplinaryPayment')
+  if (!requiresMember.value && !form.value.source_name.trim()) errors.source_name = t('receipt.sourceRequired')
   if (!form.value.amount || !Number.isFinite(Number(form.value.amount)) || Number(form.value.amount) <= 0) errors.amount = locale.t('validation.amountRequired')
   declarationFieldErrors.value = errors
   if (Object.keys(errors).length === 0) return true
@@ -218,8 +240,7 @@ function validateDeclarationForm(): boolean {
   return false
 }
 
-async function createAndSubmit() { if (!validateDeclarationForm()) return; saving.value = true; error.value = ''; try { const item = await createContributionReceiptDeclaration({ ...form.value, reference: form.value.reference || null, note: form.value.note || null }); await submitContributionReceiptDeclaration(item.id); form.value = { membership_profile_id: '', amount: '', payment_method: 'cash', reference: '', note: '' }; memberSearch.value = ''; declarationFieldErrors.value = {}; notice.value = copy.value.submitted; await load() } catch (err) { error.value = err instanceof Error ? err.message : copy.value.submitFailed } finally { saving.value = false } }
-async function process(item: ContributionReceiptDeclarationResponse, action: 'validated' | 'rejected') { try { const contribution = contributions.value.find((row) => row.membership_profile_id === item.membership_profile_id && Number(row.balance) > 0); if (action === 'validated' && !contribution) { error.value = copy.value.noOutstanding; return } const payload = action === 'validated' ? { action, contribution_record_id: contribution!.id } : { action, note: copy.value.rejected }; await processContributionReceiptDeclaration(item.id, payload); notice.value = action === 'validated' ? copy.value.validated : copy.value.rejected; await load() } catch (err) { error.value = err instanceof Error ? err.message : copy.value.processFailed } }
+async function createAndSubmit() { if (!validateDeclarationForm()) return; saving.value = true; error.value = ''; try { const item = await createContributionReceiptDeclaration({ ...form.value, membership_profile_id: requiresMember.value ? form.value.membership_profile_id : null, source_name: requiresMember.value ? null : form.value.source_name, disciplinary_record_id: form.value.disciplinary_record_id || null, reference: form.value.reference || null, note: form.value.note || null }); await submitContributionReceiptDeclaration(item.id); form.value = { membership_profile_id: '', income_type: 'membership_contribution', source_name: '', disciplinary_record_id: '', amount: '', payment_method: 'cash', reference: '', note: '' }; memberSearch.value = ''; declarationFieldErrors.value = {}; notice.value = copy.value.submitted; await load() } catch (err) { error.value = err instanceof Error ? err.message : copy.value.submitFailed } finally { saving.value = false } }
 onMounted(load)
 </script>
 

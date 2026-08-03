@@ -1,7 +1,7 @@
-from datetime import datetime, timezone
-from decimal import Decimal
 import secrets
 import unicodedata
+from datetime import datetime, timezone
+from decimal import Decimal
 from uuid import UUID
 
 import fitz
@@ -9,10 +9,12 @@ from fastapi import HTTPException, status
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core.import_export import ImportResult, ImportRowError, generate_csv, parse_csv
+from app.core.security import hash_password
 from app.modules.audit.service import AuditService
-from app.modules.contributions.repository import ContributionRepository
 from app.modules.contributions.models import ContributionStatus
+from app.modules.contributions.repository import ContributionRepository
 from app.modules.contributions.schemas import ContributionRecordResponse
+from app.modules.identity.repository import UserRepository
 from app.modules.membership.models import MembershipProfile, MembershipStatus, MembershipType
 from app.modules.membership.repository import MembershipRepository
 from app.modules.membership.schemas import (
@@ -22,9 +24,7 @@ from app.modules.membership.schemas import (
     MembershipProfileUpdate,
     MemberStatementResponse,
 )
-from app.modules.identity.repository import UserRepository
 from app.modules.tenancy.repository import TenancyRepository
-from app.core.security import hash_password
 
 
 class MembershipService:
@@ -62,6 +62,12 @@ class MembershipService:
         provision_access = profile_data.pop("provision_access", False)
         login_identifier = profile_data.pop("login_identifier", None)
         temporary_password = profile_data.pop("temporary_password", None)
+        profile_data.pop("email", None)
+        profile_data["email"] = await self._generate_member_email(
+            tenant_id=tenant_id,
+            login_identifier=login_identifier,
+            display_name=data.display_name,
+        )
         profile = await self._repo.create(tenant_id, profile_data)
         account_user_id = None
         if provision_access:
@@ -118,6 +124,32 @@ class MembershipService:
         raise HTTPException(
             status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
             detail="Unable to allocate a unique member code. Please retry.",
+        )
+
+    async def _generate_member_email(
+        self,
+        *,
+        tenant_id: UUID,
+        login_identifier: str | None,
+        display_name: str,
+    ) -> str:
+        source = login_identifier or display_name
+        normalized = unicodedata.normalize("NFKD", source)
+        ascii_source = "".join(
+            character for character in normalized if not unicodedata.combining(character)
+        ).lower()
+        local_part = "".join(
+            character for character in ascii_source if character.isalnum()
+        )[:48] or "membre"
+        for _ in range(64):
+            candidate = f"{local_part}{secrets.randbelow(10_001):04d}@combis.org"
+            if await self._repo.get_by_email(tenant_id, candidate) is not None:
+                continue
+            if await self._user_repo.get_by_email(candidate) is None:
+                return candidate
+        raise HTTPException(
+            status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
+            detail="Unable to allocate a unique member email address. Please retry.",
         )
 
     async def _provision_direct_member_access(
@@ -207,9 +239,15 @@ class MembershipService:
         *,
         actor_user_id: UUID | None = None,
     ) -> MembershipProfileResponse:
-        profile = await self._repo.update(
-            tenant_id, profile_id, data.model_dump(exclude_unset=True)
-        )
+        existing = await self._repo.get_by_id(tenant_id, profile_id)
+        if not existing:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail="Member profile not found",
+            )
+        changes = data.model_dump(exclude_unset=True)
+        previous_status = existing.status
+        profile = await self._repo.update(tenant_id, profile_id, changes)
         if not profile:
             raise HTTPException(
                 status_code=status.HTTP_404_NOT_FOUND,
@@ -222,7 +260,13 @@ class MembershipService:
             entity_type="membership_profile",
             entity_id=profile.id,
             module_key="membership",
-            details={"changes": data.model_dump(exclude_unset=True)},
+            details={
+                "member_code": profile.member_code,
+                "display_name": profile.display_name,
+                "changed_fields": sorted(changes),
+                "previous_status": previous_status,
+                "new_status": profile.status,
+            },
         )
         await self._db.commit()
         return MembershipProfileResponse.model_validate(profile)
@@ -397,6 +441,21 @@ class MembershipService:
             total_paid=Decimal(str(total_paid)),
             total_balance=Decimal(str(total_balance)),
             contribution_count=len(contributions),
+        )
+
+    async def get_member_statement(
+        self, tenant_id: UUID, profile_id: UUID
+    ) -> MemberStatementResponse:
+        """Return a tenant-scoped finance statement for an authorized office role."""
+        balance = await self.get_member_balance(tenant_id, profile_id)
+        contributions = await self._contrib_repo.list_by_profile(tenant_id, profile_id)
+        return MemberStatementResponse(
+            profile=balance.profile,
+            summary=balance,
+            contributions=[
+                ContributionRecordResponse.model_validate(contribution)
+                for contribution in contributions
+            ],
         )
 
     async def get_profile_by_user_id(

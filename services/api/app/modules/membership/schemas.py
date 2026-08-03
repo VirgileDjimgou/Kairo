@@ -1,14 +1,12 @@
+import re
 from datetime import datetime
 from decimal import ROUND_HALF_UP, Decimal
 from uuid import UUID
-
-import re
 
 from pydantic import BaseModel, EmailStr, Field, field_serializer, field_validator, model_validator
 
 from app.modules.contributions.schemas import ContributionRecordResponse
 from app.modules.membership.models import MembershipStatus, MembershipType
-
 
 PHONE_PATTERN = re.compile(r"^\+[1-9]\d{7,14}$")
 LOGIN_IDENTIFIER_PATTERN = re.compile(r"^[a-z0-9][a-z0-9._-]{2,63}$")
@@ -21,6 +19,11 @@ class MembershipProfileCreate(BaseModel):
     display_name: str = Field(..., min_length=1, max_length=255)
     email: EmailStr | None = None
     phone: str | None = Field(None, max_length=50)
+    street_name: str | None = Field(None, min_length=1, max_length=160)
+    house_number: str | None = Field(None, min_length=1, max_length=32)
+    postal_code: str | None = Field(None, min_length=1, max_length=16)
+    city: str | None = Field(None, min_length=1, max_length=120)
+    country_code: str | None = Field(None, min_length=2, max_length=2)
     status: MembershipStatus = MembershipStatus.active
     membership_type: MembershipType | None = None
     provision_access: bool = False
@@ -44,17 +47,35 @@ class MembershipProfileCreate(BaseModel):
             return None
         return re.sub(r"[\s()-]", "", value.strip())
 
+    @field_validator("country_code")
+    @classmethod
+    def normalize_country_code(cls, value: str | None) -> str | None:
+        if value is None or not value.strip():
+            return None
+        return value.strip().upper()
+
     @model_validator(mode="after")
     def validate_direct_access(self) -> "MembershipProfileCreate":
         if not self.provision_access:
+            self._validate_complete_address()
             return self
         if not self.temporary_password:
             raise ValueError("A temporary password is required when direct access is enabled")
-        if not any((self.email, self.phone, self.login_identifier)):
-            raise ValueError("Provide an email address, an international phone number, or a login identifier")
         if self.phone and not PHONE_PATTERN.fullmatch(self.phone.strip()):
             raise ValueError("Phone number must use international format, for example +49123456789")
+        self._validate_complete_address()
         return self
+
+    def _validate_complete_address(self) -> None:
+        address_values = (
+            self.street_name,
+            self.house_number,
+            self.postal_code,
+            self.city,
+            self.country_code,
+        )
+        if any(address_values) and not all(address_values):
+            raise ValueError("Provide the complete address: street, house number, postal code, city, and country")
 
 
 class MembershipProfileUpdate(BaseModel):
@@ -64,6 +85,11 @@ class MembershipProfileUpdate(BaseModel):
     display_name: str | None = Field(None, min_length=1, max_length=255)
     email: EmailStr | None = None
     phone: str | None = Field(None, max_length=50)
+    street_name: str | None = Field(None, min_length=1, max_length=160)
+    house_number: str | None = Field(None, min_length=1, max_length=32)
+    postal_code: str | None = Field(None, min_length=1, max_length=16)
+    city: str | None = Field(None, min_length=1, max_length=120)
+    country_code: str | None = Field(None, min_length=2, max_length=2)
     status: MembershipStatus | None = None
     membership_type: MembershipType | None = None
 
@@ -78,6 +104,11 @@ class MembershipProfileResponse(BaseModel):
     display_name: str
     email: str | None
     phone: str | None
+    street_name: str | None
+    house_number: str | None
+    postal_code: str | None
+    city: str | None
+    country_code: str | None
     status: str
     membership_type: str
     joined_at: datetime

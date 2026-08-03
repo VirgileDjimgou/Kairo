@@ -53,6 +53,11 @@ class MembershipProfile(Base):
     display_name: Mapped[str] = mapped_column(String(255), nullable=False)
     email: Mapped[str | None] = mapped_column(String(255), nullable=True)
     phone: Mapped[str | None] = mapped_column(String(50), nullable=True)
+    street_name: Mapped[str | None] = mapped_column(String(160), nullable=True)
+    house_number: Mapped[str | None] = mapped_column(String(32), nullable=True)
+    postal_code: Mapped[str | None] = mapped_column(String(16), nullable=True)
+    city: Mapped[str | None] = mapped_column(String(120), nullable=True)
+    country_code: Mapped[str | None] = mapped_column(String(2), nullable=True)
     membership_type: Mapped[str] = mapped_column(
         String(32), nullable=False, server_default=MembershipType.individual.value
     )

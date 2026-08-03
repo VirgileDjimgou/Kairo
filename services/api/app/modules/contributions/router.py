@@ -26,7 +26,10 @@ from app.modules.contributions.schemas import (
     ContributionReceiptDeclarationProcess,
     ContributionReceiptDeclarationResponse,
     ContributionReceiptDeclarationUpdate,
+    ContributionReceiptHandoverReminderUpdate,
+    ContributionReceiptHandoverReport,
     ContributionReceiptMemberOption,
+    ContributionReceiptTreasuryConfirmation,
     ContributionRecordCreate,
     ContributionRecordResponse,
     ContributionRecordUpdate,
@@ -130,6 +133,44 @@ async def process_receipt_declaration(
     require_capability(current, CAP_CONTRIBUTION_RECEIPT_PROCESS, detail="Receipt declaration processing capability required")
     return await ContributionService(db).process_receipt_declaration(
         current.tenant_id, declaration_id, data, processor_user_id=current.user.id
+    )
+
+
+@router.post("/receipt-declarations/{declaration_id}/handover", response_model=ContributionReceiptDeclarationResponse)
+async def report_receipt_handover(
+    declaration_id: UUID, data: ContributionReceiptHandoverReport, current: AuthDep, db: DbDep
+) -> ContributionReceiptDeclarationResponse:
+    require_capability(current, CAP_CONTRIBUTION_RECEIPT_DECLARE, detail="Receipt declaration capability required")
+    return await ContributionService(db).report_receipt_handover(
+        current.tenant_id, declaration_id, data, declarant_user_id=current.user.id
+    )
+
+
+@router.post("/receipt-declarations/{declaration_id}/confirm-treasury-receipt", response_model=ContributionReceiptDeclarationResponse)
+async def confirm_receipt_in_treasury(
+    declaration_id: UUID,
+    data: ContributionReceiptTreasuryConfirmation,
+    current: AuthDep,
+    db: DbDep,
+    notifications: NotificationsDep,
+) -> ContributionReceiptDeclarationResponse:
+    require_capability(current, CAP_CONTRIBUTION_RECEIPT_PROCESS, detail="Receipt declaration processing capability required")
+    return await ContributionService(db).with_notification_providers(notifications).confirm_receipt_in_treasury(
+        current.tenant_id, declaration_id, data, treasurer_user_id=current.user.id
+    )
+
+
+@router.post("/receipt-declarations/{declaration_id}/handover-reminder", response_model=ContributionReceiptDeclarationResponse)
+async def update_receipt_handover_reminder(
+    declaration_id: UUID,
+    data: ContributionReceiptHandoverReminderUpdate,
+    current: AuthDep,
+    db: DbDep,
+    notifications: NotificationsDep,
+) -> ContributionReceiptDeclarationResponse:
+    require_capability(current, CAP_CONTRIBUTION_RECEIPT_PROCESS, detail="Receipt declaration processing capability required")
+    return await ContributionService(db).with_notification_providers(notifications).update_receipt_handover_reminder(
+        current.tenant_id, declaration_id, data, treasurer_user_id=current.user.id
     )
 
 

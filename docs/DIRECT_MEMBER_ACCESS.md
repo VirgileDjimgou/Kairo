@@ -1,7 +1,10 @@
 # Direct Member Access
 
-When a president or secretary creates a member profile, the existing profile-only
-workflow remains available. They can additionally enable **direct member access**.
+When an elected office holder creates a member profile, the existing profile-only
+workflow remains available. The president, vice president, secretary general,
+treasurer, auditor, censor, and sports manager can additionally enable **direct
+member access**. Deleting a member profile remains reserved for the president and
+secretary general.
 
 The direct-access form requires a temporary password and at least one login route:
 

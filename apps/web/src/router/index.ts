@@ -74,7 +74,10 @@ const router = createRouter({
           component: () => import("@/views/members/AdminMembersView.vue"),
           meta: {
             module: "membership",
-            allowedRoles: ["president", "secretary_general", "principal_admin", "admin"],
+            allowedRoles: [
+              "president", "vice_president", "secretary_general", "treasurer",
+              "auditor", "censor", "sports_manager", "principal_admin", "admin",
+            ],
           },
         },
         {
@@ -121,7 +124,12 @@ const router = createRouter({
           path: "operation-journal",
           name: "operation-journal",
           component: () => import("@/views/admin/OperationJournalView.vue"),
-          meta: { allowedRoles: ["president", "secretary_general"] },
+          meta: {
+            allowedRoles: [
+              "president", "vice_president", "secretary_general", "treasurer",
+              "auditor", "censor", "sports_manager",
+            ],
+          },
         },
         {
           path: "sports",

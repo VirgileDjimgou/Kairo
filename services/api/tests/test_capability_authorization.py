@@ -201,6 +201,88 @@ async def test_president_and_secretary_can_read_disciplinary_records_but_cannot_
         assert mutation.status_code == 403, mutation.text
 
 
+async def test_elected_office_roles_can_manage_members_but_only_president_and_secretary_can_delete(
+    client: AsyncClient,
+    db_session: AsyncSession,
+) -> None:
+    admin = await create_tenant_with_user(db_session, f"member-rights-{_uuid.uuid4().hex[:6]}")
+    admin_token = await login(client, admin["user"].email, admin["password"], admin["tenant"].slug)
+    profile = await _create_profile(
+        client,
+        admin_token,
+        member_code="RIGHTS-001",
+        display_name="Member Rights",
+        email="member-rights@test.org",
+    )
+
+    office_tokens: dict[str, str] = {}
+    for role_code in (
+        "president",
+        "vice_president",
+        "secretary_general",
+        "treasurer",
+        "auditor",
+        "censor",
+        "sports_manager",
+    ):
+        office_holder = await create_user_for_tenant(
+            db_session,
+            tenant_id=admin["tenant"].id,
+            email=f"{role_code}-{_uuid.uuid4().hex[:6]}@test.org",
+            password="OfficePass1!",
+            display_name=role_code.replace("_", " ").title(),
+            role_code=role_code,
+            profile_type="staff",
+        )
+        await db_session.commit()
+        office_tokens[role_code] = await login(
+            client,
+            office_holder["user"].email,
+            office_holder["password"],
+            admin["tenant"].slug,
+        )
+
+    for index, role_code in enumerate(office_tokens):
+        token = office_tokens[role_code]
+        created = await client.post(
+            "/api/v1/memberships/",
+            headers={"Authorization": f"Bearer {token}"},
+            json={
+                "member_code": f"RIGHTS-{index + 2:03}",
+                "first_name": "Office",
+                "last_name": role_code,
+                "display_name": f"Office {role_code}",
+            },
+        )
+        assert created.status_code == 201, created.text
+
+        updated = await client.patch(
+            f"/api/v1/memberships/{profile['id']}",
+            headers={"Authorization": f"Bearer {token}"},
+            json={"status": "suspended" if index % 2 == 0 else "active"},
+        )
+        assert updated.status_code == 200, updated.text
+
+    for role_code in (
+        "vice_president",
+        "treasurer",
+        "auditor",
+        "censor",
+        "sports_manager",
+    ):
+        denied = await client.delete(
+            f"/api/v1/memberships/{profile['id']}",
+            headers={"Authorization": f"Bearer {office_tokens[role_code]}"},
+        )
+        assert denied.status_code == 403, denied.text
+
+    deleted = await client.delete(
+        f"/api/v1/memberships/{profile['id']}",
+        headers={"Authorization": f"Bearer {office_tokens['president']}"},
+    )
+    assert deleted.status_code == 204, deleted.text
+
+
 async def test_sports_manager_can_manage_sports_events_but_not_general_events_or_announcements(
     client: AsyncClient,
     db_session: AsyncSession,

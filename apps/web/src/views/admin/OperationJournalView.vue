@@ -119,6 +119,25 @@ function formatDetails(event: AuditEventResponse): string {
       ? t('operationJournal.detail.memberCreatedWithCode', { memberCode })
       : t('operationJournal.detail.memberCreated')
   }
+  if (event.action === 'update' && event.entity_type === 'membership_profile') {
+    const memberCode = typeof details.member_code === 'string' ? details.member_code : null
+    const previousStatus = typeof details.previous_status === 'string' ? details.previous_status : null
+    const newStatus = typeof details.new_status === 'string' ? details.new_status : null
+    const target = memberCode || t('operationJournal.member')
+    if (previousStatus === 'active' && newStatus === 'suspended') {
+      return t('operationJournal.detail.memberPaused', { memberCode: target })
+    }
+    if (previousStatus === 'suspended' && newStatus === 'active') {
+      return t('operationJournal.detail.memberReactivated', { memberCode: target })
+    }
+    return t('operationJournal.detail.memberUpdated', { memberCode: target })
+  }
+  if (event.action === 'delete' && event.entity_type === 'membership_profile') {
+    const memberCode = typeof details.member_code === 'string' ? details.member_code : null
+    return t('operationJournal.detail.memberDeleted', {
+      memberCode: memberCode || t('operationJournal.member'),
+    })
+  }
   return t('operationJournal.detail.recorded')
 }
 

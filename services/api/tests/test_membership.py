@@ -55,6 +55,40 @@ async def test_create_member_profile_generates_code_when_not_provided(client: As
 
 
 @pytest.mark.asyncio
+async def test_member_creation_stores_address_and_generates_unique_combis_email(
+    client: AsyncClient, db_session: AsyncSession
+):
+    ctx = await create_tenant_with_user(db_session, "member-address-email")
+    token = await login(client, ctx["user"].email, "TestIsolation1!", ctx["tenant"].slug)
+    payload = {
+        "first_name": "Lena",
+        "last_name": "Müller",
+        "display_name": "Lena Müller",
+        "street_name": "Hauptstraße",
+        "house_number": "12a",
+        "postal_code": "10115",
+        "city": "Berlin",
+        "country_code": "de",
+    }
+
+    first = await client.post("/api/v1/memberships/", json=payload, headers={"Authorization": f"Bearer {token}"})
+    second = await client.post("/api/v1/memberships/", json=payload, headers={"Authorization": f"Bearer {token}"})
+
+    assert first.status_code == 201, first.text
+    assert second.status_code == 201, second.text
+    first_profile = first.json()
+    second_profile = second.json()
+    assert first_profile["email"].startswith("lenamuller")
+    assert first_profile["email"].endswith("@combis.org")
+    assert first_profile["email"] != second_profile["email"]
+    assert first_profile["street_name"] == "Hauptstraße"
+    assert first_profile["house_number"] == "12a"
+    assert first_profile["postal_code"] == "10115"
+    assert first_profile["city"] == "Berlin"
+    assert first_profile["country_code"] == "DE"
+
+
+@pytest.mark.asyncio
 async def test_direct_member_access_requires_initial_password_change(
     client: AsyncClient, db_session: AsyncSession
 ):
@@ -78,7 +112,7 @@ async def test_direct_member_access_requires_initial_password_change(
     )
     assert created.status_code == 201, created.text
     profile = created.json()
-    assert profile["email"] is None
+    assert profile["email"].endswith("@combis.org")
     assert profile["user_id"] is not None
 
     first_login = await client.post(
@@ -437,7 +471,7 @@ async def test_contribution_summary(client: AsyncClient, db_session: AsyncSessio
 
 
 @pytest.mark.asyncio
-@pytest.mark.parametrize("query", ["al", "MEM-SEARCH", "example.org"])
+@pytest.mark.parametrize("query", ["al", "MEM-SEARCH", "@combis.org"])
 async def test_member_directory_search_matches_partial_identity_fields(
     client: AsyncClient, db_session: AsyncSession, query: str
 ):
@@ -959,6 +993,14 @@ async def test_treasurer_can_run_finance_operations_but_not_admin_only_exports_o
     assert balance_data["total_expected"] == "120.00"
     assert balance_data["total_paid"] == "45.00"
     assert balance_data["total_balance"] == "75.00"
+
+    statement_resp = await client.get(
+        f"/api/v1/memberships/{profile_id}/statement",
+        headers={"Authorization": f"Bearer {treasurer_token}"},
+    )
+    assert statement_resp.status_code == 200, statement_resp.text
+    assert statement_resp.json()["summary"]["total_balance"] == "75.00"
+    assert len(statement_resp.json()["contributions"]) == 1
 
     summary_resp = await client.get(
         "/api/v1/contributions/summary?year=2026",

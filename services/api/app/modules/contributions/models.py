@@ -44,6 +44,23 @@ class ContributionReceiptStatus(StrEnum):
     cancelled = "cancelled"
 
 
+class FinancialIncomeType(StrEnum):
+    """Business meaning of a declared incoming payment."""
+
+    membership_contribution = "membership_contribution"
+    donation = "donation"
+    sponsorship = "sponsorship"
+    tournament_proceeds = "tournament_proceeds"
+    other_income = "other_income"
+    disciplinary_payment = "disciplinary_payment"
+
+
+class CashHandoverStatus(StrEnum):
+    pending_handover = "pending_handover"
+    handover_reported = "handover_reported"
+    received_in_treasury = "received_in_treasury"
+
+
 class ContributionRecord(Base):
     """
     Expected and paid contribution for a member in a specific year/period.
@@ -145,7 +162,10 @@ class ContributionReceiptDeclaration(Base):
 
     id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
     tenant_id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), ForeignKey("tenants.id", ondelete="CASCADE"), nullable=False, index=True)
-    membership_profile_id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), ForeignKey("membership_profiles.id", ondelete="CASCADE"), nullable=False, index=True)
+    membership_profile_id: Mapped[uuid.UUID | None] = mapped_column(UUID(as_uuid=True), ForeignKey("membership_profiles.id", ondelete="CASCADE"), nullable=True, index=True)
+    income_type: Mapped[str] = mapped_column(String(64), nullable=False, server_default=FinancialIncomeType.membership_contribution.value, index=True)
+    source_name: Mapped[str | None] = mapped_column(String(255), nullable=True)
+    disciplinary_record_id: Mapped[uuid.UUID | None] = mapped_column(UUID(as_uuid=True), ForeignKey("disciplinary_records.id", ondelete="SET NULL"), nullable=True)
     declarant_user_id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), ForeignKey("users.id", ondelete="RESTRICT"), nullable=False, index=True)
     declarant_role_code: Mapped[str] = mapped_column(String(64), nullable=False)
     amount: Mapped[Decimal] = mapped_column(Numeric(12, 2), nullable=False)
@@ -163,6 +183,17 @@ class ContributionReceiptDeclaration(Base):
     processing_note: Mapped[str | None] = mapped_column(Text, nullable=True)
     contribution_record_id: Mapped[uuid.UUID | None] = mapped_column(UUID(as_uuid=True), ForeignKey("contribution_records.id", ondelete="SET NULL"), nullable=True)
     payment_record_id: Mapped[uuid.UUID | None] = mapped_column(UUID(as_uuid=True), ForeignKey("payment_records.id", ondelete="SET NULL"), nullable=True)
+    cash_handover_status: Mapped[str | None] = mapped_column(String(50), nullable=True, index=True)
+    handover_reminder_days: Mapped[int | None] = mapped_column(Integer, nullable=True)
+    handover_due_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
+    handover_reminder_updated_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
+    handover_reminder_sent_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
+    handover_reported_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
+    handover_reported_by_user_id: Mapped[uuid.UUID | None] = mapped_column(UUID(as_uuid=True), ForeignKey("users.id", ondelete="SET NULL"), nullable=True)
+    handover_method: Mapped[str | None] = mapped_column(String(50), nullable=True)
+    treasury_received_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
+    treasury_received_by_user_id: Mapped[uuid.UUID | None] = mapped_column(UUID(as_uuid=True), ForeignKey("users.id", ondelete="SET NULL"), nullable=True)
+    treasury_receipt_note: Mapped[str | None] = mapped_column(Text, nullable=True)
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False, server_default=sql_text("CURRENT_TIMESTAMP"))
     updated_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False, server_default=sql_text("CURRENT_TIMESTAMP"))
 

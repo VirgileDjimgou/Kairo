@@ -99,12 +99,79 @@ async def test_office_receipt_declaration_requires_treasurer_validation(
     assert processed.json()["status"] == "validated"
     assert processed.json()["processed_amount"] == "20.00"
     assert processed.json()["payment_record_id"] is not None
+    assert processed.json()["cash_handover_status"] == "pending_handover"
+
+    reminder = await client.post(
+        f"/api/v1/contributions/receipt-declarations/{declaration_id}/handover-reminder",
+        json={"reminder_days": 5},
+        headers={"Authorization": f"Bearer {treasurer_token}"},
+    )
+    assert reminder.status_code == 200, reminder.text
+    assert reminder.json()["handover_reminder_days"] == 5
+
+    handover = await client.post(
+        f"/api/v1/contributions/receipt-declarations/{declaration_id}/handover",
+        json={"method": "cash", "note": "Handed to the treasurer in person"},
+        headers={"Authorization": f"Bearer {vice_token}"},
+    )
+    assert handover.status_code == 200, handover.text
+    assert handover.json()["cash_handover_status"] == "handover_reported"
+    closed = await client.post(
+        f"/api/v1/contributions/receipt-declarations/{declaration_id}/confirm-treasury-receipt",
+        json={"method": "cash", "note": "Received at the treasury desk"},
+        headers={"Authorization": f"Bearer {treasurer_token}"},
+    )
+    assert closed.status_code == 200, closed.text
+    assert closed.json()["cash_handover_status"] == "received_in_treasury"
+    assert closed.json()["treasury_receipt_note"] == "Received at the treasury desk"
 
     balance_after = await client.get(
         f"/api/v1/memberships/{member['profile'].id}/balance", headers={"Authorization": f"Bearer {admin_token}"}
     )
     assert balance_after.json()["total_paid"] == "20.00"
     assert balance_after.json()["total_balance"] == "40.00"
+
+
+@pytest.mark.asyncio
+async def test_treasurer_can_close_pending_handover_without_declarant_confirmation(
+    client: AsyncClient, db_session: AsyncSession
+) -> None:
+    admin = await create_tenant_with_user(db_session, f"direct-close-{uuid.uuid4().hex[:6]}")
+    president = await create_user_for_tenant(
+        db_session, tenant_id=admin["tenant"].id, email="president.direct@test.org",
+        password="PresidentPass123!", display_name="President Direct", role_code="president", profile_type="staff",
+    )
+    treasurer = await create_user_for_tenant(
+        db_session, tenant_id=admin["tenant"].id, email="treasurer.direct@test.org",
+        password="TreasurerPass123!", display_name="Treasurer Direct", role_code="treasurer", profile_type="staff",
+    )
+    await db_session.commit()
+    president_token = await login(client, president["user"].email, president["password"], admin["tenant"].slug)
+    treasurer_token = await login(client, treasurer["user"].email, treasurer["password"], admin["tenant"].slug)
+    declaration = await client.post(
+        "/api/v1/contributions/receipt-declarations",
+        json={"income_type": "donation", "source_name": "Supporter", "amount": "25.00"},
+        headers={"Authorization": f"Bearer {president_token}"},
+    )
+    assert declaration.status_code == 201, declaration.text
+    declaration_id = declaration.json()["id"]
+    assert (await client.post(
+        f"/api/v1/contributions/receipt-declarations/{declaration_id}/submit",
+        headers={"Authorization": f"Bearer {president_token}"},
+    )).status_code == 200
+    assert (await client.post(
+        f"/api/v1/contributions/receipt-declarations/{declaration_id}/process",
+        json={"action": "validated", "handover_reminder_days": 2},
+        headers={"Authorization": f"Bearer {treasurer_token}"},
+    )).status_code == 200
+    closed = await client.post(
+        f"/api/v1/contributions/receipt-declarations/{declaration_id}/confirm-treasury-receipt",
+        json={"method": "bank_transfer", "note": "Bank transfer checked"},
+        headers={"Authorization": f"Bearer {treasurer_token}"},
+    )
+    assert closed.status_code == 200, closed.text
+    assert closed.json()["cash_handover_status"] == "received_in_treasury"
+    assert closed.json()["handover_method"] == "bank_transfer"
 
 
 @pytest.mark.asyncio
@@ -126,3 +193,55 @@ async def test_member_cannot_declare_receipt_and_auditor_can_declare(
     payload = {"membership_profile_id": str(member["profile"].id), "amount": "10.00"}
     assert (await client.post("/api/v1/contributions/receipt-declarations", json=payload, headers={"Authorization": f"Bearer {auditor_token}"})).status_code == 201
     assert (await client.post("/api/v1/contributions/receipt-declarations", json=payload, headers={"Authorization": f"Bearer {member_token}"})).status_code == 403
+
+
+@pytest.mark.asyncio
+async def test_office_role_can_declare_and_treasurer_can_validate_non_member_income(
+    client: AsyncClient, db_session: AsyncSession
+) -> None:
+    admin = await create_tenant_with_user(db_session, f"external-income-{uuid.uuid4().hex[:6]}")
+    president = await create_user_for_tenant(
+        db_session, tenant_id=admin["tenant"].id, email="president.income@test.org",
+        password="PresidentPass123!", display_name="President Income", role_code="president", profile_type="staff",
+    )
+    treasurer = await create_user_for_tenant(
+        db_session, tenant_id=admin["tenant"].id, email="treasurer.income@test.org",
+        password="TreasurerPass123!", display_name="Treasurer Income", role_code="treasurer", profile_type="staff",
+    )
+    await db_session.commit()
+
+    president_token = await login(client, president["user"].email, president["password"], admin["tenant"].slug)
+    treasurer_token = await login(client, treasurer["user"].email, treasurer["password"], admin["tenant"].slug)
+    payload = {
+        "income_type": "tournament_proceeds", "source_name": "Tournoi d'été 2026",
+        "amount": "150.00", "currency": "EUR", "payment_method": "cash",
+    }
+    declaration = await client.post(
+        "/api/v1/contributions/receipt-declarations", json=payload,
+        headers={"Authorization": f"Bearer {president_token}"},
+    )
+    assert declaration.status_code == 201, declaration.text
+    assert declaration.json()["membership_profile_id"] is None
+    assert declaration.json()["income_type"] == "tournament_proceeds"
+    assert declaration.json()["source_name"] == "Tournoi d'été 2026"
+
+    submitted = await client.post(
+        f"/api/v1/contributions/receipt-declarations/{declaration.json()['id']}/submit",
+        headers={"Authorization": f"Bearer {president_token}"},
+    )
+    assert submitted.status_code == 200, submitted.text
+    validated = await client.post(
+        f"/api/v1/contributions/receipt-declarations/{declaration.json()['id']}/process",
+        json={"action": "validated"}, headers={"Authorization": f"Bearer {treasurer_token}"},
+    )
+    assert validated.status_code == 200, validated.text
+    assert validated.json()["status"] == "validated"
+    assert validated.json()["processed_amount"] == "150.00"
+    assert validated.json()["payment_record_id"] is None
+
+    missing_source = await client.post(
+        "/api/v1/contributions/receipt-declarations",
+        json={"income_type": "donation", "amount": "20.00"},
+        headers={"Authorization": f"Bearer {president_token}"},
+    )
+    assert missing_source.status_code == 422

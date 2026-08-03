@@ -150,7 +150,11 @@ export function useRoleNavigation() {
         icon: "bi-journal-richtext",
       });
     }
-    if (isPresident.value || isSecretaryGeneral.value) {
+    const isElectedOfficeHolder = roles.value.some((role) => [
+      "president", "vice_president", "secretary_general", "treasurer",
+      "auditor", "censor", "sports_manager",
+    ].includes(role));
+    if (isElectedOfficeHolder) {
       workspaceItems.push({
         label: localeStore.t("nav.members"),
         to: "/members/manage",

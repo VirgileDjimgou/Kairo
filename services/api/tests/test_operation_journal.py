@@ -10,7 +10,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 pytestmark = pytest.mark.asyncio
 
 
-async def test_operation_journal_is_limited_to_president_and_secretary(
+async def test_operation_journal_is_shared_with_all_elected_office_roles(
     client: AsyncClient,
     db_session: AsyncSession,
 ) -> None:
@@ -53,8 +53,25 @@ async def test_operation_journal_is_limited_to_president_and_secretary(
     assert failed_event["actor"]["email"] == treasurer["user"].email
     assert failed_event["actor"]["roles"] == ["treasurer"]
 
-    denied = await client.get(
+    treasurer_access = await client.get(
         "/api/v1/admin/audit/operation-journal",
         headers={"Authorization": f"Bearer {treasurer_token}"},
+    )
+    assert treasurer_access.status_code == 200, treasurer_access.text
+
+    member = await create_user_for_tenant(
+        db_session,
+        tenant_id=data["tenant"].id,
+        email=f"member-{_uuid.uuid4().hex[:6]}@test.org",
+        password="MemberPass123!",
+        display_name="Ordinary Member",
+        role_code="member",
+        profile_type="member",
+    )
+    await db_session.commit()
+    member_token = await login(client, member["user"].email, member["password"], data["tenant"].slug)
+    denied = await client.get(
+        "/api/v1/admin/audit/operation-journal",
+        headers={"Authorization": f"Bearer {member_token}"},
     )
     assert denied.status_code == 403, denied.text

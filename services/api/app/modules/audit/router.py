@@ -17,12 +17,20 @@ router = APIRouter(prefix="/admin/audit", tags=["audit"])
 
 
 def require_operation_journal_access(current: AuthDep) -> None:
-    """The association's operational journal is reserved for its two office roles."""
-    if current.has_role("president", "secretary_general"):
+    """The operational journal is shared with every elected office role."""
+    if current.has_role(
+        "president",
+        "vice_president",
+        "secretary_general",
+        "treasurer",
+        "auditor",
+        "censor",
+        "sports_manager",
+    ):
         return
     raise HTTPException(
         status_code=status.HTTP_403_FORBIDDEN,
-        detail="President or secretary general role required",
+        detail="Elected office role required",
     )
 
 

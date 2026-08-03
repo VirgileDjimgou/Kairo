@@ -3,11 +3,13 @@ from decimal import ROUND_HALF_UP, Decimal
 from typing import Literal
 from uuid import UUID
 
-from pydantic import BaseModel, Field, field_serializer
+from pydantic import BaseModel, Field, field_serializer, model_validator
 
 from app.modules.contributions.models import (
+    CashHandoverStatus,
     ContributionReceiptStatus,
     ContributionStatus,
+    FinancialIncomeType,
     PaymentMethod,
     ReminderDeliveryStatus,
 )
@@ -81,7 +83,10 @@ class PaymentRecordResponse(BaseModel):
 
 
 class ContributionReceiptDeclarationCreate(BaseModel):
-    membership_profile_id: UUID
+    membership_profile_id: UUID | None = None
+    income_type: FinancialIncomeType = FinancialIncomeType.membership_contribution
+    source_name: str | None = Field(default=None, max_length=255)
+    disciplinary_record_id: UUID | None = None
     amount: Decimal = Field(..., gt=0)
     currency: str = Field(default="EUR", min_length=3, max_length=3)
     received_at: datetime | None = None
@@ -89,6 +94,16 @@ class ContributionReceiptDeclarationCreate(BaseModel):
     note: str | None = Field(default=None, max_length=2000)
     reference: str | None = Field(default=None, max_length=255)
     evidence_json: str = Field(default="{}", max_length=10000)
+
+    @model_validator(mode="after")
+    def validate_income_source(self) -> "ContributionReceiptDeclarationCreate":
+        if self.income_type in {FinancialIncomeType.membership_contribution, FinancialIncomeType.disciplinary_payment} and self.membership_profile_id is None:
+            raise ValueError("A member is required for a membership contribution")
+        if self.income_type == FinancialIncomeType.disciplinary_payment and self.disciplinary_record_id is None:
+            raise ValueError("A disciplinary record is required for a disciplinary payment")
+        if self.income_type not in {FinancialIncomeType.membership_contribution, FinancialIncomeType.disciplinary_payment} and not (self.source_name or "").strip():
+            raise ValueError("A source name is required for a non-member income")
+        return self
 
 
 class ContributionReceiptMemberOption(BaseModel):
@@ -108,6 +123,8 @@ class ContributionReceiptMemberOption(BaseModel):
 
 class ContributionReceiptDeclarationUpdate(BaseModel):
     membership_profile_id: UUID | None = None
+    income_type: FinancialIncomeType | None = None
+    source_name: str | None = Field(default=None, max_length=255)
     amount: Decimal | None = Field(default=None, gt=0)
     currency: str | None = Field(default=None, min_length=3, max_length=3)
     received_at: datetime | None = None
@@ -122,12 +139,30 @@ class ContributionReceiptDeclarationProcess(BaseModel):
     contribution_record_id: UUID | None = None
     processed_amount: Decimal | None = Field(default=None, gt=0)
     note: str | None = Field(default=None, max_length=2000)
+    handover_reminder_days: int = Field(default=2, ge=1, le=7)
+
+
+class ContributionReceiptHandoverReport(BaseModel):
+    method: Literal["cash", "bank_transfer"]
+    note: str | None = Field(default=None, max_length=2000)
+
+
+class ContributionReceiptHandoverReminderUpdate(BaseModel):
+    reminder_days: int = Field(..., ge=1, le=7)
+
+
+class ContributionReceiptTreasuryConfirmation(BaseModel):
+    method: Literal["cash", "bank_transfer"] = "cash"
+    note: str | None = Field(default=None, max_length=2000)
 
 
 class ContributionReceiptDeclarationResponse(BaseModel):
     id: UUID
     tenant_id: UUID
-    membership_profile_id: UUID
+    membership_profile_id: UUID | None
+    income_type: FinancialIncomeType
+    source_name: str | None
+    disciplinary_record_id: UUID | None
     declarant_user_id: UUID
     declarant_role_code: str
     amount: Decimal
@@ -145,6 +180,17 @@ class ContributionReceiptDeclarationResponse(BaseModel):
     processing_note: str | None
     contribution_record_id: UUID | None
     payment_record_id: UUID | None
+    cash_handover_status: CashHandoverStatus | None
+    handover_reminder_days: int | None
+    handover_due_at: datetime | None
+    handover_reminder_updated_at: datetime | None
+    handover_reminder_sent_at: datetime | None
+    handover_reported_at: datetime | None
+    handover_reported_by_user_id: UUID | None
+    handover_method: str | None
+    treasury_received_at: datetime | None
+    treasury_received_by_user_id: UUID | None
+    treasury_receipt_note: str | None
     created_at: datetime
     updated_at: datetime
 

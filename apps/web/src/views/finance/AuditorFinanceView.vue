@@ -85,6 +85,32 @@
       </div>
     </div>
 
+    <section class="card shadow-sm border-0 mb-4 auditor-member-lookup">
+      <div class="card-body p-4">
+        <div class="text-uppercase small fw-semibold text-secondary mb-1">{{ t('finance.memberLookup') }}</div>
+        <h2 class="h6 fw-bold mb-3">{{ t('finance.memberFinanceSearchTitle') }}</h2>
+        <div class="position-relative">
+          <input v-model.trim="memberSearch" class="form-control" :placeholder="t('finance.memberSearchPlaceholder')" @focus="showMemberResults = true" />
+          <div v-if="showMemberResults && memberSearch" class="list-group position-absolute w-100 shadow-sm auditor-member-results">
+            <button v-for="member in filteredMembers.slice(0, 8)" :key="member.id" class="list-group-item list-group-item-action text-start" type="button" @click="selectMember(member)">
+              <span class="fw-semibold">{{ member.display_name }}</span><span class="small text-muted ms-2">{{ member.member_code }}</span>
+            </button>
+            <div v-if="filteredMembers.length === 0" class="list-group-item small text-muted">{{ t('finance.noMemberFound') }}</div>
+          </div>
+        </div>
+        <div v-if="selectedStatement" class="auditor-selected-member mt-3 rounded-3 p-3">
+          <div class="d-flex justify-content-between gap-2"><div><strong>{{ selectedStatement.profile.display_name }}</strong><div class="small text-muted">{{ selectedStatement.profile.member_code }}</div></div><button class="btn-close" type="button" :aria-label="t('common.close')" @click="selectedStatement = null"></button></div>
+          <div class="row g-2 text-center small mt-2">
+            <div class="col-4"><div class="metric expected"><span>{{ t('contributions.expected') }}</span><strong>{{ selectedStatement.summary.total_expected }} €</strong></div></div>
+            <div class="col-4"><div class="metric paid"><span>{{ t('contributions.paid') }}</span><strong>{{ selectedStatement.summary.total_paid }} €</strong></div></div>
+            <div class="col-4"><div class="metric balance"><span>{{ t('contributions.balance') }}</span><strong>{{ selectedStatement.summary.total_balance }} €</strong></div></div>
+          </div>
+          <div class="small mt-3"><strong>{{ t('finance.contributionHistory') }}</strong></div>
+          <div v-for="contribution in selectedStatement.contributions" :key="contribution.id" class="d-flex justify-content-between border-top pt-2 mt-2 small"><span>{{ contribution.year }} · {{ contribution.status }}</span><span>{{ contribution.paid_amount }} / {{ contribution.expected_amount }} € · <strong>{{ contribution.balance }} €</strong></span></div>
+        </div>
+      </div>
+    </section>
+
     <div class="row g-4">
       <div class="col-xl-7">
         <div class="card shadow-sm border-0">
@@ -203,7 +229,7 @@ import {
   type PaymentRecordResponse,
   type MemberFinanceExportFormat,
 } from '@/api/contributions.api'
-import { listMembers, type MembershipProfileResponse } from '@/api/membership.api'
+import { getMemberStatement, listMembers, type MemberStatementResponse, type MembershipProfileResponse } from '@/api/membership.api'
 import { useCsvExport } from '@/composables/useCsvExport'
 import { useRecoveryState } from '@/composables/useRecoveryState'
 import { useLocaleStore } from '@/stores/locale.store'
@@ -223,6 +249,9 @@ const members = ref<MembershipProfileResponse[]>([])
 const contributions = ref<ContributionRecordResponse[]>([])
 const payments = ref<PaymentRecordResponse[]>([])
 const summary = ref<ContributionSummary | null>(null)
+const memberSearch = ref('')
+const showMemberResults = ref(false)
+const selectedStatement = ref<MemberStatementResponse | null>(null)
 
 const currentYear = new Date().getFullYear()
 const years = [currentYear - 1, currentYear, currentYear + 1]
@@ -232,6 +261,22 @@ const { exportCsv } = useCsvExport()
 const memberMap = computed(() =>
   Object.fromEntries(members.value.map((member) => [member.id, member])),
 )
+
+const filteredMembers = computed(() => {
+  const query = memberSearch.value.toLocaleLowerCase()
+  if (!query) return members.value
+  return members.value.filter((member) =>
+    `${member.display_name} ${member.first_name} ${member.last_name} ${member.member_code} ${member.phone || ''} ${member.email || ''}`
+      .toLocaleLowerCase()
+      .includes(query),
+  )
+})
+
+async function selectMember(member: MembershipProfileResponse) {
+  memberSearch.value = member.display_name
+  showMemberResults.value = false
+  selectedStatement.value = await getMemberStatement(member.id)
+}
 
 const contributionMap = computed(() =>
   Object.fromEntries(contributions.value.map((contribution) => [contribution.id, contribution])),
@@ -394,6 +439,13 @@ onMounted(refreshAll)
 .auditor-actions .form-select {
   min-height: 44px;
 }
+
+.auditor-member-lookup { border-top: 4px solid #5b8def; }
+.auditor-member-results { z-index: 1040; max-height: 17rem; overflow-y: auto; }
+.auditor-selected-member { background: #f7fbff; border: 1px solid #bdd6fb; }
+.metric { border-radius: .75rem; padding: .5rem .25rem; display: grid; gap: .2rem; }
+.metric span { color: var(--bs-secondary-color); font-size: .72rem; }
+.metric.expected { background: #dcecff; }.metric.paid { background: #d9f2e5; }.metric.balance { background: #fff0c8; }
 
 @media (max-width: 767.98px) {
   .auditor-actions {

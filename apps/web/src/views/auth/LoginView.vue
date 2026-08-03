@@ -40,16 +40,27 @@
 
           <div class="mb-2">
             <label for="password" class="form-label fw-medium small">{{ localeStore.t('login.password') }}</label>
-            <input
-              id="password"
-              v-model="form.password"
-              type="password"
-              class="form-control"
-              :class="{ 'is-invalid': errors.password }"
-              placeholder="••••••••"
-              autocomplete="current-password"
-              required
-            />
+            <div class="input-group">
+              <input
+                id="password"
+                v-model="form.password"
+                :type="showPassword ? 'text' : 'password'"
+                class="form-control"
+                :class="{ 'is-invalid': errors.password }"
+                placeholder="••••••••"
+                autocomplete="current-password"
+                required
+              />
+              <button
+                class="btn btn-outline-secondary"
+                type="button"
+                :aria-label="localeStore.t(showPassword ? 'login.hidePassword' : 'login.showPassword')"
+                :title="localeStore.t(showPassword ? 'login.hidePassword' : 'login.showPassword')"
+                @click="showPassword = !showPassword"
+              >
+                <i :class="showPassword ? 'bi bi-eye-slash' : 'bi bi-eye'" aria-hidden="true"></i>
+              </button>
+            </div>
             <div v-if="errors.password" class="invalid-feedback">{{ errors.password }}</div>
             <div class="mt-1 text-end">
               <router-link to="/forgot-password" class="small text-muted">
@@ -247,16 +258,27 @@
 
                 <div class="mb-3">
                   <label for="password" class="form-label fw-medium">{{ localeStore.t('login.password') }}</label>
-                  <input
-                    id="password"
-                    v-model="form.password"
-                    type="password"
-                    class="form-control"
-                    :class="{ 'is-invalid': errors.password }"
-                    placeholder="••••••••"
-                    autocomplete="current-password"
-                    required
-                  />
+                  <div class="input-group">
+                    <input
+                      id="password"
+                      v-model="form.password"
+                      :type="showPassword ? 'text' : 'password'"
+                      class="form-control"
+                      :class="{ 'is-invalid': errors.password }"
+                      placeholder="••••••••"
+                      autocomplete="current-password"
+                      required
+                    />
+                    <button
+                      class="btn btn-outline-secondary"
+                      type="button"
+                      :aria-label="localeStore.t(showPassword ? 'login.hidePassword' : 'login.showPassword')"
+                      :title="localeStore.t(showPassword ? 'login.hidePassword' : 'login.showPassword')"
+                      @click="showPassword = !showPassword"
+                    >
+                      <i :class="showPassword ? 'bi bi-eye-slash' : 'bi bi-eye'" aria-hidden="true"></i>
+                    </button>
+                  </div>
                   <div v-if="errors.password" class="invalid-feedback">
                     {{ errors.password }}
                   </div>
@@ -414,6 +436,7 @@ const heroHighlights = computed(() => [
 
 const form = reactive({ email: "", password: "" });
 const errors = reactive({ email: "", password: "", mfaCode: "" });
+const showPassword = ref(false);
 const loading = ref(false);
 const errorMessage = ref("");
 const showTenantPicker = ref(false);

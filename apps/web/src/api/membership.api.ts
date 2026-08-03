@@ -11,6 +11,11 @@ export interface MembershipProfileResponse {
   display_name: string
   email: string | null
   phone: string | null
+  street_name: string | null
+  house_number: string | null
+  postal_code: string | null
+  city: string | null
+  country_code: string | null
   status: string
   membership_type: 'individual' | 'family'
   joined_at: string
@@ -39,6 +44,11 @@ export interface CreateMemberPayload {
   display_name: string
   email?: string
   phone?: string
+  street_name?: string
+  house_number?: string
+  postal_code?: string
+  city?: string
+  country_code?: string
   status?: string
   membership_type: 'individual' | 'family'
   provision_access?: boolean
@@ -53,6 +63,11 @@ export interface UpdateMemberPayload {
   display_name?: string
   email?: string
   phone?: string
+  street_name?: string
+  house_number?: string
+  postal_code?: string
+  city?: string
+  country_code?: string
   status?: string
 }
 
@@ -93,6 +108,11 @@ export async function getMember(profileId: string): Promise<MembershipProfileRes
 
 export async function getMemberBalance(profileId: string): Promise<MemberBalanceResponse> {
   const response = await http.get<MemberBalanceResponse>(`/memberships/${profileId}/balance`)
+  return response.data
+}
+
+export async function getMemberStatement(profileId: string): Promise<MemberStatementResponse> {
+  const response = await http.get<MemberStatementResponse>(`/memberships/${profileId}/statement`)
   return response.data
 }
 

@@ -44,6 +44,15 @@ class MembershipRepository:
         )
         return result.scalar_one_or_none()
 
+    async def get_by_email(self, tenant_id: UUID, email: str) -> MembershipProfile | None:
+        result = await self._db.execute(
+            select(MembershipProfile).where(
+                MembershipProfile.tenant_id == tenant_id,
+                MembershipProfile.email == email,
+            )
+        )
+        return result.scalar_one_or_none()
+
     async def list_by_tenant(
         self, tenant_id: UUID, status: str | None = None, query_text: str | None = None
     ) -> list[MembershipProfile]:

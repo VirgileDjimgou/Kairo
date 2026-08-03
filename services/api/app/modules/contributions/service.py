@@ -10,8 +10,10 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from app.core.import_export import ImportResult, ImportRowError, generate_csv, parse_csv
 from app.modules.audit.service import AuditService
 from app.modules.contributions.models import (
+    CashHandoverStatus,
     ContributionReceiptStatus,
     ContributionStatus,
+    FinancialIncomeType,
     ReminderDeliveryStatus,
 )
 from app.modules.contributions.repository import ContributionRepository
@@ -20,6 +22,9 @@ from app.modules.contributions.schemas import (
     ContributionReceiptDeclarationProcess,
     ContributionReceiptDeclarationResponse,
     ContributionReceiptDeclarationUpdate,
+    ContributionReceiptHandoverReminderUpdate,
+    ContributionReceiptHandoverReport,
+    ContributionReceiptTreasuryConfirmation,
     ContributionRecordCreate,
     ContributionRecordResponse,
     ContributionRecordUpdate,
@@ -31,6 +36,8 @@ from app.modules.contributions.schemas import (
     PaymentRecordResponse,
 )
 from app.modules.disciplinary.models import DisciplinaryRecord
+from app.modules.disciplinary.repository import DisciplinaryRepository
+from app.modules.identity.repository import UserRepository
 from app.modules.membership.models import MembershipProfile
 from app.modules.membership.repository import MembershipRepository
 from app.modules.tenancy.models import Tenant
@@ -200,9 +207,16 @@ class ContributionService:
         self, tenant_id: UUID, data: ContributionReceiptDeclarationCreate, *,
         declarant_user_id: UUID, declarant_role_code: str,
     ) -> ContributionReceiptDeclarationResponse:
-        profile = await MembershipRepository(self._db).get_by_id(tenant_id, data.membership_profile_id)
-        if profile is None:
-            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Member profile not found")
+        if data.income_type in {FinancialIncomeType.membership_contribution, FinancialIncomeType.disciplinary_payment}:
+            assert data.membership_profile_id is not None
+            profile = await MembershipRepository(self._db).get_by_id(tenant_id, data.membership_profile_id)
+            if profile is None:
+                raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Member profile not found")
+        if data.income_type == FinancialIncomeType.disciplinary_payment:
+            assert data.disciplinary_record_id is not None and data.membership_profile_id is not None
+            disciplinary = await DisciplinaryRepository(self._db).get_by_id(tenant_id, data.disciplinary_record_id)
+            if disciplinary is None or disciplinary.membership_profile_id != data.membership_profile_id:
+                raise HTTPException(status_code=status.HTTP_422_UNPROCESSABLE_ENTITY, detail="Disciplinary record does not belong to this member")
         payload = data.model_dump()
         payload["received_at"] = payload["received_at"] or datetime.now(UTC)
         payload.update({
@@ -214,7 +228,12 @@ class ContributionService:
             tenant_id=tenant_id, actor_user_id=declarant_user_id,
             action="receipt_declaration_created", entity_type="contribution_receipt_declaration",
             entity_id=record.id, module_key="contributions",
-            details={"membership_profile_id": record.membership_profile_id, "amount": str(record.amount)},
+            details={
+                "membership_profile_id": record.membership_profile_id,
+                "income_type": record.income_type,
+                "source_name": record.source_name,
+                "amount": str(record.amount),
+            },
         )
         await self._db.commit()
         return ContributionReceiptDeclarationResponse.model_validate(record)
@@ -276,7 +295,7 @@ class ContributionService:
             raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail="Only submitted declarations can be processed")
         if data.action in {"rejected", "clarification_requested", "cancelled"} and not data.note:
             raise HTTPException(status_code=status.HTTP_422_UNPROCESSABLE_ENTITY, detail="A processing note is required")
-        if data.action in {"validated", "partially_validated"}:
+        if data.action in {"validated", "partially_validated"} and record.income_type == FinancialIncomeType.membership_contribution.value:
             if data.contribution_record_id is None:
                 raise HTTPException(status_code=status.HTTP_422_UNPROCESSABLE_ENTITY, detail="Contribution record is required")
             amount = data.processed_amount or record.amount
@@ -298,6 +317,28 @@ class ContributionService:
                 "status": data.action, "processed_at": datetime.now(UTC), "processed_by_user_id": processor_user_id,
                 "processed_amount": amount, "processing_note": data.note, "contribution_record_id": contribution.id,
                 "payment_record_id": payment.id,
+                "cash_handover_status": CashHandoverStatus.pending_handover.value,
+                "handover_reminder_days": data.handover_reminder_days,
+                "handover_due_at": datetime.now(UTC) + timedelta(days=data.handover_reminder_days),
+            })
+        elif data.action in {"validated", "partially_validated"}:
+            amount = data.processed_amount or record.amount
+            if amount > record.amount:
+                raise HTTPException(status_code=status.HTTP_422_UNPROCESSABLE_ENTITY, detail="Processed amount cannot exceed declared amount")
+            if data.action == "validated" and amount != record.amount:
+                raise HTTPException(status_code=status.HTTP_422_UNPROCESSABLE_ENTITY, detail="Validated amount must equal declared amount")
+            if record.income_type == FinancialIncomeType.disciplinary_payment.value and data.action == "validated":
+                assert record.disciplinary_record_id is not None
+                disciplinary = await DisciplinaryRepository(self._db).get_by_id(tenant_id, record.disciplinary_record_id)
+                if disciplinary is None or disciplinary.membership_profile_id != record.membership_profile_id:
+                    raise HTTPException(status_code=status.HTTP_422_UNPROCESSABLE_ENTITY, detail="Disciplinary record does not belong to this member")
+                disciplinary.status = "resolved"
+            updated = await self._repo.update_receipt_declaration(tenant_id, declaration_id, {
+                "status": data.action, "processed_at": datetime.now(UTC), "processed_by_user_id": processor_user_id,
+                "processed_amount": amount, "processing_note": data.note,
+                "cash_handover_status": CashHandoverStatus.pending_handover.value,
+                "handover_reminder_days": data.handover_reminder_days,
+                "handover_due_at": datetime.now(UTC) + timedelta(days=data.handover_reminder_days),
             })
         else:
             updated = await self._repo.update_receipt_declaration(tenant_id, declaration_id, {
@@ -313,6 +354,144 @@ class ContributionService:
         )
         await self._db.commit()
         return ContributionReceiptDeclarationResponse.model_validate(updated)
+
+    async def report_receipt_handover(
+        self, tenant_id: UUID, declaration_id: UUID, data: ContributionReceiptHandoverReport, *, declarant_user_id: UUID,
+    ) -> ContributionReceiptDeclarationResponse:
+        record = await self._repo.get_receipt_declaration(tenant_id, declaration_id)
+        if record is None:
+            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Receipt declaration not found")
+        if record.declarant_user_id != declarant_user_id or record.cash_handover_status != CashHandoverStatus.pending_handover.value:
+            raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail="Receipt handover cannot be reported")
+        updated = await self._repo.update_receipt_declaration(tenant_id, declaration_id, {
+            "cash_handover_status": CashHandoverStatus.handover_reported.value,
+            "handover_reported_at": datetime.now(UTC), "handover_reported_by_user_id": declarant_user_id,
+            "handover_method": data.method, "processing_note": data.note or record.processing_note,
+        })
+        assert updated is not None
+        await self._audit.record_event(tenant_id=tenant_id, actor_user_id=declarant_user_id, action="receipt_handover_reported", entity_type="contribution_receipt_declaration", entity_id=updated.id, module_key="contributions", details={"method": data.method})
+        await self._db.commit()
+        return ContributionReceiptDeclarationResponse.model_validate(updated)
+
+    async def update_receipt_handover_reminder(
+        self,
+        tenant_id: UUID,
+        declaration_id: UUID,
+        data: ContributionReceiptHandoverReminderUpdate,
+        *,
+        treasurer_user_id: UUID,
+    ) -> ContributionReceiptDeclarationResponse:
+        record = await self._repo.get_receipt_declaration(tenant_id, declaration_id)
+        if record is None:
+            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Receipt declaration not found")
+        if record.cash_handover_status not in {
+            CashHandoverStatus.pending_handover.value,
+            CashHandoverStatus.handover_reported.value,
+        }:
+            raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail="Only an open cash handover reminder can be updated")
+        previous_days = record.handover_reminder_days
+        now = datetime.now(UTC)
+        record.handover_reminder_sent_at = None
+        updated = await self._repo.update_receipt_declaration(tenant_id, declaration_id, {
+            "handover_reminder_days": data.reminder_days,
+            "handover_due_at": now + timedelta(days=data.reminder_days),
+            "handover_reminder_updated_at": now,
+        })
+        assert updated is not None
+        await self._audit.record_event(
+            tenant_id=tenant_id, actor_user_id=treasurer_user_id,
+            action="receipt_handover_reminder_updated", entity_type="contribution_receipt_declaration",
+            entity_id=updated.id, module_key="contributions",
+            details={"previous_days": previous_days, "reminder_days": data.reminder_days, "due_at": updated.handover_due_at.isoformat()},
+        )
+        await self._dispatch_cash_custody_notice(
+            tenant_id, updated, actor_user_id=treasurer_user_id,
+            subject="Kairo — délai de remise mis à jour",
+            body=f"Le délai de remise en caisse pour l'encaissement de {updated.amount} {updated.currency} a été fixé à {data.reminder_days} jour(s).",
+            audit_action="receipt_handover_reminder_notice",
+        )
+        await self._db.commit()
+        return ContributionReceiptDeclarationResponse.model_validate(updated)
+
+    async def confirm_receipt_in_treasury(
+        self,
+        tenant_id: UUID,
+        declaration_id: UUID,
+        data: ContributionReceiptTreasuryConfirmation,
+        *,
+        treasurer_user_id: UUID,
+    ) -> ContributionReceiptDeclarationResponse:
+        record = await self._repo.get_receipt_declaration(tenant_id, declaration_id)
+        if record is None:
+            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Receipt declaration not found")
+        if record.cash_handover_status not in {
+            CashHandoverStatus.pending_handover.value,
+            CashHandoverStatus.handover_reported.value,
+        }:
+            raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail="Only an open cash handover can be closed")
+        previous_status = record.cash_handover_status
+        updated = await self._repo.update_receipt_declaration(tenant_id, declaration_id, {
+            "cash_handover_status": CashHandoverStatus.received_in_treasury.value,
+            "handover_method": data.method,
+            "treasury_received_at": datetime.now(UTC), "treasury_received_by_user_id": treasurer_user_id,
+            "treasury_receipt_note": data.note,
+        })
+        assert updated is not None
+        await self._audit.record_event(
+            tenant_id=tenant_id, actor_user_id=treasurer_user_id,
+            action="receipt_received_in_treasury", entity_type="contribution_receipt_declaration",
+            entity_id=updated.id, module_key="contributions",
+            details={"closed_from": previous_status, "method": data.method, "note": data.note},
+        )
+        await self._dispatch_cash_custody_notice(
+            tenant_id, updated, actor_user_id=treasurer_user_id,
+            subject="Kairo — encaissement clôturé",
+            body=f"Le trésorier a confirmé la réception en caisse de {updated.amount} {updated.currency}. L'opération est terminée.",
+            audit_action="receipt_treasury_closure_notice",
+        )
+        await self._db.commit()
+        return ContributionReceiptDeclarationResponse.model_validate(updated)
+
+    async def _dispatch_cash_custody_notice(
+        self,
+        tenant_id: UUID,
+        record,
+        *,
+        actor_user_id: UUID,
+        subject: str,
+        body: str,
+        audit_action: str,
+    ) -> None:
+        """Notify the declarant and affected member without blocking accounting."""
+        recipients: set[str] = set()
+        user_repo = UserRepository(self._db)
+        declarant = await user_repo.get_by_id(record.declarant_user_id)
+        if declarant and declarant.email:
+            recipients.add(declarant.email)
+        if record.membership_profile_id is not None:
+            profile = await MembershipRepository(self._db).get_by_id(tenant_id, record.membership_profile_id)
+            if profile and profile.user_id and profile.user_id != record.declarant_user_id:
+                member_user = await user_repo.get_by_id(profile.user_id)
+                if member_user and member_user.email:
+                    recipients.add(member_user.email)
+        provider = next((item for item in self._notification_providers if getattr(item, "channel", "") == "email"), None)
+        delivery_states: list[dict[str, str]] = []
+        for recipient in recipients:
+            if provider is None:
+                delivery_states.append({"recipient": recipient, "status": "not_configured"})
+                continue
+            try:
+                result = await provider.send_message(
+                    tenant_id=tenant_id, actor_user_id=actor_user_id, recipient=recipient, subject=subject, body=body,
+                )
+                delivery_states.append({"recipient": recipient, "status": result.status})
+            except Exception:  # Notifications must not undo a valid treasury action.
+                delivery_states.append({"recipient": recipient, "status": "failed"})
+        await self._audit.record_event(
+            tenant_id=tenant_id, actor_user_id=actor_user_id, action=audit_action,
+            entity_type="contribution_receipt_declaration", entity_id=record.id,
+            module_key="contributions", details={"recipients": delivery_states},
+        )
 
     async def list_receipt_declarations(
         self, tenant_id: UUID, *, declarant_user_id: UUID | None = None,

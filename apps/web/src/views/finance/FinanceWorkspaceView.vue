@@ -43,6 +43,67 @@
       <button type="button" class="btn-close py-2" @click="notice = ''"></button>
     </div>
 
+    <section v-if="isTreasurer" class="card shadow-sm border-0 mb-4 receipt-queue" data-testid="finance-receipt-validation-queue">
+      <div class="card-body p-4">
+        <div class="d-flex flex-column flex-md-row justify-content-between gap-2 mb-3">
+          <div>
+            <div class="text-uppercase small fw-semibold text-secondary mb-1">{{ t('finance.receiptValidationKicker') }}</div>
+            <h2 class="h5 fw-bold mb-1">{{ t('finance.receiptValidationTitle') }}</h2>
+            <p class="small text-muted mb-0">{{ t('finance.receiptValidationLead') }}</p>
+          </div>
+          <span class="badge align-self-start text-bg-warning">{{ pendingDeclarations.length }}</span>
+        </div>
+        <p v-if="pendingDeclarations.length === 0" class="small text-muted mb-0">{{ t('finance.noReceiptDeclarations') }}</p>
+        <div v-else class="vstack gap-2">
+          <article v-for="item in pendingDeclarations" :key="item.id" class="receipt-queue-item rounded-3 p-3">
+            <div class="d-flex flex-column flex-md-row justify-content-between gap-3">
+              <div>
+                <div class="fw-semibold">{{ receiptDeclarationLabel(item) }}</div>
+                <div class="small text-muted">{{ receiptIncomeTypeLabel(item.income_type) }} · {{ item.amount }} {{ item.currency }} · {{ item.declarant_role_code }} · {{ formatDate(item.received_at) }}</div>
+                <div v-if="item.note" class="small mt-2">{{ item.note }}</div>
+              </div>
+              <div class="d-flex gap-2 align-items-start">
+                <button class="btn btn-sm btn-success" type="button" @click="openReceiptDecision(item, 'validated')">{{ t('finance.validateReceipt') }}</button>
+                <button class="btn btn-sm btn-outline-danger" type="button" @click="openReceiptDecision(item, 'rejected')">{{ t('finance.rejectReceipt') }}</button>
+              </div>
+            </div>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <section v-if="isTreasurer && handoverDeclarations.length" class="card shadow-sm border-0 mb-4 custody-workspace" data-testid="finance-cash-custody-queue">
+      <div class="card-body p-4">
+        <div class="d-flex flex-column flex-md-row justify-content-between gap-3 mb-3">
+          <div>
+            <div class="text-uppercase small fw-semibold text-primary mb-1">{{ t('receipt.custodyKicker') }}</div>
+            <h2 class="h5 fw-bold mb-1">{{ t('receipt.cashPending') }}</h2>
+            <p class="small text-muted mb-0">{{ t('receipt.custodyLead') }}</p>
+          </div>
+          <span class="badge rounded-pill text-bg-primary align-self-start px-3 py-2">{{ handoverDeclarations.length }} {{ t('finance.itemsCountSuffix') }}</span>
+        </div>
+        <div class="vstack gap-3">
+          <article v-for="item in handoverDeclarations" :key="item.id" class="custody-card rounded-4 p-3 p-md-4" :class="item.cash_handover_status === 'handover_reported' ? 'custody-card-reported' : 'custody-card-pending'">
+            <div class="d-flex flex-column flex-lg-row justify-content-between gap-3">
+              <div class="flex-grow-1">
+                <div class="d-flex flex-wrap align-items-center gap-2 mb-2"><span class="fw-bold">{{ receiptDeclarationLabel(item) }}</span><span class="badge rounded-pill" :class="item.cash_handover_status === 'handover_reported' ? 'text-bg-info' : 'text-bg-warning'">{{ handoverStatusLabel(item.cash_handover_status) }}</span></div>
+                <div class="small text-muted mb-3">{{ receiptIncomeTypeLabel(item.income_type) }} · {{ item.amount }} {{ item.currency }} · {{ t('receipt.receivedBy') }} {{ item.declarant_role_code }}</div>
+                <div class="custody-meta-grid small">
+                  <div><span>{{ t('receipt.currentReminder') }}</span><strong>{{ item.handover_reminder_days || 2 }} {{ t('receipt.days') }}</strong></div>
+                  <div><span>{{ t('receipt.dueDate') }}</span><strong>{{ formatDate(item.handover_due_at) }}</strong></div>
+                  <div v-if="item.handover_method"><span>{{ t('receipt.handoverMethod') }}</span><strong>{{ item.handover_method === 'bank_transfer' ? t('receipt.handoverTransfer') : t('receipt.handoverCash') }}</strong></div>
+                </div>
+              </div>
+              <div class="custody-actions align-self-lg-center">
+                <button class="btn btn-outline-primary" type="button" @click="openCustodyDecision(item, 'reminder')"><i class="bi bi-clock-history me-1"></i>{{ t('receipt.changeReminder') }}</button>
+                <button class="btn btn-primary" type="button" @click="openCustodyDecision(item, 'close')"><i class="bi bi-safe2 me-1"></i>{{ t('receipt.closeInTreasury') }}</button>
+              </div>
+            </div>
+          </article>
+        </div>
+      </div>
+    </section>
+
     <div v-if="summary" class="row g-3 mb-4">
       <div class="col-md-4">
         <div class="card shadow-sm border-0 bg-primary-subtle">
@@ -70,6 +131,29 @@
       </div>
     </div>
 
+    <div v-if="receiptDecision" class="modal d-block" tabindex="-1" role="dialog" aria-modal="true">
+      <div class="modal-dialog modal-dialog-centered"><div class="modal-content shadow">
+        <div class="modal-header"><h2 class="modal-title fs-5">{{ t('receipt.reviewTitle') }}</h2><button class="btn-close" type="button" @click="closeReceiptDecision"></button></div>
+        <div class="modal-body vstack gap-3"><p class="mb-0">{{ receiptDeclarationLabel(receiptDecision.item) }} · {{ receiptDecision.item.amount }} {{ receiptDecision.item.currency }}</p>
+          <div v-if="receiptDecision.action === 'validated'"><label class="form-label" for="handover-reminder-days">{{ t('receipt.reminderDays') }}</label><select id="handover-reminder-days" v-model.number="receiptReminderDays" class="form-select"><option v-for="day in 7" :key="day" :value="day">{{ day }}</option></select></div>
+          <div v-else><label class="form-label" for="receipt-rejection-reason">{{ t('receipt.rejectionReason') }}</label><textarea id="receipt-rejection-reason" v-model.trim="receiptDecisionNote" class="form-control" rows="3" required></textarea></div>
+        </div>
+        <div class="modal-footer"><button class="btn btn-outline-secondary" type="button" @click="closeReceiptDecision">{{ t('common.cancel') }}</button><button class="btn" :class="receiptDecision.action === 'validated' ? 'btn-success' : 'btn-danger'" type="button" :disabled="receiptDecision.action === 'rejected' && !receiptDecisionNote" @click="confirmReceiptDecision">{{ receiptDecision.action === 'validated' ? t('finance.validateReceipt') : t('finance.rejectReceipt') }}</button></div>
+      </div></div>
+    </div>
+
+    <div v-if="custodyDecision" class="modal d-block" tabindex="-1" role="dialog" aria-modal="true">
+      <div class="modal-dialog modal-dialog-centered"><div class="modal-content shadow border-0">
+        <div class="modal-header"><div><div class="text-uppercase small fw-semibold text-primary">{{ t('receipt.custodyKicker') }}</div><h2 class="modal-title fs-5">{{ custodyDecision.action === 'reminder' ? t('receipt.changeReminder') : t('receipt.closeInTreasury') }}</h2></div><button class="btn-close" type="button" @click="closeCustodyDecision"></button></div>
+        <div class="modal-body vstack gap-3"><div class="rounded-3 bg-light p-3"><div class="fw-semibold">{{ receiptDeclarationLabel(custodyDecision.item) }}</div><div class="small text-muted">{{ custodyDecision.item.amount }} {{ custodyDecision.item.currency }} · {{ handoverStatusLabel(custodyDecision.item.cash_handover_status) }}</div></div>
+          <template v-if="custodyDecision.action === 'reminder'"><label class="form-label mb-0" for="custody-reminder-days">{{ t('receipt.reminderDays') }}</label><select id="custody-reminder-days" v-model.number="custodyReminderDays" class="form-select"><option v-for="day in 7" :key="day" :value="day">{{ day }} {{ t('receipt.days') }}</option></select><p class="small text-muted mb-0">{{ t('receipt.reminderUpdateHint') }}</p></template>
+          <template v-else><p class="small text-muted mb-0">{{ t('receipt.closeTreasuryHint') }}</p><div><label class="form-label" for="custody-method">{{ t('receipt.handoverMethod') }}</label><select id="custody-method" v-model="custodyMethod" class="form-select"><option value="cash">{{ t('receipt.handoverCash') }}</option><option value="bank_transfer">{{ t('receipt.handoverTransfer') }}</option></select></div><div><label class="form-label" for="custody-note">{{ t('receipt.closureNote') }}</label><textarea id="custody-note" v-model.trim="custodyNote" class="form-control" rows="3" :placeholder="t('receipt.closureNotePlaceholder')"></textarea></div></template>
+        </div>
+        <div class="modal-footer"><button class="btn btn-outline-secondary" type="button" @click="closeCustodyDecision">{{ t('common.cancel') }}</button><button class="btn btn-primary" type="button" @click="confirmCustodyDecision">{{ custodyDecision.action === 'reminder' ? t('receipt.saveReminder') : t('receipt.confirmClosure') }}</button></div>
+      </div></div>
+    </div>
+    <div v-if="receiptDecision || custodyDecision" class="modal-backdrop show"></div>
+
     <div class="row g-4">
       <div class="col-xl-4">
         <div class="card shadow-sm border-0 mb-4">
@@ -80,12 +164,21 @@
             </div>
 
             <div class="mb-3">
-              <label for="finance-balance-member" class="form-label small fw-medium">{{ t('common.member') }}</label>
+              <label for="finance-member-search" class="form-label small fw-medium">{{ t('common.member') }}</label>
+              <div class="position-relative mb-2">
+                <input id="finance-member-search" v-model.trim="memberSearch" class="form-control" :placeholder="t('finance.memberSearchPlaceholder')" @focus="showMemberResults = true" />
+                <div v-if="showMemberResults && memberSearch" class="list-group position-absolute w-100 shadow-sm finance-member-results">
+                  <button v-for="member in filteredMembers.slice(0, 8)" :key="member.id" class="list-group-item list-group-item-action text-start" type="button" @click="selectFinanceMember(member)">
+                    <span class="fw-semibold">{{ member.display_name }}</span><span class="small text-muted ms-2">{{ member.member_code }}</span>
+                  </button>
+                  <div v-if="filteredMembers.length === 0" class="list-group-item small text-muted">{{ t('finance.noMemberFound') }}</div>
+                </div>
+              </div>
               <select
                 id="finance-balance-member"
                 v-model="selectedMemberId"
                 class="form-select"
-                @change="loadSelectedMemberBalance"
+                @change="selectFinanceMemberById"
               >
                 <option value="">{{ t('finance.selectMember') }}</option>
                 <option v-for="member in members" :key="member.id" :value="member.id">
@@ -372,18 +465,23 @@
 
 <script setup lang="ts">
 import {
-    createContribution,
+  createContribution,
+  confirmContributionReceiptInTreasury,
+  updateContributionReceiptHandoverReminder,
     exportMemberFinanceReport,
   getContributionSummary,
   listContributions,
   listContributionReminders,
+  listContributionReceiptDeclarations,
   listTenantPayments,
   recordPayment,
+  processContributionReceiptDeclaration,
   sendContributionReminder,
   sendContributionReminderBatch,
   type ContributionReminderResponse,
   type ContributionRecordResponse,
   type ContributionSummary,
+  type ContributionReceiptDeclarationResponse,
     type PaymentRecordResponse,
     type MemberFinanceExportFormat,
 } from '@/api/contributions.api'
@@ -394,6 +492,7 @@ import {
   type MembershipProfileResponse,
 } from '@/api/membership.api'
 import { useTenantStore } from '@/stores/tenant.store'
+import { useAuthStore } from '@/stores/auth.store'
 import { useLocaleStore } from '@/stores/locale.store'
 import { useRecoveryState } from '@/composables/useRecoveryState'
 import ResponsiveDataView from '@/components/ui/ResponsiveDataView.vue'
@@ -415,10 +514,23 @@ const contributions = ref<ContributionRecordResponse[]>([])
 const summary = ref<ContributionSummary | null>(null)
 const selectedMemberBalance = ref<MemberBalanceResponse | null>(null)
 const selectedMemberId = ref('')
+const memberSearch = ref('')
+const showMemberResults = ref(false)
 const paymentTarget = ref<ContributionRecordResponse | null>(null)
 const recentPayments = ref<PaymentRecordResponse[]>([])
 const reminderHistory = ref<ContributionReminderResponse[]>([])
 const tenantStore = useTenantStore()
+const authStore = useAuthStore()
+const allContributionRecords = ref<ContributionRecordResponse[]>([])
+const receiptDeclarations = ref<ContributionReceiptDeclarationResponse[]>([])
+const receiptDecision = ref<{ item: ContributionReceiptDeclarationResponse; action: 'validated' | 'rejected' } | null>(null)
+const receiptDecisionNote = ref('')
+const receiptReminderDays = ref(2)
+const custodyDecision = ref<{ item: ContributionReceiptDeclarationResponse; action: 'reminder' | 'close' } | null>(null)
+const custodyReminderDays = ref(2)
+const custodyMethod = ref<'cash' | 'bank_transfer'>('cash')
+const custodyNote = ref('')
+const isTreasurer = computed(() => authStore.user?.roles.some((role) => ['treasurer', 'admin', 'principal_admin'].includes(role)) ?? false)
 
 const currentYear = new Date().getFullYear()
 const years = [currentYear - 1, currentYear, currentYear + 1]
@@ -491,6 +603,21 @@ const membersById = computed(() =>
   Object.fromEntries(members.value.map((member) => [member.id, member])),
 )
 
+const filteredMembers = computed(() => {
+  const query = memberSearch.value.toLocaleLowerCase()
+  if (!query) return members.value
+  return members.value.filter((member) =>
+    `${member.display_name} ${member.first_name} ${member.last_name} ${member.member_code} ${member.phone || ''} ${member.email || ''}`
+      .toLocaleLowerCase()
+      .includes(query),
+  )
+})
+
+const pendingDeclarations = computed(() =>
+  receiptDeclarations.value.filter((item) => item.status === 'submitted'),
+)
+const handoverDeclarations = computed(() => receiptDeclarations.value.filter((item) => ['pending_handover', 'handover_reported'].includes(item.cash_handover_status || '')))
+
 const contributionsById = computed(() =>
   Object.fromEntries(contributions.value.map((contribution) => [contribution.id, contribution])),
 )
@@ -553,6 +680,14 @@ async function refreshFinanceData() {
   summary.value = summaryData
   recentPayments.value = paymentRows.slice(0, 8)
   reminderHistory.value = reminderRows.slice(0, 8)
+  if (isTreasurer.value) {
+    const [declarations, allContributions] = await Promise.all([
+      listContributionReceiptDeclarations(),
+      listContributions(),
+    ])
+    receiptDeclarations.value = declarations
+    allContributionRecords.value = allContributions
+  }
 }
 
 async function loadSelectedMemberBalance() {
@@ -561,6 +696,114 @@ async function loadSelectedMemberBalance() {
     return
   }
   selectedMemberBalance.value = await getMemberBalance(selectedMemberId.value)
+}
+
+function selectFinanceMember(member: MembershipProfileResponse) {
+  selectedMemberId.value = member.id
+  memberSearch.value = member.display_name
+  showMemberResults.value = false
+  void loadSelectedMemberBalance()
+}
+
+function selectFinanceMemberById() {
+  const member = members.value.find((item) => item.id === selectedMemberId.value)
+  if (member) selectFinanceMember(member)
+  else void loadSelectedMemberBalance()
+}
+
+async function processReceiptDeclaration(
+  item: ContributionReceiptDeclarationResponse,
+  action: 'validated' | 'rejected',
+) {
+  clearError()
+  const contribution = allContributionRecords.value.find(
+    (row) => row.membership_profile_id === item.membership_profile_id && Number(row.balance) > 0,
+  )
+  if (action === 'validated' && item.income_type === 'membership_contribution' && !contribution) {
+    error.value = t('finance.noOutstandingContribution')
+    return
+  }
+  try {
+    await processContributionReceiptDeclaration(
+      item.id,
+      action === 'validated'
+        ? { action, handover_reminder_days: receiptReminderDays.value, ...(item.income_type === 'membership_contribution' ? { contribution_record_id: contribution!.id } : {}) }
+        : { action, note: t('finance.receiptRejectedNote') },
+    )
+    notice.value = action === 'validated' ? t('finance.receiptValidated') : t('finance.receiptRejected')
+    await refreshAll()
+  } catch (err) {
+    error.value = err instanceof Error ? err.message : t('finance.receiptProcessingFailed')
+  }
+}
+
+function openReceiptDecision(item: ContributionReceiptDeclarationResponse, action: 'validated' | 'rejected') {
+  receiptDecision.value = { item, action }
+  receiptDecisionNote.value = ''
+  receiptReminderDays.value = 2
+}
+function closeReceiptDecision() { receiptDecision.value = null; receiptDecisionNote.value = '' }
+async function confirmReceiptDecision() {
+  if (!receiptDecision.value) return
+  const { item, action } = receiptDecision.value
+  if (action === 'rejected' && !receiptDecisionNote.value) return
+  const note = receiptDecisionNote.value
+  closeReceiptDecision()
+  await processReceiptDeclarationWithNote(item, action, action === 'rejected' ? note : undefined)
+}
+async function processReceiptDeclarationWithNote(item: ContributionReceiptDeclarationResponse, action: 'validated' | 'rejected', rejectionNote?: string) {
+  clearError()
+  const contribution = allContributionRecords.value.find((row) => row.membership_profile_id === item.membership_profile_id && Number(row.balance) > 0)
+  if (action === 'validated' && item.income_type === 'membership_contribution' && !contribution) { error.value = t('finance.noOutstandingContribution'); return }
+  try {
+    await processContributionReceiptDeclaration(item.id, action === 'validated' ? { action, handover_reminder_days: receiptReminderDays.value, ...(item.income_type === 'membership_contribution' ? { contribution_record_id: contribution!.id } : {}) } : { action, note: rejectionNote || t('finance.receiptRejectedNote') })
+    notice.value = action === 'validated' ? t('finance.receiptValidated') : t('finance.receiptRejected')
+    await refreshAll()
+  } catch (err) { error.value = err instanceof Error ? err.message : t('finance.receiptProcessingFailed') }
+}
+function openCustodyDecision(item: ContributionReceiptDeclarationResponse, action: 'reminder' | 'close') {
+  custodyDecision.value = { item, action }
+  custodyReminderDays.value = item.handover_reminder_days || 2
+  custodyMethod.value = item.handover_method === 'bank_transfer' ? 'bank_transfer' : 'cash'
+  custodyNote.value = ''
+}
+function closeCustodyDecision() {
+  custodyDecision.value = null
+  custodyNote.value = ''
+}
+async function confirmCustodyDecision() {
+  if (!custodyDecision.value) return
+  const { item, action } = custodyDecision.value
+  clearError()
+  try {
+    if (action === 'reminder') {
+      await updateContributionReceiptHandoverReminder(item.id, { reminder_days: custodyReminderDays.value })
+      notice.value = t('receipt.reminderUpdated')
+    } else {
+      await confirmContributionReceiptInTreasury(item.id, { method: custodyMethod.value, note: custodyNote.value || null })
+      notice.value = t('receipt.treasuryReceived')
+    }
+    closeCustodyDecision()
+    await refreshAll()
+  } catch (err) {
+    error.value = err instanceof Error ? err.message : t('finance.receiptProcessingFailed')
+  }
+}
+function handoverStatusLabel(value: ContributionReceiptDeclarationResponse['cash_handover_status']) {
+  return value === 'handover_reported' ? t('receipt.handoverReported') : value === 'received_in_treasury' ? t('receipt.treasuryReceived') : t('receipt.cashPending')
+}
+
+function receiptIncomeTypeLabel(incomeType: ContributionReceiptDeclarationResponse['income_type']) {
+  const keys = {
+    membership_contribution: 'receipt.incomeType.membershipContribution', donation: 'receipt.incomeType.donation', sponsorship: 'receipt.incomeType.sponsorship', tournament_proceeds: 'receipt.incomeType.tournamentProceeds', other_income: 'receipt.incomeType.otherIncome', disciplinary_payment: 'receipt.incomeType.disciplinaryPayment',
+  } as const
+  return t(keys[incomeType])
+}
+
+function receiptDeclarationLabel(item: ContributionReceiptDeclarationResponse) {
+  return item.income_type === 'membership_contribution'
+    ? memberLabel(item.membership_profile_id!)
+    : (item.source_name || t('receipt.externalIncome'))
 }
 
 async function refreshAll() {
@@ -741,6 +984,18 @@ onMounted(async () => {
   min-height: 44px;
 }
 
+.receipt-queue { border-top: 4px solid var(--bs-warning); }
+.receipt-queue-item { background: var(--bs-warning-bg-subtle); border: 1px solid #f0d38a; }
+.custody-workspace { border-top: 4px solid var(--bs-primary); background: linear-gradient(135deg, #fff 0%, #f5f9ff 100%); }
+.custody-card { border: 1px solid #d9e3f2; box-shadow: 0 0.35rem 1.1rem rgba(24, 62, 111, 0.07); }
+.custody-card-pending { background: linear-gradient(135deg, #fffdf6 0%, #fff 58%); border-left: 5px solid var(--bs-warning); }
+.custody-card-reported { background: linear-gradient(135deg, #f2fbff 0%, #fff 58%); border-left: 5px solid var(--bs-info); }
+.custody-meta-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 0.75rem; }
+.custody-meta-grid > div { display: grid; gap: 0.15rem; padding: 0.65rem 0.75rem; border-radius: 0.75rem; background: rgba(255, 255, 255, 0.82); border: 1px solid #e3e9f2; }
+.custody-meta-grid span { color: var(--bs-secondary); }
+.custody-actions { display: grid; gap: 0.5rem; min-width: 12.5rem; }
+.finance-member-results { z-index: 1040; max-height: 17rem; overflow-y: auto; }
+
 @media (max-width: 767.98px) {
   .finance-actions {
     display: grid;
@@ -761,5 +1016,9 @@ onMounted(async () => {
   .finance-actions .btn-outline-success {
     grid-column: 1 / -1;
   }
+
+  .custody-meta-grid { grid-template-columns: 1fr; }
+  .custody-actions { width: 100%; min-width: 0; }
+  .custody-actions .btn { min-height: 44px; }
 }
 </style>

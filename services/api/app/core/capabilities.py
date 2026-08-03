@@ -8,6 +8,7 @@ CAP_AUDIT_READ = "audit:read"
 CAP_MEMBERSHIP_SELF_READ = "membership:self_read"
 CAP_MEMBERSHIP_TENANT_READ = "membership:tenant_read"
 CAP_MEMBERSHIP_WRITE = "membership:write"
+CAP_MEMBERSHIP_DELETE = "membership:delete"
 CAP_MEMBERSHIP_INVITE = "membership:invite"
 CAP_FINANCE_SELF_READ = "finance:self_read"
 CAP_FINANCE_TENANT_READ = "finance:tenant_read"
@@ -42,6 +43,7 @@ CAPABILITY_ORDER = (
     CAP_MEMBERSHIP_SELF_READ,
     CAP_MEMBERSHIP_TENANT_READ,
     CAP_MEMBERSHIP_WRITE,
+    CAP_MEMBERSHIP_DELETE,
     CAP_MEMBERSHIP_INVITE,
     CAP_FINANCE_SELF_READ,
     CAP_FINANCE_TENANT_READ,
@@ -75,7 +77,11 @@ def _ordered_capabilities(capabilities: Iterable[str]) -> tuple[str, ...]:
 
 
 LEGACY_ROLE_CAPABILITIES: dict[str, tuple[str, ...]] = {
-    "admin": tuple(CAPABILITY_ORDER),
+    # The legacy admin role remains operationally broad, but member deletion is
+    # deliberately reserved for the elected president and secretary general.
+    "admin": tuple(
+        capability for capability in CAPABILITY_ORDER if capability != CAP_MEMBERSHIP_DELETE
+    ),
 }
 
 

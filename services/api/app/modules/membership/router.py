@@ -6,6 +6,7 @@ from fastapi.responses import StreamingResponse
 from app.core.authorization import require_capability
 from app.core.capabilities import (
     CAP_FINANCE_TENANT_READ,
+    CAP_MEMBERSHIP_DELETE,
     CAP_MEMBERSHIP_TENANT_READ,
     CAP_MEMBERSHIP_WRITE,
     CAP_TENANT_ADMINISTRATION,
@@ -139,6 +140,20 @@ async def get_member_balance(
     return await service.get_member_balance(current.tenant_id, profile_id)
 
 
+@router.get("/{profile_id}/statement", response_model=MemberStatementResponse)
+async def get_member_statement(
+    profile_id: UUID, current: AuthDep, db: DbDep
+) -> MemberStatementResponse:
+    """Return a selected member's full contribution history for finance readers."""
+    require_capability(
+        current,
+        CAP_FINANCE_TENANT_READ,
+        detail="Finance read capability required",
+    )
+    service = MembershipService(db)
+    return await service.get_member_statement(current.tenant_id, profile_id)
+
+
 @router.get("/", response_model=list[MembershipProfileResponse])
 async def list_profiles(
     current: AuthDep, db: DbDep, status: str | None = None, q: str | None = Query(None, min_length=1, max_length=100)
@@ -187,11 +202,11 @@ async def update_profile(
 async def delete_profile(
     profile_id: UUID, current: AuthDep, db: DbDep
 ) -> None:
-    """Delete a member profile (admin only)."""
+    """Delete a member profile (president or secretary general only)."""
     require_capability(
         current,
-        CAP_MEMBERSHIP_WRITE,
-        detail="Membership write capability required",
+        CAP_MEMBERSHIP_DELETE,
+        detail="Membership deletion capability required",
     )
     service = MembershipService(db)
     await service.delete_profile(
