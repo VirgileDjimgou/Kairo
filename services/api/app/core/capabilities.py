@@ -14,6 +14,7 @@ CAP_FINANCE_SELF_READ = "finance:self_read"
 CAP_FINANCE_TENANT_READ = "finance:tenant_read"
 CAP_FINANCE_WRITE = "finance:write"
 CAP_FINANCE_AUDIT = "finance:audit"
+CAP_FINANCE_EXPENSES_WRITE = "finance:expenses_write"
 CAP_DOCUMENTS_READ = "documents:read"
 CAP_DOCUMENTS_WRITE = "documents:write"
 CAP_POLICIES_READ = "policies:read"
@@ -49,6 +50,7 @@ CAPABILITY_ORDER = (
     CAP_FINANCE_TENANT_READ,
     CAP_FINANCE_WRITE,
     CAP_FINANCE_AUDIT,
+    CAP_FINANCE_EXPENSES_WRITE,
     CAP_DOCUMENTS_READ,
     CAP_DOCUMENTS_WRITE,
     CAP_POLICIES_READ,
@@ -80,7 +82,9 @@ LEGACY_ROLE_CAPABILITIES: dict[str, tuple[str, ...]] = {
     # The legacy admin role remains operationally broad, but member deletion is
     # deliberately reserved for the elected president and secretary general.
     "admin": tuple(
-        capability for capability in CAPABILITY_ORDER if capability != CAP_MEMBERSHIP_DELETE
+        capability
+        for capability in CAPABILITY_ORDER
+        if capability not in {CAP_MEMBERSHIP_DELETE, CAP_FINANCE_EXPENSES_WRITE}
     ),
 }
 

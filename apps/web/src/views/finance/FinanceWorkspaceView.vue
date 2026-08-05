@@ -43,7 +43,72 @@
       <button type="button" class="btn-close py-2" @click="notice = ''"></button>
     </div>
 
-    <section v-if="isTreasurer" class="card shadow-sm border-0 mb-4 receipt-queue" data-testid="finance-receipt-validation-queue">
+    <section v-if="isTreasurer && annualBudget" class="treasury-budget card shadow-sm border-0 mb-4" data-testid="finance-annual-budget">
+      <div class="card-body p-4 p-lg-5">
+        <div class="d-flex flex-column flex-lg-row justify-content-between gap-2 mb-4">
+          <div>
+            <div class="text-uppercase small fw-semibold text-primary mb-1">{{ t('finance.budgetKicker') }} · {{ annualBudget.year }}</div>
+            <h2 class="h4 fw-bold mb-1">{{ t('finance.budgetTitle') }}</h2>
+            <p class="text-muted mb-0">{{ t('finance.budgetLead') }}</p>
+          </div>
+          <div class="budget-available align-self-lg-start">
+            <span>{{ t('finance.availableTreasury') }}</span>
+            <strong :class="Number(annualBudget.available_balance) < 0 ? 'text-danger' : 'text-primary'">{{ formatMoney(annualBudget.available_balance) }}</strong>
+          </div>
+        </div>
+
+        <div class="row g-3 mb-4">
+          <div class="col-md-4"><div class="budget-stat budget-stat-income"><span>{{ t('finance.recordedIncome') }}</span><strong>{{ formatMoney(annualBudget.income_total) }}</strong></div></div>
+          <div class="col-md-4"><div class="budget-stat budget-stat-expense"><span>{{ t('finance.recordedExpenses') }}</span><strong>{{ formatMoney(annualBudget.expense_total) }}</strong></div></div>
+          <div class="col-md-4"><div class="budget-stat budget-stat-balance"><span>{{ t('finance.availableTreasury') }}</span><strong>{{ formatMoney(annualBudget.available_balance) }}</strong></div></div>
+        </div>
+
+        <div class="budget-charts-grid">
+          <article class="budget-chart-panel">
+            <div class="d-flex align-items-center justify-content-between gap-2 mb-3"><h3 class="h6 fw-bold mb-0">{{ t('finance.incomeBreakdown') }}</h3><span class="badge text-bg-success-subtle text-success-emphasis">{{ formatMoney(annualBudget.income_total) }}</span></div>
+            <div class="budget-chart-content">
+              <div class="budget-donut" :style="{ background: budgetGradient(annualBudget.income_by_category, incomePalette) }"><div class="budget-donut-center"><strong>{{ formatMoney(annualBudget.income_total) }}</strong><span>{{ t('finance.recordedIncome') }}</span></div></div>
+              <div class="budget-legend"><div v-for="(slice, index) in annualBudget.income_by_category" :key="slice.category" class="budget-legend-item"><span class="budget-legend-dot" :style="{ backgroundColor: incomePalette[index % incomePalette.length] }"></span><span class="budget-legend-label">{{ incomeCategoryLabel(slice.category) }}</span><strong>{{ budgetPercentage(slice.amount, annualBudget.income_total) }}%</strong></div></div>
+            </div>
+          </article>
+          <article class="budget-chart-panel">
+            <div class="d-flex align-items-center justify-content-between gap-2 mb-3"><h3 class="h6 fw-bold mb-0">{{ t('finance.expenseBreakdown') }}</h3><span class="badge text-bg-danger-subtle text-danger-emphasis">{{ formatMoney(annualBudget.expense_total) }}</span></div>
+            <div class="budget-chart-content">
+              <div class="budget-donut" :style="{ background: budgetGradient(annualBudget.expenses_by_category, expensePalette) }"><div class="budget-donut-center"><strong>{{ formatMoney(annualBudget.expense_total) }}</strong><span>{{ t('finance.recordedExpenses') }}</span></div></div>
+              <div class="budget-legend"><div v-for="(slice, index) in annualBudget.expenses_by_category" :key="slice.category" class="budget-legend-item"><span class="budget-legend-dot" :style="{ backgroundColor: expensePalette[index % expensePalette.length] }"></span><span class="budget-legend-label">{{ expenseCategoryLabel(slice.category) }}</span><strong>{{ budgetPercentage(slice.amount, annualBudget.expense_total) }}%</strong></div></div>
+            </div>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <section v-if="isTreasurer" class="row g-4 mb-4" data-testid="finance-expense-workspace">
+      <div class="col-xl-5">
+        <div class="card shadow-sm border-0 expense-entry-card h-100"><div class="card-body p-4">
+          <div class="text-uppercase small fw-semibold text-danger mb-1">{{ t('finance.expenseKicker') }}</div>
+          <h2 class="h5 fw-bold mb-1">{{ t('finance.expenseTitle') }}</h2><p class="small text-muted mb-4">{{ t('finance.expenseLead') }}</p>
+          <form class="row g-3" @submit.prevent="handleCreateExpense">
+            <div class="col-md-7"><label for="expense-category" class="form-label small fw-medium">{{ t('finance.expenseCategory') }}</label><select id="expense-category" v-model="expenseForm.category" class="form-select" required><option v-for="category in expenseCategories" :key="category" :value="category">{{ expenseCategoryLabel(category) }}</option></select></div>
+            <div class="col-md-5"><label for="expense-amount" class="form-label small fw-medium">{{ t('common.amount') }} (EUR)</label><input id="expense-amount" v-model="expenseForm.amount" class="form-control" type="number" min="0.01" step="0.01" required /></div>
+            <div class="col-md-6"><label for="expense-date" class="form-label small fw-medium">{{ t('finance.expenseDate') }}</label><input id="expense-date" v-model="expenseForm.spent_at" class="form-control" type="date" required /></div>
+            <div class="col-md-6"><label for="expense-method" class="form-label small fw-medium">{{ t('contributions.paymentMethod') }}</label><select id="expense-method" v-model="expenseForm.payment_method" class="form-select"><option value="cash">{{ t('contributions.cash') }}</option><option value="bank_transfer">{{ t('contributions.bankTransfer') }}</option><option value="card">{{ t('finance.card') }}</option><option value="check">{{ t('contributions.check') }}</option><option value="other">{{ t('finance.other') }}</option></select></div>
+            <div class="col-12"><label for="expense-payee" class="form-label small fw-medium">{{ t('finance.expensePayee') }}</label><input id="expense-payee" v-model.trim="expenseForm.payee" class="form-control" /></div>
+            <div class="col-12"><label for="expense-description" class="form-label small fw-medium">{{ t('finance.expenseDescription') }}</label><textarea id="expense-description" v-model.trim="expenseForm.description" class="form-control" rows="3" :placeholder="t('finance.expenseDescriptionPlaceholder')" required></textarea></div>
+            <div class="col-12"><label for="expense-reference" class="form-label small fw-medium">{{ t('finance.expenseReference') }}</label><input id="expense-reference" v-model.trim="expenseForm.reference" class="form-control" /></div>
+            <div class="col-12 d-grid"><button class="btn btn-danger" type="submit" :disabled="savingExpense"><span v-if="savingExpense" class="spinner-border spinner-border-sm me-2" aria-hidden="true"></span>{{ savingExpense ? t('common.saving') : t('finance.recordExpense') }}</button></div>
+          </form>
+        </div></div>
+      </div>
+      <div class="col-xl-7">
+        <div class="card shadow-sm border-0 recent-expenses-card h-100"><div class="card-body p-4">
+          <div class="d-flex align-items-center justify-content-between gap-2 mb-3"><div><div class="text-uppercase small fw-semibold text-secondary">{{ t('finance.expenseKicker') }}</div><h2 class="h5 fw-bold mb-0">{{ t('finance.recentExpenses') }}</h2></div><span class="badge text-bg-light border text-dark">{{ annualBudget?.recent_expenses.length || 0 }}</span></div>
+          <p v-if="!annualBudget || annualBudget.recent_expenses.length === 0" class="text-muted small mb-0">{{ t('finance.noExpenses') }}</p>
+          <div v-else class="vstack gap-2"><article v-for="expense in annualBudget.recent_expenses" :key="expense.id" class="recent-expense-item"><div class="expense-category-icon"><i class="bi bi-arrow-up-right"></i></div><div class="flex-grow-1 min-w-0"><div class="d-flex flex-wrap justify-content-between gap-2"><strong>{{ expenseCategoryLabel(expense.category) }}</strong><strong class="text-danger">− {{ formatMoney(expense.amount) }}</strong></div><div class="small text-muted text-truncate">{{ expense.description }}</div><div class="small text-secondary mt-1">{{ formatDate(expense.spent_at) }}<span v-if="expense.payee"> · {{ expense.payee }}</span></div></div></article></div>
+        </div></div>
+      </div>
+    </section>
+
+    <section v-if="canManageTreasury" class="card shadow-sm border-0 mb-4 receipt-queue" data-testid="finance-receipt-validation-queue">
       <div class="card-body p-4">
         <div class="d-flex flex-column flex-md-row justify-content-between gap-2 mb-3">
           <div>
@@ -72,7 +137,7 @@
       </div>
     </section>
 
-    <section v-if="isTreasurer && handoverDeclarations.length" class="card shadow-sm border-0 mb-4 custody-workspace" data-testid="finance-cash-custody-queue">
+    <section v-if="canManageTreasury && handoverDeclarations.length" class="card shadow-sm border-0 mb-4 custody-workspace" data-testid="finance-cash-custody-queue">
       <div class="card-body p-4">
         <div class="d-flex flex-column flex-md-row justify-content-between gap-3 mb-3">
           <div>
@@ -465,11 +530,13 @@
 
 <script setup lang="ts">
 import {
+  createExpense,
   createContribution,
   confirmContributionReceiptInTreasury,
   updateContributionReceiptHandoverReminder,
     exportMemberFinanceReport,
   getContributionSummary,
+  getAnnualBudget,
   listContributions,
   listContributionReminders,
   listContributionReceiptDeclarations,
@@ -484,6 +551,9 @@ import {
   type ContributionReceiptDeclarationResponse,
     type PaymentRecordResponse,
     type MemberFinanceExportFormat,
+    type AnnualBudgetResponse,
+    type BudgetCategoryTotal,
+    type TreasuryExpenseCategory,
 } from '@/api/contributions.api'
 import {
   getMemberBalance,
@@ -506,6 +576,7 @@ const { loading, error, isRecovering, run, retry, clearError } = useRecoveryStat
   const exporting = ref(false)
 const savingContribution = ref(false)
 const savingPayment = ref(false)
+const savingExpense = ref(false)
 const sendingSingleReminderId = ref('')
 const sendingBatchReminders = ref(false)
 
@@ -530,7 +601,9 @@ const custodyDecision = ref<{ item: ContributionReceiptDeclarationResponse; acti
 const custodyReminderDays = ref(2)
 const custodyMethod = ref<'cash' | 'bank_transfer'>('cash')
 const custodyNote = ref('')
-const isTreasurer = computed(() => authStore.user?.roles.some((role) => ['treasurer', 'admin', 'principal_admin'].includes(role)) ?? false)
+const annualBudget = ref<AnnualBudgetResponse | null>(null)
+const isTreasurer = computed(() => authStore.user?.roles.includes('treasurer') ?? false)
+const canManageTreasury = computed(() => authStore.user?.roles.some((role) => ['treasurer', 'admin', 'principal_admin'].includes(role)) ?? false)
 
 const currentYear = new Date().getFullYear()
 const years = [currentYear - 1, currentYear, currentYear + 1]
@@ -593,6 +666,26 @@ const paymentForm = ref({
   reference: '',
 })
 
+const expenseCategories: TreasuryExpenseCategory[] = [
+  'sport_equipment',
+  'fuel_transport',
+  'tournament',
+  'cultural_event',
+  'administration',
+  'other',
+]
+const incomePalette = ['#2563a8', '#21a179', '#7a5af8', '#19a7ce', '#d38b18', '#546173']
+const expensePalette = ['#d33a4c', '#e88924', '#8f3f9f', '#2f855a', '#4a6fa5', '#7a7f89']
+const expenseForm = ref({
+  category: 'sport_equipment' as TreasuryExpenseCategory,
+  amount: '',
+  spent_at: new Date().toISOString().slice(0, 10),
+  description: '',
+  payee: '',
+  payment_method: 'cash',
+  reference: '',
+})
+
 const reminderBatchForm = ref({
   due_scope: 'overdue' as 'all_outstanding' | 'overdue' | 'due_soon',
   status: '',
@@ -635,6 +728,58 @@ function formatDate(value: string | null): string {
 
 function formatPaymentMethod(value: string): string {
   return value.replace('_', ' ')
+}
+
+function formatMoney(value: string): string {
+  return new Intl.NumberFormat(localeStore.currentLocale, {
+    style: 'currency',
+    currency: 'EUR',
+    minimumFractionDigits: 2,
+  }).format(Number(value || 0))
+}
+
+function incomeCategoryLabel(category: string): string {
+  const keys: Record<string, string> = {
+    membership_contribution: 'finance.incomeCategory.membershipContribution',
+    donation: 'finance.incomeCategory.donation',
+    sponsorship: 'finance.incomeCategory.sponsorship',
+    tournament_proceeds: 'finance.incomeCategory.tournamentProceeds',
+    disciplinary_payment: 'finance.incomeCategory.disciplinaryPayment',
+    other_income: 'finance.incomeCategory.otherIncome',
+  }
+  return t(keys[category] || 'finance.incomeCategory.otherIncome')
+}
+
+function expenseCategoryLabel(category: string): string {
+  const keys: Record<string, string> = {
+    sport_equipment: 'finance.expenseCategory.sportEquipment',
+    fuel_transport: 'finance.expenseCategory.fuelTransport',
+    tournament: 'finance.expenseCategory.tournament',
+    cultural_event: 'finance.expenseCategory.culturalEvent',
+    administration: 'finance.expenseCategory.administration',
+    other: 'finance.expenseCategory.other',
+  }
+  return t(keys[category] || 'finance.expenseCategory.other')
+}
+
+function budgetPercentage(amount: string, total: string): number {
+  const denominator = Number(total)
+  return denominator > 0 ? Math.round((Number(amount) / denominator) * 100) : 0
+}
+
+function budgetGradient(slices: BudgetCategoryTotal[], palette: string[]): string {
+  const total = slices.reduce((sum, slice) => sum + Number(slice.amount), 0)
+  if (total <= 0) return '#e7edf5'
+  let start = 0
+  const segments = slices
+    .filter((slice) => Number(slice.amount) > 0)
+    .map((slice, index) => {
+      const end = start + (Number(slice.amount) / total) * 360
+      const segment = `${palette[index % palette.length]} ${start}deg ${end}deg`
+      start = end
+      return segment
+    })
+  return `conic-gradient(${segments.join(', ')})`
 }
 
 function reminderStatusLabel(value: ContributionReminderResponse['delivery_status']): string {
@@ -680,13 +825,55 @@ async function refreshFinanceData() {
   summary.value = summaryData
   recentPayments.value = paymentRows.slice(0, 8)
   reminderHistory.value = reminderRows.slice(0, 8)
-  if (isTreasurer.value) {
-    const [declarations, allContributions] = await Promise.all([
+  if (canManageTreasury.value) {
+    const [declarations, allContributions, budget] = await Promise.all([
       listContributionReceiptDeclarations(),
       listContributions(),
+      isTreasurer.value ? getAnnualBudget(selectedYear.value) : Promise.resolve(null),
     ])
     receiptDeclarations.value = declarations
     allContributionRecords.value = allContributions
+    annualBudget.value = budget
+  } else {
+    receiptDeclarations.value = []
+    allContributionRecords.value = []
+    annualBudget.value = null
+  }
+}
+
+function resetExpenseForm() {
+  expenseForm.value = {
+    category: 'sport_equipment',
+    amount: '',
+    spent_at: new Date().toISOString().slice(0, 10),
+    description: '',
+    payee: '',
+    payment_method: 'cash',
+    reference: '',
+  }
+}
+
+async function handleCreateExpense() {
+  savingExpense.value = true
+  clearError()
+  notice.value = ''
+  try {
+    await createExpense({
+      category: expenseForm.value.category,
+      amount: expenseForm.value.amount,
+      spent_at: new Date(`${expenseForm.value.spent_at}T12:00:00`).toISOString(),
+      description: expenseForm.value.description,
+      payee: expenseForm.value.payee || null,
+      payment_method: expenseForm.value.payment_method,
+      reference: expenseForm.value.reference || null,
+    })
+    resetExpenseForm()
+    notice.value = t('finance.expenseRecorded')
+    await refreshFinanceData()
+  } catch (err) {
+    error.value = err instanceof Error ? err.message : t('common.error')
+  } finally {
+    savingExpense.value = false
   }
 }
 
@@ -984,6 +1171,37 @@ onMounted(async () => {
   min-height: 44px;
 }
 
+.treasury-budget {
+  overflow: hidden;
+  background:
+    radial-gradient(circle at 92% 0%, rgba(53, 123, 212, 0.12), transparent 28rem),
+    linear-gradient(135deg, #ffffff 0%, #f7faff 100%);
+  border-top: 4px solid #2563a8;
+}
+.budget-available { display: grid; gap: 0.15rem; min-width: 12rem; padding: 0.75rem 1rem; border-radius: 1rem; background: #fff; border: 1px solid #d8e3f2; box-shadow: 0 0.45rem 1rem rgba(28, 65, 111, 0.07); }
+.budget-available span, .budget-stat span { color: var(--bs-secondary); font-size: 0.82rem; }
+.budget-available strong { font-size: 1.25rem; }
+.budget-stat { min-height: 5.5rem; display: grid; align-content: center; gap: 0.4rem; padding: 1rem 1.1rem; border-radius: 1rem; border: 1px solid transparent; }
+.budget-stat strong { font-size: 1.45rem; color: #142a48; }
+.budget-stat-income { background: #e9f8f1; border-color: #c7ecdb; }
+.budget-stat-expense { background: #fff0f1; border-color: #ffd1d6; }
+.budget-stat-balance { background: #eaf2ff; border-color: #cbdcf8; }
+.budget-charts-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 1rem; }
+.budget-chart-panel { padding: 1.2rem; border: 1px solid #dce5f2; border-radius: 1.1rem; background: rgba(255,255,255,0.9); }
+.budget-chart-content { display: flex; align-items: center; gap: 1.1rem; }
+.budget-donut { display: grid; place-items: center; flex: 0 0 9.5rem; width: 9.5rem; height: 9.5rem; padding: 1.05rem; border-radius: 50%; box-shadow: inset 0 0 0 1px rgba(31, 79, 143, 0.08); }
+.budget-donut-center { display: grid; place-items: center; width: 100%; height: 100%; padding: 0.4rem; border-radius: 50%; background: #fff; text-align: center; }
+.budget-donut-center strong { font-size: 0.95rem; color: #152b4c; }
+.budget-donut-center span { color: var(--bs-secondary); font-size: 0.67rem; line-height: 1.2; }
+.budget-legend { min-width: 0; flex: 1; display: grid; gap: 0.45rem; }
+.budget-legend-item { display: grid; grid-template-columns: 0.65rem minmax(0, 1fr) auto; align-items: center; gap: 0.45rem; font-size: 0.78rem; }
+.budget-legend-dot { width: 0.6rem; height: 0.6rem; border-radius: 999px; }
+.budget-legend-label { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; color: #455569; }
+.expense-entry-card { border-top: 4px solid #d33a4c !important; background: linear-gradient(150deg, #fff 0%, #fff8f8 100%); }
+.recent-expenses-card { border-top: 4px solid #e88924 !important; }
+.recent-expense-item { display: flex; gap: 0.8rem; align-items: flex-start; padding: 0.85rem; border: 1px solid #e7eaf0; border-radius: 0.85rem; background: #fff; }
+.expense-category-icon { display: grid; place-items: center; flex: 0 0 2.25rem; width: 2.25rem; height: 2.25rem; border-radius: 0.75rem; background: #fff0f1; color: #c92f42; }
+
 .receipt-queue { border-top: 4px solid var(--bs-warning); }
 .receipt-queue-item { background: var(--bs-warning-bg-subtle); border: 1px solid #f0d38a; }
 .custody-workspace { border-top: 4px solid var(--bs-primary); background: linear-gradient(135deg, #fff 0%, #f5f9ff 100%); }
@@ -1020,5 +1238,15 @@ onMounted(async () => {
   .custody-meta-grid { grid-template-columns: 1fr; }
   .custody-actions { width: 100%; min-width: 0; }
   .custody-actions .btn { min-height: 44px; }
+  .budget-available { width: 100%; }
+  .budget-charts-grid { grid-template-columns: 1fr; }
+  .budget-chart-content { align-items: flex-start; }
+  .budget-donut { flex-basis: 7.5rem; width: 7.5rem; height: 7.5rem; padding: 0.85rem; }
+  .budget-donut-center strong { font-size: 0.8rem; }
+}
+
+@media (max-width: 420px) {
+  .budget-chart-content { flex-direction: column; align-items: center; }
+  .budget-legend { width: 100%; }
 }
 </style>

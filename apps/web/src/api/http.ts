@@ -21,10 +21,12 @@ function resolveApiBaseUrl(configuredBaseUrl?: string): string {
       return `${window.location.origin}${configuredUrl.pathname}${configuredUrl.search}`
     }
   } catch {
-    // Keep an invalid development configuration unchanged so Axios reports it clearly.
+    // A malformed HTTP value must never create a mixed-content request in production.
   }
 
-  return configuredBaseUrl
+  // Never allow an obsolete HTTP build-time value to make an HTTPS page request
+  // an insecure API. Production uses the same-origin reverse proxy by design.
+  return '/api/v1'
 }
 
 const http: AxiosInstance = axios.create({

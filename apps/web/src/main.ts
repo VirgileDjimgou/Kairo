@@ -32,10 +32,15 @@ app.use(Toast, {
 
 app.mount('#app')
 
-const updateServiceWorker = registerSW({
+let updateServiceWorker: (reloadPage?: boolean) => Promise<void>
+
+updateServiceWorker = registerSW({
   immediate: true,
   onNeedRefresh() {
     window.dispatchEvent(new Event('kairo:pwa-update-available'))
+    // Keep the update prompt visible briefly, then activate the new worker.
+    // This prevents a stale shell from keeping obsolete client configuration.
+    window.setTimeout(() => void updateServiceWorker(true), 5_000)
   },
 })
 

@@ -9,6 +9,7 @@ from app.modules.contributions.models import (  # noqa: F401
     ContributionRecord,
     ContributionReceiptDeclaration,
     ContributionReminder,
+    ExpenseRecord,
     PaymentRecord,
 )
 from app.modules.disciplinary.models import DisciplinaryRecord  # noqa: F401
@@ -26,6 +27,13 @@ from app.modules.identity.models import (  # noqa: F401
     UserSession,
 )
 from app.modules.membership.models import MembershipProfile  # noqa: F401
+from app.modules.notifications.user_models import (  # noqa: F401
+    NotificationDevice,
+    NotificationDeviceProfile,
+    NotificationOutboxEvent,
+    UserNotification,
+    WebPushSubscription,
+)
 from app.modules.policies.models import PolicyRecord  # noqa: F401
 from app.modules.tenancy.models import (  # noqa: F401
     Permission,

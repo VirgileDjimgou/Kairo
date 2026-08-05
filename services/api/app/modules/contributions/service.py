@@ -13,6 +13,7 @@ from app.modules.contributions.models import (
     CashHandoverStatus,
     ContributionReceiptStatus,
     ContributionStatus,
+    ExpenseCategory,
     FinancialIncomeType,
     ReminderDeliveryStatus,
 )
@@ -32,6 +33,10 @@ from app.modules.contributions.schemas import (
     ContributionReminderBatchResponse,
     ContributionReminderResponse,
     ContributionReminderSendRequest,
+    AnnualBudgetResponse,
+    BudgetCategoryTotal,
+    ExpenseRecordCreate,
+    ExpenseRecordResponse,
     PaymentRecordCreate,
     PaymentRecordResponse,
 )
@@ -40,6 +45,7 @@ from app.modules.disciplinary.repository import DisciplinaryRepository
 from app.modules.identity.repository import UserRepository
 from app.modules.membership.models import MembershipProfile
 from app.modules.membership.repository import MembershipRepository
+from app.modules.notifications.user_service import UserNotificationService
 from app.modules.tenancy.models import Tenant
 from app.providers.notifications.base import NotificationDispatchResult, NotificationProvider
 
@@ -224,6 +230,18 @@ class ContributionService:
             "declarant_role_code": declarant_role_code,
         })
         record = await self._repo.create_receipt_declaration(tenant_id, payload)
+        notification_service = UserNotificationService(self._db)
+        treasurers = await notification_service.users_with_roles(tenant_id, ["treasurer", "principal_admin"])
+        await notification_service.enqueue(
+            tenant_id=tenant_id,
+            event_type="finance.receipt_declared",
+            recipients=treasurers,
+            category="finance",
+            target_path="/finance",
+            deduplication_key=f"receipt-declared:{record.id}",
+            metadata={"income_type": record.income_type},
+            priority="high",
+        )
         await self._audit.record_event(
             tenant_id=tenant_id, actor_user_id=declarant_user_id,
             action="receipt_declaration_created", entity_type="contribution_receipt_declaration",
@@ -351,6 +369,22 @@ class ContributionService:
             action=f"receipt_declaration_{data.action}", entity_type="contribution_receipt_declaration",
             entity_id=updated.id, module_key="contributions",
             details={"processed_amount": str(updated.processed_amount) if updated.processed_amount else None},
+        )
+        notification_service = UserNotificationService(self._db)
+        recipients = [record.declarant_user_id]
+        if record.membership_profile_id is not None:
+            profile = await MembershipRepository(self._db).get_by_id(tenant_id, record.membership_profile_id)
+            if profile is not None and profile.user_id is not None:
+                recipients.append(profile.user_id)
+        await notification_service.enqueue(
+            tenant_id=tenant_id,
+            event_type=f"finance.receipt_{data.action}",
+            recipients=recipients,
+            category="finance",
+            target_path="/finance",
+            deduplication_key=f"receipt-processed:{updated.id}:{data.action}",
+            metadata={"income_type": updated.income_type},
+            priority="high" if data.action in {"validated", "rejected"} else "normal",
         )
         await self._db.commit()
         return ContributionReceiptDeclarationResponse.model_validate(updated)
@@ -513,6 +547,100 @@ class ContributionService:
     async def list_tenant_payments(self, tenant_id: UUID) -> list[PaymentRecordResponse]:
         payments = await self._repo.list_payments_by_tenant(tenant_id)
         return [PaymentRecordResponse.model_validate(p) for p in payments]
+
+    async def create_expense(
+        self,
+        tenant_id: UUID,
+        data: ExpenseRecordCreate,
+        *,
+        actor_user_id: UUID,
+    ) -> ExpenseRecordResponse:
+        payload = data.model_dump()
+        payload["spent_at"] = payload["spent_at"] or datetime.now(UTC)
+        payload["created_by"] = actor_user_id
+        record = await self._repo.create_expense(tenant_id, payload)
+        await self._audit.record_event(
+            tenant_id=tenant_id,
+            actor_user_id=actor_user_id,
+            action="expense_recorded",
+            entity_type="expense_record",
+            entity_id=record.id,
+            module_key="contributions",
+            details={
+                "category": record.category,
+                "amount": str(record.amount),
+                "currency": record.currency,
+                "payee": record.payee,
+                "description": record.description,
+            },
+        )
+        await self._db.commit()
+        return ExpenseRecordResponse.model_validate(record)
+
+    async def get_annual_budget(
+        self, tenant_id: UUID, *, year: int
+    ) -> AnnualBudgetResponse:
+        """Return realized annual inflows, outflows and remaining treasury balance."""
+        income_categories = [
+            FinancialIncomeType.membership_contribution.value,
+            FinancialIncomeType.donation.value,
+            FinancialIncomeType.sponsorship.value,
+            FinancialIncomeType.tournament_proceeds.value,
+            FinancialIncomeType.disciplinary_payment.value,
+            FinancialIncomeType.other_income.value,
+        ]
+        expense_categories = [category.value for category in ExpenseCategory]
+        income_totals = {category: Decimal("0.00") for category in income_categories}
+        expense_totals = {category: Decimal("0.00") for category in expense_categories}
+
+        for payment in await self._repo.list_payments_by_tenant(tenant_id):
+            if payment.paid_at.year == year:
+                income_totals[FinancialIncomeType.membership_contribution.value] += payment.amount
+
+        # Non-membership receipts do not create PaymentRecord rows. Include the
+        # amounts only after the treasurer has accepted them to avoid counting
+        # a declaration and an official payment twice.
+        receipts = await self._repo.list_receipt_declarations(tenant_id)
+        accepted_statuses = {
+            ContributionReceiptStatus.validated.value,
+            ContributionReceiptStatus.partially_validated.value,
+        }
+        for receipt in receipts:
+            if (
+                receipt.status in accepted_statuses
+                and receipt.processed_at is not None
+                and receipt.processed_at.year == year
+                and receipt.income_type != FinancialIncomeType.membership_contribution.value
+            ):
+                income_totals[receipt.income_type] = income_totals.get(
+                    receipt.income_type, Decimal("0.00")
+                ) + (receipt.processed_amount or receipt.amount)
+
+        expenses = await self._repo.list_expenses_by_tenant(tenant_id, year=year)
+        for expense in expenses:
+            expense_totals[expense.category] = expense_totals.get(
+                expense.category, Decimal("0.00")
+            ) + expense.amount
+
+        income_total = sum(income_totals.values(), Decimal("0.00"))
+        expense_total = sum(expense_totals.values(), Decimal("0.00"))
+        return AnnualBudgetResponse(
+            year=year,
+            income_total=income_total,
+            expense_total=expense_total,
+            available_balance=income_total - expense_total,
+            income_by_category=[
+                BudgetCategoryTotal(category=category, amount=income_totals[category])
+                for category in income_categories
+            ],
+            expenses_by_category=[
+                BudgetCategoryTotal(category=category, amount=expense_totals[category])
+                for category in expense_categories
+            ],
+            recent_expenses=[
+                ExpenseRecordResponse.model_validate(expense) for expense in expenses[:6]
+            ],
+        )
 
     async def get_summary(
         self, tenant_id: UUID, year: int | None = None

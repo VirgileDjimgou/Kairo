@@ -13,6 +13,7 @@ from app.core.capabilities import (
     CAP_CONTRIBUTION_RECEIPT_TENANT_READ,
     CAP_EXPORT_SENSITIVE,
     CAP_FINANCE_AUDIT,
+    CAP_FINANCE_EXPENSES_WRITE,
     CAP_FINANCE_TENANT_READ,
     CAP_FINANCE_WRITE,
     CAP_TENANT_ADMINISTRATION,
@@ -37,6 +38,9 @@ from app.modules.contributions.schemas import (
     ContributionReminderBatchResponse,
     ContributionReminderResponse,
     ContributionReminderSendRequest,
+    AnnualBudgetResponse,
+    ExpenseRecordCreate,
+    ExpenseRecordResponse,
     PaymentRecordCreate,
     PaymentRecordResponse,
 )
@@ -230,6 +234,38 @@ async def list_tenant_payments(
     )
     service = ContributionService(db)
     return await service.list_tenant_payments(current.tenant_id)
+
+
+@router.get("/annual-budget", response_model=AnnualBudgetResponse)
+async def get_annual_budget(
+    current: AuthDep,
+    db: DbDep,
+    year: int = Query(..., ge=2000, le=2100),
+) -> AnnualBudgetResponse:
+    """Return the annual treasury budget, available only to the treasurer."""
+    require_capability(
+        current,
+        CAP_FINANCE_EXPENSES_WRITE,
+        detail="Treasurer expense capability required",
+    )
+    return await ContributionService(db).get_annual_budget(current.tenant_id, year=year)
+
+
+@router.post("/expenses", response_model=ExpenseRecordResponse, status_code=201)
+async def create_expense(
+    data: ExpenseRecordCreate,
+    current: AuthDep,
+    db: DbDep,
+) -> ExpenseRecordResponse:
+    """Record an association cash outflow, restricted to the treasurer."""
+    require_capability(
+        current,
+        CAP_FINANCE_EXPENSES_WRITE,
+        detail="Treasurer expense capability required",
+    )
+    return await ContributionService(db).create_expense(
+        current.tenant_id, data, actor_user_id=current.user.id
+    )
 
 
 @router.get("/reminders", response_model=list[ContributionReminderResponse])

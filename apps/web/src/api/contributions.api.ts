@@ -82,6 +82,50 @@ export interface ContributionSummary {
   total_balance: string
 }
 
+export type TreasuryExpenseCategory = 'sport_equipment' | 'fuel_transport' | 'tournament' | 'cultural_event' | 'administration' | 'other'
+
+export interface ExpenseRecordResponse {
+  id: string
+  tenant_id: string
+  category: TreasuryExpenseCategory
+  amount: string
+  currency: string
+  spent_at: string
+  description: string
+  payee: string | null
+  payment_method: string
+  reference: string | null
+  created_by: string | null
+  created_at: string
+}
+
+export interface CreateExpensePayload {
+  category: TreasuryExpenseCategory
+  amount: string
+  currency?: string
+  spent_at?: string | null
+  description: string
+  payee?: string | null
+  payment_method?: string
+  reference?: string | null
+}
+
+export interface BudgetCategoryTotal {
+  category: string
+  amount: string
+}
+
+export interface AnnualBudgetResponse {
+  year: number
+  currency: string
+  income_total: string
+  expense_total: string
+  available_balance: string
+  income_by_category: BudgetCategoryTotal[]
+  expenses_by_category: BudgetCategoryTotal[]
+  recent_expenses: ExpenseRecordResponse[]
+}
+
 export type ContributionReceiptStatus = 'draft' | 'submitted' | 'clarification_requested' | 'validated' | 'partially_validated' | 'rejected' | 'cancelled'
 export type FinancialIncomeType = 'membership_contribution' | 'donation' | 'sponsorship' | 'tournament_proceeds' | 'other_income' | 'disciplinary_payment'
 export type CashHandoverStatus = 'pending_handover' | 'handover_reported' | 'received_in_treasury'
@@ -263,6 +307,16 @@ export async function sendContributionReminderBatch(
 export async function getContributionSummary(year?: number): Promise<ContributionSummary> {
   const params = year ? { year } : {}
   const response = await http.get<ContributionSummary>('/contributions/summary', { params })
+  return response.data
+}
+
+export async function getAnnualBudget(year: number): Promise<AnnualBudgetResponse> {
+  const response = await http.get<AnnualBudgetResponse>('/contributions/annual-budget', { params: { year } })
+  return response.data
+}
+
+export async function createExpense(payload: CreateExpensePayload): Promise<ExpenseRecordResponse> {
+  const response = await http.post<ExpenseRecordResponse>('/contributions/expenses', payload)
   return response.data
 }
 

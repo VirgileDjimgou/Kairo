@@ -9,6 +9,7 @@ from app.modules.contributions.models import (
     CashHandoverStatus,
     ContributionReceiptStatus,
     ContributionStatus,
+    ExpenseCategory,
     FinancialIncomeType,
     PaymentMethod,
     ReminderDeliveryStatus,
@@ -79,6 +80,64 @@ class PaymentRecordResponse(BaseModel):
 
     @field_serializer("amount")
     def serialize_decimal(self, value: Decimal) -> str:
+        return str(value.quantize(Decimal("0.01"), rounding=ROUND_HALF_UP))
+
+
+class ExpenseRecordCreate(BaseModel):
+    """Treasurer-entered association outflow."""
+
+    category: ExpenseCategory
+    amount: Decimal = Field(..., gt=0)
+    currency: str = Field(default="EUR", min_length=3, max_length=3)
+    spent_at: datetime | None = None
+    description: str = Field(..., min_length=3, max_length=2000)
+    payee: str | None = Field(default=None, max_length=255)
+    payment_method: PaymentMethod = PaymentMethod.other
+    reference: str | None = Field(default=None, max_length=255)
+
+
+class ExpenseRecordResponse(BaseModel):
+    id: UUID
+    tenant_id: UUID
+    category: ExpenseCategory
+    amount: Decimal
+    currency: str
+    spent_at: datetime
+    description: str
+    payee: str | None
+    payment_method: str
+    reference: str | None
+    created_by: UUID | None
+    created_at: datetime
+
+    model_config = {"from_attributes": True}
+
+    @field_serializer("amount")
+    def serialize_expense_decimal(self, value: Decimal) -> str:
+        return str(value.quantize(Decimal("0.01"), rounding=ROUND_HALF_UP))
+
+
+class BudgetCategoryTotal(BaseModel):
+    category: str
+    amount: Decimal
+
+    @field_serializer("amount")
+    def serialize_budget_decimal(self, value: Decimal) -> str:
+        return str(value.quantize(Decimal("0.01"), rounding=ROUND_HALF_UP))
+
+
+class AnnualBudgetResponse(BaseModel):
+    year: int
+    currency: str = "EUR"
+    income_total: Decimal
+    expense_total: Decimal
+    available_balance: Decimal
+    income_by_category: list[BudgetCategoryTotal]
+    expenses_by_category: list[BudgetCategoryTotal]
+    recent_expenses: list[ExpenseRecordResponse]
+
+    @field_serializer("income_total", "expense_total", "available_balance")
+    def serialize_budget_total(self, value: Decimal) -> str:
         return str(value.quantize(Decimal("0.01"), rounding=ROUND_HALF_UP))
 
 

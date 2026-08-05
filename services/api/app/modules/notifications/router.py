@@ -25,9 +25,78 @@ from app.modules.notifications.schemas import (
     NotificationTestResponse,
 )
 from app.modules.notifications.service import NotificationService
+from app.modules.notifications.user_schemas import (
+    DeviceRegistrationRequest,
+    InboxResponse,
+    NotificationPreferencesResponse,
+    NotificationPreferencesUpdate,
+    PushConfigurationResponse,
+    PushSubscriptionRequest,
+    UnreachableNotificationRecipient,
+)
+from app.modules.notifications.user_service import UserNotificationService
 
 router = APIRouter(prefix="/notifications", tags=["notifications"], dependencies=[require_module("notifications")])
 callback_router = APIRouter(prefix="/notifications", tags=["notifications"])
+
+
+@router.get("/inbox", response_model=InboxResponse)
+async def get_user_notification_inbox(current: AuthDep, db: DbDep, limit: int = Query(default=50, ge=1, le=100)) -> InboxResponse:
+    return await UserNotificationService(db).inbox(current.tenant_id, current.user.id, limit)
+
+
+@router.post("/inbox/{notification_id}/read", status_code=status.HTTP_204_NO_CONTENT)
+async def mark_user_notification_read(notification_id: str, current: AuthDep, db: DbDep) -> None:
+    from uuid import UUID
+
+    marked = await UserNotificationService(db).mark_read(current.tenant_id, current.user.id, UUID(notification_id))
+    if not marked:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Notification not found")
+
+
+@router.post("/inbox/read-all", status_code=status.HTTP_204_NO_CONTENT)
+async def mark_all_user_notifications_read(current: AuthDep, db: DbDep) -> None:
+    await UserNotificationService(db).mark_all_read(current.tenant_id, current.user.id)
+
+
+@router.get("/preferences", response_model=NotificationPreferencesResponse)
+async def get_user_notification_preferences(current: AuthDep, db: DbDep) -> NotificationPreferencesResponse:
+    service = UserNotificationService(db)
+    try:
+        return await service.preferences(current.tenant_id, current.user.id)
+    except RuntimeError:
+        return NotificationPreferencesResponse()
+
+
+@router.put("/preferences", response_model=NotificationPreferencesResponse)
+async def update_user_notification_preferences(payload: NotificationPreferencesUpdate, current: AuthDep, db: DbDep) -> NotificationPreferencesResponse:
+    service = UserNotificationService(db)
+    try:
+        return await service.update_preferences(current.tenant_id, current.user.id, payload)
+    except RuntimeError:
+        raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail="Register this device before updating notification preferences")
+
+
+@router.get("/push/configuration", response_model=PushConfigurationResponse)
+async def get_web_push_configuration(current: AuthDep, db: DbDep) -> PushConfigurationResponse:
+    del current
+    return PushConfigurationResponse(**await UserNotificationService(db).push_configuration())
+
+
+@router.post("/devices", status_code=status.HTTP_204_NO_CONTENT)
+async def register_notification_device(payload: DeviceRegistrationRequest, current: AuthDep, db: DbDep, user_agent: str | None = Header(default=None)) -> None:
+    await UserNotificationService(db).register_device(current.tenant_id, current.user.id, payload.installation_id, payload.platform, user_agent)
+
+
+@router.post("/push-subscriptions", status_code=status.HTTP_204_NO_CONTENT)
+async def subscribe_to_web_push(payload: PushSubscriptionRequest, current: AuthDep, db: DbDep, user_agent: str | None = Header(default=None)) -> None:
+    await UserNotificationService(db).save_subscription(current.tenant_id, current.user.id, payload.installation_id, payload.platform, user_agent, payload.endpoint, payload.p256dh, payload.auth)
+
+
+@router.get("/unreachable", response_model=list[UnreachableNotificationRecipient])
+async def get_unreachable_notification_recipients(current: AuthDep, db: DbDep) -> list[UnreachableNotificationRecipient]:
+    require_capability(current, CAP_TENANT_ADMINISTRATION, detail="Tenant administration capability required")
+    return await UserNotificationService(db).unreachable_recipients(current.tenant_id)
 
 
 @router.get("/channels", response_model=list[NotificationChannelResponse])

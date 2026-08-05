@@ -12,6 +12,7 @@
       </div>
       <div class="app-top-bar__actions">
         <LanguageSelector :show-label="false" compact />
+        <NotificationBell />
         <div class="dropdown">
           <button
             class="app-top-bar__account"
@@ -37,6 +38,7 @@
 <script setup lang="ts">
 import { RouterLink } from 'vue-router'
 import LanguageSelector from '@/components/LanguageSelector.vue'
+import NotificationBell from '@/components/ui/NotificationBell.vue'
 
 defineProps<{
   eyebrow: string

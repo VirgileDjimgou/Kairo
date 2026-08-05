@@ -16,6 +16,7 @@ from app.modules.disciplinary.schemas import (
     DisciplinaryRecordUpdate,
 )
 from app.modules.membership.repository import MembershipRepository
+from app.modules.notifications.user_service import UserNotificationService
 from app.modules.policies.repository import PolicyRepository
 
 
@@ -97,6 +98,17 @@ class DisciplinaryService:
                 "status": record.status,
             },
         )
+        if profile.user_id is not None:
+            await UserNotificationService(self._db).enqueue(
+                tenant_id=tenant_id,
+                event_type="discipline.recorded",
+                recipients=[profile.user_id],
+                category="discipline",
+                target_path="/discipline",
+                deduplication_key=f"discipline-recorded:{record.id}",
+                metadata={},
+                priority="high",
+            )
         await self._db.commit()
         return await self._to_response(tenant_id, record)
 
@@ -126,6 +138,18 @@ class DisciplinaryService:
             module_key="disciplinary",
             details={"changes": payload},
         )
+        profile = await self._membership_repo.get_by_id(tenant_id, record.membership_profile_id)
+        if profile is not None and profile.user_id is not None:
+            await UserNotificationService(self._db).enqueue(
+                tenant_id=tenant_id,
+                event_type="discipline.updated",
+                recipients=[profile.user_id],
+                category="discipline",
+                target_path="/discipline",
+                deduplication_key=f"discipline-updated:{record.id}:{record.updated_at.isoformat()}",
+                metadata={},
+                priority="high",
+            )
         await self._db.commit()
         return await self._to_response(tenant_id, record)
 

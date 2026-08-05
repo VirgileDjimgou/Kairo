@@ -8,6 +8,7 @@ from app.modules.contributions.models import (
     ContributionRecord,
     ContributionReceiptDeclaration,
     ContributionReminder,
+    ExpenseRecord,
     PaymentRecord,
 )
 
@@ -135,6 +136,32 @@ class ContributionRepository:
         await self._db.delete(record)
         await self._db.flush()
         return True
+
+    async def create_expense(self, tenant_id: UUID, data: dict) -> ExpenseRecord:
+        data["tenant_id"] = tenant_id
+        record = ExpenseRecord(**data)
+        self._db.add(record)
+        await self._db.flush()
+        await self._db.refresh(record)
+        return record
+
+    async def list_expenses_by_tenant(
+        self, tenant_id: UUID, *, year: int | None = None, limit: int | None = None
+    ) -> list[ExpenseRecord]:
+        query = select(ExpenseRecord).where(ExpenseRecord.tenant_id == tenant_id)
+        if year is not None:
+            # A portable half-open interval works with both PostgreSQL and SQLite.
+            from datetime import UTC, datetime
+
+            query = query.where(
+                ExpenseRecord.spent_at >= datetime(year, 1, 1, tzinfo=UTC),
+                ExpenseRecord.spent_at < datetime(year + 1, 1, 1, tzinfo=UTC),
+            )
+        query = query.order_by(ExpenseRecord.spent_at.desc(), ExpenseRecord.created_at.desc())
+        if limit is not None:
+            query = query.limit(limit)
+        result = await self._db.execute(query)
+        return list(result.scalars().all())
 
     async def create_receipt_declaration(
         self, tenant_id: UUID, data: dict

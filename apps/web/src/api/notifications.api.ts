@@ -59,6 +59,36 @@ export interface NotificationHistoryResponse {
   summary: NotificationHistorySummary
 }
 
+export interface InboxNotification {
+  id: string
+  event_type: string
+  category: string
+  priority: string
+  target_path: string
+  metadata: Record<string, unknown>
+  read_at: string | null
+  created_at: string
+}
+
+export interface NotificationInboxResponse {
+  items: InboxNotification[]
+  unread_count: number
+}
+
+export interface PushConfiguration {
+  enabled: boolean
+  public_key?: string | null
+  reason?: string | null
+}
+
+export interface NotificationPreferences {
+  push_enabled: boolean
+  finance_enabled: boolean
+  discipline_enabled: boolean
+  announcements_enabled: boolean
+  events_enabled: boolean
+}
+
 export interface PollNotificationReconciliationPayload {
   channel: string
   provider_reference: string
@@ -145,4 +175,40 @@ export async function retryNotificationDispatch(
 ): Promise<NotificationRetryResponse> {
   const response = await http.post<NotificationRetryResponse>('/notifications/retry', payload)
   return response.data
+}
+
+export async function getNotificationInbox(): Promise<NotificationInboxResponse> {
+  const response = await http.get<NotificationInboxResponse>('/notifications/inbox')
+  return response.data
+}
+
+export async function markNotificationRead(id: string): Promise<void> {
+  await http.post(`/notifications/inbox/${id}/read`)
+}
+
+export async function markAllNotificationsRead(): Promise<void> {
+  await http.post('/notifications/inbox/read-all')
+}
+
+export async function getPushConfiguration(): Promise<PushConfiguration> {
+  const response = await http.get<PushConfiguration>('/notifications/push/configuration')
+  return response.data
+}
+
+export async function getNotificationPreferences(): Promise<NotificationPreferences> {
+  const response = await http.get<NotificationPreferences>('/notifications/preferences')
+  return response.data
+}
+
+export async function updateNotificationPreferences(payload: NotificationPreferences): Promise<NotificationPreferences> {
+  const response = await http.put<NotificationPreferences>('/notifications/preferences', payload)
+  return response.data
+}
+
+export async function registerNotificationDevice(payload: { installation_id: string; platform?: string }): Promise<void> {
+  await http.post('/notifications/devices', payload)
+}
+
+export async function savePushSubscription(payload: { installation_id: string; platform?: string; endpoint: string; p256dh: string; auth: string }): Promise<void> {
+  await http.post('/notifications/push-subscriptions', payload)
 }

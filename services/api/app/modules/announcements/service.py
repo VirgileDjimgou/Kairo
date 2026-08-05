@@ -15,6 +15,7 @@ from app.modules.announcements.schemas import (
     AnnouncementUpdate,
 )
 from app.modules.audit.service import AuditService
+from app.modules.notifications.user_service import UserNotificationService
 
 
 class AnnouncementService:
@@ -53,6 +54,17 @@ class AnnouncementService:
                 "visibility_scope": created.visibility_scope,
             },
         )
+        if created.visibility_scope in {"tenant_public", "members_only"}:
+            notification_service = UserNotificationService(self._db)
+            await notification_service.enqueue(
+                tenant_id=tenant_id,
+                event_type="announcements.published",
+                recipients=await notification_service.active_tenant_users(tenant_id),
+                category="announcements",
+                target_path="/announcements",
+                deduplication_key=f"announcement-published:{created.id}",
+                metadata={},
+            )
         await self._db.commit()
         return AnnouncementResponse.model_validate(created)
 
@@ -111,6 +123,17 @@ class AnnouncementService:
             module_key="announcements",
             details={"changes": data.model_dump(exclude_unset=True)},
         )
+        if announcement.visibility_scope in {"tenant_public", "members_only"}:
+            notification_service = UserNotificationService(self._db)
+            await notification_service.enqueue(
+                tenant_id=tenant_id,
+                event_type="announcements.updated",
+                recipients=await notification_service.active_tenant_users(tenant_id),
+                category="announcements",
+                target_path="/announcements",
+                deduplication_key=f"announcement-updated:{announcement.id}:{announcement.updated_at.isoformat()}",
+                metadata={},
+            )
         await self._db.commit()
         return AnnouncementResponse.model_validate(announcement)
 

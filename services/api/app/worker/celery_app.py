@@ -10,6 +10,7 @@ celery_app = Celery(
         "app.worker.tasks.ingestion",
         "app.worker.tasks.chat_cleanup",
         "app.worker.tasks.receipt_handover_reminders",
+        "app.worker.tasks.user_notifications",
     ],
     beat_schedule={
         "cleanup-old-conversations": {
@@ -28,6 +29,11 @@ celery_app.conf.beat_schedule["resume-awaiting-ai-ingestion"] = {
 celery_app.conf.beat_schedule["send-due-receipt-handover-reminders"] = {
     "task": "contributions.send_due_receipt_handover_reminders",
     "schedule": 60.0,
+}
+
+celery_app.conf.beat_schedule["process-user-notification-outbox"] = {
+    "task": "notifications.process_user_outbox",
+    "schedule": 15.0,
 }
 
 celery_app.conf.update(

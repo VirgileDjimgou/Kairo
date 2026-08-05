@@ -61,6 +61,17 @@ class CashHandoverStatus(StrEnum):
     received_in_treasury = "received_in_treasury"
 
 
+class ExpenseCategory(StrEnum):
+    """Treasury expense categories used by the annual budget."""
+
+    sport_equipment = "sport_equipment"
+    fuel_transport = "fuel_transport"
+    tournament = "tournament"
+    cultural_event = "cultural_event"
+    administration = "administration"
+    other = "other"
+
+
 class ContributionRecord(Base):
     """
     Expected and paid contribution for a member in a specific year/period.
@@ -153,6 +164,41 @@ class PaymentRecord(Base):
 
     def __repr__(self) -> str:
         return f"<PaymentRecord tenant={self.tenant_id} contribution={self.contribution_record_id} amount={self.amount}>"
+
+
+class ExpenseRecord(Base):
+    """A treasury-only cash outflow recorded in the association budget."""
+
+    __tablename__ = "expense_records"
+
+    id: Mapped[uuid.UUID] = mapped_column(
+        UUID(as_uuid=True), primary_key=True, default=uuid.uuid4
+    )
+    tenant_id: Mapped[uuid.UUID] = mapped_column(
+        UUID(as_uuid=True),
+        ForeignKey("tenants.id", ondelete="CASCADE"),
+        nullable=False,
+        index=True,
+    )
+    category: Mapped[str] = mapped_column(String(64), nullable=False, index=True)
+    amount: Mapped[Decimal] = mapped_column(Numeric(12, 2), nullable=False)
+    currency: Mapped[str] = mapped_column(String(3), nullable=False, server_default="EUR")
+    spent_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False, index=True)
+    description: Mapped[str] = mapped_column(Text, nullable=False)
+    payee: Mapped[str | None] = mapped_column(String(255), nullable=True)
+    payment_method: Mapped[str] = mapped_column(
+        String(50), nullable=False, server_default=PaymentMethod.other.value
+    )
+    reference: Mapped[str | None] = mapped_column(String(255), nullable=True)
+    created_by: Mapped[uuid.UUID | None] = mapped_column(
+        UUID(as_uuid=True), ForeignKey("users.id", ondelete="SET NULL"), nullable=True
+    )
+    created_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True), nullable=False, server_default=sql_text("CURRENT_TIMESTAMP")
+    )
+
+    def __repr__(self) -> str:
+        return f"<ExpenseRecord tenant={self.tenant_id} category={self.category} amount={self.amount}>"
 
 
 class ContributionReceiptDeclaration(Base):

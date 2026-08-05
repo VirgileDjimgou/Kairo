@@ -108,6 +108,13 @@ class Settings(BaseSettings):
     whatsapp_api_token: str | None = None
     notification_reconciliation_callback_token: str | None = None
 
+    # Web Push is opt-in and uses generic lock-screen text. VAPID material is
+    # supplied only through deployment secrets, never the browser bundle.
+    web_push_enabled: bool = True
+    web_push_vapid_public_key: str | None = None
+    web_push_vapid_private_key: str | None = None
+    web_push_vapid_subject: str = "mailto:notifications@localhost"
+
     # Upload
     max_upload_mb: int = 50
     allowed_upload_extensions: str = "pdf,docx,txt,md,csv,xlsx,png,jpg,jpeg,webp"

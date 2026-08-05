@@ -29,7 +29,7 @@
                   <option value="sponsorship">{{ t('receipt.incomeType.sponsorship') }}</option>
                   <option value="tournament_proceeds">{{ t('receipt.incomeType.tournamentProceeds') }}</option>
                   <option value="other_income">{{ t('receipt.incomeType.otherIncome') }}</option>
-                  <option value="disciplinary_payment">{{ t('receipt.incomeType.disciplinaryPayment') }}</option>
+                  <option v-if="canReadDisciplinaryRecords" value="disciplinary_payment">{{ t('receipt.incomeType.disciplinaryPayment') }}</option>
                 </select>
               </div>
               <template v-if="requiresMember">
@@ -57,8 +57,9 @@
                 <button class="btn btn-sm btn-link p-0" type="button" @click="clearMember">{{ copy.changeMember }}</button>
               </div>
               <div v-if="form.income_type === 'disciplinary_payment'">
+                <div v-if="disciplinaryRecordsUnavailable" class="alert alert-warning small py-2">{{ t('receipt.disciplinaryRecordsUnavailable') }}</div>
                 <label class="form-label small fw-semibold" for="receipt-disciplinary-record">{{ t('receipt.incomeType.disciplinaryPayment') }}</label>
-                <select id="receipt-disciplinary-record" v-model="form.disciplinary_record_id" class="form-select" :class="{ 'is-invalid': declarationFieldErrors.disciplinary_record_id }">
+                <select id="receipt-disciplinary-record" v-model="form.disciplinary_record_id" class="form-select" :class="{ 'is-invalid': declarationFieldErrors.disciplinary_record_id }" :disabled="disciplinaryRecordsLoading || disciplinaryRecordsUnavailable">
                   <option value="">{{ t('common.select') }}</option><option v-for="record in memberDisciplinaryRecords" :key="record.id" :value="record.id">{{ record.title }} · {{ record.amount }} {{ record.currency }}</option>
                 </select>
                 <div v-if="declarationFieldErrors.disciplinary_record_id" class="invalid-feedback d-block">{{ declarationFieldErrors.disciplinary_record_id }}</div>
@@ -142,12 +143,16 @@ import {
 import { useLocaleStore } from '@/stores/locale.store'
 import { notifyOperation } from '@/services/operation-notifications'
 import { listDisciplinaryRecords, type DisciplinaryRecordResponse } from '@/api/disciplinary.api'
+import { useAuthStore } from '@/stores/auth.store'
 
 const locale = useLocaleStore()
 const t = locale.t
+const authStore = useAuthStore()
 const members = ref<ContributionReceiptMemberOption[]>([])
 const ownDeclarations = ref<ContributionReceiptDeclarationResponse[]>([])
 const disciplinaryRecords = ref<DisciplinaryRecordResponse[]>([])
+const disciplinaryRecordsLoading = ref(false)
+const disciplinaryRecordsUnavailable = ref(false)
 const loading = ref(false)
 const saving = ref(false)
 const error = ref('')
@@ -164,6 +169,7 @@ const filteredMembers = computed(() => {
   return members.value.filter((member) => `${member.display_name} ${member.member_code}`.toLocaleLowerCase().includes(query))
 })
 const selectedMember = computed(() => members.value.find((member) => member.id === form.value.membership_profile_id) ?? null)
+const canReadDisciplinaryRecords = computed(() => authStore.user?.roles.some((role) => ['admin', 'principal_admin', 'president', 'secretary_general', 'censor'].includes(role)) ?? false)
 const requiresMember = computed(() => ['membership_contribution', 'disciplinary_payment'].includes(form.value.income_type))
 const memberDisciplinaryRecords = computed(() => disciplinaryRecords.value.filter((record) => record.membership_profile_id === form.value.membership_profile_id && ['open', 'under_review'].includes(record.status)))
 const copy = computed(() => {
@@ -196,6 +202,7 @@ function handleIncomeTypeChange() {
   form.value.disciplinary_record_id = ''
   if (!requiresMember.value) clearMember()
   if (requiresMember.value) form.value.source_name = ''
+  if (form.value.income_type === 'disciplinary_payment') void loadDisciplinaryRecords()
 }
 function openMemberDetails(member: ContributionReceiptMemberOption) { detailMember.value = member; showMemberResults.value = false }
 function closeMemberDetails() { detailMember.value = null }
@@ -220,7 +227,24 @@ function statusLabel(status: string) {
 function badgeClass(status: string) { return ({ submitted: 'text-bg-warning', validated: 'text-bg-success', partially_validated: 'text-bg-success', rejected: 'text-bg-danger', clarification_requested: 'text-bg-info', cancelled: 'text-bg-secondary' }[status] || 'text-bg-secondary') }
 function handoverStatusLabel(value: ContributionReceiptDeclarationResponse['cash_handover_status']) { return value === 'handover_reported' ? t('receipt.handoverReported') : value === 'received_in_treasury' ? t('receipt.treasuryReceived') : t('receipt.cashPending') }
 async function reportHandover(item: ContributionReceiptDeclarationResponse, method: 'cash' | 'bank_transfer') { try { await reportContributionReceiptHandover(item.id, { method }); notice.value = t('receipt.handoverReported'); await load() } catch (err) { error.value = err instanceof Error ? err.message : copy.value.processFailed } }
-async function load() { loading.value = true; error.value = ''; try { const [memberRows, declarationRows] = await Promise.all([listContributionReceiptDeclarationMemberOptions(), listMyContributionReceiptDeclarations()]); members.value = memberRows; ownDeclarations.value = declarationRows; try { disciplinaryRecords.value = await listDisciplinaryRecords() } catch { disciplinaryRecords.value = [] } } catch (err) { error.value = err instanceof Error ? err.message : copy.value.loadFailed } finally { loading.value = false } }
+async function loadDisciplinaryRecords() {
+  if (!canReadDisciplinaryRecords.value) {
+    disciplinaryRecords.value = []
+    disciplinaryRecordsUnavailable.value = true
+    return
+  }
+  disciplinaryRecordsLoading.value = true
+  disciplinaryRecordsUnavailable.value = false
+  try {
+    disciplinaryRecords.value = await listDisciplinaryRecords()
+  } catch {
+    disciplinaryRecords.value = []
+    disciplinaryRecordsUnavailable.value = true
+  } finally {
+    disciplinaryRecordsLoading.value = false
+  }
+}
+async function load() { loading.value = true; error.value = ''; try { const [memberRows, declarationRows] = await Promise.all([listContributionReceiptDeclarationMemberOptions(), listMyContributionReceiptDeclarations()]); members.value = memberRows; ownDeclarations.value = declarationRows; if (form.value.income_type === 'disciplinary_payment') await loadDisciplinaryRecords() } catch (err) { error.value = err instanceof Error ? err.message : copy.value.loadFailed } finally { loading.value = false } }
 function clearDeclarationFieldError(field: string) {
   if (!declarationFieldErrors.value[field]) return
   const next = { ...declarationFieldErrors.value }

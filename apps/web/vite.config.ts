@@ -8,7 +8,10 @@ export default defineConfig({
     vue(),
     VitePWA({
       injectRegister: false,
-      registerType: 'prompt',
+      registerType: 'autoUpdate',
+      strategies: 'injectManifest',
+      srcDir: 'src',
+      filename: 'sw.ts',
       includeAssets: ['favicon.svg'],
       manifest: {
         name: 'Kairo — Association Management',
@@ -39,15 +42,6 @@ export default defineConfig({
             purpose: 'maskable',
           },
         ],
-      },
-      workbox: {
-        clientsClaim: true,
-        skipWaiting: true,
-        cleanupOutdatedCaches: true,
-        globPatterns: ['**/*.{js,css,html,ico,png,svg,woff,woff2}'],
-        // API calls are deliberately never cached by the service worker. This prevents
-        // stale or insecure API base URLs from surviving a deployment and keeps member
-        // and finance data live.
       },
     }),
   ],

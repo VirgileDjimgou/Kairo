@@ -13,6 +13,7 @@ from app.modules.audit.service import AuditService
 from app.modules.events.models import Event
 from app.modules.events.repository import EventRepository
 from app.modules.events.schemas import EventCreate, EventResponse, EventUpdate
+from app.modules.notifications.user_service import UserNotificationService
 
 
 class EventService:
@@ -53,6 +54,17 @@ class EventService:
                 "visibility_scope": created.visibility_scope,
             },
         )
+        if created.status == "published" and created.visibility_scope in {"tenant_public", "members_only"}:
+            notification_service = UserNotificationService(self._db)
+            await notification_service.enqueue(
+                tenant_id=tenant_id,
+                event_type="events.published",
+                recipients=await notification_service.active_tenant_users(tenant_id),
+                category="events",
+                target_path="/events",
+                deduplication_key=f"event-published:{created.id}",
+                metadata={},
+            )
         await self._db.commit()
         return EventResponse.model_validate(created)
 
@@ -127,6 +139,17 @@ class EventService:
             module_key="events",
             details={"changes": payload},
         )
+        if event.status == "published" and event.visibility_scope in {"tenant_public", "members_only"}:
+            notification_service = UserNotificationService(self._db)
+            await notification_service.enqueue(
+                tenant_id=tenant_id,
+                event_type="events.updated",
+                recipients=await notification_service.active_tenant_users(tenant_id),
+                category="events",
+                target_path="/events",
+                deduplication_key=f"event-updated:{event.id}:{event.updated_at.isoformat()}",
+                metadata={},
+            )
         await self._db.commit()
         return EventResponse.model_validate(event)
 

@@ -4016,6 +4016,27 @@ Validation after this track should cover:
 
 Status: Completed
 
+### Post-Sprint 99 - Reliable web notification delivery
+
+Status: Completed
+
+- tenant-scoped user inbox, device/profile binding, and Web Push subscription persistence;
+- transactional outbox so a business write and its notification are committed together;
+- opt-in VAPID Web Push with generic lock-screen payloads and automatic disabling of expired subscriptions;
+- multi-profile browser support without relying on the virtual login email as a delivery address;
+- finance, disciplinary, public event, and public announcement notification producers;
+- protected unread/no-Push follow-up list for tenant administrators;
+- targeted backend and frontend build validation. Telegram and WhatsApp remain explicitly excluded from this extension.
+
+### Post-Sprint 99 - Treasurer expense and annual budget visibility
+
+Status: Completed
+
+- treasurer-only, tenant-scoped expense records with category, amount, date, payee, payment method, reference, and required business reason;
+- audit evidence for every recorded outflow and an annual realized-budget endpoint that combines official membership payments with approved non-member income;
+- responsive treasurer dashboard cards and circular income/outflow breakdowns, including sport/material, fuel/transport, tournament, cultural event, administration, and other expense categories;
+- targeted integration coverage for role denial, accounting totals, and the separation of income categories from expenses.
+
 Goal: align normal association workflows with president/secretary member administration, treasurer-only official finance processing, and auditable office-reported cash receipt declarations.
 
 Completed deliverables:
