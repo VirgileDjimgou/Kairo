@@ -23,6 +23,7 @@ from app.db.session import async_session_factory
 from app.modules.admin.router import router as admin_router
 from app.modules.announcements.router import router as announcements_router
 from app.modules.audit.router import router as audit_router
+from app.modules.backup.router import router as backup_router
 from app.modules.chat.router import router as chat_router
 from app.modules.contributions.router import router as contributions_router
 from app.modules.disciplinary.router import router as disciplinary_router
@@ -96,6 +97,7 @@ app.include_router(identity_router, prefix=API_PREFIX)
 app.include_router(tenancy_router, prefix=API_PREFIX)
 app.include_router(admin_router, prefix=API_PREFIX)
 app.include_router(audit_router, prefix=API_PREFIX)
+app.include_router(backup_router, prefix=API_PREFIX)
 app.include_router(documents_router, prefix=API_PREFIX)
 app.include_router(chat_router, prefix=API_PREFIX)
 app.include_router(membership_router, prefix=API_PREFIX)

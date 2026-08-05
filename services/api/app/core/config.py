@@ -115,6 +115,21 @@ class Settings(BaseSettings):
     web_push_vapid_private_key: str | None = None
     web_push_vapid_subject: str = "mailto:notifications@localhost"
 
+    # Recovery. Archives are encrypted before leaving the container and are
+    # never served directly to browser sessions. Keep both keys in a secret
+    # manager or in the protected production .env file.
+    backup_enabled: bool = True
+    backup_auto_enabled: bool = True
+    backup_storage_dir: str = "/var/backups"
+    backup_retention_days: int = 30
+    backup_encryption_key: str | None = None
+    backup_manifest_signing_key: str | None = None
+    backup_external_s3_endpoint: str | None = None
+    backup_external_s3_bucket: str | None = None
+    backup_external_s3_access_key: str | None = None
+    backup_external_s3_secret_key: str | None = None
+    backup_pitr_enabled: bool = True
+
     # Upload
     max_upload_mb: int = 50
     allowed_upload_extensions: str = "pdf,docx,txt,md,csv,xlsx,png,jpg,jpeg,webp"

@@ -11,6 +11,7 @@ celery_app = Celery(
         "app.worker.tasks.chat_cleanup",
         "app.worker.tasks.receipt_handover_reminders",
         "app.worker.tasks.user_notifications",
+        "app.worker.tasks.backups",
     ],
     beat_schedule={
         "cleanup-old-conversations": {
@@ -34,6 +35,11 @@ celery_app.conf.beat_schedule["send-due-receipt-handover-reminders"] = {
 celery_app.conf.beat_schedule["process-user-notification-outbox"] = {
     "task": "notifications.process_user_outbox",
     "schedule": 15.0,
+}
+
+celery_app.conf.beat_schedule["run-daily-encrypted-recovery-backup"] = {
+    "task": "recovery.run_daily_backup",
+    "schedule": 86400.0,
 }
 
 celery_app.conf.update(

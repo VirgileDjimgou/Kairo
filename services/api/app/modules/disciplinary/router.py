@@ -11,6 +11,7 @@ from app.core.capabilities import (
 )
 from app.core.dependencies import AuthDep, DbDep
 from app.core.module_guard import require_module
+from app.modules.backup.preflight import require_pre_operation_backup
 from app.modules.disciplinary.schemas import (
     DisciplinaryRecordCreate,
     DisciplinaryRecordResponse,
@@ -104,6 +105,12 @@ async def delete_record(
         current,
         CAP_DISCIPLINARY_WRITE,
         detail="Disciplinary write capability required",
+    )
+    await require_pre_operation_backup(
+        db,
+        tenant_id=current.tenant_id,
+        actor_user_id=current.user.id,
+        reason="disciplinary_record_delete",
     )
     service = DisciplinaryService(db)
     await service.delete_record(

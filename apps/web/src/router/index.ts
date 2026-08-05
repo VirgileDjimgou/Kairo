@@ -132,6 +132,14 @@ const router = createRouter({
           },
         },
         {
+          path: "recovery",
+          name: "backup-center",
+          component: () => import("@/views/recovery/BackupCenterView.vue"),
+          meta: {
+            allowedRoles: ["president", "secretary_general", "principal_admin", "admin"],
+          },
+        },
+        {
           path: "sports",
           name: "sports-workspace",
           component: () => import("@/views/sports/SportsWorkspaceView.vue"),

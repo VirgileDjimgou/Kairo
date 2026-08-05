@@ -166,6 +166,13 @@ export function useRoleNavigation() {
         icon: "bi-journal-check",
       });
     }
+    if (isPresident.value || isSecretaryGeneral.value || isPrincipalAdmin.value || isAdmin.value) {
+      workspaceItems.push({
+        label: localeStore.currentLocale === 'de' ? 'Sicherung & Wiederherstellung' : localeStore.currentLocale === 'en' ? 'Backup & recovery' : 'Sauvegarde et récupération',
+        to: "/recovery",
+        icon: "bi-safe2",
+      });
+    }
     if (!isMember.value) {
       workspaceItems.push({
         label: localeStore.currentLocale === 'de' ? 'Zahlungen melden' : localeStore.currentLocale === 'en' ? 'Report receipts' : 'Déclarer un encaissement',

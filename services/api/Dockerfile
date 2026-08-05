@@ -20,6 +20,7 @@ WORKDIR /app
 
 RUN apt-get update && apt-get install -y --no-install-recommends \
     libpq-dev \
+    postgresql-client \
     curl \
     tesseract-ocr \
     && rm -rf /var/lib/apt/lists/*
@@ -39,6 +40,7 @@ WORKDIR /app
 
 RUN apt-get update && apt-get install -y --no-install-recommends \
     libpq-dev \
+    postgresql-client \
     curl \
     tesseract-ocr \
     && rm -rf /var/lib/apt/lists/*
@@ -49,4 +51,4 @@ COPY . .
 
 EXPOSE 8000
 
-CMD ["sh", "-c", "alembic upgrade head && uvicorn app.main:app --host 0.0.0.0 --port 8000 --workers 2"]
+CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8000", "--workers", "2"]

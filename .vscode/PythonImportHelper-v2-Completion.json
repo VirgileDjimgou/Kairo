@@ -949,6 +949,70 @@
         "documentation": {}
     },
     {
+        "label": "annotations",
+        "importPath": "__future__",
+        "description": "__future__",
+        "isExtraImport": true,
+        "detail": "__future__",
+        "documentation": {}
+    },
+    {
+        "label": "annotations",
+        "importPath": "__future__",
+        "description": "__future__",
+        "isExtraImport": true,
+        "detail": "__future__",
+        "documentation": {}
+    },
+    {
+        "label": "annotations",
+        "importPath": "__future__",
+        "description": "__future__",
+        "isExtraImport": true,
+        "detail": "__future__",
+        "documentation": {}
+    },
+    {
+        "label": "annotations",
+        "importPath": "__future__",
+        "description": "__future__",
+        "isExtraImport": true,
+        "detail": "__future__",
+        "documentation": {}
+    },
+    {
+        "label": "annotations",
+        "importPath": "__future__",
+        "description": "__future__",
+        "isExtraImport": true,
+        "detail": "__future__",
+        "documentation": {}
+    },
+    {
+        "label": "annotations",
+        "importPath": "__future__",
+        "description": "__future__",
+        "isExtraImport": true,
+        "detail": "__future__",
+        "documentation": {}
+    },
+    {
+        "label": "annotations",
+        "importPath": "__future__",
+        "description": "__future__",
+        "isExtraImport": true,
+        "detail": "__future__",
+        "documentation": {}
+    },
+    {
+        "label": "annotations",
+        "importPath": "__future__",
+        "description": "__future__",
+        "isExtraImport": true,
+        "detail": "__future__",
+        "documentation": {}
+    },
+    {
         "label": "asyncio",
         "kind": 6,
         "isExtraImport": true,
@@ -1216,70 +1280,6 @@
         "documentation": {}
     },
     {
-        "label": "uuid4",
-        "importPath": "uuid",
-        "description": "uuid",
-        "isExtraImport": true,
-        "detail": "uuid",
-        "documentation": {}
-    },
-    {
-        "label": "UUID",
-        "importPath": "uuid",
-        "description": "uuid",
-        "isExtraImport": true,
-        "detail": "uuid",
-        "documentation": {}
-    },
-    {
-        "label": "UUID",
-        "importPath": "uuid",
-        "description": "uuid",
-        "isExtraImport": true,
-        "detail": "uuid",
-        "documentation": {}
-    },
-    {
-        "label": "UUID",
-        "importPath": "uuid",
-        "description": "uuid",
-        "isExtraImport": true,
-        "detail": "uuid",
-        "documentation": {}
-    },
-    {
-        "label": "UUID",
-        "importPath": "uuid",
-        "description": "uuid",
-        "isExtraImport": true,
-        "detail": "uuid",
-        "documentation": {}
-    },
-    {
-        "label": "UUID",
-        "importPath": "uuid",
-        "description": "uuid",
-        "isExtraImport": true,
-        "detail": "uuid",
-        "documentation": {}
-    },
-    {
-        "label": "UUID",
-        "importPath": "uuid",
-        "description": "uuid",
-        "isExtraImport": true,
-        "detail": "uuid",
-        "documentation": {}
-    },
-    {
-        "label": "UUID",
-        "importPath": "uuid",
-        "description": "uuid",
-        "isExtraImport": true,
-        "detail": "uuid",
-        "documentation": {}
-    },
-    {
         "label": "UUID",
         "importPath": "uuid",
         "description": "uuid",
@@ -1408,6 +1408,110 @@
         "documentation": {}
     },
     {
+        "label": "uuid4",
+        "importPath": "uuid",
+        "description": "uuid",
+        "isExtraImport": true,
+        "detail": "uuid",
+        "documentation": {}
+    },
+    {
+        "label": "UUID",
+        "importPath": "uuid",
+        "description": "uuid",
+        "isExtraImport": true,
+        "detail": "uuid",
+        "documentation": {}
+    },
+    {
+        "label": "UUID",
+        "importPath": "uuid",
+        "description": "uuid",
+        "isExtraImport": true,
+        "detail": "uuid",
+        "documentation": {}
+    },
+    {
+        "label": "UUID",
+        "importPath": "uuid",
+        "description": "uuid",
+        "isExtraImport": true,
+        "detail": "uuid",
+        "documentation": {}
+    },
+    {
+        "label": "UUID",
+        "importPath": "uuid",
+        "description": "uuid",
+        "isExtraImport": true,
+        "detail": "uuid",
+        "documentation": {}
+    },
+    {
+        "label": "UUID",
+        "importPath": "uuid",
+        "description": "uuid",
+        "isExtraImport": true,
+        "detail": "uuid",
+        "documentation": {}
+    },
+    {
+        "label": "UUID",
+        "importPath": "uuid",
+        "description": "uuid",
+        "isExtraImport": true,
+        "detail": "uuid",
+        "documentation": {}
+    },
+    {
+        "label": "UUID",
+        "importPath": "uuid",
+        "description": "uuid",
+        "isExtraImport": true,
+        "detail": "uuid",
+        "documentation": {}
+    },
+    {
+        "label": "UUID",
+        "importPath": "uuid",
+        "description": "uuid",
+        "isExtraImport": true,
+        "detail": "uuid",
+        "documentation": {}
+    },
+    {
+        "label": "UUID",
+        "importPath": "uuid",
+        "description": "uuid",
+        "isExtraImport": true,
+        "detail": "uuid",
+        "documentation": {}
+    },
+    {
+        "label": "UUID",
+        "importPath": "uuid",
+        "description": "uuid",
+        "isExtraImport": true,
+        "detail": "uuid",
+        "documentation": {}
+    },
+    {
+        "label": "UUID",
+        "importPath": "uuid",
+        "description": "uuid",
+        "isExtraImport": true,
+        "detail": "uuid",
+        "documentation": {}
+    },
+    {
+        "label": "UUID",
+        "importPath": "uuid",
+        "description": "uuid",
+        "isExtraImport": true,
+        "detail": "uuid",
+        "documentation": {}
+    },
+    {
         "label": "UUID",
         "importPath": "uuid",
         "description": "uuid",
@@ -1509,6 +1613,30 @@
         "description": "uuid",
         "isExtraImport": true,
         "detail": "uuid",
+        "documentation": {}
+    },
+    {
+        "label": "Path",
+        "importPath": "pathlib",
+        "description": "pathlib",
+        "isExtraImport": true,
+        "detail": "pathlib",
+        "documentation": {}
+    },
+    {
+        "label": "Path",
+        "importPath": "pathlib",
+        "description": "pathlib",
+        "isExtraImport": true,
+        "detail": "pathlib",
+        "documentation": {}
+    },
+    {
+        "label": "Path",
+        "importPath": "pathlib",
+        "description": "pathlib",
+        "isExtraImport": true,
+        "detail": "pathlib",
         "documentation": {}
     },
     {
@@ -1589,6 +1717,30 @@
         "description": "pathlib",
         "isExtraImport": true,
         "detail": "pathlib",
+        "documentation": {}
+    },
+    {
+        "label": "Path",
+        "importPath": "pathlib",
+        "description": "pathlib",
+        "isExtraImport": true,
+        "detail": "pathlib",
+        "documentation": {}
+    },
+    {
+        "label": "settings",
+        "importPath": "app.core.config",
+        "description": "app.core.config",
+        "isExtraImport": true,
+        "detail": "app.core.config",
+        "documentation": {}
+    },
+    {
+        "label": "settings",
+        "importPath": "app.core.config",
+        "description": "app.core.config",
+        "isExtraImport": true,
+        "detail": "app.core.config",
         "documentation": {}
     },
     {
@@ -1984,6 +2136,22 @@
         "documentation": {}
     },
     {
+        "label": "AuthDep",
+        "importPath": "app.core.dependencies",
+        "description": "app.core.dependencies",
+        "isExtraImport": true,
+        "detail": "app.core.dependencies",
+        "documentation": {}
+    },
+    {
+        "label": "DbDep",
+        "importPath": "app.core.dependencies",
+        "description": "app.core.dependencies",
+        "isExtraImport": true,
+        "detail": "app.core.dependencies",
+        "documentation": {}
+    },
+    {
         "label": "EmbeddingDep",
         "importPath": "app.core.dependencies",
         "description": "app.core.dependencies",
@@ -2269,6 +2437,22 @@
         "description": "app.core.dependencies",
         "isExtraImport": true,
         "detail": "app.core.dependencies",
+        "documentation": {}
+    },
+    {
+        "label": "async_session_factory",
+        "importPath": "app.db.session",
+        "description": "app.db.session",
+        "isExtraImport": true,
+        "detail": "app.db.session",
+        "documentation": {}
+    },
+    {
+        "label": "async_session_factory",
+        "importPath": "app.db.session",
+        "description": "app.db.session",
+        "isExtraImport": true,
+        "detail": "app.db.session",
         "documentation": {}
     },
     {
@@ -3264,6 +3448,14 @@
         "documentation": {}
     },
     {
+        "label": "Tenant",
+        "importPath": "app.modules.tenancy.models",
+        "description": "app.modules.tenancy.models",
+        "isExtraImport": true,
+        "detail": "app.modules.tenancy.models",
+        "documentation": {}
+    },
+    {
         "label": "Role",
         "importPath": "app.modules.tenancy.models",
         "description": "app.modules.tenancy.models",
@@ -3313,6 +3505,14 @@
     },
     {
         "label": "user_roles",
+        "importPath": "app.modules.tenancy.models",
+        "description": "app.modules.tenancy.models",
+        "isExtraImport": true,
+        "detail": "app.modules.tenancy.models",
+        "documentation": {}
+    },
+    {
+        "label": "Tenant",
         "importPath": "app.modules.tenancy.models",
         "description": "app.modules.tenancy.models",
         "isExtraImport": true,
@@ -3690,6 +3890,62 @@
     },
     {
         "label": "select",
+        "importPath": "sqlalchemy",
+        "description": "sqlalchemy",
+        "isExtraImport": true,
+        "detail": "sqlalchemy",
+        "documentation": {}
+    },
+    {
+        "label": "select",
+        "importPath": "sqlalchemy",
+        "description": "sqlalchemy",
+        "isExtraImport": true,
+        "detail": "sqlalchemy",
+        "documentation": {}
+    },
+    {
+        "label": "select",
+        "importPath": "sqlalchemy",
+        "description": "sqlalchemy",
+        "isExtraImport": true,
+        "detail": "sqlalchemy",
+        "documentation": {}
+    },
+    {
+        "label": "BigInteger",
+        "importPath": "sqlalchemy",
+        "description": "sqlalchemy",
+        "isExtraImport": true,
+        "detail": "sqlalchemy",
+        "documentation": {}
+    },
+    {
+        "label": "DateTime",
+        "importPath": "sqlalchemy",
+        "description": "sqlalchemy",
+        "isExtraImport": true,
+        "detail": "sqlalchemy",
+        "documentation": {}
+    },
+    {
+        "label": "ForeignKey",
+        "importPath": "sqlalchemy",
+        "description": "sqlalchemy",
+        "isExtraImport": true,
+        "detail": "sqlalchemy",
+        "documentation": {}
+    },
+    {
+        "label": "String",
+        "importPath": "sqlalchemy",
+        "description": "sqlalchemy",
+        "isExtraImport": true,
+        "detail": "sqlalchemy",
+        "documentation": {}
+    },
+    {
+        "label": "Text",
         "importPath": "sqlalchemy",
         "description": "sqlalchemy",
         "isExtraImport": true,
@@ -4298,6 +4554,14 @@
     },
     {
         "label": "delete",
+        "importPath": "sqlalchemy",
+        "description": "sqlalchemy",
+        "isExtraImport": true,
+        "detail": "sqlalchemy",
+        "documentation": {}
+    },
+    {
+        "label": "select",
         "importPath": "sqlalchemy",
         "description": "sqlalchemy",
         "isExtraImport": true,
@@ -6121,6 +6385,14 @@
         "documentation": {}
     },
     {
+        "label": "Any",
+        "importPath": "typing",
+        "description": "typing",
+        "isExtraImport": true,
+        "detail": "typing",
+        "documentation": {}
+    },
+    {
         "label": "Literal",
         "importPath": "typing",
         "description": "typing",
@@ -6895,6 +7167,14 @@
         "documentation": {}
     },
     {
+        "label": "AsyncClient",
+        "importPath": "httpx",
+        "description": "httpx",
+        "isExtraImport": true,
+        "detail": "httpx",
+        "documentation": {}
+    },
+    {
         "label": "FastAPI",
         "importPath": "fastapi",
         "description": "fastapi",
@@ -7080,6 +7360,62 @@
     },
     {
         "label": "Response",
+        "importPath": "fastapi",
+        "description": "fastapi",
+        "isExtraImport": true,
+        "detail": "fastapi",
+        "documentation": {}
+    },
+    {
+        "label": "status",
+        "importPath": "fastapi",
+        "description": "fastapi",
+        "isExtraImport": true,
+        "detail": "fastapi",
+        "documentation": {}
+    },
+    {
+        "label": "HTTPException",
+        "importPath": "fastapi",
+        "description": "fastapi",
+        "isExtraImport": true,
+        "detail": "fastapi",
+        "documentation": {}
+    },
+    {
+        "label": "status",
+        "importPath": "fastapi",
+        "description": "fastapi",
+        "isExtraImport": true,
+        "detail": "fastapi",
+        "documentation": {}
+    },
+    {
+        "label": "APIRouter",
+        "importPath": "fastapi",
+        "description": "fastapi",
+        "isExtraImport": true,
+        "detail": "fastapi",
+        "documentation": {}
+    },
+    {
+        "label": "File",
+        "importPath": "fastapi",
+        "description": "fastapi",
+        "isExtraImport": true,
+        "detail": "fastapi",
+        "documentation": {}
+    },
+    {
+        "label": "HTTPException",
+        "importPath": "fastapi",
+        "description": "fastapi",
+        "isExtraImport": true,
+        "detail": "fastapi",
+        "documentation": {}
+    },
+    {
+        "label": "UploadFile",
         "importPath": "fastapi",
         "description": "fastapi",
         "isExtraImport": true,
@@ -7568,6 +7904,22 @@
     },
     {
         "label": "model_validator",
+        "importPath": "pydantic",
+        "description": "pydantic",
+        "isExtraImport": true,
+        "detail": "pydantic",
+        "documentation": {}
+    },
+    {
+        "label": "BaseModel",
+        "importPath": "pydantic",
+        "description": "pydantic",
+        "isExtraImport": true,
+        "detail": "pydantic",
+        "documentation": {}
+    },
+    {
+        "label": "Field",
         "importPath": "pydantic",
         "description": "pydantic",
         "isExtraImport": true,
@@ -8352,6 +8704,22 @@
         "documentation": {}
     },
     {
+        "label": "AsyncSession",
+        "importPath": "sqlalchemy.ext.asyncio",
+        "description": "sqlalchemy.ext.asyncio",
+        "isExtraImport": true,
+        "detail": "sqlalchemy.ext.asyncio",
+        "documentation": {}
+    },
+    {
+        "label": "AsyncSession",
+        "importPath": "sqlalchemy.ext.asyncio",
+        "description": "sqlalchemy.ext.asyncio",
+        "isExtraImport": true,
+        "detail": "sqlalchemy.ext.asyncio",
+        "documentation": {}
+    },
+    {
         "label": "async_sessionmaker",
         "importPath": "sqlalchemy.ext.asyncio",
         "description": "sqlalchemy.ext.asyncio",
@@ -8361,6 +8729,14 @@
     },
     {
         "label": "create_async_engine",
+        "importPath": "sqlalchemy.ext.asyncio",
+        "description": "sqlalchemy.ext.asyncio",
+        "isExtraImport": true,
+        "detail": "sqlalchemy.ext.asyncio",
+        "documentation": {}
+    },
+    {
+        "label": "AsyncSession",
         "importPath": "sqlalchemy.ext.asyncio",
         "description": "sqlalchemy.ext.asyncio",
         "isExtraImport": true,
@@ -9451,6 +9827,46 @@
         "documentation": {}
     },
     {
+        "label": "datetime",
+        "importPath": "datetime",
+        "description": "datetime",
+        "isExtraImport": true,
+        "detail": "datetime",
+        "documentation": {}
+    },
+    {
+        "label": "UTC",
+        "importPath": "datetime",
+        "description": "datetime",
+        "isExtraImport": true,
+        "detail": "datetime",
+        "documentation": {}
+    },
+    {
+        "label": "datetime",
+        "importPath": "datetime",
+        "description": "datetime",
+        "isExtraImport": true,
+        "detail": "datetime",
+        "documentation": {}
+    },
+    {
+        "label": "timedelta",
+        "importPath": "datetime",
+        "description": "datetime",
+        "isExtraImport": true,
+        "detail": "datetime",
+        "documentation": {}
+    },
+    {
+        "label": "datetime",
+        "importPath": "datetime",
+        "description": "datetime",
+        "isExtraImport": true,
+        "detail": "datetime",
+        "documentation": {}
+    },
+    {
         "label": "UTC",
         "importPath": "datetime",
         "description": "datetime",
@@ -10212,11 +10628,27 @@
         "documentation": {}
     },
     {
+        "label": "op",
+        "importPath": "alembic",
+        "description": "alembic",
+        "isExtraImport": true,
+        "detail": "alembic",
+        "documentation": {}
+    },
+    {
         "label": "context",
         "importPath": "alembic",
         "description": "alembic",
         "isExtraImport": true,
         "detail": "alembic",
+        "documentation": {}
+    },
+    {
+        "label": "postgresql",
+        "importPath": "sqlalchemy.dialects",
+        "description": "sqlalchemy.dialects",
+        "isExtraImport": true,
+        "detail": "sqlalchemy.dialects",
         "documentation": {}
     },
     {
@@ -10421,7 +10853,31 @@
         "documentation": {}
     },
     {
+        "label": "Base",
+        "importPath": "app.db.base",
+        "description": "app.db.base",
+        "isExtraImport": true,
+        "detail": "app.db.base",
+        "documentation": {}
+    },
+    {
         "label": "DeclarativeBase",
+        "importPath": "sqlalchemy.orm",
+        "description": "sqlalchemy.orm",
+        "isExtraImport": true,
+        "detail": "sqlalchemy.orm",
+        "documentation": {}
+    },
+    {
+        "label": "Mapped",
+        "importPath": "sqlalchemy.orm",
+        "description": "sqlalchemy.orm",
+        "isExtraImport": true,
+        "detail": "sqlalchemy.orm",
+        "documentation": {}
+    },
+    {
+        "label": "mapped_column",
         "importPath": "sqlalchemy.orm",
         "description": "sqlalchemy.orm",
         "isExtraImport": true,
@@ -11318,6 +11774,22 @@
         "documentation": {}
     },
     {
+        "label": "BackupRun",
+        "importPath": "app.modules.backup.models",
+        "description": "app.modules.backup.models",
+        "isExtraImport": true,
+        "detail": "app.modules.backup.models",
+        "documentation": {}
+    },
+    {
+        "label": "BackupRun",
+        "importPath": "app.modules.backup.models",
+        "description": "app.modules.backup.models",
+        "isExtraImport": true,
+        "detail": "app.modules.backup.models",
+        "documentation": {}
+    },
+    {
         "label": "Event",
         "importPath": "app.modules.events.models",
         "description": "app.modules.events.models",
@@ -11694,6 +12166,14 @@
         "documentation": {}
     },
     {
+        "label": "require_capability",
+        "importPath": "app.core.authorization",
+        "description": "app.core.authorization",
+        "isExtraImport": true,
+        "detail": "app.core.authorization",
+        "documentation": {}
+    },
+    {
         "label": "CAP_AUDIT_READ",
         "importPath": "app.core.capabilities",
         "description": "app.core.capabilities",
@@ -11735,6 +12215,30 @@
     },
     {
         "label": "CAP_AUDIT_READ",
+        "importPath": "app.core.capabilities",
+        "description": "app.core.capabilities",
+        "isExtraImport": true,
+        "detail": "app.core.capabilities",
+        "documentation": {}
+    },
+    {
+        "label": "CAP_BACKUP_CREATE",
+        "importPath": "app.core.capabilities",
+        "description": "app.core.capabilities",
+        "isExtraImport": true,
+        "detail": "app.core.capabilities",
+        "documentation": {}
+    },
+    {
+        "label": "CAP_BACKUP_READ",
+        "importPath": "app.core.capabilities",
+        "description": "app.core.capabilities",
+        "isExtraImport": true,
+        "detail": "app.core.capabilities",
+        "documentation": {}
+    },
+    {
+        "label": "CAP_BACKUP_RESTORE_REQUEST",
         "importPath": "app.core.capabilities",
         "description": "app.core.capabilities",
         "isExtraImport": true,
@@ -12167,6 +12671,30 @@
     },
     {
         "label": "CAP_AUDIT_READ",
+        "importPath": "app.core.capabilities",
+        "description": "app.core.capabilities",
+        "isExtraImport": true,
+        "detail": "app.core.capabilities",
+        "documentation": {}
+    },
+    {
+        "label": "CAP_BACKUP_CREATE",
+        "importPath": "app.core.capabilities",
+        "description": "app.core.capabilities",
+        "isExtraImport": true,
+        "detail": "app.core.capabilities",
+        "documentation": {}
+    },
+    {
+        "label": "CAP_BACKUP_READ",
+        "importPath": "app.core.capabilities",
+        "description": "app.core.capabilities",
+        "isExtraImport": true,
+        "detail": "app.core.capabilities",
+        "documentation": {}
+    },
+    {
+        "label": "CAP_BACKUP_RESTORE_REQUEST",
         "importPath": "app.core.capabilities",
         "description": "app.core.capabilities",
         "isExtraImport": true,
@@ -12798,6 +13326,22 @@
         "documentation": {}
     },
     {
+        "label": "UUID",
+        "importPath": "sqlalchemy.dialects.postgresql",
+        "description": "sqlalchemy.dialects.postgresql",
+        "isExtraImport": true,
+        "detail": "sqlalchemy.dialects.postgresql",
+        "documentation": {}
+    },
+    {
+        "label": "text",
+        "importPath": "sqlalchemy.sql",
+        "description": "sqlalchemy.sql",
+        "isExtraImport": true,
+        "detail": "sqlalchemy.sql",
+        "documentation": {}
+    },
+    {
         "label": "text",
         "importPath": "sqlalchemy.sql",
         "description": "sqlalchemy.sql",
@@ -13198,6 +13742,14 @@
         "documentation": {}
     },
     {
+        "label": "AuditService",
+        "importPath": "app.modules.audit.service",
+        "description": "app.modules.audit.service",
+        "isExtraImport": true,
+        "detail": "app.modules.audit.service",
+        "documentation": {}
+    },
+    {
         "label": "UserNotificationService",
         "importPath": "app.modules.notifications.user_service",
         "description": "app.modules.notifications.user_service",
@@ -13331,6 +13883,240 @@
         "description": "app.modules.audit.repository",
         "isExtraImport": true,
         "detail": "app.modules.audit.repository",
+        "documentation": {}
+    },
+    {
+        "label": "Fernet",
+        "importPath": "cryptography.fernet",
+        "description": "cryptography.fernet",
+        "isExtraImport": true,
+        "detail": "cryptography.fernet",
+        "documentation": {}
+    },
+    {
+        "label": "InvalidToken",
+        "importPath": "cryptography.fernet",
+        "description": "cryptography.fernet",
+        "isExtraImport": true,
+        "detail": "cryptography.fernet",
+        "documentation": {}
+    },
+    {
+        "label": "Fernet",
+        "importPath": "cryptography.fernet",
+        "description": "cryptography.fernet",
+        "isExtraImport": true,
+        "detail": "cryptography.fernet",
+        "documentation": {}
+    },
+    {
+        "label": "tarfile",
+        "kind": 6,
+        "isExtraImport": true,
+        "importPath": "tarfile",
+        "description": "tarfile",
+        "detail": "tarfile",
+        "documentation": {}
+    },
+    {
+        "label": "boto3",
+        "kind": 6,
+        "isExtraImport": true,
+        "importPath": "boto3",
+        "description": "boto3",
+        "detail": "boto3",
+        "documentation": {}
+    },
+    {
+        "label": "Config",
+        "importPath": "botocore.client",
+        "description": "botocore.client",
+        "isExtraImport": true,
+        "detail": "botocore.client",
+        "documentation": {}
+    },
+    {
+        "label": "Config",
+        "importPath": "botocore.client",
+        "description": "botocore.client",
+        "isExtraImport": true,
+        "detail": "botocore.client",
+        "documentation": {}
+    },
+    {
+        "label": "Config",
+        "importPath": "botocore.client",
+        "description": "botocore.client",
+        "isExtraImport": true,
+        "detail": "botocore.client",
+        "documentation": {}
+    },
+    {
+        "label": "decrypt_payload",
+        "importPath": "app.modules.backup.archive",
+        "description": "app.modules.backup.archive",
+        "isExtraImport": true,
+        "detail": "app.modules.backup.archive",
+        "documentation": {}
+    },
+    {
+        "label": "verify_archive_files",
+        "importPath": "app.modules.backup.archive",
+        "description": "app.modules.backup.archive",
+        "isExtraImport": true,
+        "detail": "app.modules.backup.archive",
+        "documentation": {}
+    },
+    {
+        "label": "encrypt_payload",
+        "importPath": "app.modules.backup.archive",
+        "description": "app.modules.backup.archive",
+        "isExtraImport": true,
+        "detail": "app.modules.backup.archive",
+        "documentation": {}
+    },
+    {
+        "label": "sha256_bytes",
+        "importPath": "app.modules.backup.archive",
+        "description": "app.modules.backup.archive",
+        "isExtraImport": true,
+        "detail": "app.modules.backup.archive",
+        "documentation": {}
+    },
+    {
+        "label": "sign_manifest",
+        "importPath": "app.modules.backup.archive",
+        "description": "app.modules.backup.archive",
+        "isExtraImport": true,
+        "detail": "app.modules.backup.archive",
+        "documentation": {}
+    },
+    {
+        "label": "verify_archive_files",
+        "importPath": "app.modules.backup.archive",
+        "description": "app.modules.backup.archive",
+        "isExtraImport": true,
+        "detail": "app.modules.backup.archive",
+        "documentation": {}
+    },
+    {
+        "label": "encrypt_payload",
+        "importPath": "app.modules.backup.archive",
+        "description": "app.modules.backup.archive",
+        "isExtraImport": true,
+        "detail": "app.modules.backup.archive",
+        "documentation": {}
+    },
+    {
+        "label": "sha256_bytes",
+        "importPath": "app.modules.backup.archive",
+        "description": "app.modules.backup.archive",
+        "isExtraImport": true,
+        "detail": "app.modules.backup.archive",
+        "documentation": {}
+    },
+    {
+        "label": "sign_manifest",
+        "importPath": "app.modules.backup.archive",
+        "description": "app.modules.backup.archive",
+        "isExtraImport": true,
+        "detail": "app.modules.backup.archive",
+        "documentation": {}
+    },
+    {
+        "label": "verify_archive_files",
+        "importPath": "app.modules.backup.archive",
+        "description": "app.modules.backup.archive",
+        "isExtraImport": true,
+        "detail": "app.modules.backup.archive",
+        "documentation": {}
+    },
+    {
+        "label": "BackupService",
+        "importPath": "app.modules.backup.service",
+        "description": "app.modules.backup.service",
+        "isExtraImport": true,
+        "detail": "app.modules.backup.service",
+        "documentation": {}
+    },
+    {
+        "label": "BackupService",
+        "importPath": "app.modules.backup.service",
+        "description": "app.modules.backup.service",
+        "isExtraImport": true,
+        "detail": "app.modules.backup.service",
+        "documentation": {}
+    },
+    {
+        "label": "BackupService",
+        "importPath": "app.modules.backup.service",
+        "description": "app.modules.backup.service",
+        "isExtraImport": true,
+        "detail": "app.modules.backup.service",
+        "documentation": {}
+    },
+    {
+        "label": "BackupService",
+        "importPath": "app.modules.backup.service",
+        "description": "app.modules.backup.service",
+        "isExtraImport": true,
+        "detail": "app.modules.backup.service",
+        "documentation": {}
+    },
+    {
+        "label": "BackupOverviewResponse",
+        "importPath": "app.modules.backup.schemas",
+        "description": "app.modules.backup.schemas",
+        "isExtraImport": true,
+        "detail": "app.modules.backup.schemas",
+        "documentation": {}
+    },
+    {
+        "label": "BackupRequest",
+        "importPath": "app.modules.backup.schemas",
+        "description": "app.modules.backup.schemas",
+        "isExtraImport": true,
+        "detail": "app.modules.backup.schemas",
+        "documentation": {}
+    },
+    {
+        "label": "BackupRunResponse",
+        "importPath": "app.modules.backup.schemas",
+        "description": "app.modules.backup.schemas",
+        "isExtraImport": true,
+        "detail": "app.modules.backup.schemas",
+        "documentation": {}
+    },
+    {
+        "label": "RestoreImportResponse",
+        "importPath": "app.modules.backup.schemas",
+        "description": "app.modules.backup.schemas",
+        "isExtraImport": true,
+        "detail": "app.modules.backup.schemas",
+        "documentation": {}
+    },
+    {
+        "label": "BackupOverviewResponse",
+        "importPath": "app.modules.backup.schemas",
+        "description": "app.modules.backup.schemas",
+        "isExtraImport": true,
+        "detail": "app.modules.backup.schemas",
+        "documentation": {}
+    },
+    {
+        "label": "BackupRunResponse",
+        "importPath": "app.modules.backup.schemas",
+        "description": "app.modules.backup.schemas",
+        "isExtraImport": true,
+        "detail": "app.modules.backup.schemas",
+        "documentation": {}
+    },
+    {
+        "label": "urlparse",
+        "importPath": "urllib.parse",
+        "description": "urllib.parse",
+        "isExtraImport": true,
+        "detail": "urllib.parse",
         "documentation": {}
     },
     {
@@ -13678,6 +14464,38 @@
         "documentation": {}
     },
     {
+        "label": "require_pre_operation_backup",
+        "importPath": "app.modules.backup.preflight",
+        "description": "app.modules.backup.preflight",
+        "isExtraImport": true,
+        "detail": "app.modules.backup.preflight",
+        "documentation": {}
+    },
+    {
+        "label": "require_pre_operation_backup",
+        "importPath": "app.modules.backup.preflight",
+        "description": "app.modules.backup.preflight",
+        "isExtraImport": true,
+        "detail": "app.modules.backup.preflight",
+        "documentation": {}
+    },
+    {
+        "label": "require_pre_operation_backup",
+        "importPath": "app.modules.backup.preflight",
+        "description": "app.modules.backup.preflight",
+        "isExtraImport": true,
+        "detail": "app.modules.backup.preflight",
+        "documentation": {}
+    },
+    {
+        "label": "AnnualBudgetResponse",
+        "importPath": "app.modules.contributions.schemas",
+        "description": "app.modules.contributions.schemas",
+        "isExtraImport": true,
+        "detail": "app.modules.contributions.schemas",
+        "documentation": {}
+    },
+    {
         "label": "ContributionReceiptDeclarationCreate",
         "importPath": "app.modules.contributions.schemas",
         "description": "app.modules.contributions.schemas",
@@ -13791,14 +14609,6 @@
     },
     {
         "label": "ContributionReminderSendRequest",
-        "importPath": "app.modules.contributions.schemas",
-        "description": "app.modules.contributions.schemas",
-        "isExtraImport": true,
-        "detail": "app.modules.contributions.schemas",
-        "documentation": {}
-    },
-    {
-        "label": "AnnualBudgetResponse",
         "importPath": "app.modules.contributions.schemas",
         "description": "app.modules.contributions.schemas",
         "isExtraImport": true,
@@ -15688,23 +16498,6 @@
         "documentation": {}
     },
     {
-        "label": "boto3",
-        "kind": 6,
-        "isExtraImport": true,
-        "importPath": "boto3",
-        "description": "boto3",
-        "detail": "boto3",
-        "documentation": {}
-    },
-    {
-        "label": "Config",
-        "importPath": "botocore.client",
-        "description": "botocore.client",
-        "isExtraImport": true,
-        "detail": "botocore.client",
-        "documentation": {}
-    },
-    {
         "label": "ElementTree",
         "importPath": "xml.etree",
         "description": "xml.etree",
@@ -15726,6 +16519,14 @@
         "description": "zipfile",
         "isExtraImport": true,
         "detail": "zipfile",
+        "documentation": {}
+    },
+    {
+        "label": "celery_app",
+        "importPath": "app.worker.celery_app",
+        "description": "app.worker.celery_app",
+        "isExtraImport": true,
+        "detail": "app.worker.celery_app",
         "documentation": {}
     },
     {
@@ -15862,6 +16663,14 @@
         "description": "app.modules.audit.router",
         "isExtraImport": true,
         "detail": "app.modules.audit.router",
+        "documentation": {}
+    },
+    {
+        "label": "router",
+        "importPath": "app.modules.backup.router",
+        "description": "app.modules.backup.router",
+        "isExtraImport": true,
+        "detail": "app.modules.backup.router",
         "documentation": {}
     },
     {
@@ -16284,6 +17093,30 @@
     },
     {
         "label": "create_tenant_with_user",
+        "importPath": "helpers",
+        "description": "helpers",
+        "isExtraImport": true,
+        "detail": "helpers",
+        "documentation": {}
+    },
+    {
+        "label": "login",
+        "importPath": "helpers",
+        "description": "helpers",
+        "isExtraImport": true,
+        "detail": "helpers",
+        "documentation": {}
+    },
+    {
+        "label": "create_tenant_with_user",
+        "importPath": "helpers",
+        "description": "helpers",
+        "isExtraImport": true,
+        "detail": "helpers",
+        "documentation": {}
+    },
+    {
+        "label": "create_user_for_tenant",
         "importPath": "helpers",
         "description": "helpers",
         "isExtraImport": true,
@@ -23561,7 +24394,7 @@
         "kind": 5,
         "importPath": "services.api.app.core.capabilities",
         "description": "services.api.app.core.capabilities",
-        "peekOfCode": "CAP_MEMBERSHIP_TENANT_READ = \"membership:tenant_read\"\nCAP_MEMBERSHIP_WRITE = \"membership:write\"\nCAP_MEMBERSHIP_DELETE = \"membership:delete\"\nCAP_MEMBERSHIP_INVITE = \"membership:invite\"\nCAP_FINANCE_SELF_READ = \"finance:self_read\"\nCAP_FINANCE_TENANT_READ = \"finance:tenant_read\"\nCAP_FINANCE_WRITE = \"finance:write\"\nCAP_FINANCE_AUDIT = \"finance:audit\"\nCAP_FINANCE_EXPENSES_WRITE = \"finance:expenses_write\"\nCAP_DOCUMENTS_READ = \"documents:read\"",
+        "peekOfCode": "CAP_MEMBERSHIP_TENANT_READ = \"membership:tenant_read\"\nCAP_MEMBERSHIP_WRITE = \"membership:write\"\nCAP_MEMBERSHIP_DELETE = \"membership:delete\"\nCAP_MEMBERSHIP_INVITE = \"membership:invite\"\nCAP_FINANCE_SELF_READ = \"finance:self_read\"\nCAP_FINANCE_TENANT_READ = \"finance:tenant_read\"\nCAP_FINANCE_WRITE = \"finance:write\"\nCAP_FINANCE_AUDIT = \"finance:audit\"\nCAP_FINANCE_EXPENSES_WRITE = \"finance:expenses_write\"\nCAP_BACKUP_CREATE = \"recovery:backup_create\"",
         "detail": "services.api.app.core.capabilities",
         "documentation": {}
     },
@@ -23570,7 +24403,7 @@
         "kind": 5,
         "importPath": "services.api.app.core.capabilities",
         "description": "services.api.app.core.capabilities",
-        "peekOfCode": "CAP_MEMBERSHIP_WRITE = \"membership:write\"\nCAP_MEMBERSHIP_DELETE = \"membership:delete\"\nCAP_MEMBERSHIP_INVITE = \"membership:invite\"\nCAP_FINANCE_SELF_READ = \"finance:self_read\"\nCAP_FINANCE_TENANT_READ = \"finance:tenant_read\"\nCAP_FINANCE_WRITE = \"finance:write\"\nCAP_FINANCE_AUDIT = \"finance:audit\"\nCAP_FINANCE_EXPENSES_WRITE = \"finance:expenses_write\"\nCAP_DOCUMENTS_READ = \"documents:read\"\nCAP_DOCUMENTS_WRITE = \"documents:write\"",
+        "peekOfCode": "CAP_MEMBERSHIP_WRITE = \"membership:write\"\nCAP_MEMBERSHIP_DELETE = \"membership:delete\"\nCAP_MEMBERSHIP_INVITE = \"membership:invite\"\nCAP_FINANCE_SELF_READ = \"finance:self_read\"\nCAP_FINANCE_TENANT_READ = \"finance:tenant_read\"\nCAP_FINANCE_WRITE = \"finance:write\"\nCAP_FINANCE_AUDIT = \"finance:audit\"\nCAP_FINANCE_EXPENSES_WRITE = \"finance:expenses_write\"\nCAP_BACKUP_CREATE = \"recovery:backup_create\"\nCAP_BACKUP_READ = \"recovery:backup_read\"",
         "detail": "services.api.app.core.capabilities",
         "documentation": {}
     },
@@ -23579,7 +24412,7 @@
         "kind": 5,
         "importPath": "services.api.app.core.capabilities",
         "description": "services.api.app.core.capabilities",
-        "peekOfCode": "CAP_MEMBERSHIP_DELETE = \"membership:delete\"\nCAP_MEMBERSHIP_INVITE = \"membership:invite\"\nCAP_FINANCE_SELF_READ = \"finance:self_read\"\nCAP_FINANCE_TENANT_READ = \"finance:tenant_read\"\nCAP_FINANCE_WRITE = \"finance:write\"\nCAP_FINANCE_AUDIT = \"finance:audit\"\nCAP_FINANCE_EXPENSES_WRITE = \"finance:expenses_write\"\nCAP_DOCUMENTS_READ = \"documents:read\"\nCAP_DOCUMENTS_WRITE = \"documents:write\"\nCAP_POLICIES_READ = \"policies:read\"",
+        "peekOfCode": "CAP_MEMBERSHIP_DELETE = \"membership:delete\"\nCAP_MEMBERSHIP_INVITE = \"membership:invite\"\nCAP_FINANCE_SELF_READ = \"finance:self_read\"\nCAP_FINANCE_TENANT_READ = \"finance:tenant_read\"\nCAP_FINANCE_WRITE = \"finance:write\"\nCAP_FINANCE_AUDIT = \"finance:audit\"\nCAP_FINANCE_EXPENSES_WRITE = \"finance:expenses_write\"\nCAP_BACKUP_CREATE = \"recovery:backup_create\"\nCAP_BACKUP_READ = \"recovery:backup_read\"\nCAP_BACKUP_RESTORE_REQUEST = \"recovery:restore_request\"",
         "detail": "services.api.app.core.capabilities",
         "documentation": {}
     },
@@ -23588,7 +24421,7 @@
         "kind": 5,
         "importPath": "services.api.app.core.capabilities",
         "description": "services.api.app.core.capabilities",
-        "peekOfCode": "CAP_MEMBERSHIP_INVITE = \"membership:invite\"\nCAP_FINANCE_SELF_READ = \"finance:self_read\"\nCAP_FINANCE_TENANT_READ = \"finance:tenant_read\"\nCAP_FINANCE_WRITE = \"finance:write\"\nCAP_FINANCE_AUDIT = \"finance:audit\"\nCAP_FINANCE_EXPENSES_WRITE = \"finance:expenses_write\"\nCAP_DOCUMENTS_READ = \"documents:read\"\nCAP_DOCUMENTS_WRITE = \"documents:write\"\nCAP_POLICIES_READ = \"policies:read\"\nCAP_POLICIES_WRITE = \"policies:write\"",
+        "peekOfCode": "CAP_MEMBERSHIP_INVITE = \"membership:invite\"\nCAP_FINANCE_SELF_READ = \"finance:self_read\"\nCAP_FINANCE_TENANT_READ = \"finance:tenant_read\"\nCAP_FINANCE_WRITE = \"finance:write\"\nCAP_FINANCE_AUDIT = \"finance:audit\"\nCAP_FINANCE_EXPENSES_WRITE = \"finance:expenses_write\"\nCAP_BACKUP_CREATE = \"recovery:backup_create\"\nCAP_BACKUP_READ = \"recovery:backup_read\"\nCAP_BACKUP_RESTORE_REQUEST = \"recovery:restore_request\"\nCAP_DOCUMENTS_READ = \"documents:read\"",
         "detail": "services.api.app.core.capabilities",
         "documentation": {}
     },
@@ -23597,7 +24430,7 @@
         "kind": 5,
         "importPath": "services.api.app.core.capabilities",
         "description": "services.api.app.core.capabilities",
-        "peekOfCode": "CAP_FINANCE_SELF_READ = \"finance:self_read\"\nCAP_FINANCE_TENANT_READ = \"finance:tenant_read\"\nCAP_FINANCE_WRITE = \"finance:write\"\nCAP_FINANCE_AUDIT = \"finance:audit\"\nCAP_FINANCE_EXPENSES_WRITE = \"finance:expenses_write\"\nCAP_DOCUMENTS_READ = \"documents:read\"\nCAP_DOCUMENTS_WRITE = \"documents:write\"\nCAP_POLICIES_READ = \"policies:read\"\nCAP_POLICIES_WRITE = \"policies:write\"\nCAP_DISCIPLINARY_SELF_READ = \"disciplinary:self_read\"",
+        "peekOfCode": "CAP_FINANCE_SELF_READ = \"finance:self_read\"\nCAP_FINANCE_TENANT_READ = \"finance:tenant_read\"\nCAP_FINANCE_WRITE = \"finance:write\"\nCAP_FINANCE_AUDIT = \"finance:audit\"\nCAP_FINANCE_EXPENSES_WRITE = \"finance:expenses_write\"\nCAP_BACKUP_CREATE = \"recovery:backup_create\"\nCAP_BACKUP_READ = \"recovery:backup_read\"\nCAP_BACKUP_RESTORE_REQUEST = \"recovery:restore_request\"\nCAP_DOCUMENTS_READ = \"documents:read\"\nCAP_DOCUMENTS_WRITE = \"documents:write\"",
         "detail": "services.api.app.core.capabilities",
         "documentation": {}
     },
@@ -23606,7 +24439,7 @@
         "kind": 5,
         "importPath": "services.api.app.core.capabilities",
         "description": "services.api.app.core.capabilities",
-        "peekOfCode": "CAP_FINANCE_TENANT_READ = \"finance:tenant_read\"\nCAP_FINANCE_WRITE = \"finance:write\"\nCAP_FINANCE_AUDIT = \"finance:audit\"\nCAP_FINANCE_EXPENSES_WRITE = \"finance:expenses_write\"\nCAP_DOCUMENTS_READ = \"documents:read\"\nCAP_DOCUMENTS_WRITE = \"documents:write\"\nCAP_POLICIES_READ = \"policies:read\"\nCAP_POLICIES_WRITE = \"policies:write\"\nCAP_DISCIPLINARY_SELF_READ = \"disciplinary:self_read\"\nCAP_DISCIPLINARY_TENANT_READ = \"disciplinary:tenant_read\"",
+        "peekOfCode": "CAP_FINANCE_TENANT_READ = \"finance:tenant_read\"\nCAP_FINANCE_WRITE = \"finance:write\"\nCAP_FINANCE_AUDIT = \"finance:audit\"\nCAP_FINANCE_EXPENSES_WRITE = \"finance:expenses_write\"\nCAP_BACKUP_CREATE = \"recovery:backup_create\"\nCAP_BACKUP_READ = \"recovery:backup_read\"\nCAP_BACKUP_RESTORE_REQUEST = \"recovery:restore_request\"\nCAP_DOCUMENTS_READ = \"documents:read\"\nCAP_DOCUMENTS_WRITE = \"documents:write\"\nCAP_POLICIES_READ = \"policies:read\"",
         "detail": "services.api.app.core.capabilities",
         "documentation": {}
     },
@@ -23615,7 +24448,7 @@
         "kind": 5,
         "importPath": "services.api.app.core.capabilities",
         "description": "services.api.app.core.capabilities",
-        "peekOfCode": "CAP_FINANCE_WRITE = \"finance:write\"\nCAP_FINANCE_AUDIT = \"finance:audit\"\nCAP_FINANCE_EXPENSES_WRITE = \"finance:expenses_write\"\nCAP_DOCUMENTS_READ = \"documents:read\"\nCAP_DOCUMENTS_WRITE = \"documents:write\"\nCAP_POLICIES_READ = \"policies:read\"\nCAP_POLICIES_WRITE = \"policies:write\"\nCAP_DISCIPLINARY_SELF_READ = \"disciplinary:self_read\"\nCAP_DISCIPLINARY_TENANT_READ = \"disciplinary:tenant_read\"\nCAP_DISCIPLINARY_WRITE = \"disciplinary:write\"",
+        "peekOfCode": "CAP_FINANCE_WRITE = \"finance:write\"\nCAP_FINANCE_AUDIT = \"finance:audit\"\nCAP_FINANCE_EXPENSES_WRITE = \"finance:expenses_write\"\nCAP_BACKUP_CREATE = \"recovery:backup_create\"\nCAP_BACKUP_READ = \"recovery:backup_read\"\nCAP_BACKUP_RESTORE_REQUEST = \"recovery:restore_request\"\nCAP_DOCUMENTS_READ = \"documents:read\"\nCAP_DOCUMENTS_WRITE = \"documents:write\"\nCAP_POLICIES_READ = \"policies:read\"\nCAP_POLICIES_WRITE = \"policies:write\"",
         "detail": "services.api.app.core.capabilities",
         "documentation": {}
     },
@@ -23624,7 +24457,7 @@
         "kind": 5,
         "importPath": "services.api.app.core.capabilities",
         "description": "services.api.app.core.capabilities",
-        "peekOfCode": "CAP_FINANCE_AUDIT = \"finance:audit\"\nCAP_FINANCE_EXPENSES_WRITE = \"finance:expenses_write\"\nCAP_DOCUMENTS_READ = \"documents:read\"\nCAP_DOCUMENTS_WRITE = \"documents:write\"\nCAP_POLICIES_READ = \"policies:read\"\nCAP_POLICIES_WRITE = \"policies:write\"\nCAP_DISCIPLINARY_SELF_READ = \"disciplinary:self_read\"\nCAP_DISCIPLINARY_TENANT_READ = \"disciplinary:tenant_read\"\nCAP_DISCIPLINARY_WRITE = \"disciplinary:write\"\nCAP_EVENTS_READ = \"events:read\"",
+        "peekOfCode": "CAP_FINANCE_AUDIT = \"finance:audit\"\nCAP_FINANCE_EXPENSES_WRITE = \"finance:expenses_write\"\nCAP_BACKUP_CREATE = \"recovery:backup_create\"\nCAP_BACKUP_READ = \"recovery:backup_read\"\nCAP_BACKUP_RESTORE_REQUEST = \"recovery:restore_request\"\nCAP_DOCUMENTS_READ = \"documents:read\"\nCAP_DOCUMENTS_WRITE = \"documents:write\"\nCAP_POLICIES_READ = \"policies:read\"\nCAP_POLICIES_WRITE = \"policies:write\"\nCAP_DISCIPLINARY_SELF_READ = \"disciplinary:self_read\"",
         "detail": "services.api.app.core.capabilities",
         "documentation": {}
     },
@@ -23633,7 +24466,34 @@
         "kind": 5,
         "importPath": "services.api.app.core.capabilities",
         "description": "services.api.app.core.capabilities",
-        "peekOfCode": "CAP_FINANCE_EXPENSES_WRITE = \"finance:expenses_write\"\nCAP_DOCUMENTS_READ = \"documents:read\"\nCAP_DOCUMENTS_WRITE = \"documents:write\"\nCAP_POLICIES_READ = \"policies:read\"\nCAP_POLICIES_WRITE = \"policies:write\"\nCAP_DISCIPLINARY_SELF_READ = \"disciplinary:self_read\"\nCAP_DISCIPLINARY_TENANT_READ = \"disciplinary:tenant_read\"\nCAP_DISCIPLINARY_WRITE = \"disciplinary:write\"\nCAP_EVENTS_READ = \"events:read\"\nCAP_EVENTS_WRITE = \"events:write\"",
+        "peekOfCode": "CAP_FINANCE_EXPENSES_WRITE = \"finance:expenses_write\"\nCAP_BACKUP_CREATE = \"recovery:backup_create\"\nCAP_BACKUP_READ = \"recovery:backup_read\"\nCAP_BACKUP_RESTORE_REQUEST = \"recovery:restore_request\"\nCAP_DOCUMENTS_READ = \"documents:read\"\nCAP_DOCUMENTS_WRITE = \"documents:write\"\nCAP_POLICIES_READ = \"policies:read\"\nCAP_POLICIES_WRITE = \"policies:write\"\nCAP_DISCIPLINARY_SELF_READ = \"disciplinary:self_read\"\nCAP_DISCIPLINARY_TENANT_READ = \"disciplinary:tenant_read\"",
+        "detail": "services.api.app.core.capabilities",
+        "documentation": {}
+    },
+    {
+        "label": "CAP_BACKUP_CREATE",
+        "kind": 5,
+        "importPath": "services.api.app.core.capabilities",
+        "description": "services.api.app.core.capabilities",
+        "peekOfCode": "CAP_BACKUP_CREATE = \"recovery:backup_create\"\nCAP_BACKUP_READ = \"recovery:backup_read\"\nCAP_BACKUP_RESTORE_REQUEST = \"recovery:restore_request\"\nCAP_DOCUMENTS_READ = \"documents:read\"\nCAP_DOCUMENTS_WRITE = \"documents:write\"\nCAP_POLICIES_READ = \"policies:read\"\nCAP_POLICIES_WRITE = \"policies:write\"\nCAP_DISCIPLINARY_SELF_READ = \"disciplinary:self_read\"\nCAP_DISCIPLINARY_TENANT_READ = \"disciplinary:tenant_read\"\nCAP_DISCIPLINARY_WRITE = \"disciplinary:write\"",
+        "detail": "services.api.app.core.capabilities",
+        "documentation": {}
+    },
+    {
+        "label": "CAP_BACKUP_READ",
+        "kind": 5,
+        "importPath": "services.api.app.core.capabilities",
+        "description": "services.api.app.core.capabilities",
+        "peekOfCode": "CAP_BACKUP_READ = \"recovery:backup_read\"\nCAP_BACKUP_RESTORE_REQUEST = \"recovery:restore_request\"\nCAP_DOCUMENTS_READ = \"documents:read\"\nCAP_DOCUMENTS_WRITE = \"documents:write\"\nCAP_POLICIES_READ = \"policies:read\"\nCAP_POLICIES_WRITE = \"policies:write\"\nCAP_DISCIPLINARY_SELF_READ = \"disciplinary:self_read\"\nCAP_DISCIPLINARY_TENANT_READ = \"disciplinary:tenant_read\"\nCAP_DISCIPLINARY_WRITE = \"disciplinary:write\"\nCAP_EVENTS_READ = \"events:read\"",
+        "detail": "services.api.app.core.capabilities",
+        "documentation": {}
+    },
+    {
+        "label": "CAP_BACKUP_RESTORE_REQUEST",
+        "kind": 5,
+        "importPath": "services.api.app.core.capabilities",
+        "description": "services.api.app.core.capabilities",
+        "peekOfCode": "CAP_BACKUP_RESTORE_REQUEST = \"recovery:restore_request\"\nCAP_DOCUMENTS_READ = \"documents:read\"\nCAP_DOCUMENTS_WRITE = \"documents:write\"\nCAP_POLICIES_READ = \"policies:read\"\nCAP_POLICIES_WRITE = \"policies:write\"\nCAP_DISCIPLINARY_SELF_READ = \"disciplinary:self_read\"\nCAP_DISCIPLINARY_TENANT_READ = \"disciplinary:tenant_read\"\nCAP_DISCIPLINARY_WRITE = \"disciplinary:write\"\nCAP_EVENTS_READ = \"events:read\"\nCAP_EVENTS_WRITE = \"events:write\"",
         "detail": "services.api.app.core.capabilities",
         "documentation": {}
     },
@@ -25393,6 +26253,60 @@
         "documentation": {}
     },
     {
+        "label": "upgrade",
+        "kind": 2,
+        "importPath": "services.api.app.db.migrations.versions.0026_encrypted_backup_runs",
+        "description": "services.api.app.db.migrations.versions.0026_encrypted_backup_runs",
+        "peekOfCode": "def upgrade() -> None:\n    op.create_table(\n        \"backup_runs\",\n        sa.Column(\"id\", _uuid_type(), nullable=False),\n        sa.Column(\"tenant_id\", _uuid_type(), nullable=False),\n        sa.Column(\"requested_by\", _uuid_type(), nullable=True),\n        sa.Column(\"trigger\", sa.String(length=32), nullable=False, server_default=\"manual\"),\n        sa.Column(\"status\", sa.String(length=32), nullable=False, server_default=\"queued\"),\n        sa.Column(\"storage_reference\", sa.String(length=512), nullable=True),\n        sa.Column(\"archive_sha256\", sa.String(length=64), nullable=True),",
+        "detail": "services.api.app.db.migrations.versions.0026_encrypted_backup_runs",
+        "documentation": {}
+    },
+    {
+        "label": "downgrade",
+        "kind": 2,
+        "importPath": "services.api.app.db.migrations.versions.0026_encrypted_backup_runs",
+        "description": "services.api.app.db.migrations.versions.0026_encrypted_backup_runs",
+        "peekOfCode": "def downgrade() -> None:\n    op.drop_index(\"ix_backup_runs_status\", table_name=\"backup_runs\")\n    op.drop_index(\"ix_backup_runs_requested_by\", table_name=\"backup_runs\")\n    op.drop_index(\"ix_backup_runs_tenant_id\", table_name=\"backup_runs\")\n    op.drop_table(\"backup_runs\")",
+        "detail": "services.api.app.db.migrations.versions.0026_encrypted_backup_runs",
+        "documentation": {}
+    },
+    {
+        "label": "revision",
+        "kind": 5,
+        "importPath": "services.api.app.db.migrations.versions.0026_encrypted_backup_runs",
+        "description": "services.api.app.db.migrations.versions.0026_encrypted_backup_runs",
+        "peekOfCode": "revision = \"0026\"\ndown_revision = \"0025\"\nbranch_labels = None\ndepends_on = None\ndef _uuid_type():\n    return sa.String(length=36).with_variant(postgresql.UUID(as_uuid=True), \"postgresql\")\ndef upgrade() -> None:\n    op.create_table(\n        \"backup_runs\",\n        sa.Column(\"id\", _uuid_type(), nullable=False),",
+        "detail": "services.api.app.db.migrations.versions.0026_encrypted_backup_runs",
+        "documentation": {}
+    },
+    {
+        "label": "down_revision",
+        "kind": 5,
+        "importPath": "services.api.app.db.migrations.versions.0026_encrypted_backup_runs",
+        "description": "services.api.app.db.migrations.versions.0026_encrypted_backup_runs",
+        "peekOfCode": "down_revision = \"0025\"\nbranch_labels = None\ndepends_on = None\ndef _uuid_type():\n    return sa.String(length=36).with_variant(postgresql.UUID(as_uuid=True), \"postgresql\")\ndef upgrade() -> None:\n    op.create_table(\n        \"backup_runs\",\n        sa.Column(\"id\", _uuid_type(), nullable=False),\n        sa.Column(\"tenant_id\", _uuid_type(), nullable=False),",
+        "detail": "services.api.app.db.migrations.versions.0026_encrypted_backup_runs",
+        "documentation": {}
+    },
+    {
+        "label": "branch_labels",
+        "kind": 5,
+        "importPath": "services.api.app.db.migrations.versions.0026_encrypted_backup_runs",
+        "description": "services.api.app.db.migrations.versions.0026_encrypted_backup_runs",
+        "peekOfCode": "branch_labels = None\ndepends_on = None\ndef _uuid_type():\n    return sa.String(length=36).with_variant(postgresql.UUID(as_uuid=True), \"postgresql\")\ndef upgrade() -> None:\n    op.create_table(\n        \"backup_runs\",\n        sa.Column(\"id\", _uuid_type(), nullable=False),\n        sa.Column(\"tenant_id\", _uuid_type(), nullable=False),\n        sa.Column(\"requested_by\", _uuid_type(), nullable=True),",
+        "detail": "services.api.app.db.migrations.versions.0026_encrypted_backup_runs",
+        "documentation": {}
+    },
+    {
+        "label": "depends_on",
+        "kind": 5,
+        "importPath": "services.api.app.db.migrations.versions.0026_encrypted_backup_runs",
+        "description": "services.api.app.db.migrations.versions.0026_encrypted_backup_runs",
+        "peekOfCode": "depends_on = None\ndef _uuid_type():\n    return sa.String(length=36).with_variant(postgresql.UUID(as_uuid=True), \"postgresql\")\ndef upgrade() -> None:\n    op.create_table(\n        \"backup_runs\",\n        sa.Column(\"id\", _uuid_type(), nullable=False),\n        sa.Column(\"tenant_id\", _uuid_type(), nullable=False),\n        sa.Column(\"requested_by\", _uuid_type(), nullable=True),\n        sa.Column(\"trigger\", sa.String(length=32), nullable=False, server_default=\"manual\"),",
+        "detail": "services.api.app.db.migrations.versions.0026_encrypted_backup_runs",
+        "documentation": {}
+    },
+    {
         "label": "run_migrations_offline",
         "kind": 2,
         "importPath": "services.api.app.db.migrations.env",
@@ -26068,6 +26982,132 @@
         "documentation": {}
     },
     {
+        "label": "sha256_bytes",
+        "kind": 2,
+        "importPath": "services.api.app.modules.backup.archive",
+        "description": "services.api.app.modules.backup.archive",
+        "peekOfCode": "def sha256_bytes(payload: bytes) -> str:\n    return hashlib.sha256(payload).hexdigest()\ndef _canonical_manifest(manifest: dict[str, Any]) -> bytes:\n    unsigned = {key: value for key, value in manifest.items() if key != \"signature\"}\n    return json.dumps(unsigned, sort_keys=True, separators=(\",\", \":\"), ensure_ascii=False).encode(\n        \"utf-8\"\n    )\ndef sign_manifest(manifest: dict[str, Any], signing_key: str) -> dict[str, Any]:\n    signed = dict(manifest)\n    signed[\"signature\"] = hmac.new(",
+        "detail": "services.api.app.modules.backup.archive",
+        "documentation": {}
+    },
+    {
+        "label": "sign_manifest",
+        "kind": 2,
+        "importPath": "services.api.app.modules.backup.archive",
+        "description": "services.api.app.modules.backup.archive",
+        "peekOfCode": "def sign_manifest(manifest: dict[str, Any], signing_key: str) -> dict[str, Any]:\n    signed = dict(manifest)\n    signed[\"signature\"] = hmac.new(\n        signing_key.encode(\"utf-8\"), _canonical_manifest(signed), hashlib.sha256\n    ).hexdigest()\n    return signed\ndef verify_manifest(manifest: dict[str, Any], signing_key: str) -> bool:\n    provided = str(manifest.get(\"signature\", \"\"))\n    expected = hmac.new(\n        signing_key.encode(\"utf-8\"), _canonical_manifest(manifest), hashlib.sha256",
+        "detail": "services.api.app.modules.backup.archive",
+        "documentation": {}
+    },
+    {
+        "label": "verify_manifest",
+        "kind": 2,
+        "importPath": "services.api.app.modules.backup.archive",
+        "description": "services.api.app.modules.backup.archive",
+        "peekOfCode": "def verify_manifest(manifest: dict[str, Any], signing_key: str) -> bool:\n    provided = str(manifest.get(\"signature\", \"\"))\n    expected = hmac.new(\n        signing_key.encode(\"utf-8\"), _canonical_manifest(manifest), hashlib.sha256\n    ).hexdigest()\n    return bool(provided) and hmac.compare_digest(provided, expected)\ndef encrypt_payload(payload: bytes, encryption_key: str) -> bytes:\n    return Fernet(encryption_key.encode(\"utf-8\")).encrypt(payload)\ndef decrypt_payload(payload: bytes, encryption_key: str) -> bytes:\n    try:",
+        "detail": "services.api.app.modules.backup.archive",
+        "documentation": {}
+    },
+    {
+        "label": "encrypt_payload",
+        "kind": 2,
+        "importPath": "services.api.app.modules.backup.archive",
+        "description": "services.api.app.modules.backup.archive",
+        "peekOfCode": "def encrypt_payload(payload: bytes, encryption_key: str) -> bytes:\n    return Fernet(encryption_key.encode(\"utf-8\")).encrypt(payload)\ndef decrypt_payload(payload: bytes, encryption_key: str) -> bytes:\n    try:\n        return Fernet(encryption_key.encode(\"utf-8\")).decrypt(payload)\n    except (ValueError, InvalidToken) as exc:\n        raise ValueError(\n            \"Backup archive cannot be decrypted with the configured recovery key\"\n        ) from exc\ndef verify_archive_files(",
+        "detail": "services.api.app.modules.backup.archive",
+        "documentation": {}
+    },
+    {
+        "label": "decrypt_payload",
+        "kind": 2,
+        "importPath": "services.api.app.modules.backup.archive",
+        "description": "services.api.app.modules.backup.archive",
+        "peekOfCode": "def decrypt_payload(payload: bytes, encryption_key: str) -> bytes:\n    try:\n        return Fernet(encryption_key.encode(\"utf-8\")).decrypt(payload)\n    except (ValueError, InvalidToken) as exc:\n        raise ValueError(\n            \"Backup archive cannot be decrypted with the configured recovery key\"\n        ) from exc\ndef verify_archive_files(\n    archive_path: Path, manifest_path: Path, *, encryption_key: str, signing_key: str\n) -> dict[str, Any]:",
+        "detail": "services.api.app.modules.backup.archive",
+        "documentation": {}
+    },
+    {
+        "label": "verify_archive_files",
+        "kind": 2,
+        "importPath": "services.api.app.modules.backup.archive",
+        "description": "services.api.app.modules.backup.archive",
+        "peekOfCode": "def verify_archive_files(\n    archive_path: Path, manifest_path: Path, *, encryption_key: str, signing_key: str\n) -> dict[str, Any]:\n    manifest = json.loads(manifest_path.read_text(encoding=\"utf-8\"))\n    if not verify_manifest(manifest, signing_key):\n        raise ValueError(\"Backup manifest signature is invalid\")\n    encrypted = archive_path.read_bytes()\n    if sha256_bytes(encrypted) != manifest.get(\"archive_sha256\"):\n        raise ValueError(\"Backup archive SHA-256 checksum is invalid\")\n    # Decryption is also a cryptographic integrity check. Do not retain the",
+        "detail": "services.api.app.modules.backup.archive",
+        "documentation": {}
+    },
+    {
+        "label": "main",
+        "kind": 2,
+        "importPath": "services.api.app.modules.backup.cli",
+        "description": "services.api.app.modules.backup.cli",
+        "peekOfCode": "def main() -> int:\n    parser = argparse.ArgumentParser()\n    commands = parser.add_subparsers(dest=\"command\", required=True)\n    backup = commands.add_parser(\"backup\")\n    backup.add_argument(\"--tenant-slug\")\n    verify = commands.add_parser(\"verify\")\n    verify.add_argument(\"archive\", type=Path)\n    verify.add_argument(\"manifest\", type=Path)\n    extract = commands.add_parser(\"extract\")\n    extract.add_argument(\"archive\", type=Path)",
+        "detail": "services.api.app.modules.backup.cli",
+        "documentation": {}
+    },
+    {
+        "label": "BackupRun",
+        "kind": 6,
+        "importPath": "services.api.app.modules.backup.models",
+        "description": "services.api.app.modules.backup.models",
+        "peekOfCode": "class BackupRun(Base):\n    \"\"\"A request and immutable result record for a protected backup archive.\n    The archive itself is intentionally kept outside the database and is never\n    exposed through a normal browser download route.\n    \"\"\"\n    __tablename__ = \"backup_runs\"\n    id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)\n    tenant_id: Mapped[uuid.UUID] = mapped_column(\n        UUID(as_uuid=True), ForeignKey(\"tenants.id\", ondelete=\"CASCADE\"), nullable=False, index=True\n    )",
+        "detail": "services.api.app.modules.backup.models",
+        "documentation": {}
+    },
+    {
+        "label": "router",
+        "kind": 5,
+        "importPath": "services.api.app.modules.backup.router",
+        "description": "services.api.app.modules.backup.router",
+        "peekOfCode": "router = APIRouter(prefix=\"/recovery\", tags=[\"recovery\"])\n@router.get(\"/backups\", response_model=BackupOverviewResponse)\nasync def backup_overview(current: AuthDep, db: DbDep) -> BackupOverviewResponse:\n    require_capability(current, CAP_BACKUP_READ, detail=\"Recovery backup read capability required\")\n    return await BackupService(db).list_overview(current.tenant_id)\n@router.post(\"/backups\", response_model=BackupRunResponse, status_code=status.HTTP_202_ACCEPTED)\nasync def request_backup(payload: BackupRequest, current: AuthDep, db: DbDep) -> BackupRunResponse:\n    require_capability(\n        current, CAP_BACKUP_CREATE, detail=\"Recovery backup creation capability required\"\n    )",
+        "detail": "services.api.app.modules.backup.router",
+        "documentation": {}
+    },
+    {
+        "label": "BackupRunResponse",
+        "kind": 6,
+        "importPath": "services.api.app.modules.backup.schemas",
+        "description": "services.api.app.modules.backup.schemas",
+        "peekOfCode": "class BackupRunResponse(BaseModel):\n    id: UUID\n    tenant_id: UUID\n    trigger: str\n    status: str\n    storage_reference: str | None\n    archive_sha256: str | None\n    manifest_sha256: str | None\n    archive_size_bytes: int | None\n    components: dict[str, object]",
+        "detail": "services.api.app.modules.backup.schemas",
+        "documentation": {}
+    },
+    {
+        "label": "BackupRequest",
+        "kind": 6,
+        "importPath": "services.api.app.modules.backup.schemas",
+        "description": "services.api.app.modules.backup.schemas",
+        "peekOfCode": "class BackupRequest(BaseModel):\n    reason: str | None = Field(default=None, max_length=300)\nclass BackupOverviewResponse(BaseModel):\n    automatic_enabled: bool\n    retention_days: int\n    external_storage_configured: bool\n    point_in_time_recovery_enabled: bool\n    last_successful_backup_at: datetime | None\n    last_restore_drill_at: datetime | None\n    runs: list[BackupRunResponse]",
+        "detail": "services.api.app.modules.backup.schemas",
+        "documentation": {}
+    },
+    {
+        "label": "BackupOverviewResponse",
+        "kind": 6,
+        "importPath": "services.api.app.modules.backup.schemas",
+        "description": "services.api.app.modules.backup.schemas",
+        "peekOfCode": "class BackupOverviewResponse(BaseModel):\n    automatic_enabled: bool\n    retention_days: int\n    external_storage_configured: bool\n    point_in_time_recovery_enabled: bool\n    last_successful_backup_at: datetime | None\n    last_restore_drill_at: datetime | None\n    runs: list[BackupRunResponse]\nclass RestoreImportResponse(BaseModel):\n    run: BackupRunResponse",
+        "detail": "services.api.app.modules.backup.schemas",
+        "documentation": {}
+    },
+    {
+        "label": "RestoreImportResponse",
+        "kind": 6,
+        "importPath": "services.api.app.modules.backup.schemas",
+        "description": "services.api.app.modules.backup.schemas",
+        "peekOfCode": "class RestoreImportResponse(BaseModel):\n    run: BackupRunResponse\n    verified: bool\n    guidance: str",
+        "detail": "services.api.app.modules.backup.schemas",
+        "documentation": {}
+    },
+    {
+        "label": "BackupService",
+        "kind": 6,
+        "importPath": "services.api.app.modules.backup.service",
+        "description": "services.api.app.modules.backup.service",
+        "peekOfCode": "class BackupService:\n    \"\"\"Coordinates encrypted platform backups without exposing archives to HTTP clients.\"\"\"\n    def __init__(self, db: AsyncSession) -> None:\n        self._db = db\n        self._audit = AuditService(db)\n    async def request_backup(\n        self,\n        *,\n        tenant_id: UUID,\n        actor_user_id: UUID | None,",
+        "detail": "services.api.app.modules.backup.service",
+        "documentation": {}
+    },
+    {
         "label": "ChatDomainPolicy",
         "kind": 6,
         "importPath": "services.api.app.modules.chat.domain_policy",
@@ -26666,7 +27706,7 @@
         "kind": 5,
         "importPath": "services.api.app.modules.contributions.router",
         "description": "services.api.app.modules.contributions.router",
-        "peekOfCode": "router = APIRouter(\n    prefix=\"/contributions\",\n    tags=[\"contributions\"],\n    dependencies=[require_module(\"contributions\")],\n)\n@router.post(\"/receipt-declarations\", response_model=ContributionReceiptDeclarationResponse, status_code=201)\nasync def create_receipt_declaration(\n    data: ContributionReceiptDeclarationCreate, current: AuthDep, db: DbDep\n) -> ContributionReceiptDeclarationResponse:\n    require_capability(current, CAP_CONTRIBUTION_RECEIPT_DECLARE, detail=\"Receipt declaration capability required\")",
+        "peekOfCode": "router = APIRouter(\n    prefix=\"/contributions\",\n    tags=[\"contributions\"],\n    dependencies=[require_module(\"contributions\")],\n)\n@router.post(\n    \"/receipt-declarations\", response_model=ContributionReceiptDeclarationResponse, status_code=201\n)\nasync def create_receipt_declaration(\n    data: ContributionReceiptDeclarationCreate, current: AuthDep, db: DbDep",
         "detail": "services.api.app.modules.contributions.router",
         "documentation": {}
     },
@@ -28993,6 +30033,24 @@
         "documentation": {}
     },
     {
+        "label": "run_backup",
+        "kind": 2,
+        "importPath": "services.api.app.worker.tasks.backups",
+        "description": "services.api.app.worker.tasks.backups",
+        "peekOfCode": "def run_backup(run_id: str) -> None:\n    asyncio.run(_run(UUID(run_id)))\nasync def _run(run_id: UUID) -> None:\n    async with async_session_factory() as session:\n        await BackupService(session).execute_run(run_id)\n@celery_app.task(name=\"recovery.run_daily_backup\")\ndef run_daily_backup() -> int:\n    return asyncio.run(_daily())\nasync def _daily() -> int:\n    from app.core.config import settings",
+        "detail": "services.api.app.worker.tasks.backups",
+        "documentation": {}
+    },
+    {
+        "label": "run_daily_backup",
+        "kind": 2,
+        "importPath": "services.api.app.worker.tasks.backups",
+        "description": "services.api.app.worker.tasks.backups",
+        "peekOfCode": "def run_daily_backup() -> int:\n    return asyncio.run(_daily())\nasync def _daily() -> int:\n    from app.core.config import settings\n    if not settings.backup_enabled or not settings.backup_auto_enabled:\n        return 0\n    async with async_session_factory() as session:\n        # A deployment backup is platform-wide and encrypted. The requesting\n        # tenant only sees its own recovery ledger row; raw archives are never\n        # made visible through the API.",
+        "detail": "services.api.app.worker.tasks.backups",
+        "documentation": {}
+    },
+    {
         "label": "cleanup_old_conversations",
         "kind": 2,
         "importPath": "services.api.app.worker.tasks.chat_cleanup",
@@ -29060,7 +30118,7 @@
         "kind": 5,
         "importPath": "services.api.app.worker.celery_app",
         "description": "services.api.app.worker.celery_app",
-        "peekOfCode": "celery_app = Celery(\n    \"kairo_worker\",\n    broker=settings.redis_url,\n    backend=settings.redis_url,\n    include=[\n        \"app.worker.tasks.ingestion\",\n        \"app.worker.tasks.chat_cleanup\",\n        \"app.worker.tasks.receipt_handover_reminders\",\n        \"app.worker.tasks.user_notifications\",\n    ],",
+        "peekOfCode": "celery_app = Celery(\n    \"kairo_worker\",\n    broker=settings.redis_url,\n    backend=settings.redis_url,\n    include=[\n        \"app.worker.tasks.ingestion\",\n        \"app.worker.tasks.chat_cleanup\",\n        \"app.worker.tasks.receipt_handover_reminders\",\n        \"app.worker.tasks.user_notifications\",\n        \"app.worker.tasks.backups\",",
         "detail": "services.api.app.worker.celery_app",
         "documentation": {}
     },
@@ -29078,7 +30136,7 @@
         "kind": 5,
         "importPath": "services.api.app.worker.celery_app",
         "description": "services.api.app.worker.celery_app",
-        "peekOfCode": "celery_app.conf.beat_schedule[\"send-due-receipt-handover-reminders\"] = {\n    \"task\": \"contributions.send_due_receipt_handover_reminders\",\n    \"schedule\": 60.0,\n}\ncelery_app.conf.beat_schedule[\"process-user-notification-outbox\"] = {\n    \"task\": \"notifications.process_user_outbox\",\n    \"schedule\": 15.0,\n}\ncelery_app.conf.update(\n    task_serializer=\"json\",",
+        "peekOfCode": "celery_app.conf.beat_schedule[\"send-due-receipt-handover-reminders\"] = {\n    \"task\": \"contributions.send_due_receipt_handover_reminders\",\n    \"schedule\": 60.0,\n}\ncelery_app.conf.beat_schedule[\"process-user-notification-outbox\"] = {\n    \"task\": \"notifications.process_user_outbox\",\n    \"schedule\": 15.0,\n}\ncelery_app.conf.beat_schedule[\"run-daily-encrypted-recovery-backup\"] = {\n    \"task\": \"recovery.run_daily_backup\",",
         "detail": "services.api.app.worker.celery_app",
         "documentation": {}
     },
@@ -29087,7 +30145,16 @@
         "kind": 5,
         "importPath": "services.api.app.worker.celery_app",
         "description": "services.api.app.worker.celery_app",
-        "peekOfCode": "celery_app.conf.beat_schedule[\"process-user-notification-outbox\"] = {\n    \"task\": \"notifications.process_user_outbox\",\n    \"schedule\": 15.0,\n}\ncelery_app.conf.update(\n    task_serializer=\"json\",\n    result_serializer=\"json\",\n    accept_content=[\"json\"],\n    timezone=\"UTC\",\n    enable_utc=True,",
+        "peekOfCode": "celery_app.conf.beat_schedule[\"process-user-notification-outbox\"] = {\n    \"task\": \"notifications.process_user_outbox\",\n    \"schedule\": 15.0,\n}\ncelery_app.conf.beat_schedule[\"run-daily-encrypted-recovery-backup\"] = {\n    \"task\": \"recovery.run_daily_backup\",\n    \"schedule\": 86400.0,\n}\ncelery_app.conf.update(\n    task_serializer=\"json\",",
+        "detail": "services.api.app.worker.celery_app",
+        "documentation": {}
+    },
+    {
+        "label": "celery_app.conf.beat_schedule[\"run-daily-encrypted-recovery-backup\"]",
+        "kind": 5,
+        "importPath": "services.api.app.worker.celery_app",
+        "description": "services.api.app.worker.celery_app",
+        "peekOfCode": "celery_app.conf.beat_schedule[\"run-daily-encrypted-recovery-backup\"] = {\n    \"task\": \"recovery.run_daily_backup\",\n    \"schedule\": 86400.0,\n}\ncelery_app.conf.update(\n    task_serializer=\"json\",\n    result_serializer=\"json\",\n    accept_content=[\"json\"],\n    timezone=\"UTC\",\n    enable_utc=True,",
         "detail": "services.api.app.worker.celery_app",
         "documentation": {}
     },
@@ -29114,7 +30181,7 @@
         "kind": 5,
         "importPath": "services.api.app.main",
         "description": "services.api.app.main",
-        "peekOfCode": "API_PREFIX = \"/api/v1\"\napp.include_router(identity_router, prefix=API_PREFIX)\napp.include_router(tenancy_router, prefix=API_PREFIX)\napp.include_router(admin_router, prefix=API_PREFIX)\napp.include_router(audit_router, prefix=API_PREFIX)\napp.include_router(documents_router, prefix=API_PREFIX)\napp.include_router(chat_router, prefix=API_PREFIX)\napp.include_router(membership_router, prefix=API_PREFIX)\napp.include_router(contributions_router, prefix=API_PREFIX)\napp.include_router(policies_router, prefix=API_PREFIX)",
+        "peekOfCode": "API_PREFIX = \"/api/v1\"\napp.include_router(identity_router, prefix=API_PREFIX)\napp.include_router(tenancy_router, prefix=API_PREFIX)\napp.include_router(admin_router, prefix=API_PREFIX)\napp.include_router(audit_router, prefix=API_PREFIX)\napp.include_router(backup_router, prefix=API_PREFIX)\napp.include_router(documents_router, prefix=API_PREFIX)\napp.include_router(chat_router, prefix=API_PREFIX)\napp.include_router(membership_router, prefix=API_PREFIX)\napp.include_router(contributions_router, prefix=API_PREFIX)",
         "detail": "services.api.app.main",
         "documentation": {}
     },
@@ -29845,6 +30912,15 @@
         "description": "services.api.tests.test_rag_ranking",
         "peekOfCode": "def test_compute_keyword_overlap_ratio_returns_zero_without_terms() -> None:\n    score = compute_keyword_overlap_ratio(\n        query=\"the and for\",\n        content=\"General policy text without useful overlap.\",\n    )\n    assert score == 0.0",
         "detail": "services.api.tests.test_rag_ranking",
+        "documentation": {}
+    },
+    {
+        "label": "test_encrypted_archive_signature_and_checksum_reject_corruption",
+        "kind": 2,
+        "importPath": "services.api.tests.test_recovery_backups",
+        "description": "services.api.tests.test_recovery_backups",
+        "peekOfCode": "def test_encrypted_archive_signature_and_checksum_reject_corruption(tmp_path: Path) -> None:\n    encryption_key = Fernet.generate_key().decode(\"utf-8\")\n    signing_key = \"test-signing-key\"\n    archive = tmp_path / \"recovery.enc\"\n    manifest = tmp_path / \"recovery.enc.manifest.json\"\n    encrypted = encrypt_payload(b\"private structured data\", encryption_key)\n    archive.write_bytes(encrypted)\n    signed = sign_manifest(\n        {\n            \"format\": \"kairo-recovery-v1\",",
+        "detail": "services.api.tests.test_recovery_backups",
         "documentation": {}
     },
     {

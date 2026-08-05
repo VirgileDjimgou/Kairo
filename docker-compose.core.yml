@@ -3,11 +3,23 @@
 services:
   postgres:
     image: postgres:16-alpine
+    command:
+      - postgres
+      - -c
+      - wal_level=replica
+      - -c
+      - archive_mode=on
+      - -c
+      - archive_timeout=60
+      - -c
+      - archive_command=test ! -f /var/lib/postgresql/wal-archive/%f && cp %p /var/lib/postgresql/wal-archive/%f
     environment:
       POSTGRES_DB: ${POSTGRES_DB}
       POSTGRES_USER: ${POSTGRES_USER}
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
-    volumes: [postgres_data:/var/lib/postgresql/data]
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - postgres_wal_archive:/var/lib/postgresql/wal-archive
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB}"]
       interval: 10s
@@ -37,6 +49,8 @@ services:
       target: production
     env_file: ["${CORE_ENV_FILE:-.env.core}"]
     expose: ["8000"]
+    volumes:
+      - ./backups:/var/backups
     depends_on:
       postgres: { condition: service_healthy }
       redis: { condition: service_healthy }
@@ -49,6 +63,8 @@ services:
       target: production
     command: celery -A app.worker.celery_app worker --loglevel=info --concurrency=2
     env_file: ["${CORE_ENV_FILE:-.env.core}"]
+    volumes:
+      - ./backups:/var/backups
     depends_on:
       postgres: { condition: service_healthy }
       redis: { condition: service_healthy }
@@ -86,5 +102,6 @@ services:
 
 volumes:
   postgres_data:
+  postgres_wal_archive:
   redis_data:
   minio_data:

@@ -15,6 +15,9 @@ CAP_FINANCE_TENANT_READ = "finance:tenant_read"
 CAP_FINANCE_WRITE = "finance:write"
 CAP_FINANCE_AUDIT = "finance:audit"
 CAP_FINANCE_EXPENSES_WRITE = "finance:expenses_write"
+CAP_BACKUP_CREATE = "recovery:backup_create"
+CAP_BACKUP_READ = "recovery:backup_read"
+CAP_BACKUP_RESTORE_REQUEST = "recovery:restore_request"
 CAP_DOCUMENTS_READ = "documents:read"
 CAP_DOCUMENTS_WRITE = "documents:write"
 CAP_POLICIES_READ = "policies:read"
@@ -51,6 +54,9 @@ CAPABILITY_ORDER = (
     CAP_FINANCE_WRITE,
     CAP_FINANCE_AUDIT,
     CAP_FINANCE_EXPENSES_WRITE,
+    CAP_BACKUP_CREATE,
+    CAP_BACKUP_READ,
+    CAP_BACKUP_RESTORE_REQUEST,
     CAP_DOCUMENTS_READ,
     CAP_DOCUMENTS_WRITE,
     CAP_POLICIES_READ,

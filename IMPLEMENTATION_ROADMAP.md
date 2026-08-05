@@ -4059,3 +4059,13 @@ Completed deliverables:
 - Receipt declaration income types: office roles can declare member contributions, third-party donations, patronage/sponsorship, tournament proceeds, and other income. Non-member income requires its named source and is validated independently by the treasurer, without being applied to a member contribution record.
 - Treasury custody workflow: after accounting validation, every declared receipt remains internally flagged until the declaring office holder reports the physical handover and the treasurer confirms its receipt. Validation has a one-to-seven-day reminder setting (two days by default); rejections require a written reason, while each transition is audited.
 - Treasury custody controls: while a receipt is open, the treasurer can change the one-to-seven-day handover deadline at any time or close the operation unilaterally when funds have actually reached the cashbox or bank account. The method, optional note, prior state, and notification-delivery outcome are auditable; the finance card is mobile-first and exposes both actions clearly. A one-time email reminder is dispatched automatically at the configured deadline and is likewise recorded in the audit trail.
+
+### Post-Sprint 99 - Encrypted recovery and continuity
+
+Status: Completed (off-site destination awaiting operator credentials)
+
+- encrypted Fernet archives with signed manifests and SHA-256 verification for the authoritative PostgreSQL and MinIO payloads;
+- tenant-audited backup-run ledger, a role-protected recovery centre, daily Celery scheduling, configured retention, and PostgreSQL WAL archiving;
+- server-enforced pre-operation snapshots for critical CSV imports and record deletions, plus a pre-migration Windows/Docker core deployment command;
+- host-only staging and restore controls, an isolated recovery drill that validates member, contribution, disciplinary, and expense records, and a documented corruption scenario;
+- S3-compatible off-site copy support is configurable without product-held cloud credentials. The recovery runbook is `docs/operations/encrypted-recovery-runbook.md`.

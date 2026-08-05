@@ -14,6 +14,7 @@ from app.core.capabilities import (
 from app.core.dependencies import AuthDep, DbDep
 from app.core.import_export import ImportResult
 from app.core.module_guard import require_module
+from app.modules.backup.preflight import require_pre_operation_backup
 from app.modules.contributions.schemas import ContributionRecordResponse
 from app.modules.membership.schemas import (
     MemberBalanceResponse,
@@ -46,9 +47,7 @@ async def get_my_balance(current: AuthDep, db: DbDep) -> MemberBalanceResponse:
 
 
 @router.get("/me/contributions", response_model=list[ContributionRecordResponse])
-async def get_my_contributions(
-    current: AuthDep, db: DbDep
-) -> list[ContributionRecordResponse]:
+async def get_my_contributions(current: AuthDep, db: DbDep) -> list[ContributionRecordResponse]:
     """Return the current user's personal contribution history."""
     service = MembershipService(db)
     return await service.get_my_contributions(current.tenant_id, current.user.id)
@@ -69,9 +68,7 @@ async def download_my_statement_pdf(current: AuthDep, db: DbDep) -> StreamingRes
     return StreamingResponse(
         iter([pdf_bytes]),
         media_type="application/pdf",
-        headers={
-            "Content-Disposition": 'attachment; filename="my-contribution-statement.pdf"'
-        },
+        headers={"Content-Disposition": 'attachment; filename="my-contribution-statement.pdf"'},
     )
 
 
@@ -89,6 +86,13 @@ async def import_members(
         detail="Membership write capability required",
     )
     content = await file.read()
+    if not dry_run:
+        await require_pre_operation_backup(
+            db,
+            tenant_id=current.tenant_id,
+            actor_user_id=current.user.id,
+            reason="membership_csv_import",
+        )
     service = MembershipService(db)
     return await service.import_csv(
         current.tenant_id, content, dry_run=dry_run, actor_user_id=current.user.id
@@ -103,6 +107,12 @@ async def export_members(current: AuthDep, db: DbDep) -> StreamingResponse:
         CAP_TENANT_ADMINISTRATION,
         detail="Tenant administration capability required",
     )
+    await require_pre_operation_backup(
+        db,
+        tenant_id=current.tenant_id,
+        actor_user_id=current.user.id,
+        reason="membership_profile_deletion",
+    )
     service = MembershipService(db)
     csv_content = await service.export_csv(current.tenant_id)
     return StreamingResponse(
@@ -113,9 +123,7 @@ async def export_members(current: AuthDep, db: DbDep) -> StreamingResponse:
 
 
 @router.get("/{profile_id}", response_model=MembershipProfileResponse)
-async def get_profile(
-    profile_id: UUID, current: AuthDep, db: DbDep
-) -> MembershipProfileResponse:
+async def get_profile(profile_id: UUID, current: AuthDep, db: DbDep) -> MembershipProfileResponse:
     """Return a specific member profile (admin/treasurer only)."""
     require_capability(
         current,
@@ -156,7 +164,10 @@ async def get_member_statement(
 
 @router.get("/", response_model=list[MembershipProfileResponse])
 async def list_profiles(
-    current: AuthDep, db: DbDep, status: str | None = None, q: str | None = Query(None, min_length=1, max_length=100)
+    current: AuthDep,
+    db: DbDep,
+    status: str | None = None,
+    q: str | None = Query(None, min_length=1, max_length=100),
 ) -> list[MembershipProfileResponse]:
     """List all member profiles for the current tenant (admin/treasurer only)."""
     require_capability(
@@ -199,9 +210,7 @@ async def update_profile(
 
 
 @router.delete("/{profile_id}", status_code=204)
-async def delete_profile(
-    profile_id: UUID, current: AuthDep, db: DbDep
-) -> None:
+async def delete_profile(profile_id: UUID, current: AuthDep, db: DbDep) -> None:
     """Delete a member profile (president or secretary general only)."""
     require_capability(
         current,
@@ -209,6 +218,4 @@ async def delete_profile(
         detail="Membership deletion capability required",
     )
     service = MembershipService(db)
-    await service.delete_profile(
-        current.tenant_id, profile_id, actor_user_id=current.user.id
-    )
+    await service.delete_profile(current.tenant_id, profile_id, actor_user_id=current.user.id)

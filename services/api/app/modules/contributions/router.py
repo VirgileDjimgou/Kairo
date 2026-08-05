@@ -22,7 +22,9 @@ from app.core.dependencies import AuthDep, DbDep, NotificationsDep
 from app.core.import_export import ImportResult
 from app.core.module_guard import require_module
 from app.modules.audit.service import AuditService
+from app.modules.backup.preflight import require_pre_operation_backup
 from app.modules.contributions.schemas import (
+    AnnualBudgetResponse,
     ContributionReceiptDeclarationCreate,
     ContributionReceiptDeclarationProcess,
     ContributionReceiptDeclarationResponse,
@@ -38,7 +40,6 @@ from app.modules.contributions.schemas import (
     ContributionReminderBatchResponse,
     ContributionReminderResponse,
     ContributionReminderSendRequest,
-    AnnualBudgetResponse,
     ExpenseRecordCreate,
     ExpenseRecordResponse,
     PaymentRecordCreate,
@@ -54,28 +55,52 @@ router = APIRouter(
 )
 
 
-@router.post("/receipt-declarations", response_model=ContributionReceiptDeclarationResponse, status_code=201)
+@router.post(
+    "/receipt-declarations", response_model=ContributionReceiptDeclarationResponse, status_code=201
+)
 async def create_receipt_declaration(
     data: ContributionReceiptDeclarationCreate, current: AuthDep, db: DbDep
 ) -> ContributionReceiptDeclarationResponse:
-    require_capability(current, CAP_CONTRIBUTION_RECEIPT_DECLARE, detail="Receipt declaration capability required")
-    declarant_role = next((role for role in current.roles if role != "member"), current.roles[0] if current.roles else "unknown")
+    require_capability(
+        current, CAP_CONTRIBUTION_RECEIPT_DECLARE, detail="Receipt declaration capability required"
+    )
+    declarant_role = next(
+        (role for role in current.roles if role != "member"),
+        current.roles[0] if current.roles else "unknown",
+    )
     return await ContributionService(db).create_receipt_declaration(
-        current.tenant_id, data, declarant_user_id=current.user.id, declarant_role_code=declarant_role
+        current.tenant_id,
+        data,
+        declarant_user_id=current.user.id,
+        declarant_role_code=declarant_role,
     )
 
 
-@router.get("/receipt-declarations/mine", response_model=list[ContributionReceiptDeclarationResponse])
-async def list_my_receipt_declarations(current: AuthDep, db: DbDep) -> list[ContributionReceiptDeclarationResponse]:
-    require_capability(current, CAP_CONTRIBUTION_RECEIPT_OWN_READ, detail="Own receipt declaration capability required")
+@router.get(
+    "/receipt-declarations/mine", response_model=list[ContributionReceiptDeclarationResponse]
+)
+async def list_my_receipt_declarations(
+    current: AuthDep, db: DbDep
+) -> list[ContributionReceiptDeclarationResponse]:
+    require_capability(
+        current,
+        CAP_CONTRIBUTION_RECEIPT_OWN_READ,
+        detail="Own receipt declaration capability required",
+    )
     return await ContributionService(db).list_receipt_declarations(
         current.tenant_id, declarant_user_id=current.user.id
     )
 
 
 @router.get("/receipt-declarations/me", response_model=list[ContributionReceiptDeclarationResponse])
-async def list_member_receipt_declarations(current: AuthDep, db: DbDep) -> list[ContributionReceiptDeclarationResponse]:
-    require_capability(current, CAP_CONTRIBUTION_RECEIPT_MEMBER_SELF_READ, detail="Personal receipt declaration capability required")
+async def list_member_receipt_declarations(
+    current: AuthDep, db: DbDep
+) -> list[ContributionReceiptDeclarationResponse]:
+    require_capability(
+        current,
+        CAP_CONTRIBUTION_RECEIPT_MEMBER_SELF_READ,
+        detail="Personal receipt declaration capability required",
+    )
     profile = await MembershipRepository(db).get_by_user_id(current.tenant_id, current.user.id)
     if profile is None:
         return []
@@ -85,15 +110,27 @@ async def list_member_receipt_declarations(current: AuthDep, db: DbDep) -> list[
 
 
 @router.get("/receipt-declarations", response_model=list[ContributionReceiptDeclarationResponse])
-async def list_receipt_declarations(current: AuthDep, db: DbDep) -> list[ContributionReceiptDeclarationResponse]:
-    require_capability(current, CAP_CONTRIBUTION_RECEIPT_TENANT_READ, detail="Receipt declaration review capability required")
+async def list_receipt_declarations(
+    current: AuthDep, db: DbDep
+) -> list[ContributionReceiptDeclarationResponse]:
+    require_capability(
+        current,
+        CAP_CONTRIBUTION_RECEIPT_TENANT_READ,
+        detail="Receipt declaration review capability required",
+    )
     return await ContributionService(db).list_receipt_declarations(current.tenant_id)
 
 
-@router.get("/receipt-declarations/member-options", response_model=list[ContributionReceiptMemberOption])
-async def list_receipt_declaration_member_options(current: AuthDep, db: DbDep) -> list[ContributionReceiptMemberOption]:
+@router.get(
+    "/receipt-declarations/member-options", response_model=list[ContributionReceiptMemberOption]
+)
+async def list_receipt_declaration_member_options(
+    current: AuthDep, db: DbDep
+) -> list[ContributionReceiptMemberOption]:
     """Return read-only member identity details for authorized receipt declarants."""
-    require_capability(current, CAP_CONTRIBUTION_RECEIPT_DECLARE, detail="Receipt declaration capability required")
+    require_capability(
+        current, CAP_CONTRIBUTION_RECEIPT_DECLARE, detail="Receipt declaration capability required"
+    )
     profiles = await MembershipRepository(db).list_by_tenant(current.tenant_id)
     return [
         ContributionReceiptMemberOption(
@@ -112,45 +149,71 @@ async def list_receipt_declaration_member_options(current: AuthDep, db: DbDep) -
     ]
 
 
-@router.patch("/receipt-declarations/{declaration_id}", response_model=ContributionReceiptDeclarationResponse)
+@router.patch(
+    "/receipt-declarations/{declaration_id}", response_model=ContributionReceiptDeclarationResponse
+)
 async def update_receipt_declaration(
     declaration_id: UUID, data: ContributionReceiptDeclarationUpdate, current: AuthDep, db: DbDep
 ) -> ContributionReceiptDeclarationResponse:
-    require_capability(current, CAP_CONTRIBUTION_RECEIPT_DECLARE, detail="Receipt declaration capability required")
+    require_capability(
+        current, CAP_CONTRIBUTION_RECEIPT_DECLARE, detail="Receipt declaration capability required"
+    )
     return await ContributionService(db).update_receipt_declaration(
         current.tenant_id, declaration_id, data, declarant_user_id=current.user.id
     )
 
 
-@router.post("/receipt-declarations/{declaration_id}/submit", response_model=ContributionReceiptDeclarationResponse)
-async def submit_receipt_declaration(declaration_id: UUID, current: AuthDep, db: DbDep) -> ContributionReceiptDeclarationResponse:
-    require_capability(current, CAP_CONTRIBUTION_RECEIPT_DECLARE, detail="Receipt declaration capability required")
+@router.post(
+    "/receipt-declarations/{declaration_id}/submit",
+    response_model=ContributionReceiptDeclarationResponse,
+)
+async def submit_receipt_declaration(
+    declaration_id: UUID, current: AuthDep, db: DbDep
+) -> ContributionReceiptDeclarationResponse:
+    require_capability(
+        current, CAP_CONTRIBUTION_RECEIPT_DECLARE, detail="Receipt declaration capability required"
+    )
     return await ContributionService(db).submit_receipt_declaration(
         current.tenant_id, declaration_id, declarant_user_id=current.user.id
     )
 
 
-@router.post("/receipt-declarations/{declaration_id}/process", response_model=ContributionReceiptDeclarationResponse)
+@router.post(
+    "/receipt-declarations/{declaration_id}/process",
+    response_model=ContributionReceiptDeclarationResponse,
+)
 async def process_receipt_declaration(
     declaration_id: UUID, data: ContributionReceiptDeclarationProcess, current: AuthDep, db: DbDep
 ) -> ContributionReceiptDeclarationResponse:
-    require_capability(current, CAP_CONTRIBUTION_RECEIPT_PROCESS, detail="Receipt declaration processing capability required")
+    require_capability(
+        current,
+        CAP_CONTRIBUTION_RECEIPT_PROCESS,
+        detail="Receipt declaration processing capability required",
+    )
     return await ContributionService(db).process_receipt_declaration(
         current.tenant_id, declaration_id, data, processor_user_id=current.user.id
     )
 
 
-@router.post("/receipt-declarations/{declaration_id}/handover", response_model=ContributionReceiptDeclarationResponse)
+@router.post(
+    "/receipt-declarations/{declaration_id}/handover",
+    response_model=ContributionReceiptDeclarationResponse,
+)
 async def report_receipt_handover(
     declaration_id: UUID, data: ContributionReceiptHandoverReport, current: AuthDep, db: DbDep
 ) -> ContributionReceiptDeclarationResponse:
-    require_capability(current, CAP_CONTRIBUTION_RECEIPT_DECLARE, detail="Receipt declaration capability required")
+    require_capability(
+        current, CAP_CONTRIBUTION_RECEIPT_DECLARE, detail="Receipt declaration capability required"
+    )
     return await ContributionService(db).report_receipt_handover(
         current.tenant_id, declaration_id, data, declarant_user_id=current.user.id
     )
 
 
-@router.post("/receipt-declarations/{declaration_id}/confirm-treasury-receipt", response_model=ContributionReceiptDeclarationResponse)
+@router.post(
+    "/receipt-declarations/{declaration_id}/confirm-treasury-receipt",
+    response_model=ContributionReceiptDeclarationResponse,
+)
 async def confirm_receipt_in_treasury(
     declaration_id: UUID,
     data: ContributionReceiptTreasuryConfirmation,
@@ -158,13 +221,24 @@ async def confirm_receipt_in_treasury(
     db: DbDep,
     notifications: NotificationsDep,
 ) -> ContributionReceiptDeclarationResponse:
-    require_capability(current, CAP_CONTRIBUTION_RECEIPT_PROCESS, detail="Receipt declaration processing capability required")
-    return await ContributionService(db).with_notification_providers(notifications).confirm_receipt_in_treasury(
-        current.tenant_id, declaration_id, data, treasurer_user_id=current.user.id
+    require_capability(
+        current,
+        CAP_CONTRIBUTION_RECEIPT_PROCESS,
+        detail="Receipt declaration processing capability required",
+    )
+    return (
+        await ContributionService(db)
+        .with_notification_providers(notifications)
+        .confirm_receipt_in_treasury(
+            current.tenant_id, declaration_id, data, treasurer_user_id=current.user.id
+        )
     )
 
 
-@router.post("/receipt-declarations/{declaration_id}/handover-reminder", response_model=ContributionReceiptDeclarationResponse)
+@router.post(
+    "/receipt-declarations/{declaration_id}/handover-reminder",
+    response_model=ContributionReceiptDeclarationResponse,
+)
 async def update_receipt_handover_reminder(
     declaration_id: UUID,
     data: ContributionReceiptHandoverReminderUpdate,
@@ -172,9 +246,17 @@ async def update_receipt_handover_reminder(
     db: DbDep,
     notifications: NotificationsDep,
 ) -> ContributionReceiptDeclarationResponse:
-    require_capability(current, CAP_CONTRIBUTION_RECEIPT_PROCESS, detail="Receipt declaration processing capability required")
-    return await ContributionService(db).with_notification_providers(notifications).update_receipt_handover_reminder(
-        current.tenant_id, declaration_id, data, treasurer_user_id=current.user.id
+    require_capability(
+        current,
+        CAP_CONTRIBUTION_RECEIPT_PROCESS,
+        detail="Receipt declaration processing capability required",
+    )
+    return (
+        await ContributionService(db)
+        .with_notification_providers(notifications)
+        .update_receipt_handover_reminder(
+            current.tenant_id, declaration_id, data, treasurer_user_id=current.user.id
+        )
     )
 
 
@@ -189,9 +271,7 @@ async def create_contribution(
         detail="Finance write capability required",
     )
     service = ContributionService(db)
-    return await service.create_contribution(
-        current.tenant_id, data, actor_user_id=current.user.id
-    )
+    return await service.create_contribution(current.tenant_id, data, actor_user_id=current.user.id)
 
 
 @router.get("/", response_model=list[ContributionRecordResponse])
@@ -209,9 +289,7 @@ async def list_contributions(
 
 
 @router.get("/summary")
-async def get_contribution_summary(
-    current: AuthDep, db: DbDep, year: int | None = None
-) -> dict:
+async def get_contribution_summary(current: AuthDep, db: DbDep, year: int | None = None) -> dict:
     """Return aggregate contribution summary for the tenant."""
     require_capability(
         current,
@@ -223,9 +301,7 @@ async def get_contribution_summary(
 
 
 @router.get("/payments", response_model=list[PaymentRecordResponse])
-async def list_tenant_payments(
-    current: AuthDep, db: DbDep
-) -> list[PaymentRecordResponse]:
+async def list_tenant_payments(current: AuthDep, db: DbDep) -> list[PaymentRecordResponse]:
     """List payment records across the tenant for finance read roles."""
     require_capability(
         current,
@@ -344,6 +420,13 @@ async def import_contributions(
         detail="Tenant administration capability required",
     )
     content = await file.read()
+    if not dry_run:
+        await require_pre_operation_backup(
+            db,
+            tenant_id=current.tenant_id,
+            actor_user_id=current.user.id,
+            reason="contribution_csv_import",
+        )
     service = ContributionService(db)
     return await service.import_csv(
         current.tenant_id, content, dry_run=dry_run, actor_user_id=current.user.id
@@ -462,14 +545,18 @@ async def update_contribution(
 
 
 @router.delete("/{contribution_id}", status_code=204)
-async def delete_contribution(
-    contribution_id: UUID, current: AuthDep, db: DbDep
-) -> None:
+async def delete_contribution(contribution_id: UUID, current: AuthDep, db: DbDep) -> None:
     """Delete a contribution record (admin only)."""
     require_capability(
         current,
         CAP_TENANT_ADMINISTRATION,
         detail="Tenant administration capability required",
+    )
+    await require_pre_operation_backup(
+        db,
+        tenant_id=current.tenant_id,
+        actor_user_id=current.user.id,
+        reason="contribution_delete",
     )
     service = ContributionService(db)
     await service.delete_contribution(
@@ -488,9 +575,7 @@ async def record_payment(
         detail="Finance write capability required",
     )
     service = ContributionService(db)
-    return await service.record_payment(
-        current.tenant_id, data, actor_user_id=current.user.id
-    )
+    return await service.record_payment(current.tenant_id, data, actor_user_id=current.user.id)
 
 
 @router.post(
