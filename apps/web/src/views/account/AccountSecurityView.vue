@@ -139,45 +139,7 @@
           </div>
         </div>
 
-        <div class="card shadow-sm border-0">
-          <div class="card-body p-4">
-            <div class="text-uppercase small fw-semibold text-secondary mb-2">
-              Password recovery
-            </div>
-            <h2 class="h6 fw-bold mb-1">Send yourself a secure reset link</h2>
-            <p class="text-muted small mb-3">
-              This triggers the same backend-protected recovery flow used on the public sign-in screen.
-            </p>
-
-            <div class="security-panel">
-              <div class="d-flex flex-column flex-lg-row justify-content-between gap-3 align-items-lg-center">
-                <div>
-                  <div class="fw-medium">{{ authStore.user?.email }}</div>
-                  <div class="small text-muted">
-                    Use this if you want to rotate your password through the verified reset flow.
-                  </div>
-                </div>
-                <button class="btn btn-outline-primary" type="button" :disabled="passwordResetSending" @click="sendResetLink">
-                  {{ passwordResetSending ? 'Sending...' : 'Email reset link' }}
-                </button>
-              </div>
-
-              <div v-if="passwordResetMessage" class="alert alert-success py-2 small mt-3 mb-0">
-                <i class="bi bi-check-circle me-1"></i>{{ passwordResetMessage }}
-              </div>
-
-              <div v-if="devResetToken" class="mt-3 p-3 bg-light rounded small">
-                <div class="text-muted mb-1">Development reset token</div>
-                <code class="text-break">{{ devResetToken }}</code>
-                <div class="mt-2">
-                  <button class="btn btn-outline-secondary btn-sm" type="button" @click="openResetFlow">
-                    Open reset flow
-                  </button>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
+        <ChangePasswordCard />
 
         <div class="card shadow-sm border-0 mt-4">
           <div class="card-body p-4">
@@ -329,7 +291,6 @@ import {
   type ActiveSessionResponse,
   disableMfa,
   enrollMfa,
-  forgotPassword,
   getMfaStatus,
   listActiveSessions,
   listSecurityEvents,
@@ -341,11 +302,11 @@ import {
 } from '@/api/auth.api'
 import { useAuthStore } from '@/stores/auth.store'
 import { useLocaleStore } from '@/stores/locale.store'
+import ChangePasswordCard from '@/components/account/ChangePasswordCard.vue'
 
 const authStore = useAuthStore()
 const router = useRouter()
 const localeStore = useLocaleStore()
-const isDev = import.meta.env.DEV
 
 const copy = computed(() => {
   if (localeStore.currentLocale === 'de') {
@@ -380,11 +341,8 @@ const copy = computed(() => {
 
 const loading = ref(false)
 const loadingAction = ref(false)
-const passwordResetSending = ref(false)
 const pageError = ref('')
 const actionError = ref('')
-const passwordResetMessage = ref('')
-const devResetToken = ref<string | null>(null)
 const sessionMessage = ref('')
 const verifyCode = ref('')
 const verifyError = ref('')
@@ -522,33 +480,6 @@ async function handleDisableMfa() {
   } finally {
     loadingAction.value = false
   }
-}
-
-async function sendResetLink() {
-  if (!authStore.user?.email) return
-
-  passwordResetSending.value = true
-  passwordResetMessage.value = ''
-  devResetToken.value = null
-  sessionMessage.value = ''
-
-  try {
-    const response = await forgotPassword({ email: authStore.user.email })
-    passwordResetMessage.value = response.message
-    if (isDev && response.reset_token) {
-      devResetToken.value = response.reset_token
-    }
-  } catch {
-    passwordResetMessage.value = 'The reset flow could not be triggered right now.'
-  } finally {
-    passwordResetSending.value = false
-  }
-}
-
-async function openResetFlow() {
-  if (!devResetToken.value) return
-  authStore.logout()
-  await router.push({ path: '/reset-password', query: { token: devResetToken.value } })
 }
 
 function formatDateTime(value: string) {

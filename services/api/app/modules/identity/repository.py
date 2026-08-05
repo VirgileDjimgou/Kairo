@@ -90,7 +90,13 @@ class UserRepository:
         )
 
     async def update_password(
-        self, user_id: UUID, new_password_hash: str, *, password_change_required: bool | None = None
+        self,
+        user_id: UUID,
+        new_password_hash: str,
+        *,
+        password_change_required: bool | None = None,
+        temporary_password_expires_at: datetime | None = None,
+        clear_temporary_password_expiry: bool = False,
     ) -> None:
         values: dict[str, object] = {
             "password_hash": new_password_hash,
@@ -98,6 +104,10 @@ class UserRepository:
         }
         if password_change_required is not None:
             values["password_change_required"] = password_change_required
+        if temporary_password_expires_at is not None:
+            values["temporary_password_expires_at"] = temporary_password_expires_at
+        elif clear_temporary_password_expiry:
+            values["temporary_password_expires_at"] = None
         await self._db.execute(
             update(User)
             .where(User.id == user_id)

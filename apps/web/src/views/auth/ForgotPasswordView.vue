@@ -5,68 +5,26 @@
         <div class="brand-icon mb-3">
           <i class="bi bi-key fs-1 text-primary"></i>
         </div>
-        <h1 class="h4 fw-bold mb-1">{{ t('auth.forgotPassword.title') }}</h1>
+        <h1 class="h4 fw-bold mb-1">{{ copy.title }}</h1>
         <p class="text-muted small mb-0">
-          {{ t('auth.forgotPassword.subtitle') }}
+          {{ copy.subtitle }}
         </p>
       </div>
 
-      <form v-if="!submitted" @submit.prevent="handleSubmit" novalidate>
-        <div class="mb-3">
-          <label for="email" class="form-label fw-medium">{{ t('auth.forgotPassword.emailLabel') }}</label>
-          <input
-            id="email"
-            v-model.trim="email"
-            type="email"
-            class="form-control"
-            :class="{ 'is-invalid': errorMessage }"
-            :placeholder="t('auth.forgotPassword.emailPlaceholder')"
-            autocomplete="email"
-            required
-          />
-        </div>
-
-        <div v-if="errorMessage" class="alert alert-danger py-2 small" role="alert">
-          <i class="bi bi-exclamation-circle me-1"></i>{{ errorMessage }}
-        </div>
-
-        <button
-          type="submit"
-          class="btn btn-primary w-100 py-2 mt-1 fw-medium"
-          :disabled="loading"
-        >
-          <span
-            v-if="loading"
-            class="spinner-border spinner-border-sm me-2"
-            role="status"
-            aria-hidden="true"
-          ></span>
-          {{ loading ? t('auth.forgotPassword.sending') : t('auth.forgotPassword.sendLink') }}
-        </button>
-      </form>
-
-      <div v-else class="text-center">
-        <i class="bi bi-check-circle fs-1 text-success"></i>
-        <p class="mt-2 mb-1 fw-medium">{{ t('auth.forgotPassword.checkEmail') }}</p>
-        <p class="text-muted small">
-          {{ t('auth.forgotPassword.emailSentMessage') }}
-        </p>
-        <div v-if="devToken" class="mt-2 p-2 bg-light rounded small">
-          <p class="text-muted mb-1">{{ t('auth.forgotPassword.devToken') }}</p>
-          <code class="text-break">{{ devToken }}</code>
-          <br />
-          <router-link
-            :to="{ path: '/reset-password', query: { token: devToken } }"
-            class="btn btn-outline-secondary btn-sm mt-2"
-          >
-            {{ t('auth.forgotPassword.resetNow') }}
-          </router-link>
-        </div>
+      <div class="recovery-guidance">
+        <div class="guidance-icon"><i class="bi bi-person-lock"></i></div>
+        <h2 class="h6 fw-bold">{{ copy.heading }}</h2>
+        <p class="text-muted small mb-3">{{ copy.body }}</p>
+        <ol class="small text-start mb-0">
+          <li>{{ copy.stepOne }}</li>
+          <li>{{ copy.stepTwo }}</li>
+          <li>{{ copy.stepThree }}</li>
+        </ol>
       </div>
 
       <div class="text-center mt-3">
         <router-link to="/login" class="small text-muted">
-          {{ t('auth.forgotPassword.backToSignIn') }}
+          {{ copy.back }}
         </router-link>
       </div>
     </div>
@@ -74,37 +32,15 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from "vue";
-import { forgotPassword } from "@/api/auth.api";
-import { useLocaleStore } from "@/stores/locale.store";
-import { getApiErrorDetail, mapForgotPasswordError } from "@/utils/authErrors";
+import { computed } from 'vue'
+import { useLocaleStore } from '@/stores/locale.store'
 
-const localeStore = useLocaleStore();
-const t = (key: string) => localeStore.t(key);
-
-const email = ref("");
-const loading = ref(false);
-const errorMessage = ref("");
-const submitted = ref(false);
-const devToken = ref<string | null>(null);
-const isDev = import.meta.env.DEV;
-
-async function handleSubmit() {
-  if (!email.value) return;
-  loading.value = true;
-  errorMessage.value = "";
-  try {
-    const result = await forgotPassword({ email: email.value });
-    submitted.value = true;
-    if (isDev && result.reset_token) {
-      devToken.value = result.reset_token;
-    }
-  } catch (err: unknown) {
-    errorMessage.value = mapForgotPasswordError(getApiErrorDetail(err));
-  } finally {
-    loading.value = false;
-  }
-}
+const localeStore = useLocaleStore()
+const copy = computed(() => {
+  if (localeStore.currentLocale === 'de') return { title: 'Zugang wiederherstellen', subtitle: 'Ein autorisiertes Vorstandsmitglied kann einen sicheren temporären Zugang ausstellen.', heading: 'Kein E-Mail-Schritt erforderlich', body: 'Die Anmelde-E-Mail kann bei Kairo ein technischer Zugang sein. Deshalb wird der verlorene Zugang direkt durch den Verein wiederhergestellt.', stepOne: 'Wenden Sie sich an den Praesidenten, Vizepraesidenten oder Generalsekretaer.', stepTwo: 'Diese Person erstellt in Mitglieder einen zeitlich begrenzten Zugang.', stepThree: 'Melden Sie sich an und waehlen Sie sofort Ihr persoenliches neues Passwort.', back: 'Zurueck zur Anmeldung' }
+  if (localeStore.currentLocale === 'en') return { title: 'Recover access', subtitle: 'An authorized office member can issue secure temporary access.', heading: 'No email step is required', body: 'At Kairo, the sign-in email can be a technical credential. Lost access is therefore recovered directly by the association.', stepOne: 'Contact the president, vice president, or secretary general.', stepTwo: 'They issue a time-limited access credential from Members.', stepThree: 'Sign in and choose your own new password immediately.', back: 'Back to sign in' }
+  return { title: 'Récupérer l’accès', subtitle: 'Un membre du bureau autorisé peut créer un accès temporaire sécurisé.', heading: 'Aucun e-mail n’est nécessaire', body: 'Dans Kairo, l’adresse de connexion peut être un identifiant technique. L’accès perdu est donc rétabli directement par l’association.', stepOne: 'Contactez le président, le vice-président ou le secrétaire général.', stepTwo: 'La personne autorisée crée un accès limité dans le temps depuis Membres.', stepThree: 'Connectez-vous puis choisissez immédiatement votre nouveau mot de passe personnel.', back: 'Retour à la connexion' }
+})
 </script>
 
 <style scoped>
@@ -124,4 +60,6 @@ async function handleSubmit() {
   background: rgba(31, 79, 143, 0.08);
   border-radius: 1rem;
 }
+.recovery-guidance { border: 1px solid #d8e4f0; border-radius: 1rem; background: #f8fbff; padding: 1.25rem; text-align: center; }
+.guidance-icon { display: inline-grid; place-items: center; width: 3rem; height: 3rem; margin-bottom: .75rem; border-radius: .9rem; color: #1f4f8f; background: rgba(31, 79, 143, .1); font-size: 1.4rem; }
 </style>

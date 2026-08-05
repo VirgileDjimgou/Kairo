@@ -8,6 +8,10 @@ from app.core.rate_limiter import rate_limiter
 from app.modules.identity.schemas import (
     AcceptInviteRequest,
     AcceptInviteResponse,
+    AssistedAccessRecoveryRequest,
+    AssistedAccessRecoveryResponse,
+    ChangePasswordRequest,
+    ChangePasswordResponse,
     ChangeInitialPasswordRequest,
     ChangeInitialPasswordResponse,
     ActiveSessionResponse,
@@ -353,6 +357,60 @@ async def reset_password(
         user_agent=fastapi_request.headers.get("User-Agent"),
     )
     return await service.reset_password(request)
+
+
+@router.post("/change-password", response_model=ChangePasswordResponse)
+async def change_password(
+    request: ChangePasswordRequest,
+    current: AuthDep,
+    db: DbDep,
+    fastapi_request: Request,
+) -> ChangePasswordResponse:
+    """Change the current user's password after verifying the existing password."""
+    _rate_limit_or_429(
+        f"change-password:{current.user.id}:{_client_ip(fastapi_request)}",
+        max_requests=5,
+        window_seconds=300,
+    )
+    service = AuthService(db).with_request_context(
+        ip_address=_client_ip(fastapi_request),
+        user_agent=fastapi_request.headers.get("User-Agent"),
+    )
+    return await service.change_password(
+        user_id=current.user.id,
+        tenant_id=current.tenant_id,
+        current_session_id=current.session_id,
+        request=request,
+    )
+
+
+@router.post(
+    "/access-recovery/{user_id}",
+    response_model=AssistedAccessRecoveryResponse,
+)
+async def recover_member_access(
+    user_id: UUID,
+    request: AssistedAccessRecoveryRequest,
+    current: AuthDep,
+    db: DbDep,
+    fastapi_request: Request,
+) -> AssistedAccessRecoveryResponse:
+    """Issue a time-limited temporary password for a tenant member."""
+    _rate_limit_or_429(
+        f"assisted-access-recovery:{current.user.id}:{_client_ip(fastapi_request)}",
+        max_requests=10,
+        window_seconds=300,
+    )
+    service = AuthService(db).with_request_context(
+        ip_address=_client_ip(fastapi_request),
+        user_agent=fastapi_request.headers.get("User-Agent"),
+    )
+    return await service.recover_member_access(
+        tenant_id=current.tenant_id,
+        requesting_user_id=current.user.id,
+        target_user_id=user_id,
+        request=request,
+    )
 
 
 @router.post("/change-initial-password", response_model=ChangeInitialPasswordResponse)

@@ -4069,3 +4069,12 @@ Status: Completed (off-site destination awaiting operator credentials)
 - server-enforced pre-operation snapshots for critical CSV imports and record deletions, plus a pre-migration Windows/Docker core deployment command;
 - host-only staging and restore controls, an isolated recovery drill that validates member, contribution, disciplinary, and expense records, and a documented corruption scenario;
 - S3-compatible off-site copy support is configurable without product-held cloud credentials. The recovery runbook is `docs/operations/encrypted-recovery-runbook.md`.
+
+### Post-Sprint 99 - Assisted account recovery
+
+Status: Completed
+
+- the president, vice president, secretary general, and principal administrator can issue a member-only temporary password from the tenant member directory;
+- the password is generated server-side, shown once to the issuing officer, expires after 48 hours, invalidates pending reset tokens, and revokes every active session for the target account;
+- the member must replace the password at the first sign-in, while Account Security supports an authenticated password change without relying on the virtual login email;
+- integration simulations cover all four authorised roles, denial for an unauthorised treasurer, expiry handling, revoked sessions, and preservation of the target membership data.

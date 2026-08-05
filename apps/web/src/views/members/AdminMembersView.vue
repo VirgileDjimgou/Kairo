@@ -82,6 +82,7 @@
           <td class="small">{{ formatDate(member.joined_at) }}</td>
           <td class="text-end pe-4">
             <button class="btn btn-sm btn-outline-secondary me-1" :aria-label="t('members.editMember')" @click.stop="editMember(member)"><i class="bi bi-pencil"></i></button>
+            <button v-if="canRecoverMemberAccess && member.user_id" class="btn btn-sm btn-outline-primary me-1" :aria-label="t('members.recoverAccess')" @click.stop="openAccessRecovery(member)"><i class="bi bi-key"></i></button>
             <button class="btn btn-sm btn-outline-warning me-1" :aria-label="member.status === 'active' ? t('members.pauseMember') : t('members.reactivateMember')" @click.stop="toggleMemberPause(member)"><i :class="member.status === 'active' ? 'bi bi-pause-circle' : 'bi bi-play-circle'"></i></button>
             <button v-if="canDeleteMembers" class="btn btn-sm btn-outline-danger" :aria-label="t('members.deleteMember')" @click.stop="confirmDelete(member)"><i class="bi bi-trash"></i></button>
           </td>
@@ -101,6 +102,7 @@
       <template #mobile-actions="{ item: member }">
         <button class="btn btn-outline-primary" type="button" @click="selectMember(member)"><i class="bi bi-person-vcard me-2"></i>{{ t('members.viewDetails') }}</button>
         <button class="btn btn-outline-secondary" type="button" @click="editMember(member)"><i class="bi bi-pencil me-2"></i>{{ t('members.editMember') }}</button>
+        <button v-if="canRecoverMemberAccess && member.user_id" class="btn btn-outline-primary" type="button" @click="openAccessRecovery(member)"><i class="bi bi-key me-2"></i>{{ t('members.recoverAccess') }}</button>
         <button class="btn btn-outline-warning" type="button" @click="toggleMemberPause(member)"><i :class="member.status === 'active' ? 'bi bi-pause-circle me-2' : 'bi bi-play-circle me-2'"></i>{{ member.status === 'active' ? t('members.pauseMember') : t('members.reactivateMember') }}</button>
         <button v-if="canDeleteMembers" class="btn btn-outline-danger" type="button" @click="confirmDelete(member)"><i class="bi bi-trash me-2"></i>{{ t('members.deleteMember') }}</button>
       </template>
@@ -114,6 +116,7 @@
         @close="selectedMember = null"
       />
     </div>
+    <AssistedAccessRecoveryModal :member="accessRecoveryMember" @close="accessRecoveryMember = null" />
     </div>
     <!--
       Desktop markup now lives in ResponsiveDataView; the mobile representation is
@@ -468,12 +471,14 @@ import { useLocaleStore } from '@/stores/locale.store'
 import { useAuthStore } from '@/stores/auth.store'
 import ResponsiveDataView from '@/components/ui/ResponsiveDataView.vue'
 import MemberInsightsPanel from '@/components/members/MemberInsightsPanel.vue'
+import AssistedAccessRecoveryModal from '@/components/members/AssistedAccessRecoveryModal.vue'
 import { notifyOperation } from '@/services/operation-notifications'
 
 const localeStore = useLocaleStore()
 const authStore = useAuthStore()
 const canUseBulkMemberTools = computed(() => authStore.user?.roles.some((role) => ['admin', 'principal_admin'].includes(role)) ?? false)
 const canDeleteMembers = computed(() => authStore.user?.roles.some((role) => ['president', 'secretary_general'].includes(role)) ?? false)
+const canRecoverMemberAccess = computed(() => authStore.user?.roles.some((role) => ['admin', 'principal_admin', 'president', 'vice_president', 'secretary_general'].includes(role)) ?? false)
 const canReadMemberFinance = computed(() => authStore.user?.roles.some((role) => ['admin', 'principal_admin', 'president', 'vice_president', 'treasurer', 'auditor'].includes(role)) ?? false)
 const canReadMemberDiscipline = computed(() => authStore.user?.roles.some((role) => ['admin', 'principal_admin', 'president', 'secretary_general', 'censor'].includes(role)) ?? false)
 const t = (key: string) => localeStore.t(key)
@@ -482,6 +487,7 @@ const loading = ref(true)
 const error = ref('')
 const members = ref<MembershipProfileResponse[]>([])
 const selectedMember = ref<MembershipProfileResponse | null>(null)
+const accessRecoveryMember = ref<MembershipProfileResponse | null>(null)
 const saving = ref(false)
 const searchQuery = ref('')
 let searchTimer: ReturnType<typeof setTimeout> | undefined
@@ -494,6 +500,10 @@ function setError(err: unknown) {
 
 function selectMember(member: MembershipProfileResponse) {
   selectedMember.value = member
+}
+
+function openAccessRecovery(member: MembershipProfileResponse) {
+  accessRecoveryMember.value = member
 }
 
 const form = ref<CreateMemberPayload>({

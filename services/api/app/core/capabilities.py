@@ -4,6 +4,7 @@ CAP_TENANT_ADMINISTRATION = "tenant:administration"
 CAP_TENANT_SETTINGS_WRITE = "tenant:settings_write"
 CAP_ROLE_CATALOG_READ = "roles:read_catalog"
 CAP_ROLE_ASSIGN = "roles:assign"
+CAP_IDENTITY_ACCESS_RECOVERY = "identity:access_recovery"
 CAP_AUDIT_READ = "audit:read"
 CAP_MEMBERSHIP_SELF_READ = "membership:self_read"
 CAP_MEMBERSHIP_TENANT_READ = "membership:tenant_read"
@@ -43,6 +44,7 @@ CAPABILITY_ORDER = (
     CAP_TENANT_SETTINGS_WRITE,
     CAP_ROLE_CATALOG_READ,
     CAP_ROLE_ASSIGN,
+    CAP_IDENTITY_ACCESS_RECOVERY,
     CAP_AUDIT_READ,
     CAP_MEMBERSHIP_SELF_READ,
     CAP_MEMBERSHIP_TENANT_READ,

@@ -197,6 +197,29 @@ export interface ChangeInitialPasswordRequest {
   new_password: string
 }
 
+export interface ChangePasswordRequest {
+  current_password: string
+  new_password: string
+}
+
+export interface ChangePasswordResponse {
+  message: string
+  revoked_session_count: number
+}
+
+export interface AssistedAccessRecoveryRequest {
+  reason: string
+}
+
+export interface AssistedAccessRecoveryResponse {
+  message: string
+  target_user_id: string
+  target_display_name: string
+  temporary_password: string
+  expires_at: string
+  revoked_session_count: number
+}
+
 // ── MFA types ─────────────────────────────────────────────────────────────────
 
 export interface MfaEnrollResponse {
@@ -225,6 +248,7 @@ export interface MfaLoginResponse {
   expires_in: number
   tenant_id: string
   user_id: string
+  password_change_required: boolean
 }
 
 // ── Refresh types ─────────────────────────────────────────────────────────────
@@ -338,6 +362,19 @@ export async function resetPassword(payload: ResetPasswordRequest): Promise<void
 
 export async function changeInitialPassword(payload: ChangeInitialPasswordRequest): Promise<void> {
   await http.post('/auth/change-initial-password', payload)
+}
+
+export async function changePassword(payload: ChangePasswordRequest): Promise<ChangePasswordResponse> {
+  const response = await http.post<ChangePasswordResponse>('/auth/change-password', payload)
+  return response.data
+}
+
+export async function recoverMemberAccess(
+  userId: string,
+  payload: AssistedAccessRecoveryRequest,
+): Promise<AssistedAccessRecoveryResponse> {
+  const response = await http.post<AssistedAccessRecoveryResponse>(`/auth/access-recovery/${userId}`, payload)
+  return response.data
 }
 
 export async function enrollMfa(): Promise<MfaEnrollResponse> {

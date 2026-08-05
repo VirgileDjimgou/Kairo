@@ -41,6 +41,10 @@ class User(Base):
     password_change_required: Mapped[bool] = mapped_column(
         Boolean, nullable=False, server_default=text("false")
     )
+    temporary_password_expires_at: Mapped[datetime | None] = mapped_column(
+        DateTime(timezone=True),
+        nullable=True,
+    )
     display_name: Mapped[str] = mapped_column(String(255), nullable=False)
     preferred_language: Mapped[str | None] = mapped_column(String(10), nullable=True)
     status: Mapped[str] = mapped_column(

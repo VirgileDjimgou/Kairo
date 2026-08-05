@@ -3184,6 +3184,14 @@
         "documentation": {}
     },
     {
+        "label": "User",
+        "importPath": "app.modules.identity.models",
+        "description": "app.modules.identity.models",
+        "isExtraImport": true,
+        "detail": "app.modules.identity.models",
+        "documentation": {}
+    },
+    {
         "label": "Invitation",
         "importPath": "app.modules.identity.models",
         "description": "app.modules.identity.models",
@@ -3545,6 +3553,14 @@
     },
     {
         "label": "user_roles",
+        "importPath": "app.modules.tenancy.models",
+        "description": "app.modules.tenancy.models",
+        "isExtraImport": true,
+        "detail": "app.modules.tenancy.models",
+        "documentation": {}
+    },
+    {
+        "label": "TenantUser",
         "importPath": "app.modules.tenancy.models",
         "description": "app.modules.tenancy.models",
         "isExtraImport": true,
@@ -4578,6 +4594,14 @@
     },
     {
         "label": "or_",
+        "importPath": "sqlalchemy",
+        "description": "sqlalchemy",
+        "isExtraImport": true,
+        "detail": "sqlalchemy",
+        "documentation": {}
+    },
+    {
+        "label": "select",
         "importPath": "sqlalchemy",
         "description": "sqlalchemy",
         "isExtraImport": true,
@@ -7175,6 +7199,14 @@
         "documentation": {}
     },
     {
+        "label": "AsyncClient",
+        "importPath": "httpx",
+        "description": "httpx",
+        "isExtraImport": true,
+        "detail": "httpx",
+        "documentation": {}
+    },
+    {
         "label": "FastAPI",
         "importPath": "fastapi",
         "description": "fastapi",
@@ -8944,6 +8976,14 @@
         "documentation": {}
     },
     {
+        "label": "AsyncSession",
+        "importPath": "sqlalchemy.ext.asyncio",
+        "description": "sqlalchemy.ext.asyncio",
+        "isExtraImport": true,
+        "detail": "sqlalchemy.ext.asyncio",
+        "documentation": {}
+    },
+    {
         "label": "decode_access_token",
         "importPath": "app.core.security",
         "description": "app.core.security",
@@ -10339,6 +10379,30 @@
         "documentation": {}
     },
     {
+        "label": "timedelta",
+        "importPath": "datetime",
+        "description": "datetime",
+        "isExtraImport": true,
+        "detail": "datetime",
+        "documentation": {}
+    },
+    {
+        "label": "UTC",
+        "importPath": "datetime",
+        "description": "datetime",
+        "isExtraImport": true,
+        "detail": "datetime",
+        "documentation": {}
+    },
+    {
+        "label": "datetime",
+        "importPath": "datetime",
+        "description": "datetime",
+        "isExtraImport": true,
+        "detail": "datetime",
+        "documentation": {}
+    },
+    {
         "label": "UTC",
         "importPath": "datetime",
         "description": "datetime",
@@ -10425,6 +10489,14 @@
         "description": "passlib.context",
         "isExtraImport": true,
         "detail": "passlib.context",
+        "documentation": {}
+    },
+    {
+        "label": "op",
+        "importPath": "alembic",
+        "description": "alembic",
+        "isExtraImport": true,
+        "detail": "alembic",
         "documentation": {}
     },
     {
@@ -12574,6 +12646,14 @@
         "documentation": {}
     },
     {
+        "label": "CAP_IDENTITY_ACCESS_RECOVERY",
+        "importPath": "app.core.capabilities",
+        "description": "app.core.capabilities",
+        "isExtraImport": true,
+        "detail": "app.core.capabilities",
+        "documentation": {}
+    },
+    {
         "label": "CAP_MEMBERSHIP_INVITE",
         "importPath": "app.core.capabilities",
         "description": "app.core.capabilities",
@@ -12815,6 +12895,14 @@
     },
     {
         "label": "CAP_EXPORT_SENSITIVE",
+        "importPath": "app.core.capabilities",
+        "description": "app.core.capabilities",
+        "isExtraImport": true,
+        "detail": "app.core.capabilities",
+        "documentation": {}
+    },
+    {
+        "label": "CAP_IDENTITY_ACCESS_RECOVERY",
         "importPath": "app.core.capabilities",
         "description": "app.core.capabilities",
         "isExtraImport": true,
@@ -15240,6 +15328,38 @@
         "documentation": {}
     },
     {
+        "label": "AssistedAccessRecoveryRequest",
+        "importPath": "app.modules.identity.schemas",
+        "description": "app.modules.identity.schemas",
+        "isExtraImport": true,
+        "detail": "app.modules.identity.schemas",
+        "documentation": {}
+    },
+    {
+        "label": "AssistedAccessRecoveryResponse",
+        "importPath": "app.modules.identity.schemas",
+        "description": "app.modules.identity.schemas",
+        "isExtraImport": true,
+        "detail": "app.modules.identity.schemas",
+        "documentation": {}
+    },
+    {
+        "label": "ChangePasswordRequest",
+        "importPath": "app.modules.identity.schemas",
+        "description": "app.modules.identity.schemas",
+        "isExtraImport": true,
+        "detail": "app.modules.identity.schemas",
+        "documentation": {}
+    },
+    {
+        "label": "ChangePasswordResponse",
+        "importPath": "app.modules.identity.schemas",
+        "description": "app.modules.identity.schemas",
+        "isExtraImport": true,
+        "detail": "app.modules.identity.schemas",
+        "documentation": {}
+    },
+    {
         "label": "ChangeInitialPasswordRequest",
         "importPath": "app.modules.identity.schemas",
         "description": "app.modules.identity.schemas",
@@ -15505,6 +15625,38 @@
     },
     {
         "label": "AcceptInviteResponse",
+        "importPath": "app.modules.identity.schemas",
+        "description": "app.modules.identity.schemas",
+        "isExtraImport": true,
+        "detail": "app.modules.identity.schemas",
+        "documentation": {}
+    },
+    {
+        "label": "AssistedAccessRecoveryRequest",
+        "importPath": "app.modules.identity.schemas",
+        "description": "app.modules.identity.schemas",
+        "isExtraImport": true,
+        "detail": "app.modules.identity.schemas",
+        "documentation": {}
+    },
+    {
+        "label": "AssistedAccessRecoveryResponse",
+        "importPath": "app.modules.identity.schemas",
+        "description": "app.modules.identity.schemas",
+        "isExtraImport": true,
+        "detail": "app.modules.identity.schemas",
+        "documentation": {}
+    },
+    {
+        "label": "ChangePasswordRequest",
+        "importPath": "app.modules.identity.schemas",
+        "description": "app.modules.identity.schemas",
+        "isExtraImport": true,
+        "detail": "app.modules.identity.schemas",
+        "documentation": {}
+    },
+    {
+        "label": "ChangePasswordResponse",
         "importPath": "app.modules.identity.schemas",
         "description": "app.modules.identity.schemas",
         "isExtraImport": true,
@@ -16801,6 +16953,22 @@
         "importPath": "pytest_asyncio",
         "description": "pytest_asyncio",
         "detail": "pytest_asyncio",
+        "documentation": {}
+    },
+    {
+        "label": "create_user_for_tenant",
+        "importPath": "helpers",
+        "description": "helpers",
+        "isExtraImport": true,
+        "detail": "helpers",
+        "documentation": {}
+    },
+    {
+        "label": "login",
+        "importPath": "helpers",
+        "description": "helpers",
+        "isExtraImport": true,
+        "detail": "helpers",
         "documentation": {}
     },
     {
@@ -24340,7 +24508,7 @@
         "kind": 5,
         "importPath": "services.api.app.core.capabilities",
         "description": "services.api.app.core.capabilities",
-        "peekOfCode": "CAP_TENANT_ADMINISTRATION = \"tenant:administration\"\nCAP_TENANT_SETTINGS_WRITE = \"tenant:settings_write\"\nCAP_ROLE_CATALOG_READ = \"roles:read_catalog\"\nCAP_ROLE_ASSIGN = \"roles:assign\"\nCAP_AUDIT_READ = \"audit:read\"\nCAP_MEMBERSHIP_SELF_READ = \"membership:self_read\"\nCAP_MEMBERSHIP_TENANT_READ = \"membership:tenant_read\"\nCAP_MEMBERSHIP_WRITE = \"membership:write\"\nCAP_MEMBERSHIP_DELETE = \"membership:delete\"\nCAP_MEMBERSHIP_INVITE = \"membership:invite\"",
+        "peekOfCode": "CAP_TENANT_ADMINISTRATION = \"tenant:administration\"\nCAP_TENANT_SETTINGS_WRITE = \"tenant:settings_write\"\nCAP_ROLE_CATALOG_READ = \"roles:read_catalog\"\nCAP_ROLE_ASSIGN = \"roles:assign\"\nCAP_IDENTITY_ACCESS_RECOVERY = \"identity:access_recovery\"\nCAP_AUDIT_READ = \"audit:read\"\nCAP_MEMBERSHIP_SELF_READ = \"membership:self_read\"\nCAP_MEMBERSHIP_TENANT_READ = \"membership:tenant_read\"\nCAP_MEMBERSHIP_WRITE = \"membership:write\"\nCAP_MEMBERSHIP_DELETE = \"membership:delete\"",
         "detail": "services.api.app.core.capabilities",
         "documentation": {}
     },
@@ -24349,7 +24517,7 @@
         "kind": 5,
         "importPath": "services.api.app.core.capabilities",
         "description": "services.api.app.core.capabilities",
-        "peekOfCode": "CAP_TENANT_SETTINGS_WRITE = \"tenant:settings_write\"\nCAP_ROLE_CATALOG_READ = \"roles:read_catalog\"\nCAP_ROLE_ASSIGN = \"roles:assign\"\nCAP_AUDIT_READ = \"audit:read\"\nCAP_MEMBERSHIP_SELF_READ = \"membership:self_read\"\nCAP_MEMBERSHIP_TENANT_READ = \"membership:tenant_read\"\nCAP_MEMBERSHIP_WRITE = \"membership:write\"\nCAP_MEMBERSHIP_DELETE = \"membership:delete\"\nCAP_MEMBERSHIP_INVITE = \"membership:invite\"\nCAP_FINANCE_SELF_READ = \"finance:self_read\"",
+        "peekOfCode": "CAP_TENANT_SETTINGS_WRITE = \"tenant:settings_write\"\nCAP_ROLE_CATALOG_READ = \"roles:read_catalog\"\nCAP_ROLE_ASSIGN = \"roles:assign\"\nCAP_IDENTITY_ACCESS_RECOVERY = \"identity:access_recovery\"\nCAP_AUDIT_READ = \"audit:read\"\nCAP_MEMBERSHIP_SELF_READ = \"membership:self_read\"\nCAP_MEMBERSHIP_TENANT_READ = \"membership:tenant_read\"\nCAP_MEMBERSHIP_WRITE = \"membership:write\"\nCAP_MEMBERSHIP_DELETE = \"membership:delete\"\nCAP_MEMBERSHIP_INVITE = \"membership:invite\"",
         "detail": "services.api.app.core.capabilities",
         "documentation": {}
     },
@@ -24358,7 +24526,7 @@
         "kind": 5,
         "importPath": "services.api.app.core.capabilities",
         "description": "services.api.app.core.capabilities",
-        "peekOfCode": "CAP_ROLE_CATALOG_READ = \"roles:read_catalog\"\nCAP_ROLE_ASSIGN = \"roles:assign\"\nCAP_AUDIT_READ = \"audit:read\"\nCAP_MEMBERSHIP_SELF_READ = \"membership:self_read\"\nCAP_MEMBERSHIP_TENANT_READ = \"membership:tenant_read\"\nCAP_MEMBERSHIP_WRITE = \"membership:write\"\nCAP_MEMBERSHIP_DELETE = \"membership:delete\"\nCAP_MEMBERSHIP_INVITE = \"membership:invite\"\nCAP_FINANCE_SELF_READ = \"finance:self_read\"\nCAP_FINANCE_TENANT_READ = \"finance:tenant_read\"",
+        "peekOfCode": "CAP_ROLE_CATALOG_READ = \"roles:read_catalog\"\nCAP_ROLE_ASSIGN = \"roles:assign\"\nCAP_IDENTITY_ACCESS_RECOVERY = \"identity:access_recovery\"\nCAP_AUDIT_READ = \"audit:read\"\nCAP_MEMBERSHIP_SELF_READ = \"membership:self_read\"\nCAP_MEMBERSHIP_TENANT_READ = \"membership:tenant_read\"\nCAP_MEMBERSHIP_WRITE = \"membership:write\"\nCAP_MEMBERSHIP_DELETE = \"membership:delete\"\nCAP_MEMBERSHIP_INVITE = \"membership:invite\"\nCAP_FINANCE_SELF_READ = \"finance:self_read\"",
         "detail": "services.api.app.core.capabilities",
         "documentation": {}
     },
@@ -24367,7 +24535,16 @@
         "kind": 5,
         "importPath": "services.api.app.core.capabilities",
         "description": "services.api.app.core.capabilities",
-        "peekOfCode": "CAP_ROLE_ASSIGN = \"roles:assign\"\nCAP_AUDIT_READ = \"audit:read\"\nCAP_MEMBERSHIP_SELF_READ = \"membership:self_read\"\nCAP_MEMBERSHIP_TENANT_READ = \"membership:tenant_read\"\nCAP_MEMBERSHIP_WRITE = \"membership:write\"\nCAP_MEMBERSHIP_DELETE = \"membership:delete\"\nCAP_MEMBERSHIP_INVITE = \"membership:invite\"\nCAP_FINANCE_SELF_READ = \"finance:self_read\"\nCAP_FINANCE_TENANT_READ = \"finance:tenant_read\"\nCAP_FINANCE_WRITE = \"finance:write\"",
+        "peekOfCode": "CAP_ROLE_ASSIGN = \"roles:assign\"\nCAP_IDENTITY_ACCESS_RECOVERY = \"identity:access_recovery\"\nCAP_AUDIT_READ = \"audit:read\"\nCAP_MEMBERSHIP_SELF_READ = \"membership:self_read\"\nCAP_MEMBERSHIP_TENANT_READ = \"membership:tenant_read\"\nCAP_MEMBERSHIP_WRITE = \"membership:write\"\nCAP_MEMBERSHIP_DELETE = \"membership:delete\"\nCAP_MEMBERSHIP_INVITE = \"membership:invite\"\nCAP_FINANCE_SELF_READ = \"finance:self_read\"\nCAP_FINANCE_TENANT_READ = \"finance:tenant_read\"",
+        "detail": "services.api.app.core.capabilities",
+        "documentation": {}
+    },
+    {
+        "label": "CAP_IDENTITY_ACCESS_RECOVERY",
+        "kind": 5,
+        "importPath": "services.api.app.core.capabilities",
+        "description": "services.api.app.core.capabilities",
+        "peekOfCode": "CAP_IDENTITY_ACCESS_RECOVERY = \"identity:access_recovery\"\nCAP_AUDIT_READ = \"audit:read\"\nCAP_MEMBERSHIP_SELF_READ = \"membership:self_read\"\nCAP_MEMBERSHIP_TENANT_READ = \"membership:tenant_read\"\nCAP_MEMBERSHIP_WRITE = \"membership:write\"\nCAP_MEMBERSHIP_DELETE = \"membership:delete\"\nCAP_MEMBERSHIP_INVITE = \"membership:invite\"\nCAP_FINANCE_SELF_READ = \"finance:self_read\"\nCAP_FINANCE_TENANT_READ = \"finance:tenant_read\"\nCAP_FINANCE_WRITE = \"finance:write\"",
         "detail": "services.api.app.core.capabilities",
         "documentation": {}
     },
@@ -24637,7 +24814,7 @@
         "kind": 5,
         "importPath": "services.api.app.core.capabilities",
         "description": "services.api.app.core.capabilities",
-        "peekOfCode": "CAP_CONTRIBUTION_RECEIPT_OWN_READ = \"contribution_receipt:own_read\"\nCAP_CONTRIBUTION_RECEIPT_MEMBER_SELF_READ = \"contribution_receipt:member_self_read\"\nCAP_CONTRIBUTION_RECEIPT_TENANT_READ = \"contribution_receipt:tenant_read\"\nCAP_CONTRIBUTION_RECEIPT_PROCESS = \"contribution_receipt:process\"\nCAPABILITY_ORDER = (\n    CAP_TENANT_ADMINISTRATION,\n    CAP_TENANT_SETTINGS_WRITE,\n    CAP_ROLE_CATALOG_READ,\n    CAP_ROLE_ASSIGN,\n    CAP_AUDIT_READ,",
+        "peekOfCode": "CAP_CONTRIBUTION_RECEIPT_OWN_READ = \"contribution_receipt:own_read\"\nCAP_CONTRIBUTION_RECEIPT_MEMBER_SELF_READ = \"contribution_receipt:member_self_read\"\nCAP_CONTRIBUTION_RECEIPT_TENANT_READ = \"contribution_receipt:tenant_read\"\nCAP_CONTRIBUTION_RECEIPT_PROCESS = \"contribution_receipt:process\"\nCAPABILITY_ORDER = (\n    CAP_TENANT_ADMINISTRATION,\n    CAP_TENANT_SETTINGS_WRITE,\n    CAP_ROLE_CATALOG_READ,\n    CAP_ROLE_ASSIGN,\n    CAP_IDENTITY_ACCESS_RECOVERY,",
         "detail": "services.api.app.core.capabilities",
         "documentation": {}
     },
@@ -24646,7 +24823,7 @@
         "kind": 5,
         "importPath": "services.api.app.core.capabilities",
         "description": "services.api.app.core.capabilities",
-        "peekOfCode": "CAP_CONTRIBUTION_RECEIPT_MEMBER_SELF_READ = \"contribution_receipt:member_self_read\"\nCAP_CONTRIBUTION_RECEIPT_TENANT_READ = \"contribution_receipt:tenant_read\"\nCAP_CONTRIBUTION_RECEIPT_PROCESS = \"contribution_receipt:process\"\nCAPABILITY_ORDER = (\n    CAP_TENANT_ADMINISTRATION,\n    CAP_TENANT_SETTINGS_WRITE,\n    CAP_ROLE_CATALOG_READ,\n    CAP_ROLE_ASSIGN,\n    CAP_AUDIT_READ,\n    CAP_MEMBERSHIP_SELF_READ,",
+        "peekOfCode": "CAP_CONTRIBUTION_RECEIPT_MEMBER_SELF_READ = \"contribution_receipt:member_self_read\"\nCAP_CONTRIBUTION_RECEIPT_TENANT_READ = \"contribution_receipt:tenant_read\"\nCAP_CONTRIBUTION_RECEIPT_PROCESS = \"contribution_receipt:process\"\nCAPABILITY_ORDER = (\n    CAP_TENANT_ADMINISTRATION,\n    CAP_TENANT_SETTINGS_WRITE,\n    CAP_ROLE_CATALOG_READ,\n    CAP_ROLE_ASSIGN,\n    CAP_IDENTITY_ACCESS_RECOVERY,\n    CAP_AUDIT_READ,",
         "detail": "services.api.app.core.capabilities",
         "documentation": {}
     },
@@ -24655,7 +24832,7 @@
         "kind": 5,
         "importPath": "services.api.app.core.capabilities",
         "description": "services.api.app.core.capabilities",
-        "peekOfCode": "CAP_CONTRIBUTION_RECEIPT_TENANT_READ = \"contribution_receipt:tenant_read\"\nCAP_CONTRIBUTION_RECEIPT_PROCESS = \"contribution_receipt:process\"\nCAPABILITY_ORDER = (\n    CAP_TENANT_ADMINISTRATION,\n    CAP_TENANT_SETTINGS_WRITE,\n    CAP_ROLE_CATALOG_READ,\n    CAP_ROLE_ASSIGN,\n    CAP_AUDIT_READ,\n    CAP_MEMBERSHIP_SELF_READ,\n    CAP_MEMBERSHIP_TENANT_READ,",
+        "peekOfCode": "CAP_CONTRIBUTION_RECEIPT_TENANT_READ = \"contribution_receipt:tenant_read\"\nCAP_CONTRIBUTION_RECEIPT_PROCESS = \"contribution_receipt:process\"\nCAPABILITY_ORDER = (\n    CAP_TENANT_ADMINISTRATION,\n    CAP_TENANT_SETTINGS_WRITE,\n    CAP_ROLE_CATALOG_READ,\n    CAP_ROLE_ASSIGN,\n    CAP_IDENTITY_ACCESS_RECOVERY,\n    CAP_AUDIT_READ,\n    CAP_MEMBERSHIP_SELF_READ,",
         "detail": "services.api.app.core.capabilities",
         "documentation": {}
     },
@@ -24664,7 +24841,7 @@
         "kind": 5,
         "importPath": "services.api.app.core.capabilities",
         "description": "services.api.app.core.capabilities",
-        "peekOfCode": "CAP_CONTRIBUTION_RECEIPT_PROCESS = \"contribution_receipt:process\"\nCAPABILITY_ORDER = (\n    CAP_TENANT_ADMINISTRATION,\n    CAP_TENANT_SETTINGS_WRITE,\n    CAP_ROLE_CATALOG_READ,\n    CAP_ROLE_ASSIGN,\n    CAP_AUDIT_READ,\n    CAP_MEMBERSHIP_SELF_READ,\n    CAP_MEMBERSHIP_TENANT_READ,\n    CAP_MEMBERSHIP_WRITE,",
+        "peekOfCode": "CAP_CONTRIBUTION_RECEIPT_PROCESS = \"contribution_receipt:process\"\nCAPABILITY_ORDER = (\n    CAP_TENANT_ADMINISTRATION,\n    CAP_TENANT_SETTINGS_WRITE,\n    CAP_ROLE_CATALOG_READ,\n    CAP_ROLE_ASSIGN,\n    CAP_IDENTITY_ACCESS_RECOVERY,\n    CAP_AUDIT_READ,\n    CAP_MEMBERSHIP_SELF_READ,\n    CAP_MEMBERSHIP_TENANT_READ,",
         "detail": "services.api.app.core.capabilities",
         "documentation": {}
     },
@@ -24673,7 +24850,7 @@
         "kind": 5,
         "importPath": "services.api.app.core.capabilities",
         "description": "services.api.app.core.capabilities",
-        "peekOfCode": "CAPABILITY_ORDER = (\n    CAP_TENANT_ADMINISTRATION,\n    CAP_TENANT_SETTINGS_WRITE,\n    CAP_ROLE_CATALOG_READ,\n    CAP_ROLE_ASSIGN,\n    CAP_AUDIT_READ,\n    CAP_MEMBERSHIP_SELF_READ,\n    CAP_MEMBERSHIP_TENANT_READ,\n    CAP_MEMBERSHIP_WRITE,\n    CAP_MEMBERSHIP_DELETE,",
+        "peekOfCode": "CAPABILITY_ORDER = (\n    CAP_TENANT_ADMINISTRATION,\n    CAP_TENANT_SETTINGS_WRITE,\n    CAP_ROLE_CATALOG_READ,\n    CAP_ROLE_ASSIGN,\n    CAP_IDENTITY_ACCESS_RECOVERY,\n    CAP_AUDIT_READ,\n    CAP_MEMBERSHIP_SELF_READ,\n    CAP_MEMBERSHIP_TENANT_READ,\n    CAP_MEMBERSHIP_WRITE,",
         "detail": "services.api.app.core.capabilities",
         "documentation": {}
     },
@@ -26304,6 +26481,60 @@
         "description": "services.api.app.db.migrations.versions.0026_encrypted_backup_runs",
         "peekOfCode": "depends_on = None\ndef _uuid_type():\n    return sa.String(length=36).with_variant(postgresql.UUID(as_uuid=True), \"postgresql\")\ndef upgrade() -> None:\n    op.create_table(\n        \"backup_runs\",\n        sa.Column(\"id\", _uuid_type(), nullable=False),\n        sa.Column(\"tenant_id\", _uuid_type(), nullable=False),\n        sa.Column(\"requested_by\", _uuid_type(), nullable=True),\n        sa.Column(\"trigger\", sa.String(length=32), nullable=False, server_default=\"manual\"),",
         "detail": "services.api.app.db.migrations.versions.0026_encrypted_backup_runs",
+        "documentation": {}
+    },
+    {
+        "label": "upgrade",
+        "kind": 2,
+        "importPath": "services.api.app.db.migrations.versions.0027_assisted_access_recovery",
+        "description": "services.api.app.db.migrations.versions.0027_assisted_access_recovery",
+        "peekOfCode": "def upgrade() -> None:\n    op.add_column(\n        \"users\",\n        sa.Column(\"temporary_password_expires_at\", sa.DateTime(timezone=True), nullable=True),\n    )\ndef downgrade() -> None:\n    op.drop_column(\"users\", \"temporary_password_expires_at\")",
+        "detail": "services.api.app.db.migrations.versions.0027_assisted_access_recovery",
+        "documentation": {}
+    },
+    {
+        "label": "downgrade",
+        "kind": 2,
+        "importPath": "services.api.app.db.migrations.versions.0027_assisted_access_recovery",
+        "description": "services.api.app.db.migrations.versions.0027_assisted_access_recovery",
+        "peekOfCode": "def downgrade() -> None:\n    op.drop_column(\"users\", \"temporary_password_expires_at\")",
+        "detail": "services.api.app.db.migrations.versions.0027_assisted_access_recovery",
+        "documentation": {}
+    },
+    {
+        "label": "revision",
+        "kind": 5,
+        "importPath": "services.api.app.db.migrations.versions.0027_assisted_access_recovery",
+        "description": "services.api.app.db.migrations.versions.0027_assisted_access_recovery",
+        "peekOfCode": "revision = \"0027\"\ndown_revision = \"0026\"\nbranch_labels = None\ndepends_on = None\ndef upgrade() -> None:\n    op.add_column(\n        \"users\",\n        sa.Column(\"temporary_password_expires_at\", sa.DateTime(timezone=True), nullable=True),\n    )\ndef downgrade() -> None:",
+        "detail": "services.api.app.db.migrations.versions.0027_assisted_access_recovery",
+        "documentation": {}
+    },
+    {
+        "label": "down_revision",
+        "kind": 5,
+        "importPath": "services.api.app.db.migrations.versions.0027_assisted_access_recovery",
+        "description": "services.api.app.db.migrations.versions.0027_assisted_access_recovery",
+        "peekOfCode": "down_revision = \"0026\"\nbranch_labels = None\ndepends_on = None\ndef upgrade() -> None:\n    op.add_column(\n        \"users\",\n        sa.Column(\"temporary_password_expires_at\", sa.DateTime(timezone=True), nullable=True),\n    )\ndef downgrade() -> None:\n    op.drop_column(\"users\", \"temporary_password_expires_at\")",
+        "detail": "services.api.app.db.migrations.versions.0027_assisted_access_recovery",
+        "documentation": {}
+    },
+    {
+        "label": "branch_labels",
+        "kind": 5,
+        "importPath": "services.api.app.db.migrations.versions.0027_assisted_access_recovery",
+        "description": "services.api.app.db.migrations.versions.0027_assisted_access_recovery",
+        "peekOfCode": "branch_labels = None\ndepends_on = None\ndef upgrade() -> None:\n    op.add_column(\n        \"users\",\n        sa.Column(\"temporary_password_expires_at\", sa.DateTime(timezone=True), nullable=True),\n    )\ndef downgrade() -> None:\n    op.drop_column(\"users\", \"temporary_password_expires_at\")",
+        "detail": "services.api.app.db.migrations.versions.0027_assisted_access_recovery",
+        "documentation": {}
+    },
+    {
+        "label": "depends_on",
+        "kind": 5,
+        "importPath": "services.api.app.db.migrations.versions.0027_assisted_access_recovery",
+        "description": "services.api.app.db.migrations.versions.0027_assisted_access_recovery",
+        "peekOfCode": "depends_on = None\ndef upgrade() -> None:\n    op.add_column(\n        \"users\",\n        sa.Column(\"temporary_password_expires_at\", sa.DateTime(timezone=True), nullable=True),\n    )\ndef downgrade() -> None:\n    op.drop_column(\"users\", \"temporary_password_expires_at\")",
+        "detail": "services.api.app.db.migrations.versions.0027_assisted_access_recovery",
         "documentation": {}
     },
     {
@@ -28597,7 +28828,7 @@
         "kind": 6,
         "importPath": "services.api.app.modules.identity.schemas",
         "description": "services.api.app.modules.identity.schemas",
-        "peekOfCode": "class ResetPasswordRequest(BaseModel):\n    token: str\n    new_password: str = Field(min_length=8, max_length=128)\nclass ResetPasswordResponse(BaseModel):\n    message: str = \"Password has been reset successfully\"\nclass ChangeInitialPasswordRequest(BaseModel):\n    new_password: str = Field(min_length=8, max_length=128)\nclass ChangeInitialPasswordResponse(BaseModel):\n    message: str = \"Password has been updated\"\n# ── MFA DTOs ───────────────────────────────────────────────────────────────────",
+        "peekOfCode": "class ResetPasswordRequest(BaseModel):\n    token: str\n    new_password: str = Field(min_length=8, max_length=128)\nclass ResetPasswordResponse(BaseModel):\n    message: str = \"Password has been reset successfully\"\nclass ChangeInitialPasswordRequest(BaseModel):\n    new_password: str = Field(min_length=8, max_length=128)\nclass ChangeInitialPasswordResponse(BaseModel):\n    message: str = \"Password has been updated\"\nclass ChangePasswordRequest(BaseModel):",
         "detail": "services.api.app.modules.identity.schemas",
         "documentation": {}
     },
@@ -28606,7 +28837,7 @@
         "kind": 6,
         "importPath": "services.api.app.modules.identity.schemas",
         "description": "services.api.app.modules.identity.schemas",
-        "peekOfCode": "class ResetPasswordResponse(BaseModel):\n    message: str = \"Password has been reset successfully\"\nclass ChangeInitialPasswordRequest(BaseModel):\n    new_password: str = Field(min_length=8, max_length=128)\nclass ChangeInitialPasswordResponse(BaseModel):\n    message: str = \"Password has been updated\"\n# ── MFA DTOs ───────────────────────────────────────────────────────────────────\nclass MfaEnrollResponse(BaseModel):\n    secret: str\n    uri: str",
+        "peekOfCode": "class ResetPasswordResponse(BaseModel):\n    message: str = \"Password has been reset successfully\"\nclass ChangeInitialPasswordRequest(BaseModel):\n    new_password: str = Field(min_length=8, max_length=128)\nclass ChangeInitialPasswordResponse(BaseModel):\n    message: str = \"Password has been updated\"\nclass ChangePasswordRequest(BaseModel):\n    current_password: str = Field(min_length=1, max_length=128)\n    new_password: str = Field(min_length=8, max_length=128)\nclass ChangePasswordResponse(BaseModel):",
         "detail": "services.api.app.modules.identity.schemas",
         "documentation": {}
     },
@@ -28615,7 +28846,7 @@
         "kind": 6,
         "importPath": "services.api.app.modules.identity.schemas",
         "description": "services.api.app.modules.identity.schemas",
-        "peekOfCode": "class ChangeInitialPasswordRequest(BaseModel):\n    new_password: str = Field(min_length=8, max_length=128)\nclass ChangeInitialPasswordResponse(BaseModel):\n    message: str = \"Password has been updated\"\n# ── MFA DTOs ───────────────────────────────────────────────────────────────────\nclass MfaEnrollResponse(BaseModel):\n    secret: str\n    uri: str\n    qr_code_url: str = \"\"\nclass MfaVerifyRequest(BaseModel):",
+        "peekOfCode": "class ChangeInitialPasswordRequest(BaseModel):\n    new_password: str = Field(min_length=8, max_length=128)\nclass ChangeInitialPasswordResponse(BaseModel):\n    message: str = \"Password has been updated\"\nclass ChangePasswordRequest(BaseModel):\n    current_password: str = Field(min_length=1, max_length=128)\n    new_password: str = Field(min_length=8, max_length=128)\nclass ChangePasswordResponse(BaseModel):\n    message: str = \"Password has been updated\"\n    revoked_session_count: int = 0",
         "detail": "services.api.app.modules.identity.schemas",
         "documentation": {}
     },
@@ -28624,7 +28855,43 @@
         "kind": 6,
         "importPath": "services.api.app.modules.identity.schemas",
         "description": "services.api.app.modules.identity.schemas",
-        "peekOfCode": "class ChangeInitialPasswordResponse(BaseModel):\n    message: str = \"Password has been updated\"\n# ── MFA DTOs ───────────────────────────────────────────────────────────────────\nclass MfaEnrollResponse(BaseModel):\n    secret: str\n    uri: str\n    qr_code_url: str = \"\"\nclass MfaVerifyRequest(BaseModel):\n    code: str = Field(min_length=6, max_length=6)\nclass MfaVerifyResponse(BaseModel):",
+        "peekOfCode": "class ChangeInitialPasswordResponse(BaseModel):\n    message: str = \"Password has been updated\"\nclass ChangePasswordRequest(BaseModel):\n    current_password: str = Field(min_length=1, max_length=128)\n    new_password: str = Field(min_length=8, max_length=128)\nclass ChangePasswordResponse(BaseModel):\n    message: str = \"Password has been updated\"\n    revoked_session_count: int = 0\nclass AssistedAccessRecoveryRequest(BaseModel):\n    reason: str = Field(default=\"forgotten_password\", min_length=3, max_length=80)",
+        "detail": "services.api.app.modules.identity.schemas",
+        "documentation": {}
+    },
+    {
+        "label": "ChangePasswordRequest",
+        "kind": 6,
+        "importPath": "services.api.app.modules.identity.schemas",
+        "description": "services.api.app.modules.identity.schemas",
+        "peekOfCode": "class ChangePasswordRequest(BaseModel):\n    current_password: str = Field(min_length=1, max_length=128)\n    new_password: str = Field(min_length=8, max_length=128)\nclass ChangePasswordResponse(BaseModel):\n    message: str = \"Password has been updated\"\n    revoked_session_count: int = 0\nclass AssistedAccessRecoveryRequest(BaseModel):\n    reason: str = Field(default=\"forgotten_password\", min_length=3, max_length=80)\n    @field_validator(\"reason\")\n    @classmethod",
+        "detail": "services.api.app.modules.identity.schemas",
+        "documentation": {}
+    },
+    {
+        "label": "ChangePasswordResponse",
+        "kind": 6,
+        "importPath": "services.api.app.modules.identity.schemas",
+        "description": "services.api.app.modules.identity.schemas",
+        "peekOfCode": "class ChangePasswordResponse(BaseModel):\n    message: str = \"Password has been updated\"\n    revoked_session_count: int = 0\nclass AssistedAccessRecoveryRequest(BaseModel):\n    reason: str = Field(default=\"forgotten_password\", min_length=3, max_length=80)\n    @field_validator(\"reason\")\n    @classmethod\n    def validate_reason(cls, value: str) -> str:\n        return value.strip().lower().replace(\" \", \"_\")\nclass AssistedAccessRecoveryResponse(BaseModel):",
+        "detail": "services.api.app.modules.identity.schemas",
+        "documentation": {}
+    },
+    {
+        "label": "AssistedAccessRecoveryRequest",
+        "kind": 6,
+        "importPath": "services.api.app.modules.identity.schemas",
+        "description": "services.api.app.modules.identity.schemas",
+        "peekOfCode": "class AssistedAccessRecoveryRequest(BaseModel):\n    reason: str = Field(default=\"forgotten_password\", min_length=3, max_length=80)\n    @field_validator(\"reason\")\n    @classmethod\n    def validate_reason(cls, value: str) -> str:\n        return value.strip().lower().replace(\" \", \"_\")\nclass AssistedAccessRecoveryResponse(BaseModel):\n    message: str = \"Temporary access has been issued\"\n    target_user_id: UUID\n    target_display_name: str",
+        "detail": "services.api.app.modules.identity.schemas",
+        "documentation": {}
+    },
+    {
+        "label": "AssistedAccessRecoveryResponse",
+        "kind": 6,
+        "importPath": "services.api.app.modules.identity.schemas",
+        "description": "services.api.app.modules.identity.schemas",
+        "peekOfCode": "class AssistedAccessRecoveryResponse(BaseModel):\n    message: str = \"Temporary access has been issued\"\n    target_user_id: UUID\n    target_display_name: str\n    temporary_password: str\n    expires_at: datetime\n    revoked_session_count: int = 0\n# ── MFA DTOs ───────────────────────────────────────────────────────────────────\nclass MfaEnrollResponse(BaseModel):\n    secret: str",
         "detail": "services.api.app.modules.identity.schemas",
         "documentation": {}
     },
@@ -28669,7 +28936,7 @@
         "kind": 6,
         "importPath": "services.api.app.modules.identity.schemas",
         "description": "services.api.app.modules.identity.schemas",
-        "peekOfCode": "class MfaCompleteLoginRequest(BaseModel):\n    mfa_token: str\n    code: str = Field(min_length=6, max_length=6)\nclass MfaLoginResponse(BaseModel):\n    access_token: str\n    token_type: str = \"bearer\"\n    expires_in: int\n    tenant_id: UUID\n    user_id: UUID\n# ── Token Refresh DTOs ─────────────────────────────────────────────────────────",
+        "peekOfCode": "class MfaCompleteLoginRequest(BaseModel):\n    mfa_token: str\n    code: str = Field(min_length=6, max_length=6)\nclass MfaLoginResponse(BaseModel):\n    access_token: str\n    token_type: str = \"bearer\"\n    expires_in: int\n    tenant_id: UUID\n    user_id: UUID\n    password_change_required: bool = False",
         "detail": "services.api.app.modules.identity.schemas",
         "documentation": {}
     },
@@ -28678,7 +28945,7 @@
         "kind": 6,
         "importPath": "services.api.app.modules.identity.schemas",
         "description": "services.api.app.modules.identity.schemas",
-        "peekOfCode": "class MfaLoginResponse(BaseModel):\n    access_token: str\n    token_type: str = \"bearer\"\n    expires_in: int\n    tenant_id: UUID\n    user_id: UUID\n# ── Token Refresh DTOs ─────────────────────────────────────────────────────────\nclass RefreshTokenRequest(BaseModel):\n    refresh_token: str\nclass RefreshTokenResponse(BaseModel):",
+        "peekOfCode": "class MfaLoginResponse(BaseModel):\n    access_token: str\n    token_type: str = \"bearer\"\n    expires_in: int\n    tenant_id: UUID\n    user_id: UUID\n    password_change_required: bool = False\n# ── Token Refresh DTOs ─────────────────────────────────────────────────────────\nclass RefreshTokenRequest(BaseModel):\n    refresh_token: str",
         "detail": "services.api.app.modules.identity.schemas",
         "documentation": {}
     },
@@ -28750,7 +29017,25 @@
         "kind": 5,
         "importPath": "services.api.app.modules.identity.service",
         "description": "services.api.app.modules.identity.service",
-        "peekOfCode": "SUPPORTED_INTERFACE_LANGUAGES = {\"fr\", \"en\", \"de\"}\ndef _ensure_aware(dt: datetime) -> datetime:\n    \"\"\"Ensure datetime is timezone-aware (assume UTC if naive).\"\"\"\n    if dt.tzinfo is None:\n        return dt.replace(tzinfo=UTC)\n    return dt\nclass AuthService:\n    \"\"\"\n    Handles login, membership resolution, token issuance, and\n    identity lifecycle flows (invitation, password reset, MFA).",
+        "peekOfCode": "SUPPORTED_INTERFACE_LANGUAGES = {\"fr\", \"en\", \"de\"}\nASSISTED_ACCESS_RECOVERY_TTL_HOURS = 48\n_RECOVERY_PASSWORD_ALPHABET = \"ABCDEFGHJKLMNPQRSTUVWXYZ23456789\"\ndef _ensure_aware(dt: datetime) -> datetime:\n    \"\"\"Ensure datetime is timezone-aware (assume UTC if naive).\"\"\"\n    if dt.tzinfo is None:\n        return dt.replace(tzinfo=UTC)\n    return dt\nclass AuthService:\n    \"\"\"",
+        "detail": "services.api.app.modules.identity.service",
+        "documentation": {}
+    },
+    {
+        "label": "ASSISTED_ACCESS_RECOVERY_TTL_HOURS",
+        "kind": 5,
+        "importPath": "services.api.app.modules.identity.service",
+        "description": "services.api.app.modules.identity.service",
+        "peekOfCode": "ASSISTED_ACCESS_RECOVERY_TTL_HOURS = 48\n_RECOVERY_PASSWORD_ALPHABET = \"ABCDEFGHJKLMNPQRSTUVWXYZ23456789\"\ndef _ensure_aware(dt: datetime) -> datetime:\n    \"\"\"Ensure datetime is timezone-aware (assume UTC if naive).\"\"\"\n    if dt.tzinfo is None:\n        return dt.replace(tzinfo=UTC)\n    return dt\nclass AuthService:\n    \"\"\"\n    Handles login, membership resolution, token issuance, and",
+        "detail": "services.api.app.modules.identity.service",
+        "documentation": {}
+    },
+    {
+        "label": "_RECOVERY_PASSWORD_ALPHABET",
+        "kind": 5,
+        "importPath": "services.api.app.modules.identity.service",
+        "description": "services.api.app.modules.identity.service",
+        "peekOfCode": "_RECOVERY_PASSWORD_ALPHABET = \"ABCDEFGHJKLMNPQRSTUVWXYZ23456789\"\ndef _ensure_aware(dt: datetime) -> datetime:\n    \"\"\"Ensure datetime is timezone-aware (assume UTC if naive).\"\"\"\n    if dt.tzinfo is None:\n        return dt.replace(tzinfo=UTC)\n    return dt\nclass AuthService:\n    \"\"\"\n    Handles login, membership resolution, token issuance, and\n    identity lifecycle flows (invitation, password reset, MFA).",
         "detail": "services.api.app.modules.identity.service",
         "documentation": {}
     },

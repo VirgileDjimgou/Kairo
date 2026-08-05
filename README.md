@@ -36,6 +36,47 @@ Kairo is a multilingual, multi-tenant application for the day-to-day administrat
 
 The public pilot is available at [app.combissportverein.org](https://app.combissportverein.org/).
 
+## Features
+
+### Association operations
+
+- Member registration with automatic member codes, structured address, contribution type and optional immediate access.
+- Progressive member search by name, surname, member code, phone number or email.
+- Read-only member detail panel with authorised contribution and disciplinary history.
+- Member lifecycle controls: edit, pause, reactivate and, for authorised roles, delete.
+- Assisted access recovery for the president, vice president, secretary general and principal administrator, with a time-limited one-time password, forced replacement and session revocation.
+- Events, announcements, governance documents and policy management.
+
+### Treasury and accountability
+
+- Individual and family contributions, partial payments and member balance statements.
+- Receipt declarations for contributions, donations, sponsorships, tournament income and other revenue.
+- Treasurer-only validation, rejection with reason, custody handover follow-up and configurable reminders.
+- Treasurer-only expense recording with categorised annual budget impact.
+- Finance audit workspace, operations journal and exports to Excel, PDF and WhatsApp-ready summaries.
+- Responsive budget charts separating income sources from expenditure categories.
+
+### Governance and discipline
+
+- Dedicated workspaces for the president, vice president, secretary general, treasurer, auditor, censor and sports manager.
+- Explicit server-enforced read/write boundaries for confidential disciplinary records.
+- Complete sanction records: member, policy, circumstances, amount, status, dates and auditable changes.
+- Human-readable operations journal with actor identity, role, result and action details.
+
+### Experience and notifications
+
+- French-first interface with English and German alternatives.
+- Responsive desktop and mobile layouts, bottom navigation and installable PWA support.
+- Accessible confirmation, warning and error notifications with field-level validation feedback.
+- Tenant-isolated inbox, opt-in Web Push and audited delivery outcomes for important operations.
+
+### Reliability and privacy
+
+- Multi-tenant isolation and backend-owned capability checks.
+- Optional private AI assistant with tenant- and scope-filtered retrieval.
+- Core deployment can run without the local AI machine.
+- Encrypted, signed and SHA-256 verified backups, daily scheduling, WAL archiving and isolated restore procedures.
+
 ## Architecture
 
 ```mermaid

@@ -241,6 +241,34 @@ class ChangeInitialPasswordResponse(BaseModel):
     message: str = "Password has been updated"
 
 
+class ChangePasswordRequest(BaseModel):
+    current_password: str = Field(min_length=1, max_length=128)
+    new_password: str = Field(min_length=8, max_length=128)
+
+
+class ChangePasswordResponse(BaseModel):
+    message: str = "Password has been updated"
+    revoked_session_count: int = 0
+
+
+class AssistedAccessRecoveryRequest(BaseModel):
+    reason: str = Field(default="forgotten_password", min_length=3, max_length=80)
+
+    @field_validator("reason")
+    @classmethod
+    def validate_reason(cls, value: str) -> str:
+        return value.strip().lower().replace(" ", "_")
+
+
+class AssistedAccessRecoveryResponse(BaseModel):
+    message: str = "Temporary access has been issued"
+    target_user_id: UUID
+    target_display_name: str
+    temporary_password: str
+    expires_at: datetime
+    revoked_session_count: int = 0
+
+
 # ── MFA DTOs ───────────────────────────────────────────────────────────────────
 
 class MfaEnrollResponse(BaseModel):
@@ -274,6 +302,7 @@ class MfaLoginResponse(BaseModel):
     expires_in: int
     tenant_id: UUID
     user_id: UUID
+    password_change_required: bool = False
 
 
 # ── Token Refresh DTOs ─────────────────────────────────────────────────────────

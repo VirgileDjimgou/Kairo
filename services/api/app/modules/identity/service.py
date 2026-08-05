@@ -1,4 +1,5 @@
 import json
+import secrets
 from collections.abc import Sequence
 from datetime import UTC, datetime, timedelta
 from uuid import UUID
@@ -7,7 +8,12 @@ import jwt
 from fastapi import HTTPException, status
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.core.capabilities import CAP_MEMBERSHIP_INVITE, CAP_ROLE_ASSIGN, has_capability
+from app.core.capabilities import (
+    CAP_IDENTITY_ACCESS_RECOVERY,
+    CAP_MEMBERSHIP_INVITE,
+    CAP_ROLE_ASSIGN,
+    has_capability,
+)
 from app.core.config import settings
 from app.core.security import (
     create_access_token,
@@ -32,6 +38,10 @@ from app.modules.identity.repository import (
 from app.modules.identity.schemas import (
     AcceptInviteRequest,
     AcceptInviteResponse,
+    AssistedAccessRecoveryRequest,
+    AssistedAccessRecoveryResponse,
+    ChangePasswordRequest,
+    ChangePasswordResponse,
     ChangeInitialPasswordRequest,
     ChangeInitialPasswordResponse,
     ActiveSessionResponse,
@@ -71,6 +81,8 @@ from app.modules.tenancy.schemas import BrandingConfig, ModuleToggles
 from app.providers.notifications.base import NotificationDispatchResult, NotificationProvider
 
 SUPPORTED_INTERFACE_LANGUAGES = {"fr", "en", "de"}
+ASSISTED_ACCESS_RECOVERY_TTL_HOURS = 48
+_RECOVERY_PASSWORD_ALPHABET = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789"
 
 
 def _ensure_aware(dt: datetime) -> datetime:
@@ -123,6 +135,17 @@ class AuthService:
             )
         return roles
 
+    async def _require_access_recovery_authority(
+        self, tenant_id: UUID, user_id: UUID
+    ) -> list[str]:
+        roles = await self._tenancy_repo.get_user_role_codes(tenant_id, user_id)
+        if not has_capability(roles, CAP_IDENTITY_ACCESS_RECOVERY):
+            raise HTTPException(
+                status_code=status.HTTP_403_FORBIDDEN,
+                detail="Only authorized office roles can recover another member's access",
+            )
+        return roles
+
     # ── Login / Session ───────────────────────────────────────────────────────
 
     async def login(self, request: LoginRequest) -> TokenResponse | MfaRequiredResponse:
@@ -138,6 +161,16 @@ class AuthService:
             raise HTTPException(
                 status_code=status.HTTP_403_FORBIDDEN,
                 detail="Account is disabled",
+            )
+
+        if (
+            user.password_change_required
+            and user.temporary_password_expires_at is not None
+            and datetime.now(UTC) > _ensure_aware(user.temporary_password_expires_at)
+        ):
+            raise HTTPException(
+                status_code=status.HTTP_403_FORBIDDEN,
+                detail="Temporary access has expired. Ask an authorized office role to issue a new password.",
             )
 
         tenant = await self._resolve_login_tenant(request, user.id)
@@ -197,10 +230,12 @@ class AuthService:
                 status_code=status.HTTP_409_CONFLICT,
                 detail="This account does not require an initial password change",
             )
+
         await self._user_repo.update_password(
             user_id,
             hash_password(request.new_password),
             password_change_required=False,
+            clear_temporary_password_expiry=True,
         )
         revoked_sessions = await self._session_repo.revoke_other_sessions(
             user_id=user_id,
@@ -225,6 +260,136 @@ class AuthService:
         await self._db.commit()
         return ChangeInitialPasswordResponse()
 
+    async def change_password(
+        self,
+        *,
+        user_id: UUID,
+        tenant_id: UUID,
+        current_session_id: UUID,
+        request: ChangePasswordRequest,
+    ) -> ChangePasswordResponse:
+        user = await self._user_repo.get_by_id(user_id)
+        if user is None or not verify_password(request.current_password, user.password_hash):
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail="The current password is incorrect",
+            )
+        if user.password_change_required:
+            raise HTTPException(
+                status_code=status.HTTP_409_CONFLICT,
+                detail="Use the required password change screen before changing this password again",
+            )
+        if request.current_password == request.new_password:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail="Choose a password different from the current password",
+            )
+
+        await self._user_repo.update_password(
+            user_id,
+            hash_password(request.new_password),
+            password_change_required=False,
+            clear_temporary_password_expiry=True,
+        )
+        revoked_sessions = await self._session_repo.revoke_other_sessions(
+            user_id=user_id,
+            keep_session_id=current_session_id,
+            revoked_reason="password_changed",
+        )
+        await self._audit.record_event(
+            tenant_id=tenant_id,
+            actor_user_id=user_id,
+            action="password_changed",
+            entity_type="user",
+            entity_id=user_id,
+            module_key="identity",
+            details={"revoked_session_count": len(revoked_sessions)},
+        )
+        await self._record_session_revocation_events(
+            tenant_id=tenant_id,
+            actor_user_id=user_id,
+            revoked_sessions=revoked_sessions,
+            reason="password_changed",
+        )
+        await self._db.commit()
+        return ChangePasswordResponse(revoked_session_count=len(revoked_sessions))
+
+    async def recover_member_access(
+        self,
+        *,
+        tenant_id: UUID,
+        requesting_user_id: UUID,
+        target_user_id: UUID,
+        request: AssistedAccessRecoveryRequest,
+    ) -> AssistedAccessRecoveryResponse:
+        if requesting_user_id == target_user_id:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail="Use the account security page to change your own password",
+            )
+        await self._require_access_recovery_authority(tenant_id, requesting_user_id)
+        membership = await self._tenancy_repo.get_tenant_user(tenant_id, target_user_id)
+        if membership is None:
+            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Member not found")
+        target = await self._user_repo.get_by_id(target_user_id)
+        if target is None:
+            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Member not found")
+        if target.status != "active" or membership.membership_status != "active":
+            raise HTTPException(
+                status_code=status.HTTP_409_CONFLICT,
+                detail="Only active members can receive temporary access",
+            )
+
+        temporary_password = self._generate_assisted_recovery_password()
+        expires_at = datetime.now(UTC) + timedelta(hours=ASSISTED_ACCESS_RECOVERY_TTL_HOURS)
+        await self._user_repo.update_password(
+            target.id,
+            hash_password(temporary_password),
+            password_change_required=True,
+            temporary_password_expires_at=expires_at,
+        )
+        await self._password_reset_repo.invalidate_all_for_user(target.id)
+        revoked_sessions = await self._session_repo.revoke_all_for_user(
+            user_id=target.id,
+            revoked_reason="assisted_access_recovery",
+        )
+        await self._audit.record_event(
+            tenant_id=tenant_id,
+            actor_user_id=requesting_user_id,
+            action="assisted_access_recovery_issued",
+            entity_type="user",
+            entity_id=target.id,
+            module_key="identity",
+            details={
+                "target_display_name": target.display_name,
+                "reason": request.reason,
+                "expires_at": expires_at.isoformat(),
+                "revoked_session_count": len(revoked_sessions),
+            },
+        )
+        await self._record_session_revocation_events(
+            tenant_id=tenant_id,
+            actor_user_id=requesting_user_id,
+            revoked_sessions=revoked_sessions,
+            reason="assisted_access_recovery",
+        )
+        await self._db.commit()
+        return AssistedAccessRecoveryResponse(
+            target_user_id=target.id,
+            target_display_name=target.display_name,
+            temporary_password=temporary_password,
+            expires_at=expires_at,
+            revoked_session_count=len(revoked_sessions),
+        )
+
+    @staticmethod
+    def _generate_assisted_recovery_password() -> str:
+        groups = [
+            "".join(secrets.choice(_RECOVERY_PASSWORD_ALPHABET) for _ in range(4))
+            for _ in range(3)
+        ]
+        return f"Kairo-{'-'.join(groups)}!"
+
     async def complete_mfa_login(
         self, request: MfaCompleteLoginRequest
     ) -> MfaLoginResponse:
@@ -248,6 +413,15 @@ class AuthService:
             raise HTTPException(
                 status_code=status.HTTP_401_UNAUTHORIZED,
                 detail="User not found or inactive",
+            )
+        if (
+            user.password_change_required
+            and user.temporary_password_expires_at is not None
+            and datetime.now(UTC) > _ensure_aware(user.temporary_password_expires_at)
+        ):
+            raise HTTPException(
+                status_code=status.HTTP_403_FORBIDDEN,
+                detail="Temporary access has expired. Ask an authorized office role to issue a new password.",
             )
         if not user.totp_secret or not user.totp_enabled:
             raise HTTPException(
@@ -317,6 +491,7 @@ class AuthService:
             expires_in=settings.access_token_expire_minutes * 60,
             tenant_id=tenant.id,
             user_id=user.id,
+            password_change_required=user.password_change_required,
         )
 
     async def _resolve_login_tenant(
@@ -1117,7 +1292,10 @@ class AuthService:
             )
 
         await self._user_repo.update_password(
-            prt.user_id, hash_password(request.new_password)
+            prt.user_id,
+            hash_password(request.new_password),
+            password_change_required=False,
+            clear_temporary_password_expiry=True,
         )
         await self._password_reset_repo.mark_used(prt.id)
         revoked_sessions = await self._session_repo.revoke_all_for_user(
