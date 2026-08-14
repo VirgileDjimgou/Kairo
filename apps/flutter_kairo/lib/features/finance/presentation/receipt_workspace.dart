@@ -3,6 +3,11 @@ import 'package:flutter/material.dart';
 import '../../../app/localization/kairo_localizations.dart';
 import '../../../app/theme/kairo_theme.dart';
 import '../../../core/offline/offline_workspace_controller.dart';
+import '../../../design_system/components/app_section_header.dart';
+import '../../../design_system/components/app_state_panel.dart';
+import '../../../design_system/components/app_status_badge.dart';
+import '../../../design_system/components/app_surface_card.dart';
+import '../../../design_system/theme/app_tokens.dart';
 import '../data/receipt_gateway.dart';
 import 'receipt_controller.dart';
 
@@ -55,9 +60,8 @@ class _ReceiptWorkspaceState extends State<ReceiptWorkspace> {
           child: ListView(
             padding: const EdgeInsets.all(20),
             children: <Widget>[
-              Text(
-                widget.canProcess ? text.finance : text.declare,
-                style: Theme.of(context).textTheme.headlineSmall,
+              AppSectionHeader(
+                title: widget.canProcess ? text.finance : text.declare,
               ),
               const SizedBox(height: 8),
               Text(widget.canProcess ? text.financeBody : text.declareBody),
@@ -116,8 +120,8 @@ class _TreasuryIntro extends StatelessWidget {
   final _FinanceText text;
   final int count;
   @override
-  Widget build(BuildContext context) => Card(
-    color: const Color(0xffeff6ff),
+  Widget build(BuildContext context) => AppSurfaceCard(
+    tone: AppCardTone.primary,
     child: Padding(
       padding: const EdgeInsets.all(18),
       child: Row(
@@ -219,117 +223,116 @@ class _NewReceiptState extends State<_NewReceipt> {
   }
 
   @override
-  Widget build(BuildContext context) => Card(
-    child: Padding(
-      padding: const EdgeInsets.all(18),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: <Widget>[
-          Text(
-            widget.text.newDeclaration,
-            style: Theme.of(context).textTheme.titleMedium,
+  Widget build(BuildContext context) => AppSurfaceCard(
+    tone: AppCardTone.secondary,
+    padding: const EdgeInsets.all(AppSpacing.lg),
+    child: Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: <Widget>[
+        Text(
+          widget.text.newDeclaration,
+          style: Theme.of(context).textTheme.titleMedium,
+        ),
+        const SizedBox(height: 8),
+        Text(widget.text.newDeclarationBody),
+        const SizedBox(height: 16),
+        DropdownButtonFormField<String>(
+          initialValue: _type,
+          decoration: InputDecoration(labelText: widget.text.incomeType),
+          items: <DropdownMenuItem<String>>[
+            DropdownMenuItem(
+              value: 'membership_contribution',
+              child: Text(widget.text.contribution),
+            ),
+            DropdownMenuItem(
+              value: 'donation',
+              child: Text(widget.text.donation),
+            ),
+            DropdownMenuItem(
+              value: 'sponsorship',
+              child: Text(widget.text.sponsorship),
+            ),
+            DropdownMenuItem(
+              value: 'tournament_proceeds',
+              child: Text(widget.text.tournament),
+            ),
+            DropdownMenuItem(
+              value: 'other_income',
+              child: Text(widget.text.otherIncome),
+            ),
+          ],
+          onChanged: (String? value) => setState(() {
+            _type = value!;
+            _memberId = null;
+            _options = const <ReceiptMemberOption>[];
+            _saveDraft();
+          }),
+        ),
+        const SizedBox(height: 12),
+        if (_type == 'membership_contribution') ...<Widget>[
+          TextField(
+            controller: _search,
+            decoration: InputDecoration(
+              labelText: widget.text.memberSearch,
+              prefixIcon: const Icon(Icons.search),
+            ),
           ),
-          const SizedBox(height: 8),
-          Text(widget.text.newDeclarationBody),
-          const SizedBox(height: 16),
-          DropdownButtonFormField<String>(
-            initialValue: _type,
-            decoration: InputDecoration(labelText: widget.text.incomeType),
-            items: <DropdownMenuItem<String>>[
-              DropdownMenuItem(
-                value: 'membership_contribution',
-                child: Text(widget.text.contribution),
+          if (_options.isNotEmpty)
+            Container(
+              margin: const EdgeInsets.only(top: 6),
+              decoration: BoxDecoration(
+                border: Border.all(color: Colors.blueGrey.shade100),
+                borderRadius: BorderRadius.circular(12),
               ),
-              DropdownMenuItem(
-                value: 'donation',
-                child: Text(widget.text.donation),
-              ),
-              DropdownMenuItem(
-                value: 'sponsorship',
-                child: Text(widget.text.sponsorship),
-              ),
-              DropdownMenuItem(
-                value: 'tournament_proceeds',
-                child: Text(widget.text.tournament),
-              ),
-              DropdownMenuItem(
-                value: 'other_income',
-                child: Text(widget.text.otherIncome),
-              ),
-            ],
-            onChanged: (String? value) => setState(() {
-              _type = value!;
-              _memberId = null;
-              _options = const <ReceiptMemberOption>[];
-              _saveDraft();
-            }),
-          ),
-          const SizedBox(height: 12),
-          if (_type == 'membership_contribution') ...<Widget>[
-            TextField(
-              controller: _search,
-              decoration: InputDecoration(
-                labelText: widget.text.memberSearch,
-                prefixIcon: const Icon(Icons.search),
+              child: Column(
+                children: _options
+                    .take(5)
+                    .map(
+                      (ReceiptMemberOption option) => ListTile(
+                        title: Text(option.label),
+                        trailing: _memberId == option.id
+                            ? const Icon(
+                                Icons.check,
+                                color: KairoColors.success,
+                              )
+                            : null,
+                        onTap: () => setState(() {
+                          _memberId = option.id;
+                          _search.text = option.label;
+                          _options = const <ReceiptMemberOption>[];
+                        }),
+                      ),
+                    )
+                    .toList(),
               ),
             ),
-            if (_options.isNotEmpty)
-              Container(
-                margin: const EdgeInsets.only(top: 6),
-                decoration: BoxDecoration(
-                  border: Border.all(color: Colors.blueGrey.shade100),
-                  borderRadius: BorderRadius.circular(12),
-                ),
-                child: Column(
-                  children: _options
-                      .take(5)
-                      .map(
-                        (ReceiptMemberOption option) => ListTile(
-                          title: Text(option.label),
-                          trailing: _memberId == option.id
-                              ? const Icon(
-                                  Icons.check,
-                                  color: KairoColors.success,
-                                )
-                              : null,
-                          onTap: () => setState(() {
-                            _memberId = option.id;
-                            _search.text = option.label;
-                            _options = const <ReceiptMemberOption>[];
-                          }),
-                        ),
-                      )
-                      .toList(),
-                ),
-              ),
-          ] else
-            TextField(
-              controller: _source,
-              decoration: InputDecoration(labelText: widget.text.source),
-            ),
-          const SizedBox(height: 12),
+        ] else
           TextField(
-            controller: _amount,
-            onChanged: (_) => _saveDraft(),
-            keyboardType: const TextInputType.numberWithOptions(decimal: true),
-            decoration: InputDecoration(labelText: widget.text.amount),
+            controller: _source,
+            decoration: InputDecoration(labelText: widget.text.source),
           ),
-          const SizedBox(height: 12),
-          TextField(
-            controller: _note,
-            onChanged: (_) => _saveDraft(),
-            minLines: 2,
-            maxLines: 4,
-            decoration: InputDecoration(labelText: widget.text.note),
-          ),
-          const SizedBox(height: 16),
-          FilledButton.icon(
-            onPressed: _saving ? null : _submit,
-            icon: const Icon(Icons.send_outlined),
-            label: Text(_saving ? widget.text.saving : widget.text.submit),
-          ),
-        ],
-      ),
+        const SizedBox(height: 12),
+        TextField(
+          controller: _amount,
+          onChanged: (_) => _saveDraft(),
+          keyboardType: const TextInputType.numberWithOptions(decimal: true),
+          decoration: InputDecoration(labelText: widget.text.amount),
+        ),
+        const SizedBox(height: 12),
+        TextField(
+          controller: _note,
+          onChanged: (_) => _saveDraft(),
+          minLines: 2,
+          maxLines: 4,
+          decoration: InputDecoration(labelText: widget.text.note),
+        ),
+        const SizedBox(height: 16),
+        FilledButton.icon(
+          onPressed: _saving ? null : _submit,
+          icon: const Icon(Icons.send_outlined),
+          label: Text(_saving ? widget.text.saving : widget.text.submit),
+        ),
+      ],
     ),
   );
 
@@ -392,81 +395,79 @@ class _ReceiptCard extends StatelessWidget {
   final _FinanceText text;
 
   @override
-  Widget build(BuildContext context) => Card(
-    child: Padding(
-      padding: const EdgeInsets.all(18),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: <Widget>[
-          Row(
-            children: <Widget>[
-              Expanded(
-                child: Text(
-                  '${receipt.amount} EUR',
-                  style: Theme.of(context).textTheme.titleLarge,
+  Widget build(BuildContext context) => AppSurfaceCard(
+    padding: const EdgeInsets.all(AppSpacing.lg),
+    child: Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: <Widget>[
+        Row(
+          children: <Widget>[
+            Expanded(
+              child: Text(
+                '${receipt.amount} EUR',
+                style: Theme.of(context).textTheme.titleLarge,
+              ),
+            ),
+            _StatusChip(status: receipt.status, text: text),
+          ],
+        ),
+        const SizedBox(height: 6),
+        Text(
+          text.incomeLabel(receipt.incomeType),
+          style: Theme.of(context).textTheme.titleMedium,
+        ),
+        if (receipt.sourceName != null) Text(receipt.sourceName!),
+        if (receipt.note != null && receipt.note!.isNotEmpty)
+          Padding(
+            padding: const EdgeInsets.only(top: 6),
+            child: Text(receipt.note!),
+          ),
+        if (receipt.cashHandoverStatus != null)
+          Padding(
+            padding: const EdgeInsets.only(top: 12),
+            child: _CustodyBanner(receipt: receipt, text: text),
+          ),
+        if (canProcess && receipt.status == 'submitted')
+          Padding(
+            padding: const EdgeInsets.only(top: 16),
+            child: Wrap(
+              spacing: 8,
+              runSpacing: 8,
+              children: <Widget>[
+                FilledButton(
+                  onPressed: () => _confirmProcess(context, false),
+                  child: Text(text.validate),
                 ),
-              ),
-              _StatusChip(status: receipt.status, text: text),
-            ],
+                OutlinedButton(
+                  onPressed: () => _confirmProcess(context, true),
+                  child: Text(text.reject),
+                ),
+              ],
+            ),
           ),
-          const SizedBox(height: 6),
-          Text(
-            text.incomeLabel(receipt.incomeType),
-            style: Theme.of(context).textTheme.titleMedium,
+        if (canProcess &&
+            receipt.status == 'validated' &&
+            receipt.cashHandoverStatus != 'received_in_treasury')
+          Padding(
+            padding: const EdgeInsets.only(top: 16),
+            child: Wrap(
+              spacing: 8,
+              runSpacing: 8,
+              children: <Widget>[
+                OutlinedButton.icon(
+                  onPressed: () => _reminder(context),
+                  icon: const Icon(Icons.schedule),
+                  label: Text(text.changeReminder),
+                ),
+                FilledButton.icon(
+                  onPressed: () => _confirmCashbox(context),
+                  icon: const Icon(Icons.lock_outline),
+                  label: Text(text.closeCashbox),
+                ),
+              ],
+            ),
           ),
-          if (receipt.sourceName != null) Text(receipt.sourceName!),
-          if (receipt.note != null && receipt.note!.isNotEmpty)
-            Padding(
-              padding: const EdgeInsets.only(top: 6),
-              child: Text(receipt.note!),
-            ),
-          if (receipt.cashHandoverStatus != null)
-            Padding(
-              padding: const EdgeInsets.only(top: 12),
-              child: _CustodyBanner(receipt: receipt, text: text),
-            ),
-          if (canProcess && receipt.status == 'submitted')
-            Padding(
-              padding: const EdgeInsets.only(top: 16),
-              child: Wrap(
-                spacing: 8,
-                runSpacing: 8,
-                children: <Widget>[
-                  FilledButton(
-                    onPressed: () => _confirmProcess(context, false),
-                    child: Text(text.validate),
-                  ),
-                  OutlinedButton(
-                    onPressed: () => _confirmProcess(context, true),
-                    child: Text(text.reject),
-                  ),
-                ],
-              ),
-            ),
-          if (canProcess &&
-              receipt.status == 'validated' &&
-              receipt.cashHandoverStatus != 'received_in_treasury')
-            Padding(
-              padding: const EdgeInsets.only(top: 16),
-              child: Wrap(
-                spacing: 8,
-                runSpacing: 8,
-                children: <Widget>[
-                  OutlinedButton.icon(
-                    onPressed: () => _reminder(context),
-                    icon: const Icon(Icons.schedule),
-                    label: Text(text.changeReminder),
-                  ),
-                  FilledButton.icon(
-                    onPressed: () => _confirmCashbox(context),
-                    icon: const Icon(Icons.lock_outline),
-                    label: Text(text.closeCashbox),
-                  ),
-                ],
-              ),
-            ),
-        ],
-      ),
+      ],
     ),
   );
 
@@ -615,13 +616,13 @@ class _StatusChip extends StatelessWidget {
   final String status;
   final _FinanceText text;
   @override
-  Widget build(BuildContext context) => Chip(
-    backgroundColor: status == 'rejected'
-        ? const Color(0xffffe5e5)
+  Widget build(BuildContext context) => AppStatusBadge(
+    status: status == 'rejected'
+        ? AppStatus.overdue
         : status == 'validated'
-        ? const Color(0xffe6f4ea)
-        : const Color(0xffe8f0fe),
-    label: Text(text.statusLabel(status)),
+        ? AppStatus.paid
+        : AppStatus.pending,
+    label: text.statusLabel(status),
   );
 }
 
@@ -630,9 +631,10 @@ class _Notice extends StatelessWidget {
   final String message;
   final bool error;
   @override
-  Widget build(BuildContext context) => Card(
-    color: error ? const Color(0xffffe7e7) : const Color(0xfff6f8fa),
-    child: Padding(padding: const EdgeInsets.all(18), child: Text(message)),
+  Widget build(BuildContext context) => AppStatePanel(
+    icon: error ? Icons.error_outline : Icons.inbox_outlined,
+    title: message,
+    tone: error ? AppCardTone.danger : AppCardTone.standard,
   );
 }
 

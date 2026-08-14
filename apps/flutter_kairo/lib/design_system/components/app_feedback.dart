@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 
 import '../theme/app_tokens.dart';
 
@@ -13,6 +14,11 @@ abstract final class AppFeedback {
       status,
       Theme.of(context).brightness,
     );
+    if (status == AppStatus.paid || status == AppStatus.closed) {
+      HapticFeedback.lightImpact();
+    } else if (status == AppStatus.overdue) {
+      HapticFeedback.mediumImpact();
+    }
     ScaffoldMessenger.of(context)
       ..hideCurrentSnackBar()
       ..showSnackBar(

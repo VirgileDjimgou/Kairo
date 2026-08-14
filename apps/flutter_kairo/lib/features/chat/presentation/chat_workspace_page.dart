@@ -2,6 +2,10 @@ import 'package:flutter/material.dart';
 
 import '../../../app/localization/kairo_localizations.dart';
 import '../../../core/api/kairo_api_client.dart';
+import '../../../design_system/components/app_section_header.dart';
+import '../../../design_system/components/app_state_panel.dart';
+import '../../../design_system/components/app_surface_card.dart';
+import '../../../design_system/theme/app_tokens.dart';
 import '../data/chat_gateway.dart';
 
 class ChatWorkspacePage extends StatefulWidget {
@@ -247,7 +251,7 @@ class _ConversationList extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) => Material(
-    color: const Color(0xFFF7F9FC),
+    color: Theme.of(context).colorScheme.surfaceContainerLow,
     child: ListView(
       padding: const EdgeInsets.all(12),
       children: <Widget>[
@@ -298,8 +302,7 @@ class _ChatMain extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: <Widget>[
-            Text(text.kicker, style: Theme.of(context).textTheme.labelLarge),
-            Text(text.title, style: Theme.of(context).textTheme.headlineSmall),
+            AppSectionHeader(eyebrow: text.kicker, title: text.title),
             Text(text.lead),
           ],
         ),
@@ -316,7 +319,15 @@ class _ChatMain extends StatelessWidget {
         ),
       Expanded(
         child: messages.isEmpty && streamingAnswer.isEmpty
-            ? Center(child: Text(text.empty))
+            ? Center(
+                child: Padding(
+                  padding: const EdgeInsets.all(AppSpacing.lg),
+                  child: AppStatePanel(
+                    icon: Icons.auto_awesome_outlined,
+                    title: text.empty,
+                  ),
+                ),
+              )
             : ListView(
                 padding: const EdgeInsets.all(20),
                 children: <Widget>[
@@ -376,41 +387,36 @@ class _Message extends StatelessWidget {
     final isUser = message.role == 'user';
     return Align(
       alignment: isUser ? Alignment.centerRight : Alignment.centerLeft,
-      child: Card(
-        color: isUser ? const Color(0xFFDDEBFF) : null,
-        child: Padding(
-          padding: const EdgeInsets.all(14),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: <Widget>[
-              Text(
-                isUser ? text.you : text.assistant,
-                style: Theme.of(context).textTheme.labelMedium,
-              ),
-              Text(message.content),
-              if (message.citations.isNotEmpty) ...<Widget>[
-                const SizedBox(height: 8),
-                Text(
-                  text.sources,
-                  style: Theme.of(context).textTheme.titleSmall,
-                ),
-                ...message.citations.map(
-                  (citation) => ExpansionTile(
-                    title: Text(citation.documentTitle),
-                    subtitle: Text(
-                      '${(citation.score * 100).toStringAsFixed(0)}%',
-                    ),
-                    children: <Widget>[
-                      Padding(
-                        padding: const EdgeInsets.all(12),
-                        child: Text(citation.excerpt),
-                      ),
-                    ],
+      child: AppSurfaceCard(
+        tone: isUser ? AppCardTone.primary : AppCardTone.standard,
+        padding: const EdgeInsets.all(AppSpacing.md),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: <Widget>[
+            Text(
+              isUser ? text.you : text.assistant,
+              style: Theme.of(context).textTheme.labelMedium,
+            ),
+            Text(message.content),
+            if (message.citations.isNotEmpty) ...<Widget>[
+              const SizedBox(height: 8),
+              Text(text.sources, style: Theme.of(context).textTheme.titleSmall),
+              ...message.citations.map(
+                (citation) => ExpansionTile(
+                  title: Text(citation.documentTitle),
+                  subtitle: Text(
+                    '${(citation.score * 100).toStringAsFixed(0)}%',
                   ),
+                  children: <Widget>[
+                    Padding(
+                      padding: const EdgeInsets.all(12),
+                      child: Text(citation.excerpt),
+                    ),
+                  ],
                 ),
-              ],
+              ),
             ],
-          ),
+          ],
         ),
       ),
     );
@@ -433,37 +439,20 @@ class _AiRuntimeState extends StatelessWidget {
     return Center(
       child: Padding(
         padding: const EdgeInsets.all(24),
-        child: Card(
-          child: Padding(
-            padding: const EdgeInsets.all(24),
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: <Widget>[
-                Icon(
-                  disabled
-                      ? Icons.pause_circle_outline
-                      : Icons.cloud_off_outlined,
-                  size: 48,
+        child: AppStatePanel(
+          icon: disabled
+              ? Icons.pause_circle_outline
+              : Icons.cloud_off_outlined,
+          title: disabled ? text.disabledTitle : text.unavailableTitle,
+          message: disabled ? text.disabledLead : text.unavailableLead,
+          tone: disabled ? AppCardTone.warning : AppCardTone.danger,
+          action: disabled
+              ? null
+              : TextButton.icon(
+                  onPressed: onRetry,
+                  icon: const Icon(Icons.refresh),
+                  label: Text(text.retry),
                 ),
-                const SizedBox(height: 12),
-                Text(
-                  disabled ? text.disabledTitle : text.unavailableTitle,
-                  style: Theme.of(context).textTheme.titleLarge,
-                ),
-                const SizedBox(height: 8),
-                Text(
-                  disabled ? text.disabledLead : text.unavailableLead,
-                  textAlign: TextAlign.center,
-                ),
-                if (!disabled)
-                  TextButton.icon(
-                    onPressed: onRetry,
-                    icon: const Icon(Icons.refresh),
-                    label: Text(text.retry),
-                  ),
-              ],
-            ),
-          ),
         ),
       ),
     );

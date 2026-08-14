@@ -24,13 +24,27 @@ class AppMetricCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final ColorScheme scheme = Theme.of(context).colorScheme;
+    final Color iconColor = switch (tone) {
+      AppCardTone.success => AppStatusVisual.of(
+        AppStatus.paid,
+        Theme.of(context).brightness,
+      ).foreground,
+      AppCardTone.warning => AppStatusVisual.of(
+        AppStatus.pending,
+        Theme.of(context).brightness,
+      ).foreground,
+      AppCardTone.danger => scheme.error,
+      AppCardTone.secondary => scheme.secondary,
+      AppCardTone.tertiary => scheme.tertiary,
+      AppCardTone.standard || AppCardTone.primary => scheme.primary,
+    };
     return AppSurfaceCard(
       tone: tone,
       onTap: onTap,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: <Widget>[
-          Icon(icon, color: scheme.primary),
+          Icon(icon, color: iconColor),
           const SizedBox(height: AppSpacing.lg),
           Text(title, style: Theme.of(context).textTheme.labelLarge),
           const SizedBox(height: AppSpacing.xs),

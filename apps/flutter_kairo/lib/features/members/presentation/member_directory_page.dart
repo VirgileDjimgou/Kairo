@@ -2,6 +2,11 @@ import 'package:flutter/material.dart';
 
 import '../../../app/localization/kairo_localizations.dart';
 import '../../../app/theme/kairo_theme.dart';
+import '../../../design_system/components/app_section_header.dart';
+import '../../../design_system/components/app_state_panel.dart';
+import '../../../design_system/components/app_status_badge.dart';
+import '../../../design_system/components/app_surface_card.dart';
+import '../../../design_system/theme/app_tokens.dart';
 import '../data/member_models.dart';
 import 'member_controller.dart';
 
@@ -213,101 +218,81 @@ class _Directory extends StatelessWidget {
   final VoidCallback? onCreate;
   final Future<void> Function(MemberProfile, String) onStatus;
   @override
-  Widget build(BuildContext context) => Card(
-    child: Padding(
-      padding: const EdgeInsets.all(16),
-      child: ListView(
-        shrinkWrap: true,
-        children: <Widget>[
-          Row(
-            children: <Widget>[
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: <Widget>[
-                    Text(
-                      text.directoryKicker,
-                      style: Theme.of(context).textTheme.labelLarge,
-                    ),
-                    Text(
-                      text.title,
-                      style: Theme.of(context).textTheme.headlineSmall,
-                    ),
-                  ],
-                ),
-              ),
-              if (onCreate != null)
-                FilledButton.icon(
+  Widget build(BuildContext context) => AppSurfaceCard(
+    padding: const EdgeInsets.all(AppSpacing.lg),
+    child: ListView(
+      shrinkWrap: true,
+      children: <Widget>[
+        AppSectionHeader(
+          eyebrow: text.directoryKicker,
+          title: text.title,
+          trailing: onCreate == null
+              ? null
+              : FilledButton.icon(
                   onPressed: onCreate,
                   icon: const Icon(Icons.person_add_alt_1),
                   label: Text(text.addMember),
                 ),
-            ],
-          ),
-          const SizedBox(height: 16),
-          TextField(
-            controller: query,
-            onChanged: onSearch,
-            decoration: InputDecoration(
-              prefixIcon: const Icon(Icons.search),
-              hintText: text.searchHint,
-              suffixIcon: IconButton(
-                onPressed: () {
-                  query.clear();
-                  onSearch('');
-                },
-                icon: const Icon(Icons.refresh),
-                tooltip: text.refresh,
-              ),
-            ),
-          ),
-          const SizedBox(height: 12),
-          if (controller.error != null)
-            _InlineError(message: controller.error!),
-          if (controller.loading)
-            const Padding(
-              padding: EdgeInsets.all(24),
-              child: Center(child: CircularProgressIndicator()),
-            )
-          else if (controller.members.isEmpty)
-            Padding(
-              padding: const EdgeInsets.all(24),
-              child: Center(child: Text(text.empty)),
-            )
-          else
-            ListView.separated(
-              shrinkWrap: true,
-              physics: const NeverScrollableScrollPhysics(),
-              itemCount: controller.members.length,
-              separatorBuilder: (_, int index) => const Divider(height: 1),
-              itemBuilder: (BuildContext context, int index) {
-                final MemberProfile member = controller.members[index];
-                return ListTile(
-                  selected: controller.selected?.id == member.id,
-                  onTap: () => controller.select(member),
-                  leading: CircleAvatar(
-                    backgroundColor: member.status == 'active'
-                        ? KairoColors.primary.withValues(alpha: .12)
-                        : Colors.grey.shade200,
-                    child: Text(
-                      member.displayName.isEmpty
-                          ? '?'
-                          : member.displayName.substring(0, 1).toUpperCase(),
-                    ),
-                  ),
-                  title: Text(member.displayName),
-                  subtitle: Text(
-                    '${member.memberCode} · ${member.email ?? member.phone ?? text.noContact}',
-                  ),
-                  trailing: _StatusChip(
-                    active: member.status == 'active',
-                    text: text,
-                  ),
-                );
+        ),
+        const SizedBox(height: 16),
+        TextField(
+          controller: query,
+          onChanged: onSearch,
+          decoration: InputDecoration(
+            prefixIcon: const Icon(Icons.search),
+            hintText: text.searchHint,
+            suffixIcon: IconButton(
+              onPressed: () {
+                query.clear();
+                onSearch('');
               },
+              icon: const Icon(Icons.refresh),
+              tooltip: text.refresh,
             ),
-        ],
-      ),
+          ),
+        ),
+        const SizedBox(height: 12),
+        if (controller.error != null) _InlineError(message: controller.error!),
+        if (controller.loading)
+          const Padding(
+            padding: EdgeInsets.all(24),
+            child: Center(child: CircularProgressIndicator()),
+          )
+        else if (controller.members.isEmpty)
+          AppStatePanel(icon: Icons.group_off_outlined, title: text.empty)
+        else
+          ListView.separated(
+            shrinkWrap: true,
+            physics: const NeverScrollableScrollPhysics(),
+            itemCount: controller.members.length,
+            separatorBuilder: (_, int index) => const Divider(height: 1),
+            itemBuilder: (BuildContext context, int index) {
+              final MemberProfile member = controller.members[index];
+              return ListTile(
+                selected: controller.selected?.id == member.id,
+                onTap: () => controller.select(member),
+                leading: CircleAvatar(
+                  backgroundColor: member.status == 'active'
+                      ? KairoColors.primary.withValues(alpha: .12)
+                      : Colors.grey.shade200,
+                  child: Text(
+                    member.displayName.isEmpty
+                        ? '?'
+                        : member.displayName.substring(0, 1).toUpperCase(),
+                  ),
+                ),
+                title: Text(member.displayName),
+                subtitle: Text(
+                  '${member.memberCode} · ${member.email ?? member.phone ?? text.noContact}',
+                ),
+                trailing: _StatusChip(
+                  active: member.status == 'active',
+                  text: text,
+                ),
+              );
+            },
+          ),
+      ],
     ),
   );
 }
@@ -326,101 +311,82 @@ class _MemberDetail extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     if (member == null) {
-      return Card(
-        child: Padding(
-          padding: const EdgeInsets.all(24),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: <Widget>[
-              const Icon(
-                Icons.touch_app_outlined,
-                size: 36,
-                color: KairoColors.primary,
-              ),
-              const SizedBox(height: 12),
-              Text(text.selectMember, textAlign: TextAlign.center),
-            ],
-          ),
-        ),
+      return AppStatePanel(
+        icon: Icons.touch_app_outlined,
+        title: text.selectMember,
       );
     }
-    return Card(
-      child: Padding(
-        padding: const EdgeInsets.all(20),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          mainAxisSize: MainAxisSize.min,
-          children: <Widget>[
-            Row(
-              children: <Widget>[
-                CircleAvatar(
-                  radius: 24,
-                  child: Text(
-                    member!.displayName.substring(0, 1).toUpperCase(),
-                  ),
-                ),
-                const SizedBox(width: 12),
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: <Widget>[
-                      Text(
-                        member!.displayName,
-                        style: Theme.of(context).textTheme.titleLarge,
-                      ),
-                      Text(member!.memberCode),
-                    ],
-                  ),
-                ),
-                _StatusChip(active: member!.status == 'active', text: text),
-              ],
-            ),
-            const Divider(height: 28),
-            _InfoRow(
-              label: text.contact,
-              value: member!.email ?? member!.phone ?? text.noContact,
-            ),
-            _InfoRow(
-              label: text.address,
-              value: member!.address.isEmpty
-                  ? text.notProvided
-                  : member!.address,
-            ),
-            _InfoRow(
-              label: text.membershipType,
-              value: member!.membershipType == 'family'
-                  ? text.family
-                  : text.individual,
-            ),
-            _InfoRow(
-              label: text.joined,
-              value:
-                  member!.joinedAt?.toIso8601String().split('T').first ?? '—',
-            ),
-            const SizedBox(height: 16),
-            if (onEdit != null)
-              OutlinedButton.icon(
-                onPressed: () => onEdit!(member!),
-                icon: const Icon(Icons.edit_outlined),
-                label: Text(text.editMember),
+    return AppSurfaceCard(
+      tone: AppCardTone.secondary,
+      padding: const EdgeInsets.all(AppSpacing.lg),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        mainAxisSize: MainAxisSize.min,
+        children: <Widget>[
+          Row(
+            children: <Widget>[
+              CircleAvatar(
+                radius: 24,
+                child: Text(member!.displayName.substring(0, 1).toUpperCase()),
               ),
-            if (onEdit != null) const SizedBox(height: 8),
+              const SizedBox(width: 12),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: <Widget>[
+                    Text(
+                      member!.displayName,
+                      style: Theme.of(context).textTheme.titleLarge,
+                    ),
+                    Text(member!.memberCode),
+                  ],
+                ),
+              ),
+              _StatusChip(active: member!.status == 'active', text: text),
+            ],
+          ),
+          const Divider(height: 28),
+          _InfoRow(
+            label: text.contact,
+            value: member!.email ?? member!.phone ?? text.noContact,
+          ),
+          _InfoRow(
+            label: text.address,
+            value: member!.address.isEmpty ? text.notProvided : member!.address,
+          ),
+          _InfoRow(
+            label: text.membershipType,
+            value: member!.membershipType == 'family'
+                ? text.family
+                : text.individual,
+          ),
+          _InfoRow(
+            label: text.joined,
+            value: member!.joinedAt?.toIso8601String().split('T').first ?? '—',
+          ),
+          const SizedBox(height: 16),
+          if (onEdit != null)
             OutlinedButton.icon(
-              onPressed: () => onStatus(
-                member!,
-                member!.status == 'active' ? 'paused' : 'active',
-              ),
-              icon: Icon(
-                member!.status == 'active'
-                    ? Icons.pause_circle_outline
-                    : Icons.play_circle_outline,
-              ),
-              label: Text(
-                member!.status == 'active' ? text.pause : text.reactivate,
-              ),
+              onPressed: () => onEdit!(member!),
+              icon: const Icon(Icons.edit_outlined),
+              label: Text(text.editMember),
             ),
-          ],
-        ),
+          if (onEdit != null) const SizedBox(height: 8),
+          OutlinedButton.icon(
+            onPressed: () => onStatus(
+              member!,
+              member!.status == 'active' ? 'paused' : 'active',
+            ),
+            icon: Icon(
+              member!.status == 'active'
+                  ? Icons.pause_circle_outline
+                  : Icons.play_circle_outline,
+            ),
+            label: Text(
+              member!.status == 'active' ? text.pause : text.reactivate,
+            ),
+          ),
+        ],
       ),
     );
   }
@@ -449,15 +415,9 @@ class _StatusChip extends StatelessWidget {
   final bool active;
   final _MembersText text;
   @override
-  Widget build(BuildContext context) => Chip(
-    label: Text(active ? text.active : text.paused),
-    backgroundColor: active
-        ? KairoColors.success.withValues(alpha: .14)
-        : Colors.orange.withValues(alpha: .15),
-    side: BorderSide.none,
-    labelStyle: TextStyle(
-      color: active ? KairoColors.success : Colors.orange.shade900,
-    ),
+  Widget build(BuildContext context) => AppStatusBadge(
+    status: active ? AppStatus.active : AppStatus.pending,
+    label: active ? text.active : text.paused,
   );
 }
 
@@ -465,15 +425,13 @@ class _InlineError extends StatelessWidget {
   const _InlineError({required this.message});
   final String message;
   @override
-  Widget build(BuildContext context) => Container(
-    width: double.infinity,
-    padding: const EdgeInsets.all(12),
-    margin: const EdgeInsets.only(bottom: 12),
-    decoration: BoxDecoration(
-      color: Colors.red.shade50,
-      borderRadius: BorderRadius.circular(12),
+  Widget build(BuildContext context) => Padding(
+    padding: const EdgeInsets.only(bottom: AppSpacing.md),
+    child: AppStatePanel(
+      icon: Icons.error_outline,
+      title: message,
+      tone: AppCardTone.danger,
     ),
-    child: Text(message, style: TextStyle(color: Colors.red.shade900)),
   );
 }
 

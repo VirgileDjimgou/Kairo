@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
 
 import '../../../app/localization/kairo_localizations.dart';
+import '../../../design_system/components/app_section_header.dart';
+import '../../../design_system/components/app_state_panel.dart';
+import '../../../design_system/components/app_surface_card.dart';
 import '../data/fcm_registration_state.dart';
 import '../data/inbox_gateway.dart';
 
@@ -126,20 +129,14 @@ class _InboxPageState extends State<InboxPage> {
           child: ListView(
             padding: const EdgeInsets.all(20),
             children: <Widget>[
-              Row(
-                children: <Widget>[
-                  Expanded(
-                    child: Text(
-                      text.title,
-                      style: Theme.of(context).textTheme.headlineSmall,
-                    ),
-                  ),
-                  if ((_inbox?.unreadCount ?? 0) > 0)
-                    TextButton(
-                      onPressed: _markAllRead,
-                      child: Text(text.markAll),
-                    ),
-                ],
+              AppSectionHeader(
+                title: text.title,
+                trailing: (_inbox?.unreadCount ?? 0) > 0
+                    ? TextButton(
+                        onPressed: _markAllRead,
+                        child: Text(text.markAll),
+                      )
+                    : null,
               ),
               Text(text.intro),
               const SizedBox(height: 12),
@@ -189,7 +186,8 @@ class _InboxPageState extends State<InboxPage> {
   }
 
   Widget _item(BuildContext context, InboxNotification item, _InboxText text) =>
-      Card(
+      AppSurfaceCard(
+        padding: EdgeInsets.zero,
         child: ListTile(
           leading: Icon(
             _iconFor(item.category),
@@ -226,22 +224,17 @@ class _FeedbackCard extends StatelessWidget {
   final String? retry;
 
   @override
-  Widget build(BuildContext context) => Card(
-    child: Padding(
-      padding: const EdgeInsets.all(18),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: <Widget>[
-          Text(text),
-          if (onRetry != null)
-            TextButton.icon(
-              onPressed: onRetry,
-              icon: const Icon(Icons.refresh),
-              label: Text(retry!),
-            ),
-        ],
-      ),
-    ),
+  Widget build(BuildContext context) => AppStatePanel(
+    icon: onRetry == null ? Icons.notifications_none : Icons.error_outline,
+    title: text,
+    tone: onRetry == null ? AppCardTone.standard : AppCardTone.danger,
+    action: onRetry == null
+        ? null
+        : TextButton.icon(
+            onPressed: onRetry,
+            icon: const Icon(Icons.refresh),
+            label: Text(retry!),
+          ),
   );
 }
 
@@ -259,7 +252,7 @@ class _PreferencesCard extends StatelessWidget {
   final ValueChanged<NotificationPreferences> onChanged;
 
   @override
-  Widget build(BuildContext context) => Card(
+  Widget build(BuildContext context) => AppSurfaceCard(
     child: ExpansionTile(
       leading: const Icon(Icons.tune_outlined),
       title: Text(text.preferences),

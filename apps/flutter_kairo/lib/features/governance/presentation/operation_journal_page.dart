@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
 
 import '../../../app/localization/kairo_localizations.dart';
+import '../../../design_system/components/app_section_header.dart';
+import '../../../design_system/components/app_state_panel.dart';
+import '../../../design_system/components/app_surface_card.dart';
 import '../data/operation_journal_gateway.dart';
 
 class OperationJournalPage extends StatefulWidget {
@@ -48,27 +51,21 @@ class _OperationJournalPageState extends State<OperationJournalPage> {
           child: ListView(
             padding: const EdgeInsets.all(20),
             children: <Widget>[
-              Text(
-                text.title,
-                style: Theme.of(context).textTheme.headlineSmall,
-              ),
+              AppSectionHeader(title: text.title),
               Text(text.intro),
               const SizedBox(height: 16),
               if (loading)
                 const Center(child: CircularProgressIndicator())
               else if (failed)
-                Card(
-                  child: Padding(
-                    padding: EdgeInsets.all(18),
-                    child: Text(text.failure),
-                  ),
+                AppStatePanel(
+                  icon: Icons.error_outline,
+                  title: text.failure,
+                  tone: AppCardTone.danger,
                 )
               else if (entries.isEmpty)
-                Card(
-                  child: Padding(
-                    padding: EdgeInsets.all(18),
-                    child: Text(text.empty),
-                  ),
+                AppStatePanel(
+                  icon: Icons.history_toggle_off_outlined,
+                  title: text.empty,
                 )
               else ...<Widget>[
                 for (final OperationJournalEntry entry in entries)
@@ -81,7 +78,11 @@ class _OperationJournalPageState extends State<OperationJournalPage> {
     );
   }
 
-  Widget _entry(OperationJournalEntry entry, _JournalText text) => Card(
+  Widget _entry(
+    OperationJournalEntry entry,
+    _JournalText text,
+  ) => AppSurfaceCard(
+    padding: EdgeInsets.zero,
     child: ListTile(
       title: Text(text.action(entry.action)),
       subtitle: Text(

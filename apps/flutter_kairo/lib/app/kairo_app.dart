@@ -43,7 +43,17 @@ class KairoApp extends StatefulWidget {
 
 class _KairoAppState extends State<KairoApp> {
   KairoLocale _locale = KairoLocale.fr;
-  final ThemeMode _themeMode = ThemeMode.system;
+  ThemeMode _themeMode = ThemeMode.system;
+
+  void _cycleThemeMode() {
+    setState(() {
+      _themeMode = switch (_themeMode) {
+        ThemeMode.system => ThemeMode.light,
+        ThemeMode.light => ThemeMode.dark,
+        ThemeMode.dark => ThemeMode.system,
+      };
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -77,6 +87,8 @@ class _KairoAppState extends State<KairoApp> {
         locale: _locale,
         onLocaleChanged: (KairoLocale locale) =>
             setState(() => _locale = locale),
+        themeMode: _themeMode,
+        onToggleThemeMode: _cycleThemeMode,
       ),
     );
   }

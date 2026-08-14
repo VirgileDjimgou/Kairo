@@ -222,3 +222,15 @@ promotion requires explicit user approval.
 iOS and desktop are separate delivery decisions, not hidden work in the Android/Web
 roadmap. When promoted, each receives its own sprint with platform hardware, signing,
 store/distribution, accessibility and notification validation.
+
+## Post-Roadmap Stabilisation — Visual Redesign
+
+**Status:** Completed.
+
+The Flutter Android/Web client received a complete Material 3 visual redesign after
+the functional sprints. It is a presentation-only stabilisation: it introduces shared
+light/dark themes, semantic design tokens, responsive cards, state panels, status
+badges and mobile-first workspace layouts without changing API contracts, FastAPI
+policy enforcement, tenant boundaries or the Vue 3 PWA. The evidence and design audit
+are maintained in `docs/FLUTTER_VISUAL_REDESIGN_REPORT.md` and
+`docs/FLUTTER_UI_AUDIT.md`.

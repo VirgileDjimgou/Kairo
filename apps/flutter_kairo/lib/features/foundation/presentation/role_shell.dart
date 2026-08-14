@@ -50,6 +50,8 @@ class RoleShell extends StatefulWidget {
     this.onEnableAndroidPush,
     this.notificationTargetPath,
     this.onNotificationTargetHandled,
+    this.themeMode = ThemeMode.system,
+    this.onToggleThemeMode,
   });
 
   final KairoEnvironment environment;
@@ -71,6 +73,8 @@ class RoleShell extends StatefulWidget {
   final Future<FcmRegistrationState> Function()? onEnableAndroidPush;
   final String? notificationTargetPath;
   final VoidCallback? onNotificationTargetHandled;
+  final ThemeMode themeMode;
+  final VoidCallback? onToggleThemeMode;
 
   @override
   State<RoleShell> createState() => _RoleShellState();
@@ -290,6 +294,18 @@ class _RoleShellState extends State<RoleShell> {
                 locale: widget.locale,
                 onChanged: widget.onLocaleChanged,
               ),
+              if (widget.onToggleThemeMode != null)
+                IconButton(
+                  onPressed: widget.onToggleThemeMode,
+                  tooltip: text.themeMode(widget.themeMode),
+                  icon: Icon(
+                    widget.themeMode == ThemeMode.dark
+                        ? Icons.dark_mode
+                        : widget.themeMode == ThemeMode.light
+                        ? Icons.light_mode
+                        : Icons.brightness_auto_outlined,
+                  ),
+                ),
               IconButton(
                 onPressed: widget.onAccountSecurity,
                 tooltip: text.security,
@@ -870,6 +886,26 @@ class _ShellText {
       : de
       ? 'Abmelden'
       : 'Se déconnecter';
+  String themeMode(ThemeMode mode) => switch (mode) {
+    ThemeMode.dark =>
+      en
+          ? 'Use system appearance'
+          : de
+          ? 'Systemdarstellung verwenden'
+          : 'Utiliser l’apparence système',
+    ThemeMode.light =>
+      en
+          ? 'Use dark appearance'
+          : de
+          ? 'Dunkles Design utiliser'
+          : 'Utiliser l’apparence sombre',
+    ThemeMode.system =>
+      en
+          ? 'Use light appearance'
+          : de
+          ? 'Helles Design verwenden'
+          : 'Utiliser l’apparence claire',
+  };
   String get kicker => en
       ? 'ROLE-AWARE DASHBOARD'
       : de

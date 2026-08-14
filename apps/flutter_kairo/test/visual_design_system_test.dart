@@ -46,4 +46,38 @@ void main() {
       semantics.dispose();
     },
   );
+
+  testWidgets('semantic cards remain readable with Android text scaling', (
+    WidgetTester tester,
+  ) async {
+    await tester.pumpWidget(
+      MaterialApp(
+        theme: AppTheme.dark(),
+        home: MediaQuery(
+          data: const MediaQueryData(textScaler: TextScaler.linear(1.4)),
+          child: Scaffold(
+            body: ListView(
+              children: const <Widget>[
+                AppMetricCard(
+                  icon: Icons.event_available_outlined,
+                  title: 'Événement à venir',
+                  value: '18 août',
+                  detail: 'Réunion générale de l’association',
+                  tone: AppCardTone.tertiary,
+                ),
+                AppStatusBadge(
+                  status: AppStatus.pending,
+                  label: 'Validation en attente',
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+
+    expect(find.text('Événement à venir'), findsOneWidget);
+    expect(find.text('Validation en attente'), findsOneWidget);
+    expect(tester.takeException(), isNull);
+  });
 }

@@ -1,6 +1,10 @@
 import 'package:flutter/material.dart';
 
 import '../../../app/localization/kairo_localizations.dart';
+import '../../../design_system/components/app_section_header.dart';
+import '../../../design_system/components/app_state_panel.dart';
+import '../../../design_system/components/app_surface_card.dart';
+import '../../../design_system/theme/app_tokens.dart';
 import '../data/auth_models.dart';
 import 'session_controller.dart';
 
@@ -87,6 +91,10 @@ class _AccountSecurityPageState extends State<AccountSecurityPage> {
                     _Notice(color: Colors.green, message: _message!),
                   if (_error != null)
                     _Notice(color: Colors.red, message: _error!),
+                  AppSectionHeader(
+                    title: copy.text(KairoCopyKey.securityCenter),
+                  ),
+                  const SizedBox(height: AppSpacing.md),
                   _mfaCard(copy, status),
                   const SizedBox(height: 16),
                   _passwordCard(copy),
@@ -254,17 +262,15 @@ class _SectionCard extends StatelessWidget {
   final String title;
   final Widget child;
   @override
-  Widget build(BuildContext context) => Card(
-    child: Padding(
-      padding: const EdgeInsets.all(20),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: <Widget>[
-          Text(title, style: Theme.of(context).textTheme.titleLarge),
-          const SizedBox(height: 16),
-          child,
-        ],
-      ),
+  Widget build(BuildContext context) => AppSurfaceCard(
+    tone: AppCardTone.secondary,
+    child: Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: <Widget>[
+        Text(title, style: Theme.of(context).textTheme.titleLarge),
+        const SizedBox(height: 16),
+        child,
+      ],
     ),
   );
 }
@@ -274,13 +280,12 @@ class _Notice extends StatelessWidget {
   final Color color;
   final String message;
   @override
-  Widget build(BuildContext context) => Container(
-    margin: const EdgeInsets.only(bottom: 12),
-    padding: const EdgeInsets.all(12),
-    decoration: BoxDecoration(
-      color: color.withValues(alpha: .1),
-      borderRadius: BorderRadius.circular(8),
+  Widget build(BuildContext context) => Padding(
+    padding: const EdgeInsets.only(bottom: AppSpacing.sm),
+    child: AppStatePanel(
+      icon: color == Colors.red ? Icons.error_outline : Icons.check_circle,
+      title: message,
+      tone: color == Colors.red ? AppCardTone.danger : AppCardTone.success,
     ),
-    child: Text(message),
   );
 }

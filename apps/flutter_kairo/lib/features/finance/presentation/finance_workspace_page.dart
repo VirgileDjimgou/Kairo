@@ -6,6 +6,11 @@ import '../../../app/localization/kairo_localizations.dart';
 import '../../../app/theme/kairo_theme.dart';
 import '../../../core/export/report_exporter.dart';
 import '../../../core/offline/offline_workspace_controller.dart';
+import '../../../design_system/components/app_metric_card.dart';
+import '../../../design_system/components/app_section_header.dart';
+import '../../../design_system/components/app_state_panel.dart';
+import '../../../design_system/components/app_surface_card.dart';
+import '../../../design_system/theme/app_tokens.dart';
 import '../../members/data/member_gateway.dart';
 import '../../members/data/member_models.dart';
 import '../data/finance_gateway.dart';
@@ -254,12 +259,12 @@ class _FinanceWorkspacePageState extends State<FinanceWorkspacePage> {
               else if (_error != null)
                 _ErrorCard(message: _error!, retry: _load, text: text)
               else ...<Widget>[
+                if (_budget != null) _budgetSection(text),
+                if (_budget != null) const SizedBox(height: 16),
                 _summaryCards(text),
                 const SizedBox(height: 16),
                 _memberLookup(text),
                 const SizedBox(height: 16),
-                if (_budget != null) _budgetSection(text),
-                if (_budget != null) const SizedBox(height: 16),
                 if (widget.canWriteExpenses) _expenseSection(text),
                 if (widget.canWriteExpenses) const SizedBox(height: 16),
                 _contributionOverview(text),
@@ -271,58 +276,59 @@ class _FinanceWorkspacePageState extends State<FinanceWorkspacePage> {
     );
   }
 
-  Widget _header(_FinanceText text) => LayoutBuilder(
-    builder: (BuildContext context, BoxConstraints constraints) {
-      final List<Widget> actions = <Widget>[
-        DropdownButton<int>(
-          value: _year,
-          onChanged: (int? value) {
-            if (value != null) {
-              setState(() => _year = value);
-              _load();
-            }
-          },
-          items: <int>[_year - 1, _year, _year + 1]
-              .map(
-                (int item) =>
-                    DropdownMenuItem(value: item, child: Text('$item')),
-              )
-              .toList(),
-        ),
-        IconButton(
-          onPressed: _loading ? null : _load,
-          tooltip: text.refresh,
-          icon: const Icon(Icons.refresh),
-        ),
-        OutlinedButton.icon(
-          onPressed: _saving ? null : () => _export('xlsx'),
-          icon: const Icon(Icons.table_view_outlined),
-          label: Text(text.excel),
-        ),
-        OutlinedButton.icon(
-          onPressed: _saving ? null : () => _export('pdf'),
-          icon: const Icon(Icons.picture_as_pdf_outlined),
-          label: Text(text.pdf),
-        ),
-        OutlinedButton.icon(
-          onPressed: _saving ? null : () => _export('whatsapp'),
-          icon: const Icon(Icons.share_outlined),
-          label: Text(text.share),
-        ),
-      ];
-      return Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: <Widget>[
-          Text(text.kicker, style: Theme.of(context).textTheme.labelLarge),
-          const SizedBox(height: 4),
-          Text(text.title, style: Theme.of(context).textTheme.headlineSmall),
-          const SizedBox(height: 4),
-          Text(widget.canWriteExpenses ? text.treasurerLead : text.auditLead),
-          const SizedBox(height: 12),
-          Wrap(spacing: 8, runSpacing: 8, children: actions),
-        ],
-      );
-    },
+  Widget _header(_FinanceText text) => AppSurfaceCard(
+    tone: AppCardTone.primary,
+    child: LayoutBuilder(
+      builder: (BuildContext context, BoxConstraints constraints) {
+        final List<Widget> actions = <Widget>[
+          DropdownButton<int>(
+            value: _year,
+            onChanged: (int? value) {
+              if (value != null) {
+                setState(() => _year = value);
+                _load();
+              }
+            },
+            items: <int>[_year - 1, _year, _year + 1]
+                .map(
+                  (int item) =>
+                      DropdownMenuItem(value: item, child: Text('$item')),
+                )
+                .toList(),
+          ),
+          IconButton(
+            onPressed: _loading ? null : _load,
+            tooltip: text.refresh,
+            icon: const Icon(Icons.refresh),
+          ),
+          OutlinedButton.icon(
+            onPressed: _saving ? null : () => _export('xlsx'),
+            icon: const Icon(Icons.table_view_outlined),
+            label: Text(text.excel),
+          ),
+          OutlinedButton.icon(
+            onPressed: _saving ? null : () => _export('pdf'),
+            icon: const Icon(Icons.picture_as_pdf_outlined),
+            label: Text(text.pdf),
+          ),
+          OutlinedButton.icon(
+            onPressed: _saving ? null : () => _export('whatsapp'),
+            icon: const Icon(Icons.share_outlined),
+            label: Text(text.share),
+          ),
+        ];
+        return Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: <Widget>[
+            AppSectionHeader(eyebrow: text.kicker, title: text.title),
+            const SizedBox(height: AppSpacing.xs),
+            Text(widget.canWriteExpenses ? text.treasurerLead : text.auditLead),
+            const SizedBox(height: 12),
+            Wrap(spacing: 8, runSpacing: 8, children: actions),
+          ],
+        );
+      },
+    ),
   );
 
   Widget _summaryCards(_FinanceText text) => LayoutBuilder(
@@ -367,7 +373,8 @@ class _FinanceWorkspacePageState extends State<FinanceWorkspacePage> {
     },
   );
 
-  Widget _memberLookup(_FinanceText text) => Card(
+  Widget _memberLookup(_FinanceText text) => AppSurfaceCard(
+    tone: AppCardTone.secondary,
     child: Padding(
       padding: const EdgeInsets.all(18),
       child: Column(
@@ -411,7 +418,8 @@ class _FinanceWorkspacePageState extends State<FinanceWorkspacePage> {
 
   Widget _budgetSection(_FinanceText text) {
     final AnnualBudget budget = _budget!;
-    return Card(
+    return AppSurfaceCard(
+      tone: AppCardTone.tertiary,
       child: Padding(
         padding: const EdgeInsets.all(18),
         child: Column(
@@ -498,7 +506,8 @@ class _FinanceWorkspacePageState extends State<FinanceWorkspacePage> {
 
   Widget _expenseSection(_FinanceText text) {
     final AnnualBudget budget = _budget!;
-    return Card(
+    return AppSurfaceCard(
+      tone: AppCardTone.standard,
       child: Padding(
         padding: const EdgeInsets.all(18),
         child: Column(
@@ -610,7 +619,7 @@ class _FinanceWorkspacePageState extends State<FinanceWorkspacePage> {
     );
   }
 
-  Widget _contributionOverview(_FinanceText text) => Card(
+  Widget _contributionOverview(_FinanceText text) => AppSurfaceCard(
     child: Padding(
       padding: const EdgeInsets.all(18),
       child: Column(
@@ -649,24 +658,17 @@ class _Metric extends StatelessWidget {
   final String value;
   final Color color;
   @override
-  Widget build(BuildContext context) => Card(
-    color: color.withValues(alpha: .10),
-    child: Padding(
-      padding: const EdgeInsets.all(16),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: <Widget>[
-          Text(label),
-          const SizedBox(height: 6),
-          Text(
-            '$value EUR',
-            style: Theme.of(
-              context,
-            ).textTheme.titleLarge?.copyWith(color: color),
-          ),
-        ],
-      ),
-    ),
+  Widget build(BuildContext context) => AppMetricCard(
+    icon: Icons.account_balance_wallet_outlined,
+    title: label,
+    value: '$value EUR',
+    tone: color == KairoColors.success
+        ? AppCardTone.success
+        : color == KairoColors.warning
+        ? AppCardTone.warning
+        : color == KairoColors.danger
+        ? AppCardTone.danger
+        : AppCardTone.primary,
   );
 }
 
@@ -680,22 +682,12 @@ class _ErrorCard extends StatelessWidget {
   final VoidCallback retry;
   final _FinanceText text;
   @override
-  Widget build(BuildContext context) => Card(
-    color: Colors.red.shade50,
-    child: Padding(
-      padding: const EdgeInsets.all(18),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: <Widget>[
-          Text(
-            text.unavailable,
-            style: const TextStyle(color: KairoColors.danger),
-          ),
-          Text(message),
-          TextButton(onPressed: retry, child: Text(text.retry)),
-        ],
-      ),
-    ),
+  Widget build(BuildContext context) => AppStatePanel(
+    icon: Icons.error_outline,
+    title: text.unavailable,
+    message: message,
+    tone: AppCardTone.danger,
+    action: TextButton(onPressed: retry, child: Text(text.retry)),
   );
 }
 

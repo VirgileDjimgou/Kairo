@@ -4,6 +4,9 @@ import 'package:flutter/material.dart';
 
 import '../../../app/app_environment.dart';
 import '../../../app/localization/kairo_localizations.dart';
+import '../../../design_system/components/app_state_panel.dart';
+import '../../../design_system/components/app_surface_card.dart';
+import '../../../design_system/theme/app_tokens.dart';
 import '../../chat/data/chat_gateway.dart';
 import '../../finance/data/finance_gateway.dart';
 import '../../finance/data/member_statement_gateway.dart';
@@ -27,11 +30,15 @@ class AuthGate extends StatefulWidget {
     required this.locale,
     required this.onLocaleChanged,
     required this.environment,
+    this.themeMode = ThemeMode.system,
+    this.onToggleThemeMode,
   });
   final SessionController controller;
   final KairoLocale locale;
   final ValueChanged<KairoLocale> onLocaleChanged;
   final KairoEnvironment environment;
+  final ThemeMode themeMode;
+  final VoidCallback? onToggleThemeMode;
   @override
   State<AuthGate> createState() => _AuthGateState();
 }
@@ -159,6 +166,8 @@ class _AuthGateState extends State<AuthGate> {
           notificationTargetPath: _pendingNotificationTarget,
           onNotificationTargetHandled: () =>
               setState(() => _pendingNotificationTarget = null),
+          themeMode: widget.themeMode,
+          onToggleThemeMode: widget.onToggleThemeMode,
         );
     }
   }
@@ -197,155 +206,152 @@ class _LoginPageState extends State<LoginPage> {
             padding: const EdgeInsets.all(24),
             child: ConstrainedBox(
               constraints: const BoxConstraints(maxWidth: 460),
-              child: Card(
-                child: Padding(
-                  padding: const EdgeInsets.all(24),
-                  child: Form(
-                    key: _formKey,
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.stretch,
-                      children: <Widget>[
-                        const Icon(
-                          Icons.shield_outlined,
-                          size: 48,
-                          color: Color(0xff1457a6),
+              child: AppSurfaceCard(
+                tone: AppCardTone.primary,
+                padding: const EdgeInsets.all(AppSpacing.xl),
+                child: Form(
+                  key: _formKey,
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: <Widget>[
+                      const Icon(
+                        Icons.shield_outlined,
+                        size: 48,
+                        color: Color(0xff1457a6),
+                      ),
+                      const SizedBox(height: 16),
+                      Text(
+                        copy.text(KairoCopyKey.appName),
+                        textAlign: TextAlign.center,
+                        style: Theme.of(context).textTheme.headlineSmall,
+                      ),
+                      const SizedBox(height: 8),
+                      Text(
+                        copy.text(KairoCopyKey.signInHelp),
+                        textAlign: TextAlign.center,
+                      ),
+                      const SizedBox(height: 24),
+                      if (!mfa) ...<Widget>[
+                        TextFormField(
+                          controller: _identifier,
+                          autofocus: true,
+                          decoration: InputDecoration(
+                            labelText: copy.text(KairoCopyKey.identifier),
+                          ),
+                          validator: (v) => v == null || v.trim().isEmpty
+                              ? copy.text(KairoCopyKey.identifier)
+                              : null,
                         ),
                         const SizedBox(height: 16),
-                        Text(
-                          copy.text(KairoCopyKey.appName),
-                          textAlign: TextAlign.center,
-                          style: Theme.of(context).textTheme.headlineSmall,
-                        ),
-                        const SizedBox(height: 8),
-                        Text(
-                          copy.text(KairoCopyKey.signInHelp),
-                          textAlign: TextAlign.center,
-                        ),
-                        const SizedBox(height: 24),
-                        if (!mfa) ...<Widget>[
-                          TextFormField(
-                            controller: _identifier,
-                            autofocus: true,
-                            decoration: InputDecoration(
-                              labelText: copy.text(KairoCopyKey.identifier),
-                            ),
-                            validator: (v) => v == null || v.trim().isEmpty
-                                ? copy.text(KairoCopyKey.identifier)
-                                : null,
-                          ),
-                          const SizedBox(height: 16),
-                          TextFormField(
-                            controller: _password,
-                            obscureText: !_visible,
-                            decoration: InputDecoration(
-                              labelText: copy.text(KairoCopyKey.password),
-                              suffixIcon: Semantics(
-                                button: true,
-                                label: _visible
+                        TextFormField(
+                          controller: _password,
+                          obscureText: !_visible,
+                          decoration: InputDecoration(
+                            labelText: copy.text(KairoCopyKey.password),
+                            suffixIcon: Semantics(
+                              button: true,
+                              label: _visible
+                                  ? copy.text(KairoCopyKey.hidePassword)
+                                  : copy.text(KairoCopyKey.showPassword),
+                              child: IconButton(
+                                tooltip: _visible
                                     ? copy.text(KairoCopyKey.hidePassword)
                                     : copy.text(KairoCopyKey.showPassword),
-                                child: IconButton(
-                                  tooltip: _visible
-                                      ? copy.text(KairoCopyKey.hidePassword)
-                                      : copy.text(KairoCopyKey.showPassword),
-                                  onPressed: () =>
-                                      setState(() => _visible = !_visible),
-                                  icon: Icon(
-                                    _visible
-                                        ? Icons.visibility_off
-                                        : Icons.visibility,
-                                  ),
+                                onPressed: () =>
+                                    setState(() => _visible = !_visible),
+                                icon: Icon(
+                                  _visible
+                                      ? Icons.visibility_off
+                                      : Icons.visibility,
                                 ),
                               ),
                             ),
-                            validator: (v) => v == null || v.isEmpty
-                                ? copy.text(KairoCopyKey.password)
-                                : null,
                           ),
-                        ] else
-                          TextFormField(
-                            controller: _mfaCode,
-                            keyboardType: TextInputType.number,
-                            maxLength: 6,
-                            autofocus: true,
-                            decoration: InputDecoration(
-                              labelText: copy.text(KairoCopyKey.mfaCode),
-                            ),
-                            validator: (v) => v == null || v.length != 6
-                                ? copy.text(KairoCopyKey.mfaCode)
-                                : null,
+                          validator: (v) => v == null || v.isEmpty
+                              ? copy.text(KairoCopyKey.password)
+                              : null,
+                        ),
+                      ] else
+                        TextFormField(
+                          controller: _mfaCode,
+                          keyboardType: TextInputType.number,
+                          maxLength: 6,
+                          autofocus: true,
+                          decoration: InputDecoration(
+                            labelText: copy.text(KairoCopyKey.mfaCode),
                           ),
-                        if (widget.controller.errorMessage != null) ...<Widget>[
-                          const SizedBox(height: 16),
-                          _ErrorBox(
-                            message:
-                                widget.controller.errorMessage ==
-                                    'service_unavailable'
-                                ? copy.text(KairoCopyKey.apiUnavailable)
-                                : widget.controller.errorMessage!,
-                          ),
-                        ],
-                        const SizedBox(height: 24),
-                        FilledButton(
+                          validator: (v) => v == null || v.length != 6
+                              ? copy.text(KairoCopyKey.mfaCode)
+                              : null,
+                        ),
+                      if (widget.controller.errorMessage != null) ...<Widget>[
+                        const SizedBox(height: 16),
+                        _ErrorBox(
+                          message:
+                              widget.controller.errorMessage ==
+                                  'service_unavailable'
+                              ? copy.text(KairoCopyKey.apiUnavailable)
+                              : widget.controller.errorMessage!,
+                        ),
+                      ],
+                      const SizedBox(height: 24),
+                      FilledButton(
+                        onPressed: () async {
+                          if (!_formKey.currentState!.validate()) return;
+                          if (mfa) {
+                            await widget.controller.completeMfa(_mfaCode.text);
+                          } else {
+                            await widget.controller.login(
+                              _identifier.text,
+                              _password.text,
+                            );
+                          }
+                        },
+                        child: Text(
+                          mfa
+                              ? copy.text(KairoCopyKey.verifyMfa)
+                              : copy.text(KairoCopyKey.signIn),
+                        ),
+                      ),
+                      if (!mfa)
+                        TextButton(
                           onPressed: () async {
-                            if (!_formKey.currentState!.validate()) return;
-                            if (mfa) {
-                              await widget.controller.completeMfa(
-                                _mfaCode.text,
+                            final ScaffoldMessengerState messenger =
+                                ScaffoldMessenger.of(context);
+                            if (_identifier.text.trim().isEmpty) {
+                              _formKey.currentState!.validate();
+                              return;
+                            }
+                            try {
+                              await widget.controller.requestPasswordReset(
+                                _identifier.text.trim(),
                               );
-                            } else {
-                              await widget.controller.login(
-                                _identifier.text,
-                                _password.text,
-                              );
+                              if (mounted) {
+                                messenger.showSnackBar(
+                                  SnackBar(
+                                    content: Text(
+                                      copy.text(
+                                        KairoCopyKey.passwordResetRequested,
+                                      ),
+                                    ),
+                                  ),
+                                );
+                              }
+                            } catch (_) {
+                              if (mounted) {
+                                messenger.showSnackBar(
+                                  SnackBar(
+                                    content: Text(
+                                      copy.text(KairoCopyKey.apiUnavailable),
+                                    ),
+                                  ),
+                                );
+                              }
                             }
                           },
-                          child: Text(
-                            mfa
-                                ? copy.text(KairoCopyKey.verifyMfa)
-                                : copy.text(KairoCopyKey.signIn),
-                          ),
+                          child: Text(copy.text(KairoCopyKey.forgotPassword)),
                         ),
-                        if (!mfa)
-                          TextButton(
-                            onPressed: () async {
-                              final ScaffoldMessengerState messenger =
-                                  ScaffoldMessenger.of(context);
-                              if (_identifier.text.trim().isEmpty) {
-                                _formKey.currentState!.validate();
-                                return;
-                              }
-                              try {
-                                await widget.controller.requestPasswordReset(
-                                  _identifier.text.trim(),
-                                );
-                                if (mounted) {
-                                  messenger.showSnackBar(
-                                    SnackBar(
-                                      content: Text(
-                                        copy.text(
-                                          KairoCopyKey.passwordResetRequested,
-                                        ),
-                                      ),
-                                    ),
-                                  );
-                                }
-                              } catch (_) {
-                                if (mounted) {
-                                  messenger.showSnackBar(
-                                    SnackBar(
-                                      content: Text(
-                                        copy.text(KairoCopyKey.apiUnavailable),
-                                      ),
-                                    ),
-                                  );
-                                }
-                              }
-                            },
-                            child: Text(copy.text(KairoCopyKey.forgotPassword)),
-                          ),
-                      ],
-                    ),
+                    ],
                   ),
                 ),
               ),
@@ -388,51 +394,50 @@ class _PasswordReplacementPageState extends State<PasswordReplacementPage> {
         child: Center(
           child: ConstrainedBox(
             constraints: const BoxConstraints(maxWidth: 460),
-            child: Card(
-              child: Padding(
-                padding: const EdgeInsets.all(24),
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  crossAxisAlignment: CrossAxisAlignment.stretch,
-                  children: <Widget>[
-                    Text(
-                      copy.text(KairoCopyKey.passwordUpdateTitle),
-                      style: Theme.of(context).textTheme.headlineSmall,
+            child: AppSurfaceCard(
+              tone: AppCardTone.secondary,
+              padding: const EdgeInsets.all(AppSpacing.xl),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: <Widget>[
+                  Text(
+                    copy.text(KairoCopyKey.passwordUpdateTitle),
+                    style: Theme.of(context).textTheme.headlineSmall,
+                  ),
+                  const SizedBox(height: 8),
+                  Text(copy.text(KairoCopyKey.passwordUpdateBody)),
+                  const SizedBox(height: 20),
+                  TextField(
+                    controller: _password,
+                    obscureText: true,
+                    decoration: InputDecoration(
+                      labelText: copy.text(KairoCopyKey.newPassword),
+                      helperText: copy.text(KairoCopyKey.passwordRules),
                     ),
-                    const SizedBox(height: 8),
-                    Text(copy.text(KairoCopyKey.passwordUpdateBody)),
-                    const SizedBox(height: 20),
-                    TextField(
-                      controller: _password,
-                      obscureText: true,
-                      decoration: InputDecoration(
-                        labelText: copy.text(KairoCopyKey.newPassword),
-                        helperText: copy.text(KairoCopyKey.passwordRules),
-                      ),
+                  ),
+                  const SizedBox(height: 12),
+                  TextField(
+                    controller: _confirm,
+                    obscureText: true,
+                    decoration: InputDecoration(
+                      labelText: copy.text(KairoCopyKey.confirmPassword),
                     ),
-                    const SizedBox(height: 12),
-                    TextField(
-                      controller: _confirm,
-                      obscureText: true,
-                      decoration: InputDecoration(
-                        labelText: copy.text(KairoCopyKey.confirmPassword),
-                      ),
-                    ),
-                    const SizedBox(height: 16),
-                    FilledButton(
-                      onPressed: () async {
-                        if (_password.text.length < 8 ||
-                            _password.text != _confirm.text) {
-                          return;
-                        }
-                        await widget.controller.replaceInitialPassword(
-                          _password.text,
-                        );
-                      },
-                      child: Text(copy.text(KairoCopyKey.savePassword)),
-                    ),
-                  ],
-                ),
+                  ),
+                  const SizedBox(height: 16),
+                  FilledButton(
+                    onPressed: () async {
+                      if (_password.text.length < 8 ||
+                          _password.text != _confirm.text) {
+                        return;
+                      }
+                      await widget.controller.replaceInitialPassword(
+                        _password.text,
+                      );
+                    },
+                    child: Text(copy.text(KairoCopyKey.savePassword)),
+                  ),
+                ],
               ),
             ),
           ),
@@ -461,33 +466,32 @@ class TenantSelectionPage extends StatelessWidget {
         child: Center(
           child: ConstrainedBox(
             constraints: const BoxConstraints(maxWidth: 540),
-            child: Card(
-              child: Padding(
-                padding: const EdgeInsets.all(24),
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  crossAxisAlignment: CrossAxisAlignment.stretch,
-                  children: <Widget>[
-                    Text(
-                      copy.text(KairoCopyKey.tenantSelectionTitle),
-                      style: Theme.of(context).textTheme.headlineSmall,
+            child: AppSurfaceCard(
+              tone: AppCardTone.secondary,
+              padding: const EdgeInsets.all(AppSpacing.xl),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: <Widget>[
+                  Text(
+                    copy.text(KairoCopyKey.tenantSelectionTitle),
+                    style: Theme.of(context).textTheme.headlineSmall,
+                  ),
+                  const SizedBox(height: 8),
+                  Text(copy.text(KairoCopyKey.tenantSelectionBody)),
+                  const SizedBox(height: 16),
+                  ...user.memberships.map(
+                    (membership) => ListTile(
+                      title: Text(membership.name),
+                      subtitle: Text(membership.roles.join(', ')),
+                      trailing: const Icon(Icons.chevron_right),
+                      onTap: () async {
+                        await controller.switchTenant(membership.tenantId);
+                        onChosen();
+                      },
                     ),
-                    const SizedBox(height: 8),
-                    Text(copy.text(KairoCopyKey.tenantSelectionBody)),
-                    const SizedBox(height: 16),
-                    ...user.memberships.map(
-                      (membership) => ListTile(
-                        title: Text(membership.name),
-                        subtitle: Text(membership.roles.join(', ')),
-                        trailing: const Icon(Icons.chevron_right),
-                        onTap: () async {
-                          await controller.switchTenant(membership.tenantId);
-                          onChosen();
-                        },
-                      ),
-                    ),
-                  ],
-                ),
+                  ),
+                ],
               ),
             ),
           ),
@@ -503,10 +507,10 @@ class _ErrorBox extends StatelessWidget {
   @override
   Widget build(BuildContext context) => Semantics(
     liveRegion: true,
-    child: Container(
-      padding: const EdgeInsets.all(12),
-      color: Colors.red.shade50,
-      child: Text(message, style: TextStyle(color: Colors.red.shade900)),
+    child: AppStatePanel(
+      icon: Icons.error_outline,
+      title: message,
+      tone: AppCardTone.danger,
     ),
   );
 }

@@ -2,7 +2,11 @@ import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 
 import '../../../app/localization/kairo_localizations.dart';
-import '../../../app/theme/kairo_theme.dart';
+import '../../../design_system/components/app_section_header.dart';
+import '../../../design_system/components/app_state_panel.dart';
+import '../../../design_system/components/app_status_badge.dart';
+import '../../../design_system/components/app_surface_card.dart';
+import '../../../design_system/theme/app_tokens.dart';
 import '../../members/data/member_gateway.dart';
 import '../../members/data/member_models.dart';
 import '../data/governance_gateway.dart';
@@ -242,26 +246,20 @@ class _Header extends StatelessWidget {
   @override
   Widget build(BuildContext context) => Padding(
     padding: const EdgeInsets.fromLTRB(20, 20, 20, 8),
-    child: Row(
+    child: Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
       children: <Widget>[
-        Expanded(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: <Widget>[
-              Text(text.kicker, style: Theme.of(context).textTheme.labelLarge),
-              Text(
-                text.title,
-                style: Theme.of(context).textTheme.headlineSmall,
-              ),
-              Text(censor ? text.writeLead : text.readLead),
-            ],
+        AppSectionHeader(
+          eyebrow: text.kicker,
+          title: text.title,
+          trailing: IconButton(
+            onPressed: onRefresh,
+            icon: const Icon(Icons.refresh),
+            tooltip: text.refresh,
           ),
         ),
-        IconButton(
-          onPressed: onRefresh,
-          icon: const Icon(Icons.refresh),
-          tooltip: text.refresh,
-        ),
+        const SizedBox(height: AppSpacing.xs),
+        Text(censor ? text.writeLead : text.readLead),
       ],
     ),
   );
@@ -280,20 +278,16 @@ class _Error extends StatelessWidget {
   Widget build(BuildContext context) => Center(
     child: Padding(
       padding: const EdgeInsets.all(24),
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: <Widget>[
-          const Icon(Icons.error_outline, color: KairoColors.danger),
-          const SizedBox(height: 8),
-          Text(text.unavailable, style: Theme.of(context).textTheme.titleLarge),
-          Text(error, textAlign: TextAlign.center),
-          const SizedBox(height: 12),
-          FilledButton.icon(
-            onPressed: onRetry,
-            icon: const Icon(Icons.refresh),
-            label: Text(text.retry),
-          ),
-        ],
+      child: AppStatePanel(
+        icon: Icons.error_outline,
+        title: text.unavailable,
+        message: error,
+        tone: AppCardTone.danger,
+        action: FilledButton.icon(
+          onPressed: onRetry,
+          icon: const Icon(Icons.refresh),
+          label: Text(text.retry),
+        ),
       ),
     ),
   );
@@ -340,7 +334,8 @@ class _ItemsTab extends StatelessWidget {
         _Empty(text: text)
       else
         ...items.map(
-          (item) => Card(
+          (item) => AppSurfaceCard(
+            padding: EdgeInsets.zero,
             child: ListTile(
               title: Text(item.title),
               subtitle: Text(
@@ -364,29 +359,26 @@ class _BackupCard extends StatelessWidget {
   final BackupOverview backup;
   final VoidCallback onBackup;
   @override
-  Widget build(BuildContext context) => Card(
-    color: const Color(0xFFE8F1FD),
-    child: Padding(
-      padding: const EdgeInsets.all(16),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: <Widget>[
-          Text(text.backup, style: Theme.of(context).textTheme.titleMedium),
-          const SizedBox(height: 8),
-          Text(
-            '${text.retention}: ${backup.retention} ${text.days} · ${text.runs}: ${backup.runCount}',
-          ),
-          Text(
-            '${text.external}: ${backup.externalStorage ? text.enabled : text.disabled} · PITR: ${backup.pitr ? text.enabled : text.disabled}',
-          ),
-          const SizedBox(height: 10),
-          FilledButton.icon(
-            onPressed: onBackup,
-            icon: const Icon(Icons.backup_outlined),
-            label: Text(text.createBackup),
-          ),
-        ],
-      ),
+  Widget build(BuildContext context) => AppSurfaceCard(
+    tone: AppCardTone.primary,
+    child: Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: <Widget>[
+        Text(text.backup, style: Theme.of(context).textTheme.titleMedium),
+        const SizedBox(height: 8),
+        Text(
+          '${text.retention}: ${backup.retention} ${text.days} · ${text.runs}: ${backup.runCount}',
+        ),
+        Text(
+          '${text.external}: ${backup.externalStorage ? text.enabled : text.disabled} · PITR: ${backup.pitr ? text.enabled : text.disabled}',
+        ),
+        const SizedBox(height: 10),
+        FilledButton.icon(
+          onPressed: onBackup,
+          icon: const Icon(Icons.backup_outlined),
+          label: Text(text.createBackup),
+        ),
+      ],
     ),
   );
 }
@@ -395,10 +387,8 @@ class _Empty extends StatelessWidget {
   const _Empty({required this.text});
   final _Text text;
   @override
-  Widget build(BuildContext context) => Padding(
-    padding: const EdgeInsets.all(24),
-    child: Text(text.empty, textAlign: TextAlign.center),
-  );
+  Widget build(BuildContext context) =>
+      AppStatePanel(icon: Icons.inbox_outlined, title: text.empty);
 }
 
 class _Status extends StatelessWidget {
@@ -407,9 +397,9 @@ class _Status extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final bool open = value == 'open' || value == 'published';
-    return Chip(
-      label: Text(value.replaceAll('_', ' ')),
-      backgroundColor: open ? const Color(0xFFDDF3E7) : const Color(0xFFFFF0C9),
+    return AppStatusBadge(
+      status: open ? AppStatus.active : AppStatus.pending,
+      label: value.replaceAll('_', ' '),
     );
   }
 }
@@ -543,7 +533,8 @@ class _DisciplineTabState extends State<_DisciplineTab> {
         if (widget.writable) ...<Widget>[
           const SizedBox(height: 10),
           if (_options.isNotEmpty)
-            Card(
+            AppSurfaceCard(
+              padding: EdgeInsets.zero,
               child: Column(
                 children: _options
                     .map(
@@ -587,7 +578,8 @@ class _DisciplineTabState extends State<_DisciplineTab> {
           _Empty(text: widget.text)
         else
           ...visible.map(
-            (r) => Card(
+            (r) => AppSurfaceCard(
+              padding: EdgeInsets.zero,
               child: ListTile(
                 title: Text(r.title),
                 subtitle: Text(

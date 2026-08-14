@@ -204,15 +204,21 @@ Cloudflare production promotion.
   `FEATURE_PARITY.md`; the PWA remains the role-gated fallback for that destructive
   operation.
 
-## Visual Redesign Programme — Phase 1
+## Visual Redesign Programme
 
-- the Flutter-only Material 3 design foundation is in progress and documented in
+**Status:** Completed — Flutter client only.
+
+- the Flutter-only Material 3 design system is documented in
   `docs/FLUTTER_UI_AUDIT.md` and `docs/FLUTTER_VISUAL_REDESIGN_REPORT.md`;
-- shared tokens, semantic light/dark themes and reusable application surfaces are
-  implemented without changing FastAPI contracts, permissions or the Vue 3 PWA;
-- the authenticated shell, dashboard and profile now consume the new system. The
-  remaining feature workspaces are being migrated progressively with responsive and
-  accessibility verification.
+- semantic light/dark themes, responsive surface primitives, accessible state panels,
+  metric cards and status badges are used by authentication, shell, member, finance,
+  governance, discipline, journal, inbox and assistant workspaces;
+- Android-width layouts stack actions and information safely instead of truncating
+  controls; Web retains efficient multi-column layouts;
+- FastAPI contracts, backend authorisation, tenant isolation and the Vue 3 PWA remain
+  unchanged;
+- static analysis and all 44 Flutter tests pass. The release-signing gate described in
+  Sprint F9 remains a separate operational requirement.
 
 ## Release Targets
 

@@ -1,6 +1,12 @@
 import 'package:flutter/material.dart';
 
 import '../../../app/localization/kairo_localizations.dart';
+import '../../../design_system/components/app_metric_card.dart';
+import '../../../design_system/components/app_section_header.dart';
+import '../../../design_system/components/app_state_panel.dart';
+import '../../../design_system/components/app_status_badge.dart';
+import '../../../design_system/components/app_surface_card.dart';
+import '../../../design_system/theme/app_tokens.dart';
 import '../data/member_statement_gateway.dart';
 
 class MemberStatementPage extends StatefulWidget {
@@ -48,11 +54,8 @@ class _MemberStatementPageState extends State<MemberStatementPage> {
           child: ListView(
             padding: const EdgeInsets.all(20),
             children: <Widget>[
-              Text(
-                text.title,
-                style: Theme.of(context).textTheme.headlineSmall,
-              ),
-              const SizedBox(height: 8),
+              AppSectionHeader(title: text.title),
+              const SizedBox(height: AppSpacing.xs),
               Text(text.intro),
               const SizedBox(height: 20),
               if (loading)
@@ -63,11 +66,10 @@ class _MemberStatementPageState extends State<MemberStatementPage> {
                   ),
                 )
               else if (failed)
-                Card(
-                  child: Padding(
-                    padding: EdgeInsets.all(18),
-                    child: Text(text.failure),
-                  ),
+                AppStatePanel(
+                  icon: Icons.error_outline,
+                  title: text.failure,
+                  tone: AppCardTone.danger,
                 )
               else if (statement != null) ...<Widget>[
                 _Header(statement: statement!, text: text),
@@ -78,11 +80,9 @@ class _MemberStatementPageState extends State<MemberStatementPage> {
                 ),
                 const SizedBox(height: 8),
                 if (statement!.contributions.isEmpty)
-                  Card(
-                    child: Padding(
-                      padding: EdgeInsets.all(18),
-                      child: Text(text.empty),
-                    ),
+                  AppStatePanel(
+                    icon: Icons.account_balance_wallet_outlined,
+                    title: text.empty,
                   )
                 else
                   ...statement!.contributions.map(
@@ -103,55 +103,63 @@ class _Header extends StatelessWidget {
   final MemberStatement statement;
   final _StatementText text;
   @override
-  Widget build(BuildContext context) => Card(
-    child: Padding(
-      padding: const EdgeInsets.all(18),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: <Widget>[
-          Text(
-            statement.displayName,
-            style: Theme.of(context).textTheme.titleLarge,
-          ),
-          Text(statement.memberCode),
-          const SizedBox(height: 16),
-          Row(
-            children: <Widget>[
-              Expanded(
-                child: _Total(
-                  label: text.expected,
-                  amount: statement.totalExpected,
-                ),
-              ),
-              Expanded(
-                child: _Total(label: text.paid, amount: statement.totalPaid),
-              ),
-              Expanded(
-                child: _Total(
-                  label: text.balance,
-                  amount: statement.totalBalance,
-                ),
-              ),
-            ],
-          ),
-        ],
-      ),
-    ),
-  );
-}
-
-class _Total extends StatelessWidget {
-  const _Total({required this.label, required this.amount});
-  final String label;
-  final String amount;
-  @override
-  Widget build(BuildContext context) => Padding(
-    padding: const EdgeInsets.all(4),
+  Widget build(BuildContext context) => AppSurfaceCard(
+    tone: AppCardTone.primary,
     child: Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: <Widget>[
-        Text(label),
-        Text('$amount EUR', style: Theme.of(context).textTheme.titleMedium),
+        Text(
+          statement.displayName,
+          style: Theme.of(context).textTheme.titleLarge,
+        ),
+        Text(statement.memberCode),
+        const SizedBox(height: 16),
+        LayoutBuilder(
+          builder: (BuildContext context, BoxConstraints constraints) {
+            final List<Widget> cards = <Widget>[
+              AppMetricCard(
+                icon: Icons.receipt_long_outlined,
+                title: text.expected,
+                value: '${statement.totalExpected} EUR',
+                tone: AppCardTone.primary,
+              ),
+              AppMetricCard(
+                icon: Icons.verified_outlined,
+                title: text.paid,
+                value: '${statement.totalPaid} EUR',
+                tone: AppCardTone.success,
+              ),
+              AppMetricCard(
+                icon: Icons.account_balance_wallet_outlined,
+                title: text.balance,
+                value: '${statement.totalBalance} EUR',
+                tone: AppCardTone.warning,
+              ),
+            ];
+            return constraints.maxWidth < 620
+                ? Column(
+                    children: cards
+                        .map(
+                          (Widget card) => Padding(
+                            padding: const EdgeInsets.only(
+                              bottom: AppSpacing.sm,
+                            ),
+                            child: card,
+                          ),
+                        )
+                        .toList(),
+                  )
+                : Row(
+                    children: <Widget>[
+                      Expanded(child: cards[0]),
+                      const SizedBox(width: AppSpacing.sm),
+                      Expanded(child: cards[1]),
+                      const SizedBox(width: AppSpacing.sm),
+                      Expanded(child: cards[2]),
+                    ],
+                  );
+          },
+        ),
       ],
     ),
   );
@@ -162,13 +170,17 @@ class _Contribution extends StatelessWidget {
   final MemberContribution item;
   final _StatementText text;
   @override
-  Widget build(BuildContext context) => Card(
+  Widget build(BuildContext context) => AppSurfaceCard(
+    padding: EdgeInsets.zero,
     child: ListTile(
       title: Text(text.year(item.year)),
       subtitle: Text(
         '${text.expected} ${item.expectedAmount} EUR · ${text.paid} ${item.paidAmount} EUR · ${text.balance} ${item.balanceAmount} EUR',
       ),
-      trailing: Chip(label: Text(item.status)),
+      trailing: AppStatusBadge(
+        status: item.status == 'paid' ? AppStatus.paid : AppStatus.pending,
+        label: item.status,
+      ),
     ),
   );
 }
