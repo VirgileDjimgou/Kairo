@@ -32,6 +32,7 @@ from app.modules.notifications.user_models import (  # noqa: F401
     NotificationDevice,
     NotificationDeviceProfile,
     NotificationOutboxEvent,
+    FirebasePushSubscription,
     UserNotification,
     WebPushSubscription,
 )

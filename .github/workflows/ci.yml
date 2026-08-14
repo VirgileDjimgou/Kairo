@@ -7,6 +7,34 @@ on:
     branches: [main, develop]
 
 jobs:
+  flutter:
+    name: Flutter — Android and Web foundation
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: subosito/flutter-action@v2
+        with:
+          channel: stable
+          cache: true
+      - name: Install Flutter packages
+        working-directory: apps/flutter_kairo
+        run: flutter pub get
+      - name: Analyze Flutter client
+        working-directory: apps/flutter_kairo
+        run: flutter analyze
+      - name: Verify Flutter formatting
+        working-directory: apps/flutter_kairo
+        run: dart format --set-exit-if-changed lib test
+      - name: Test Flutter client
+        working-directory: apps/flutter_kairo
+        run: flutter test
+      - name: Build Flutter web
+        working-directory: apps/flutter_kairo
+        run: flutter build web --dart-define=KAIRO_FLAVOR=production --dart-define=KAIRO_API_BASE_URL=https://app.combissportverein.org/api/v1
+      - name: Build Android debug APK
+        working-directory: apps/flutter_kairo
+        run: flutter build apk --debug --dart-define=KAIRO_FLAVOR=production --dart-define=KAIRO_API_BASE_URL=https://app.combissportverein.org/api/v1
+
   security:
     name: Security — Secret And Sensitive File Guard
     runs-on: ubuntu-latest

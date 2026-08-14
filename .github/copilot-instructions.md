@@ -54,3 +54,16 @@ Repository methods always accept `tenant_id: UUID` as a mandatory argument.
 - Determine the current sprint from `PROJECT_STATUS.md` and `IMPLEMENTATION_ROADMAP.md`.
 - Do not skip ahead to later roadmap sprints unless explicitly requested.
 - If sprint progress changes, update `PROJECT_STATUS.md` and `IMPLEMENTATION_ROADMAP.md`.
+
+## Flutter parallel client
+
+- The production Vue 3 PWA under `apps/web/` must remain intact while Flutter is built
+  under `apps/flutter_kairo/`.
+- For Flutter tasks, read `apps/flutter_kairo/AGENTS.md`,
+  `docs/flutter/PROJECT_STATUS.md`, `docs/flutter/FLUTTER_APP_ROADMAP.md`, and
+  `docs/flutter/FEATURE_PARITY.md` first.
+- Treat FastAPI as the only source of authorization and business truth. Flutter may
+  cache data and queue safe drafts, but it must not validate finance, discipline, role,
+  or tenant permissions by itself.
+- Android and Flutter Web are the initial targets. Keep iOS and desktop portable, but
+  do not add platform-specific release work unless the active Flutter sprint requests it.

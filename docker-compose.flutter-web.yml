@@ -1,0 +1,19 @@
+# Flutter Web staging companion. It is intentionally separate from the production Vue PWA.
+# Start only after the core stack: docker compose --env-file .env.core -f docker-compose.core.yml up -d
+services:
+  flutter-web:
+    build:
+      context: ./apps/flutter_kairo
+      args:
+        KAIRO_FLAVOR: ${KAIRO_FLUTTER_FLAVOR:-staging}
+        KAIRO_API_BASE_URL: ${KAIRO_FLUTTER_API_BASE_URL:-https://flutter-staging.combissportverein.org/api/v1}
+    ports:
+      - "${KAIRO_FLUTTER_WEB_PORT:-8082}:80"
+    networks:
+      - kairo_core
+    restart: unless-stopped
+
+networks:
+  kairo_core:
+    external: true
+    name: ${KAIRO_CORE_NETWORK:-kairo_default}

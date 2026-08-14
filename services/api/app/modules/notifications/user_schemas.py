@@ -49,6 +49,10 @@ class PushSubscriptionRequest(DeviceRegistrationRequest):
     auth: str = Field(min_length=8, max_length=2048)
 
 
+class MobilePushTokenRequest(DeviceRegistrationRequest):
+    fcm_token: str = Field(min_length=32, max_length=4096)
+
+
 class PushConfigurationResponse(BaseModel):
     enabled: bool
     public_key: str | None = None

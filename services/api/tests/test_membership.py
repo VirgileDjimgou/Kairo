@@ -737,7 +737,12 @@ async def test_get_contribution_payments(client: AsyncClient, db_session: AsyncS
 
 @pytest.mark.asyncio
 async def test_delete_member_profile(client: AsyncClient, db_session: AsyncSession):
-    ctx = await create_tenant_with_user(db_session, "delete-profile")
+    ctx = await create_tenant_with_user(
+        db_session,
+        "delete-profile",
+        role_code="president",
+        profile_type="president",
+    )
     token = await login(client, ctx["user"].email, "TestIsolation1!", ctx["tenant"].slug)
 
     create_resp = await client.post(

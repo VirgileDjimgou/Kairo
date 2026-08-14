@@ -2934,7 +2934,8 @@ Implementation notes:
 
 ## Sprint 67 - Translation Completion, Frontend Copy Governance, And Error-State Consistency
 
-Status: Planned
+Status: In progress — Sprints F0 through F8 completed; Sprint F9 controlled release
+readiness is active. Production promotion remains approval-gated.
 
 Goal:
 Finish the French-first, English-second, German-third interface experience and make future copy changes maintainable.
@@ -4078,3 +4079,15 @@ Status: Completed
 - the password is generated server-side, shown once to the issuing officer, expires after 48 hours, invalidates pending reset tokens, and revokes every active session for the target account;
 - the member must replace the password at the first sign-in, while Account Security supports an authenticated password change without relying on the virtual login email;
 - integration simulations cover all four authorised roles, denial for an unauthorised treasurer, expiry handling, revoked sessions, and preservation of the target membership data.
+
+## Parallel Flutter Client Track
+
+Status: Planned
+
+The production Vue 3 PWA is not being migrated or removed. Kairo will develop a separate
+Flutter client under `apps/flutter_kairo/`, initially for Android and Flutter Web, while
+preserving the same FastAPI contracts and backend-owned authorization model. The Flutter
+track is intentionally limited to ten executable sprints, F0 through F9, documented in
+`docs/flutter/FLUTTER_APP_ROADMAP.md`. Functional and visual reproduction of the PWA is
+controlled by `docs/flutter/FEATURE_PARITY.md`; each Flutter sprint must update that
+matrix with role, tenant, test, and responsive visual evidence.

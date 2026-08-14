@@ -9,6 +9,8 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.modules.notifications.user_service import UserNotificationService
 from app.modules.notifications.user_schemas import NotificationPreferencesUpdate
+from app.modules.notifications.user_models import FirebasePushSubscription
+from sqlalchemy import select
 
 
 @pytest.mark.asyncio
@@ -19,6 +21,10 @@ async def test_user_inbox_is_tenant_isolated_and_outbox_is_idempotent(
     first = await create_tenant_with_user(db_session, f"inbox-a-{uuid.uuid4().hex[:6]}")
     second = await create_tenant_with_user(db_session, f"inbox-b-{uuid.uuid4().hex[:6]}")
     service = UserNotificationService(db_session)
+
+    # The outbox worker is intentionally global. Drain any events left by
+    # preceding integration scenarios before asserting this event's count.
+    await service.process_outbox()
 
     await service.enqueue(
         tenant_id=first["tenant"].id,
@@ -95,6 +101,13 @@ async def test_notification_preferences_are_scoped_to_the_authenticated_device_p
         "web",
         "test-agent",
     )
+    await service.register_device(
+        context["tenant"].id,
+        context["user"].id,
+        "android-installation-002",
+        "android",
+        "test-agent",
+    )
 
     updated = await service.update_preferences(
         context["tenant"].id,
@@ -113,3 +126,44 @@ async def test_notification_preferences_are_scoped_to_the_authenticated_device_p
     assert current.finance_enabled is False
     assert current.announcements_enabled is False
     assert current.discipline_enabled is True
+
+    profiles = await service._profiles(context["tenant"].id, context["user"].id)
+    assert len(profiles) == 2
+    assert all(profile.push_enabled for profile in profiles)
+    assert all('"finance_enabled": false' in profile.preferences_json for profile in profiles)
+
+
+@pytest.mark.asyncio
+async def test_firebase_push_token_is_registered_only_for_the_authenticated_tenant(
+    client: AsyncClient,
+    db_session: AsyncSession,
+) -> None:
+    first = await create_tenant_with_user(db_session, f"fcm-a-{uuid.uuid4().hex[:6]}")
+    second = await create_tenant_with_user(db_session, f"fcm-b-{uuid.uuid4().hex[:6]}")
+    token = "f" * 64
+    installation_id = "android-installation-0001"
+
+    first_access_token = await login(client, first["user"].email, first["password"], first["tenant"].slug)
+    response = await client.post(
+        "/api/v1/notifications/mobile-push-tokens",
+        headers={"Authorization": f"Bearer {first_access_token}"},
+        json={"installation_id": installation_id, "fcm_token": token},
+    )
+    assert response.status_code == 204, response.text
+
+    subscriptions = list((await db_session.execute(select(FirebasePushSubscription))).scalars())
+    assert len(subscriptions) == 1
+    assert subscriptions[0].tenant_id == first["tenant"].id
+    assert subscriptions[0].recipient_user_id == first["user"].id
+
+    second_access_token = await login(client, second["user"].email, second["password"], second["tenant"].slug)
+    response = await client.post(
+        "/api/v1/notifications/mobile-push-tokens",
+        headers={"Authorization": f"Bearer {second_access_token}"},
+        json={"installation_id": installation_id, "fcm_token": token},
+    )
+    assert response.status_code == 204, response.text
+    subscriptions = list((await db_session.execute(select(FirebasePushSubscription))).scalars())
+    assert len(subscriptions) == 2
+    assert {item.tenant_id for item in subscriptions} == {first["tenant"].id, second["tenant"].id}
+    assert {item.recipient_user_id for item in subscriptions} == {first["user"].id, second["user"].id}

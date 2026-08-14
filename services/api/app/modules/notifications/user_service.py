@@ -16,6 +16,7 @@ from app.modules.notifications.user_models import (
     NotificationOutboxEvent,
     UserNotification,
     WebPushSubscription,
+    FirebasePushSubscription,
 )
 from app.modules.notifications.user_schemas import (
     InboxNotificationResponse,
@@ -131,9 +132,13 @@ class UserNotificationService:
         return NotificationPreferencesResponse(**values)
 
     async def update_preferences(self, tenant_id: UUID, user_id: UUID, values: NotificationPreferencesUpdate) -> NotificationPreferencesResponse:
-        profile = await self._profile(tenant_id, user_id)
-        profile.push_enabled = values.push_enabled
-        profile.preferences_json = json.dumps(values.model_dump())
+        profiles = await self._profiles(tenant_id, user_id)
+        if not profiles:
+            raise RuntimeError("Notification device profile has not been registered")
+        serialized = json.dumps(values.model_dump())
+        for profile in profiles:
+            profile.push_enabled = values.push_enabled
+            profile.preferences_json = serialized
         await self._db.commit()
         return NotificationPreferencesResponse(**values.model_dump())
 
@@ -161,6 +166,38 @@ class UserNotificationService:
         else:
             subscription.p256dh, subscription.auth = p256dh, auth
             subscription.disabled_at, subscription.failure_count, subscription.updated_at = None, 0, datetime.now(UTC)
+        profile = await self._profile(tenant_id, user_id, device.id)
+        profile.push_enabled, profile.opted_in_at, profile.revoked_at = True, datetime.now(UTC), None
+        await self._db.commit()
+
+    async def save_firebase_subscription(
+        self,
+        tenant_id: UUID,
+        user_id: UUID,
+        installation_id: str,
+        user_agent: str | None,
+        fcm_token: str,
+    ) -> None:
+        device = await self.register_device(tenant_id, user_id, installation_id, "android", user_agent)
+        result = await self._db.execute(
+            select(FirebasePushSubscription).where(
+                FirebasePushSubscription.device_id == device.id,
+                FirebasePushSubscription.fcm_token == fcm_token,
+            )
+        )
+        subscription = result.scalar_one_or_none()
+        if subscription is None:
+            self._db.add(FirebasePushSubscription(
+                tenant_id=tenant_id,
+                device_id=device.id,
+                recipient_user_id=user_id,
+                fcm_token=fcm_token,
+            ))
+        else:
+            subscription.recipient_user_id = user_id
+            subscription.disabled_at = None
+            subscription.failure_count = 0
+            subscription.updated_at = datetime.now(UTC)
         profile = await self._profile(tenant_id, user_id, device.id)
         profile.push_enabled, profile.opted_in_at, profile.revoked_at = True, datetime.now(UTC), None
         await self._db.commit()
@@ -209,13 +246,19 @@ class UserNotificationService:
         )
         result: list[UnreachableNotificationRecipient] = []
         for user_id, display_name, pending, last_at in rows.all():
-            reachable = await self._db.scalar(
+            web_reachable = await self._db.scalar(
                 select(func.count(WebPushSubscription.id))
                 .select_from(WebPushSubscription)
                 .join(NotificationDeviceProfile, NotificationDeviceProfile.device_id == WebPushSubscription.device_id)
                 .where(WebPushSubscription.tenant_id == tenant_id, WebPushSubscription.disabled_at.is_(None), NotificationDeviceProfile.user_id == user_id, NotificationDeviceProfile.push_enabled.is_(True), NotificationDeviceProfile.revoked_at.is_(None))
             )
-            if not reachable:
+            firebase_reachable = await self._db.scalar(
+                select(func.count(FirebasePushSubscription.id))
+                .select_from(FirebasePushSubscription)
+                .join(NotificationDeviceProfile, NotificationDeviceProfile.device_id == FirebasePushSubscription.device_id)
+                .where(FirebasePushSubscription.tenant_id == tenant_id, FirebasePushSubscription.disabled_at.is_(None), FirebasePushSubscription.recipient_user_id == user_id, NotificationDeviceProfile.user_id == user_id, NotificationDeviceProfile.push_enabled.is_(True), NotificationDeviceProfile.revoked_at.is_(None))
+            )
+            if not web_reachable and not firebase_reachable:
                 result.append(UnreachableNotificationRecipient(user_id=user_id, display_name=display_name, pending_notifications=int(pending), last_notification_at=last_at))
         return result
 
@@ -241,6 +284,7 @@ class UserNotificationService:
             str(payload["category"]),
             str(payload["target_path"]),
         )
+        await self._send_firebase_push(event.tenant_id, recipients, str(payload["category"]), str(payload["target_path"]))
 
     async def _send_generic_push(
         self,
@@ -274,6 +318,38 @@ class UserNotificationService:
                 # must not block the authenticated inbox or outbox completion.
                 subscription.failure_count += 1
 
+    async def _send_firebase_push(self, tenant_id: UUID, recipients: list[UUID], category: str, target_path: str) -> None:
+        if not settings.firebase_messaging_enabled or not settings.firebase_service_account_path:
+            return
+        try:
+            import firebase_admin
+            from firebase_admin import credentials, messaging
+            if not firebase_admin._apps:
+                firebase_admin.initialize_app(credentials.Certificate(settings.firebase_service_account_path))
+        except Exception:
+            return
+        rows = await self._db.execute(
+            select(FirebasePushSubscription, NotificationDeviceProfile)
+            .join(NotificationDeviceProfile, NotificationDeviceProfile.device_id == FirebasePushSubscription.device_id)
+            .where(
+                FirebasePushSubscription.tenant_id == tenant_id,
+                FirebasePushSubscription.disabled_at.is_(None),
+                FirebasePushSubscription.recipient_user_id.in_(recipients),
+                NotificationDeviceProfile.user_id.in_(recipients),
+                FirebasePushSubscription.recipient_user_id == NotificationDeviceProfile.user_id,
+                NotificationDeviceProfile.push_enabled.is_(True),
+                NotificationDeviceProfile.revoked_at.is_(None),
+            )
+        )
+        for subscription, profile in rows.all():
+            if not self._preferences_from_profile(profile).get(f"{category}_enabled", True):
+                continue
+            try:
+                messaging.send(messaging.Message(token=subscription.fcm_token, notification=messaging.Notification(title="Kairo", body="Une nouvelle notification est disponible."), data={"target_path": target_path}))
+            except Exception:
+                subscription.failure_count += 1
+        await self._db.commit()
+
     async def _ensure_profile(self, tenant_id: UUID, device_id: UUID, user_id: UUID) -> NotificationDeviceProfile:
         result = await self._db.execute(select(NotificationDeviceProfile).where(NotificationDeviceProfile.device_id == device_id, NotificationDeviceProfile.user_id == user_id))
         profile = result.scalar_one_or_none()
@@ -287,10 +363,27 @@ class UserNotificationService:
         statement = select(NotificationDeviceProfile).where(NotificationDeviceProfile.tenant_id == tenant_id, NotificationDeviceProfile.user_id == user_id)
         if device_id is not None:
             statement = statement.where(NotificationDeviceProfile.device_id == device_id)
+        else:
+            # Preferences are account-level in the current API contract. A user
+            # can legitimately bind several browsers or Android installations,
+            # so reading them must never assume there is only one device row.
+            statement = statement.order_by(
+                NotificationDeviceProfile.opted_in_at.desc().nullslast(),
+                NotificationDeviceProfile.id,
+            ).limit(1)
         profile = (await self._db.execute(statement)).scalar_one_or_none()
         if profile is None:
             raise RuntimeError("Notification device profile has not been registered")
         return profile
+
+    async def _profiles(self, tenant_id: UUID, user_id: UUID) -> list[NotificationDeviceProfile]:
+        result = await self._db.execute(
+            select(NotificationDeviceProfile).where(
+                NotificationDeviceProfile.tenant_id == tenant_id,
+                NotificationDeviceProfile.user_id == user_id,
+            )
+        )
+        return list(result.scalars().all())
 
     def _preferences_from_profile(self, profile: NotificationDeviceProfile) -> dict[str, bool]:
         defaults = {"push_enabled": profile.push_enabled, "finance_enabled": True, "discipline_enabled": True, "announcements_enabled": True, "events_enabled": True}

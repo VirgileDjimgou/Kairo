@@ -1,6 +1,6 @@
 # Project Status
 
-Last updated: 2026-08-05
+Last updated: 2026-08-14
 
 ## Current Sprint
 
@@ -11,6 +11,26 @@ Status: Completed
 ## Official Next Sprint
 
 No additional sprint is currently scheduled.
+
+## Parallel Flutter Client Track
+
+Status: In progress — Flutter Sprints F0 through F8 are complete and Sprint F9 release
+readiness is under controlled verification. Android release signing now fails closed
+until a private upload key is configured; Flutter Web remains a separate staging
+service until explicit Cloudflare promotion approval.
+
+The Vue 3 PWA remains the production client. A separate Flutter client will be built
+under `apps/flutter_kairo/` for Android and Flutter Web first, with iOS and desktop
+kept architecture-ready for a later product decision. The active Flutter action is
+**Sprint F9 — Release Readiness, Accessibility, And Controlled Android/Web Launch**. Its ten-sprint
+roadmap, parity matrix, and portable continuation prompt are maintained under
+`docs/flutter/` and `prompts/FLUTTER_CONTINUE_UNIVERSAL.md`.
+
+The isolated Flutter source tree now lives in `apps/flutter_kairo/`. It has a
+production-safe environment resolver, typed API client, responsive role shell,
+French/English/German copy, secure offline drafts, native sharing/files, Android FCM,
+42 passing Flutter tests and Android/Web build gates. The Vue 3 PWA source and release
+path remain unchanged.
 
 ## Active Delivery Frame
 

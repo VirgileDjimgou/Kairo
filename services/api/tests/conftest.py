@@ -14,6 +14,7 @@ but the default is now fully autonomous and does not require local PostgreSQL.
 
 import asyncio
 import os
+import sys
 import tempfile
 from collections.abc import AsyncGenerator
 from pathlib import Path
@@ -22,6 +23,12 @@ import pytest
 import pytest_asyncio
 from httpx import ASGITransport, AsyncClient
 from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker, create_async_engine
+
+# Make both ``app`` and the sibling ``ai_gateway`` package importable when the
+# complete suite is launched from the repository root.
+_api_root = Path(__file__).resolve().parents[1]
+if str(_api_root) not in sys.path:
+    sys.path.insert(0, str(_api_root))
 
 # ── Test database ──────────────────────────────────────────────────────────────
 
@@ -87,9 +94,17 @@ async def db_session(create_tables) -> AsyncGenerator[AsyncSession, None]:
 
     Tests can freely INSERT / UPDATE without polluting each other.
     """
-    async with TestSessionLocal() as session:
-        yield session
-        await session.rollback()
+    async with test_engine.connect() as connection:
+        transaction = await connection.begin()
+        async with AsyncSession(
+            bind=connection,
+            expire_on_commit=False,
+            autoflush=False,
+            join_transaction_mode="create_savepoint",
+        ) as session:
+            yield session
+            await session.close()
+        await transaction.rollback()
 
 
 @pytest.fixture(autouse=True)
@@ -122,6 +137,32 @@ def disable_background_jobs():
     yield
     settings.ingestion_auto_enqueue = previous_enqueue
     settings.indexing_auto_enabled = previous_indexing
+
+
+@pytest.fixture(autouse=True)
+def stub_pre_operation_backups(monkeypatch: pytest.MonkeyPatch):
+    """Keep API contract tests independent from the PostgreSQL backup engine.
+
+    Backup creation, encryption and restore have their own integration tests.
+    The default SQLite API suite cannot execute ``pg_dump`` and WAL archival,
+    but must still exercise every protected mutation behind the preflight.
+    """
+
+    async def successful_preflight(*args, **kwargs) -> None:
+        return None
+
+    monkeypatch.setattr(
+        "app.modules.membership.router.require_pre_operation_backup",
+        successful_preflight,
+    )
+    monkeypatch.setattr(
+        "app.modules.contributions.router.require_pre_operation_backup",
+        successful_preflight,
+    )
+    monkeypatch.setattr(
+        "app.modules.disciplinary.router.require_pre_operation_backup",
+        successful_preflight,
+    )
 
 
 # ── HTTP test client ───────────────────────────────────────────────────────────

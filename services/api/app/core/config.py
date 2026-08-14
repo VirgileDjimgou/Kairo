@@ -114,6 +114,10 @@ class Settings(BaseSettings):
     web_push_vapid_public_key: str | None = None
     web_push_vapid_private_key: str | None = None
     web_push_vapid_subject: str = "mailto:notifications@localhost"
+    # Android FCM delivery is optional. The Firebase service account is mounted
+    # only on the API host; it must never be bundled with Android or Web clients.
+    firebase_messaging_enabled: bool = False
+    firebase_service_account_path: str | None = None
 
     # Recovery. Archives are encrypted before leaving the container and are
     # never served directly to browser sessions. Keep both keys in a secret

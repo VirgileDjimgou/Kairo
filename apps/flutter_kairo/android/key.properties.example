@@ -1,0 +1,6 @@
+# Copy this file to android/key.properties. Never commit the copied file or the keystore.
+# Use an absolute path on Windows, escaped with double backslashes.
+storeFile=C:\\secure\\kairo-upload-keystore.jks
+storePassword=replace-with-a-private-password
+keyAlias=kairo-upload
+keyPassword=replace-with-a-private-password

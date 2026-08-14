@@ -28,6 +28,7 @@ from app.modules.notifications.service import NotificationService
 from app.modules.notifications.user_schemas import (
     DeviceRegistrationRequest,
     InboxResponse,
+    MobilePushTokenRequest,
     NotificationPreferencesResponse,
     NotificationPreferencesUpdate,
     PushConfigurationResponse,
@@ -91,6 +92,22 @@ async def register_notification_device(payload: DeviceRegistrationRequest, curre
 @router.post("/push-subscriptions", status_code=status.HTTP_204_NO_CONTENT)
 async def subscribe_to_web_push(payload: PushSubscriptionRequest, current: AuthDep, db: DbDep, user_agent: str | None = Header(default=None)) -> None:
     await UserNotificationService(db).save_subscription(current.tenant_id, current.user.id, payload.installation_id, payload.platform, user_agent, payload.endpoint, payload.p256dh, payload.auth)
+
+
+@router.post("/mobile-push-tokens", status_code=status.HTTP_204_NO_CONTENT)
+async def subscribe_to_mobile_push(
+    payload: MobilePushTokenRequest,
+    current: AuthDep,
+    db: DbDep,
+    user_agent: str | None = Header(default=None),
+) -> None:
+    await UserNotificationService(db).save_firebase_subscription(
+        current.tenant_id,
+        current.user.id,
+        payload.installation_id,
+        user_agent,
+        payload.fcm_token,
+    )
 
 
 @router.get("/unreachable", response_model=list[UnreachableNotificationRecipient])

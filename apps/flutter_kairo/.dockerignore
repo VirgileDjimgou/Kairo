@@ -1,0 +1,14 @@
+.git
+.dart_tool
+build
+coverage
+android/.gradle
+android/app/google-services.json
+android/key.properties
+android/*.jks
+android/*.keystore
+ios
+linux
+macos
+windows
+artifacts

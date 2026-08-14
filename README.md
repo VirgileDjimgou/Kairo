@@ -206,6 +206,7 @@ The AI gateway validates a signed, short-lived server request. When the local ru
 ```text
 kairo/
 ├── apps/web/                 Vue 3 client and PWA
+├── apps/flutter_kairo/        Planned parallel Flutter client (Android and Web first)
 ├── services/api/             FastAPI modular monolith and workers
 ├── docs/                     Architecture, operations and validation guides
 ├── scripts/                  Docker, deployment and recovery helpers
@@ -237,6 +238,8 @@ For the maintained validation commands and responsive checks, see [`docs/operati
 - [Frontend architecture](docs/FRONTEND_ARCHITECTURE.md)
 - [Design system](docs/DESIGN_SYSTEM.md)
 - [Responsive test report](docs/RESPONSIVE_TEST_REPORT.md)
+- [Flutter client roadmap](docs/flutter/FLUTTER_APP_ROADMAP.md)
+- [Flutter feature parity matrix](docs/flutter/FEATURE_PARITY.md)
 - [Encrypted recovery runbook](docs/operations/encrypted-recovery-runbook.md)
 - [Project status](PROJECT_STATUS.md)
 - [Implementation roadmap](IMPLEMENTATION_ROADMAP.md)

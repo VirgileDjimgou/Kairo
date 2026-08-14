@@ -51,6 +51,7 @@ services:
     expose: ["8000"]
     volumes:
       - ./backups:/var/backups
+      - ./services/api/.private:/run/secrets/kairo:ro
     depends_on:
       postgres: { condition: service_healthy }
       redis: { condition: service_healthy }
@@ -65,6 +66,7 @@ services:
     env_file: ["${CORE_ENV_FILE:-.env.core}"]
     volumes:
       - ./backups:/var/backups
+      - ./services/api/.private:/run/secrets/kairo:ro
     depends_on:
       postgres: { condition: service_healthy }
       redis: { condition: service_healthy }
@@ -95,7 +97,7 @@ services:
 
   cloudflared:
     image: cloudflare/cloudflared:latest
-    command: tunnel --no-autoupdate run --token ${CLOUDFLARE_TUNNEL_TOKEN}
+    command: tunnel --no-autoupdate --protocol http2 run --token ${CLOUDFLARE_TUNNEL_TOKEN}
     depends_on: [web]
     profiles: [tunnel]
     restart: unless-stopped

@@ -94,3 +94,22 @@ Kairo uses a French-first, English-second, German-third i18n contract.
 - Run `node scripts/check-i18n-coverage.mjs` to scan for potential hardcoded strings.
 - Future UI copy additions must have an obvious home in `messages.ts` and a validation path.
 
+## Flutter Parallel Client Track
+
+The Vue 3 PWA remains the current production client. The Flutter client is a separate
+application under `apps/flutter_kairo/`; it must not replace, weaken, or silently
+change the PWA during its implementation.
+
+For Flutter work, read these additional files before editing:
+
+1. `apps/flutter_kairo/AGENTS.md`
+2. `docs/flutter/PROJECT_STATUS.md`
+3. `docs/flutter/FLUTTER_APP_ROADMAP.md`
+4. `docs/flutter/FEATURE_PARITY.md`
+5. `prompts/FLUTTER_CONTINUE_UNIVERSAL.md`
+
+The Flutter client consumes the existing API contracts only. It never implements
+authorization decisions locally, stores passwords, bypasses tenant boundaries, or
+duplicates backend business rules. Android and Flutter Web are the first release
+targets. iOS and desktop must remain architecture-ready, but are not release targets
+until the roadmap explicitly promotes them.

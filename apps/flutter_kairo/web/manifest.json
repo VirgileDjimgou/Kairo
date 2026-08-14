@@ -1,0 +1,35 @@
+{
+    "name": "Kairo",
+    "short_name": "Kairo",
+    "start_url": ".",
+    "display": "standalone",
+    "background_color": "#F3F6FA",
+    "theme_color": "#1E63B5",
+    "description": "Kairo — application de gouvernance associative.",
+    "orientation": "portrait-primary",
+    "prefer_related_applications": false,
+    "icons": [
+        {
+            "src": "icons/Icon-192.png",
+            "sizes": "192x192",
+            "type": "image/png"
+        },
+        {
+            "src": "icons/Icon-512.png",
+            "sizes": "512x512",
+            "type": "image/png"
+        },
+        {
+            "src": "icons/Icon-maskable-192.png",
+            "sizes": "192x192",
+            "type": "image/png",
+            "purpose": "maskable"
+        },
+        {
+            "src": "icons/Icon-maskable-512.png",
+            "sizes": "512x512",
+            "type": "image/png",
+            "purpose": "maskable"
+        }
+    ]
+}

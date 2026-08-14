@@ -107,12 +107,6 @@ async def export_members(current: AuthDep, db: DbDep) -> StreamingResponse:
         CAP_TENANT_ADMINISTRATION,
         detail="Tenant administration capability required",
     )
-    await require_pre_operation_backup(
-        db,
-        tenant_id=current.tenant_id,
-        actor_user_id=current.user.id,
-        reason="membership_profile_deletion",
-    )
     service = MembershipService(db)
     csv_content = await service.export_csv(current.tenant_id)
     return StreamingResponse(
