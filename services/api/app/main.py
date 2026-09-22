@@ -125,7 +125,10 @@ async def health_check(db: DbDep) -> dict:
     checks = await run_all_checks(db)
 
     statuses = [c["status"] for c in checks.values()]  # type: ignore[index]
-    if all(s == "ok" for s in statuses):
+    # Optional services explicitly disabled by the deployment profile are not
+    # failures. This lets the Web/PWA core report healthy without an AI runtime.
+    active_statuses = [status for status in statuses if status != "disabled"]
+    if all(s == "ok" for s in active_statuses):
         overall = "ok"
     elif any(s == "unavailable" for s in statuses):
         overall = "unavailable"

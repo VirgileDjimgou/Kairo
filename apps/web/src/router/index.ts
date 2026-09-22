@@ -13,6 +13,11 @@ const router = createRouter({
       meta: { requiresGuest: true },
     },
     {
+      path: "/demo",
+      name: "demo",
+      component: () => import("@/views/demo/DemoLandingView.vue"),
+    },
+    {
       path: "/forgot-password",
       name: "forgot-password",
       component: () => import("@/views/auth/ForgotPasswordView.vue"),

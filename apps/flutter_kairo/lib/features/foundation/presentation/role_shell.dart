@@ -28,6 +28,27 @@ import '../../notifications/data/fcm_registration_state.dart';
 import '../../notifications/data/inbox_gateway.dart';
 import '../../notifications/presentation/inbox_page.dart';
 
+String notificationDestinationKey(String path) {
+  final value = path.toLowerCase();
+  if (value == '/notifications' ||
+      value.startsWith('/notifications/') ||
+      value.contains('inbox')) {
+    return 'inbox';
+  }
+  if (value.contains('receipt') || value.contains('encaissement')) {
+    return 'receipts';
+  }
+  if (value.contains('finance') || value.contains('expense')) {
+    return 'finance';
+  }
+  if (value.contains('disciplin') || value.contains('censor')) {
+    return 'governance';
+  }
+  if (value.contains('member')) return 'members';
+  if (value.contains('chat')) return 'chat';
+  return 'home';
+}
+
 class RoleShell extends StatefulWidget {
   const RoleShell({
     super.key,
@@ -504,18 +525,7 @@ class _RoleShellState extends State<RoleShell> {
   }
 
   void _openNotificationTarget(String path) {
-    final value = path.toLowerCase();
-    final key = value.contains('receipt') || value.contains('encaissement')
-        ? 'receipts'
-        : value.contains('finance') || value.contains('expense')
-        ? 'finance'
-        : value.contains('disciplin') || value.contains('censor')
-        ? 'governance'
-        : value.contains('member')
-        ? 'members'
-        : value.contains('chat')
-        ? 'chat'
-        : 'home';
+    final key = notificationDestinationKey(path);
     final index = _destinationKeys.indexOf(key);
     if (index >= 0) setState(() => _index = index);
   }

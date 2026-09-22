@@ -8,8 +8,15 @@ import 'package:kairo_flutter/features/auth/data/auth_gateway.dart';
 import 'package:kairo_flutter/features/auth/data/auth_models.dart';
 import 'package:kairo_flutter/features/auth/presentation/auth_gate.dart';
 import 'package:kairo_flutter/features/auth/presentation/session_controller.dart';
+import 'package:kairo_flutter/features/foundation/presentation/role_shell.dart';
 
 void main() {
+  test('F9 maps notification inbox target paths to the inbox destination', () {
+    expect(notificationDestinationKey('/notifications'), 'inbox');
+    expect(notificationDestinationKey('/notifications/inbox'), 'inbox');
+    expect(notificationDestinationKey('/inbox'), 'inbox');
+  });
+
   testWidgets('F9 sign-in controls remain accessible on phone and desktop', (
     WidgetTester tester,
   ) async {

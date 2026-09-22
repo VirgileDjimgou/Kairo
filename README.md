@@ -34,7 +34,32 @@ Kairo is a multilingual, multi-tenant application for the day-to-day administrat
 | Notifications | In-app inbox, opt-in Web Push and audited delivery workflow |
 | Private AI | Optional local Ollama/Qdrant runtime behind a signed gateway; the cloud core can run without it |
 
-The public pilot is available at [app.combissportverein.org](https://app.combissportverein.org/).
+The portfolio demo is available at [kairo.patrickdjimgou.dev](https://kairo.patrickdjimgou.dev/).
+
+## Live portfolio demo
+
+The public demo entry point is **[kairo.patrickdjimgou.dev/demo](https://kairo.patrickdjimgou.dev/demo)**.
+
+Open `/demo` and pick a role to start a one-click demo session — no account required:
+
+| Step | What happens |
+| --- | --- |
+| 1. Open `/demo` | Public entry point, no sign-up |
+| 2. Pick a role | Member, President, Treasurer, Secretary General, Auditor, Censor or Sports Manager |
+| 3. Explore | The role workspace opens with a guided three-step tour |
+| 4. Switch or exit | The demo banner lets a visitor change role or leave the demo |
+
+> The demo tenant contains fictional data only. Administrative roles are grouped under "advanced roles" and are aimed at a guided walkthrough.
+
+Demo mode is configured at build time through `apps/web` variables:
+
+| Variable | Default | Purpose |
+| --- | --- | --- |
+| `VITE_DEMO_MODE` | `true` | Set to `false` to hide `/demo` and the demo banner |
+| `VITE_DEMO_TENANT_SLUG` | `demo` | Tenant used by one-click demo sessions |
+| `VITE_DEMO_ACCOUNTS` | seed accounts | JSON array overriding the demo account catalogue |
+
+Point `VITE_DEMO_ACCOUNTS` at the instance's real demo credentials when they differ from the seed (for example after a password rotation), then rebuild the web image. Use the base64 form `VITE_DEMO_ACCOUNTS_B64` when the passwords contain characters that are awkward in an env file.
 
 ## Features
 

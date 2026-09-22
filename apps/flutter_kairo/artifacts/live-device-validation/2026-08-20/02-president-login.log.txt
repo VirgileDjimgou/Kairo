@@ -1,0 +1,100 @@
+08-20 23:07:39.361 D/FlutterJNI(23129): Sending viewport metrics to the engine.
+08-20 23:07:39.378 D/FlutterJNI(23129): Sending viewport metrics to the engine.
+08-20 23:07:39.395 D/FlutterJNI(23129): Sending viewport metrics to the engine.
+08-20 23:07:39.412 D/FlutterJNI(23129): Sending viewport metrics to the engine.
+08-20 23:07:39.429 D/FlutterJNI(23129): Sending viewport metrics to the engine.
+08-20 23:07:39.445 D/FlutterJNI(23129): Sending viewport metrics to the engine.
+08-20 23:07:39.446 D/FlutterJNI(23129): Sending viewport metrics to the engine.
+08-20 23:07:41.294 D/SGM:GameManager(  995): identifyGamePackage. org.combissportverein.kairo, mCurrentUserId: 0, callerUserId: 0, callingMethodInfo: com.android.server.ssrm.SortingMachine.isGame(SortingMachine.java:162)
+08-20 23:07:41.294 D/SGM:PkgDataHelper(  995): getGamePkgData(). org.combissportverein.kairo
+08-20 23:07:42.330 D/ProfileInstaller(23129): Installing profile for org.combissportverein.kairo
+08-20 23:07:43.261 D/SGM:GameManager(  995): identifyForegroundApp. org.combissportverein.kairo, mCurrentUserId: 0, callerUserId: 0
+08-20 23:07:43.261 D/SGM:PkgDataHelper(  995): getGamePkgData(). org.combissportverein.kairo
+08-20 23:07:43.445 W/ResourcesOffloading(23252): An exception occurred : 
+08-20 23:07:43.445 W/ResourcesOffloading(23252): android.content.res.Resources$NotFoundException: Resource ID #0x7f060413
+08-20 23:07:43.473 W/ResourcesOffloading(23254): An exception occurred : 
+08-20 23:07:43.473 W/ResourcesOffloading(23254): android.content.res.Resources$NotFoundException: Resource ID #0x7f080cd1
+08-20 23:07:44.587 W/System.err(23250): java.util.NoSuchElementException: Collection contains no element matching the predicate.
+08-20 23:07:45.107 E/GoogleApiManager(23254): java.lang.SecurityException: Unknown calling package name 'com.google.android.gms'.
+08-20 23:07:45.107 E/GoogleApiManager(23254): 	at android.os.Parcel.createExceptionOrNull(Parcel.java:2438)
+08-20 23:07:45.107 E/GoogleApiManager(23254): 	at android.os.Parcel.createException(Parcel.java:2422)
+08-20 23:07:45.107 E/GoogleApiManager(23254): 	at android.os.Parcel.readException(Parcel.java:2405)
+08-20 23:07:45.107 E/GoogleApiManager(23254): 	at android.os.Parcel.readException(Parcel.java:2347)
+08-20 23:07:45.111 W/FlagStore(23254): java.util.concurrent.ExecutionException: gqxz: 17: 17: API: Phenotype.API is not available on this device. Connection failed with: ConnectionResult{statusCode=DEVELOPER_ERROR, resolution=null, message=null, clientMethodKey=null}
+08-20 23:07:49.037 I/NullBinder( 2102): NullBinder for android.net.action.RECOMMEND_NETWORKS triggering remote TransactionTooLargeException due to Service without Chimera impl, calling uid: 1000, calling pid: 0
+08-20 23:07:50.095 I/NullBinder( 2102): NullBinder for android.net.action.RECOMMEND_NETWORKS triggering remote TransactionTooLargeException due to Service without Chimera impl, calling uid: 1000, calling pid: 0
+08-20 23:07:50.111 I/NullBinder( 2102): NullBinder for android.net.action.RECOMMEND_NETWORKS triggering remote TransactionTooLargeException due to Service without Chimera impl, calling uid: 1000, calling pid: 0
+08-20 23:07:52.093 I/NullBinder( 2102): NullBinder for android.net.action.RECOMMEND_NETWORKS triggering remote TransactionTooLargeException due to Service without Chimera impl, calling uid: 1000, calling pid: 0
+08-20 23:07:53.747 I/DIAGMON_SDK[605019](23530): value for uncaughtException will be default
+08-20 23:07:55.120 E/GoogleApiManager(23254): java.lang.SecurityException: Unknown calling package name 'com.google.android.gms'.
+08-20 23:07:55.120 E/GoogleApiManager(23254): 	at android.os.Parcel.createExceptionOrNull(Parcel.java:2438)
+08-20 23:07:55.120 E/GoogleApiManager(23254): 	at android.os.Parcel.createException(Parcel.java:2422)
+08-20 23:07:55.120 E/GoogleApiManager(23254): 	at android.os.Parcel.readException(Parcel.java:2405)
+08-20 23:07:55.120 E/GoogleApiManager(23254): 	at android.os.Parcel.readException(Parcel.java:2347)
+08-20 23:07:55.153 I/NullBinder( 2102): NullBinder for android.net.action.RECOMMEND_NETWORKS triggering remote TransactionTooLargeException due to Service without Chimera impl, calling uid: 1000, calling pid: 0
+08-20 23:07:55.221 I/okhttp.OkHttpClient(23617): <-- HTTP FAILED: java.net.ConnectException: Failed to connect to /127.0.0.1:8080
+08-20 23:07:58.231 I/NullBinder( 2102): NullBinder for android.net.action.RECOMMEND_NETWORKS triggering remote TransactionTooLargeException due to Service without Chimera impl, calling uid: 1000, calling pid: 0
+08-20 23:08:31.376 I/IMM_LC  (23129): ssi() - flag : 0 view : org.combissportverein.kairo reason = SHOW_SOFT_INPUT
+08-20 23:08:32.239 I/IMM_LC  (23129): ssi() - flag : 0 view : org.combissportverein.kairo reason = SHOW_SOFT_INPUT
+08-20 23:08:32.239 I/GoogleInputMethodService( 3251): GoogleInputMethodService.onStartInput():1532 onStartInput(EditorInfo{EditorInfo{packageName=org.combissportverein.kairo, inputType=80081, inputTypeString=Password[NoSuggestion], enableLearning=false, autoCorrection=false, autoComplete=true, imeOptions=2000006, privateImeOptions=null, actionName=DONE, actionLabel=null, initialSelStart=0, initialSelEnd=0, initialCapsMode=0, label=null, fieldId=1, fieldName=null, extras=Bundle[{displayId=0}], hintText=null, hintLocales=[]}}, true)
+08-20 23:08:32.242 I/GoogleInputMethodService( 3251): GoogleInputMethodService.onStartInputView():1618 onStartInputView(EditorInfo{EditorInfo{packageName=org.combissportverein.kairo, inputType=80081, inputTypeString=Password[NoSuggestion], enableLearning=false, autoCorrection=false, autoComplete=true, imeOptions=2000006, privateImeOptions=null, actionName=DONE, actionLabel=null, initialSelStart=0, initialSelEnd=0, initialCapsMode=0, label=null, fieldId=1, fieldName=null, extras=Bundle[{displayId=0}], hintText=null, hintLocales=[]}}, true)
+08-20 23:08:32.251 I/AbstractIme( 3251): AbstractIme.onActivate():111 PasswordIme.onActivate() : EditorInfo = EditorInfo{packageName=org.combissportverein.kairo, inputType=80081, inputTypeString=Password[NoSuggestion], enableLearning=false, autoCorrection=false, autoComplete=true, imeOptions=2000006, privateImeOptions=null, actionName=DONE, actionLabel=null, initialSelStart=0, initialSelEnd=0, initialCapsMode=0, label=null, fieldId=1, fieldName=null, extras=Bundle[{displayId=0}], hintText=null, hintLocales=[]}, IncognitoMode = false, DeviceLocked = false
+08-20 23:08:32.410 D/FlutterJNI(23129): Sending viewport metrics to the engine.
+08-20 23:08:32.824 I/IMM_LC  (23129): hsifw() - flags=0, caller=android.view.inputmethod.InputMethodManager.hideSoftInputFromWindow:1858 android.view.inputmethod.InputMethodManager.hideSoftInputFromWindow:1827 io.flutter.plugin.editing.TextInputPlugin.hideTextInput:447 io.flutter.plugin.editing.TextInputPlugin.access$400:44 io.flutter.plugin.editing.TextInputPlugin$2.hide:122 
+08-20 23:08:32.833 D/InsetsSourceConsumer(23129): setRequestedVisible: visible=false, type=19, host=org.combissportverein.kairo/org.combissportverein.kairo.MainActivity, from=android.view.InsetsSourceConsumer.hide:253 android.view.ImeInsetsSourceConsumer.hide:68 android.view.ImeInsetsSourceConsumer.hide:74 android.view.InsetsController.hideDirectly:1473 android.view.InsetsController.controlAnimationUnchecked:1139 android.view.InsetsController.applyAnimation:1456 android.view.InsetsController.applyAnimation:1437 android.view.InsetsController.hide:1006 android.view.ViewRootImpl$ViewRootHandler.handleMessageImpl:6487 android.view.ViewRootImpl$ViewRootHandler.handleMessage:6408 
+08-20 23:08:32.834 D/InsetsSourceProvider(  995): updateVisibility: serverVisible=true, clientVisible=false, source=InsetsSource: {mType=ITYPE_IME, mFrame=[0,1308][1080,2280], mVisible=false}, controlTarget=Window{d5561a6 u0 org.combissportverein.kairo/org.combissportverein.kairo.MainActivity}, from=com.android.server.wm.ImeInsetsSourceProvider.updateVisibility:89 com.android.server.wm.InsetsSourceProvider.setClientVisible:415 com.android.server.wm.InsetsSourceProvider.updateClientVisibility:400 com.android.server.wm.InsetsStateController.onInsetsModified:508 com.android.server.wm.InsetsPolicy.onInsetsModified:477 com.android.server.wm.Session.insetsModified:704 android.view.IWindowSession$Stub.onTransact:1256 com.android.server.wm.Session.onTransact:176 android.os.Binder.execTransactInternal:1220 android.os.Binder.execTransact:1179 
+08-20 23:08:32.843 D/FlutterJNI(23129): Sending viewport metrics to the engine.
+08-20 23:08:32.847 D/InsetsSourceConsumer(23129): ensureControlAlpha: for ITYPE_NAVIGATION_BAR on org.combissportverein.kairo/org.combissportverein.kairo.MainActivity
+08-20 23:08:32.859 D/FlutterJNI(23129): Sending viewport metrics to the engine.
+08-20 23:08:32.876 D/FlutterJNI(23129): Sending viewport metrics to the engine.
+08-20 23:08:32.895 D/FlutterJNI(23129): Sending viewport metrics to the engine.
+08-20 23:08:32.909 D/FlutterJNI(23129): Sending viewport metrics to the engine.
+08-20 23:08:32.927 D/FlutterJNI(23129): Sending viewport metrics to the engine.
+08-20 23:08:32.942 D/FlutterJNI(23129): Sending viewport metrics to the engine.
+08-20 23:08:32.960 D/FlutterJNI(23129): Sending viewport metrics to the engine.
+08-20 23:08:32.976 D/FlutterJNI(23129): Sending viewport metrics to the engine.
+08-20 23:08:32.994 D/FlutterJNI(23129): Sending viewport metrics to the engine.
+08-20 23:08:33.010 D/FlutterJNI(23129): Sending viewport metrics to the engine.
+08-20 23:08:33.029 D/FlutterJNI(23129): Sending viewport metrics to the engine.
+08-20 23:08:33.044 D/FlutterJNI(23129): Sending viewport metrics to the engine.
+08-20 23:08:33.062 D/FlutterJNI(23129): Sending viewport metrics to the engine.
+08-20 23:08:33.077 D/FlutterJNI(23129): Sending viewport metrics to the engine.
+08-20 23:08:33.095 D/FlutterJNI(23129): Sending viewport metrics to the engine.
+08-20 23:08:33.112 D/FlutterJNI(23129): Sending viewport metrics to the engine.
+08-20 23:08:33.130 D/FlutterJNI(23129): Sending viewport metrics to the engine.
+08-20 23:08:33.146 D/FlutterJNI(23129): Sending viewport metrics to the engine.
+08-20 23:08:33.163 D/SurfaceFlinger(  611):      DEVICE | 0x6f2b13f550 | 0100 | RGBA_8888    |    0.0    0.0 1080.0 2280.0 |    0    0 1080 2280 | org.combissportverein.kairo/org.combissportverein.kairo.MainActivity$_23129#0
+08-20 23:08:33.216 D/FlutterJNI(23129): Sending viewport metrics to the engine.
+08-20 23:08:33.216 D/FlutterJNI(23129): Sending viewport metrics to the engine.
+08-20 23:08:33.222 I/GoogleInputMethodService( 3251): GoogleInputMethodService.onStartInput():1532 onStartInput(EditorInfo{EditorInfo{packageName=org.combissportverein.kairo, inputType=0, inputTypeString=NULL, enableLearning=false, autoCorrection=false, autoComplete=false, imeOptions=0, privateImeOptions=null, actionName=UNSPECIFIED, actionLabel=null, initialSelStart=-1, initialSelEnd=-1, initialCapsMode=0, label=null, fieldId=1, fieldName=null, extras=Bundle[{displayId=0}], hintText=null, hintLocales=[]}}, true)
+08-20 23:08:33.250 I/IMM_LC  (23129): ssi() - flag : 0 view : org.combissportverein.kairo reason = SHOW_SOFT_INPUT
+08-20 23:08:33.250 I/GoogleInputMethodService( 3251): GoogleInputMethodService.onStartInput():1532 onStartInput(EditorInfo{EditorInfo{packageName=org.combissportverein.kairo, inputType=8001, inputTypeString=Normal[AutoCorrect], enableLearning=true, autoCorrection=true, autoComplete=true, imeOptions=2000006, privateImeOptions=null, actionName=DONE, actionLabel=null, initialSelStart=-1, initialSelEnd=-1, initialCapsMode=0, label=null, fieldId=1, fieldName=null, extras=Bundle[{displayId=0}], hintText=null, hintLocales=[]}}, true)
+08-20 23:08:33.255 I/IMM_LC  (23129): ssi() - flag : 0 view : org.combissportverein.kairo reason = SHOW_SOFT_INPUT
+08-20 23:08:33.264 I/GoogleInputMethodService( 3251): GoogleInputMethodService.onStartInputView():1618 onStartInputView(EditorInfo{EditorInfo{packageName=org.combissportverein.kairo, inputType=8001, inputTypeString=Normal[AutoCorrect], enableLearning=true, autoCorrection=true, autoComplete=true, imeOptions=2000006, privateImeOptions=null, actionName=DONE, actionLabel=null, initialSelStart=-1, initialSelEnd=-1, initialCapsMode=0, label=null, fieldId=1, fieldName=null, extras=Bundle[{displayId=0}], hintText=null, hintLocales=[]}}, false)
+08-20 23:08:33.270 I/AbstractIme( 3251): AbstractIme.onActivate():111 LatinIme.onActivate() : EditorInfo = EditorInfo{packageName=org.combissportverein.kairo, inputType=8001, inputTypeString=Normal[AutoCorrect], enableLearning=true, autoCorrection=true, autoComplete=true, imeOptions=2000006, privateImeOptions=null, actionName=DONE, actionLabel=null, initialSelStart=-1, initialSelEnd=-1, initialCapsMode=0, label=null, fieldId=1, fieldName=null, extras=Bundle[{displayId=0}], hintText=null, hintLocales=[]}, IncognitoMode = false, DeviceLocked = false
+08-20 23:08:33.367 D/InsetsSourceConsumer(23129): setRequestedVisible: visible=true, type=19, host=org.combissportverein.kairo/org.combissportverein.kairo.MainActivity, from=android.view.InsetsSourceConsumer.show:246 android.view.InsetsController.showDirectly:1489 android.view.InsetsController.controlAnimationUnchecked:1137 android.view.InsetsController.applyAnimation:1456 android.view.InsetsController.applyAnimation:1437 android.view.InsetsController.show:976 android.view.ViewRootImpl$ViewRootHandler.handleMessageImpl:6483 android.view.ViewRootImpl$ViewRootHandler.handleMessage:6408 android.os.Handler.dispatchMessage:106 android.os.Looper.loopOnce:226 
+08-20 23:08:33.368 D/InsetsSourceProvider(  995): updateVisibility: serverVisible=true, clientVisible=true, source=InsetsSource: {mType=ITYPE_IME, mFrame=[0,1397][1080,2280], mVisible=true}, controlTarget=Window{d5561a6 u0 org.combissportverein.kairo/org.combissportverein.kairo.MainActivity}, from=com.android.server.wm.ImeInsetsSourceProvider.updateVisibility:89 com.android.server.wm.InsetsSourceProvider.setClientVisible:415 com.android.server.wm.InsetsSourceProvider.updateClientVisibility:400 com.android.server.wm.InsetsStateController.onInsetsModified:508 com.android.server.wm.InsetsPolicy.onInsetsModified:477 com.android.server.wm.Session.insetsModified:704 android.view.IWindowSession$Stub.onTransact:1256 com.android.server.wm.Session.onTransact:176 android.os.Binder.execTransactInternal:1220 android.os.Binder.execTransact:1179 
+08-20 23:08:33.379 D/FlutterJNI(23129): Sending viewport metrics to the engine.
+08-20 23:08:33.394 D/FlutterJNI(23129): Sending viewport metrics to the engine.
+08-20 23:08:33.411 D/FlutterJNI(23129): Sending viewport metrics to the engine.
+08-20 23:08:33.428 D/FlutterJNI(23129): Sending viewport metrics to the engine.
+08-20 23:08:33.431 D/SurfaceFlinger(  611):      DEVICE | 0x6f2b132d10 | 0100 | RGBA_8888    |    0.0    0.0 1080.0 2280.0 |    0    0 1080 2280 | org.combissportverein.kairo/org.combissportverein.kairo.MainActivity$_23129#0
+08-20 23:08:33.445 D/FlutterJNI(23129): Sending viewport metrics to the engine.
+08-20 23:08:33.461 D/FlutterJNI(23129): Sending viewport metrics to the engine.
+08-20 23:08:33.478 D/FlutterJNI(23129): Sending viewport metrics to the engine.
+08-20 23:08:33.494 D/FlutterJNI(23129): Sending viewport metrics to the engine.
+08-20 23:08:33.512 D/FlutterJNI(23129): Sending viewport metrics to the engine.
+08-20 23:08:33.528 D/FlutterJNI(23129): Sending viewport metrics to the engine.
+08-20 23:08:33.545 D/FlutterJNI(23129): Sending viewport metrics to the engine.
+08-20 23:08:33.561 D/FlutterJNI(23129): Sending viewport metrics to the engine.
+08-20 23:08:33.578 D/FlutterJNI(23129): Sending viewport metrics to the engine.
+08-20 23:08:33.595 D/FlutterJNI(23129): Sending viewport metrics to the engine.
+08-20 23:08:33.611 D/FlutterJNI(23129): Sending viewport metrics to the engine.
+08-20 23:08:33.630 D/FlutterJNI(23129): Sending viewport metrics to the engine.
+08-20 23:08:33.645 D/FlutterJNI(23129): Sending viewport metrics to the engine.
+08-20 23:08:33.662 D/FlutterJNI(23129): Sending viewport metrics to the engine.
+08-20 23:08:33.679 D/FlutterJNI(23129): Sending viewport metrics to the engine.
+08-20 23:08:33.697 D/FlutterJNI(23129): Sending viewport metrics to the engine.
+08-20 23:08:33.697 D/FlutterJNI(23129): Sending viewport metrics to the engine.
+08-20 23:08:43.232 D/WindowManager(  995): rotationForOrientation, orientationSource=ActivityRecord{9baf661 u0 org.combissportverein.kairo/.MainActivity t907}
+08-20 23:08:43.574 D/WindowManager(  995): rotationForOrientation, orientationSource=ActivityRecord{9baf661 u0 org.combissportverein.kairo/.MainActivity t907}

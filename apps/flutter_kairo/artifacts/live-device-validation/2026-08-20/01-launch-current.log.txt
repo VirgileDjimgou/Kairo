@@ -1,0 +1,160 @@
+08-20 23:07:35.148 D/PkgPredictorService-IpmAdcpController(  995): /data/app/~~W8wMZoWIXDJU3vFpVFvWkA==/org.combissportverein.kairo-LUIHHq0zeI0RSOraqUmasg==/oat/arm64/base.odex is already preloaded
+08-20 23:07:35.150 I/SurfaceFlinger(  611): id=630 createSurf (0x0),-1 flag=80004, ActivityRecord{9baf661 u0 org.combissportverein.kairo/.MainActivity t907}#0
+08-20 23:07:35.153 D/StartingSurfaceDrawer( 1375): addSplashScreen org.combissportverein.kairo theme=7f0d0000 task=907 suggestType=3
+08-20 23:07:35.159 D/MARsPolicyManager(  995): onPackageResumedFG pkgName = org.combissportverein.kairo, userId = 0
+08-20 23:07:35.162 I/SurfaceFlinger(  611): id=631 createSurf (0x0),-1 flag=80004, 99b50f8 Splash Screen org.combissportverein.kairo#0
+08-20 23:07:35.162 D/WindowManager(  995): rotationForOrientation, orientationSource=ActivityRecord{9baf661 u0 org.combissportverein.kairo/.MainActivity t907}
+08-20 23:07:35.162 D/WindowManager(  995): rotationForOrientation, orientationSource=ActivityRecord{9baf661 u0 org.combissportverein.kairo/.MainActivity t907}
+08-20 23:07:35.166 D/WindowManager(  995): rotationForOrientation, orientationSource=ActivityRecord{9baf661 u0 org.combissportverein.kairo/.MainActivity t907}
+08-20 23:07:35.168 D/WindowManager(  995): rotationForOrientation, orientationSource=ActivityRecord{9baf661 u0 org.combissportverein.kairo/.MainActivity t907}
+08-20 23:07:35.169 D/WindowManager(  995): rotationForOrientation, orientationSource=ActivityRecord{9baf661 u0 org.combissportverein.kairo/.MainActivity t907}
+08-20 23:07:35.171 D/WindowManager(  995): rotationForOrientation, orientationSource=ActivityRecord{9baf661 u0 org.combissportverein.kairo/.MainActivity t907}
+08-20 23:07:35.172 V/WindowManager(  995): Relayout Window{99b50f8 u0 Splash Screen org.combissportverein.kairo}: viewVisibility=0 req=1080x2280 d0
+08-20 23:07:35.173 I/SurfaceFlinger(  611): id=632 createSurf (1080x2280),-3 flag=40004, Splash Screen org.combissportverein.kairo$_1375#0
+08-20 23:07:35.173 D/WindowManager(  995): makeSurface duration=1 name=Splash Screen org.combissportverein.kairo$_1375
+08-20 23:07:35.174 D/WindowManager(  995): rotationForOrientation, orientationSource=ActivityRecord{9baf661 u0 org.combissportverein.kairo/.MainActivity t907}
+08-20 23:07:35.180 I/AndroidRuntime(23108): VM exiting with result code 0.
+08-20 23:07:35.186 D/WindowManager(  995): finishDrawingWindow: Window{99b50f8 u0 Splash Screen org.combissportverein.kairo} mDrawState=DRAW_PENDING
+08-20 23:07:35.194 D/InsetsSourceConsumer( 1375): ensureControlAlpha: for ITYPE_NAVIGATION_BAR on Splash Screen org.combissportverein.kairo
+08-20 23:07:35.195 D/InsetsSourceConsumer( 1375): ensureControlAlpha: for ITYPE_STATUS_BAR on Splash Screen org.combissportverein.kairo
+08-20 23:07:35.207 I/ActivityManager(  995): Start proc 23129:org.combissportverein.kairo/u0a32 for pre-top-activity {org.combissportverein.kairo/org.combissportverein.kairo.MainActivity}
+08-20 23:07:35.207 D/ActivityManager(  995): [SecIpm] it's a ML_TYPE_EMPTYPROCESS protected process org.combissportverein.kairo
+08-20 23:07:35.215 D/SurfaceFlinger(  611):      DEVICE | 0x6f2b13d5d0 | 0100 | RGBA_8888    |    0.0    0.0 1080.0 2280.0 |   76  159 1004 2121 | Splash Screen org.combissportverein.kairo$_1375#0
+08-20 23:07:35.237 E/USNET   (23129): USNET: appName: org.combissportverein.kairo
+08-20 23:07:35.245 I/ActivityManager(  995): DSS OFF for org.combissportverein.kairo
+08-20 23:07:35.248 I/DexController(  995): getTaskHasActivityIsWaitingToRun: r=ActivityRecord{9baf661 u0 org.combissportverein.kairo/.MainActivity t907}, app=ProcessRecord{10fb7e3 23129:org.combissportverein.kairo/u0a32}
+08-20 23:07:35.248 D/ActivityManager(  995): attachApplicationLocked() app=ProcessRecord{10fb7e3 23129:org.combissportverein.kairo/u0a32} app.isolatedEntryPoint=null instr2=null
+08-20 23:07:35.249 D/WindowManager(  995): rotationForOrientation, orientationSource=ActivityRecord{9baf661 u0 org.combissportverein.kairo/.MainActivity t907}
+08-20 23:07:35.251 D/SGM:GameManager(  995): onLooperPrepared(), msg: MSG_APP_CREATE, pkgName: org.combissportverein.kairo, userId: 0
+08-20 23:07:35.251 D/SGM:PkgDataHelper(  995): notifyAppCreate(), pkgName: org.combissportverein.kairo, userId: 0, sendRet: true
+08-20 23:07:35.251 D/MARsPolicyManager(  995): onPackageResumedFG pkgName = org.combissportverein.kairo, userId = 0
+08-20 23:07:35.252 D/SGM:GameManager(  995):   sendRunningComponentFocus(), pkgName: org.combissportverein.kairo, userId: 0
+08-20 23:07:35.252 D/SGM:GameManager(  995): onLooperPrepared(), msg: MSG_TASK_FOCUSED, pkgName: org.combissportverein.kairo, userId: 0
+08-20 23:07:35.252 D/SGM:GameManager(  995):   handleTaskFocused(), pkgName: org.combissportverein.kairo, userID:0
+08-20 23:07:35.252 D/SGM:GameManager(  995):   handleResume(). pkgName: org.combissportverein.kairo, userId: 0, isTunableApp: null
+08-20 23:07:35.252 D/SGM:GameManager(  995): notifyFocusInOut(). of pkg: org.combissportverein.kairo, type: 4, isMinimized: false, isTunableApp: false, userId: 0
+08-20 23:07:35.253 V/ActivityManager(  995): Changed top to ProcessRecord{10fb7e3 23129:org.combissportverein.kairo/u0a32}
+08-20 23:07:35.259 D/SGM:GameManager(  995): identifyForegroundApp. org.combissportverein.kairo, mCurrentUserId: 0, callerUserId: 0
+08-20 23:07:35.259 D/SGM:PkgDataHelper(  995): getGamePkgData(). org.combissportverein.kairo
+08-20 23:07:35.261 D/SGM:GameManager(  995): identifyGamePackage. org.combissportverein.kairo, mCurrentUserId: 0, callerUserId: 0, callingMethodInfo: com.samsung.android.game.IGameManagerService$Stub.onTransact(IGameManagerService.java:242)
+08-20 23:07:35.261 D/SGM:PkgDataHelper(  995): getGamePkgData(). org.combissportverein.kairo
+08-20 23:07:35.262 D/SGM:GameManager(  995): identifyGamePackage. org.combissportverein.kairo, mCurrentUserId: 0, callerUserId: 0, callingMethodInfo: com.samsung.android.game.SemGameManager.isGamePackage(SemGameManager.java:104)
+08-20 23:07:35.262 D/SGM:PkgDataHelper(  995): getGamePkgData(). org.combissportverein.kairo
+08-20 23:07:35.262 D/SGM:SemGameManager(  995): isGamePackage(), pkgName=org.combissportverein.kairo, ret=false
+08-20 23:07:35.264 I/Utils   ( 6150): HomePackage : com.sec.android.app.launcher, resumePackageName : org.combissportverein.kairo
+08-20 23:07:35.265 D/SGM:GameManager(  995): identifyGamePackage. org.combissportverein.kairo, mCurrentUserId: 0, callerUserId: 0, callingMethodInfo: com.android.server.ssrm.fgapps.GameAppUtils.isGame(GameAppUtils.java:84)
+08-20 23:07:35.265 D/SGM:PkgDataHelper(  995): getGamePkgData(). org.combissportverein.kairo
+08-20 23:07:35.266 D/SGM:GameManager(  995): identifyGamePackage. org.combissportverein.kairo, mCurrentUserId: 0, callerUserId: 0, callingMethodInfo: com.android.server.ssrm.SortingMachine.isGame(SortingMachine.java:162)
+08-20 23:07:35.266 D/SGM:PkgDataHelper(  995): getGamePkgData(). org.combissportverein.kairo
+08-20 23:07:35.266 I/GameSDK@LifeCycle(  995): noteResumeComponent(): package name  : org.combissportverein.kairo
+08-20 23:07:35.266 D/SGM:GameManager(  995): noteResumeComponent(), received pkgName: org.combissportverein.kairo, userId: 0
+08-20 23:07:35.266 D/SGM:GameManager(  995): onLooperPrepared(), msg: MSG_APP_RESUME, pkgName: org.combissportverein.kairo, userid: 0
+08-20 23:07:35.266 D/SGM:GameManager(  995):   handleResume(). pkgName: org.combissportverein.kairo, userId: 0, isTunableApp: null
+08-20 23:07:35.266 D/SGM:GameManager(  995): notifyFocusInOut(). of pkg: org.combissportverein.kairo, type: 4, isMinimized: false, isTunableApp: false, userId: 0
+08-20 23:07:35.269 D/ActivityThread(23129): handleBindApplication()++ app=org.combissportverein.kairo
+08-20 23:07:35.287 V/GraphicsEnvironment(23129): ANGLE Developer option for 'org.combissportverein.kairo' set to: 'default'
+08-20 23:07:35.289 D/LoadedApk(23129): LoadedApk::makeApplication() appContext.mOpPackageName=org.combissportverein.kairo appContext.mBasePackageName=org.combissportverein.kairo
+08-20 23:07:35.323 I/FirebaseApp(23129): Device unlocked: initializing all Firebase APIs for app [DEFAULT]
+08-20 23:07:35.333 I/FirebaseInitProvider(23129): FirebaseApp initialization successful
+08-20 23:07:35.383 D/FlutterJNI(23129): Beginning load of flutter...
+08-20 23:07:35.387 D/MdnieScenarioControlService(  995):  packageName : org.combissportverein.kairo    className : org.combissportverein.kairo.MainActivity
+08-20 23:07:35.422 D/FlutterJNI(23129): flutter (null) was loaded normally!
+08-20 23:07:35.455 E/audit   (  524): type=1327 audit(1787260055.449:378): proctitle="org.combissportverein.kairo"
+08-20 23:07:35.477 I/flutter (23129): [IMPORTANT:flutter/shell/platform/android/android_context_gl_impeller.cc(104)] Using the Impeller rendering backend (OpenGLES).
+08-20 23:07:35.551 D/SurfaceFlinger(  611):      DEVICE | 0x6f2b13d5d0 | 0100 | RGBA_8888    |    0.0    0.0 1080.0 2280.0 |    0    0 1080 2280 | Splash Screen org.combissportverein.kairo$_1375#0
+08-20 23:07:35.618 I/flutter (23129): The Dart VM service is listening on http://127.0.0.1:35109/onhpzc3WzX8=/
+08-20 23:07:36.048 D/FlutterRenderer(23129): Width is zero. 0,0
+08-20 23:07:36.070 I/SurfaceFlinger(  611): id=637 createSurf (0x0),-1 flag=80004, d5561a6 org.combissportverein.kairo/org.combissportverein.kairo.MainActivity#0
+08-20 23:07:37.157 I/SurfaceView@fb62cf(23129): onWindowVisibilityChanged(0) true io.flutter.embedding.android.FlutterSurfaceView{fb62cf V.E...... ......I. 0,0-0,0} of ViewRootImpl@13f6492[MainActivity]
+08-20 23:07:37.158 D/FlutterRenderer(23129): Width is zero. 0,0
+08-20 23:07:37.161 V/WindowManager(  995): Relayout Window{d5561a6 u0 org.combissportverein.kairo/org.combissportverein.kairo.MainActivity}: viewVisibility=0 req=1080x2280 d0
+08-20 23:07:37.162 I/SurfaceFlinger(  611): id=638 createSurf (1x1),-3 flag=40004, org.combissportverein.kairo/org.combissportverein.kairo.MainActivity$_23129#0
+08-20 23:07:37.162 D/WindowManager(  995): makeSurface duration=1 name=org.combissportverein.kairo/org.combissportverein.kairo.MainActivity$_23129
+08-20 23:07:37.163 V/WindowManager(  995): Changing focus from null to Window{d5561a6 u0 org.combissportverein.kairo/org.combissportverein.kairo.MainActivity} displayId=0 Callers=com.android.server.wm.RootWindowContainer.updateFocusedWindowLocked:583 com.android.server.wm.WindowManagerService.updateFocusedWindowLocked:6497 com.android.server.wm.WindowManagerService.relayoutWindow:2770 com.android.server.wm.Session.relayout:242 
+08-20 23:07:37.163 D/MARsPolicyManager(  995): onPackageResumedFG pkgName = org.combissportverein.kairo, userId = 0
+08-20 23:07:37.168 D/FlutterJNI(23129): Sending viewport metrics to the engine.
+08-20 23:07:37.173 I/SurfaceView@fb62cf(23129): windowStopped(false) true io.flutter.embedding.android.FlutterSurfaceView{fb62cf V.E...... ......ID 0,0-1080,2154} of ViewRootImpl@13f6492[MainActivity]
+08-20 23:07:37.174 I/SurfaceFlinger(  611): id=641 createSurf (0x0),-1 flag=20004, Bounds for - org.combissportverein.kairo/org.combissportverein.kairo.MainActivity@0#0
+08-20 23:07:37.175 I/SurfaceFlinger(  611): id=642 createSurf (0x0),-1 flag=80004, SurfaceView - org.combissportverein.kairo/org.combissportverein.kairo.MainActivity@fb62cf@0#0
+08-20 23:07:37.176 I/SurfaceFlinger(  611): id=643 createSurf (0x0),-1 flag=40400, SurfaceView - org.combissportverein.kairo/org.combissportverein.kairo.MainActivity@fb62cf@0(BLAST)#0
+08-20 23:07:37.176 I/SurfaceFlinger(  611): id=644 createSurf (0x0),-1 flag=20404, Background for SurfaceView - org.combissportverein.kairo/org.combissportverein.kairo.MainActivity@fb62cf@0#0
+08-20 23:07:37.177 I/SurfaceView@fb62cf(23129): surfaceCreated 1 #8 io.flutter.embedding.android.FlutterSurfaceView{fb62cf V.E...... ......ID 0,0-1080,2154}
+08-20 23:07:37.184 D/InputDispatcher(  995): Focus request (0): d5561a6 org.combissportverein.kairo/org.combissportverein.kairo.MainActivity but waiting because NOT_VISIBLE
+08-20 23:07:37.198 I/SurfaceView@fb62cf(23129): surfaceChanged (1080,2154) 1 #8 io.flutter.embedding.android.FlutterSurfaceView{fb62cf V.E...... ......ID 0,0-1080,2154}
+08-20 23:07:37.305 D/WindowManager(  995): finishDrawingWindow: Window{d5561a6 u0 org.combissportverein.kairo/org.combissportverein.kairo.MainActivity} mDrawState=DRAW_PENDING
+08-20 23:07:37.305 D/InsetsSourceConsumer(23129): ensureControlAlpha: for ITYPE_NAVIGATION_BAR on org.combissportverein.kairo/org.combissportverein.kairo.MainActivity
+08-20 23:07:37.306 D/InsetsSourceConsumer(23129): ensureControlAlpha: for ITYPE_STATUS_BAR on org.combissportverein.kairo/org.combissportverein.kairo.MainActivity
+08-20 23:07:37.309 D/FlutterJNI(23129): Sending viewport metrics to the engine.
+08-20 23:07:37.311 I/PkgPredictorService-SecIpmManagerServiceImpl(  995): reportToNAP uid:10032 org.combissportverein.kairo/org.combissportverein.kairo.MainActivity thisTime:2175
+08-20 23:07:37.314 D/FlutterJNI(23129): Sending viewport metrics to the engine.
+08-20 23:07:37.316 I/WindowManager(  995): Reparenting to leash, surface=Surface(name=d5561a6 org.combissportverein.kairo/org.combissportverein.kairo.MainActivity)/@0x29b4be2, leashParent=Surface(name=ActivityRecord{9baf661 u0 org.combissportverein.kairo/.MainActivity t907})/@0xa5b73
+08-20 23:07:37.316 I/SurfaceFlinger(  611): id=645 createSurf (0x0),-1 flag=24000, Surface(name=d5561a6 org.combissportverein.kairo/org.combissportverein.kairo.MainActivity)/@0x29b4be2 - animation-leash of starting_reveal#0
+08-20 23:07:37.317 D/WindowManager(  995): makeSurface duration=0 leash=Surface(name=Surface(name=d5561a6 org.combissportverein.kairo/org.combissportverein.kairo.MainActivity)/@0x29b4be2 - animation-leash of starting_reveal)/@0x7e4c6a9
+08-20 23:07:37.317 I/ActivityTaskManager(  995): Displayed org.combissportverein.kairo/.MainActivity: +2s175ms
+08-20 23:07:37.317 I/Pageboost(  995): Launch time gathered : pid 23129 org.combissportverein.kairo 2175
+08-20 23:07:37.317 I/ActivityTaskManager(  995): Fully drawn org.combissportverein.kairo/.MainActivity: +2s175ms
+08-20 23:07:37.321 D/InputDispatcher(  995): Focus entered window (0): d5561a6 org.combissportverein.kairo/org.combissportverein.kairo.MainActivity
+08-20 23:07:37.325 D/SurfaceFlinger(  611):      DEVICE | 0x6f2b13c070 | 0100 | RGBA_8888    |    0.0    0.0 1080.0 2280.0 |    0    0 1080 2280 | org.combissportverein.kairo/org.combissportverein.kairo.MainActivity$_23129#0
+08-20 23:07:37.325 D/SurfaceFlinger(  611):      DEVICE | 0x6f2b13d5d0 | 0100 | RGBA_8888    |    0.0    0.0 1080.0 2280.0 |    0    0 1080 2280 | Splash Screen org.combissportverein.kairo$_1375#0
+08-20 23:07:37.331 I/GoogleInputMethodService( 3251): GoogleInputMethodService.onStartInput():1532 onStartInput(EditorInfo{EditorInfo{packageName=org.combissportverein.kairo, inputType=0, inputTypeString=NULL, enableLearning=false, autoCorrection=false, autoComplete=false, imeOptions=0, privateImeOptions=null, actionName=UNSPECIFIED, actionLabel=null, initialSelStart=-1, initialSelEnd=-1, initialCapsMode=0, label=null, fieldId=-1, fieldName=null, extras=Bundle[{displayId=0}], hintText=null, hintLocales=[]}}, false)
+08-20 23:07:37.373 V/WindowManager(  995): Relayout Window{99b50f8 u0 Splash Screen org.combissportverein.kairo}: viewVisibility=8 req=1080x2280 d0
+08-20 23:07:37.373 I/WindowManager(  995): Reparenting to leash, surface=Surface(name=99b50f8 Splash Screen org.combissportverein.kairo)/@0xe3915bc, leashParent=Surface(name=ActivityRecord{9baf661 u0 org.combissportverein.kairo/.MainActivity t907})/@0xa5b73
+08-20 23:07:37.374 I/SurfaceFlinger(  611): id=647 createSurf (0x0),-1 flag=24000, Surface(name=99b50f8 Splash Screen org.combissportverein.kairo)/@0xe3915bc - animation-leash of window_animation#0
+08-20 23:07:37.374 D/WindowManager(  995): makeSurface duration=1 leash=Surface(name=Surface(name=99b50f8 Splash Screen org.combissportverein.kairo)/@0xe3915bc - animation-leash of window_animation)/@0xe55b945
+08-20 23:07:37.376 I/WindowManager(  995): Cancelling animation restarting=false, leash=Surface(name=Surface(name=d5561a6 org.combissportverein.kairo/org.combissportverein.kairo.MainActivity)/@0x29b4be2 - animation-leash of starting_reveal)/@0x7e4c6a9
+08-20 23:07:37.376 I/WindowManager(  995): Reparenting to original parent: Surface(name=ActivityRecord{9baf661 u0 org.combissportverein.kairo/.MainActivity t907})/@0xa5b73, destroy=false, surface=Surface(name=d5561a6 org.combissportverein.kairo/org.combissportverein.kairo.MainActivity)/@0x29b4be2
+08-20 23:07:37.377 W/InputManager-JNI(  995): Input channel object '99b50f8 Splash Screen org.combissportverein.kairo (client)' was disposed without first being removed with the input manager!
+08-20 23:07:37.387 I/Layer   (  611): id=645 removeFromCurrentState Surface(name=d5561a6 org.combissportverein.kairo/org.combissportverein.kairo.MainActivity)/@0x29b4be2 - animation-leash of starting_reveal#0 (115)
+08-20 23:07:37.439 I/WindowManager(  995): Reparenting to original parent: Surface(name=ActivityRecord{9baf661 u0 org.combissportverein.kairo/.MainActivity t907})/@0xa5b73, destroy=true, surface=Surface(name=99b50f8 Splash Screen org.combissportverein.kairo)/@0xe3915bc
+08-20 23:07:37.442 E/WindowManager(  995): win=Window{99b50f8 u0 Splash Screen org.combissportverein.kairo EXITING} destroySurfaces: appStopped=false win.mWindowRemovalAllowed=true win.mRemoveOnExit=true win.mViewVisibility=8 caller=com.android.server.wm.ActivityRecord.destroySurfaces:5867 com.android.server.wm.ActivityRecord.destroySurfaces:5848 com.android.server.wm.WindowState.onExitAnimationDone:5992 com.android.server.wm.WindowStateAnimator.onAnimationFinished:242 com.android.server.wm.WindowState.onAnimationFinished:6245 com.android.server.wm.WindowContainer$$ExternalSyntheticLambda0.onAnimationFinished:2 com.android.server.wm.SurfaceAnimator.lambda$getFinishedCallback$0$SurfaceAnimator:113 
+08-20 23:07:37.443 I/WindowManager(  995): Destroying surface Surface(name=Splash Screen org.combissportverein.kairo$_1375)/@0xe9da4c1 called by com.android.server.wm.WindowStateAnimator.destroySurface:987 com.android.server.wm.WindowStateAnimator.destroySurfaceLocked:518 com.android.server.wm.WindowState.destroySurfaceUnchecked:4246 com.android.server.wm.WindowState.destroySurface:4220 com.android.server.wm.ActivityRecord.destroySurfaces:5867 com.android.server.wm.ActivityRecord.destroySurfaces:5848 com.android.server.wm.WindowState.onExitAnimationDone:5992 com.android.server.wm.WindowStateAnimator.onAnimationFinished:242 
+08-20 23:07:37.454 I/Layer   (  611): id=632 removeFromCurrentState Splash Screen org.combissportverein.kairo$_1375#0 (115)
+08-20 23:07:37.454 I/Layer   (  611): id=631 removeFromCurrentState 99b50f8 Splash Screen org.combissportverein.kairo#0 (115)
+08-20 23:07:37.454 I/Layer   (  611): id=647 removeFromCurrentState Surface(name=99b50f8 Splash Screen org.combissportverein.kairo)/@0xe3915bc - animation-leash of window_animation#0 (115)
+08-20 23:07:37.454 I/SurfaceFlinger(  611): id=631 Removed 99b50f8 Splash Screen org.combissportverein.kairo#0 (115)
+08-20 23:07:37.454 I/SurfaceFlinger(  611): id=632 Removed Splash Screen org.combissportverein.kairo$_1375#0 (115)
+08-20 23:07:37.454 I/SurfaceFlinger(  611): id=647 Removed Surface(name=99b50f8 Splash Screen org.combissportverein.kairo)/@0xe3915bc - animation-leash of window_animation#0 (115)
+08-20 23:07:37.454 I/Layer   (  611): id=647 Destroyed Surface(name=99b50f8 Splash Screen org.combissportverein.kairo)/@0xe3915bc - animation-leash of window_animation#0
+08-20 23:07:37.454 I/Layer   (  611): id=631 Destroyed 99b50f8 Splash Screen org.combissportverein.kairo#0
+08-20 23:07:37.456 I/Layer   (  611): id=632 Destroyed Splash Screen org.combissportverein.kairo$_1375#0
+08-20 23:07:37.457 D/SurfaceFlinger(  611):      DEVICE | 0x6f2b13c070 | 0100 | RGBA_8888    |    0.0    0.0 1080.0 2280.0 |    0    0 1080 2280 | org.combissportverein.kairo/org.combissportverein.kairo.MainActivity$_23129#0
+08-20 23:07:37.483 D/MdnieScenarioControlService(  995):  packageName : org.combissportverein.kairo    className : org.combissportverein.kairo.MainActivity
+08-20 23:07:37.832 D/SGM:GameManager(  995): identifyForegroundApp. org.combissportverein.kairo, mCurrentUserId: 0, callerUserId: 0
+08-20 23:07:37.832 D/SGM:PkgDataHelper(  995): getGamePkgData(). org.combissportverein.kairo
+08-20 23:07:38.642 I/IMM_LC  (23129): ssi() - flag : 0 view : org.combissportverein.kairo reason = SHOW_SOFT_INPUT
+08-20 23:07:38.658 I/GoogleInputMethodService( 3251): GoogleInputMethodService.onStartInput():1532 onStartInput(EditorInfo{EditorInfo{packageName=org.combissportverein.kairo, inputType=8001, inputTypeString=Normal[AutoCorrect], enableLearning=true, autoCorrection=true, autoComplete=true, imeOptions=2000006, privateImeOptions=null, actionName=DONE, actionLabel=null, initialSelStart=-1, initialSelEnd=-1, initialCapsMode=0, label=null, fieldId=1, fieldName=null, extras=Bundle[{displayId=0}], hintText=null, hintLocales=[]}}, false)
+08-20 23:07:38.691 I/IMM_LC  (23129): ssi() - flag : 0 view : org.combissportverein.kairo reason = SHOW_SOFT_INPUT
+08-20 23:07:38.712 I/GoogleInputMethodService( 3251): GoogleInputMethodService.onStartInputView():1618 onStartInputView(EditorInfo{EditorInfo{packageName=org.combissportverein.kairo, inputType=8001, inputTypeString=Normal[AutoCorrect], enableLearning=true, autoCorrection=true, autoComplete=true, imeOptions=2000006, privateImeOptions=null, actionName=DONE, actionLabel=null, initialSelStart=-1, initialSelEnd=-1, initialCapsMode=0, label=null, fieldId=1, fieldName=null, extras=Bundle[{displayId=0}], hintText=null, hintLocales=[]}}, false)
+08-20 23:07:38.777 I/AbstractIme( 3251): AbstractIme.onActivate():111 LatinIme.onActivate() : EditorInfo = EditorInfo{packageName=org.combissportverein.kairo, inputType=8001, inputTypeString=Normal[AutoCorrect], enableLearning=true, autoCorrection=true, autoComplete=true, imeOptions=2000006, privateImeOptions=null, actionName=DONE, actionLabel=null, initialSelStart=-1, initialSelEnd=-1, initialCapsMode=0, label=null, fieldId=1, fieldName=null, extras=Bundle[{displayId=0}], hintText=null, hintLocales=[]}, IncognitoMode = false, DeviceLocked = false
+08-20 23:07:38.980 W/FDL     ( 3251): FDL logging failed. Add a dependency for Firebase Analytics to your app to enable logging of Dynamic Link events.
+08-20 23:07:38.992 D/BoundBrokerSvc( 2566): onBind: Intent { act=com.google.firebase.dynamiclinks.service.START pkg=com.google.android.gms }
+08-20 23:07:38.992 D/BoundBrokerSvc( 2566): Loading bound service for intent: Intent { act=com.google.firebase.dynamiclinks.service.START pkg=com.google.android.gms }
+08-20 23:07:39.138 D/InsetsSourceConsumer(23129): setRequestedVisible: visible=true, type=19, host=org.combissportverein.kairo/org.combissportverein.kairo.MainActivity, from=android.view.InsetsSourceConsumer.show:246 android.view.InsetsController.showDirectly:1489 android.view.InsetsController.controlAnimationUnchecked:1137 android.view.InsetsController.applyAnimation:1456 android.view.InsetsController.applyAnimation:1437 android.view.InsetsController.show:976 android.view.ViewRootImpl$ViewRootHandler.handleMessageImpl:6483 android.view.ViewRootImpl$ViewRootHandler.handleMessage:6408 android.os.Handler.dispatchMessage:106 android.os.Looper.loopOnce:226 
+08-20 23:07:39.140 D/InsetsSourceProvider(  995): updateVisibility: serverVisible=true, clientVisible=true, source=InsetsSource: {mType=ITYPE_IME, mFrame=[0,1397][1080,2280], mVisible=true}, controlTarget=Window{d5561a6 u0 org.combissportverein.kairo/org.combissportverein.kairo.MainActivity}, from=com.android.server.wm.ImeInsetsSourceProvider.updateVisibility:89 com.android.server.wm.InsetsSourceProvider.setClientVisible:415 com.android.server.wm.InsetsSourceProvider.updateClientVisibility:400 com.android.server.wm.InsetsStateController.onInsetsModified:508 com.android.server.wm.InsetsPolicy.onInsetsModified:477 com.android.server.wm.Session.insetsModified:704 android.view.IWindowSession$Stub.onTransact:1256 com.android.server.wm.Session.onTransact:176 android.os.Binder.execTransactInternal:1220 android.os.Binder.execTransact:1179 
+08-20 23:07:39.152 D/FlutterJNI(23129): Sending viewport metrics to the engine.
+08-20 23:07:39.162 D/FlutterJNI(23129): Sending viewport metrics to the engine.
+08-20 23:07:39.178 D/FlutterJNI(23129): Sending viewport metrics to the engine.
+08-20 23:07:39.196 D/FlutterJNI(23129): Sending viewport metrics to the engine.
+08-20 23:07:39.212 D/FlutterJNI(23129): Sending viewport metrics to the engine.
+08-20 23:07:39.214 D/SurfaceFlinger(  611):      DEVICE | 0x6f2b132d10 | 0100 | RGBA_8888    |    0.0    0.0 1080.0 2280.0 |    0    0 1080 2280 | org.combissportverein.kairo/org.combissportverein.kairo.MainActivity$_23129#0
+08-20 23:07:39.244 D/FlutterJNI(23129): Sending viewport metrics to the engine.
+08-20 23:07:39.247 D/FlutterJNI(23129): Sending viewport metrics to the engine.
+08-20 23:07:39.267 D/FlutterJNI(23129): Sending viewport metrics to the engine.
+08-20 23:07:39.278 D/FlutterJNI(23129): Sending viewport metrics to the engine.
+08-20 23:07:39.295 D/FlutterJNI(23129): Sending viewport metrics to the engine.
+08-20 23:07:39.311 D/FlutterJNI(23129): Sending viewport metrics to the engine.
+08-20 23:07:39.328 D/FlutterJNI(23129): Sending viewport metrics to the engine.
+08-20 23:07:39.345 D/FlutterJNI(23129): Sending viewport metrics to the engine.
+08-20 23:07:39.361 D/FlutterJNI(23129): Sending viewport metrics to the engine.
+08-20 23:07:39.378 D/FlutterJNI(23129): Sending viewport metrics to the engine.
+08-20 23:07:39.395 D/FlutterJNI(23129): Sending viewport metrics to the engine.
+08-20 23:07:39.412 D/FlutterJNI(23129): Sending viewport metrics to the engine.
+08-20 23:07:39.429 D/FlutterJNI(23129): Sending viewport metrics to the engine.
+08-20 23:07:39.445 D/FlutterJNI(23129): Sending viewport metrics to the engine.
+08-20 23:07:39.446 D/FlutterJNI(23129): Sending viewport metrics to the engine.
+08-20 23:07:41.294 D/SGM:GameManager(  995): identifyGamePackage. org.combissportverein.kairo, mCurrentUserId: 0, callerUserId: 0, callingMethodInfo: com.android.server.ssrm.SortingMachine.isGame(SortingMachine.java:162)
+08-20 23:07:41.294 D/SGM:PkgDataHelper(  995): getGamePkgData(). org.combissportverein.kairo
+08-20 23:07:42.330 D/ProfileInstaller(23129): Installing profile for org.combissportverein.kairo
+08-20 23:07:43.261 D/SGM:GameManager(  995): identifyForegroundApp. org.combissportverein.kairo, mCurrentUserId: 0, callerUserId: 0
+08-20 23:07:43.261 D/SGM:PkgDataHelper(  995): getGamePkgData(). org.combissportverein.kairo
+08-20 23:07:43.878 W/ComponentDiscovery(23252): Class com.google.firebase.installations.FirebaseInstallationsKtxRegistrar is not an found.

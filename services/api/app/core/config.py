@@ -1,7 +1,7 @@
-from typing import Literal
+from typing import Annotated, Literal
 
 from pydantic import field_validator
-from pydantic_settings import BaseSettings, SettingsConfigDict
+from pydantic_settings import BaseSettings, NoDecode, SettingsConfigDict
 
 
 class Settings(BaseSettings):
@@ -18,7 +18,9 @@ class Settings(BaseSettings):
     app_debug: bool = False
 
     # CORS
-    cors_origins: list[str] = ["http://localhost:5173", "http://localhost:3000"]
+    # Keep the documented comma-separated environment variable contract. Pydantic
+    # would otherwise try to JSON-decode a list field before this validator runs.
+    cors_origins: Annotated[list[str], NoDecode] = ["http://localhost:5173", "http://localhost:3000"]
 
     @field_validator("cors_origins", mode="before")
     @classmethod

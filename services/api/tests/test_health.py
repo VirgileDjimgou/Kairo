@@ -37,7 +37,7 @@ async def test_health_each_service_has_status_and_latency(client: AsyncClient) -
     for svc, check in body["checks"].items():
         assert "status" in check, f"{svc} missing status"
         assert "latency_ms" in check, f"{svc} missing latency_ms"
-        assert check["status"] in ("ok", "degraded", "unavailable", "error")
+        assert check["status"] in ("ok", "degraded", "unavailable", "error", "disabled")
 
 
 @pytest.mark.asyncio

@@ -1,3 +1,5 @@
+import { demoMessages } from "./demoMessages";
+
 export type SupportedLocale = "fr" | "en" | "de";
 
 type MessageDictionary = Record<SupportedLocale, Record<string, string>>;
@@ -2185,3 +2187,9 @@ export const messages: MessageDictionary = {
     "auth.mfa.invalidCode": "Ungültiger Code. Erneut versuchen.",
   },
 };
+
+// Portfolio demo messages live in their own module; merge them into the
+// catalogue so `t('demo.*')` resolves for every supported locale.
+for (const locale of ["fr", "en", "de"] as const) {
+  Object.assign(messages[locale], demoMessages[locale]);
+}

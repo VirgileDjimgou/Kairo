@@ -4,6 +4,7 @@ import { notifyOperation } from '@/services/operation-notifications'
 
 export const API_BASE_URL = resolveApiBaseUrl(import.meta.env.VITE_API_BASE_URL)
 const LOGIN_PATH = '/login'
+const DEMO_PATH = '/demo'
 const SELECTED_TENANT_KEY = 'selected_tenant_id'
 
 function resolveApiBaseUrl(configuredBaseUrl?: string): string {
@@ -89,8 +90,9 @@ http.interceptors.response.use(
     if (error.response?.status === 401) {
       localStorage.removeItem('access_token')
       localStorage.removeItem(SELECTED_TENANT_KEY)
-      if (window.location.pathname !== LOGIN_PATH) {
-        const redirect = `${window.location.pathname}${window.location.search}${window.location.hash}`
+      const currentPath = window.location.pathname
+      if (currentPath !== LOGIN_PATH && currentPath !== DEMO_PATH) {
+        const redirect = `${currentPath}${window.location.search}${window.location.hash}`
         const query = redirect ? `?redirect=${encodeURIComponent(redirect)}` : ''
         window.location.href = `${LOGIN_PATH}${query}`
       }

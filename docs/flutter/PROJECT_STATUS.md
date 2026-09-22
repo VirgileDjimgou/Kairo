@@ -1,6 +1,6 @@
 # Flutter Client Project Status
 
-Last updated: 2026-08-14
+Last updated: 2026-09-13
 
 ## Track Purpose
 
@@ -203,6 +203,22 @@ Cloudflare production promotion.
 - permanent member deletion is recorded as an intentional pilot deferral in
   `FEATURE_PARITY.md`; the PWA remains the role-gated fallback for that destructive
   operation.
+- 2026-08-20 preflight: Flutter analysis is clean, the complete Flutter suite passes
+  with 45 tests, the production-configured Android debug APK builds with
+  `https://app.combissportverein.org/api/v1`, and the merged core/Flutter-Web Docker
+  Compose configuration validates. Docker Desktop was not running, so the local
+  Flutter-Web staging service was deliberately not started.
+- release packaging remains fail-closed: no private Android upload keystore or
+  `android/key.properties` is present, and no separate Flutter staging hostname has
+  been configured in Cloudflare. Neither the current PWA hostname nor production data
+  was changed by this preflight.
+- F9 follow-up: the physical-device finding for the server-owned `/notifications`
+  target path is resolved. It now opens the authenticated Flutter inbox and has a
+  focused regression test; no notification payload or permission decision is handled
+  by the client.
+- 2026-09-13 verification: the complete Flutter suite passes with 46 tests;
+  `flutter analyze` is clean; production-configured Android debug and Flutter Web
+  builds succeed against `https://app.combissportverein.org/api/v1`.
 
 ## Visual Redesign Programme
 
@@ -217,7 +233,7 @@ Cloudflare production promotion.
   controls; Web retains efficient multi-column layouts;
 - FastAPI contracts, backend authorisation, tenant isolation and the Vue 3 PWA remain
   unchanged;
-- static analysis and all 44 Flutter tests pass. The release-signing gate described in
+- static analysis and all 45 Flutter tests pass. The release-signing gate described in
   Sprint F9 remains a separate operational requirement.
 
 ## Release Targets

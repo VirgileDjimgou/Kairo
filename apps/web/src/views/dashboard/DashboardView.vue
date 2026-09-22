@@ -19,6 +19,8 @@
       </span>
     </div>
 
+    <DemoTourPanel />
+
     <div v-if="loading" class="alert alert-info border-0 shadow-sm mb-4" role="alert">
       <div class="d-flex gap-3">
         <div class="spinner-border spinner-border-sm mt-1" role="status" aria-hidden="true"></div>
@@ -240,6 +242,7 @@ import { useAuthStore } from '@/stores/auth.store'
 import { useTenantStore } from '@/stores/tenant.store'
 import { useTenantOnboarding } from '@/composables/useTenantOnboarding'
 import { useLocaleStore } from '@/stores/locale.store'
+import DemoTourPanel from '@/components/DemoTourPanel.vue'
 
 type WorkspaceFocusLink = {
   label: string

@@ -1,4 +1,5 @@
 <template>
+  <DemoSessionBanner />
   <AppShell
     :eyebrow="appHomeLabel"
     :title="tenantStore.currentTenantName"
@@ -21,6 +22,7 @@ import { useRoleNavigation } from "@/composables/useRoleNavigation";
 import { useTenantStore } from "@/stores/tenant.store";
 import { useLocaleStore } from "@/stores/locale.store";
 import AppShell from '@/components/ui/AppShell.vue'
+import DemoSessionBanner from '@/components/DemoSessionBanner.vue'
 import type { BottomNavItem } from '@/components/ui/AppBottomNavigation.vue'
 
 const route = useRoute()

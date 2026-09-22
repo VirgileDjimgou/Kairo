@@ -8,11 +8,15 @@ import { useTenantStore } from '@/stores/tenant.store'
 import { completeMfaLogin as apiCompleteMfaLogin } from '@/api/auth.api'
 import { useLocaleStore } from '@/stores/locale.store'
 import type { SupportedLocale } from '@/i18n/messages'
+import { DEMO_TENANT_SLUG } from '@/config/demoAccounts'
+
+const DEMO_SESSION_KEY = 'kairo_demo_session'
 
 export const useAuthStore = defineStore('auth', () => {
   const token = ref<string | null>(localStorage.getItem('access_token'))
   const user = ref<UserWithMembershipsResponse | null>(null)
   const mfaToken = ref<string | null>(null)
+  const isDemoSession = ref<boolean>(localStorage.getItem(DEMO_SESSION_KEY) === '1')
 
   const isAuthenticated = computed(() => !!token.value)
   const needsMfa = computed(() => !!mfaToken.value)
@@ -51,6 +55,21 @@ export const useAuthStore = defineStore('auth', () => {
     localStorage.setItem('access_token', data.access_token)
     mfaToken.value = null
     await fetchMe(selectedLocale)
+    return true
+  }
+
+  /**
+   * Starts a portfolio demo session for the given account. Demo sessions are
+   * only ever created from the public `/demo` page and are flagged in storage
+   * so the shell can display the demo banner.
+   */
+  async function loginAsDemo(email: string, password: string): Promise<boolean> {
+    const result = await login(email, password, DEMO_TENANT_SLUG)
+    if (result !== true) {
+      return false
+    }
+    isDemoSession.value = true
+    localStorage.setItem(DEMO_SESSION_KEY, '1')
     return true
   }
 
@@ -96,7 +115,9 @@ export const useAuthStore = defineStore('auth', () => {
     token.value = null
     user.value = null
     mfaToken.value = null
+    isDemoSession.value = false
     localStorage.removeItem('access_token')
+    localStorage.removeItem(DEMO_SESSION_KEY)
     const tenantStore = useTenantStore()
     tenantStore.reset()
   }
@@ -118,11 +139,13 @@ export const useAuthStore = defineStore('auth', () => {
     token,
     user,
     mfaToken,
+    isDemoSession,
     isAuthenticated,
     needsMfa,
     hasRole,
     hasAnyRole,
     login,
+    loginAsDemo,
     completeMfa,
     logout,
     fetchMe,

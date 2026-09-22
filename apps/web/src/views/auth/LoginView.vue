@@ -83,6 +83,12 @@
           </button>
         </form>
 
+        <div v-if="isDemoMode" class="text-center mt-3">
+          <router-link to="/demo" class="btn btn-outline-primary btn-sm">
+            <i class="bi bi-easel2 me-1"></i>{{ localeStore.t('demo.pageTitle') }}
+          </router-link>
+        </div>
+
         <!-- MFA challenge step -->
         <form v-else-if="needsMfa" @submit.prevent="handleMfa" novalidate class="login-mobile__form">
           <div class="text-center mb-3">
@@ -312,6 +318,12 @@
                 </button>
               </form>
 
+              <div v-if="isDemoMode" class="text-center mt-3">
+                <router-link to="/demo" class="btn btn-outline-primary btn-sm">
+                  <i class="bi bi-easel2 me-1"></i>{{ localeStore.t('demo.pageTitle') }}
+                </router-link>
+              </div>
+
               <form v-else-if="needsMfa" @submit.prevent="handleMfa" novalidate>
                 <div class="text-center mb-4">
                   <i class="bi bi-shield-lock fs-1 text-primary"></i>
@@ -409,12 +421,14 @@ import { useTenantStore } from "@/stores/tenant.store";
 import { useLocaleStore } from "@/stores/locale.store";
 import { getApiErrorDetail, mapLoginError, mapMfaError } from "@/utils/authErrors";
 import LanguageSelector from "@/components/LanguageSelector.vue";
+import { IS_DEMO_MODE } from "@/config/demoAccounts";
 
 const router = useRouter();
 const authStore = useAuthStore();
 const tenantStore = useTenantStore();
 const localeStore = useLocaleStore();
 const isDev = import.meta.env.DEV;
+const isDemoMode = IS_DEMO_MODE;
 
 const heroHighlights = computed(() => [
   {

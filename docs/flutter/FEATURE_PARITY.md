@@ -24,7 +24,7 @@ Status values: `Planned`, `In progress`, `Verified`, `Deferred`.
 | Chat and AI | Optional private assistant, citations, disabled/unavailable states | Roles permitted by API | Required | Required | Verified |
 | Native capabilities | Android device registration, sharing, files, secure storage, FCM registration, background delivery and authenticated deep links | Android users | Required | Required | Verified |
 | Offline sync | Cached read data, drafts, queued safe actions, conflicts and recovery | Authorised roles | Required | Required | Verified |
-| Release quality | Accessibility, performance, error monitoring, Android/Web deployment evidence | All | Required | Required | In progress |
+| Release quality | Accessibility, performance, error monitoring, Android/Web deployment evidence | All | Required | Required | In progress — signing and staging hostname required |
 
 ## F9 Controlled-Pilot Review
 
@@ -41,6 +41,8 @@ additional authority:
 - **Flutter Web is staging-only** until an authorised operator explicitly promotes a
   new Cloudflare hostname. The existing PWA hostname is never overwritten by this
   configuration.
+- **Notification targets** include `/notifications`, which opens the authenticated
+  Flutter inbox. This routing is covered by the F9 release-readiness regression test.
 
 ## Verification Evidence Per Row
 
