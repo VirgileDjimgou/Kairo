@@ -2,6 +2,11 @@
 
 This folder stores reusable screenshot assets for the Kairo README, demos, and product walkthroughs.
 
+> **Current README gallery:** the maintained portfolio gallery is captured against the
+> live demo and lives in [`docs/screenshots/`](../screenshots/). Regenerate it with
+> `node scripts/capture-readme-screenshots.mjs`. The folders below are retained as
+> historical capture packs.
+
 ## Full-Stack Sessions
 
 The historical `sessions/` folder contains screenshots captured against the seeded local stack:
