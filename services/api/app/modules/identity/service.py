@@ -12,6 +12,7 @@ from app.core.capabilities import (
     CAP_IDENTITY_ACCESS_RECOVERY,
     CAP_MEMBERSHIP_INVITE,
     CAP_ROLE_ASSIGN,
+    capabilities_for_roles,
     has_capability,
 )
 from app.core.config import settings
@@ -38,13 +39,13 @@ from app.modules.identity.repository import (
 from app.modules.identity.schemas import (
     AcceptInviteRequest,
     AcceptInviteResponse,
+    ActiveSessionResponse,
     AssistedAccessRecoveryRequest,
     AssistedAccessRecoveryResponse,
-    ChangePasswordRequest,
-    ChangePasswordResponse,
     ChangeInitialPasswordRequest,
     ChangeInitialPasswordResponse,
-    ActiveSessionResponse,
+    ChangePasswordRequest,
+    ChangePasswordResponse,
     ForgotPasswordRequest,
     ForgotPasswordResponse,
     InvitationStatusResponse,
@@ -555,6 +556,7 @@ class AuthService:
                     name=tenant.name,
                     default_language=tenant.default_language,
                     roles=roles,
+                    capabilities=list(capabilities_for_roles(roles)),
                     branding=branding,
                     modules=ModuleToggles(**module_toggles),
                     profile_type=tu.profile_type,

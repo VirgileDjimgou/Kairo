@@ -1,16 +1,23 @@
 # Project Status
 
-Last updated: 2026-08-14
+Last updated: 2026-09-25
 
-## Current Sprint
+## Active Roadmap Status
 
-Sprint 99 - Association Workflow Alignment And Receipt Declarations
+Sprint status is intentionally NOT tracked in this file. The single source of
+truth is `docs/roadmap/KAIRO_V2_ROADMAP.json` together with the batch state
+machine:
 
-Status: Completed
+```bash
+npm run sprint:batch:status   # current sprint, progress, next sprint
+```
 
-## Official Next Sprint
+- Current architecture: `docs/architecture/CURRENT_ARCHITECTURE.md`
+- Binding decisions: `docs/architecture/decisions/`
+- Execution policy: `docs/automation/SPRINT_BATCH_AUTOPILOT.md`
 
-No additional sprint is currently scheduled.
+Everything below is the product-state and historical delivery record (Sprints
+0–99), preserved for traceability and marked as historical where applicable.
 
 ## Parallel Flutter Client Track
 
@@ -63,9 +70,11 @@ path remain unchanged.
 ## Source Of Truth
 
 - Constitution: `constitution/KAIRO_CONSTITUTION.md`
+- Active roadmap: `docs/roadmap/KAIRO_V2_ROADMAP.json` (human view: `docs/roadmap/KAIRO_V2_ROADMAP.md`)
+- Current architecture: `docs/architecture/CURRENT_ARCHITECTURE.md`
 - Deep product docs: `orgmind_prompt_pack/`
-- Roadmap: `IMPLEMENTATION_ROADMAP.md`
-- Autopilot prompt: `prompts/CODEX_AUTOPILOT.md`
+- Historical roadmap (Sprints 0–99, read-only): `IMPLEMENTATION_ROADMAP.md`
+- Autopilot prompts: `prompts/KAIRO_SPRINT_EXECUTOR.md`, `prompts/KAIRO_SPRINT_BATCH_EXECUTOR.md` (historical: `prompts/CODEX_AUTOPILOT.md`)
 
 ## Professionalization Assessment
 
@@ -121,7 +130,7 @@ path remain unchanged.
 - Kairo remains a strong association-focused pilot and disciplined self-hosted release candidate.
 - All planned sprints are complete. Sprint 98 closed with non-placeholder secrets enforced, security hardening applied, and a verified PostgreSQL restore drill. The product is ready for operational pilot acceptance.
 
-## Completed
+## Completed (Historical Record — Sprints 0–99)
 
 - Completed Sprint 0 foundation and repository skeleton.
 - Completed Sprint 1 identity, tenancy, and JWT authentication.

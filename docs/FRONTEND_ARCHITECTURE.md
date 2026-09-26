@@ -1,6 +1,6 @@
 # Kairo Frontend — Architecture & Inventory
 
-**Last updated:** 2026-07-24
+**Last updated:** 2026-09-26 (Roadmap V2 Sprint 107)
 **Purpose:** Single-file reference for any AI agent to understand, compile, and extend the Kairo frontend.
 **Language:** TypeScript 5.7, Vue 3.5, Vite 6, Bootstrap 5.3, SCSS, Pinia 2.3, Vue Router 4
 
@@ -16,7 +16,7 @@
 | Router         | vue-router 4 | `apps/web/src/router/index.ts`                                                             |
 | State          | pinia 2.3    | `apps/web/src/stores/auth.store.ts`, `locale.store.ts`, `tenant.store.ts`, `chat.store.ts` |
 | HTTP           | axios 1.7    | `apps/web/src/api/http.ts` (baseURL `/api/v1`, 30s timeout, Bearer auth interceptor)       |
-| i18n           | Custom       | `apps/web/src/i18n/messages.ts` (~1130 lines, 3 locales: fr/en/de)                         |
+| i18n           | Custom       | `apps/web/src/i18n/<locale>/<feature>.json` (11 feature catalogs per locale, composed by `messages.ts`; parity guarded by `scripts/check-i18n-parity.mjs`) |
 | Build          | Vite 6       | `apps/web/vite.config.ts` (includes VitePWA plugin)                                        |
 
 ### Startup sequence in `main.ts`:
@@ -110,6 +110,36 @@
 - HTML5 history mode
 - Route guard: `requiresAuth`, `requiresGuest`, `allowedRoles`, `requiresFinanceWorkspace`, `module`
 - 30+ routes, catch-all redirects to `/dashboard`
+
+### 2.9 Feature modules (`apps/web/src/features/`)
+
+Domain-scoped components and composables extracted from oversized views
+(Roadmap V2 Sprint 107). Views stay thin containers: they own routing, load
+orchestration and layout, while feature modules own the domain UI and
+presentation logic. Authorization is never decided here.
+
+| Feature | Contents |
+| ------- | -------- |
+| `finance/` | `components/` (budget overview, expense workspace, receipt validation queue, custody queue, decision modals, member balance lookup, contribution create form, payments, reminders, contribution table, header actions) and `composables/` (`useFinanceWorkspace`, `useFinanceFormatting`, `useFinanceCopy`) |
+| `dashboard/` | role-model, copy, workspace-focus and quick-action composables plus workspace-focus, onboarding-checklist, tenant-snapshot and quick-action cards |
+| `members/` | create/edit/delete/import modal components, member directory component, `useMemberForm`, error/format helpers |
+
+`views/finance/FinanceWorkspaceView.vue`, `views/dashboard/DashboardView.vue`
+and `views/members/AdminMembersView.vue` are the corresponding containers.
+`components/attention/` and `components/search/` remain shared cross-feature UI
+from Sprint 105/106.
+
+### 2.10 Capabilities (`apps/web/src/config/`)
+
+`config/capabilities.ts` holds the capability string constants used by the
+client, and `config/capabilityBundles.ts` is generated from the backend role
+catalog and drift-checked by `scripts/check-capability-bundles.mjs`. The auth
+store resolves effective capabilities from the API (`/auth/me` and tenant
+memberships) and only falls back to the generated role bundles when a payload
+omits `capabilities`. Navigation and action visibility consume
+`authStore.hasCapability(...)`; role names are kept only as bundle identity
+(for example the principal-admin versus admin label). Backend authorization is
+unchanged (ADR-008).
 
 ---
 

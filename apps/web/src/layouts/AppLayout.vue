@@ -28,33 +28,32 @@ import type { BottomNavItem } from '@/components/ui/AppBottomNavigation.vue'
 const route = useRoute()
 const tenantStore = useTenantStore()
 const localeStore = useLocaleStore()
-const { moduleNavigation, appHomeLabel } = useRoleNavigation()
+const { moduleNavigation, appHomeLabel, isMember } = useRoleNavigation()
 
 function isActive(destination: string) {
   return route.path === destination || (destination !== '/dashboard' && route.path.startsWith(`${destination}/`))
 }
 
 const bottomNavigation = computed<BottomNavItem[]>(() => {
-  const workspace = moduleNavigation.value.find(
-    (item) => !['/dashboard', '/members/profile', '/account/security', '/chat'].includes(item.to),
-  )
+  const home = { id: '/dashboard', label: localeStore.t('nav.home'), icon: 'bi-house-door', active: isActive('/dashboard') }
+  const notifications = { id: '/notifications', label: localeStore.t('nav.notifications'), icon: 'bi-bell', active: isActive('/notifications') }
+  const more = { id: '/more', label: localeStore.t('nav.more'), icon: 'bi-three-dots', active: isActive('/more') }
+
+  if (isMember.value) {
+    return [
+      home,
+      { id: '/chat', label: localeStore.t('nav.chat'), icon: 'bi-chat-dots', active: isActive('/chat') },
+      notifications,
+      more,
+    ]
+  }
 
   return [
-    { id: '/dashboard', label: localeStore.t('nav.home'), icon: 'bi-house-door', active: isActive('/dashboard') },
-    { id: '/members/profile', label: localeStore.t('nav.profile'), icon: 'bi-person', active: isActive('/members/profile') },
-    { id: '/account/security', label: localeStore.t('nav.security'), icon: 'bi-shield-check', active: isActive('/account/security') },
-    {
-      id: '/chat',
-      label: localeStore.t('nav.chat'),
-      icon: 'bi-chat-dots',
-      active: isActive('/chat'),
-    },
-    {
-      id: workspace?.to || '/events',
-      label: localeStore.t('nav.more'),
-      icon: 'bi-three-dots',
-      active: isActive(workspace?.to || '/events'),
-    },
+    home,
+    { id: '/tasks', label: localeStore.t('nav.tasks'), icon: 'bi-list-check', active: isActive('/tasks') },
+    { id: '/search', label: localeStore.t('nav.search'), icon: 'bi-search', active: isActive('/search') },
+    notifications,
+    more,
   ]
 })
 </script>

@@ -271,7 +271,7 @@ async function mockAuthenticatedDashboard(page: import('@playwright/test').Page)
     })
   })
 
-  await page.route('http://localhost:8000/api/v1/documents', async (route) => {
+  await page.route('http://localhost:8000/api/v1/documents/', async (route) => {
     await route.fulfill({
       status: 200,
       contentType: 'application/json',
@@ -317,7 +317,7 @@ async function mockMemberDashboard(page: import('@playwright/test').Page) {
     })
   })
 
-  await page.route('http://localhost:8000/api/v1/documents', async (route) => {
+  await page.route('http://localhost:8000/api/v1/documents/', async (route) => {
     await route.fulfill({
       status: 200,
       contentType: 'application/json',
@@ -401,7 +401,7 @@ async function mockTreasurerDashboard(page: import('@playwright/test').Page) {
     })
   })
 
-  await page.route('http://localhost:8000/api/v1/documents', async (route) => {
+  await page.route('http://localhost:8000/api/v1/documents/', async (route) => {
     await route.fulfill({
       status: 200,
       contentType: 'application/json',
@@ -439,7 +439,7 @@ async function mockCensorDashboard(page: import('@playwright/test').Page) {
     })
   })
 
-  await page.route('http://localhost:8000/api/v1/documents', async (route) => {
+  await page.route('http://localhost:8000/api/v1/documents/', async (route) => {
     await route.fulfill({
       status: 200,
       contentType: 'application/json',
@@ -477,7 +477,7 @@ async function mockAuditorDashboard(page: import('@playwright/test').Page) {
     })
   })
 
-  await page.route('http://localhost:8000/api/v1/documents', async (route) => {
+  await page.route('http://localhost:8000/api/v1/documents/', async (route) => {
     await route.fulfill({
       status: 200,
       contentType: 'application/json',
@@ -515,7 +515,7 @@ async function mockSportsDashboard(page: import('@playwright/test').Page) {
     })
   })
 
-  await page.route('http://localhost:8000/api/v1/documents', async (route) => {
+  await page.route('http://localhost:8000/api/v1/documents/', async (route) => {
     await route.fulfill({
       status: 200,
       contentType: 'application/json',
@@ -553,7 +553,7 @@ async function mockPresidentDashboard(page: import('@playwright/test').Page) {
     })
   })
 
-  await page.route('http://localhost:8000/api/v1/documents', async (route) => {
+  await page.route('http://localhost:8000/api/v1/documents/', async (route) => {
     await route.fulfill({
       status: 200,
       contentType: 'application/json',
@@ -599,7 +599,7 @@ async function mockPrincipalAdminDashboard(page: import('@playwright/test').Page
     })
   })
 
-  await page.route('http://localhost:8000/api/v1/documents', async (route) => {
+  await page.route('http://localhost:8000/api/v1/documents/', async (route) => {
     await route.fulfill({
       status: 200,
       contentType: 'application/json',

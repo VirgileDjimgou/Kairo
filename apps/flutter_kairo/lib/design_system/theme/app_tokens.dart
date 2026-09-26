@@ -1,5 +1,10 @@
 import 'package:flutter/material.dart';
 
+/// FLUTTER BINDING of the platform-neutral design tokens (design/tokens.json).
+/// Semantic names and meanings are defined in design/semantics.md; keep both
+/// sides in sync when a value changes. Rendering is verified by the golden
+/// tests in test/ — token refactors must not change rendered output.
+///
 /// Brand and semantic colours shared by every Kairo surface.
 abstract final class AppPalette {
   static const Color blue = Color(0xFF195AA6);
@@ -34,6 +39,21 @@ abstract final class AppMotion {
   static const Duration quick = Duration(milliseconds: 160);
   static const Duration standard = Duration(milliseconds: 240);
   static const Curve emphasis = Curves.easeOutCubic;
+}
+
+/// Breakpoint bands from design/tokens.json. LayoutBuilder-based responsive
+/// layouts must branch on these values.
+abstract final class AppBreakpoints {
+  static const double phone = 320;
+  static const double tablet = 768;
+  static const double desktop = 1024;
+  static const double contentMaxWidth = 1280;
+}
+
+/// WCAG 2.2 target size contract (design/tokens.json).
+abstract final class AppTouchTarget {
+  static const double minimum = 44;
+  static const double preferred = 48;
 }
 
 enum AppStatus { paid, pending, overdue, active, suspended, open, closed, info }

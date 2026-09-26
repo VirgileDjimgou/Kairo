@@ -2,6 +2,20 @@ import { computed } from "vue";
 import { useAuthStore } from "@/stores/auth.store";
 import { useTenantStore } from "@/stores/tenant.store";
 import { useLocaleStore } from "@/stores/locale.store";
+import {
+  CAP_BACKUP_CREATE,
+  CAP_BACKUP_RESTORE_REQUEST,
+  CAP_DISCIPLINARY_OVERSIGHT_READ,
+  CAP_DISCIPLINARY_WRITE,
+  CAP_DOCUMENTS_WRITE,
+  CAP_EVENTS_SPORTS_WRITE,
+  CAP_FINANCE_AUDIT,
+  CAP_FINANCE_EXPENSES_WRITE,
+  CAP_FINANCE_WRITE,
+  CAP_GOVERNANCE_COCKPIT_READ,
+  CAP_MEMBERSHIP_TENANT_READ,
+  CAP_TENANT_ADMINISTRATION,
+} from "@/config/capabilities";
 
 export type NavItem = {
   label: string;
@@ -19,70 +33,61 @@ export function useRoleNavigation() {
   const tenantStore = useTenantStore();
   const localeStore = useLocaleStore();
   const roles = computed(() => authStore.user?.roles ?? []);
+  const capabilities = computed(() => authStore.capabilities);
+  const can = (capability: string) => capabilities.value.includes(capability);
 
-  const isMember = computed(
-    () => roles.value.includes("member") && roles.value.length === 1,
-  );
-  const isPrincipalAdmin = computed(() =>
-    roles.value.includes("principal_admin"),
-  );
+  const isMember = computed(() => !can(CAP_MEMBERSHIP_TENANT_READ));
+  const isPrincipalAdmin = computed(() => roles.value.includes("principal_admin"));
   const isAdmin = computed(() => roles.value.includes("admin"));
-  const isTreasurer = computed(() => roles.value.includes("treasurer"));
-  const isSecretaryGeneral = computed(() =>
-    roles.value.includes("secretary_general"),
+  const isTreasurer = computed(() => can(CAP_FINANCE_EXPENSES_WRITE));
+  const isSecretaryGeneral = computed(
+    () => can(CAP_DOCUMENTS_WRITE) && !can(CAP_TENANT_ADMINISTRATION),
   );
-  const isAuditor = computed(() => roles.value.includes("auditor"));
-  const isPresident = computed(() => roles.value.includes("president"));
-  const isVicePresident = computed(() =>
-    roles.value.includes("vice_president"),
+  const isAuditor = computed(
+    () => can(CAP_FINANCE_AUDIT) && !can(CAP_BACKUP_CREATE),
   );
-  const isCensor = computed(() => roles.value.includes("censor"));
-  const isSportsManager = computed(() =>
-    roles.value.includes("sports_manager"),
+  const isPresident = computed(
+    () => can(CAP_BACKUP_RESTORE_REQUEST) && !can(CAP_DOCUMENTS_WRITE),
+  );
+  const isVicePresident = computed(
+    () =>
+      capabilities.value.includes("identity:access_recovery") &&
+      !can(CAP_BACKUP_RESTORE_REQUEST),
+  );
+  const isCensor = computed(
+    () => can(CAP_DISCIPLINARY_WRITE) && !can(CAP_TENANT_ADMINISTRATION),
+  );
+  const isSportsManager = computed(
+    () => can(CAP_EVENTS_SPORTS_WRITE) && !can(CAP_TENANT_ADMINISTRATION),
   );
 
   const showFinanceWorkspace = computed(
     () =>
-      (isAdmin.value || isPrincipalAdmin.value || isTreasurer.value) &&
+      can(CAP_FINANCE_WRITE) &&
       tenantStore.isModuleEnabled("membership") &&
       tenantStore.isModuleEnabled("contributions"),
   );
 
   const showFinanceAuditWorkspace = computed(
     () =>
-      (isAuditor.value ||
-        isPresident.value ||
-        isPrincipalAdmin.value ||
-        isAdmin.value) &&
+      can(CAP_FINANCE_AUDIT) &&
       tenantStore.isModuleEnabled("membership") &&
       tenantStore.isModuleEnabled("contributions"),
   );
 
-  const showSecretaryWorkspace = computed(
-    () => isSecretaryGeneral.value || isPrincipalAdmin.value || isAdmin.value,
-  );
+  const showSecretaryWorkspace = computed(() => can(CAP_DOCUMENTS_WRITE));
 
-  const showGovernanceCockpit = computed(
-    () =>
-      isPresident.value ||
-      isVicePresident.value ||
-      isPrincipalAdmin.value ||
-      isAdmin.value,
-  );
+  const showGovernanceCockpit = computed(() => can(CAP_GOVERNANCE_COCKPIT_READ));
 
   const showCensorWorkspace = computed(
     () =>
-      (isCensor.value ||
-        isPresident.value ||
-        isSecretaryGeneral.value ||
-        isPrincipalAdmin.value ||
-        isAdmin.value) &&
+      can(CAP_DISCIPLINARY_OVERSIGHT_READ) &&
       tenantStore.isModuleEnabled("disciplinary"),
   );
 
   const showSportsWorkspace = computed(
     () =>
-      (isSportsManager.value || isPrincipalAdmin.value || isAdmin.value) &&
+      (can(CAP_EVENTS_SPORTS_WRITE) || can(CAP_TENANT_ADMINISTRATION)) &&
       tenantStore.isModuleEnabled("events"),
   );
 
@@ -150,10 +155,8 @@ export function useRoleNavigation() {
         icon: "bi-journal-richtext",
       });
     }
-    const isElectedOfficeHolder = roles.value.some((role) => [
-      "president", "vice_president", "secretary_general", "treasurer",
-      "auditor", "censor", "sports_manager",
-    ].includes(role));
+    const isElectedOfficeHolder =
+      can(CAP_MEMBERSHIP_TENANT_READ) && !can(CAP_TENANT_ADMINISTRATION);
     if (isElectedOfficeHolder) {
       workspaceItems.push({
         label: localeStore.t("nav.members"),
@@ -166,7 +169,7 @@ export function useRoleNavigation() {
         icon: "bi-journal-check",
       });
     }
-    if (isPresident.value || isSecretaryGeneral.value || isPrincipalAdmin.value || isAdmin.value) {
+    if (can(CAP_BACKUP_RESTORE_REQUEST)) {
       workspaceItems.push({
         label: localeStore.currentLocale === 'de' ? 'Sicherung & Wiederherstellung' : localeStore.currentLocale === 'en' ? 'Backup & recovery' : 'Sauvegarde et récupération',
         to: "/recovery",
@@ -427,6 +430,62 @@ export function useRoleNavigation() {
       : localeStore.t("layout.adminConsole"),
   );
 
+  // The /more destination is a real navigation catalog grouped by domain.
+  // It never forwards to a workspace; every entry lists only destinations the
+  // role is already allowed to open.
+  const moreAccountRoutes = new Set(["/members/profile", "/account/security"]);
+  const moreCommunityRoutes = new Set(["/events", "/announcements", "/chat"]);
+  const moreGovernancePrefixes = [
+    "/policies",
+    "/censor",
+    "/governance",
+    "/operation-journal",
+    "/recovery",
+    "/admin",
+  ];
+
+  const moreNavigation = computed<NavSection[]>(() => {
+    const sourceItems = [
+      ...appNavigation.value.flatMap((section) => section.items),
+      ...(isAdmin.value || isPrincipalAdmin.value
+        ? adminNavigation.value.flatMap((section) => section.items)
+        : []),
+    ];
+    const seen = new Set<string>();
+    const buckets = {
+      management: [] as NavItem[],
+      governance: [] as NavItem[],
+      community: [] as NavItem[],
+      account: [] as NavItem[],
+    };
+    for (const item of sourceItems) {
+      if (seen.has(item.to) || item.to === "/dashboard") continue;
+      seen.add(item.to);
+      if (moreAccountRoutes.has(item.to)) {
+        buckets.account.push(item);
+      } else if (moreCommunityRoutes.has(item.to)) {
+        buckets.community.push(item);
+      } else if (
+        moreGovernancePrefixes.some(
+          (prefix) => item.to === prefix || item.to.startsWith(`${prefix}/`),
+        )
+      ) {
+        buckets.governance.push(item);
+      } else {
+        buckets.management.push(item);
+      }
+    }
+    const sections: NavSection[] = [];
+    const push = (key: string, items: NavItem[]) => {
+      if (items.length) sections.push({ label: localeStore.t(key), items });
+    };
+    push("more.management", buckets.management);
+    push("more.governance", buckets.governance);
+    push("more.community", buckets.community);
+    push("more.account", buckets.account);
+    return sections;
+  });
+
   return {
     roles,
     isMember,
@@ -441,6 +500,7 @@ export function useRoleNavigation() {
     adminNavigation,
     moduleNavigation,
     adminModuleNavigation,
+    moreNavigation,
     appHomeLabel,
     adminConsoleLabel,
   };

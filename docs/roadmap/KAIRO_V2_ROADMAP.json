@@ -1,0 +1,499 @@
+{
+  "roadmap": "KAIRO_V2",
+  "version": 2,
+  "created_at": "2026-09-25T00:00:00Z",
+  "baseline": "Post Sprint 99 (Vue 3 PWA production) plus Flutter Sprint F9 (controlled release readiness)",
+  "objective": "STABILIZE -> SIMPLIFY -> DECOUPLE -> STANDARDIZE -> EXTEND -> HARDEN without replacing the stack, weakening tenant isolation, or rewriting remote history.",
+  "canonical_active_roadmap": true,
+  "historical_roadmap": "IMPLEMENTATION_ROADMAP.md",
+  "concurrency": {
+    "max_consecutive_sprints": 10,
+    "repair_rounds": 3
+  },
+  "sprints": [
+    {
+      "id": 100,
+      "key": "green-engineering-baseline",
+      "title": "Green Engineering Baseline",
+      "phase": "STABILIZE",
+      "dependencies": [],
+      "goal": "Restore Kairo to a trustworthy engineering baseline before adding new architecture. API, Web, Flutter and sensitive-file CI gates must all pass without weakening policy.",
+      "tasks": [
+        "Fix current Ruff violations properly.",
+        "Run mypy after Ruff succeeds.",
+        "Run the backend test suite.",
+        "Fix the current Web localization regression.",
+        "Run the broader Web Playwright matrix.",
+        "Fix Flutter test failures and golden regressions. Do not blindly update goldens if the rendered change is unintentional.",
+        "Make golden execution deterministic across local and CI environments.",
+        "Fix the sensitive-file scanner false positives (source directories named backup/export are not archives).",
+        "The scanner must still reject actual database dumps, backup archives, member exports, financial exports, spreadsheets containing operational data, and secret-bearing files.",
+        "Verify GitHub Actions logic. Do not weaken CI."
+      ],
+      "acceptance": [
+        "API lint passes.",
+        "API mypy passes.",
+        "API tests pass.",
+        "Web type-check passes.",
+        "Web build passes.",
+        "Web localization tests pass.",
+        "Web role/security regressions pass.",
+        "Flutter analyze passes.",
+        "Flutter tests pass.",
+        "Flutter builds relevant targets.",
+        "Sensitive file scanner passes without weakening policy.",
+        "No known main-branch regression remains hidden by skipped downstream steps."
+      ],
+      "gate_profile": "baseline"
+    },
+    {
+      "id": 101,
+      "key": "repository-privacy-and-data-hygiene",
+      "title": "Repository Privacy And Data Hygiene",
+      "phase": "STABILIZE",
+      "dependencies": [100],
+      "goal": "Make the source repository safe to publish and clone by removing confirmed operational association documents and replacing them with fictional fixtures.",
+      "tasks": [
+        "Audit the repository for real association documents and operational data, including 'Combis Sport Verein/'.",
+        "Treat real association documents as operational data, not source code.",
+        "Remove such files from the CURRENT tracked tree when confirmed operational/private.",
+        "Replace required development material with fictional fixtures.",
+        "Strengthen the sensitive file policy to cover operational document classes.",
+        "Document where real operational documents belong: MinIO/S3/private tenant storage.",
+        "Generate a Git history exposure report.",
+        "Prepare exact remediation instructions/scripts, but mark remote-history rewriting HUMAN_REQUIRED. Do not rewrite remote history."
+      ],
+      "acceptance": [
+        "Current HEAD contains no confirmed real tenant operational documents.",
+        "Development fixtures are fictional.",
+        "Security scanner covers operational document classes.",
+        "History remediation report exists.",
+        "No remote history is rewritten automatically."
+      ],
+      "gate_profile": "hygiene"
+    },
+    {
+      "id": 102,
+      "key": "architecture-truth-and-documentation-reset",
+      "title": "Architecture Truth And Documentation Reset",
+      "phase": "STANDARDIZE",
+      "dependencies": [101],
+      "goal": "Reduce documentation entropy accumulated over 99 historical sprints so agents can determine the next sprint deterministically.",
+      "tasks": [
+        "Create a concise current architecture snapshot.",
+        "Create or update architecture decision records.",
+        "Separate historical roadmap, current product state, active roadmap and operator documentation.",
+        "Update PROJECT_STATUS.md, docs/ai/PROJECT_STATE.md, docs/ai/NEXT_SPRINT.md and AGENTS.md.",
+        "Make KAIRO_V2_ROADMAP the canonical active execution source.",
+        "Avoid keeping contradictory sprint status in five files."
+      ],
+      "acceptance": [
+        "One obvious source of truth exists for active roadmap status.",
+        "Historical sprints remain accessible.",
+        "Agents can determine the next sprint deterministically.",
+        "No stale Sprint 98-style status is treated as current after migration."
+      ],
+      "gate_profile": "docs"
+    },
+    {
+      "id": 103,
+      "key": "design-system-2",
+      "title": "Design System 2.0",
+      "phase": "STANDARDIZE",
+      "dependencies": [102],
+      "goal": "Unify visual foundations across Vue and Flutter without replacing either framework, preserving the calm neutral Swiss-inspired visual language.",
+      "tasks": [
+        "Formalize common conceptual tokens: spacing, radii, typography, semantic colors, status semantics, motion, touch targets, breakpoints.",
+        "Create a platform-neutral design specification: design/tokens.json, design/semantics.md, design/components.md.",
+        "Map concepts to Vue/SCSS and Flutter Material 3.",
+        "Standardize LoadingState, EmptyState, ErrorState, SuccessState, StatusBadge, MetricCard, PageHeader, SectionHeader, confirmation, destructive action and form validation patterns.",
+        "Do not introduce a heavy UI framework."
+      ],
+      "acceptance": [
+        "Vue and Flutter use the same semantic design language.",
+        "WCAG touch targets remain respected.",
+        "Dark mode remains correct in Flutter.",
+        "Vue mobile responsiveness does not regress.",
+        "Visual regression tests cover representative screens."
+      ],
+      "gate_profile": "design"
+    },
+    {
+      "id": 104,
+      "key": "navigation-and-information-architecture",
+      "title": "Navigation And Information Architecture",
+      "phase": "SIMPLIFY",
+      "dependencies": [103],
+      "goal": "Make Kairo easier to navigate as the module count grows, with a real More destination and task-oriented primary mobile navigation.",
+      "tasks": [
+        "Redesign primary mobile navigation around: Home, Tasks, Search, Notifications, More.",
+        "Move Profile and Security into the account surface.",
+        "Create a real /more destination (never secretly point to the first workspace).",
+        "Group secondary destinations by domain: Management, Governance, Community, Account.",
+        "Improve dense horizontal role navigation.",
+        "Do not reintroduce a drawer/sidebar-heavy mobile architecture; desktop may use wider navigation."
+      ],
+      "acceptance": [
+        "Every role can reach all authorized surfaces.",
+        "Unauthorized surfaces remain inaccessible.",
+        "Bottom navigation contains high-value destinations.",
+        "More is a real navigation catalog.",
+        "320px mobile width has no destructive overflow.",
+        "Keyboard navigation works."
+      ],
+      "gate_profile": "web"
+    },
+    {
+      "id": 105,
+      "key": "role-aware-action-center",
+      "title": "Role-Aware Action Center",
+      "phase": "EXTEND",
+      "dependencies": [104],
+      "goal": "Transform Dashboard from an information catalogue into an operational command center answering 'What needs my attention now?' with backend-authorized counts.",
+      "tasks": [
+        "Create a backend-backed task/attention aggregation layer.",
+        "Treasurer examples: pending receipts, cash handovers overdue, member balances requiring attention, failed finance notifications.",
+        "Secretary examples: documents to process, announcements pending, policies needing attention, upcoming governance dates.",
+        "President examples: cross-module risks, open governance actions, finance warnings, discipline attention.",
+        "Member examples: remaining contribution balance, new announcement, next event, new document or notification.",
+        "Counts must be backend-authorized; never expose data merely because the dashboard wants a count.",
+        "Create priority semantics: urgent, attention, normal, informational."
+      ],
+      "acceptance": [
+        "Dashboard answers what needs attention now.",
+        "Every card has an actionable destination when appropriate.",
+        "No cross-role data leakage.",
+        "Desktop and mobile layouts validated.",
+        "Empty states are meaningful."
+      ],
+      "gate_profile": "full"
+    },
+    {
+      "id": 106,
+      "key": "global-permission-aware-search",
+      "title": "Global Permission-Aware Search",
+      "phase": "EXTEND",
+      "dependencies": [105],
+      "goal": "Allow users to find authorized information without navigating every module, with Ctrl+K/Cmd+K and modular providers.",
+      "tasks": [
+        "Implement global search with Ctrl+K / Cmd+K.",
+        "Searchable domains: members, documents, events, announcements, payments, receipts, audit entries, disciplinary records.",
+        "Search providers must be modular and enforce permission and tenant filtering BEFORE returning results.",
+        "Never load unauthorized results and hide them in the client.",
+        "Implement ranked results and type/category labels."
+      ],
+      "acceptance": [
+        "Cross-module search works.",
+        "Tenant isolation tests exist.",
+        "Role permission tests exist.",
+        "Search does not leak inaccessible record titles.",
+        "Mobile search UX works.",
+        "Keyboard command works on Web."
+      ],
+      "gate_profile": "full"
+    },
+    {
+      "id": 107,
+      "key": "web-feature-decomposition",
+      "title": "Web Feature Decomposition",
+      "phase": "DECOUPLE",
+      "dependencies": [106],
+      "goal": "Break oversized Vue views into maintainable feature modules without changing behavior or moving authorization into the frontend.",
+      "tasks": [
+        "Primary targets: FinanceWorkspaceView.vue, DashboardView.vue, AdminMembersView.vue and large admin views.",
+        "Move toward features/finance/receipts, custody, expenses, budget, member-balance, reporting organization.",
+        "Extract components, composables, API gateways, formatters, validators.",
+        "Container views orchestrate instead of owning all business UI logic.",
+        "Do not create artificial micro-components for every few lines."
+      ],
+      "acceptance": [
+        "Primary mega-views materially shrink.",
+        "Business behavior unchanged.",
+        "Tests remain green.",
+        "Component boundaries correspond to real domain concepts.",
+        "No authorization logic moves into the frontend."
+      ],
+      "gate_profile": "web"
+    },
+    {
+      "id": 108,
+      "key": "internationalization-refactor",
+      "title": "Internationalization Refactor",
+      "phase": "SIMPLIFY",
+      "dependencies": [107],
+      "goal": "Make FR/EN/DE maintainable and consistent with feature-scoped catalogs and automatic key parity.",
+      "tasks": [
+        "Replace the monolithic messages.ts with feature-scoped catalogs: i18n/fr/common, finance, membership, governance (and EN/DE equivalents).",
+        "Eliminate repeated currentLocale === 'fr' ? ... : ... patterns.",
+        "Localize user-visible enum values through mapping keys.",
+        "Add CI verification that FR keys == EN keys == DE keys.",
+        "Detect hardcoded user-facing strings.",
+        "Do not translate backend enum identifiers themselves."
+      ],
+      "acceptance": [
+        "No known mixed-language French screen remains.",
+        "Key parity is automatic.",
+        "Existing language selection persists.",
+        "Web localization Playwright matrix passes."
+      ],
+      "gate_profile": "web"
+    },
+    {
+      "id": 109,
+      "key": "capability-driven-client-ui",
+      "title": "Capability-Driven Client UI",
+      "phase": "STANDARDIZE",
+      "dependencies": [108],
+      "goal": "Reduce frontend dependence on hardcoded role-name lists by exposing authoritative effective capabilities.",
+      "tasks": [
+        "Expose an authoritative effective-capabilities representation through existing auth/tenant contracts.",
+        "Refactor client navigation and action visibility to consume capabilities.",
+        "Roles remain useful as named bundles; frontend uses capabilities for UX only and never becomes the authorization authority.",
+        "Capability concepts: membership.read/manage, finance.read, finance.receipts.declare/validate, finance.expenses.write, discipline.read/manage, governance.documents.write, audit.read.",
+        "Preserve canonical roles and prepare future tenant-specific role bundles."
+      ],
+      "acceptance": [
+        "Major navigation no longer contains large repeated arrays of role names.",
+        "Backend enforcement remains unchanged or stronger.",
+        "All existing roles behave correctly.",
+        "Role security tests pass."
+      ],
+      "gate_profile": "full"
+    },
+    {
+      "id": 110,
+      "key": "finance-bounded-context-split",
+      "title": "Finance Bounded Context Split",
+      "phase": "DECOUPLE",
+      "dependencies": [109],
+      "goal": "Refactor the oversized contribution/finance service into clear internal domains while preserving public API compatibility and finance semantics.",
+      "tasks": [
+        "Target structure: finance/, contributions/, receipts/, custody/, expenses/, budgeting/, reminders/, reporting/.",
+        "Separate report generation from transactional finance logic.",
+        "Separate notification triggering from finance implementation through contracts/events.",
+        "Do not change finance semantics casually.",
+        "Regression proof required for: contribution creation, payment recording, receipt declaration, treasurer validation/rejection, cash custody handover, treasury confirmation, expense recording, annual budget, member statement, exports."
+      ],
+      "acceptance": [
+        "Large finance service is materially decomposed.",
+        "Transactional boundaries are explicit.",
+        "Regression suite covers every critical workflow.",
+        "No finance data leakage.",
+        "Existing API clients remain functional."
+      ],
+      "gate_profile": "backend"
+    },
+    {
+      "id": 111,
+      "key": "identity-and-notification-core-decomposition",
+      "title": "Identity And Notification Core Decomposition",
+      "phase": "DECOUPLE",
+      "dependencies": [110],
+      "goal": "Break oversized identity and notification services into coherent subdomains before notification convergence.",
+      "tasks": [
+        "Identity targets: authentication, passwords, sessions, MFA, invitations, recovery, tenant-user administration.",
+        "Notification targets: inbox, preferences, devices, subscriptions, outbox, delivery, provider adapters, operator dispatch/reconciliation.",
+        "Preserve existing API contracts unless migration is explicitly tested."
+      ],
+      "acceptance": [
+        "Identity service is materially smaller.",
+        "Notification responsibilities are separated.",
+        "No MFA/session/security regression.",
+        "Web Push behavior preserved.",
+        "Android FCM registration behavior preserved.",
+        "Existing notification inbox remains compatible."
+      ],
+      "gate_profile": "backend"
+    },
+    {
+      "id": 112,
+      "key": "ai-chat-domain-adapter-registry",
+      "title": "AI Chat Domain Adapter Registry",
+      "phase": "DECOUPLE",
+      "dependencies": [111],
+      "goal": "Remove ChatService as a direct coupling hub to most business modules via authorized domain context provider contracts.",
+      "tasks": [
+        "Introduce domain context provider contracts: FinanceContextProvider, MembershipContextProvider, GovernanceContextProvider, DisciplinaryContextProvider, EventsContextProvider, DocumentsContextProvider.",
+        "Create a context provider registry.",
+        "The assistant asks authorized providers for structured context.",
+        "The LLM never decides whether a provider may return data; authorization happens before context assembly.",
+        "Do not leak unauthorized retrieved chunks.",
+        "Preserve current RAG safety controls."
+      ],
+      "acceptance": [
+        "Chat no longer imports broad internal implementations from many domains.",
+        "Context provider tests exist.",
+        "Existing assistant scenarios remain functional.",
+        "Tenant and role isolation tests pass.",
+        "Prompt-injection protections remain green."
+      ],
+      "gate_profile": "full"
+    },
+    {
+      "id": 113,
+      "key": "internal-domain-events-and-transactional-outbox",
+      "title": "Internal Domain Events And Transactional Outbox",
+      "phase": "DECOUPLE",
+      "dependencies": [112],
+      "goal": "Decouple business modules from secondary effects such as notifications and auditing using lightweight internal domain events and a PostgreSQL-backed outbox. No Kafka, no microservices.",
+      "tasks": [
+        "Implement lightweight internal domain events (for example ReceiptValidated -> audit projection, notification handler, custody workflow).",
+        "Event records requiring transactional reliability use PostgreSQL-backed outbox semantics.",
+        "Reuse or generalize the existing notification transactional outbox instead of creating conflicting delivery mechanisms.",
+        "Provide event ID, tenant ID, event type, aggregate/entity information, occurred_at, correlation ID, deduplication/idempotency key, safe payload."
+      ],
+      "acceptance": [
+        "At least representative workflows emit domain events.",
+        "Audit/notifications consume events without business modules importing transport implementation.",
+        "Outbox is idempotent.",
+        "Retries are safe.",
+        "No duplicate financial mutation occurs after retry."
+      ],
+      "gate_profile": "backend"
+    },
+    {
+      "id": 114,
+      "key": "unified-notification-convergence",
+      "title": "Unified Notification Convergence: Server + Web Push + Android FCM + Firebase",
+      "phase": "STANDARDIZE",
+      "dependencies": [113],
+      "goal": "Harmonize every existing Kairo notification mechanism into one coherent notification platform while preserving the strongest parts of the existing implementation. Not a greenfield implementation.",
+      "high_priority": true,
+      "tasks": [
+        "Preserve and consolidate: authenticated tenant-scoped inbox, NotificationDevice, NotificationDeviceProfile, WebPushSubscription, FirebasePushSubscription, NotificationOutboxEvent, VAPID Web Push, Android FCM registration, Firebase Admin backend delivery, Flutter FCM token refresh, Flutter permission flow, background Android delivery, deep links, Celery outbox worker, preferences, finance/discipline/announcement/event categories.",
+        "Never hardcode sender IDs, API credentials or service-account keys. Never commit google-services.json, Firebase Admin service account JSON, private VAPID key, FCM credentials.",
+        "Architecture target: Business operation -> Domain Event -> Notification Policy / Recipient Resolver -> Transactional Notification Outbox -> Authenticated Inbox and Delivery Dispatcher -> Web Push VAPID and Android FCM -> Browser and Firebase V1 -> authenticated deep link.",
+        "Authenticated inbox is the source of detailed notification information; push transports are delivery hints.",
+        "Sensitive push content policy: never expose finance or disciplinary details on a lock screen; generic default body; safe internal target only.",
+        "Canonical notification envelope: notification_id, event_id, tenant_id, recipient_user_id, category, priority, event_type, target_path, created_at, deduplication_key, correlation_id, metadata, push_policy.",
+        "Recipient resolution: audit existing event generation and document a notification-event matrix (producer, event, category, eligible recipients, inbox, Web Push, Android FCM, deep link, privacy level) for payment recorded, contribution/receipt declared, receipt validated, receipt rejected, cash handover required/completed, treasury receipt confirmed, expense recorded, disciplinary status update, announcement published, event published, security events.",
+        "Preferences: one canonical preference contract consumed by both clients; preserve backward compatibility; define user-wide vs tenant-user-wide vs device-profile-specific scope and prefer the safest model already represented by NotificationDeviceProfile.",
+        "Device registration: stable random installation ID never derived from account identity; every subscription tenant/user scoped; support multiple accounts on one device without cross-account push leakage.",
+        "Token rotation: FCM refresh updates safely, avoids duplicates, preserves tenant/user binding, disables obsolete tokens.",
+        "Logout/session revocation: logout stops authenticated notification handling; choose and test one clear model for profile binding vs installation identity.",
+        "Invalid token handling: permanently invalid/unregistered tokens are disabled; transient errors use bounded retry with backoff.",
+        "Web Push: keep standards-based Web Push + VAPID; do not migrate to Firebase merely for uniformity; transports are replaceable.",
+        "Web service worker: verify push reception, notification display, notification click, deep-link routing, expired subscription handling, unread count refresh.",
+        "Android states: verify foreground, background, terminated/cold-start where testable; taps route through authenticated navigation and never bypass authorization.",
+        "Deep links: restricted to safe internal Kairo destinations; never blindly navigate to arbitrary external URLs; route guards and backend permissions still apply.",
+        "Outbox: one business transaction creates its intended notification atomically; delivery failure never rolls back a committed business transaction; statuses pending/processing/delivered/failed/dead; maintain attempts and last error; prevent duplicate processing.",
+        "Observability metrics: notification_outbox_pending, notification_outbox_failed, notification_outbox_oldest_age, web_push_success, web_push_failure, fcm_success, fcm_failure, disabled_web_subscriptions, disabled_fcm_tokens; no notification contents in logs.",
+        "Operator notification health section: Web Push configured, Firebase configured, worker running, pending outbox count, failed deliveries, invalid subscriptions, last successful dispatch; never show private keys or tokens.",
+        "Testing: provider abstractions, deterministic fake Web Push and fake FCM providers, no real Firebase service account in CI; cover tenant isolation, device-profile isolation, deduplication, preference filtering, both dispatchers, invalid token disabling, transient retry, deep link validation, logout/session behavior, outbox retries, multiple accounts per device, one account on multiple devices, sensitive push content policy.",
+        "Optional opt-in live Firebase smoke test (npm run notifications:firebase:doctor or equivalent) that never runs in generic CI and prints only non-secret diagnostics.",
+        "Update the operator guide for Firebase project configuration, FCM API V1, Android package identity, Admin service account placement, Docker/worker secret mounts, environment configuration, token troubleshooting, physical device validation."
+      ],
+      "acceptance": [
+        "One canonical notification pipeline exists.",
+        "Detailed notification data remains authenticated.",
+        "Web Push works through the same inbox/outbox model.",
+        "Android FCM works through the same inbox/outbox model.",
+        "Preferences are consistent across clients.",
+        "Tenant isolation is tested.",
+        "FCM token refresh is tested.",
+        "Expired/invalid subscriptions are disabled.",
+        "Deep links are safe.",
+        "Worker retries are bounded.",
+        "No Firebase Admin secret exists in source control.",
+        "Vue notification UI works.",
+        "Flutter notification UI works.",
+        "Fake-provider CI tests pass.",
+        "Optional real Firebase smoke test is documented.",
+        "Notification health is observable."
+      ],
+      "gate_profile": "full"
+    },
+    {
+      "id": 115,
+      "key": "openapi-contract-and-client-parity",
+      "title": "OpenAPI Contract And Client Parity",
+      "phase": "STANDARDIZE",
+      "dependencies": [114],
+      "goal": "Make FastAPI's contract the formal boundary shared by Vue and Flutter with drift detection.",
+      "tasks": [
+        "Generate/version the OpenAPI schema.",
+        "Detect breaking API changes in CI.",
+        "Generate or validate typed client contracts for TypeScript and Dart; generated types may coexist with thin hand-written gateways.",
+        "Create a feature parity matrix.",
+        "Cover the Sprint 114 notification contracts."
+      ],
+      "acceptance": [
+        "CI can detect accidental breaking contract changes.",
+        "Vue and Flutter contract drift is reduced.",
+        "Notification contracts from Sprint 114 are covered.",
+        "Existing apps build."
+      ],
+      "gate_profile": "full"
+    },
+    {
+      "id": 116,
+      "key": "observability-and-performance",
+      "title": "Observability And Performance",
+      "phase": "HARDEN",
+      "dependencies": [115],
+      "goal": "Make Kairo operationally diagnosable and measurable at representative tenant sizes.",
+      "tasks": [
+        "Formalize structured logging, request/correlation IDs, Celery task correlation, error classifications, Prometheus metrics, health/readiness checks, queue/outbox lag, backup health, notification health, AI runtime health.",
+        "Create practical performance baselines at roughly 200 members, 1000 members, and larger historical finance/audit datasets where practical.",
+        "Measure API p50/p95, critical DB query counts, search latency, finance overview latency, dashboard latency, notification outbox latency.",
+        "Fix obvious N+1 issues."
+      ],
+      "acceptance": [
+        "Operator can determine why Kairo is unhealthy.",
+        "No sensitive data appears in metrics.",
+        "Performance regressions are measurable.",
+        "Representative workloads remain responsive."
+      ],
+      "gate_profile": "full"
+    },
+    {
+      "id": 117,
+      "key": "extensible-role-and-module-framework",
+      "title": "Extensible Role And Module Framework",
+      "phase": "EXTEND",
+      "dependencies": [116],
+      "goal": "Make future Kairo modules cheap to integrate through an internal Module Registry. No arbitrary untrusted runtime plugin execution.",
+      "tasks": [
+        "Create a Module Registry abstraction whose descriptor exposes module key, capabilities, dependencies, navigation metadata, health checks, search provider, optional AI context provider, domain events, feature flags.",
+        "Prepare tenant-specific role bundles while preserving current canonical roles.",
+        "Demonstrate extensibility with a small non-critical sample or test module rather than another large business feature."
+      ],
+      "acceptance": [
+        "Adding a module no longer requires edits across many unrelated central files.",
+        "Navigation integrates through registry metadata.",
+        "Capabilities integrate predictably.",
+        "Search/AI provider hooks are optional.",
+        "Dependency conflicts are detected.",
+        "Tests demonstrate registration."
+      ],
+      "gate_profile": "full"
+    },
+    {
+      "id": 118,
+      "key": "product-hardening-and-release-candidate",
+      "title": "Product Hardening And Release Candidate",
+      "phase": "HARDEN",
+      "dependencies": [117],
+      "goal": "Produce a trustworthy Kairo V2 release candidate with a demonstrated upgrade, restore and rollback path.",
+      "tasks": [
+        "Run the full regression matrix: API, Vue PWA, Flutter Web, Flutter Android, notifications, multi-tenancy, capabilities, finance, discipline, audit, backup, restore, AI optionality.",
+        "Perform an accessibility audit targeting WCAG 2.2 AA where practical: 320px mobile, modern Android viewport, desktop, keyboard navigation, reduced motion, Flutter text scaling, dark mode.",
+        "Perform a non-destructive restore drill.",
+        "Verify production migrations from the current deployed schema and require backup before migration.",
+        "Validate notification recovery when Firebase, Web Push or Celery are temporarily unavailable; the business operation must remain consistent.",
+        "Produce release notes and a deployment/rollback runbook."
+      ],
+      "acceptance": [
+        "All automated gates green.",
+        "No unresolved P0/P1 issue.",
+        "Restore drill passes.",
+        "Upgrade path passes.",
+        "Rollback procedure documented.",
+        "Notification convergence production-ready.",
+        "Repository contains no production secrets.",
+        "Release candidate can be demonstrated end-to-end."
+      ],
+      "gate_profile": "release"
+    }
+  ]
+}

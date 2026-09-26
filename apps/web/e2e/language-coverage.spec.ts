@@ -102,6 +102,21 @@ async function seedLocale(page: Page, locale: Locale, role: string) {
     window.localStorage.setItem('access_token', 'playwright-access-token')
   }, { nextLocale: locale })
 
+  // Registered first so every specific mock wins. Unmocked API calls fail fast
+  // with a deterministic 404 instead of leaking to whatever service listens on
+  // the default API port and hanging the workspace in a loading/error state.
+  await page.route('**/api/v1/**', async (route) => {
+    await route.fulfill({
+      status: 404,
+      contentType: 'application/json',
+      body: JSON.stringify({ detail: 'No locale-coverage mock for this request' }),
+    })
+  })
+
+  await page.route('**/api/v1/contributions/receipt-declarations/me', async (route) => {
+    await route.fulfill({ status: 200, contentType: 'application/json', body: '[]' })
+  })
+
   await page.route('**/api/v1/auth/me', async (route) => {
     await route.fulfill({
       status: 200,
@@ -286,7 +301,7 @@ test.describe('locale coverage', () => {
       ;(window as any).__forceGovernanceError = true
     })
 
-    await page.route('**/api/v1/documents', async (route) => {
+    await page.route('**/api/v1/documents/', async (route) => {
       const shouldFail = await page.evaluate(() => (window as any).__forceGovernanceError === true)
       if (shouldFail) {
         await page.evaluate(() => {
@@ -337,7 +352,7 @@ test.describe('locale coverage', () => {
       ;(window as any).__forceSecretaryDocumentsError = true
     })
 
-    await page.route('**/api/v1/documents', async (route) => {
+    await page.route('**/api/v1/documents/', async (route) => {
       const shouldFail = await page.evaluate(() => (window as any).__forceSecretaryDocumentsError === true)
       if (shouldFail) {
         await page.evaluate(() => {
@@ -398,7 +413,7 @@ test.describe('locale coverage', () => {
         body: JSON.stringify({ categories: [] }),
       })
     })
-    await page.route('**/api/v1/documents', async (route) => {
+    await page.route('**/api/v1/documents/', async (route) => {
       await route.fulfill({ status: 200, contentType: 'application/json', body: JSON.stringify([]) })
     })
     await page.route('**/api/v1/policies', async (route) => {
@@ -428,7 +443,7 @@ test.describe('locale coverage', () => {
       ;(window as any).__forceAdminOverviewError = true
     })
 
-    await page.route('**/api/v1/documents', async (route) => {
+    await page.route('**/api/v1/documents/', async (route) => {
       await route.fulfill({ status: 200, contentType: 'application/json', body: JSON.stringify([]) })
     })
     await page.route('**/api/v1/admin/audit/events**', async (route) => {
@@ -606,7 +621,7 @@ test.describe('locale coverage', () => {
       ;(window as any).__forceOnboardingError = true
     })
 
-    await page.route('**/api/v1/documents', async (route) => {
+    await page.route('**/api/v1/documents/', async (route) => {
       const shouldFail = await page.evaluate(() => (window as any).__forceOnboardingError === true)
       if (shouldFail) {
         await page.evaluate(() => {
@@ -841,7 +856,7 @@ test.describe('locale coverage', () => {
 
   test('admin documents render in French for principal admin', async ({ page }) => {
     await seedLocale(page, 'fr', 'principal_admin')
-    await page.route('**/api/v1/documents', async (route) => {
+    await page.route('**/api/v1/documents/', async (route) => {
       await route.fulfill({
         status: 200,
         contentType: 'application/json',

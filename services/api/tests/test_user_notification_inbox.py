@@ -5,12 +5,13 @@ import uuid
 import pytest
 from helpers import create_tenant_with_user, login
 from httpx import AsyncClient
+from sqlalchemy import select
+from sqlalchemy.exc import IntegrityError
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.modules.notifications.user_service import UserNotificationService
-from app.modules.notifications.user_schemas import NotificationPreferencesUpdate
 from app.modules.notifications.user_models import FirebasePushSubscription
-from sqlalchemy import select
+from app.modules.notifications.user_schemas import NotificationPreferencesUpdate
+from app.modules.notifications.user_service import UserNotificationService
 
 
 @pytest.mark.asyncio
@@ -56,7 +57,7 @@ async def test_user_inbox_is_tenant_isolated_and_outbox_is_idempotent(
         target_path="/finance",
         deduplication_key="inbox-isolation",
     )
-    with pytest.raises(Exception):
+    with pytest.raises(IntegrityError):
         await db_session.commit()
     await db_session.rollback()
 

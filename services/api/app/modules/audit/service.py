@@ -8,8 +8,8 @@ from decimal import Decimal
 from typing import Any
 from uuid import UUID
 
-from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select
+from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core.privacy import redact_nested_data
 from app.modules.audit.models import AuditEvent

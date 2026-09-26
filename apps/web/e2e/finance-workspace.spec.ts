@@ -172,7 +172,7 @@ async function mockFinanceWorkspace(page: Page) {
     })
   })
 
-  await page.route('http://localhost:8000/api/v1/documents', async (route) => {
+  await page.route('http://localhost:8000/api/v1/documents/', async (route) => {
     await route.fulfill({
       status: 200,
       contentType: 'application/json',
@@ -436,7 +436,7 @@ test.describe('Finance workspace', () => {
     await expect(financeNavLink(page)).toBeVisible()
     await expect(page.getByRole('link', { name: 'Admin' })).toHaveCount(0)
 
-    await page.getByLabel('Member').first().selectOption('member-1')
+    await page.locator('#finance-balance-member').selectOption('member-1')
     await expect(page.getByTestId('finance-member-balance')).toContainText('80.00 EUR')
   })
 
@@ -451,14 +451,14 @@ test.describe('Finance workspace', () => {
     await financeNavLink(page).click()
 
     await page.getByRole('button', { name: 'Record payment' }).first().click()
-    await page.getByLabel('Amount (EUR)', { exact: true }).fill('80.00')
+    await page.locator('#finance-payment-amount').fill('80.00')
     await page.getByRole('button', { name: 'Record payment', exact: true }).first().click()
 
     await expect(page.getByRole('cell', { name: '0.00' }).first()).toBeVisible()
     await expect(page.getByText('paid').first()).toBeVisible()
 
-    await page.getByLabel('Member').nth(1).selectOption('member-2')
-    await page.getByLabel('Expected amount (EUR)', { exact: true }).fill('150.00')
+    await page.locator('#finance-create-member').selectOption('member-2')
+    await page.locator('#finance-create-amount').fill('150.00')
     await page.getByRole('button', { name: 'Create contribution' }).click()
 
     await expect(page.getByRole('cell', { name: 'Bob Example (M002)' }).first()).toBeVisible()

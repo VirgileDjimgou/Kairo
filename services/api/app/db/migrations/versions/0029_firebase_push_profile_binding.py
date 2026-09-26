@@ -7,7 +7,6 @@ Revises: 0028
 import sqlalchemy as sa
 from alembic import op
 
-
 revision = "0029"
 down_revision = "0028"
 branch_labels = None

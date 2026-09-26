@@ -23,6 +23,9 @@ build/
 services/api/.private/
 backups/
 
+# Sprint batch runtime state (untracked by design)
+.kairo/
+
 # Testing
 .pytest_cache/
 .coverage
@@ -55,6 +58,13 @@ docker-compose.override.yml
 *.xlsx
 *.xls
 *.ods
+
+# Real operational association documents (Sprint 101). These belong in
+# MinIO/S3 private tenant storage, never in Git. See
+# docs/security/OPERATIONAL_DATA_POLICY.md.
+Combis Sport Verein/
+services/api/tmp/
+.vscode/PythonImportHelper-v2-Completion.json
 
 # Logs
 *.log

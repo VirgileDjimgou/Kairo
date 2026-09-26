@@ -151,6 +151,32 @@ The provided Caddyfile (`infra/reverse-proxy/Caddyfile`) handles:
 - Blocking of `/docs` and `/redoc` in production
 - Automatic Let's Encrypt TLS (when a domain is configured)
 
+### Forwarded headers and HTTPS redirects
+
+FastAPI collection routes are canonical with a trailing slash (`/documents/`). The web
+client always calls the canonical path, so a normal request never redirects. The
+repository enforces this with `node scripts/check-api-collection-paths.mjs`.
+
+If a slash-less request reaches the API (an external integration, an older client or a
+manual call), FastAPI answers with a 307 redirect. That redirect is built from the scheme
+the API believes the request used. Behind an HTTPS edge such as Cloudflare Tunnel, the
+request reaches the origin over HTTP, so the redirect can become `http://…` and the
+browser blocks it as mixed content — the surface then fails with a misleading
+"Network Error".
+
+The deployment must therefore preserve the original client scheme end to end:
+
+- The API container starts with `--proxy-headers --forwarded-allow-ips='*'` so uvicorn
+  trusts the proxy headers (see `services/api/Dockerfile`).
+- The nginx gateways forward the incoming `X-Forwarded-Proto` and only fall back to
+  `$scheme` when it is absent (`apps/web/nginx.conf`, `apps/flutter_kairo/nginx.conf`).
+- The Caddy tunnel block sets `header_up X-Forwarded-Proto https` because Cloudflare
+  terminates TLS before the tunnel (`infra/reverse-proxy/Caddyfile`).
+
+> **Security requirement:** `--forwarded-allow-ips='*'` trusts the whole proxy chain.
+> Never publish the API port directly to the internet. The production compose override
+> resets the API ports for this reason; keep it that way.
+
 ---
 
 ## Cloudflare Tunnel
@@ -458,6 +484,15 @@ For customer-facing packaging and go-live preparation, see:
 
 - Verify `CORS_ORIGINS` in `.env` matches the exact origin (with protocol and port if any)
 - If using a reverse proxy, ensure `X-Forwarded-*` headers are passed correctly
+
+### A workspace shows "Network Error" behind HTTPS
+
+- Confirm the API starts with `--proxy-headers` and the proxy forwards
+  `X-Forwarded-Proto` (see "Forwarded headers and HTTPS redirects").
+- Confirm the web client calls canonical trailing-slash collection routes:
+  `node scripts/check-api-collection-paths.mjs`.
+- A missing document or membership list on an otherwise working page is the classic
+  symptom of an `http://` redirect blocked as mixed content.
 
 ### Cloudflare Tunnel not connecting
 

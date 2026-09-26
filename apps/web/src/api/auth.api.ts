@@ -45,6 +45,7 @@ export interface TenantMembershipResponse {
   name: string
   default_language: string
   roles: string[]
+  capabilities?: string[]
   branding: BrandingConfig
   modules: ModuleToggles
   profile_type: string
@@ -58,6 +59,7 @@ export interface UserResponse {
   status: string
   tenant_id: string
   roles: string[]
+  capabilities?: string[]
   last_login_at: string | null
   password_change_required: boolean
 }

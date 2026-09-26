@@ -1,32 +1,29 @@
 # Next Sprint
 
-## Status
+**Do not track sprint status in this file.** Sprint status has exactly one source
+of truth: `docs/roadmap/KAIRO_V2_ROADMAP.json` plus the batch state machine.
 
-Sprint 98 (Operational Pilot Acceptance) is in progress.
+## How to determine the next sprint
 
-## What Was Done
+```bash
+npm run sprint:next        # resolve and print the next unfinished sprint
+npm run sprint:batch:status
+```
 
-Sprint 98 established the non-disclosing readiness gate for a real operational pilot.
+or read the roadmap directly: the first sprint in `docs/roadmap/KAIRO_V2_ROADMAP.json`
+whose entry is not recorded as `completed` in `.kairo/sprint-batch/state.json`
+(when a batch is active).
 
-What was added:
-- Added `scripts/pilot_acceptance_preflight.ps1`, which reports only pass/fail production-readiness requirements and never prints secret values.
-- Added `scripts/start_quick_demo.ps1` and `scripts/stop_quick_demo.ps1` for a no-domain, no-token demonstration flow. They keep `.env` unchanged, use a temporary ignored environment file, and expose only the web and API endpoints through ephemeral Quick Tunnels.
-- Added a controlled workbook-import utility that preserves office accounts and operational tenant content while replacing member-only profiles and their finance data from a validated local workbook.
-- Documented the pilot preflight in deployment, validation, and go-live material.
-- Deployed the named `kairo-production` Cloudflare Tunnel for `https://app.combissportverein.org` with same-origin routing to the private Docker `web` service.
-- Generated local production secrets, created a private PostgreSQL backup before credential rotation, and passed the external HTTPS smoke check (6/6).
-- Removed the production environment file from the `cloudflared` container to prevent unrelated secrets and the tunnel token from appearing in connector environment logs.
-- Corrected production-only Docker health checks and removed the web host-port mapping so Cloudflare Tunnel is the only intended public ingress.
+## Rules
 
-Current blocker: an approved isolated restore target and a recorded non-destructive restore drill are still required.
+- Execute exactly one sprint at a time unless the operator requests a batch
+  (`Start Next Sprints N`, `1 <= N <= 10`).
+- Dependencies in the roadmap JSON must be completed first; never skip a sprint.
+- A blocked sprint blocks the batch; record it through
+  `scripts/sprint-batch/cli.mjs` and stop.
 
-## Next Planning Cycle
+## Historical note
 
-Resume Sprint 98 with the isolated restore drill only. It must restore a backup into an approved isolated target, validate it without exposing data publicly, record the evidence, and retain backend-owned authorization throughout.
-
-## Continuity Rule
-
-Future agent sessions must not invent the next step from memory. They must read
-`README.md`, `AGENTS.md`, `constitution/KAIRO_CONSTITUTION.md`,
-`IMPLEMENTATION_ROADMAP.md`, `PROJECT_STATUS.md`, `prompts/CODEX_AUTOPILOT.md`,
-and `prompts/KAIRO_CONTINUE_UNIVERSAL.md`, then decide the next increment.
+The Sprint 0–99 record lives in `IMPLEMENTATION_ROADMAP.md` (read-only) and the
+historical sections of `PROJECT_STATUS.md`. Earlier content of this file
+described Sprint 98 and was retired because it contradicted the real state.

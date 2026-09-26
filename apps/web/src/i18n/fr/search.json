@@ -1,0 +1,20 @@
+{
+  "search.title": "Recherche",
+  "search.subtitle": "Trouvez un membre sans parcourir tous les modules.",
+  "search.placeholder": "Nom, matricule ou e-mail…",
+  "search.submit": "Rechercher",
+  "search.emptyTitle": "Aucun résultat",
+  "search.emptyBody": "Essayez un autre nom, matricule ou e-mail.",
+  "search.noDirectoryTitle": "Recherche indisponible pour ce rôle",
+  "search.noDirectoryBody": "La recherche de membres est réservée aux rôles autorisés. Consultez toutes vos destinations dans Plus.",
+  "search.results": "résultat(s)",
+  "search.close": "Fermer",
+  "search.types.members": "Membres",
+  "search.types.documents": "Documents",
+  "search.types.events": "Événements",
+  "search.types.announcements": "Annonces",
+  "search.types.payments": "Paiements",
+  "search.types.receipts": "Encaissements",
+  "search.types.audit": "Journal",
+  "search.types.discipline": "Discipline"
+}

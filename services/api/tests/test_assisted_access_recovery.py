@@ -3,13 +3,13 @@
 from datetime import UTC, datetime, timedelta
 
 import pytest
+from helpers import create_user_for_tenant, login
 from httpx import AsyncClient
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.modules.identity.models import User
 from app.modules.tenancy.models import TenantUser
-from helpers import create_user_for_tenant, login
 
 
 @pytest.mark.asyncio

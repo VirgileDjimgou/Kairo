@@ -62,6 +62,27 @@ const router = createRouter({
           component: () => import("@/views/dashboard/DashboardView.vue"),
         },
         {
+          path: "more",
+          name: "more",
+          component: () => import("@/views/navigation/MoreNavigationView.vue"),
+        },
+        {
+          path: "tasks",
+          name: "tasks",
+          component: () => import("@/views/navigation/TasksView.vue"),
+        },
+        {
+          path: "search",
+          name: "search",
+          component: () => import("@/views/navigation/SearchView.vue"),
+        },
+        {
+          path: "notifications",
+          name: "notifications-inbox",
+          component: () => import("@/views/notifications/NotificationInboxView.vue"),
+          meta: { module: "notifications" },
+        },
+        {
           path: "chat",
           name: "chat",
           component: () => import("@/views/chat/ChatView.vue"),

@@ -2,6 +2,15 @@
 // Swiss-style: neutral-dominated, precise spacing, strong typographic hierarchy
 
 :root {
+  /* VUE BINDING of design/tokens.json (platform-neutral). Semantic meanings:
+     design/semantics.md. Keep both sides in sync when a value changes. */
+
+  /* Breakpoint bands and touch targets (design/tokens.json) */
+  --om-bp-phone: 320px;
+  --om-bp-tablet: 768px;
+  --om-bp-desktop: 1024px;
+  --om-touch-target-min: 44px;
+  --om-touch-target-preferred: 48px;
   // ── Primary — brighter, more alive blue (overridden per tenant via inline style) ──
   --om-primary: #1E63B5;
   --om-primary-hover: #174F8A;

@@ -1,6 +1,12 @@
 # Implementation Roadmap
 
-This roadmap is the executable sprint plan for Kairo. Each sprint must be completed independently and the status files must be updated before the next sprint starts.
+> **HISTORICAL RECORD (Sprints 0–99).** This file is preserved for traceability
+> and is no longer an execution source. The active execution roadmap is
+> `docs/roadmap/KAIRO_V2_ROADMAP.md` / `docs/roadmap/KAIRO_V2_ROADMAP.json`
+> (Roadmap V2, Sprints 100–118). Determine the next sprint with
+> `npm run sprint:next`; never from this file.
+
+This roadmap was the executable sprint plan for Kairo through Sprint 99. Each sprint was completed independently and the status files were updated before the next sprint started.
 
 ## Completion Rules
 

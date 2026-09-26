@@ -7,8 +7,8 @@ from app.modules.audit.models import AuditEvent  # noqa: F401
 from app.modules.backup.models import BackupRun  # noqa: F401
 from app.modules.chat.models import ChatConversation, ChatMessage, ChatQueryLog  # noqa: F401
 from app.modules.contributions.models import (  # noqa: F401
-    ContributionRecord,
     ContributionReceiptDeclaration,
+    ContributionRecord,
     ContributionReminder,
     ExpenseRecord,
     PaymentRecord,
@@ -29,10 +29,10 @@ from app.modules.identity.models import (  # noqa: F401
 )
 from app.modules.membership.models import MembershipProfile  # noqa: F401
 from app.modules.notifications.user_models import (  # noqa: F401
+    FirebasePushSubscription,
     NotificationDevice,
     NotificationDeviceProfile,
     NotificationOutboxEvent,
-    FirebasePushSubscription,
     UserNotification,
     WebPushSubscription,
 )

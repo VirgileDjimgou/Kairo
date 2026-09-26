@@ -1,0 +1,13 @@
+title = "Kairo gitleaks configuration"
+
+[extend]
+useDefault = true
+
+# Calibration only: the recovery password alphabet is a character set used to
+# generate one-time passwords, not a credential. The allowlist matches the exact
+# constant value only. Real secrets are never allowlisted here; a leaked secret
+# stays flagged until it is rotated and the history is remediated by the
+# operator (HUMAN_REQUIRED).
+[allowlist]
+description = "Recovery password alphabet constant is a character set, not a credential"
+regexes = ['''ABCDEFGHJKLMNPQRSTUVWXYZ23456789''']

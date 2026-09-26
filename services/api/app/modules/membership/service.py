@@ -1,6 +1,6 @@
 import secrets
 import unicodedata
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from decimal import Decimal
 from uuid import UUID
 
@@ -84,7 +84,7 @@ class MembershipService:
                 tenant_id,
                 {
                     "membership_profile_id": profile.id,
-                    "year": datetime.now(timezone.utc).year,
+                    "year": datetime.now(UTC).year,
                     "expected_amount": expected_amount,
                     "paid_amount": Decimal("0.00"),
                     "currency": "EUR",

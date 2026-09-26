@@ -129,6 +129,15 @@ async def test_get_me(
     assert body["tenant_id"] == str(data["tenant"].id)
     assert "admin" in body["roles"]
     assert "preferred_language" in body
+    assert "tenant:administration" in body["capabilities"]
+    assert "audit:read" in body["capabilities"]
+    assert "membership:delete" not in body["capabilities"]
+    assert "finance:expenses_write" not in body["capabilities"]
+    membership = next(
+        item for item in body["memberships"] if item["tenant_id"] == str(data["tenant"].id)
+    )
+    assert membership["roles"] == body["roles"]
+    assert membership["capabilities"] == body["capabilities"]
 
 
 @pytest.mark.asyncio

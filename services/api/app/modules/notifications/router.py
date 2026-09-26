@@ -74,8 +74,8 @@ async def update_user_notification_preferences(payload: NotificationPreferencesU
     service = UserNotificationService(db)
     try:
         return await service.update_preferences(current.tenant_id, current.user.id, payload)
-    except RuntimeError:
-        raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail="Register this device before updating notification preferences")
+    except RuntimeError as exc:
+        raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail="Register this device before updating notification preferences") from exc
 
 
 @router.get("/push/configuration", response_model=PushConfigurationResponse)

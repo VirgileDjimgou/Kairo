@@ -1,0 +1,20 @@
+{
+  "search.title": "Search",
+  "search.subtitle": "Find a member without visiting every module.",
+  "search.placeholder": "Name, member code or email…",
+  "search.submit": "Search",
+  "search.emptyTitle": "No results",
+  "search.emptyBody": "Try another name, member code or email.",
+  "search.noDirectoryTitle": "Search unavailable for this role",
+  "search.noDirectoryBody": "Member search is reserved for authorised roles. Browse all of your destinations under More.",
+  "search.results": "result(s)",
+  "search.close": "Close",
+  "search.types.members": "Members",
+  "search.types.documents": "Documents",
+  "search.types.events": "Events",
+  "search.types.announcements": "Announcements",
+  "search.types.payments": "Payments",
+  "search.types.receipts": "Receipts",
+  "search.types.audit": "Journal",
+  "search.types.discipline": "Discipline"
+}

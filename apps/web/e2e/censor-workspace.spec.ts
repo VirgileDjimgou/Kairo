@@ -309,7 +309,7 @@ async function mockDisciplinaryWorkspace(page: Page, meResponse = makeCensorMeRe
     }
   })
 
-  await page.route('http://localhost:8000/api/v1/documents', async (route) => {
+  await page.route('http://localhost:8000/api/v1/documents/', async (route) => {
     await route.fulfill({
       status: 200,
       contentType: 'application/json',
@@ -349,7 +349,7 @@ async function mockTreasurerDenied(page: Page) {
     })
   })
 
-  await page.route('http://localhost:8000/api/v1/documents', async (route) => {
+  await page.route('http://localhost:8000/api/v1/documents/', async (route) => {
     await route.fulfill({
       status: 200,
       contentType: 'application/json',

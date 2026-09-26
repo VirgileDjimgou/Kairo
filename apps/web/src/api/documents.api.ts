@@ -43,7 +43,10 @@ export interface UpdateDocumentAccessPayload {
 }
 
 export async function listDocuments(): Promise<DocumentListItemResponse[]> {
-  const response = await http.get<DocumentListItemResponse[]>('/documents')
+  // FastAPI collection routes are canonical with a trailing slash. Using the
+  // slash-less form triggers a redirect that a misconfigured proxy can turn
+  // into an insecure (http) URL, so the client always uses the canonical path.
+  const response = await http.get<DocumentListItemResponse[]>('/documents/')
   return response.data
 }
 

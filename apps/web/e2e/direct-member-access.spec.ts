@@ -48,7 +48,12 @@ test('shows the default provisional password in the secretary member form', asyn
   await page.getByLabel('Prénom', { exact: true }).fill('Marie')
   await page.getByLabel('Nom de famille', { exact: true }).fill('Durand')
   await page.getByLabel("Nom d'affichage", { exact: true }).fill('Marie Durand')
-  await page.getByLabel('E-mail', { exact: true }).fill('marie@example.org')
+  await page.getByLabel('Rue', { exact: true }).fill('Hauptstraße')
+  await page.getByLabel('Numéro', { exact: true }).fill('12')
+  await page.getByLabel('Code postal', { exact: true }).fill('72764')
+  await page.getByLabel('Ville', { exact: true }).fill('Reutlingen')
+  await expect(page.locator('#member-generated-email')).toHaveValue(/@combis.org$/)
+  await expect(page.locator('#member-generated-email')).toHaveAttribute('readonly', '')
   await page.getByLabel('Numéro de téléphone', { exact: true }).fill('612345678')
 
   const temporaryPassword = page.getByTestId('direct-temporary-password')

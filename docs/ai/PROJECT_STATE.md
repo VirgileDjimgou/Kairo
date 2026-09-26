@@ -1,78 +1,55 @@
 # Project State
 
-Last verified against repository code on 2026-07-22.
+Last verified: 2026-09-25 (Roadmap V2 Sprint 102)
 
-## Product Snapshot
+## What this file is
 
-Kairo, demonstrated here as Combis Sport Verein, is a local-first multi-tenant
-RAG platform for organizations.
+A short orientation for AI agents and humans. It deliberately does NOT track
+sprint status: that lives only in `docs/roadmap/KAIRO_V2_ROADMAP.json` and the
+batch state machine (`.kairo/sprint-batch/`, untracked).
 
-The repository now continues a productization track aimed at a mature
-association product with:
+## Product snapshot
 
-- read-only ordinary member surfaces
-- role-specific office workspaces
-- secure finance, sanctions, documents, and events governance
-- a role-aware chatbot that never leaks cross-member data
+Kairo is a multi-tenant association-management platform: role-aware workspaces
+(membership, finance with receipt custody, governance, discipline, documents,
+events, announcements), a secure citation-based private assistant, an
+authenticated notification inbox with Web Push and Android FCM delivery, audit
+journaling and encrypted backup/recovery. The Vue 3 PWA is the production
+client; a parallel Flutter client (Android + Flutter Web) consumes the same
+FastAPI contracts.
 
-## What Is Already Strong
+## Where truth lives
 
-- Multi-tenant authentication, tenant switching, session governance, and identity hardening
-- Secure document RAG with citations, no-source refusal, prompt-injection defenses, structured chat boundaries, and audit traceability
-- Role-aware structured chat coverage for member balances, tenant finance summaries, governance summaries, publication context, disciplinary summaries, and sports schedules
-- Guided onboarding, role-aware dashboard progress, secretary workspace, treasurer finance workspace, auditor oversight, censor workspace, sports workspace, governance cockpit, principal-admin control plane, and tenant operations command center
-- Scripted production preflight, install, upgrade, rollback, backup, restore, and smoke-validation flows
-- SQLite-first autonomous backend test posture
-- Live notification operator delivery through SMTP-backed email, Telegram, and gateway-backed WhatsApp
-- Tenant-scoped notification history with acceptance evidence, provider references, callback-based reconciliation, replay-safe polling support, and now backend-owned triage plus retry eligibility
+| Question | Source |
+| --- | --- |
+| What is the product today? | `docs/architecture/CURRENT_ARCHITECTURE.md` |
+| Which decisions are binding? | `docs/architecture/decisions/` |
+| What is the active sprint? | `docs/roadmap/KAIRO_V2_ROADMAP.json` + `npm run sprint:batch:status` |
+| What was delivered historically? | `IMPLEMENTATION_ROADMAP.md`, `PROJECT_STATUS.md` (historical sections) |
+| How do I run the gates? | `docs/operations/validation-baseline.md` |
+| What are the hard rules? | `AGENTS.md`, `constitution/KAIRO_CONSTITUTION.md` |
+| Product strengths and delivery narrative? | `PROJECT_STATUS.md` |
 
-## Main Gaps To Close
+## Current engineering posture
 
-- Mypy now covers ALL 151 backend source files with zero errors — backend quality gates (ruff + mypy) are fully saturated
-- Browser automation now covers member self-finance isolation, tenant-token renewal, and direct finance-route denials for the targeted office roles through a stable CI baseline
-- Some deeper frontend subflows may still need smaller parity cleanups beyond the dashboard-first pass completed in Sprint 87
-
-## Current Execution Plan
-
-- Historical roadmap track completed: Sprint 41 through Sprint 52
-- Post-release hardening track completed: Sprint 53 through Sprint 58
-- Productization track completed through Sprint 65
-- Stabilization and open-source maturity track completed: Sprint 72 and Sprint 73
-- New planning cycle status: Sprint 74 through Sprint 97 complete
-- Current sprint: Sprint 98 - Operational Pilot Acceptance (isolated restore evidence required)
-
-## Current State
-
-- **Open-source release base**: strong and demonstrable
-- **Roadmap status**: Sprint 72 through Sprint 97 complete; Sprint 97 validated the production web image, Nginx gateway, and Windows smoke path through an isolated local Docker stack
-- **Governance foundation**: canonical role catalog and backend capability matrix are present
-- **Authorization state**: major backend modules enforce explicit capabilities instead of broad inline role checks
-- **Member self-service**: personal contribution history and member-only PDF statements are in place
-- **Secretary workspace**: dedicated office workspace exists for documents, policies, and announcements
-- **Finance oversight**: treasurer operations and auditor read-only finance oversight have distinct workspaces and backend permission checks
-- **Executive oversight**: president and vice president have a dedicated cross-module governance cockpit with limited, backend-governed actions
-- **Principal admin control plane**: the broadest tenant administration surfaces recognize `principal_admin` explicitly
-- **Multi-tenant operations**: reproducible second-tenant provisioning, tenant-switch browser coverage, and the tenant operations command center exist
-- **Validation status**: Sprint 96 automated checks remain green; Sprint 97 built the production web image and passed the isolated gateway smoke check. Sprint 98 now has a named Cloudflare Tunnel at `https://app.combissportverein.org`, a generated local production secret set, a pre-rotation PostgreSQL backup, and a public HTTPS production smoke check passing 6/6. The remaining acceptance evidence is an isolated restore drill.
-- **Pilot data posture**: a controlled workbook-import path can replace only ordinary member accounts and related finance data after a private backup, while preserving office accounts and non-member tenant content
-- **Public entry experience**: the sign-in screen uses a compact, high-contrast responsive layout that fits a standard desktop viewport without vertical scrolling and puts the authentication form first on mobile
-- **Communications posture**: live notifications now support callback-updated final states, replay-safe updates, controlled provider polling, and backend-enforced retry eligibility without trusting the frontend
-- **Commercial posture**: strong association-focused pilot and disciplined self-hosted release candidate
-- **License**: MIT
-
-## Continuity Rule
-
-Future agent sessions should not invent the next step from memory.
-
-They should read:
-
-1. `README.md`
-2. `AGENTS.md`
-3. `constitution/KAIRO_CONSTITUTION.md`
-4. `IMPLEMENTATION_ROADMAP.md`
-5. `PROJECT_STATUS.md`
-6. `prompts/CODEX_AUTOPILOT.md`
-7. `prompts/KAIRO_CONTINUE_UNIVERSAL.md`
-
-Then they should execute only the next planned sprint or the active sprint if
-one is already in progress.
+- Verified baseline (2026-09-25): 303 backend tests, web type-check/build, three
+  Playwright packs (locale 20, roles 17, release-candidate 9), Flutter analyze +
+  46 tests + web/Android builds, repository guards green. Details:
+  `docs/operations/validation-baseline.md`.
+- Open security item (HUMAN_REQUIRED): historical JWT secret rotation and
+  history remediation — `docs/security/HISTORY_EXPOSURE_REPORT.md`.
+- Structural debt (oversized services/views, inline locale copy) is being paid
+  down by Roadmap V2 sprints 107–113. Sprint 107 extracted the finance,
+  dashboard and member-admin mega-views into `apps/web/src/features/` modules
+  with unchanged behavior and green web gates. Sprint 108 split the monolithic
+  i18n catalog into 11 feature catalogs per locale (873 keys, exact FR/EN/DE
+  parity enforced by `check-i18n-parity.mjs`) and removed the dashboard/finance
+  locale ternaries; a shrinking set of inline ternaries remains in other views
+  and composables and is tracked for follow-up. Sprint 109 exposed effective
+  capabilities on `/auth/me` and tenant memberships (ADR-008); the web client
+  now derives navigation and action visibility from capabilities, with a
+  drift-checked role-bundle fallback only for payloads that omit the field.
+  Sprint 110 split the finance service into the `app/modules/finance/` bounded
+  context (contributions, receipts, custody, expenses, budgeting, reminders,
+  reporting) with an unchanged public facade and a dedicated
+  `test_finance_workflows.py` regression suite; 317 backend tests pass.

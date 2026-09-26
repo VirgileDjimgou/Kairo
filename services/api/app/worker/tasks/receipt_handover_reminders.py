@@ -3,7 +3,7 @@
 import asyncio
 from datetime import UTC, datetime
 
-from sqlalchemy import or_, select
+from sqlalchemy import select
 
 from app.db import models as _all_models  # noqa: F401
 from app.db.session import async_session_factory

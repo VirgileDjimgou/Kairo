@@ -219,6 +219,13 @@ Cloudflare production promotion.
 - 2026-09-13 verification: the complete Flutter suite passes with 46 tests;
   `flutter analyze` is clean; production-configured Android debug and Flutter Web
   builds succeed against `https://app.combissportverein.org/api/v1`.
+- 2026-09-25 (Roadmap V2 Sprint 100): CI now pins Flutter to `3.44.9`, the version
+  that authored the golden files. The previous unpinned `stable` channel silently
+  upgraded to a newer engine and broke all 14 golden comparisons in CI while local
+  runs stayed green. Golden parity between the Windows workstation and the Linux CI
+  runner is verified only through the pinned-version CI run; the local Linux
+  container toolchain was too old to reproduce it in-session (documented
+  limitation).
 
 ## Visual Redesign Programme
 

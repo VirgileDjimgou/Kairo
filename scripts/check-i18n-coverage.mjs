@@ -12,11 +12,12 @@
  * Usage: node scripts/check-i18n-coverage.mjs
  */
 
-import { readFileSync, readdirSync, statSync } from 'fs'
+import { existsSync, readFileSync, readdirSync, statSync } from 'fs'
 import { join } from 'path'
 
-const VIEWS_DIR = join(import.meta.dirname, '..', 'apps', 'web', 'src', 'views')
-const MESSAGES_FILE = join(import.meta.dirname, '..', 'apps', 'web', 'src', 'i18n', 'messages.ts')
+const SRC_DIR = join(import.meta.dirname, '..', 'apps', 'web', 'src')
+const SCAN_DIRS = [join(SRC_DIR, 'views'), join(SRC_DIR, 'features')]
+const I18N_DIR = join(SRC_DIR, 'i18n')
 
 // Patterns that suggest hardcoded English text in templates
 const HARDCODED_PATTERNS = [
@@ -78,7 +79,7 @@ function checkFile(filePath) {
 function main() {
   console.log('🌐 Translation Coverage Check\n')
 
-  const vueFiles = walkDir(VIEWS_DIR)
+  const vueFiles = SCAN_DIRS.filter((dir) => existsSync(dir)).flatMap((dir) => walkDir(dir))
   console.log(`Scanning ${vueFiles.length} Vue files...\n`)
 
   let totalIssues = 0
@@ -87,7 +88,7 @@ function main() {
   for (const file of vueFiles) {
     const issues = checkFile(file)
     if (issues.length > 0) {
-      const relPath = file.replace(VIEWS_DIR, 'views')
+      const relPath = file.replace(SRC_DIR, 'src')
       filesWithIssues.push({ path: relPath, issues })
       totalIssues += issues.length
     }
@@ -112,14 +113,17 @@ function main() {
     console.log('   Replace confirmed hardcoded strings with t() or localeStore.t() calls.\n')
   }
 
-  // Check messages.ts key count
+  // Report the feature-scoped catalog size (Roadmap V2 Sprint 108).
   try {
-    const messagesContent = readFileSync(MESSAGES_FILE, 'utf-8')
-    const keyMatches = messagesContent.match(/'[a-z]+\.[a-zA-Z]+'/g) || []
-    const uniqueKeys = new Set(keyMatches)
-    console.log(`📊 messages.ts contains ${uniqueKeys.size} unique i18n keys.`)
+    let totalKeys = 0
+    const localeDir = join(I18N_DIR, 'fr')
+    for (const file of readdirSync(localeDir)) {
+      if (!file.endsWith('.json')) continue
+      totalKeys += Object.keys(JSON.parse(readFileSync(join(localeDir, file), 'utf-8'))).length
+    }
+    console.log(`📊 i18n/fr catalogs contain ${totalKeys} keys (parity enforced by check-i18n-parity.mjs).`)
   } catch (err) {
-    console.log('⚠️  Could not read messages.ts for key count.')
+    console.log('⚠️  Could not read the feature catalogs for a key count.')
   }
 
   process.exit(filesWithIssues.length > 10 ? 1 : 0)

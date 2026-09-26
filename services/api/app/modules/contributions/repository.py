@@ -5,8 +5,8 @@ from sqlalchemy import func, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.modules.contributions.models import (
-    ContributionRecord,
     ContributionReceiptDeclaration,
+    ContributionRecord,
     ContributionReminder,
     ExpenseRecord,
     PaymentRecord,

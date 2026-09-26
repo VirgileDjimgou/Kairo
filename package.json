@@ -1,0 +1,16 @@
+{
+  "name": "kairo-root",
+  "version": "2.0.0",
+  "private": true,
+  "description": "Kairo repository root automation (sprint batch autopilot). Application packages live in apps/web and services/api.",
+  "scripts": {
+    "sprint:batch:start": "node scripts/sprint-batch/cli.mjs start",
+    "sprint:batch:status": "node scripts/sprint-batch/cli.mjs status",
+    "sprint:batch:resume": "node scripts/sprint-batch/cli.mjs resume",
+    "sprint:batch:stop": "node scripts/sprint-batch/cli.mjs stop",
+    "sprint:batch:doctor": "node scripts/sprint-batch/cli.mjs doctor",
+    "sprint:batch:report": "node scripts/sprint-batch/cli.mjs report",
+    "sprint:batch:pause": "node scripts/sprint-batch/cli.mjs pause",
+    "sprint:next": "node scripts/sprint-batch/cli.mjs next"
+  }
+}

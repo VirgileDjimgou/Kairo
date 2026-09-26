@@ -18,10 +18,20 @@ http://localhost:80 {
     root * /usr/share/caddy/html
     try_files {path} /index.html
 
-    # Proxy API requests to the backend
-    reverse_proxy /api/* api:8000
-    reverse_proxy /health api:8000
-    reverse_proxy /metrics api:8000
+    # Proxy API requests to the backend.
+    # Cloudflare terminates TLS and the tunnel reaches this proxy over plain
+    # HTTP, so Caddy must forward the original public scheme explicitly.
+    # Otherwise FastAPI emits http:// redirects that the browser blocks as
+    # mixed content.
+    reverse_proxy /api/* api:8000 {
+        header_up X-Forwarded-Proto https
+    }
+    reverse_proxy /health api:8000 {
+        header_up X-Forwarded-Proto https
+    }
+    reverse_proxy /metrics api:8000 {
+        header_up X-Forwarded-Proto https
+    }
 
     # Security headers
     header {

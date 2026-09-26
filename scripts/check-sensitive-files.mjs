@@ -11,16 +11,40 @@ const forbiddenPatterns = [
     pattern: /\.(sqlite|sqlite3|db)$/i,
   },
   {
-    reason: 'backup and dump files must never be versioned',
-    pattern: /(^|\/)(backups?|dumps?|exports?)(\/|$)|\.(bak|backup|dump)$/i,
+    reason: 'backup and dump archives must never be versioned',
+    pattern: /\.(bak|backup|dump|tar|tar\.gz|tgz|gz|7z|rar|zip)$/i,
+  },
+  {
+    reason: 'operational archive staging directories are not source code',
+    pattern: /(^|\/)(backups|dumps|backup-archives)(\/)/i,
   },
   {
     reason: 'spreadsheet workbooks can contain member or financial data',
     pattern: /\.(xlsx|xls|ods)$/i,
   },
   {
+    reason: 'operational documents (statutes, minutes, sanctions, reports) belong in private tenant storage, not Git',
+    pattern: /\.(pdf|docx|doc|odt|pptx|ppt|rtf)$/i,
+  },
+  {
+    reason: 'tabular data exports must be kept out of Git (only the fictional seed fixtures are allowed)',
+    pattern: /\.(csv|tsv)$/i,
+  },
+  {
     reason: 'financial or member data exports must be kept out of Git',
-    pattern: /(?:contribution|cotisation|payment|paiement|financial|finance|adherent|member).+\.(csv|tsv|json)$/i,
+    pattern: /(?:contribution|cotisation|payment|paiement|financial|finance|adherent|member|bilan|sanzion|sanction|mitglied|beitrag).+\.(csv|tsv|json|xml)$/i,
+  },
+  {
+    reason: 'secret-bearing environment files must never be versioned (documented *.example templates are allowed)',
+    pattern: /(^|\/)\.env(?![^/]*\.example$)[^/]*$/,
+  },
+  {
+    reason: 'secret-bearing key material must never be versioned',
+    pattern: /(^|\/)[^/]*\.(pem|key|p12|pfx|jks)$/i,
+  },
+  {
+    reason: 'service account or credential JSON must never be versioned',
+    pattern: /(^|\/)[^/]*(?:service[-_]?account|credentials|secret)[^/]*\.json$/i,
   },
 ];
 

@@ -1,22 +1,23 @@
 from __future__ import annotations
 
 import json
+from collections.abc import Iterable
 from datetime import UTC, datetime, timedelta
-from typing import Iterable
+from typing import Any, cast
 from uuid import UUID
 
-from sqlalchemy import func, select, update
+from sqlalchemy import CursorResult, func, select, update
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core.config import settings
 from app.modules.identity.models import User
 from app.modules.notifications.user_models import (
+    FirebasePushSubscription,
     NotificationDevice,
     NotificationDeviceProfile,
     NotificationOutboxEvent,
     UserNotification,
     WebPushSubscription,
-    FirebasePushSubscription,
 )
 from app.modules.notifications.user_schemas import (
     InboxNotificationResponse,
@@ -116,7 +117,7 @@ class UserNotificationService:
             .values(read_at=datetime.now(UTC))
         )
         await self._db.commit()
-        return bool(result.rowcount)
+        return bool(cast(CursorResult[Any], result).rowcount)
 
     async def mark_all_read(self, tenant_id: UUID, user_id: UUID) -> None:
         await self._db.execute(

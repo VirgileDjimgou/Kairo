@@ -1,3 +1,5 @@
+> **Note:** the platform-neutral design specification now lives in design/tokens.json, design/semantics.md and design/components.md (Roadmap V2 Sprint 103). This document remains the historical French Web rendering guide.
+
 # Kairo — Design System Mobile-First
 
 **Principe fondateur :** Style suisse international (Müller-Brockmann) traduit en interface numérique contemporaine.

@@ -1,0 +1,20 @@
+{
+  "search.title": "Suche",
+  "search.subtitle": "Finden Sie ein Mitglied, ohne jedes Modul zu öffnen.",
+  "search.placeholder": "Name, Mitgliedscode oder E-Mail…",
+  "search.submit": "Suchen",
+  "search.emptyTitle": "Keine Ergebnisse",
+  "search.emptyBody": "Versuchen Sie einen anderen Namen, Mitgliedscode oder eine andere E-Mail.",
+  "search.noDirectoryTitle": "Suche für diese Rolle nicht verfügbar",
+  "search.noDirectoryBody": "Die Mitgliedersuche ist autorisierten Rollen vorbehalten. Alle Ihre Ziele finden Sie unter Mehr.",
+  "search.results": "Ergebnis(se)",
+  "search.close": "Schließen",
+  "search.types.members": "Mitglieder",
+  "search.types.documents": "Dokumente",
+  "search.types.events": "Veranstaltungen",
+  "search.types.announcements": "Ankündigungen",
+  "search.types.payments": "Zahlungen",
+  "search.types.receipts": "Einnahmen",
+  "search.types.audit": "Journal",
+  "search.types.discipline": "Disziplin"
+}

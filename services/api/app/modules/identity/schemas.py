@@ -63,6 +63,7 @@ class TenantMembershipResponse(BaseModel):
     name: str
     default_language: str
     roles: list[str]
+    capabilities: list[str] = []
     branding: BrandingConfig
     modules: ModuleToggles
     profile_type: str
@@ -76,6 +77,7 @@ class UserResponse(BaseModel):
     status: str
     tenant_id: UUID
     roles: list[str]
+    capabilities: list[str] = []
     last_login_at: datetime | None = None
     password_change_required: bool = False
 

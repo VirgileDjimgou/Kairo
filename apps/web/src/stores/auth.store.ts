@@ -9,8 +9,19 @@ import { completeMfaLogin as apiCompleteMfaLogin } from '@/api/auth.api'
 import { useLocaleStore } from '@/stores/locale.store'
 import type { SupportedLocale } from '@/i18n/messages'
 import { DEMO_TENANT_SLUG } from '@/config/demoAccounts'
+import { ROLE_CAPABILITY_BUNDLES } from '@/config/capabilityBundles'
 
 const DEMO_SESSION_KEY = 'kairo_demo_session'
+
+function deriveCapabilitiesFromRoles(roles: string[]): string[] {
+  const merged = new Set<string>()
+  for (const role of roles) {
+    for (const capability of ROLE_CAPABILITY_BUNDLES[role] ?? []) {
+      merged.add(capability)
+    }
+  }
+  return [...merged]
+}
 
 export const useAuthStore = defineStore('auth', () => {
   const token = ref<string | null>(localStorage.getItem('access_token'))
@@ -23,6 +34,17 @@ export const useAuthStore = defineStore('auth', () => {
   const hasRole = (role: string) => computed(() => user.value?.roles?.includes(role) ?? false)
   const hasAnyRole = (roles: string[]) =>
     computed(() => roles.some((role) => user.value?.roles?.includes(role) ?? false))
+
+  const capabilities = computed<string[]>(() => {
+    const tenantStore = useTenantStore()
+    const tenantCapabilities = tenantStore.currentTenant?.capabilities
+    if (tenantCapabilities && tenantCapabilities.length > 0) return tenantCapabilities
+    const userCapabilities = user.value?.capabilities
+    if (userCapabilities && userCapabilities.length > 0) return userCapabilities
+    return deriveCapabilitiesFromRoles(user.value?.roles ?? [])
+  })
+  const hasCapability = (capability: string) =>
+    computed(() => capabilities.value.includes(capability))
 
   async function login(email: string, password: string, tenantSlug?: string): Promise<boolean | string> {
     const localeStore = useLocaleStore()
@@ -144,6 +166,8 @@ export const useAuthStore = defineStore('auth', () => {
     needsMfa,
     hasRole,
     hasAnyRole,
+    capabilities,
+    hasCapability,
     login,
     loginAsDemo,
     completeMfa,

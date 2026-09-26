@@ -69,29 +69,41 @@ function memberStatement(tenantId: string, displayName: string, memberCode: stri
   }
 }
 
-async function mockMemberJourney(page: Page, options: { multipleTenants?: boolean } = {}) {
+async function mockMemberJourney(page: Page, options: { multipleTenants?: boolean; selectedTenantId?: string } = {}) {
   const memberships = options.multipleTenants
     ? [
         membership('tenant-alpha', 'Alpha Association'),
         membership('tenant-river', 'River Association'),
       ]
     : [membership('tenant-alpha', 'Alpha Association')]
-  let currentTenantId = 'tenant-alpha'
+  const initialTenantId = options.selectedTenantId ?? 'tenant-alpha'
+  let currentTenantId = initialTenantId
   const unsafeRequests: string[] = []
   const statementTokens: string[] = []
 
-  await page.addInitScript(() => {
+  // Personal self-service reads stay inside the member's own records.
+  const personalSelfServicePaths = new Set([
+    '/api/v1/contributions/receipt-declarations/me',
+  ])
+  // Global failure telemetry is append-only diagnostics open to any authenticated
+  // user; the backend owns that policy, not the member's navigation boundary.
+  const globalDiagnosticPaths = new Set([
+    '/api/v1/admin/audit/operation-journal/failures',
+  ])
+
+  await page.addInitScript(({ tenantId }) => {
     if (!window.localStorage.getItem('access_token')) {
-      window.localStorage.setItem('access_token', 'member-token-tenant-alpha')
+      window.localStorage.setItem('access_token', `member-token-${tenantId}`)
     }
     if (!window.localStorage.getItem('selected_tenant_id')) {
-      window.localStorage.setItem('selected_tenant_id', 'tenant-alpha')
+      window.localStorage.setItem('selected_tenant_id', tenantId)
     }
-  })
+  }, { tenantId: initialTenantId })
 
   page.on('request', (request) => {
     const url = new URL(request.url())
     if (url.origin !== 'http://localhost:8000') return
+    if (personalSelfServicePaths.has(url.pathname) || globalDiagnosticPaths.has(url.pathname)) return
     if (
       url.pathname === '/api/v1/memberships/' ||
       url.pathname.startsWith('/api/v1/contributions') ||
@@ -160,8 +172,13 @@ async function mockMemberJourney(page: Page, options: { multipleTenants?: boolea
       return
     }
 
+    if (pathname === '/api/v1/contributions/receipt-declarations/me' && request.method() === 'GET') {
+      await route.fulfill({ status: 200, contentType: 'application/json', body: '[]' })
+      return
+    }
+
     if (
-      (pathname === '/api/v1/documents' ||
+      (pathname === '/api/v1/documents/' ||
         pathname === '/api/v1/announcements/active' ||
         pathname === '/api/v1/events/public') &&
       request.method() === 'GET'
@@ -207,15 +224,14 @@ test.describe('Member role journey security', () => {
     expect(unsafeRequests).toEqual([])
   })
 
-  test('uses the re-issued tenant token for the next personal statement after a tenant switch', async ({ page }) => {
-    const { statementTokens, unsafeRequests } = await mockMemberJourney(page, { multipleTenants: true })
-
-    await page.goto('/dashboard')
-    await expect(page.locator('.tenant-switcher .dropdown-toggle')).toContainText('Alpha Association')
-
-    await page.locator('.tenant-switcher .dropdown-toggle').click()
-    await page.locator('.tenant-switcher .dropdown-item').filter({ hasText: 'River Association' }).click()
-    await expect(page.locator('.tenant-switcher .dropdown-toggle')).toContainText('River Association')
+  test('uses the active tenant token for the personal statement and never requests tenant finance data', async ({ page }) => {
+    // The inline shell tenant switcher was intentionally removed in the responsive
+    // navigation overhaul; a multi-tenant member selects the tenant at sign-in and
+    // every personal statement must carry the token issued for that tenant.
+    const { statementTokens, unsafeRequests } = await mockMemberJourney(page, {
+      multipleTenants: true,
+      selectedTenantId: 'tenant-river',
+    })
 
     await page.goto('/members/profile')
     await expect(page.getByText('River Member')).toBeVisible()

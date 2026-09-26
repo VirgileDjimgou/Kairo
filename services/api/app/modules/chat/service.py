@@ -65,8 +65,8 @@ from app.modules.rag.confidence import compute_confidence_score
 from app.modules.rag.ranking import compute_keyword_overlap_ratio
 from app.modules.rag.retrieval import build_access_policy
 from app.modules.tenancy.repository import TenancyRepository
-from app.providers.reranker.interface import RerankerProvider
 from app.providers.ai_runtime.remote import AiRuntimeUnavailableError
+from app.providers.reranker.interface import RerankerProvider
 
 logger = structlog.get_logger(__name__)
 

@@ -72,7 +72,7 @@ async function mockSecretaryWorkspace(page: Page, response = secretaryMeResponse
     })
   })
 
-  await page.route('**/api/v1/documents', async (route) => {
+  await page.route('**/api/v1/documents/', async (route) => {
     await route.fulfill({
       status: 200,
       contentType: 'application/json',

@@ -755,3 +755,64 @@ async def test_principal_admin_keeps_tenant_administration_access(
         headers={"Authorization": f"Bearer {principal_token}"},
     )
     assert export.status_code == 200, export.text
+
+
+async def test_auth_me_exposes_effective_capabilities_for_each_role(
+    client: AsyncClient,
+    db_session: AsyncSession,
+) -> None:
+    admin = await create_tenant_with_user(db_session, f"caps-admin-{_uuid.uuid4().hex[:6]}")
+    treasurer = await create_user_for_tenant(
+        db_session,
+        tenant_id=admin["tenant"].id,
+        email=f"caps-treasurer-{_uuid.uuid4().hex[:6]}@test.org",
+        password="TreasurerPass1!",
+        display_name="Treasurer",
+        role_code="treasurer",
+        profile_type="staff",
+    )
+    member = await create_user_for_tenant(
+        db_session,
+        tenant_id=admin["tenant"].id,
+        email=f"caps-member-{_uuid.uuid4().hex[:6]}@test.org",
+        password="MemberPass1!",
+        display_name="Member",
+        role_code="member",
+        profile_type="member",
+    )
+    await db_session.commit()
+
+    treasurer_token = await login(
+        client, treasurer["user"].email, treasurer["password"], admin["tenant"].slug
+    )
+    member_token = await login(
+        client, member["user"].email, member["password"], admin["tenant"].slug
+    )
+
+    treasurer_response = await client.get(
+        "/api/v1/auth/me",
+        headers={"Authorization": f"Bearer {treasurer_token}"},
+    )
+    assert treasurer_response.status_code == 200, treasurer_response.text
+    treasurer_body = treasurer_response.json()
+    assert "finance:write" in treasurer_body["capabilities"]
+    assert "finance:expenses_write" in treasurer_body["capabilities"]
+    assert "finance:audit" not in treasurer_body["capabilities"]
+    treasurer_membership = next(
+        item
+        for item in treasurer_body["memberships"]
+        if item["tenant_id"] == str(admin["tenant"].id)
+    )
+    assert "finance:expenses_write" in treasurer_membership["capabilities"]
+
+    member_response = await client.get(
+        "/api/v1/auth/me",
+        headers={"Authorization": f"Bearer {member_token}"},
+    )
+    assert member_response.status_code == 200, member_response.text
+    member_capabilities = member_response.json()["capabilities"]
+    assert "membership:self_read" in member_capabilities
+    assert "membership:tenant_read" not in member_capabilities
+    assert "finance:tenant_read" not in member_capabilities
+    assert "finance:write" not in member_capabilities
+    assert "exports:sensitive" not in member_capabilities

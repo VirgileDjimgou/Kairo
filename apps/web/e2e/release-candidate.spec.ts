@@ -65,6 +65,17 @@ async function installBaseRoutes(page: Page, caseItem: RoleCase) {
     window.localStorage.setItem('access_token', 'playwright-release-candidate-token')
   })
 
+  // Registered first so every specific mock (and the per-role routes registered
+  // later) wins. Unmocked API calls fail fast instead of leaking to whatever
+  // service is running on the default API port.
+  await page.route('**/api/v1/**', async (route) => {
+    await route.fulfill({
+      status: 404,
+      contentType: 'application/json',
+      body: JSON.stringify({ detail: 'No release-candidate mock for this request' }),
+    })
+  })
+
   await page.route('**/api/v1/auth/me', async (route) => {
     await route.fulfill({
       status: 200,
@@ -73,7 +84,7 @@ async function installBaseRoutes(page: Page, caseItem: RoleCase) {
     })
   })
 
-  await page.route('**/api/v1/documents', async (route) => {
+  await page.route('**/api/v1/documents/', async (route) => {
     await route.fulfill({
       status: 200,
       contentType: 'application/json',
@@ -160,6 +171,9 @@ async function installBaseRoutes(page: Page, caseItem: RoleCase) {
 async function installRoleRoutes(page: Page, caseItem: RoleCase) {
   switch (caseItem.role) {
     case 'member':
+      await page.route('**/api/v1/contributions/receipt-declarations/me', async (route) => {
+        await route.fulfill({ status: 200, contentType: 'application/json', body: '[]' })
+      })
       await page.route('**/api/v1/memberships/me/statement', async (route) => {
         await route.fulfill({
           status: 200,

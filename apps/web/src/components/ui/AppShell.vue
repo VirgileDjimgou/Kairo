@@ -30,11 +30,13 @@
       :aria-label="localeStore.t('layout.mobileNavigation')"
       @navigate="navigate"
     />
+
+    <GlobalSearchOverlay :open="searchOpen" @close="searchOpen = false" />
   </div>
 </template>
 
 <script setup lang="ts">
-import { computed } from 'vue'
+import { computed, onMounted, onUnmounted, ref } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { useAuthStore } from '@/stores/auth.store'
 import { useLocaleStore } from '@/stores/locale.store'
@@ -43,6 +45,7 @@ import type { NavItem } from '@/composables/useRoleNavigation'
 import AppTopBar from '@/components/ui/AppTopBar.vue'
 import AppBottomNavigation from '@/components/ui/AppBottomNavigation.vue'
 import RoleTopNavigation from '@/components/ui/RoleTopNavigation.vue'
+import GlobalSearchOverlay from '@/components/search/GlobalSearchOverlay.vue'
 import type { BottomNavItem } from '@/components/ui/AppBottomNavigation.vue'
 
 defineProps<{
@@ -62,6 +65,18 @@ const tenantStore = useTenantStore()
 const brandStyle = computed(() => ({
   '--om-primary': tenantStore.currentTenant?.branding.primary_color || '#1E63B5',
 }))
+
+const searchOpen = ref(false)
+
+function handleSearchHotkey(event: KeyboardEvent) {
+  if ((event.ctrlKey || event.metaKey) && event.key.toLowerCase() === 'k') {
+    event.preventDefault()
+    searchOpen.value = !searchOpen.value
+  }
+}
+
+onMounted(() => window.addEventListener('keydown', handleSearchHotkey))
+onUnmounted(() => window.removeEventListener('keydown', handleSearchHotkey))
 
 function navigate(destination: string) {
   void router.push(destination)

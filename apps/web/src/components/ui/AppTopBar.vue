@@ -26,6 +26,7 @@
             <li><h6 class="dropdown-header">{{ signedInAsLabel }}</h6></li>
             <li><span class="dropdown-item-text small text-muted text-break">{{ userEmail }}</span></li>
             <li><hr class="dropdown-divider" /></li>
+            <li><RouterLink to="/members/profile" class="dropdown-item">{{ profileLabel }}</RouterLink></li>
             <li><RouterLink to="/account/security" class="dropdown-item">{{ accountSecurityLabel }}</RouterLink></li>
             <li><button class="dropdown-item text-danger" @click="$emit('logout')">{{ signOutLabel }}</button></li>
           </ul>
@@ -36,9 +37,14 @@
 </template>
 
 <script setup lang="ts">
+import { computed } from 'vue'
 import { RouterLink } from 'vue-router'
 import LanguageSelector from '@/components/LanguageSelector.vue'
 import NotificationBell from '@/components/ui/NotificationBell.vue'
+import { useLocaleStore } from '@/stores/locale.store'
+
+const localeStore = useLocaleStore()
+const profileLabel = computed(() => localeStore.t('nav.myProfile'))
 
 defineProps<{
   eyebrow: string

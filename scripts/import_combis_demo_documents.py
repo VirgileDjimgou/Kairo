@@ -1,5 +1,9 @@
 from __future__ import annotations
 
+# Local operator helper: imports association documents from an untracked local
+# directory (default: "Combis Sport Verein", override with COMBIS_ARCHIVE_DIR)
+# into the local demo stack. Real operational documents must never be committed
+# to this repository; see docs/security/OPERATIONAL_DATA_POLICY.md.
 # ruff: noqa: E402
 import asyncio
 import hashlib

@@ -3,18 +3,19 @@ from uuid import UUID
 
 from fastapi import APIRouter, HTTPException, Request, status
 
+from app.core.capabilities import capabilities_for_roles
 from app.core.dependencies import AuthDep, DbDep, NotificationsDep
 from app.core.rate_limiter import rate_limiter
 from app.modules.identity.schemas import (
     AcceptInviteRequest,
     AcceptInviteResponse,
+    ActiveSessionResponse,
     AssistedAccessRecoveryRequest,
     AssistedAccessRecoveryResponse,
-    ChangePasswordRequest,
-    ChangePasswordResponse,
     ChangeInitialPasswordRequest,
     ChangeInitialPasswordResponse,
-    ActiveSessionResponse,
+    ChangePasswordRequest,
+    ChangePasswordResponse,
     ForgotPasswordRequest,
     ForgotPasswordResponse,
     InvitationStatusResponse,
@@ -118,6 +119,7 @@ async def get_me(current: AuthDep, db: DbDep) -> UserWithMembershipsResponse:
         status=current.user.status,
         tenant_id=current.tenant_id,
         roles=current.roles,
+        capabilities=list(capabilities_for_roles(current.roles)),
         last_login_at=current.user.last_login_at,
         password_change_required=current.user.password_change_required,
         memberships=memberships,

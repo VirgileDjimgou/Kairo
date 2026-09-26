@@ -396,6 +396,7 @@ Set-Location ../..
 # Repository guards
 node scripts/check-sensitive-files.mjs
 node scripts/check-i18n-coverage.mjs
+node scripts/check-api-collection-paths.mjs
 ```
 
 For the maintained validation commands and responsive checks, see [`docs/operations/validation-baseline.md`](docs/operations/validation-baseline.md).

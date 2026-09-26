@@ -22,6 +22,7 @@ from app.core.observability import (
 from app.db.session import async_session_factory
 from app.modules.admin.router import router as admin_router
 from app.modules.announcements.router import router as announcements_router
+from app.modules.attention.router import router as attention_router
 from app.modules.audit.router import router as audit_router
 from app.modules.backup.router import router as backup_router
 from app.modules.chat.router import router as chat_router
@@ -36,6 +37,7 @@ from app.modules.notifications.router import callback_router as notifications_ca
 from app.modules.notifications.router import router as notifications_router
 from app.modules.policies.router import router as policies_router
 from app.modules.rag.reindex import check_embedding_model_changed, persist_embedding_model
+from app.modules.search.router import router as search_router
 from app.modules.tenancy.module_toggles import ALL_MODULES
 from app.modules.tenancy.router import router as tenancy_router
 
@@ -96,6 +98,7 @@ API_PREFIX = "/api/v1"
 app.include_router(identity_router, prefix=API_PREFIX)
 app.include_router(tenancy_router, prefix=API_PREFIX)
 app.include_router(admin_router, prefix=API_PREFIX)
+app.include_router(attention_router, prefix=API_PREFIX)
 app.include_router(audit_router, prefix=API_PREFIX)
 app.include_router(backup_router, prefix=API_PREFIX)
 app.include_router(documents_router, prefix=API_PREFIX)
@@ -103,6 +106,7 @@ app.include_router(chat_router, prefix=API_PREFIX)
 app.include_router(membership_router, prefix=API_PREFIX)
 app.include_router(contributions_router, prefix=API_PREFIX)
 app.include_router(policies_router, prefix=API_PREFIX)
+app.include_router(search_router, prefix=API_PREFIX)
 app.include_router(disciplinary_router, prefix=API_PREFIX)
 app.include_router(events_router, prefix=API_PREFIX)
 app.include_router(sports_router, prefix=API_PREFIX)

@@ -3,6 +3,7 @@
     class="bottom-nav om-fixed-bottom-safe"
     role="navigation"
     :aria-label="ariaLabel"
+    :style="{ gridTemplateColumns: `repeat(${items.length}, minmax(0, 1fr))` }"
   >
     <button
       v-for="item in items"
@@ -43,7 +44,7 @@ defineEmits<{
 <style scoped>
 .bottom-nav {
   display: grid;
-  grid-template-columns: repeat(5, minmax(0, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(0, 1fr));
   width: 100%;
   min-height: calc(var(--om-bottomnav-height) + env(safe-area-inset-bottom, 0px));
   padding: 0.25rem max(0.25rem, env(safe-area-inset-right, 0px)) env(safe-area-inset-bottom, 0px) max(0.25rem, env(safe-area-inset-left, 0px));

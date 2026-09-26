@@ -31,7 +31,9 @@ COPY . .
 
 EXPOSE 8000
 
-CMD ["sh", "-c", "alembic upgrade head && uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload"]
+# --proxy-headers lets the API trust X-Forwarded-Proto from the reverse proxy so
+# generated redirects and absolute URLs keep the public HTTPS scheme.
+CMD ["sh", "-c", "alembic upgrade head && uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload --proxy-headers --forwarded-allow-ips='*'"]
 
 # ── Stage 3: production ───────────────────────────────────────────────────────
 FROM python:3.12-slim AS production
@@ -53,4 +55,8 @@ EXPOSE 8000
 
 # Database migrations are an explicit release step. Keeping them out of the
 # long-running process prevents concurrent migration attempts during restarts.
-CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8000", "--workers", "2"]
+#
+# --proxy-headers makes the API honour X-Forwarded-Proto from the reverse proxy.
+# Without it, FastAPI builds absolute redirect URLs from the internal HTTP
+# scheme and an HTTPS browser blocks them as mixed content.
+CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8000", "--workers", "2", "--proxy-headers", "--forwarded-allow-ips", "*"]

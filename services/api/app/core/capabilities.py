@@ -38,6 +38,11 @@ CAP_CONTRIBUTION_RECEIPT_OWN_READ = "contribution_receipt:own_read"
 CAP_CONTRIBUTION_RECEIPT_MEMBER_SELF_READ = "contribution_receipt:member_self_read"
 CAP_CONTRIBUTION_RECEIPT_TENANT_READ = "contribution_receipt:tenant_read"
 CAP_CONTRIBUTION_RECEIPT_PROCESS = "contribution_receipt:process"
+# Presentation-scoped capabilities: they describe surfaces an office holder may
+# see in the client. They are never used as an enforcement decision; backend
+# dependencies keep enforcing the specific read/write capabilities.
+CAP_GOVERNANCE_COCKPIT_READ = "governance:cockpit_read"
+CAP_DISCIPLINARY_OVERSIGHT_READ = "disciplinary:oversight_read"
 
 CAPABILITY_ORDER = (
     CAP_TENANT_ADMINISTRATION,
@@ -78,6 +83,8 @@ CAPABILITY_ORDER = (
     CAP_CONTRIBUTION_RECEIPT_MEMBER_SELF_READ,
     CAP_CONTRIBUTION_RECEIPT_TENANT_READ,
     CAP_CONTRIBUTION_RECEIPT_PROCESS,
+    CAP_GOVERNANCE_COCKPIT_READ,
+    CAP_DISCIPLINARY_OVERSIGHT_READ,
 )
 
 
