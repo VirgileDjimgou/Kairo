@@ -110,11 +110,25 @@ async function open(item: InboxNotification) {
     await markNotificationRead(item.id)
     item.read_at = new Date().toISOString()
   }
-  // Deep links are server-owned internal paths; never navigate externally.
-  if (item.target_path && item.target_path.startsWith('/')) {
-    await router.push(item.target_path)
+  // Deep links are server-owned internal paths. Resolve them against the
+  // authenticated router so unknown or external targets never navigate away.
+  const target = safeInternalTarget(item.target_path)
+  if (target) {
+    await router.push(target)
   } else {
     await load()
+  }
+}
+
+function safeInternalTarget(path: string | null | undefined): string | null {
+  if (!path || !path.startsWith('/') || path.startsWith('//')) return null
+  try {
+    const resolved = router.resolve(path)
+    if (!resolved.matched.length) return null
+    if (resolved.name === 'not-found') return null
+    return path
+  } catch {
+    return null
   }
 }
 

@@ -24,6 +24,8 @@ class UserNotification(Base):
     category: Mapped[str] = mapped_column(String(50), nullable=False, index=True)
     priority: Mapped[str] = mapped_column(String(20), nullable=False, server_default="normal")
     target_path: Mapped[str] = mapped_column(String(255), nullable=False, server_default="/dashboard")
+    event_id: Mapped[uuid.UUID | None] = mapped_column(UUID(as_uuid=True), nullable=True, index=True)
+    correlation_id: Mapped[str | None] = mapped_column(String(120), nullable=True)
     metadata_json: Mapped[str] = mapped_column(Text, nullable=False, server_default=text("'{}'"))
     deduplication_key: Mapped[str] = mapped_column(String(255), nullable=False)
     read_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True, index=True)

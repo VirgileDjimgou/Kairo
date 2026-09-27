@@ -29,6 +29,8 @@ from app.modules.notifications.user_schemas import (
     DeviceRegistrationRequest,
     InboxResponse,
     MobilePushTokenRequest,
+    NotificationDeviceRevocationResponse,
+    NotificationHealthResponse,
     NotificationPreferencesResponse,
     NotificationPreferencesUpdate,
     PushConfigurationResponse,
@@ -114,6 +116,30 @@ async def subscribe_to_mobile_push(
 async def get_unreachable_notification_recipients(current: AuthDep, db: DbDep) -> list[UnreachableNotificationRecipient]:
     require_capability(current, CAP_TENANT_ADMINISTRATION, detail="Tenant administration capability required")
     return await UserNotificationService(db).unreachable_recipients(current.tenant_id)
+
+
+@router.post("/devices/{installation_id}/revoke", response_model=NotificationDeviceRevocationResponse)
+async def revoke_notification_device(
+    installation_id: str, current: AuthDep, db: DbDep
+) -> NotificationDeviceRevocationResponse:
+    profiles, web_subscriptions, firebase_tokens = await UserNotificationService(db).revoke_device(
+        current.tenant_id, current.user.id, installation_id
+    )
+    return NotificationDeviceRevocationResponse(
+        revoked_profiles=profiles,
+        disabled_web_subscriptions=web_subscriptions,
+        disabled_fcm_tokens=firebase_tokens,
+    )
+
+
+@router.get("/health", response_model=NotificationHealthResponse)
+async def get_notification_health(current: AuthDep, db: DbDep) -> NotificationHealthResponse:
+    require_capability(
+        current,
+        CAP_TENANT_ADMINISTRATION,
+        detail="Tenant administration capability required",
+    )
+    return await UserNotificationService(db).health(current.tenant_id)
 
 
 @router.get("/channels", response_model=list[NotificationChannelResponse])

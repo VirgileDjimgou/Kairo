@@ -1,30 +1,28 @@
 from __future__ import annotations
 
 import json
-import re
 from collections.abc import AsyncGenerator
 from dataclasses import replace
-from datetime import UTC, datetime
 from uuid import UUID
 
 import structlog
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.core.capabilities import (
-    CAP_ANNOUNCEMENTS_WRITE,
-    CAP_DISCIPLINARY_TENANT_READ,
-    CAP_DISCIPLINARY_WRITE,
-    CAP_DOCUMENTS_WRITE,
-    CAP_EVENTS_SPORTS_WRITE,
-    CAP_FINANCE_AUDIT,
-    CAP_FINANCE_TENANT_READ,
-    CAP_POLICIES_WRITE,
-    CAP_TENANT_ADMINISTRATION,
-    capabilities_for_roles,
-)
+from app.core.capabilities import capabilities_for_roles
 from app.core.config import settings
 from app.core.privacy import preview_text
-from app.modules.announcements.repository import AnnouncementRepository
+from app.modules.chat.contexts.contracts import ContextRequest
+from app.modules.chat.contexts.messages import message
+from app.modules.chat.contexts.patterns import (
+    DISCIPLINARY_SUMMARY_PATTERNS,
+    FINANCE_TOPIC_PATTERNS,
+    GOVERNANCE_SUMMARY_PATTERNS,
+    PUBLICATION_CONTEXT_PATTERNS,
+    SPORTS_SCHEDULE_PATTERNS,
+    question_mentions_any,
+    question_mentions_other_member_finance,
+)
+from app.modules.chat.contexts.registry import build_default_registry
 from app.modules.chat.domain_policy import ChatDomainPolicy, build_chat_domain_policy
 from app.modules.chat.models import ChatQueryLog
 from app.modules.chat.payloads import (
@@ -54,13 +52,7 @@ from app.modules.chat.schemas import (
     ChatQueryRequest,
     ChatQueryResponse,
 )
-from app.modules.contributions.service import ContributionService
-from app.modules.disciplinary.repository import DisciplinaryRepository
 from app.modules.documents.repository import DocumentRepository
-from app.modules.events.models import Event
-from app.modules.events.repository import EventRepository
-from app.modules.membership.service import MembershipService
-from app.modules.policies.service import PolicyService
 from app.modules.rag.confidence import compute_confidence_score
 from app.modules.rag.ranking import compute_keyword_overlap_ratio
 from app.modules.rag.retrieval import build_access_policy
@@ -69,199 +61,6 @@ from app.providers.ai_runtime.remote import AiRuntimeUnavailableError
 from app.providers.reranker.interface import RerankerProvider
 
 logger = structlog.get_logger(__name__)
-
-_PERSONAL_FINANCE_SELF_PATTERNS = (
-    r"\bmy balance\b",
-    r"\bmy dues\b",
-    r"\bmy contribution(?:s)?\b",
-    r"\bwhat do i owe\b",
-    r"\bhow much do i owe\b",
-    r"\bwhat is my balance\b",
-    r"\bwhat is owing\b",
-    r"\bmy statement\b",
-    r"\b(mon|mes)\b.*\b(solde|cotisation(?:s)?|contribution(?:s)?|reste|paiement(?:s)?)\b",
-    r"\bquelle est ma\b.*\b(cotisation|contribution)\b",
-    r"\bquel est mon\b.*\b(solde|reste)\b",
-    r"\b(mein|meine)\b.*\b(saldo|beitrag|beitraege|restbetrag|zahlung(?:en)?)\b",
-    r"\bwie hoch ist mein\b.*\b(saldo|beitrag|restbetrag)\b",
-)
-
-_TENANT_FINANCE_PATTERNS = (
-    r"\btenant summary\b",
-    r"\bfinance summary\b",
-    r"\bcontribution summary\b",
-    r"\bcollection rate\b",
-    r"\btotal balance\b",
-    r"\btotal paid\b",
-    r"\btotal expected\b",
-    r"\boutstanding balance\b",
-    r"\bfinance report\b",
-    r"\bhow many contributions\b",
-    r"\bhow many members have paid\b",
-    r"\br[ée]sum[ée] financier\b",
-    r"\bsynth[èe]se des cotisations\b",
-    r"\btaux de recouvrement\b",
-    r"\bsolde total\b",
-    r"\btotal pay[ée]\b",
-    r"\btotal attendu\b",
-    r"\bzusammenfassung der finanzen\b",
-    r"\bfinanz(?:en)?zusammenfassung\b",
-    r"\beinziehungsquote\b",
-    r"\bgesamtsaldo\b",
-    r"\bgesamt bezahlt\b",
-    r"\bgesamt erwartet\b",
-)
-
-_OTHER_MEMBER_FINANCE_PATTERNS = (
-    r"\banother member\b.*\b(balance|dues|fee|fees|contribution|contributions|owed|owing)\b",
-    r"\b(other|another|their|his|her)\b.*\b(balance|dues|fee|fees|contribution|contributions|owed|owing)\b",
-    r"\b(balance|dues|fee|fees|contribution|contributions|owed|owing)\b.*\b(of|for)\b.*\b(member|user|profile)\b",
-    r"\b(son|sa|ses|leur|leurs)\b.*\b(solde|cotisation(?:s)?|contribution(?:s)?|reste)\b",
-    r"\b(solde|cotisation(?:s)?|contribution(?:s)?|reste)\b.*\b(d['e]|de|du|des|pour)\b.*\b(un autre membre|autre membre|membre|adh[ée]rent)\b",
-    r"\b(solde|cotisation(?:s)?|contribution(?:s)?|reste)\b.*\b(d['e]|de|du|des|pour)\b\s+[a-zà-ÿ'-]+(?:\s+[a-zà-ÿ'-]+){1,2}\b",
-    r"\b(sein|seine|seiner|ihre|ihr|deren)\b.*\b(saldo|beitrag|beitraege|restbetrag)\b",
-    r"\b(saldo|beitrag|beitraege|restbetrag)\b.*\b(von|fuer|für)\b.*\b(einem anderen mitglied|anderen mitglied|mitglied)\b",
-    r"\b(saldo|beitrag|beitraege|restbetrag)\b.*\b(von|fuer|für)\b\s+[a-zà-ÿ'-]+(?:\s+[a-zà-ÿ'-]+){1,2}\b",
-)
-
-_FINANCE_TOPIC_PATTERNS = (
-    r"\bbalance\b",
-    r"\bdues\b",
-    r"\bfee(?:s)?\b",
-    r"\bcontribution(?:s)?\b",
-    r"\bowed\b",
-    r"\bowing\b",
-    r"\bsolde\b",
-    r"\bcotisation(?:s)?\b",
-    r"\breste\b",
-    r"\bcontribution(?:s)?\b",
-    r"\bsaldo\b",
-    r"\bbeitrag\b",
-    r"\bbeitraege\b",
-    r"\brestbetrag\b",
-)
-
-_MESSAGES: dict[str, dict[str, str]] = {
-    "other_member_finance_forbidden": {
-        "fr": "Les demandes concernant les finances personnelles d'un autre membre ne sont pas autorisées.",
-        "en": "Requests for another member's personal finance data are not allowed.",
-        "de": "Anfragen zu den persoenlichen Finanzdaten eines anderen Mitglieds sind nicht erlaubt.",
-    },
-    "personal_finance_forbidden": {
-        "fr": "Votre rôle ne peut pas accéder aux soldes personnels via le chat.",
-        "en": "Your role cannot access personal contribution balances through chat.",
-        "de": "Ihre Rolle darf persoenliche Beitragssalden nicht per Chat abrufen.",
-    },
-    "tenant_finance_forbidden": {
-        "fr": "Votre rôle ne peut pas accéder aux synthèses financières globales via le chat.",
-        "en": "Your role cannot access tenant-wide finance summaries through chat.",
-        "de": "Ihre Rolle darf keine tenant-weiten Finanzzusammenfassungen per Chat abrufen.",
-    },
-    "no_authorized_answer": {
-        "fr": "Je n'ai pas trouvé de réponse fiable dans les documents autorisés ni dans les données structurées auxquelles vous avez accès.",
-        "en": "I could not find a reliable answer in the authorized documents or structured data available to you.",
-        "de": "Ich konnte in den freigegebenen Dokumenten oder strukturierten Daten, auf die Sie zugreifen duerfen, keine verlaessliche Antwort finden.",
-    },
-    "no_authorized_source": {
-        "fr": "Aucune source autorisée ne correspond à la question.",
-        "en": "No authorized source matched the question.",
-        "de": "Keine autorisierte Quelle passte zur Frage.",
-    },
-    "governance_forbidden": {
-        "fr": "Votre rôle ne peut pas accéder aux synthèses de gouvernance via le chat.",
-        "en": "Your role cannot access governance summaries through chat.",
-        "de": "Ihre Rolle darf keine Governance-Zusammenfassungen per Chat abrufen.",
-    },
-    "publication_forbidden": {
-        "fr": "Votre rôle ne peut pas accéder au contexte de publication via le chat.",
-        "en": "Your role cannot access publication context through chat.",
-        "de": "Ihre Rolle darf nicht auf den Publikationskontext per Chat zugreifen.",
-    },
-    "disciplinary_forbidden": {
-        "fr": "Votre rôle ne peut pas accéder aux synthèses disciplinaires via le chat.",
-        "en": "Your role cannot access disciplinary summaries through chat.",
-        "de": "Ihre Rolle darf keine disziplinarischen Zusammenfassungen per Chat abrufen.",
-    },
-    "sports_forbidden": {
-        "fr": "Votre rôle ne peut pas accéder au calendrier sportif via le chat.",
-        "en": "Your role cannot access sports schedules through chat.",
-        "de": "Ihre Rolle darf nicht auf Sportkalender per Chat zugreifen.",
-    },
-}
-
-_GOVERNANCE_SUMMARY_PATTERNS = (
-    r"\bgovernance summary\b",
-    r"\borganization summary\b",
-    r"\borganization overview\b",
-    r"\btenant overview\b",
-    r"\bexecutive overview\b",
-    r"\bboard overview\b",
-    r"\bmember directory overview\b",
-    r"\bmember count\b",
-    r"\bdocument count\b",
-    r"\bannouncement count\b",
-    r"\bevent count\b",
-    r"\bpolicy count\b",
-    r"\br[ée]sum[ée] de gouvernance\b",
-    r"\baper[çc]u de l'organisation\b",
-    r"\baper[çc]u du tenant\b",
-    r"\bnombre de membres\b",
-    r"\bgovernance-zusammenfassung\b",
-    r"\bvereinsueberblick\b",
-    r"\btenant-ueberblick\b",
-    r"\banzahl der mitglieder\b",
-)
-
-_PUBLICATION_CONTEXT_PATTERNS = (
-    r"\bpublication context\b",
-    r"\bofficial publication\b",
-    r"\bofficial publications\b",
-    r"\bpublication status\b",
-    r"\bannouncement status\b",
-    r"\bwhat should i publish\b",
-    r"\bwhat needs to be published\b",
-    r"\bofficial notices\b",
-    r"\bcontexte de publication\b",
-    r"\bcontexte officiel de publication\b",
-    r"\bpublication officielle\b",
-    r"\bquelles annonces sont actives\b",
-    r"\bquels documents sont pr[êe]ts [àa] [êe]tre publi[ée]s\b",
-    r"\bpublikationskontext\b",
-    r"\boffizielle veroeffentlichung\b",
-    r"\bwelche ankuendigungen sind aktiv\b",
-    r"\bwelche dokumente sind zur veroeffentlichung bereit\b",
-)
-
-_DISCIPLINARY_SUMMARY_PATTERNS = (
-    r"\bdisciplinary summary\b",
-    r"\bsanctions overview\b",
-    r"\bcompliance overview\b",
-    r"\bopen cases\b",
-    r"\bcase summary\b",
-    r"\br[ée]sum[ée] disciplinaire\b",
-    r"\baper[çc]u des sanctions\b",
-    r"\bcombien de dossiers sont ouverts\b",
-    r"\bdisziplinarische zusammenfassung\b",
-    r"\bsanktionsuebersicht\b",
-    r"\bwieviele faelle sind offen\b",
-)
-
-_SPORTS_SCHEDULE_PATTERNS = (
-    r"\bsports schedule\b",
-    r"\bsports calendar\b",
-    r"\btraining schedule\b",
-    r"\bfixture schedule\b",
-    r"\bupcoming sports events\b",
-    r"\bnext sports event\b",
-    r"\bsports plan\b",
-    r"\bcalendrier sportif\b",
-    r"\bprochain [ée]v[ée]nement sportif\b",
-    r"\bwelcher sportkalender\b",
-    r"\bnaechste sportveranstaltung\b",
-    r"\bsportkalender\b",
-)
-
-
 
 class ChatService:
     def __init__(
@@ -276,12 +75,7 @@ class ChatService:
         self._db = db
         self._chat_repo = ChatRepository(db)
         self._repo = DocumentRepository(db)
-        self._membership_service = MembershipService(db)
-        self._contribution_service = ContributionService(db)
-        self._announcement_repo = AnnouncementRepository(db)
-        self._disciplinary_repo = DisciplinaryRepository(db)
-        self._event_repo = EventRepository(db)
-        self._policy_service = PolicyService(db)
+        self._context_registry = build_default_registry(db)
         self._tenancy_repo = TenancyRepository(db)
         self._embedding = embedding_provider
         self._vector_store = vector_store_provider
@@ -469,15 +263,15 @@ class ChatService:
         return "fr"
 
     def _detect_retrieval_topic(self, normalized_question: str) -> str | None:
-        if _question_mentions_any(normalized_question, _FINANCE_TOPIC_PATTERNS):
+        if question_mentions_any(normalized_question, FINANCE_TOPIC_PATTERNS):
             return "finance"
-        if _question_mentions_any(normalized_question, _GOVERNANCE_SUMMARY_PATTERNS):
+        if question_mentions_any(normalized_question, GOVERNANCE_SUMMARY_PATTERNS):
             return "governance"
-        if _question_mentions_any(normalized_question, _PUBLICATION_CONTEXT_PATTERNS):
+        if question_mentions_any(normalized_question, PUBLICATION_CONTEXT_PATTERNS):
             return "publication"
-        if _question_mentions_any(normalized_question, _DISCIPLINARY_SUMMARY_PATTERNS):
+        if question_mentions_any(normalized_question, DISCIPLINARY_SUMMARY_PATTERNS):
             return "disciplinary"
-        if _question_mentions_any(normalized_question, _SPORTS_SCHEDULE_PATTERNS):
+        if question_mentions_any(normalized_question, SPORTS_SCHEDULE_PATTERNS):
             return "sports"
         return None
 
@@ -492,281 +286,20 @@ class ChatService:
         response_language: str,
     ) -> tuple[list[StructuredContext], str | None]:
         normalized = normalize_question(question)
-        contexts: list[StructuredContext] = []
 
-        if _question_mentions_other_member_finance(normalized):
-            return [], _message("other_member_finance_forbidden", response_language)
+        if question_mentions_other_member_finance(normalized):
+            return [], message("other_member_finance_forbidden", response_language)
 
-        if _question_mentions_personal_finance(normalized):
-            if not domain_policy.member_finance:
-                return [], _message("personal_finance_forbidden", response_language)
-            balance = await self._membership_service.get_my_balance(tenant_id, user_id)
-            contexts.append(
-                StructuredContext(
-                    source_type="structured:member_balance",
-                    title="Personal contribution balance",
-                    content=(
-                        f"Member: {balance.profile.display_name} "
-                        f"(code {balance.profile.member_code})\n"
-                        f"Total expected: {balance.total_expected} EUR\n"
-                        f"Total paid: {balance.total_paid} EUR\n"
-                        f"Outstanding balance: {balance.total_balance} EUR\n"
-                        f"Contribution records: {balance.contribution_count}"
-                    ),
-                )
-            )
-
-        if _question_mentions_tenant_finance(normalized):
-            if not domain_policy.tenant_finance:
-                return [], _message("tenant_finance_forbidden", response_language)
-            summary = await self._contribution_service.get_summary(tenant_id)
-            contexts.append(
-                StructuredContext(
-                    source_type="structured:finance_summary",
-                    title="Tenant contribution summary",
-                    content=(
-                        f"Contribution records: {summary['total_count']}\n"
-                        f"Total expected: {summary['total_expected']} EUR\n"
-                        f"Total paid: {summary['total_paid']} EUR\n"
-                        f"Outstanding balance: {summary['total_balance']} EUR"
-                    ),
-                )
-            )
-
-        governance_context, refusal = await self._build_governance_summary_context(
+        request = ContextRequest(
             tenant_id=tenant_id,
-            domain_policy=domain_policy,
+            user_id=user_id,
+            capabilities=capabilities,
+            question=question,
             normalized_question=normalized,
             response_language=response_language,
-        )
-        if refusal:
-            return [], refusal
-        if governance_context:
-            contexts.append(governance_context)
-
-        publication_context, refusal = await self._build_publication_context(
-            tenant_id=tenant_id,
             domain_policy=domain_policy,
-            normalized_question=normalized,
-            response_language=response_language,
         )
-        if refusal:
-            return [], refusal
-        if publication_context:
-            contexts.append(publication_context)
-
-        disciplinary_context, refusal = await self._build_disciplinary_summary_context(
-            tenant_id=tenant_id,
-            domain_policy=domain_policy,
-            normalized_question=normalized,
-            response_language=response_language,
-        )
-        if refusal:
-            return [], refusal
-        if disciplinary_context:
-            contexts.append(disciplinary_context)
-
-        sports_context, refusal = await self._build_sports_schedule_context(
-            tenant_id=tenant_id,
-            domain_policy=domain_policy,
-            normalized_question=normalized,
-            response_language=response_language,
-        )
-        if refusal:
-            return [], refusal
-        if sports_context:
-            contexts.append(sports_context)
-
-        return contexts, None
-
-    async def _build_governance_summary_context(
-        self,
-        *,
-        tenant_id: UUID,
-        domain_policy: ChatDomainPolicy,
-        normalized_question: str,
-        response_language: str,
-    ) -> tuple[StructuredContext | None, str | None]:
-        if not _question_mentions_any(normalized_question, _GOVERNANCE_SUMMARY_PATTERNS):
-            return None, None
-        if not domain_policy.governance:
-            return None, _message("governance_forbidden", response_language)
-
-        documents = await self._repo.list_documents(tenant_id)
-        members = await self._membership_service.list_profiles(tenant_id)
-        policies = await self._policy_service.list_public(tenant_id)
-        announcements = await self._announcement_repo.list_visible_active_by_tenant(tenant_id)
-        events = await self._event_repo.list_visible_by_tenant(tenant_id)
-        upcoming_events = [event for event in events if _is_future_datetime(event.start_at)]
-        summary_lines = [
-            f"Members in tenant: {len(members)}",
-            f"Documents available: {len(documents)}",
-            f"Published policies: {len(policies)}",
-            f"Active announcements: {len(announcements)}",
-            f"Upcoming events: {len(upcoming_events)}",
-        ]
-        if policies:
-            summary_lines.append("Recent policies:")
-            summary_lines.extend(
-                f"- {policy.title} ({policy.status})" for policy in policies[:3]
-            )
-        if announcements:
-            summary_lines.append("Recent announcements:")
-            summary_lines.extend(
-                f"- {announcement.title} ({_format_datetime(announcement.published_at)})"
-                for announcement in announcements[:3]
-            )
-
-        return (
-            StructuredContext(
-                source_type="structured:governance_summary",
-                title="Tenant governance summary",
-                content="\n".join(summary_lines),
-            ),
-            None,
-        )
-
-    async def _build_publication_context(
-        self,
-        *,
-        tenant_id: UUID,
-        domain_policy: ChatDomainPolicy,
-        normalized_question: str,
-        response_language: str,
-    ) -> tuple[StructuredContext | None, str | None]:
-        if not _question_mentions_any(normalized_question, _PUBLICATION_CONTEXT_PATTERNS):
-            return None, None
-        if not domain_policy.publication:
-            return None, _message("publication_forbidden", response_language)
-
-        policies = await self._policy_service.list_all(tenant_id)
-        announcements = await self._announcement_repo.list_visible_active_by_tenant(tenant_id)
-        policy_counts = {"published": 0, "draft": 0, "archived": 0}
-        for policy in policies:
-            policy_counts[policy.status] = policy_counts.get(policy.status, 0) + 1
-
-        summary_lines = [
-            f"Policies in workspace: {len(policies)}",
-            f"Published policies: {policy_counts['published']}",
-            f"Draft policies: {policy_counts['draft']}",
-            f"Archived policies: {policy_counts['archived']}",
-            f"Active announcements: {len(announcements)}",
-        ]
-        if announcements:
-            summary_lines.append("Recent active announcements:")
-            summary_lines.extend(
-                f"- {announcement.title} ({_format_datetime(announcement.published_at)})"
-                for announcement in announcements[:3]
-            )
-        if policies:
-            summary_lines.append("Recent policies:")
-            summary_lines.extend(
-                f"- {policy.title} ({policy.status})" for policy in policies[:3]
-            )
-
-        return (
-            StructuredContext(
-                source_type="structured:publication_context",
-                title="Official publication context",
-                content="\n".join(summary_lines),
-            ),
-            None,
-        )
-
-    async def _build_disciplinary_summary_context(
-        self,
-        *,
-        tenant_id: UUID,
-        domain_policy: ChatDomainPolicy,
-        normalized_question: str,
-        response_language: str,
-    ) -> tuple[StructuredContext | None, str | None]:
-        if not _question_mentions_any(normalized_question, _DISCIPLINARY_SUMMARY_PATTERNS):
-            return None, None
-        if not domain_policy.disciplinary:
-            return None, _message("disciplinary_forbidden", response_language)
-
-        records = await self._disciplinary_repo.list_by_tenant(tenant_id)
-        status_counts = {"open": 0, "under_review": 0, "resolved": 0, "waived": 0}
-        for record in records:
-            status_counts[record.status] = status_counts.get(record.status, 0) + 1
-
-        summary_lines = [
-            f"Disciplinary cases: {len(records)}",
-            f"Open cases: {status_counts['open']}",
-            f"Under review: {status_counts['under_review']}",
-            f"Resolved: {status_counts['resolved']}",
-            f"Waived: {status_counts['waived']}",
-        ]
-
-        return (
-            StructuredContext(
-                source_type="structured:disciplinary_summary",
-                title="Disciplinary summary",
-                content="\n".join(summary_lines),
-            ),
-            None,
-        )
-
-    async def _build_sports_schedule_context(
-        self,
-        *,
-        tenant_id: UUID,
-        domain_policy: ChatDomainPolicy,
-        normalized_question: str,
-        response_language: str,
-    ) -> tuple[StructuredContext | None, str | None]:
-        if not _question_mentions_any(normalized_question, _SPORTS_SCHEDULE_PATTERNS):
-            return None, None
-        if not domain_policy.sports:
-            return None, _message("sports_forbidden", response_language)
-
-        events = await self._event_repo.list_by_tenant(tenant_id)
-        sports_events = [event for event in events if self._is_sports_event(event)]
-        upcoming_events = [
-            event
-            for event in sports_events
-            if event.status == "published" and _is_future_datetime(event.start_at)
-        ]
-        summary_lines = [
-            f"Sports events in tenant: {len(sports_events)}",
-            f"Upcoming sports events: {len(upcoming_events)}",
-        ]
-        if upcoming_events:
-            summary_lines.append("Next sports events:")
-            summary_lines.extend(
-                (
-                    f"- {event.title} ({_format_datetime(event.start_at)})"
-                    + (f" at {event.location}" if event.location else "")
-                )
-                for event in upcoming_events[:3]
-            )
-
-        return (
-            StructuredContext(
-                source_type="structured:sports_schedule",
-                title="Sports schedule",
-                content="\n".join(summary_lines),
-            ),
-            None,
-        )
-
-    def _parse_metadata(self, value: str | dict | None) -> dict[str, object]:
-        if value in (None, ""):
-            return {}
-        if isinstance(value, dict):
-            return dict(value)
-        if not isinstance(value, str):
-            return {}
-        try:
-            parsed = json.loads(value)
-        except json.JSONDecodeError:
-            return {}
-        return parsed if isinstance(parsed, dict) else {}
-
-    def _is_sports_event(self, event: Event) -> bool:
-        metadata = self._parse_metadata(event.metadata_json)
-        return metadata.get("workspace") == "sports"
+        return await self._context_registry.collect_all(request)
 
     def _prioritize_retrieved_chunks(
         self,
@@ -929,12 +462,12 @@ class ChatService:
         )
         if not citations and not structured_contexts:
             return None, ChatQueryResponse(
-                answer=_message("no_authorized_answer", response_language),
+                answer=message("no_authorized_answer", response_language),
                 citations=[],
                 source_types=[],
                 confidence=0.0,
                 refused=True,
-                refusal_reason=_message("no_authorized_source", response_language),
+                refusal_reason=message("no_authorized_source", response_language),
             )
 
         source_types = collect_source_types(structured_contexts, citations)
@@ -992,9 +525,9 @@ class ChatService:
             return ""
 
         history_lines = []
-        for message in history:
-            role_label = "User" if message.role == "user" else "Assistant"
-            history_lines.append(f"{role_label}: {message.content[:500]}")
+        for history_message in history:
+            role_label = "User" if history_message.role == "user" else "Assistant"
+            history_lines.append(f"{role_label}: {history_message.content[:500]}")
         return "\n".join(history_lines)
 
     async def _retrieve_citations(
@@ -1232,125 +765,8 @@ class ChatService:
         )
         self._db.add(log)
         await self._db.commit()
-def _question_mentions_personal_finance(question: str) -> bool:
-    return any(re.search(pattern, question) for pattern in _PERSONAL_FINANCE_SELF_PATTERNS)
-
-
-def _question_mentions_tenant_finance(question: str) -> bool:
-    return any(re.search(pattern, question) for pattern in _TENANT_FINANCE_PATTERNS)
-
-
-def _question_mentions_other_member_finance(question: str) -> bool:
-    if any(re.search(pattern, question) for pattern in _OTHER_MEMBER_FINANCE_PATTERNS):
-        return True
-    return (
-        _question_mentions_finance_topic(question)
-        and not _question_mentions_personal_finance(question)
-        and not _question_mentions_tenant_finance(question)
-        and _question_mentions_named_target(question)
-    )
-
-
-def _question_mentions_finance_topic(question: str) -> bool:
-    return any(re.search(pattern, question) for pattern in _FINANCE_TOPIC_PATTERNS)
-
-
-def _question_mentions_named_target(question: str) -> bool:
-    return any(
-        re.search(pattern, question)
-        for pattern in (
-            r"\b(of|for|de|du|des|pour|von|fuer|für)\b\s+[a-zà-ÿ'-]+(?:\s+[a-zà-ÿ'-]+){1,2}\b",
-            r"\b(other|another|their|his|her|son|sa|ses|leur|leurs|sein|seine|ihr|ihre)\b",
-        )
-    )
-
-
-def _can_view_tenant_finance(capabilities: tuple[str, ...]) -> bool:
-    return any(
-        capability in capabilities
-        for capability in (
-            CAP_FINANCE_TENANT_READ,
-            CAP_FINANCE_AUDIT,
-            CAP_TENANT_ADMINISTRATION,
-        )
-    )
-
-
-def _question_mentions_any(question: str, patterns: tuple[str, ...]) -> bool:
-    return any(re.search(pattern, question) for pattern in patterns)
-
-
-def _message(key: str, language: str) -> str:
-    translations = _MESSAGES[key]
-    return translations.get(language, translations["en"])
-
-
-def _can_view_governance_summary(capabilities: tuple[str, ...]) -> bool:
-    return any(
-        capability in capabilities
-        for capability in (
-            CAP_FINANCE_TENANT_READ,
-            CAP_FINANCE_AUDIT,
-            CAP_TENANT_ADMINISTRATION,
-        )
-    )
-
-
-def _can_view_publication_context(capabilities: tuple[str, ...]) -> bool:
-    return any(
-        capability in capabilities
-        for capability in (
-            CAP_DOCUMENTS_WRITE,
-            CAP_POLICIES_WRITE,
-            CAP_ANNOUNCEMENTS_WRITE,
-            CAP_TENANT_ADMINISTRATION,
-        )
-    )
-
-
-def _can_view_disciplinary_summary(capabilities: tuple[str, ...]) -> bool:
-    return any(
-        capability in capabilities
-        for capability in (
-            CAP_DISCIPLINARY_TENANT_READ,
-            CAP_DISCIPLINARY_WRITE,
-            CAP_TENANT_ADMINISTRATION,
-        )
-    )
-
-
-def _can_view_sports_schedule(capabilities: tuple[str, ...]) -> bool:
-    return any(
-        capability in capabilities
-        for capability in (
-            CAP_EVENTS_SPORTS_WRITE,
-            CAP_TENANT_ADMINISTRATION,
-        )
-    )
-
-
-def _format_datetime(value: datetime | None) -> str:
-    if value is None:
-        return "unknown date"
-    if value.tzinfo is None:
-        normalized = value.replace(tzinfo=UTC)
-    else:
-        normalized = value.astimezone(UTC)
-    return normalized.strftime("%Y-%m-%d %H:%M UTC")
-
-
-def _is_future_datetime(value: datetime | None) -> bool:
-    if value is None:
-        return False
-    if value.tzinfo is None:
-        normalized = value.replace(tzinfo=UTC)
-    else:
-        normalized = value.astimezone(UTC)
-    return normalized >= datetime.now(UTC)
-
-
 def _excerpt(text: str, limit: int = 220) -> str:
     cleaned = " ".join(text.split())
     if len(cleaned) <= limit:
         return cleaned
-    return f"{cleaned[: limit - 1].rstrip()}…"
+    return f"{cleaned[: limit - 1].rstrip()}â€¦"

@@ -226,6 +226,20 @@ Cloudflare production promotion.
   runner is verified only through the pinned-version CI run; the local Linux
   container toolchain was too old to reproduce it in-session (documented
   limitation).
+- 2026-09-26 (Roadmap V2 Sprint 114): the Flutter client now revokes its push
+  binding on sign-out through `POST /notifications/devices/{installation_id}/revoke`
+  (the installation identity is preserved so a later sign-in re-registers), and
+  notification deep links are restricted to an explicit internal-path allowlist that
+  rejects external, protocol-relative and unknown targets. Flutter Web intentionally
+  keeps Web Push owned by the Vue PWA. `flutter analyze` is clean, all 48 Flutter
+  tests pass, and the Flutter Web release plus Android debug APK builds succeed.
+- 2026-09-26 (Roadmap V2 Sprint 115): generated OpenAPI contract classes
+  (`lib/core/api/generated/contracts.dart`) now accompany the hand-written
+  gateways, and `test/contract_parity_test.dart` proves the generated notification
+  contracts match the gateway models and cover the Sprint 114 notification
+  operations. Contract drift is blocked in CI by schema, generated-file and route
+  coverage checks. `flutter analyze` is clean, all 50 Flutter tests pass, and the
+  Flutter Web release plus Android debug APK builds succeed.
 
 ## Visual Redesign Programme
 

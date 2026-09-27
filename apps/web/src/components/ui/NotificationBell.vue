@@ -9,7 +9,8 @@
         <strong>{{ localeStore.t('notifications.inbox') }}</strong>
         <button v-if="inbox.unread_count" class="btn btn-link btn-sm p-0" type="button" @click="markAllRead">{{ localeStore.t('notifications.markAllRead') }}</button>
       </div>
-      <button class="btn btn-outline-primary btn-sm w-100 mb-2" type="button" @click="enablePush">{{ localeStore.t('notifications.enablePush') }}</button>
+      <button v-if="!pushSubscribed" class="btn btn-outline-primary btn-sm w-100 mb-2" type="button" @click="enablePush">{{ localeStore.t('notifications.enablePush') }}</button>
+      <button v-else class="btn btn-outline-secondary btn-sm w-100 mb-2" type="button" @click="disablePush">{{ localeStore.t('notifications.disablePush') }}</button>
       <p class="notification-bell__push-help small text-muted mb-2">{{ localeStore.t('notifications.pushHelp') }}</p>
       <details class="notification-bell__preferences mb-2" @toggle="loadPreferences">
         <summary>{{ localeStore.t('notifications.preferences') }}</summary>
@@ -28,17 +29,18 @@
 </template>
 
 <script setup lang="ts">
-import { onMounted, onUnmounted, reactive } from 'vue'
+import { onMounted, onUnmounted, reactive, ref } from 'vue'
 import { useRouter } from 'vue-router'
 import { useToast } from 'vue-toastification'
 import { getNotificationInbox, getNotificationPreferences, markAllNotificationsRead, markNotificationRead, updateNotificationPreferences, type InboxNotification, type NotificationPreferences } from '@/api/notifications.api'
-import { enablePushForCurrentProfile, registerCurrentDevice } from '@/services/web-push'
+import { enablePushForCurrentProfile, hasActivePushSubscription, registerCurrentDevice, revokeCurrentDevice } from '@/services/web-push'
 import { useLocaleStore } from '@/stores/locale.store'
 
 const router = useRouter()
 const toast = useToast()
 const localeStore = useLocaleStore()
 const inbox = reactive({ items: [] as InboxNotification[], unread_count: 0 })
+const pushSubscribed = ref(false)
 const preferences = reactive<NotificationPreferences>({ push_enabled: true, finance_enabled: true, discipline_enabled: true, announcements_enabled: true, events_enabled: true })
 const categories: Array<{ key: Exclude<keyof NotificationPreferences, 'push_enabled'>; label: string }> = [
   { key: 'finance_enabled', label: 'notifications.preferenceFinance' },
@@ -89,7 +91,25 @@ async function enablePush(): Promise<void> {
         : result === 'not_configured'
           ? 'notifications.pushNotConfigured'
           : 'notifications.pushUnavailable'
+    pushSubscribed.value = result === 'enabled'
     toast[result === 'enabled' ? 'success' : 'warning'](localeStore.t(key))
+  } catch {
+    toast.error(localeStore.t('notifications.pushUnavailable'))
+  }
+}
+
+async function disablePush(): Promise<void> {
+  try {
+    const registration = await navigator.serviceWorker.getRegistration('/')
+    const subscription = await registration?.pushManager.getSubscription()
+    await subscription?.unsubscribe()
+  } catch {
+    // The server-side revocation below still stops delivery for this profile.
+  }
+  try {
+    await revokeCurrentDevice()
+    pushSubscribed.value = false
+    toast.success(localeStore.t('notifications.pushDisabled'))
   } catch {
     toast.error(localeStore.t('notifications.pushUnavailable'))
   }
@@ -114,6 +134,7 @@ async function savePreferences(): Promise<void> {
 
 onMounted(() => {
   void registerCurrentDevice().catch(() => undefined)
+  void hasActivePushSubscription().then((value) => { pushSubscribed.value = value })
   void refresh()
   timer = window.setInterval(() => void refresh(), 30_000)
 })

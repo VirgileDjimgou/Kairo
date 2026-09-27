@@ -20,6 +20,7 @@ from app.modules.documents.models import (  # noqa: F401
     DocumentVersion,
     IngestionJob,
 )
+from app.modules.domain_events.models import DomainEvent  # noqa: F401
 from app.modules.events.models import Event  # noqa: F401
 from app.modules.identity.models import (  # noqa: F401
     Invitation,

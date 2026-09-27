@@ -116,6 +116,7 @@ abstract class DeviceRegistrationGateway {
     required String installationId,
     required String fcmToken,
   });
+  Future<void> revokeDevice({required String installationId});
 }
 
 class HttpInboxGateway implements InboxGateway, DeviceRegistrationGateway {
@@ -181,6 +182,14 @@ class HttpInboxGateway implements InboxGateway, DeviceRegistrationGateway {
         'installation_id': installationId,
         'fcm_token': fcmToken,
       },
+    );
+  }
+
+  @override
+  Future<void> revokeDevice({required String installationId}) async {
+    await _client.requestJson(
+      'POST',
+      'notifications/devices/$installationId/revoke',
     );
   }
 }

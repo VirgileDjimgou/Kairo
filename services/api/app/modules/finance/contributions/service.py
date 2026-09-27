@@ -10,6 +10,7 @@ from app.modules.contributions.schemas import (
     PaymentRecordCreate,
     PaymentRecordResponse,
 )
+from app.modules.domain_events.events import AGGREGATE_PAYMENT, PAYMENT_RECORDED
 from app.modules.finance.base import FinanceServiceBase
 
 
@@ -154,6 +155,20 @@ class ContributionRecordsMixin(FinanceServiceBase):
                 "contribution_record_id": contrib.id,
                 "amount": str(payment.amount),
                 "method": payment.payment_method,
+            },
+        )
+        await self._events.publish(
+            tenant_id=tenant_id,
+            event_type=PAYMENT_RECORDED,
+            aggregate_type=AGGREGATE_PAYMENT,
+            aggregate_id=payment.id,
+            deduplication_key=f"payment-recorded:{payment.id}",
+            actor_user_id=actor_user_id,
+            payload={
+                "membership_profile_id": contrib.membership_profile_id,
+                "contribution_record_id": contrib.id,
+                "amount": str(payment.amount),
+                "currency": payment.currency,
             },
         )
         await self._db.commit()

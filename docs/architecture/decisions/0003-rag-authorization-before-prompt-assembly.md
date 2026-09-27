@@ -19,4 +19,8 @@ returned when nothing authorized was found. The LLM never decides access.
 - Permission-aware retrieval filter builders live in `rag/`; policy code is not
   duplicated in `chat/`.
 - Prompt-injection tests and retrieval safety tests are regression-gated.
-- Roadmap V2 S112 must preserve this ordering when context providers are added.
+- Sprint 112 added the domain context provider registry
+  (`chat/contexts/`): each provider checks the capability-derived
+  `ChatDomainPolicy` before querying its domain, `ChatService` only consumes the
+  registry, and unauthorized or unrelated questions never trigger a domain
+  query. Retrieval filtering and prompt-injection protections are unchanged.

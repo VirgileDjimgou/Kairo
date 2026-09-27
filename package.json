@@ -11,6 +11,10 @@
     "sprint:batch:doctor": "node scripts/sprint-batch/cli.mjs doctor",
     "sprint:batch:report": "node scripts/sprint-batch/cli.mjs report",
     "sprint:batch:pause": "node scripts/sprint-batch/cli.mjs pause",
-    "sprint:next": "node scripts/sprint-batch/cli.mjs next"
+    "sprint:next": "node scripts/sprint-batch/cli.mjs next",
+    "notifications:firebase:doctor": "node scripts/notifications-firebase-doctor.mjs",
+    "openapi:update": "node scripts/check-openapi-contract.mjs --update",
+    "contracts:generate": "node scripts/generate-client-contracts.mjs",
+    "contracts:check": "node scripts/check-openapi-contract.mjs && node scripts/generate-client-contracts.mjs --check && node scripts/check-client-route-coverage.mjs"
   }
 }

@@ -19,6 +19,17 @@ class AuditRepository:
         await self._db.refresh(event)
         return event
 
+    async def get_by_deduplication_key(
+        self, tenant_id: UUID, deduplication_key: str
+    ) -> AuditEvent | None:
+        result = await self._db.execute(
+            select(AuditEvent).where(
+                AuditEvent.tenant_id == tenant_id,
+                AuditEvent.deduplication_key == deduplication_key,
+            )
+        )
+        return result.scalar_one_or_none()
+
     async def list_events(
         self,
         tenant_id: UUID,

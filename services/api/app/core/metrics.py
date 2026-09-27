@@ -2,6 +2,7 @@ from __future__ import annotations
 
 from collections import Counter
 from dataclasses import dataclass, field
+from datetime import UTC, datetime
 from threading import Lock
 
 from sqlalchemy import func, select
@@ -30,6 +31,7 @@ class ObservabilityMetrics:
     http_request_latency_ms_sum: Counter[tuple[str, str]] = field(default_factory=Counter)
     http_request_latency_ms_count: Counter[tuple[str, str]] = field(default_factory=Counter)
     error_counts: Counter[str] = field(default_factory=Counter)
+    push_deliveries: Counter[tuple[str, str]] = field(default_factory=Counter)
 
     def record_http_request(self, method: str, status_code: int, latency_ms: int) -> None:
         key = (method.upper(), _status_class(status_code))
@@ -42,12 +44,17 @@ class ObservabilityMetrics:
         with self._lock:
             self.error_counts[error_code] += 1
 
+    def record_push_delivery(self, channel: str, outcome: str) -> None:
+        with self._lock:
+            self.push_deliveries[(channel, outcome)] += 1
+
     def reset(self) -> None:
         with self._lock:
             self.http_requests.clear()
             self.http_request_latency_ms_sum.clear()
             self.http_request_latency_ms_count.clear()
             self.error_counts.clear()
+            self.push_deliveries.clear()
 
     def render(self) -> str:
         lines: list[str] = [
@@ -91,6 +98,38 @@ class ObservabilityMetrics:
             for error_code, count in sorted(self.error_counts.items()):
                 lines.append(f'kairo_error_total{_render_labels({"code": error_code})} {count}')
 
+            lines.extend(
+                [
+                    "# HELP kairo_push_deliveries_total Push delivery outcomes by channel and result.",
+                    "# TYPE kairo_push_deliveries_total counter",
+                ]
+            )
+            for (channel, outcome), count in sorted(self.push_deliveries.items()):
+                lines.append(
+                    f'kairo_push_deliveries_total{_render_labels({"channel": channel, "outcome": outcome})} {count}'
+                )
+
+            for channel, success_metric, failure_metric in (
+                ("web_push", "kairo_web_push_success_total", "kairo_web_push_failure_total"),
+                ("firebase", "kairo_fcm_success_total", "kairo_fcm_failure_total"),
+            ):
+                success = self.push_deliveries.get((channel, "delivered"), 0)
+                failure = sum(
+                    count
+                    for (entry_channel, outcome), count in self.push_deliveries.items()
+                    if entry_channel == channel and outcome != "delivered"
+                )
+                lines.extend(
+                    [
+                        f"# HELP {success_metric} Successful {channel} push deliveries.",
+                        f"# TYPE {success_metric} counter",
+                        f"{success_metric} {success}",
+                        f"# HELP {failure_metric} Failed or invalid {channel} push deliveries.",
+                        f"# TYPE {failure_metric} counter",
+                        f"{failure_metric} {failure}",
+                    ]
+                )
+
         return "\n".join(lines) + "\n"
 
 
@@ -124,6 +163,15 @@ def normalize_error_code(status_code: int, detail: object) -> str:
 
 
 async def build_runtime_metrics(db: AsyncSession) -> str:
+    # Imported lazily: the notifications package re-exports its router, and a
+    # module-level import here would create a cycle for tools that import
+    # ``app.main`` for schema generation.
+    from app.modules.notifications.user_models import (
+        FirebasePushSubscription,
+        NotificationOutboxEvent,
+        WebPushSubscription,
+    )
+
     lines = [line for line in metrics.render().rstrip().splitlines() if line]
 
     ingestion_counts = await db.execute(
@@ -140,6 +188,50 @@ async def build_runtime_metrics(db: AsyncSession) -> str:
     chat_total = await db.scalar(select(func.count()).select_from(ChatQueryLog))
     chat_refused = await db.scalar(
         select(func.count()).select_from(ChatQueryLog).where(ChatQueryLog.refused.is_(True))
+    )
+    pending_outbox = int(
+        await db.scalar(
+            select(func.count(NotificationOutboxEvent.id)).where(
+                NotificationOutboxEvent.status == "pending"
+            )
+        )
+        or 0
+    )
+    failed_outbox = int(
+        await db.scalar(
+            select(func.count(NotificationOutboxEvent.id)).where(
+                NotificationOutboxEvent.status == "failed"
+            )
+        )
+        or 0
+    )
+    oldest_pending_at = await db.scalar(
+        select(func.min(NotificationOutboxEvent.created_at)).where(
+            NotificationOutboxEvent.status == "pending"
+        )
+    )
+    if oldest_pending_at is not None and oldest_pending_at.tzinfo is None:
+        oldest_pending_at = oldest_pending_at.replace(tzinfo=UTC)
+    oldest_pending_age = (
+        int((datetime.now(UTC) - oldest_pending_at).total_seconds())
+        if oldest_pending_at is not None
+        else 0
+    )
+    disabled_web = int(
+        await db.scalar(
+            select(func.count(WebPushSubscription.id)).where(
+                WebPushSubscription.disabled_at.is_not(None)
+            )
+        )
+        or 0
+    )
+    disabled_fcm = int(
+        await db.scalar(
+            select(func.count(FirebasePushSubscription.id)).where(
+                FirebasePushSubscription.disabled_at.is_not(None)
+            )
+        )
+        or 0
     )
 
     lines.extend(
@@ -159,6 +251,21 @@ async def build_runtime_metrics(db: AsyncSession) -> str:
             "# HELP kairo_chat_queries_refused_total Chat queries refused due to retrieval or policy constraints.",
             "# TYPE kairo_chat_queries_refused_total counter",
             f'kairo_chat_queries_refused_total {int(chat_refused or 0)}',
+            "# HELP kairo_notification_outbox_pending Notification outbox events awaiting delivery.",
+            "# TYPE kairo_notification_outbox_pending gauge",
+            f"kairo_notification_outbox_pending {pending_outbox}",
+            "# HELP kairo_notification_outbox_failed Notification outbox events in a terminal failed state.",
+            "# TYPE kairo_notification_outbox_failed gauge",
+            f"kairo_notification_outbox_failed {failed_outbox}",
+            "# HELP kairo_notification_outbox_oldest_age_seconds Age of the oldest pending notification outbox event.",
+            "# TYPE kairo_notification_outbox_oldest_age_seconds gauge",
+            f"kairo_notification_outbox_oldest_age_seconds {oldest_pending_age}",
+            "# HELP kairo_disabled_web_subscriptions Disabled Web Push subscriptions.",
+            "# TYPE kairo_disabled_web_subscriptions gauge",
+            f"kairo_disabled_web_subscriptions {disabled_web}",
+            "# HELP kairo_disabled_fcm_tokens Disabled Android FCM tokens.",
+            "# TYPE kairo_disabled_fcm_tokens gauge",
+            f"kairo_disabled_fcm_tokens {disabled_fcm}",
         ]
     )
     return "\n".join(lines) + "\n"

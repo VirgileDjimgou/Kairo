@@ -1003,6 +1003,23 @@ test.describe('locale coverage', () => {
         body: JSON.stringify(historyResponse()),
       })
     })
+    await page.route('**/api/v1/notifications/health', async (route) => {
+      await route.fulfill({
+        status: 200,
+        contentType: 'application/json',
+        body: JSON.stringify({
+          web_push_configured: true,
+          firebase_configured: true,
+          worker_running: true,
+          pending_outbox: 0,
+          failed_outbox: 0,
+          oldest_pending_seconds: null,
+          disabled_web_subscriptions: 0,
+          disabled_fcm_tokens: 0,
+          last_successful_dispatch_at: '2026-07-16T10:00:00Z',
+        }),
+      })
+    })
     await page.route('**/api/v1/notifications/test', async (route) => {
       historyRows = [
         {
@@ -1091,6 +1108,7 @@ test.describe('locale coverage', () => {
 
     await page.goto('/admin/notifications')
     await expect(page.getByRole('heading', { name: 'Extensions de notification' })).toBeVisible()
+    await expect(page.getByText('État du pipeline de notification')).toBeVisible()
     await expect(page.getByText('Capable en réel').first()).toBeVisible()
     await expect(page.getByText('Référence fournisseur: smtp-ref-1')).toBeVisible()
     await expect(page.getByText('Livrée').first()).toBeVisible()

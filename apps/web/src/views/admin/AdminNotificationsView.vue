@@ -190,6 +190,52 @@
           </div>
         </div>
 
+        <div v-if="health" class="card shadow-sm border-0 mb-4">
+          <div class="card-body p-4">
+            <div class="text-uppercase small fw-semibold text-secondary mb-3">
+              {{ copy.healthTitle }}
+            </div>
+            <div class="row g-2">
+              <div class="col-6 col-md-4">
+                <div class="triage-metric" :class="{ 'triage-metric--warning': !health.web_push_configured }">
+                  <div class="triage-metric__value">{{ health.web_push_configured ? copy.healthYes : copy.healthNo }}</div>
+                  <div class="triage-metric__label">{{ copy.healthWebPush }}</div>
+                </div>
+              </div>
+              <div class="col-6 col-md-4">
+                <div class="triage-metric" :class="{ 'triage-metric--warning': !health.firebase_configured }">
+                  <div class="triage-metric__value">{{ health.firebase_configured ? copy.healthYes : copy.healthNo }}</div>
+                  <div class="triage-metric__label">{{ copy.healthFirebase }}</div>
+                </div>
+              </div>
+              <div class="col-6 col-md-4">
+                <div class="triage-metric" :class="{ 'triage-metric--warning': !health.worker_running }">
+                  <div class="triage-metric__value">{{ health.worker_running ? copy.healthYes : copy.healthNo }}</div>
+                  <div class="triage-metric__label">{{ copy.healthWorker }}</div>
+                </div>
+              </div>
+              <div class="col-6 col-md-4">
+                <div class="triage-metric" :class="{ 'triage-metric--warning': health.pending_outbox > 0 }">
+                  <div class="triage-metric__value">{{ health.pending_outbox }}</div>
+                  <div class="triage-metric__label">{{ copy.healthPending }}</div>
+                </div>
+              </div>
+              <div class="col-6 col-md-4">
+                <div class="triage-metric" :class="{ 'triage-metric--warning': health.failed_outbox > 0 }">
+                  <div class="triage-metric__value">{{ health.failed_outbox }}</div>
+                  <div class="triage-metric__label">{{ copy.healthFailed }}</div>
+                </div>
+              </div>
+              <div class="col-6 col-md-4">
+                <div class="triage-metric">
+                  <div class="triage-metric__value">{{ health.disabled_web_subscriptions + health.disabled_fcm_tokens }}</div>
+                  <div class="triage-metric__label">{{ copy.healthDisabledSubscriptions }}</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
         <div class="card shadow-sm border-0 mb-4">
           <div class="card-body p-4">
             <div class="text-uppercase small fw-semibold text-secondary mb-3">
@@ -338,6 +384,7 @@
 <script setup lang="ts">
 import { computed, onMounted, ref } from 'vue'
 import {
+  getNotificationHealth,
   listNotificationChannels,
   listNotificationHistory,
   pollNotificationReconciliation,
@@ -345,6 +392,7 @@ import {
   sendNotificationDispatch,
   sendNotificationTest,
   type NotificationChannelResponse,
+  type NotificationHealth,
   type NotificationHistoryEntry,
   type NotificationHistorySummary,
 } from '@/api/notifications.api'
@@ -363,6 +411,7 @@ const loading = ref(true)
 const sendingTest = ref(false)
 const sendingLive = ref(false)
 const channels = ref<NotificationChannelResponse[]>([])
+const health = ref<NotificationHealth | null>(null)
 const history = ref<NotificationHistoryEntry[]>([])
 const historySummary = ref<NotificationHistorySummary>({ ...defaultHistorySummary })
 const historyFilter = ref<'all' | 'pending' | 'delivered' | 'failed' | 'simulated'>('all')
@@ -423,6 +472,15 @@ const copy = computed(() => {
       sendingLive: 'Live-Versand...',
       sendLive: 'Live-Benachrichtigung senden',
       triageTitle: 'Triage',
+      healthTitle: 'Zustand der Benachrichtigungs-Pipeline',
+      healthWebPush: 'Web Push konfiguriert',
+      healthFirebase: 'Firebase konfiguriert',
+      healthWorker: 'Worker aktiv',
+      healthPending: 'Ausstehend',
+      healthFailed: 'Fehlgeschlagen',
+      healthDisabledSubscriptions: 'Deaktivierte Abos',
+      healthYes: 'Ja',
+      healthNo: 'Nein',
       summaryTotal: 'Gesamt',
       summaryPending: 'Ausstehend',
       summaryFailed: 'Fehlgeschlagen',
@@ -509,6 +567,15 @@ const copy = computed(() => {
       sendingLive: 'Sending live...',
       sendLive: 'Send live notification',
       triageTitle: 'Triage',
+      healthTitle: 'Notification pipeline health',
+      healthWebPush: 'Web Push configured',
+      healthFirebase: 'Firebase configured',
+      healthWorker: 'Worker running',
+      healthPending: 'Pending',
+      healthFailed: 'Failed',
+      healthDisabledSubscriptions: 'Disabled subscriptions',
+      healthYes: 'Yes',
+      healthNo: 'No',
       summaryTotal: 'Total',
       summaryPending: 'Pending',
       summaryFailed: 'Failed',
@@ -594,6 +661,15 @@ const copy = computed(() => {
     sendingLive: 'Envoi réel...',
     sendLive: 'Envoyer la notification réelle',
     triageTitle: 'Triage',
+    healthTitle: 'État du pipeline de notification',
+    healthWebPush: 'Web Push configuré',
+    healthFirebase: 'Firebase configuré',
+    healthWorker: 'Worker actif',
+    healthPending: 'En attente',
+    healthFailed: 'En échec',
+    healthDisabledSubscriptions: 'Abonnements désactivés',
+    healthYes: 'Oui',
+    healthNo: 'Non',
     summaryTotal: 'Total',
     summaryPending: 'En attente',
     summaryFailed: 'En échec',
@@ -739,6 +815,12 @@ async function refreshData() {
     channels.value = channelRows
     history.value = historyResponse.items
     historySummary.value = historyResponse.summary
+    try {
+      health.value = await getNotificationHealth()
+    } catch {
+      // Pipeline health is additive; the operator console still works without it.
+      health.value = null
+    }
     if (!liveCapableChannels.value.find((channel) => channel.channel === selectedLiveChannel.value)) {
       selectedLiveChannel.value = liveCapableChannels.value[0]?.channel ?? ''
     }

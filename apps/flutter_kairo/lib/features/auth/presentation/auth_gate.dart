@@ -95,7 +95,8 @@ class _AuthGateState extends State<AuthGate> {
     if (widget.controller.phase == SessionPhase.authenticated && user != null) {
       _registerDevice(user);
     } else {
-      unawaited(_deviceRegistration.clearSessionBinding());
+      _pendingNotificationTarget = null;
+      unawaited(_deviceRegistration.revokeForSession(gateway: _inboxGateway));
     }
     if (mounted) setState(() {});
   }

@@ -9,16 +9,14 @@ MODEL_MAP: dict[str, type] = {}
 def _lazy_load_models() -> dict[str, type]:
     if MODEL_MAP:
         return MODEL_MAP
-    from app.modules.notifications.models import NotificationChannel
-
     from app.modules.announcements.models import Announcement
     from app.modules.chat.models import ChatQueryLog
     from app.modules.contributions.models import ContributionRecord
     from app.modules.disciplinary.models import DisciplinaryRecord
     from app.modules.events.models import Event
     from app.modules.membership.models import MembershipProfile
+    from app.modules.notifications.user_models import UserNotification
     from app.modules.policies.models import PolicyRecord
-
     MODEL_MAP.update(
         {
             "membership": MembershipProfile,
@@ -28,7 +26,7 @@ def _lazy_load_models() -> dict[str, type]:
             "events": Event,
             "announcements": Announcement,
             "chat": ChatQueryLog,
-            "notifications": NotificationChannel,
+            "notifications": UserNotification,
         }
     )
     return MODEL_MAP

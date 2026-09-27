@@ -20,5 +20,7 @@ only. Preferences are server-owned.
 
 - Delivery failure never rolls back a committed business transaction.
 - Outbox retries are idempotent via deduplication keys.
-- Roadmap V2 S113/S114 generalize this outbox into internal domain events and a
-  unified notification platform; the semantics above stay fixed.
+- Roadmap V2 S113 generalized this into internal domain events with audit and
+  custody consumers (ADR-009); S114 converged all producers on the canonical
+  policy/outbox pipeline with replaceable push providers (ADR-010). The semantics
+  above stay fixed.

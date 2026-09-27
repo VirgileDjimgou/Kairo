@@ -132,6 +132,7 @@ const router = createRouter({
         {
           path: "disciplinary",
           name: "my-disciplinary",
+          alias: "/discipline",
           component: () =>
             import("@/views/disciplinary/MyDisciplinaryView.vue"),
           meta: { module: "disciplinary" },

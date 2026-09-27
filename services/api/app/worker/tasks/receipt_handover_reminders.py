@@ -10,6 +10,8 @@ from app.db.session import async_session_factory
 from app.modules.audit.service import AuditService
 from app.modules.contributions.models import CashHandoverStatus, ContributionReceiptDeclaration
 from app.modules.identity.repository import UserRepository
+from app.modules.membership.repository import MembershipRepository
+from app.modules.notifications.user_service import UserNotificationService
 from app.providers.notifications.placeholders import EmailNotificationProvider
 from app.worker.celery_app import celery_app
 
@@ -36,6 +38,7 @@ async def _send_due_reminders() -> int:
         provider = EmailNotificationProvider()
         users = UserRepository(db)
         audit = AuditService(db)
+        notifications = UserNotificationService(db)
         for receipt in result.scalars().all():
             declarant = await users.get_by_id(receipt.declarant_user_id)
             delivery_status = "skipped"
@@ -60,6 +63,28 @@ async def _send_due_reminders() -> int:
                 entity_id=receipt.id,
                 module_key="contributions",
                 details={"status": delivery_status, "due_at": receipt.handover_due_at.isoformat()},
+            )
+            recipients = [receipt.declarant_user_id]
+            if receipt.membership_profile_id is not None:
+                profile = await MembershipRepository(db).get_by_id(
+                    receipt.tenant_id, receipt.membership_profile_id
+                )
+                if profile is not None and profile.user_id is not None:
+                    recipients.append(profile.user_id)
+            await notifications.notify(
+                tenant_id=receipt.tenant_id,
+                event_type="finance.receipt_handover_due",
+                recipients=recipients,
+                category="finance",
+                target_path="/finance",
+                deduplication_key=(
+                    f"receipt-handover-due:{receipt.id}:{receipt.handover_due_at.isoformat()}"
+                ),
+                metadata={
+                    "amount": str(receipt.amount),
+                    "currency": receipt.currency,
+                },
+                priority="high",
             )
             sent_count += 1
         await db.commit()

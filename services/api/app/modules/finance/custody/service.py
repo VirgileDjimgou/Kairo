@@ -10,8 +10,13 @@ from app.modules.contributions.schemas import (
     ContributionReceiptHandoverReport,
     ContributionReceiptTreasuryConfirmation,
 )
+from app.modules.domain_events.events import (
+    AGGREGATE_RECEIPT_DECLARATION,
+    RECEIPT_HANDOVER_REMINDER_UPDATED,
+    RECEIPT_HANDOVER_REPORTED,
+    RECEIPT_RECEIVED_IN_TREASURY,
+)
 from app.modules.finance.base import FinanceServiceBase
-from app.modules.finance.notifications import dispatch_custody_notice
 
 
 class CustodyMixin(FinanceServiceBase):
@@ -29,7 +34,19 @@ class CustodyMixin(FinanceServiceBase):
             "handover_method": data.method, "processing_note": data.note or record.processing_note,
         })
         assert updated is not None
-        await self._audit.record_event(tenant_id=tenant_id, actor_user_id=declarant_user_id, action="receipt_handover_reported", entity_type="contribution_receipt_declaration", entity_id=updated.id, module_key="contributions", details={"method": data.method})
+        await self._events.publish(
+            tenant_id=tenant_id,
+            event_type=RECEIPT_HANDOVER_REPORTED,
+            aggregate_type=AGGREGATE_RECEIPT_DECLARATION,
+            aggregate_id=updated.id,
+            deduplication_key=f"receipt-handover-reported:{updated.id}",
+            actor_user_id=declarant_user_id,
+            payload={
+                "membership_profile_id": updated.membership_profile_id,
+                "declarant_user_id": updated.declarant_user_id,
+                "audit_details": {"method": data.method},
+            },
+        )
         await self._db.commit()
         return ContributionReceiptDeclarationResponse.model_validate(updated)
 
@@ -58,18 +75,26 @@ class CustodyMixin(FinanceServiceBase):
             "handover_reminder_updated_at": now,
         })
         assert updated is not None
-        await self._audit.record_event(
-            tenant_id=tenant_id, actor_user_id=treasurer_user_id,
-            action="receipt_handover_reminder_updated", entity_type="contribution_receipt_declaration",
-            entity_id=updated.id, module_key="contributions",
-            details={"previous_days": previous_days, "reminder_days": data.reminder_days, "due_at": updated.handover_due_at.isoformat()},
-        )
-        await dispatch_custody_notice(
-            self._db, tenant_id, providers=self._notification_providers, record=updated,
+        await self._events.publish(
+            tenant_id=tenant_id,
+            event_type=RECEIPT_HANDOVER_REMINDER_UPDATED,
+            aggregate_type=AGGREGATE_RECEIPT_DECLARATION,
+            aggregate_id=updated.id,
+            deduplication_key=f"receipt-handover-reminder:{updated.id}:{now.isoformat()}",
             actor_user_id=treasurer_user_id,
-            subject="Kairo — délai de remise mis à jour",
-            body=f"Le délai de remise en caisse pour l'encaissement de {updated.amount} {updated.currency} a été fixé à {data.reminder_days} jour(s).",
-            audit_action="receipt_handover_reminder_notice",
+            occurred_at=now,
+            payload={
+                "amount": str(updated.amount),
+                "currency": updated.currency,
+                "reminder_days": data.reminder_days,
+                "declarant_user_id": updated.declarant_user_id,
+                "membership_profile_id": updated.membership_profile_id,
+                "audit_details": {
+                    "previous_days": previous_days,
+                    "reminder_days": data.reminder_days,
+                    "due_at": updated.handover_due_at.isoformat(),
+                },
+            },
         )
         await self._db.commit()
         return ContributionReceiptDeclarationResponse.model_validate(updated)
@@ -98,18 +123,24 @@ class CustodyMixin(FinanceServiceBase):
             "treasury_receipt_note": data.note,
         })
         assert updated is not None
-        await self._audit.record_event(
-            tenant_id=tenant_id, actor_user_id=treasurer_user_id,
-            action="receipt_received_in_treasury", entity_type="contribution_receipt_declaration",
-            entity_id=updated.id, module_key="contributions",
-            details={"closed_from": previous_status, "method": data.method, "note": data.note},
-        )
-        await dispatch_custody_notice(
-            self._db, tenant_id, providers=self._notification_providers, record=updated,
+        await self._events.publish(
+            tenant_id=tenant_id,
+            event_type=RECEIPT_RECEIVED_IN_TREASURY,
+            aggregate_type=AGGREGATE_RECEIPT_DECLARATION,
+            aggregate_id=updated.id,
+            deduplication_key=f"receipt-received-in-treasury:{updated.id}",
             actor_user_id=treasurer_user_id,
-            subject="Kairo — encaissement clôturé",
-            body=f"Le trésorier a confirmé la réception en caisse de {updated.amount} {updated.currency}. L'opération est terminée.",
-            audit_action="receipt_treasury_closure_notice",
+            payload={
+                "amount": str(updated.amount),
+                "currency": updated.currency,
+                "declarant_user_id": updated.declarant_user_id,
+                "membership_profile_id": updated.membership_profile_id,
+                "audit_details": {
+                    "closed_from": previous_status,
+                    "method": data.method,
+                    "note": data.note,
+                },
+            },
         )
         await self._db.commit()
         return ContributionReceiptDeclarationResponse.model_validate(updated)

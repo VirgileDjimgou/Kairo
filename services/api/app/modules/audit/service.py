@@ -34,7 +34,13 @@ class AuditService:
         entity_id: UUID | str | None = None,
         module_key: str | None = None,
         details: dict[str, Any] | None = None,
+        deduplication_key: str | None = None,
     ) -> AuditEventResponse:
+        if deduplication_key:
+            existing = await self._repo.get_by_deduplication_key(tenant_id, deduplication_key)
+            if existing is not None:
+                return self._to_response(existing)
+
         event = AuditEvent(
             tenant_id=tenant_id,
             actor_user_id=actor_user_id,
@@ -42,6 +48,7 @@ class AuditService:
             entity_type=entity_type.strip(),
             entity_id=str(entity_id) if entity_id is not None else None,
             module_key=module_key.strip() if module_key else None,
+            deduplication_key=deduplication_key,
             details_json=self._dump_details(details or {}),
         )
         created = await self._repo.create(event)

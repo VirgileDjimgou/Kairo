@@ -56,7 +56,7 @@ class AnnouncementService:
         )
         if created.visibility_scope in {"tenant_public", "members_only"}:
             notification_service = UserNotificationService(self._db)
-            await notification_service.enqueue(
+            await notification_service.notify(
                 tenant_id=tenant_id,
                 event_type="announcements.published",
                 recipients=await notification_service.active_tenant_users(tenant_id),
@@ -125,7 +125,7 @@ class AnnouncementService:
         )
         if announcement.visibility_scope in {"tenant_public", "members_only"}:
             notification_service = UserNotificationService(self._db)
-            await notification_service.enqueue(
+            await notification_service.notify(
                 tenant_id=tenant_id,
                 event_type="announcements.updated",
                 recipients=await notification_service.active_tenant_users(tenant_id),

@@ -1,4 +1,22 @@
 import http from './http'
+import type {
+  InboxNotificationResponse,
+  InboxResponse,
+  NotificationDeviceRevocationResponse,
+  NotificationHealthResponse,
+  NotificationPreferencesResponse,
+  PushConfigurationResponse,
+} from './generated/contracts'
+
+// Inbox/push/health contracts are generated from docs/api/openapi.json so the
+// client cannot drift from the FastAPI schema. Thin gateways below stay
+// hand-written on purpose (APIs, error handling, CSRF/headers).
+export type InboxNotification = InboxNotificationResponse
+export type NotificationInboxResponse = InboxResponse
+export type PushConfiguration = PushConfigurationResponse
+export type NotificationPreferences = NotificationPreferencesResponse
+export type NotificationHealth = NotificationHealthResponse
+export type NotificationDeviceRevocation = NotificationDeviceRevocationResponse
 
 export interface NotificationChannelResponse {
   channel: string
@@ -57,36 +75,6 @@ export interface NotificationHistorySummary {
 export interface NotificationHistoryResponse {
   items: NotificationHistoryEntry[]
   summary: NotificationHistorySummary
-}
-
-export interface InboxNotification {
-  id: string
-  event_type: string
-  category: string
-  priority: string
-  target_path: string
-  metadata: Record<string, unknown>
-  read_at: string | null
-  created_at: string
-}
-
-export interface NotificationInboxResponse {
-  items: InboxNotification[]
-  unread_count: number
-}
-
-export interface PushConfiguration {
-  enabled: boolean
-  public_key?: string | null
-  reason?: string | null
-}
-
-export interface NotificationPreferences {
-  push_enabled: boolean
-  finance_enabled: boolean
-  discipline_enabled: boolean
-  announcements_enabled: boolean
-  events_enabled: boolean
 }
 
 export interface PollNotificationReconciliationPayload {
@@ -211,4 +199,16 @@ export async function registerNotificationDevice(payload: { installation_id: str
 
 export async function savePushSubscription(payload: { installation_id: string; platform?: string; endpoint: string; p256dh: string; auth: string }): Promise<void> {
   await http.post('/notifications/push-subscriptions', payload)
+}
+
+export async function revokeNotificationDevice(installationId: string): Promise<NotificationDeviceRevocation> {
+  const response = await http.post<NotificationDeviceRevocation>(
+    `/notifications/devices/${encodeURIComponent(installationId)}/revoke`,
+  )
+  return response.data
+}
+
+export async function getNotificationHealth(): Promise<NotificationHealth> {
+  const response = await http.get<NotificationHealth>('/notifications/health')
+  return response.data
 }

@@ -10,6 +10,7 @@ import { useLocaleStore } from '@/stores/locale.store'
 import type { SupportedLocale } from '@/i18n/messages'
 import { DEMO_TENANT_SLUG } from '@/config/demoAccounts'
 import { ROLE_CAPABILITY_BUNDLES } from '@/config/capabilityBundles'
+import { revokeCurrentDevice } from '@/services/web-push'
 
 const DEMO_SESSION_KEY = 'kairo_demo_session'
 
@@ -134,6 +135,11 @@ export const useAuthStore = defineStore('auth', () => {
   }
 
   function logout() {
+    if (token.value) {
+      // The installation identity survives; only this profile's push binding is
+      // revoked so a signed-out browser stops receiving authenticated hints.
+      void revokeCurrentDevice().catch(() => undefined)
+    }
     token.value = null
     user.value = null
     mfaToken.value = null

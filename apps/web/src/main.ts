@@ -5,6 +5,7 @@ import Toast, { POSITION } from 'vue-toastification'
 
 import App from './App.vue'
 import router from './router'
+import { watchPushSubscriptionRotation } from './services/web-push'
 
 // Bootstrap CSS + JS
 import 'bootstrap/dist/css/bootstrap.min.css'
@@ -47,6 +48,8 @@ updateServiceWorker = registerSW({
 window.addEventListener('kairo:pwa-apply-update', () => {
   void updateServiceWorker(true)
 })
+
+watchPushSubscriptionRotation()
 
 window.setInterval(() => {
   void updateServiceWorker()

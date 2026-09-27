@@ -5,6 +5,16 @@ const allowedFixtures = new Set([
   'seed/sample-contributions.csv',
 ]);
 
+// Source trees legitimately contain JSON/XML catalogs whose names include
+// domain words (for example apps/web/src/i18n/fr/membership.json). They are
+// code, not operational data exports, so the data-export rule skips them while
+// still rejecting exported data outside a source tree.
+const sourceTreePatterns = [
+  /^apps\/web\/src\//,
+  /^apps\/flutter_kairo\/lib\//,
+  /^services\/api\/app\//,
+];
+
 const forbiddenPatterns = [
   {
     reason: 'database files are local-only artifacts',
@@ -33,6 +43,7 @@ const forbiddenPatterns = [
   {
     reason: 'financial or member data exports must be kept out of Git',
     pattern: /(?:contribution|cotisation|payment|paiement|financial|finance|adherent|member|bilan|sanzion|sanction|mitglied|beitrag).+\.(csv|tsv|json|xml)$/i,
+    skipSourceTrees: true,
   },
   {
     reason: 'secret-bearing environment files must never be versioned (documented *.example templates are allowed)',
@@ -52,15 +63,26 @@ const trackedFiles = execFileSync('git', ['ls-files', '-z'], {
   encoding: 'utf8',
 }).split('\0').filter(Boolean);
 
+function isViolation(file) {
+  return forbiddenPatterns.some(({ pattern, skipSourceTrees }) => {
+    if (!pattern.test(file)) return false;
+    if (skipSourceTrees && sourceTreePatterns.some((source) => source.test(file))) return false;
+    return true;
+  });
+}
+
 const violations = trackedFiles.filter((file) => (
   !allowedFixtures.has(file)
-  && forbiddenPatterns.some(({ pattern }) => pattern.test(file))
+  && isViolation(file)
 ));
 
 if (violations.length > 0) {
   console.error('Sensitive-file policy violations:');
   for (const file of violations) {
-    const policy = forbiddenPatterns.find(({ pattern }) => pattern.test(file));
+    const policy = forbiddenPatterns.find(({ pattern, skipSourceTrees }) => (
+      pattern.test(file)
+      && !(skipSourceTrees && sourceTreePatterns.some((source) => source.test(file)))
+    ));
     console.error(`- ${file}: ${policy.reason}`);
   }
   process.exit(1);

@@ -11,6 +11,12 @@ from app.providers.notifications.base import (
     NotificationDeliveryStatusResult,
     NotificationDispatchResult,
 )
+from app.providers.push.base import (
+    FirebasePushTarget,
+    PushMessage,
+    PushOutcome,
+    WebPushTarget,
+)
 
 
 class FakeEmbeddingProvider:
@@ -375,3 +381,31 @@ class FakeWhatsAppNotificationProvider:
     ) -> NotificationDeliveryStatusResult | None:
         self.polled_references.append(provider_reference)
         return self._polled_result
+
+
+class FakeWebPushProvider:
+    """Deterministic Web Push double. Outcomes are consumed in order."""
+
+    def __init__(self, outcomes: list[PushOutcome] | None = None) -> None:
+        self._outcomes = list(outcomes or [])
+        self.sent: list[tuple[WebPushTarget, PushMessage]] = []
+
+    def send(self, target: WebPushTarget, message: PushMessage) -> PushOutcome:
+        self.sent.append((target, message))
+        if self._outcomes:
+            return self._outcomes.pop(0)
+        return PushOutcome.DELIVERED
+
+
+class FakeFirebasePushProvider:
+    """Deterministic Android FCM double. Outcomes are consumed in order."""
+
+    def __init__(self, outcomes: list[PushOutcome] | None = None) -> None:
+        self._outcomes = list(outcomes or [])
+        self.sent: list[tuple[FirebasePushTarget, PushMessage]] = []
+
+    def send(self, target: FirebasePushTarget, message: PushMessage) -> PushOutcome:
+        self.sent.append((target, message))
+        if self._outcomes:
+            return self._outcomes.pop(0)
+        return PushOutcome.DELIVERED

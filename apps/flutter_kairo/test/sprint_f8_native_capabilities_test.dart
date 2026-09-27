@@ -37,6 +37,36 @@ void main() {
       expect(gateway.installations.first.length, greaterThanOrEqualTo(16));
     },
   );
+
+  test(
+    'sign-out revokes the push binding once and a later sign-in re-registers',
+    () async {
+      final storage = _Storage();
+      final gateway = _Inbox();
+      final registration = DeviceRegistration(storage: storage);
+
+      await registration.registerForSession(
+        gateway: gateway,
+        tenantId: 'tenant-a',
+        userId: 'user-a',
+      );
+      await registration.revokeForSession(gateway: gateway);
+      await registration.revokeForSession(gateway: gateway);
+      await registration.clearSessionBinding();
+
+      expect(gateway.revocations, hasLength(1));
+      expect(gateway.revocations.single, gateway.installations.single);
+
+      await registration.registerForSession(
+        gateway: gateway,
+        tenantId: 'tenant-a',
+        userId: 'user-a',
+      );
+      expect(gateway.installations, hasLength(2));
+      expect(gateway.installations.toSet(), hasLength(1));
+      expect(gateway.revocations, hasLength(1));
+    },
+  );
 }
 
 class _Storage implements SecureStoragePort {
@@ -49,6 +79,7 @@ class _Storage implements SecureStoragePort {
 
 class _Inbox implements InboxGateway, DeviceRegistrationGateway {
   final List<String> installations = <String>[];
+  final List<String> revocations = <String>[];
   @override
   Future<void> registerDevice({
     required String installationId,
@@ -59,6 +90,9 @@ class _Inbox implements InboxGateway, DeviceRegistrationGateway {
     required String installationId,
     required String fcmToken,
   }) async {}
+  @override
+  Future<void> revokeDevice({required String installationId}) async =>
+      revocations.add(installationId);
   @override
   Future<NotificationInbox> load() async =>
       const NotificationInbox(items: <InboxNotification>[], unreadCount: 0);

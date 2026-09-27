@@ -28,25 +28,46 @@ import '../../notifications/data/fcm_registration_state.dart';
 import '../../notifications/data/inbox_gateway.dart';
 import '../../notifications/presentation/inbox_page.dart';
 
-String notificationDestinationKey(String path) {
-  final value = path.toLowerCase();
-  if (value == '/notifications' ||
-      value.startsWith('/notifications/') ||
-      value.contains('inbox')) {
-    return 'inbox';
+/// Maps a server-owned notification target path to a shell destination.
+///
+/// Only explicit internal Kairo paths are accepted; external URLs, protocol
+/// relative paths and unknown targets are ignored so a notification payload can
+/// never navigate outside the authenticated shell.
+String? notificationDestinationKey(String path) {
+  if (!path.startsWith('/') || path.startsWith('//')) return null;
+  final List<String> segments = path
+      .toLowerCase()
+      .split('/')
+      .where((String segment) => segment.isNotEmpty)
+      .toList();
+  if (segments.isEmpty) return null;
+  switch (segments.first) {
+    case 'notifications':
+    case 'inbox':
+      return 'inbox';
+    case 'receipt':
+    case 'receipts':
+      return 'receipts';
+    case 'finance':
+      return 'finance';
+    case 'discipline':
+    case 'disciplinary':
+    case 'censor':
+    case 'governance':
+    case 'announcements':
+    case 'events':
+    case 'documents':
+    case 'journal':
+      return 'governance';
+    case 'members':
+      return 'members';
+    case 'chat':
+      return 'chat';
+    case 'contributions':
+      return 'contributions';
+    default:
+      return null;
   }
-  if (value.contains('receipt') || value.contains('encaissement')) {
-    return 'receipts';
-  }
-  if (value.contains('finance') || value.contains('expense')) {
-    return 'finance';
-  }
-  if (value.contains('disciplin') || value.contains('censor')) {
-    return 'governance';
-  }
-  if (value.contains('member')) return 'members';
-  if (value.contains('chat')) return 'chat';
-  return 'home';
 }
 
 class RoleShell extends StatefulWidget {
@@ -525,8 +546,9 @@ class _RoleShellState extends State<RoleShell> {
   }
 
   void _openNotificationTarget(String path) {
-    final key = notificationDestinationKey(path);
-    final index = _destinationKeys.indexOf(key);
+    final String? key = notificationDestinationKey(path);
+    if (key == null) return;
+    final int index = _destinationKeys.indexOf(key);
     if (index >= 0) setState(() => _index = index);
   }
 }

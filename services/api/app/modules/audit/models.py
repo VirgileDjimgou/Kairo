@@ -3,7 +3,7 @@ from __future__ import annotations
 import uuid
 from datetime import datetime
 
-from sqlalchemy import DateTime, ForeignKey, String, Text
+from sqlalchemy import DateTime, ForeignKey, String, Text, UniqueConstraint
 from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.orm import Mapped, mapped_column
 from sqlalchemy.sql import text as sql_text
@@ -13,6 +13,9 @@ from app.db.base import Base
 
 class AuditEvent(Base):
     __tablename__ = "audit_events"
+    __table_args__ = (
+        UniqueConstraint("tenant_id", "deduplication_key", name="uq_audit_events_dedup"),
+    )
 
     id: Mapped[uuid.UUID] = mapped_column(
         UUID(as_uuid=True), primary_key=True, default=uuid.uuid4
@@ -35,6 +38,7 @@ class AuditEvent(Base):
     action: Mapped[str] = mapped_column(String(80), nullable=False, index=True)
     entity_type: Mapped[str] = mapped_column(String(120), nullable=False, index=True)
     entity_id: Mapped[str | None] = mapped_column(Text, nullable=True, index=True)
+    deduplication_key: Mapped[str | None] = mapped_column(String(255), nullable=True)
     details_json: Mapped[str] = mapped_column(
         Text, nullable=False, server_default=sql_text("'{}'")
     )

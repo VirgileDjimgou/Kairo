@@ -99,7 +99,7 @@ class DisciplinaryService:
             },
         )
         if profile.user_id is not None:
-            await UserNotificationService(self._db).enqueue(
+            await UserNotificationService(self._db).notify(
                 tenant_id=tenant_id,
                 event_type="discipline.recorded",
                 recipients=[profile.user_id],
@@ -140,7 +140,7 @@ class DisciplinaryService:
         )
         profile = await self._membership_repo.get_by_id(tenant_id, record.membership_profile_id)
         if profile is not None and profile.user_id is not None:
-            await UserNotificationService(self._db).enqueue(
+            await UserNotificationService(self._db).notify(
                 tenant_id=tenant_id,
                 event_type="discipline.updated",
                 recipients=[profile.user_id],

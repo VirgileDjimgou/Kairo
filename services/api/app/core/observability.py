@@ -11,6 +11,7 @@ from fastapi.responses import JSONResponse
 from starlette.middleware.base import BaseHTTPMiddleware
 
 from app.core.metrics import metrics, normalize_error_code
+from app.core.request_context import current_request_id
 
 logger = structlog.get_logger(__name__)
 
@@ -32,6 +33,7 @@ class ObservabilityMiddleware(BaseHTTPMiddleware):
     async def dispatch(self, request: Request, call_next):  # type: ignore[override]
         request_id = _request_id(request)
         request.state.request_id = request_id
+        token = current_request_id.set(request_id)
         structlog.contextvars.clear_contextvars()
         structlog.contextvars.bind_contextvars(
             request_id=request_id,
@@ -45,6 +47,7 @@ class ObservabilityMiddleware(BaseHTTPMiddleware):
         finally:
             elapsed_ms = int((monotonic() - start) * 1000)
             structlog.contextvars.clear_contextvars()
+            current_request_id.reset(token)
 
         response.headers["X-Request-ID"] = request_id
         metrics.record_http_request(request.method, response.status_code, elapsed_ms)

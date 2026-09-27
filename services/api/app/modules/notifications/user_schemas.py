@@ -12,6 +12,8 @@ class InboxNotificationResponse(BaseModel):
     category: str
     priority: str
     target_path: str
+    event_id: UUID | None = None
+    correlation_id: str | None = None
     metadata: dict[str, object]
     read_at: datetime | None
     created_at: datetime
@@ -64,3 +66,21 @@ class UnreachableNotificationRecipient(BaseModel):
     display_name: str
     pending_notifications: int
     last_notification_at: datetime
+
+
+class NotificationHealthResponse(BaseModel):
+    web_push_configured: bool
+    firebase_configured: bool
+    worker_running: bool
+    pending_outbox: int
+    failed_outbox: int
+    oldest_pending_seconds: int | None = None
+    disabled_web_subscriptions: int
+    disabled_fcm_tokens: int
+    last_successful_dispatch_at: datetime | None = None
+
+
+class NotificationDeviceRevocationResponse(BaseModel):
+    revoked_profiles: int
+    disabled_web_subscriptions: int
+    disabled_fcm_tokens: int

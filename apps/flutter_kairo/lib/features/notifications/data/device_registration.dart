@@ -71,6 +71,21 @@ class DeviceRegistration {
     void Function(String targetPath) onTargetPath,
   ) => _fcmRuntime.configureNotificationOpens(onTargetPath);
 
+  /// Sign-out revokes this installation's push binding for the profile. The
+  /// installation identity is preserved so the next sign-in re-registers.
+  Future<void> revokeForSession({
+    required DeviceRegistrationGateway gateway,
+  }) async {
+    if (_registeredScope == null) return;
+    _registeredScope = null;
+    try {
+      await gateway.revokeDevice(installationId: await installationId());
+    } catch (_) {
+      // Sign-out must never be blocked by a network failure.
+    }
+    await _fcmRuntime.clearSessionBinding();
+  }
+
   Future<void> clearSessionBinding() async {
     _registeredScope = null;
     await _fcmRuntime.clearSessionBinding();

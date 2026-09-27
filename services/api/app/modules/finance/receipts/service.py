@@ -15,11 +15,14 @@ from app.modules.contributions.schemas import (
     ContributionReceiptDeclarationUpdate,
 )
 from app.modules.disciplinary.repository import DisciplinaryRepository
-from app.modules.finance.base import FinanceServiceBase
-from app.modules.finance.notifications import (
-    notify_receipt_declared,
-    notify_receipt_processed,
+from app.modules.domain_events.events import (
+    AGGREGATE_RECEIPT_DECLARATION,
+    RECEIPT_DECLARED,
+    RECEIPT_SUBMITTED,
+    RECEIPT_UPDATED,
+    receipt_processed_event_type,
 )
+from app.modules.finance.base import FinanceServiceBase
 from app.modules.membership.repository import MembershipRepository
 
 
@@ -45,16 +48,23 @@ class ReceiptWorkflowMixin(FinanceServiceBase):
             "declarant_role_code": declarant_role_code,
         })
         record = await self._repo.create_receipt_declaration(tenant_id, payload)
-        await notify_receipt_declared(self._db, tenant_id, record=record)
-        await self._audit.record_event(
-            tenant_id=tenant_id, actor_user_id=declarant_user_id,
-            action="receipt_declaration_created", entity_type="contribution_receipt_declaration",
-            entity_id=record.id, module_key="contributions",
-            details={
+        await self._events.publish(
+            tenant_id=tenant_id,
+            event_type=RECEIPT_DECLARED,
+            aggregate_type=AGGREGATE_RECEIPT_DECLARATION,
+            aggregate_id=record.id,
+            deduplication_key=f"receipt-declared:{record.id}",
+            actor_user_id=declarant_user_id,
+            payload={
                 "membership_profile_id": record.membership_profile_id,
                 "income_type": record.income_type,
-                "source_name": record.source_name,
-                "amount": str(record.amount),
+                "declarant_user_id": record.declarant_user_id,
+                "audit_details": {
+                    "membership_profile_id": record.membership_profile_id,
+                    "income_type": record.income_type,
+                    "source_name": record.source_name,
+                    "amount": str(record.amount),
+                },
             },
         )
         await self._db.commit()
@@ -75,10 +85,21 @@ class ReceiptWorkflowMixin(FinanceServiceBase):
             tenant_id, declaration_id, data.model_dump(exclude_unset=True)
         )
         assert updated is not None
-        await self._audit.record_event(
-            tenant_id=tenant_id, actor_user_id=declarant_user_id,
-            action="receipt_declaration_updated", entity_type="contribution_receipt_declaration",
-            entity_id=updated.id, module_key="contributions", details={"changes": data.model_dump(exclude_unset=True)},
+        now = datetime.now(UTC)
+        await self._events.publish(
+            tenant_id=tenant_id,
+            event_type=RECEIPT_UPDATED,
+            aggregate_type=AGGREGATE_RECEIPT_DECLARATION,
+            aggregate_id=updated.id,
+            deduplication_key=f"receipt-updated:{updated.id}:{now.isoformat()}",
+            actor_user_id=declarant_user_id,
+            occurred_at=now,
+            payload={
+                "membership_profile_id": updated.membership_profile_id,
+                "income_type": updated.income_type,
+                "declarant_user_id": updated.declarant_user_id,
+                "audit_details": {"changes": data.model_dump(exclude_unset=True)},
+            },
         )
         await self._db.commit()
         return ContributionReceiptDeclarationResponse.model_validate(updated)
@@ -98,10 +119,19 @@ class ReceiptWorkflowMixin(FinanceServiceBase):
             "processing_note": None,
         })
         assert updated is not None
-        await self._audit.record_event(
-            tenant_id=tenant_id, actor_user_id=declarant_user_id,
-            action="receipt_declaration_submitted", entity_type="contribution_receipt_declaration",
-            entity_id=updated.id, module_key="contributions", details={},
+        await self._events.publish(
+            tenant_id=tenant_id,
+            event_type=RECEIPT_SUBMITTED,
+            aggregate_type=AGGREGATE_RECEIPT_DECLARATION,
+            aggregate_id=updated.id,
+            deduplication_key=f"receipt-submitted:{updated.id}",
+            actor_user_id=declarant_user_id,
+            payload={
+                "membership_profile_id": updated.membership_profile_id,
+                "income_type": updated.income_type,
+                "declarant_user_id": updated.declarant_user_id,
+                "audit_details": {},
+            },
         )
         await self._db.commit()
         return ContributionReceiptDeclarationResponse.model_validate(updated)
@@ -168,14 +198,25 @@ class ReceiptWorkflowMixin(FinanceServiceBase):
                 "processing_note": data.note,
             })
         assert updated is not None
-        await self._audit.record_event(
-            tenant_id=tenant_id, actor_user_id=processor_user_id,
-            action=f"receipt_declaration_{data.action}", entity_type="contribution_receipt_declaration",
-            entity_id=updated.id, module_key="contributions",
-            details={"processed_amount": str(updated.processed_amount) if updated.processed_amount else None},
-        )
-        await notify_receipt_processed(
-            self._db, tenant_id, record=record, updated=updated, action=data.action,
+        processed_amount = str(updated.processed_amount) if updated.processed_amount else None
+        await self._events.publish(
+            tenant_id=tenant_id,
+            event_type=receipt_processed_event_type(data.action),
+            aggregate_type=AGGREGATE_RECEIPT_DECLARATION,
+            aggregate_id=updated.id,
+            deduplication_key=f"receipt-processed:{updated.id}:{data.action}",
+            actor_user_id=processor_user_id,
+            occurred_at=updated.processed_at,
+            payload={
+                "action": data.action,
+                "income_type": updated.income_type,
+                "membership_profile_id": updated.membership_profile_id,
+                "declarant_user_id": updated.declarant_user_id,
+                "processed_amount": processed_amount,
+                "cash_handover_status": updated.cash_handover_status,
+                "handover_due_at": updated.handover_due_at,
+                "audit_details": {"processed_amount": processed_amount},
+            },
         )
         await self._db.commit()
         return ContributionReceiptDeclarationResponse.model_validate(updated)

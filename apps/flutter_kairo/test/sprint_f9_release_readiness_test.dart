@@ -15,6 +15,18 @@ void main() {
     expect(notificationDestinationKey('/notifications'), 'inbox');
     expect(notificationDestinationKey('/notifications/inbox'), 'inbox');
     expect(notificationDestinationKey('/inbox'), 'inbox');
+    expect(notificationDestinationKey('/finance'), 'finance');
+    expect(notificationDestinationKey('/receipts'), 'receipts');
+    expect(notificationDestinationKey('/discipline'), 'governance');
+  });
+
+  test('F9 rejects external and unknown notification target paths', () {
+    expect(notificationDestinationKey('https://evil.example/steal'), isNull);
+    expect(notificationDestinationKey('http://evil.example'), isNull);
+    expect(notificationDestinationKey('//evil.example/path'), isNull);
+    expect(notificationDestinationKey('/unknown-target'), isNull);
+    expect(notificationDestinationKey(''), isNull);
+    expect(notificationDestinationKey('relative/path'), isNull);
   });
 
   testWidgets('F9 sign-in controls remain accessible on phone and desktop', (
