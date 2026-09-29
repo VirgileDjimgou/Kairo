@@ -23,6 +23,7 @@ const repoRoot = process.cwd();
 const baseUrl = (process.env.KAIRO_SCREENSHOT_BASE_URL || "https://kairo.patrickdjimgou.dev").replace(/\/$/, "");
 const apiBaseUrl = process.env.KAIRO_SCREENSHOT_API_URL || `${baseUrl}/api/v1`;
 const locale = process.env.KAIRO_SCREENSHOT_LOCALE || "fr";
+const targetLabel = process.env.KAIRO_SCREENSHOT_TARGET_LABEL || `\`${baseUrl}\``;
 const outputRoot = path.join(repoRoot, "docs", "screenshots");
 
 const desktopViewport = { width: 1440, height: 900 };
@@ -37,6 +38,7 @@ const defaultAccounts = {
   censor: { email: "censor@demo.org", password: "Censor123!" },
   sports_manager: { email: "sports@demo.org", password: "Sports123!" },
   vice_president: { email: "vice-president@demo.org", password: "VicePresident123!" },
+  principal_admin: { email: "principal@demo.org", password: "Principal123!" },
 };
 
 /**
@@ -225,6 +227,55 @@ const roleSessions = [
     route: "/account/security",
     note: "Account security, devices and session revocation.",
   },
+  {
+    account: "member",
+    folder: "notifications",
+    file: "01-inbox.png",
+    route: "/notifications",
+    note: "Tenant-isolated notification inbox with read state and preferences.",
+  },
+  {
+    account: "principal_admin",
+    folder: "admin",
+    file: "01-overview.png",
+    route: "/admin",
+    note: "Principal admin overview with setup and recovery posture.",
+  },
+  {
+    account: "principal_admin",
+    folder: "admin",
+    file: "02-health-center.png",
+    route: "/admin/health",
+    note: "Health center: dependency checks, recovery evidence and notification pipeline.",
+  },
+  {
+    account: "principal_admin",
+    folder: "admin",
+    file: "03-notification-console.png",
+    route: "/admin/notifications",
+    note: "Notification operations console with pipeline health and channel history.",
+  },
+  {
+    account: "principal_admin",
+    folder: "admin",
+    file: "04-tenant-operations.png",
+    route: "/admin/tenants",
+    note: "Tenant operations command center with membership inventory.",
+  },
+  {
+    account: "principal_admin",
+    folder: "admin",
+    file: "05-onboarding.png",
+    route: "/admin/onboarding",
+    note: "First-run onboarding wizard from blank tenant to launch configuration.",
+  },
+  {
+    account: "principal_admin",
+    folder: "admin",
+    file: "06-settings.png",
+    route: "/admin/settings",
+    note: "Tenant settings with branding, module toggles and recovery evidence.",
+  },
 ];
 
 const mobileSessions = [
@@ -255,6 +306,13 @@ const mobileSessions = [
     file: "04-president-governance.png",
     route: "/governance",
     note: "Governance cockpit at phone width.",
+  },
+  {
+    account: "principal_admin",
+    folder: "mobile",
+    file: "05-admin-health.png",
+    route: "/admin/health",
+    note: "Health center at phone width.",
   },
 ];
 
@@ -442,7 +500,7 @@ async function run() {
   const lines = [
     "# Kairo README Screenshot Gallery",
     "",
-    `Captured against \`${baseUrl}\` in locale \`${locale}\` at desktop (1440×900) and`,
+    `Captured against ${targetLabel} in locale \`${locale}\` at desktop (1440×900) and`,
     "phone (390×844) widths.",
     "",
     "Each capture authenticates through the real FastAPI login contract and screenshots an",

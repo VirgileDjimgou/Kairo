@@ -1,7 +1,7 @@
 # Kairo README Screenshot Gallery
 
-Captured against `https://kairo.patrickdjimgou.dev` in locale `fr` at desktop (1440×900) and
-phone (390×844) widths.
+Captured against the seeded demo tenant (local Docker core stack, current working tree)
+in locale `fr` at desktop (1440×900) and phone (390×844) widths.
 
 Each capture authenticates through the real FastAPI login contract and screenshots an
 authorised role surface. No permission is simulated in the client.
@@ -13,7 +13,8 @@ node scripts/capture-readme-screenshots.mjs
 ```
 
 A deployment with rotated demo passwords passes the public `VITE_DEMO_ACCOUNTS`
-payload through `KAIRO_SCREENSHOT_ACCOUNTS`.
+payload through `KAIRO_SCREENSHOT_ACCOUNTS`. Point the capture at another instance with
+`KAIRO_SCREENSHOT_BASE_URL` and label it with `KAIRO_SCREENSHOT_TARGET_LABEL`.
 
 > Capture-time note: the deployed reverse proxy currently normalises slash-less
 > FastAPI collection routes with an absolute `http://` redirect, which an HTTPS browser
@@ -46,7 +47,15 @@ payload through `KAIRO_SCREENSHOT_ACCOUNTS`.
 | `oversight` | `02-censor-discipline.png` | `/censor` |
 | `oversight` | `03-sports-workspace.png` | `/sports` |
 | `oversight` | `04-account-security.png` | `/account/security` |
+| `notifications` | `01-inbox.png` | `/notifications` |
+| `admin` | `01-overview.png` | `/admin` |
+| `admin` | `02-health-center.png` | `/admin/health` |
+| `admin` | `03-notification-console.png` | `/admin/notifications` |
+| `admin` | `04-tenant-operations.png` | `/admin/tenants` |
+| `admin` | `05-onboarding.png` | `/admin/onboarding` |
+| `admin` | `06-settings.png` | `/admin/settings` |
 | `mobile` | `01-member-dashboard.png` | `/dashboard` |
 | `mobile` | `02-member-contribution-statement.png` | `/members/profile` |
 | `mobile` | `03-treasurer-finance.png` | `/finance` |
 | `mobile` | `04-president-governance.png` | `/governance` |
+| `mobile` | `05-admin-health.png` | `/admin/health` |

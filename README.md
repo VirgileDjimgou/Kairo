@@ -9,6 +9,7 @@ Membership · Treasury · Governance · Discipline · Communications · Document
 [**Live portfolio demo →**](https://kairo.patrickdjimgou.dev/demo) &nbsp;·&nbsp;
 [Architecture](#architecture) &nbsp;·&nbsp;
 [Screenshots](#screenshots) &nbsp;·&nbsp;
+[Deployment](#production-deployment-hetzner--cloudflare) &nbsp;·&nbsp;
 [Quick start](#quick-start) &nbsp;·&nbsp;
 [Documentation](#documentation)
 
@@ -65,6 +66,19 @@ matching workspace opens with fictional seed data.
 > The demo tenant contains fictional data only. Administrative roles are grouped under
 > "advanced roles" and are aimed at a guided walkthrough.
 
+### Watch a role walkthrough
+
+Short screen recordings captured from the running application (open a file to play it):
+
+| Journey | Recording | Journey | Recording |
+| --- | --- | --- | --- |
+| Public demo entry | [▶ play](docs/github-demo/role-videos/00-public-entry.webm) | Tenant picker | [▶ play](docs/github-demo/role-videos/01-tenant-picker.webm) |
+| Member portal | [▶ play](docs/github-demo/role-videos/02-member.webm) | Secretary general | [▶ play](docs/github-demo/role-videos/03-secretary-general.webm) |
+| Treasurer | [▶ play](docs/github-demo/role-videos/04-treasurer.webm) | Auditor | [▶ play](docs/github-demo/role-videos/05-auditor.webm) |
+| Censor | [▶ play](docs/github-demo/role-videos/06-censor.webm) | Sports manager | [▶ play](docs/github-demo/role-videos/07-sports-manager.webm) |
+| President | [▶ play](docs/github-demo/role-videos/08-president.webm) | Vice president | [▶ play](docs/github-demo/role-videos/09-vice-president.webm) |
+| Principal admin | [▶ play](docs/github-demo/role-videos/10-principal-admin.webm) | Tenant switching | [▶ play](docs/github-demo/role-videos/11-tenant-switcher.webm) |
+
 Demo mode is configured at build time through `apps/web` variables:
 
 | Variable | Default | Purpose |
@@ -81,7 +95,9 @@ awkward in an env file.
 ## Screenshots
 
 Every capture below is a real screen from the running application, taken against the
-public demo tenant in French at desktop and phone widths.
+seeded demo tenant in French at desktop and phone widths. The full set (34 captures,
+including administration and notifications) is reproducible with the capture script
+described at the end of this section.
 
 ### Member portal — clarity for everyday members
 
@@ -152,6 +168,63 @@ read-only posture for sensitive actions.
   </tr>
 </table>
 
+### Administration &amp; operations — configuration, health and recovery
+
+The principal administrator configures the tenant (branding, languages, module toggles)
+and monitors the platform from a dedicated control plane: dependency health, recovery
+evidence, the notification pipeline and the tenant operations command center.
+
+<table>
+  <tr>
+    <td width="50%" valign="top"><strong>Operational health center</strong><br /><img alt="Admin health center" src="docs/screenshots/admin/02-health-center.png" width="420" /></td>
+    <td width="50%" valign="top"><strong>Notification operations console</strong><br /><img alt="Admin notification console" src="docs/screenshots/admin/03-notification-console.png" width="420" /></td>
+  </tr>
+  <tr>
+    <td valign="top"><strong>Tenant operations command center</strong><br /><img alt="Tenant operations" src="docs/screenshots/admin/04-tenant-operations.png" width="420" /></td>
+    <td valign="top"><strong>Tenant settings &amp; module toggles</strong><br /><img alt="Tenant settings with module toggles" src="docs/screenshots/admin/06-settings.png" width="420" /></td>
+  </tr>
+</table>
+
+<details>
+<summary><strong>More administration captures (overview and onboarding wizard)</strong></summary>
+<br />
+
+<table>
+  <tr>
+    <td width="50%" valign="top"><strong>Principal admin overview</strong><br /><img alt="Principal admin overview" src="docs/screenshots/admin/01-overview.png" width="420" /></td>
+    <td width="50%" valign="top"><strong>First-run onboarding wizard</strong><br /><img alt="Onboarding wizard" src="docs/screenshots/admin/05-onboarding.png" width="420" /></td>
+  </tr>
+</table>
+</details>
+
+### Notifications — durable inbox and delivery pipeline
+
+Notification intents flow through one canonical pipeline: authenticated inbox first,
+then opt-in Web Push and Android FCM. Finance and discipline details never leave the
+authenticated surface.
+
+<p align="center">
+  <img alt="Member notification inbox with unread state" src="docs/screenshots/notifications/01-inbox.png" width="760" />
+</p>
+
+The operator side (pipeline health, pending/failed counts, channel history) is shown in
+the administration section above and documented in the
+[notification operator guide](docs/notifications/NOTIFICATION_OPERATOR_GUIDE.md).
+
+### Flutter client — Android and Web companion
+
+A separate Flutter application consumes the same FastAPI contracts: secure storage,
+offline drafts, native sharing, Firebase push and an allowlisted deep-link router.
+
+<table>
+  <tr>
+    <td width="25%" valign="top"><strong>Member contributions</strong><br /><img alt="Flutter member contributions" src="apps/flutter_kairo/artifacts/sprint-f3/member-android-contributions.png" width="200" /></td>
+    <td width="25%" valign="top"><strong>Offline draft</strong><br /><img alt="Flutter offline draft" src="apps/flutter_kairo/artifacts/sprint-f7/android-offline-draft.png" width="200" /></td>
+    <td width="25%" valign="top"><strong>Censor discipline</strong><br /><img alt="Flutter censor discipline" src="apps/flutter_kairo/artifacts/sprint-f5/censor-android-discipline.png" width="200" /></td>
+    <td width="25%" valign="top"><strong>Push notification</strong><br /><img alt="Flutter Android push notification" src="apps/flutter_kairo/artifacts/live-device-validation/2026-08-20/12-fcm-background-notification.png" width="200" /></td>
+  </tr>
+</table>
+
 ### Mobile &amp; PWA — installable on a phone
 
 The same surfaces adapt to phone widths with bottom navigation, safe-area handling and an
@@ -159,10 +232,11 @@ installable Progressive Web App shell.
 
 <table>
   <tr>
-    <td width="25%" valign="top"><strong>Member dashboard</strong><br /><img alt="Mobile member dashboard" src="docs/screenshots/mobile/01-member-dashboard.png" width="200" /></td>
-    <td width="25%" valign="top"><strong>Contribution statement</strong><br /><img alt="Mobile contribution statement" src="docs/screenshots/mobile/02-member-contribution-statement.png" width="200" /></td>
-    <td width="25%" valign="top"><strong>Treasury workspace</strong><br /><img alt="Mobile treasury workspace" src="docs/screenshots/mobile/03-treasurer-finance.png" width="200" /></td>
-    <td width="25%" valign="top"><strong>Governance cockpit</strong><br /><img alt="Mobile governance cockpit" src="docs/screenshots/mobile/04-president-governance.png" width="200" /></td>
+    <td width="20%" valign="top"><strong>Member dashboard</strong><br /><img alt="Mobile member dashboard" src="docs/screenshots/mobile/01-member-dashboard.png" width="200" /></td>
+    <td width="20%" valign="top"><strong>Contribution statement</strong><br /><img alt="Mobile contribution statement" src="docs/screenshots/mobile/02-member-contribution-statement.png" width="200" /></td>
+    <td width="20%" valign="top"><strong>Treasury workspace</strong><br /><img alt="Mobile treasury workspace" src="docs/screenshots/mobile/03-treasurer-finance.png" width="200" /></td>
+    <td width="20%" valign="top"><strong>Governance cockpit</strong><br /><img alt="Mobile governance cockpit" src="docs/screenshots/mobile/04-president-governance.png" width="200" /></td>
+    <td width="20%" valign="top"><strong>Admin health center</strong><br /><img alt="Mobile admin health center" src="docs/screenshots/mobile/05-admin-health.png" width="200" /></td>
   </tr>
 </table>
 
@@ -177,8 +251,11 @@ installable Progressive Web App shell.
   </tr>
 </table>
 
-Screenshots are reproducible with `node scripts/capture-readme-screenshots.mjs` and the
-source manifest lives in [`docs/screenshots/MANIFEST.md`](docs/screenshots/MANIFEST.md).
+Screenshots are reproducible against any running instance (public demo or local stack)
+with `node scripts/capture-readme-screenshots.mjs` and the source manifest lives in
+[`docs/screenshots/MANIFEST.md`](docs/screenshots/MANIFEST.md). Override the target with
+`KAIRO_SCREENSHOT_BASE_URL`; the script authenticates through the real login contract and
+screenshots only API-authorised surfaces.
 </details>
 
 ## What Kairo does
@@ -194,8 +271,27 @@ workspace, and works cleanly on desktop and mobile browsers.
 | Governance | Role-aware dashboards, documents, policies, announcements, events and an understandable operations journal |
 | Discipline | Confidential disciplinary files, sanction history and explicit read/write boundaries |
 | Continuity | Encrypted backups, integrity checks, scheduled snapshots, recovery centre and PostgreSQL WAL archiving |
-| Notifications | In-app inbox, opt-in Web Push and audited delivery workflow |
+| Notifications | Durable in-app inbox, preferences, opt-in Web Push and Android FCM through one audited pipeline with operator health |
+| Configuration | Tenant branding, languages and per-tenant module toggles; capability-driven navigation from the internal module registry |
+| Observability | `/health`, `/health/live`, `/health/ready`, `/metrics`, Grafana package and a committed performance baseline |
+| Native client | Flutter Android/Web companion with secure storage, offline drafts, sharing and push deep links |
 | Private AI | Optional local Ollama/Qdrant runtime behind a signed gateway; the cloud core can run without it |
+
+## Recent additions (Roadmap V2)
+
+Sprints 100–118 turned the platform into a hardened release candidate. The most
+visible additions:
+
+- **Capability-driven interface** — `/auth/me` exposes effective capabilities; navigation and actions derive from them, with validated per-tenant role bundles.
+- **Module registry and tenant toggles** — every backend module ships a descriptor; `GET /api/v1/modules` returns tenant-filtered navigation metadata, and a disabled module disappears from every client.
+- **Notification convergence** — one canonical pipeline with per-user preferences, Web Push + Android FCM transports, invalid-target disabling, bounded retries, an operator pipeline-health console and tested outage recovery.
+- **Operational health and performance** — `/health` plus live/ready probes, metrics for both outboxes and backup freshness, a Grafana dashboard package and a committed 200/1000-member performance baseline (`npm run perf:check`).
+- **OpenAPI as the client contract** — versioned schema, breaking-change detection, generated TypeScript/Dart types and route-coverage checks in CI.
+- **Accessibility and i18n depth** — skip link, WCAG 2.2 AA automated audit pack, reduced-motion support and enforced FR/EN/DE parity.
+- **Flutter client maturity** — offline drafts, native sharing, Firebase push with allowlisted deep links and Material 3 light/dark themes.
+- **Release hardening** — encrypted signed backups, restore and rollback drills, reproducible production images and upgrade runbooks.
+
+Full evidence: [Sprint 118 release-candidate record](docs/sprint-118-release-candidate-evidence.md) · [Release notes](docs/operations/release-notes-v2.0.0-rc.md) · [Accessibility audit](docs/operations/accessibility-audit.md).
 
 ## Features
 
@@ -229,14 +325,19 @@ workspace, and works cleanly on desktop and mobile browsers.
 - French-first interface with English and German alternatives.
 - Responsive desktop and mobile layouts, bottom navigation and installable PWA support.
 - Accessible confirmation, warning and error notifications with field-level validation feedback.
-- Tenant-isolated inbox, opt-in Web Push and audited delivery outcomes for important operations.
+- Tenant-isolated inbox, per-user preferences, opt-in Web Push and Android FCM with audited delivery outcomes.
+- Push payloads are deliberately generic; finance and disciplinary detail stays behind authentication.
+- Operator pipeline health (`/notifications/health`) with pending/failed counts and disabled-target visibility.
 
 ### Reliability and privacy
 
-- Multi-tenant isolation and backend-owned capability checks.
+- Multi-tenant isolation and backend-owned capability checks; tenant module toggles remove whole features from every client.
 - Optional private AI assistant with tenant- and scope-filtered retrieval.
 - Core deployment can run without the local AI machine.
 - Encrypted, signed and SHA-256 verified backups, daily scheduling, WAL archiving and isolated restore procedures.
+- Health probes (`/health`, `/health/live`, `/health/ready`), metrics for outboxes and backup freshness, and a committed performance baseline.
+- Versioned OpenAPI schema with breaking-change detection and drift-checked generated clients.
+- Automated accessibility audit (WCAG 2.2 AA target) and enforced FR/EN/DE translation parity in CI.
 
 ## Architecture
 
@@ -276,6 +377,51 @@ flowchart TB
 - **Core only:** a complete association platform without chat or local models.
 - **Core + local AI:** the private AI runtime remains on a controlled machine; no Ollama or Qdrant port is exposed to the browser.
 - **Local development:** a single Docker Compose stack for rapid iteration.
+
+### Production deployment (Hetzner + Cloudflare)
+
+The reference production deployment runs the core stack on a Hetzner host and uses a
+dedicated Cloudflare Tunnel as the only ingress. No application port is published on the
+host; PostgreSQL, Redis, MinIO and the workers stay on the private Docker network.
+
+| Item | Value |
+| --- | --- |
+| Host release path | `/home/kairo/kairo-release` |
+| Compose project / file | `kairo` / `docker-compose.core.yml` |
+| Environment file | `.env.core` (mode `0600`, never committed) |
+| Public ingress | Cloudflare Tunnel `kairo-portfolio` → `http://web:80` |
+| Public hostnames | portfolio demo (`kairo.patrickdjimgou.dev`) and association deployment (`app.combissportverein.org`) |
+| Deploy / rollback helpers | `scripts/deploy_core_release.sh`, `scripts/rollback_release.sh`, `scripts/production_smoke.sh` |
+
+Key configuration variables (values live only in the ignored environment file):
+
+| Variable | Purpose |
+| --- | --- |
+| `APP_BASE_URL`, `CORS_ORIGINS` | Public HTTPS URL and allowed browser origin |
+| `CLOUDFLARE_TUNNEL_TOKEN` | Cloudflare Tunnel credential for the host |
+| `JWT_SECRET_KEY` | Session signing key (rotate after any suspected exposure) |
+| `POSTGRES_*`, `REDIS_URL` | Private data services |
+| `MINIO_ROOT_*`, `MINIO_BUCKET_DOCUMENTS` | Document object storage |
+| `BACKUP_ENCRYPTION_KEY`, `BACKUP_MANIFEST_SIGNING_KEY` | Encrypted, signed recovery archives |
+| `SMTP_*`, `TELEGRAM_*`, `WHATSAPP_*` | Optional identity and operator delivery channels |
+| `WEB_PUSH_*`, `FIREBASE_*` | Optional push transports (Web Push VAPID, Android FCM) |
+| `VITE_API_BASE_URL`, `VITE_DEMO_MODE` | Web build inputs (same-origin `/api/v1`) |
+
+**Secret policy:** SSH keys, Cloudflare tokens, database passwords and JWT secrets are
+never committed. They are kept in the operator's local, git-ignored files
+(`.env.core`, `.env.production.local`) and in the operator's SSH configuration; the
+repository only ships `.env.*.example` templates. CI enforces this with the sensitive-file
+scanner and a gitleaks history scan.
+
+```powershell
+# Upgrade with a mandatory pre-migration safety backup, then verify
+bash scripts/deploy_core_release.sh upgrade
+docker compose --env-file .env.core -f docker-compose.core.yml exec -T api alembic current
+```
+
+Operator runbooks: [Hetzner portfolio runbook](docs/operations/hetzner-portfolio-runbook.md) ·
+[Deployment runbook](docs/operations/deployment-runbook.md) ·
+[Encrypted recovery runbook](docs/operations/encrypted-recovery-runbook.md).
 
 ## Tech stack
 
@@ -385,18 +531,26 @@ npm run type-check
 npm run build
 npm run test:e2e:locale
 npm run test:e2e:roles
+npm run test:e2e:release-candidate
+npm run test:e2e:a11y
 Set-Location ../..
 
-# Flutter client
+# Flutter client (use .\scripts\flutter.ps1 when the SDK is not on PATH)
 Set-Location apps/flutter_kairo
 flutter analyze
 flutter test
 Set-Location ../..
 
+# Contracts and performance (repository root)
+npm run contracts:check
+npm run perf:check
+
 # Repository guards
 node scripts/check-sensitive-files.mjs
+node scripts/check-i18n-parity.mjs
 node scripts/check-i18n-coverage.mjs
 node scripts/check-api-collection-paths.mjs
+node scripts/check-capability-bundles.mjs
 ```
 
 For the maintained validation commands and responsive checks, see [`docs/operations/validation-baseline.md`](docs/operations/validation-baseline.md).
@@ -406,24 +560,31 @@ For the maintained validation commands and responsive checks, see [`docs/operati
 Kairo is an active portfolio project. The Vue 3 PWA is the production client; the Flutter
 Android/Web client is tracked separately and consumes the same API contracts.
 
+- **Roadmap V2 (Sprints 100–118) — complete.** Release-candidate gates are green: 362 API tests, four browser packs, Flutter analysis/tests/builds, contracts and repository guards. See the [release-candidate evidence](docs/sprint-118-release-candidate-evidence.md) and [release notes](docs/operations/release-notes-v2.0.0-rc.md).
+- **Roadmap V3 (Sprints 119–129) — proposed.** Reproducible image supply chain, release operations, outbox crash recovery, PITR drills, full-stack integration smoke, i18n completion, accessibility depth, retention/privacy operations, identity-federation evaluation and Flutter pilot completion. Draft: [`docs/roadmap/KAIRO_V3_ROADMAP.md`](docs/roadmap/KAIRO_V3_ROADMAP.md).
 - Vue 3 PWA — production client.
 - Flutter client — functional parity reached through release-readiness work; Android and Flutter Web are the release targets.
 - iOS and desktop — architecture-ready, deliberately deferred.
 
-See [`PROJECT_STATUS.md`](PROJECT_STATUS.md), [`IMPLEMENTATION_ROADMAP.md`](IMPLEMENTATION_ROADMAP.md) and
+See [`PROJECT_STATUS.md`](PROJECT_STATUS.md), [`docs/ai/PROJECT_STATE.md`](docs/ai/PROJECT_STATE.md) and
 [`docs/flutter/FLUTTER_APP_ROADMAP.md`](docs/flutter/FLUTTER_APP_ROADMAP.md) for the current state.
 
 ## Documentation
 
 - [Deployment guide](docs/deployment-guide.md)
+- [Hetzner portfolio runbook](docs/operations/hetzner-portfolio-runbook.md)
+- [Deployment &amp; rollback runbook](docs/operations/deployment-runbook.md)
+- [Encrypted recovery runbook](docs/operations/encrypted-recovery-runbook.md)
+- [Notification operator guide](docs/notifications/NOTIFICATION_OPERATOR_GUIDE.md)
+- [Accessibility audit](docs/operations/accessibility-audit.md)
+- [Validation baseline](docs/operations/validation-baseline.md)
 - [Frontend architecture](docs/FRONTEND_ARCHITECTURE.md)
 - [Design system](docs/DESIGN_SYSTEM.md)
-- [Responsive test report](docs/RESPONSIVE_TEST_REPORT.md)
 - [Flutter client roadmap](docs/flutter/FLUTTER_APP_ROADMAP.md)
 - [Flutter feature parity matrix](docs/flutter/FEATURE_PARITY.md)
-- [Encrypted recovery runbook](docs/operations/encrypted-recovery-runbook.md)
 - [Project status](PROJECT_STATUS.md)
-- [Implementation roadmap](IMPLEMENTATION_ROADMAP.md)
+- [Roadmap V2 (historical)](docs/roadmap/KAIRO_V2_ROADMAP.md)
+- [Roadmap V3 (draft)](docs/roadmap/KAIRO_V3_ROADMAP.md)
 - [Contributing](CONTRIBUTING.md)
 
 ## License
