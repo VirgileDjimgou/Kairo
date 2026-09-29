@@ -1,7 +1,7 @@
 <template>
   <div class="card shadow-sm border-0" data-testid="dashboard-quick-actions">
     <div class="card-body p-4">
-      <div class="text-uppercase small fw-semibold text-secondary mb-2">
+      <div class="text-uppercase small fw-semibold text-secondary-emphasis mb-2">
         {{ copy.quickActions }}
       </div>
       <div class="vstack gap-2">

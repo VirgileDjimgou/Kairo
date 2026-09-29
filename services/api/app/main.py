@@ -4,13 +4,13 @@ import structlog
 from fastapi import FastAPI
 from fastapi.exceptions import RequestValidationError
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.responses import PlainTextResponse
+from fastapi.responses import JSONResponse, PlainTextResponse
 from starlette.exceptions import HTTPException as StarletteHTTPException
 
 from app._version import __version__
 from app.core.config import settings
 from app.core.dependencies import DbDep
-from app.core.health_checks import run_all_checks
+from app.core.health_checks import run_all_checks, run_readiness_checks
 from app.core.logging import setup_logging
 from app.core.metrics import build_runtime_metrics
 from app.core.observability import (
@@ -20,26 +20,9 @@ from app.core.observability import (
     validation_exception_handler,
 )
 from app.db.session import async_session_factory
-from app.modules.admin.router import router as admin_router
-from app.modules.announcements.router import router as announcements_router
-from app.modules.attention.router import router as attention_router
-from app.modules.audit.router import router as audit_router
-from app.modules.backup.router import router as backup_router
-from app.modules.chat.router import router as chat_router
-from app.modules.contributions.router import router as contributions_router
-from app.modules.disciplinary.router import router as disciplinary_router
-from app.modules.documents.router import router as documents_router
-from app.modules.events.router import router as events_router
-from app.modules.events.sports_router import router as sports_router
-from app.modules.identity.router import router as identity_router
-from app.modules.membership.router import router as membership_router
-from app.modules.notifications.router import callback_router as notifications_callback_router
-from app.modules.notifications.router import router as notifications_router
-from app.modules.policies.router import router as policies_router
+from app.modules.module_registry.descriptor import default_registry
 from app.modules.rag.reindex import check_embedding_model_changed, persist_embedding_model
-from app.modules.search.router import router as search_router
 from app.modules.tenancy.module_toggles import ALL_MODULES
-from app.modules.tenancy.router import router as tenancy_router
 
 setup_logging()
 logger = structlog.get_logger(__name__)
@@ -93,26 +76,12 @@ app.add_exception_handler(RequestValidationError, validation_exception_handler) 
 app.add_exception_handler(Exception, unhandled_exception_handler)
 
 # ── API v1 routers ─────────────────────────────────────────────────────────────
+# Routers are composed from the internal Module Registry (descriptor order), so a
+# new module is registered by adding one package with a ``module.py`` descriptor.
 API_PREFIX = "/api/v1"
 
-app.include_router(identity_router, prefix=API_PREFIX)
-app.include_router(tenancy_router, prefix=API_PREFIX)
-app.include_router(admin_router, prefix=API_PREFIX)
-app.include_router(attention_router, prefix=API_PREFIX)
-app.include_router(audit_router, prefix=API_PREFIX)
-app.include_router(backup_router, prefix=API_PREFIX)
-app.include_router(documents_router, prefix=API_PREFIX)
-app.include_router(chat_router, prefix=API_PREFIX)
-app.include_router(membership_router, prefix=API_PREFIX)
-app.include_router(contributions_router, prefix=API_PREFIX)
-app.include_router(policies_router, prefix=API_PREFIX)
-app.include_router(search_router, prefix=API_PREFIX)
-app.include_router(disciplinary_router, prefix=API_PREFIX)
-app.include_router(events_router, prefix=API_PREFIX)
-app.include_router(sports_router, prefix=API_PREFIX)
-app.include_router(announcements_router, prefix=API_PREFIX)
-app.include_router(notifications_router, prefix=API_PREFIX)
-app.include_router(notifications_callback_router, prefix=API_PREFIX)
+for module_router, _router_attr in default_registry().routers():
+    app.include_router(module_router, prefix=API_PREFIX)
 
 
 # ── System endpoints ───────────────────────────────────────────────────────────
@@ -146,6 +115,30 @@ async def health_check(db: DbDep) -> dict:
         "checks": checks,
         "modules": ALL_MODULES,
     }
+
+
+@app.get("/health/live", tags=["system"], summary="Liveness probe")
+async def liveness_check() -> dict:
+    """Process liveness: always 200 while the API can answer requests."""
+    return {"status": "ok", "version": __version__}
+
+
+@app.get("/health/ready", tags=["system"], summary="Readiness probe")
+async def readiness_check(db: DbDep) -> JSONResponse:
+    """Readiness gates on critical dependencies only (database, Redis)."""
+    checks = await run_readiness_checks(db)
+    ready = all(
+        check["status"] in {"ok", "disabled"}  # type: ignore[index]
+        for check in checks.values()
+    )
+    return JSONResponse(
+        status_code=200 if ready else 503,
+        content={
+            "status": "ready" if ready else "not_ready",
+            "version": __version__,
+            "checks": checks,
+        },
+    )
 
 
 @app.get("/metrics", tags=["system"], summary="Runtime metrics")

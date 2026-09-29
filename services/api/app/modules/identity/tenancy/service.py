@@ -53,6 +53,7 @@ class TenancyMixin(IdentityServiceBase):
 
             module_toggles = parse_module_toggles(settings_raw)
             branding = BrandingConfig(**branding_raw) if branding_raw else BrandingConfig()  # type: ignore[arg-type]
+            bundles = await self._tenancy_repo.get_role_bundle_capabilities(tenant.id, roles)
 
             result.append(
                 TenantMembershipResponse(
@@ -61,7 +62,7 @@ class TenancyMixin(IdentityServiceBase):
                     name=tenant.name,
                     default_language=tenant.default_language,
                     roles=roles,
-                    capabilities=list(capabilities_for_roles(roles)),
+                    capabilities=list(capabilities_for_roles(roles, bundles)),
                     branding=branding,
                     modules=ModuleToggles(**module_toggles),
                     profile_type=tu.profile_type,
@@ -107,6 +108,7 @@ class TenancyMixin(IdentityServiceBase):
             )
 
         roles = await self._tenancy_repo.get_user_role_codes(tenant.id, user_id)
+        bundles = await self._tenancy_repo.get_role_bundle_capabilities(tenant.id, roles)
         await self._session_repo.touch(
             session_id,
             tenant_id=tenant.id,
@@ -118,6 +120,7 @@ class TenancyMixin(IdentityServiceBase):
             tenant_id=tenant.id,
             roles=roles,
             session_id=session_id,
+            capabilities=list(capabilities_for_roles(roles, bundles)),
         )
 
         memberships = await self.get_user_memberships(user_id)

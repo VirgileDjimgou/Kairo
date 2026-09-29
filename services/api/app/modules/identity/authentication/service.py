@@ -257,6 +257,7 @@ class AuthenticationMixin(IdentityServiceBase):
             tenant_id=tenant.id,
             roles=roles,
             session_id=session_id,
+            capabilities=list(await self._effective_capabilities(tenant.id, roles)),
         )
         await self._session_repo.touch(
             session_id,

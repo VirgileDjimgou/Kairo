@@ -134,15 +134,26 @@ class IdentityServiceBase:
             ip_address=self._request_ip,
             user_agent=self._request_user_agent,
         )
+        capabilities = await self._effective_capabilities(tenant_id, roles)
         return (
             create_access_token(
                 user_id=user_id,
                 tenant_id=tenant_id,
                 roles=roles,
                 session_id=session.id,
+                capabilities=list(capabilities),
             ),
             session.id,
         )
+
+    async def _effective_capabilities(
+        self, tenant_id: UUID, roles: list[str]
+    ) -> tuple[str, ...]:
+        """Canonical role capabilities plus tenant-specific bundle capabilities."""
+        from app.core.capabilities import capabilities_for_roles
+
+        bundles = await self._tenancy_repo.get_role_bundle_capabilities(tenant_id, roles)
+        return capabilities_for_roles(roles, bundles)
     async def _first_tenant_id_for_user(self, user_id: UUID) -> UUID | None:
         memberships = await self._tenancy_repo.get_user_active_memberships(user_id)
         if memberships:

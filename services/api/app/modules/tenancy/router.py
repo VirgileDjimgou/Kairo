@@ -4,6 +4,7 @@ from fastapi import APIRouter
 
 from app.core.dependencies import AuthDep, DbDep
 from app.modules.tenancy.schemas import (
+    RoleBundleCreate,
     RoleResponse,
     TenantResponse,
     TenantSettingsResponse,
@@ -45,6 +46,18 @@ async def list_tenant_roles(
     """
     service = TenancyService(db)
     return await service.get_tenant_roles(tenant_id, current.user.id)
+
+
+@router.post("/{tenant_id}/roles", response_model=RoleResponse, status_code=201)
+async def create_tenant_role_bundle(
+    tenant_id: UUID,
+    payload: RoleBundleCreate,
+    current: AuthDep,
+    db: DbDep,
+) -> RoleResponse:
+    """Create a tenant-specific role bundle over canonical capabilities."""
+    service = TenancyService(db)
+    return await service.create_role_bundle(tenant_id, current.user.id, payload)
 
 
 @router.get("/{tenant_id}/settings", response_model=TenantSettingsResponse)

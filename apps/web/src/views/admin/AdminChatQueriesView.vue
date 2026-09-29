@@ -2,7 +2,7 @@
   <div class="p-4 p-lg-5">
     <div class="d-flex flex-column flex-lg-row justify-content-between gap-3 mb-4">
       <div>
-        <div class="text-uppercase small fw-semibold text-secondary mb-2">
+        <div class="text-uppercase small fw-semibold text-secondary-emphasis mb-2">
           Audit
         </div>
         <h1 class="h4 fw-bold mb-1">Chat traceability</h1>
@@ -105,7 +105,7 @@
               </div>
               <div class="d-flex align-items-center gap-2">
                 <span
-                  :class="query.refused ? 'badge text-bg-warning-subtle text-warning border border-warning-subtle' : 'badge text-bg-success-subtle text-success border border-success-subtle'"
+                  :class="query.refused ? 'badge text-bg-warning-subtle text-warning-emphasis border border-warning-subtle' : 'badge text-bg-success-subtle text-success-emphasis border border-success-subtle'"
                 >
                   {{ query.refused ? "Refused" : "Answered" }}
                 </span>

@@ -4,7 +4,7 @@
       class="d-flex flex-column flex-lg-row justify-content-between gap-3 mb-4"
     >
       <div>
-        <div class="text-uppercase small fw-semibold text-secondary mb-2">
+        <div class="text-uppercase small fw-semibold text-secondary-emphasis mb-2">
           {{ workspaceLabel }}
         </div>
         <h1 class="h4 fw-bold mb-1">{{ workspaceTitle }}</h1>
@@ -169,7 +169,7 @@
                   <div class="d-flex justify-content-between gap-2 flex-wrap">
                     <div class="fw-semibold">{{ item.file_name }}</div>
                     <span
-                      :class="item.status === 'uploaded' ? 'badge text-bg-success-subtle text-success border border-success-subtle' : 'badge text-bg-danger-subtle text-danger border border-danger-subtle'"
+                      :class="item.status === 'uploaded' ? 'badge text-bg-success-subtle text-success-emphasis border border-success-subtle' : 'badge text-bg-danger-subtle text-danger-emphasis border border-danger-subtle'"
                     >
                       {{ item.status }}
                     </span>
@@ -243,7 +243,7 @@
                     </td>
                     <td>
                       <span
-                        class="badge text-bg-success-subtle text-success border border-success-subtle"
+                        class="badge text-bg-success-subtle text-success-emphasis border border-success-subtle"
                       >
                         {{ formatStatusToken(document.status) }}
                       </span>

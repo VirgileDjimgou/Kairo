@@ -1,4 +1,4 @@
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from functools import lru_cache
 from typing import TYPE_CHECKING, Annotated
 from uuid import UUID
@@ -38,14 +38,17 @@ class CurrentUser:
     roles: list[str]
     session_id: UUID
     password_change_required: bool = False
+    capabilities: list[str] = field(default_factory=list)
 
     def has_role(self, *role_codes: str) -> bool:
         return any(r in self.roles for r in role_codes)
 
     def has_capability(self, capability: str) -> bool:
-        from app.core.capabilities import has_capability
+        if self.capabilities:
+            return capability in self.capabilities
+        from app.core.capabilities import has_capability as catalog_has_capability
 
-        return has_capability(self.roles, capability)
+        return catalog_has_capability(self.roles, capability)
 
 
 async def get_db() -> AsyncSession:  # type: ignore[misc]
@@ -84,6 +87,12 @@ async def get_current_user(
         tenant_id = UUID(tenant_id_str)
         session_id = UUID(session_id_str)
         roles: list[str] = payload.get("roles", [])
+        token_capabilities = payload.get("capabilities")
+        capabilities: list[str] = (
+            [str(value) for value in token_capabilities]
+            if isinstance(token_capabilities, list)
+            else []
+        )
 
     except (jwt.PyJWTError, ValueError) as err:
         raise unauthorized from err
@@ -140,6 +149,7 @@ async def get_current_user(
         roles=roles,
         session_id=session_id,
         password_change_required=user.password_change_required,
+        capabilities=capabilities,
     )
 
 

@@ -147,5 +147,6 @@
   "layout.secretarySubtitle": "Governance documents and official communication",
   "layout.secretaryWorkspace": "Secretary workspace",
   "layout.backToPortal": "Back to portal",
-  "nav.more": "More"
+  "nav.more": "More",
+  "layout.skipToContent": "Skip to main content"
 }

@@ -1,5 +1,6 @@
 <template>
   <div class="app-shell om-min-viewport-height" :style="brandStyle">
+    <a class="skip-link" href="#kairo-main-content">{{ localeStore.t('layout.skipToContent') }}</a>
     <AppTopBar
       :eyebrow="eyebrow"
       :title="tenantStore.currentTenantName || title"
@@ -18,7 +19,7 @@
       :label="localeStore.t('layout.mobileNavigation')"
     />
 
-    <main class="app-shell__content">
+    <main id="kairo-main-content" class="app-shell__content" tabindex="-1">
       <div class="app-shell__content-inner">
         <slot />
       </div>
@@ -89,6 +90,28 @@ async function handleLogout() {
 </script>
 
 <style scoped>
+.skip-link {
+  position: absolute;
+  left: -10000px;
+  top: auto;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+}
+
+.skip-link:focus {
+  position: fixed;
+  left: 1rem;
+  top: 1rem;
+  width: auto;
+  height: auto;
+  padding: 0.5rem 0.75rem;
+  background: var(--om-primary);
+  color: #ffffff;
+  border-radius: var(--om-radius-sm);
+  z-index: 1080;
+}
+
 .app-shell {
   width: 100%;
   max-width: 100%;

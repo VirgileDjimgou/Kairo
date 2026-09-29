@@ -80,9 +80,14 @@ class RemindersMixin(FinanceServiceBase):
             selected = selected[: payload.limit]
 
         member_repo = MembershipRepository(self._db)
+        profile_ids = list({contribution.membership_profile_id for contribution in selected})
+        profiles = {
+            profile.id: profile
+            for profile in await member_repo.list_by_ids(tenant_id, profile_ids)
+        }
         reminders = []
         for contribution in selected:
-            profile = await member_repo.get_by_id(tenant_id, contribution.membership_profile_id)
+            profile = profiles.get(contribution.membership_profile_id)
             if not profile:
                 continue
             reminder = await self._dispatch_reminder(

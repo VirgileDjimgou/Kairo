@@ -2,7 +2,7 @@
   <div class="p-3 p-md-4 p-lg-5">
     <div class="d-flex flex-column flex-lg-row align-items-lg-end justify-content-between gap-3 mb-4">
       <div>
-        <div class="text-uppercase small fw-semibold text-secondary mb-2">
+        <div class="text-uppercase small fw-semibold text-secondary-emphasis mb-2">
           {{ dashboardKicker }}
         </div>
         <h1 class="h4 fw-bold mb-1">{{ copy.welcomeBack }}, {{ authStore.user?.display_name }}</h1>
@@ -12,7 +12,7 @@
       </div>
       <span
         class="badge px-3 py-2"
-        :class="isSetupMode ? 'bg-warning-subtle text-warning border border-warning-subtle' : 'bg-success-subtle text-success border border-success-subtle'"
+        :class="isSetupMode ? 'bg-warning-subtle text-warning-emphasis border border-warning-subtle' : 'bg-success-subtle text-success-emphasis border border-success-subtle'"
       >
         <i class="bi bi-circle-fill me-1" style="font-size: 0.5rem"></i>
         {{ isSetupMode ? copy.setupMode : copy.operational }}

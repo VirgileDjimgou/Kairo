@@ -1,6 +1,6 @@
 # Project State
 
-Last verified: 2026-09-26 (Roadmap V2 Sprint 115)
+Last verified: 2026-09-27 (Roadmap V2 Sprint 118)
 
 ## What this file is
 
@@ -32,10 +32,12 @@ FastAPI contracts.
 
 ## Current engineering posture
 
-- Verified baseline (2026-09-26): 337 backend tests, web type-check/build, three
-  Playwright packs (locale 20, roles 17, release-candidate 9), Flutter analyze +
-  50 tests + web/Android builds, OpenAPI contract checks, repository guards
-  green. Details: `docs/operations/validation-baseline.md`.
+- Verified baseline (2026-09-27): 362 backend tests, web type-check/build, four
+  Playwright packs (locale 20, roles 17, release-candidate 9, accessibility 6),
+  Flutter analyze + 52 tests + web/Android builds, OpenAPI contract checks, an
+  opt-in performance regression check, repository guards green. Details:
+  `docs/operations/validation-baseline.md`. Sprint 118 evidence:
+  `docs/sprint-118-release-candidate-evidence.md`.
 - Open security item (HUMAN_REQUIRED): historical JWT secret rotation and
   history remediation — `docs/security/HISTORY_EXPOSURE_REPORT.md`.
 - Structural debt (oversized services/views, inline locale copy) is being paid
@@ -83,3 +85,28 @@ FastAPI contracts.
   `docs/api/CLIENT_FEATURE_PARITY.md` records the Vue/Flutter feature matrix;
   the Flutter suite now has 50 passing tests (including generated-contract
   parity).
+  Sprint 116 hardened observability and performance: `/health` reports backup,
+  notification-outbox and domain-event-outbox status with counts only,
+  `/health/live` and `/health/ready` serve orchestration probes, `/metrics`
+  carries outbox/backup gauges (Grafana panels included), Celery tasks bind
+  request correlation into structured worker logs, a committed 200/1000-member
+  performance baseline (`docs/performance/`) records p50/p95 and SQL statement
+  counts with `npm run perf:check`, and the first N+1 paths are batched with
+  regression tests; the backend suite has 346 passing tests.
+  Sprint 117 made modules extensible through an internal registry: each module
+  package ships a `module.py` descriptor and central composition (routers,
+  tenant toggles, search providers, optional AI context providers, health hooks,
+  navigation) consumes the registry; validation catches duplicate keys,
+  unknown/cyclic dependencies and capability typos; `GET /api/v1/modules` serves
+  tenant/capability-filtered navigation metadata; tenant-specific role bundles
+  store validated canonical capabilities (migration 0033) and are merged into
+  effective JWT/`/auth/me` capabilities; a minimal sample module demonstrates
+  automatic discovery; the backend suite has 359 passing tests.
+  Sprint 118 produced the release candidate: a fresh-image startup blocker was
+  fixed (`sqlalchemy[asyncio]>=2.0.36,<2.1.0` guarantees `greenlet`), the
+  deployed schema upgraded 0029 → 0033 with a pre-migration safety backup and
+  preserved data, encrypted-archive restore and pre-upgrade rollback drills
+  passed in isolated containers, notification recovery for Celery/Web Push/
+  Firebase outages gained regression tests, and a WCAG 2.2 AA audit added a
+  localized skip link, named progress bars and app-wide contrast fixes; the
+  backend suite has 362 passing tests.

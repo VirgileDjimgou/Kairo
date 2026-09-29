@@ -42,7 +42,7 @@ bash scripts/deploy_release.sh upgrade
 The upgrade helper:
 
 1. runs the same preflight checks
-2. creates a backup archive
+2. creates a backup archive (`scripts/backup.sh`, infrastructure level)
 3. rebuilds the production images
 4. starts the production stack
 5. applies Alembic migrations
@@ -54,6 +54,22 @@ If you intentionally already captured a backup, you can skip the automatic one:
 KAIRO_SKIP_BACKUP=1 bash scripts/deploy_release.sh upgrade
 ```
 
+Always keep the pre-migration backup. The application-level encrypted backup CLI
+(`Backup-Kairo.ps1` / `backup` command) runs the new code and therefore cannot be
+used before migrations have been applied to an older database; the
+infrastructure backup is the supported safety path.
+
+Verify the upgrade before declaring it complete:
+
+```bash
+docker compose exec -T api alembic current          # must equal the release head
+curl -fsS http://localhost/health | jq .            # database/backup/outbox ok
+```
+
+For the current release head, `0033`, the expected post-upgrade state and the
+validated data-preservation checklist are recorded in
+`docs/sprint-118-release-candidate-evidence.md`.
+
 ## 4. Rollback
 
 Rollback requires a backup archive produced by `scripts/backup.sh` or by the upgrade helper.
@@ -63,6 +79,26 @@ bash scripts/rollback_release.sh ./backups/kairo-backup-YYYYMMDD_HHMMSS.tar.gz
 ```
 
 The rollback helper restores PostgreSQL, Redis, Qdrant, MinIO, and Ollama data, restarts the application services, then re-runs the smoke check.
+
+The restore/rollback path is rehearsed without touching production data:
+
+```powershell
+# Windows workstation: verify and restore an encrypted archive into a disposable container
+.\scripts\Test-KairoRecoveryDrill.ps1 -ArchiveName "<archive>.enc" -EnvironmentFile .env.core
+```
+
+```bash
+# Linux host backup/restore pair
+bash scripts/backup.sh /mnt/backups
+bash scripts/restore.sh /mnt/backups/kairo-backup-YYYYMMDD_HHMMSS.tar.gz
+```
+
+A rollback is complete only after the smoke check passes and the restored
+database reports the expected Alembic revision:
+
+```bash
+docker compose exec -T api alembic current
+```
 
 ## 5. Smoke validation only
 

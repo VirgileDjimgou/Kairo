@@ -7,7 +7,7 @@
     <div class="card-body p-4">
       <div class="d-flex flex-column flex-lg-row justify-content-between gap-3">
         <div>
-          <div class="text-uppercase small fw-semibold text-secondary mb-2">
+          <div class="text-uppercase small fw-semibold text-secondary-emphasis mb-2">
             <i class="bi bi-signpost-split me-1"></i>{{ localeStore.t("demo.tourTitle") }}
           </div>
           <h2 class="h6 fw-bold mb-1">{{ localeStore.t("demo.tourSubtitle") }}</h2>

@@ -2,7 +2,7 @@
   <div class="p-4 p-lg-5">
     <div class="d-flex flex-column flex-xl-row justify-content-between gap-3 mb-4">
         <div>
-          <div class="text-uppercase small fw-semibold text-secondary mb-2">
+          <div class="text-uppercase small fw-semibold text-secondary-emphasis mb-2">
           Team onboarding and lifecycle
           </div>
         <h1 class="h4 fw-bold mb-1">Access and lifecycle operations</h1>
@@ -40,7 +40,7 @@
           <div class="card-body p-4">
             <div class="d-flex justify-content-between gap-3 mb-3">
               <div>
-                <div class="text-uppercase small fw-semibold text-secondary mb-2">
+                <div class="text-uppercase small fw-semibold text-secondary-emphasis mb-2">
                   Invite teammate
                 </div>
                 <h2 class="h6 fw-bold mb-1">Create a tenant invitation</h2>
@@ -105,7 +105,7 @@
 
         <div v-if="latestInvite" class="card shadow-sm border-0">
           <div class="card-body p-4">
-            <div class="text-uppercase small fw-semibold text-secondary mb-2">
+            <div class="text-uppercase small fw-semibold text-secondary-emphasis mb-2">
               Latest invitation
             </div>
             <h2 class="h6 fw-bold mb-2">Delivery outcome</h2>
@@ -143,7 +143,7 @@
           <div class="card-body p-4">
             <div class="d-flex flex-column flex-lg-row justify-content-between gap-3 mb-3">
               <div>
-                <div class="text-uppercase small fw-semibold text-secondary mb-2">
+                <div class="text-uppercase small fw-semibold text-secondary-emphasis mb-2">
                   Invitation lifecycle
                 </div>
                 <h2 class="h6 fw-bold mb-1">Current invitation status</h2>
@@ -231,7 +231,7 @@
           <div class="card-body p-4">
             <div class="d-flex flex-column flex-lg-row justify-content-between gap-3 mb-3">
               <div>
-                <div class="text-uppercase small fw-semibold text-secondary mb-2">
+                <div class="text-uppercase small fw-semibold text-secondary-emphasis mb-2">
                   Tenant user lifecycle
                 </div>
                 <h2 class="h6 fw-bold mb-1">Current user access state</h2>
@@ -356,7 +356,7 @@
 
         <div class="card shadow-sm border-0">
           <div class="card-body p-4">
-            <div class="text-uppercase small fw-semibold text-secondary mb-2">
+            <div class="text-uppercase small fw-semibold text-secondary-emphasis mb-2">
               Access guidance
             </div>
             <div class="vstack gap-3 small text-muted" data-testid="admin-access-guidance">
@@ -453,23 +453,23 @@ function isExpired(invitation: Pick<InvitationStatusResponse, 'status' | 'expire
 }
 
 function statusBadgeClass(status: string) {
-  if (status === 'accepted') return 'bg-success-subtle text-success'
-  if (status === 'cancelled') return 'bg-secondary-subtle text-secondary'
-  if (status === 'expired') return 'bg-danger-subtle text-danger'
-  return 'bg-warning-subtle text-warning'
+  if (status === 'accepted') return 'bg-success-subtle text-success-emphasis'
+  if (status === 'cancelled') return 'bg-secondary-subtle text-secondary-emphasis'
+  if (status === 'expired') return 'bg-danger-subtle text-danger-emphasis'
+  return 'bg-warning-subtle text-warning-emphasis'
 }
 
 function deliveryBadgeClass(status: string) {
-  if (status === 'sent') return 'bg-success-subtle text-success'
-  if (status === 'failed') return 'bg-danger-subtle text-danger'
-  if (status === 'manual') return 'bg-secondary-subtle text-secondary'
-  return 'bg-warning-subtle text-warning'
+  if (status === 'sent') return 'bg-success-subtle text-success-emphasis'
+  if (status === 'failed') return 'bg-danger-subtle text-danger-emphasis'
+  if (status === 'manual') return 'bg-secondary-subtle text-secondary-emphasis'
+  return 'bg-warning-subtle text-warning-emphasis'
 }
 
 function membershipStatusBadgeClass(status: string) {
-  if (status === 'active') return 'bg-success-subtle text-success'
-  if (status === 'suspended') return 'bg-danger-subtle text-danger'
-  return 'bg-secondary-subtle text-secondary'
+  if (status === 'active') return 'bg-success-subtle text-success-emphasis'
+  if (status === 'suspended') return 'bg-danger-subtle text-danger-emphasis'
+  return 'bg-secondary-subtle text-secondary-emphasis'
 }
 
 function formatDateTime(value: string) {

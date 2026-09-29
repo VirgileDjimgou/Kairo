@@ -2,7 +2,7 @@
   <div class="p-4 p-lg-5">
     <div class="d-flex flex-column flex-xl-row justify-content-between gap-3 mb-4">
       <div>
-        <div class="text-uppercase small fw-semibold text-secondary mb-2" data-testid="admin-overview-hub-label">
+        <div class="text-uppercase small fw-semibold text-secondary-emphasis mb-2" data-testid="admin-overview-hub-label">
           {{ hubLabel }}
         </div>
         <h1 class="h4 fw-bold mb-1" data-testid="admin-overview-title">{{ overviewTitle }}</h1>
@@ -61,7 +61,7 @@
           <div class="card-body p-4">
             <div class="d-flex flex-column flex-lg-row justify-content-between gap-3 mb-3">
               <div>
-                <div class="text-uppercase small fw-semibold text-secondary mb-2">
+                <div class="text-uppercase small fw-semibold text-secondary-emphasis mb-2">
                   {{ copy.operationalWatchlist }}
                 </div>
                 <h2 class="h6 fw-bold mb-1">{{ copy.warningsTitle }}</h2>
@@ -99,7 +99,7 @@
           <div class="card-body p-4">
             <div class="d-flex flex-column flex-lg-row justify-content-between gap-3 mb-3">
               <div>
-                <div class="text-uppercase small fw-semibold text-secondary mb-2">
+                <div class="text-uppercase small fw-semibold text-secondary-emphasis mb-2">
                   {{ copy.onboardingContinuity }}
                 </div>
                 <h2 class="h6 fw-bold mb-1">{{ copy.launchReadiness }}</h2>
@@ -116,10 +116,11 @@
             </div>
 
             <div class="progress mb-3" style="height: 0.75rem">
-              <div
-                class="progress-bar"
-                role="progressbar"
-                :aria-valuenow="onboardingProgress"
+        <div
+          class="progress-bar"
+          role="progressbar"
+          :aria-label="copy.checklistProgress"
+          :aria-valuenow="onboardingProgress"
                 aria-valuemin="0"
                 aria-valuemax="100"
                 :style="{ width: `${onboardingProgress}%` }"
@@ -146,7 +147,7 @@
       <div class="col-xl-4">
         <div class="card shadow-sm border-0 mb-4">
           <div class="card-body p-4">
-            <div class="text-uppercase small fw-semibold text-secondary mb-2">
+            <div class="text-uppercase small fw-semibold text-secondary-emphasis mb-2">
               {{ copy.documentOperations }}
             </div>
             <h2 class="h6 fw-bold mb-3">{{ copy.ingestionHealth }}</h2>
@@ -192,7 +193,7 @@
 
         <div class="card shadow-sm border-0 mb-4">
           <div class="card-body p-4">
-            <div class="text-uppercase small fw-semibold text-secondary mb-2">
+            <div class="text-uppercase small fw-semibold text-secondary-emphasis mb-2">
               {{ copy.quickActions }}
             </div>
             <div class="vstack gap-2" data-testid="admin-overview-quick-actions">
@@ -212,7 +213,7 @@
 
         <div class="card shadow-sm border-0">
           <div class="card-body p-4">
-            <div class="text-uppercase small fw-semibold text-secondary mb-2">
+            <div class="text-uppercase small fw-semibold text-secondary-emphasis mb-2">
               {{ copy.tenantScope }}
             </div>
             <div class="vstack gap-2 small">
@@ -269,6 +270,7 @@ const copy = computed(() => {
       launchReadiness: 'Startbereitschaft',
       launchReadinessLead: 'Nutzen dieselbe Tenant-Setup-Logik wie das Mitglieds-Dashboard, damit Admins das gleiche Startbild sehen.',
       checklistComplete: 'Checkliste abgeschlossen',
+      checklistProgress: 'Fortschritt der Start-Checkliste',
       nextRecommendedAction: 'Nächste empfohlene Admin-Aktion',
       documentOperations: 'Dokumentenbetrieb',
       ingestionHealth: 'Ingestion-Status',
@@ -309,6 +311,7 @@ const copy = computed(() => {
       launchReadiness: 'Launch readiness',
       launchReadinessLead: 'Reuses the tenant setup logic from the member-facing dashboard so admins see the same launch picture.',
       checklistComplete: 'checklist complete',
+      checklistProgress: 'Launch checklist progress',
       nextRecommendedAction: 'Next recommended admin action',
       documentOperations: 'Document operations',
       ingestionHealth: 'Ingestion health',
@@ -348,6 +351,7 @@ const copy = computed(() => {
     launchReadiness: 'Préparation au lancement',
     launchReadinessLead: 'Réutilise la logique de configuration du tenant du tableau de bord membre pour donner la même lecture aux administrateurs.',
     checklistComplete: 'checklist complétée',
+    checklistProgress: 'Progression de la checklist de lancement',
     nextRecommendedAction: 'Prochaine action administrateur recommandée',
     documentOperations: 'Opérations documentaires',
     ingestionHealth: 'Santé de l’ingestion',

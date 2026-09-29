@@ -3,7 +3,7 @@
     <div class="censor-hero rounded-4 p-4 p-lg-5 mb-4" data-testid="censor-workspace-hero">
       <div class="d-flex flex-column flex-xl-row justify-content-between gap-4">
         <div>
-          <div class="text-uppercase small fw-semibold text-secondary mb-2">
+          <div class="text-uppercase small fw-semibold text-secondary-emphasis mb-2">
             {{ t('censor.kicker') }}
           </div>
           <h1 class="h3 fw-bold mb-2">{{ t('censor.title') }}</h1>
@@ -296,7 +296,7 @@
           <div class="card-body p-4">
             <div class="d-flex align-items-center justify-content-between gap-3 mb-3">
               <div>
-                <div class="text-uppercase small fw-semibold text-secondary mb-1">
+                <div class="text-uppercase small fw-semibold text-secondary-emphasis mb-1">
                   Tenant disciplinary records
                 </div>
                 <h2 class="h6 fw-bold mb-0">Sanctions and compliance actions</h2>
@@ -485,10 +485,10 @@ const metrics = computed(() => [
 
 function statusClass(status: string): string {
   const map: Record<string, string> = {
-    open: 'bg-danger-subtle text-danger border border-danger-subtle',
-    under_review: 'bg-warning-subtle text-warning border border-warning-subtle',
-    resolved: 'bg-success-subtle text-success border border-success-subtle',
-    waived: 'bg-secondary-subtle text-secondary border border-secondary-subtle',
+    open: 'bg-danger-subtle text-danger-emphasis border border-danger-subtle',
+    under_review: 'bg-warning-subtle text-warning-emphasis border border-warning-subtle',
+    resolved: 'bg-success-subtle text-success-emphasis border border-success-subtle',
+    waived: 'bg-secondary-subtle text-secondary-emphasis border border-secondary-subtle',
   }
   return map[status] || 'bg-light text-dark border'
 }

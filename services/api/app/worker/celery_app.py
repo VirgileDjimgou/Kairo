@@ -1,6 +1,30 @@
+import structlog
 from celery import Celery
+from celery.signals import task_postrun, task_prerun
 
 from app.core.config import settings
+from app.core.logging import setup_logging
+
+setup_logging()
+logger = structlog.get_logger(__name__)
+
+
+@task_prerun.connect
+def _bind_celery_task_context(task_id=None, task=None, **kwargs) -> None:
+    structlog.contextvars.clear_contextvars()
+    structlog.contextvars.bind_contextvars(
+        task_id=task_id,
+        task_name=getattr(task, "name", None),
+    )
+    headers = getattr(getattr(task, "request", None), "headers", None) or {}
+    correlation_id = headers.get("kairo_correlation_id")
+    if correlation_id:
+        structlog.contextvars.bind_contextvars(correlation_id=correlation_id)
+
+
+@task_postrun.connect
+def _clear_celery_task_context(**kwargs) -> None:
+    structlog.contextvars.clear_contextvars()
 
 celery_app = Celery(
     "kairo_worker",

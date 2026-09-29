@@ -16,11 +16,12 @@ void main() {
       'read_at': null,
       'created_at': '2026-09-26T10:00:00Z',
     };
-    final contract.InboxResponse inbox =
-        contract.InboxResponse.fromJson(<String, dynamic>{
-          'items': <dynamic>[itemJson],
-          'unread_count': 1,
-        });
+    final contract.InboxResponse inbox = contract.InboxResponse.fromJson(
+      <String, dynamic>{
+        'items': <dynamic>[itemJson],
+        'unread_count': 1,
+      },
+    );
     final InboxNotification handWritten = InboxNotification.fromJson(itemJson);
 
     expect(inbox.unread_count, 1);

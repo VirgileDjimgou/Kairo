@@ -2,7 +2,7 @@
   <div class="p-4 p-lg-5">
     <div class="d-flex flex-column flex-xl-row justify-content-between gap-3 mb-4">
       <div>
-        <div class="text-uppercase small fw-semibold text-secondary mb-2" data-testid="tenant-ops-label">
+        <div class="text-uppercase small fw-semibold text-secondary-emphasis mb-2" data-testid="tenant-ops-label">
           Multi-tenant operations
         </div>
         <h1 class="h4 fw-bold mb-1" data-testid="tenant-ops-title">Command center</h1>
@@ -63,7 +63,7 @@
           <div class="card-body p-4">
             <div class="d-flex flex-column flex-lg-row justify-content-between gap-3 mb-3">
               <div>
-                <div class="text-uppercase small fw-semibold text-secondary mb-2">Tenant inventory</div>
+                <div class="text-uppercase small fw-semibold text-secondary-emphasis mb-2">Tenant inventory</div>
                 <h2 class="h6 fw-bold mb-1">Available memberships</h2>
                 <p class="text-muted small mb-0">
                   Every tenant entry comes from the backend membership list. Switching remains explicit and keeps the active tenant visible.
@@ -92,7 +92,7 @@
                     <div>
                       <div class="d-flex flex-wrap align-items-center gap-2 mb-2">
                         <h3 class="h6 fw-bold mb-0">{{ membership.name }}</h3>
-                        <span v-if="membership.tenant_id === currentTenantId" class="badge bg-success-subtle text-success">
+                        <span v-if="membership.tenant_id === currentTenantId" class="badge bg-success-subtle text-success-emphasis">
                           Current tenant
                         </span>
                         <span v-else class="badge bg-light text-dark border">Available tenant</span>
@@ -152,7 +152,7 @@
 
         <div class="card shadow-sm border-0">
           <div class="card-body p-4">
-            <div class="text-uppercase small fw-semibold text-secondary mb-2">Safe preparation notes</div>
+            <div class="text-uppercase small fw-semibold text-secondary-emphasis mb-2">Safe preparation notes</div>
             <h2 class="h6 fw-bold mb-3">Multi-tenant demo helper</h2>
             <p class="text-muted small mb-3">
               Use the repo helper when you want a second isolated tenant for demos or screenshots. The command center stays safe because it only reflects memberships the backend already returned to the current user.
@@ -166,7 +166,7 @@
       <div class="col-xl-5">
         <div class="card shadow-sm border-0 mb-4">
           <div class="card-body p-4">
-            <div class="text-uppercase small fw-semibold text-secondary mb-2">Current tenant context</div>
+            <div class="text-uppercase small fw-semibold text-secondary-emphasis mb-2">Current tenant context</div>
             <h2 class="h6 fw-bold mb-3">Active organization</h2>
 
             <div v-if="currentMembership" class="vstack gap-3 small">
@@ -188,7 +188,7 @@
               </div>
               <div class="d-flex justify-content-between gap-3">
                 <span class="text-muted">Current tenant selected</span>
-                <span class="badge bg-success-subtle text-success align-self-start">Yes</span>
+                <span class="badge bg-success-subtle text-success-emphasis align-self-start">Yes</span>
               </div>
             </div>
 
@@ -200,7 +200,7 @@
 
         <div class="card shadow-sm border-0 mb-4">
           <div class="card-body p-4">
-            <div class="text-uppercase small fw-semibold text-secondary mb-2">Recovery posture</div>
+            <div class="text-uppercase small fw-semibold text-secondary-emphasis mb-2">Recovery posture</div>
             <h2 class="h6 fw-bold mb-3">Current tenant evidence</h2>
 
             <div v-if="settings" class="vstack gap-2 small">
@@ -235,7 +235,7 @@
 
         <div class="card shadow-sm border-0">
           <div class="card-body p-4">
-            <div class="text-uppercase small fw-semibold text-secondary mb-2">Operator actions</div>
+            <div class="text-uppercase small fw-semibold text-secondary-emphasis mb-2">Operator actions</div>
             <h2 class="h6 fw-bold mb-3">Fast paths</h2>
             <div class="vstack gap-2">
               <RouterLink to="/admin/settings" class="quick-action">
@@ -354,9 +354,9 @@ function membershipHint(membership: TenantMembershipResponse) {
 }
 
 function recoveryBadgeClass(status: string) {
-  if (status === 'healthy') return 'bg-success-subtle text-success'
-  if (status === 'critical') return 'bg-danger-subtle text-danger'
-  return 'bg-warning-subtle text-warning'
+  if (status === 'healthy') return 'bg-success-subtle text-success-emphasis'
+  if (status === 'critical') return 'bg-danger-subtle text-danger-emphasis'
+  return 'bg-warning-subtle text-warning-emphasis'
 }
 
 async function refreshTenantContext() {

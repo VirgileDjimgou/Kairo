@@ -409,3 +409,29 @@ class FakeFirebasePushProvider:
         if self._outcomes:
             return self._outcomes.pop(0)
         return PushOutcome.DELIVERED
+
+
+class FakeRegisteredSearchProvider:
+    """Registry-composition double; never queries the database."""
+
+    module_key = None
+
+    def allowed(self, roles):
+        return True
+
+    async def search(self, db, tenant_id, user_id, roles, query, limit):
+        return []
+
+
+class FakeRegisteredAiContextProvider:
+    """Registry-composition double for the optional AI context hook."""
+
+    def __init__(self, db) -> None:
+        self._db = db
+
+    async def collect(self, request):
+        raise NotImplementedError
+
+
+async def fake_module_health_check(db):
+    return {"status": "ok", "latency_ms": 0, "detail": {"source": "test-module"}}

@@ -37,13 +37,17 @@ class ContextProviderRegistry:
 
 
 def build_default_registry(db: AsyncSession) -> ContextProviderRegistry:
-    return ContextProviderRegistry(
-        [
-            MembershipContextProvider(db),
-            FinanceContextProvider(db),
-            GovernanceContextProvider(db),
-            DocumentsContextProvider(db),
-            DisciplinaryContextProvider(db),
-            EventsContextProvider(db),
-        ]
-    )
+    from app.modules.module_registry.descriptor import default_registry
+
+    providers: list[DomainContextProvider] = [
+        MembershipContextProvider(db),
+        FinanceContextProvider(db),
+        GovernanceContextProvider(db),
+        DocumentsContextProvider(db),
+        DisciplinaryContextProvider(db),
+        EventsContextProvider(db),
+    ]
+    # Modules may optionally contribute AI context providers through their
+    # descriptor; the core providers above stay authoritative and ordered first.
+    providers.extend(default_registry().ai_context_providers(db))
+    return ContextProviderRegistry(providers)

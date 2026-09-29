@@ -306,15 +306,28 @@ class MembershipService:
     async def get_my_balance(
         self, tenant_id: UUID, user_id: UUID
     ) -> MemberBalanceResponse:
+        profile, contributions = await self._my_profile_and_contributions(
+            tenant_id, user_id
+        )
+        return self._balance_from(profile, contributions)
+
+    async def get_my_contributions(
+        self, tenant_id: UUID, user_id: UUID
+    ) -> list[ContributionRecordResponse]:
+        _, contributions = await self._my_profile_and_contributions(tenant_id, user_id)
+        return [ContributionRecordResponse.model_validate(c) for c in contributions]
+
+    async def _my_profile_and_contributions(self, tenant_id: UUID, user_id: UUID):
         profile = await self._repo.get_by_user_id(tenant_id, user_id)
         if not profile:
             raise HTTPException(
                 status_code=status.HTTP_404_NOT_FOUND,
                 detail="No member profile linked to your account",
             )
-        contributions = await self._contrib_repo.list_by_profile(
-            tenant_id, profile.id
-        )
+        contributions = await self._contrib_repo.list_by_profile(tenant_id, profile.id)
+        return profile, contributions
+
+    def _balance_from(self, profile, contributions) -> MemberBalanceResponse:
         profile_resp = MembershipProfileResponse.model_validate(profile)
         total_expected = sum(c.expected_amount for c in contributions)
         total_paid = sum(c.paid_amount for c in contributions)
@@ -327,27 +340,19 @@ class MembershipService:
             contribution_count=len(contributions),
         )
 
-    async def get_my_contributions(
-        self, tenant_id: UUID, user_id: UUID
-    ) -> list[ContributionRecordResponse]:
-        profile = await self._repo.get_by_user_id(tenant_id, user_id)
-        if not profile:
-            raise HTTPException(
-                status_code=status.HTTP_404_NOT_FOUND,
-                detail="No member profile linked to your account",
-            )
-        contributions = await self._contrib_repo.list_by_profile(tenant_id, profile.id)
-        return [ContributionRecordResponse.model_validate(c) for c in contributions]
-
     async def get_my_statement(
         self, tenant_id: UUID, user_id: UUID
     ) -> MemberStatementResponse:
-        balance = await self.get_my_balance(tenant_id, user_id)
-        contributions = await self.get_my_contributions(tenant_id, user_id)
+        profile, contributions = await self._my_profile_and_contributions(
+            tenant_id, user_id
+        )
         return MemberStatementResponse(
-            profile=balance.profile,
-            summary=balance,
-            contributions=contributions,
+            profile=MembershipProfileResponse.model_validate(profile),
+            summary=self._balance_from(profile, contributions),
+            contributions=[
+                ContributionRecordResponse.model_validate(contribution)
+                for contribution in contributions
+            ],
         )
 
     async def generate_my_statement_pdf(
@@ -447,11 +452,16 @@ class MembershipService:
         self, tenant_id: UUID, profile_id: UUID
     ) -> MemberStatementResponse:
         """Return a tenant-scoped finance statement for an authorized office role."""
-        balance = await self.get_member_balance(tenant_id, profile_id)
-        contributions = await self._contrib_repo.list_by_profile(tenant_id, profile_id)
+        profile = await self._repo.get_by_id(tenant_id, profile_id)
+        if not profile:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail="Member profile not found",
+            )
+        contributions = await self._contrib_repo.list_by_profile(tenant_id, profile.id)
         return MemberStatementResponse(
-            profile=balance.profile,
-            summary=balance,
+            profile=MembershipProfileResponse.model_validate(profile),
+            summary=self._balance_from(profile, contributions),
             contributions=[
                 ContributionRecordResponse.model_validate(contribution)
                 for contribution in contributions

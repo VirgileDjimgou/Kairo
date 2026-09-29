@@ -23,7 +23,7 @@
           <div class="card-body p-4">
             <div class="d-flex align-items-start justify-content-between gap-3 mb-2">
               <h2 class="h5 fw-bold mb-0">{{ announcement.title }}</h2>
-              <span v-if="isNew(announcement.created_at)" class="badge bg-primary-subtle text-primary border border-primary-subtle">{{ copy.new }}</span>
+              <span v-if="isNew(announcement.created_at)" class="badge bg-primary-subtle text-primary-emphasis border border-primary-subtle">{{ copy.new }}</span>
             </div>
             <p class="text-muted mb-3" style="white-space: pre-line">{{ announcement.body }}</p>
             <div class="d-flex gap-3 small text-muted">

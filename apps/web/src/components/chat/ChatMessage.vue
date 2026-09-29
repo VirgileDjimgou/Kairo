@@ -2,7 +2,7 @@
   <div class="chat-message d-flex gap-3 mb-4" :class="{ 'flex-row-reverse': role === 'user' }">
     <div
       class="avatar d-flex align-items-center justify-content-center rounded-circle flex-shrink-0"
-      :class="role === 'user' ? 'bg-primary-subtle text-primary' : 'bg-success-subtle text-success'"
+      :class="role === 'user' ? 'bg-primary-subtle text-primary-emphasis' : 'bg-success-subtle text-success-emphasis'"
     >
       <i :class="role === 'user' ? 'bi bi-person' : 'bi bi-robot'"></i>
     </div>

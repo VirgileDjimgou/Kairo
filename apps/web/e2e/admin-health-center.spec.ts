@@ -92,6 +92,8 @@ function makeSettings(overrides?: Partial<Record<string, unknown>>) {
 async function mockHealthCenter(page: Page, settings = makeSettings(), meResponse = adminMeResponse) {
   await page.addInitScript(() => {
     window.localStorage.setItem('access_token', 'playwright-admin-token')
+    // Kairo is French-first; this spec asserts the English copy explicitly.
+    window.localStorage.setItem('preferred_locale', 'en')
   })
 
   await page.route('http://localhost:8000/api/v1/auth/me', async (route) => {
@@ -115,9 +117,31 @@ async function mockHealthCenter(page: Page, settings = makeSettings(), meRespons
           redis: { status: 'ok', latency_ms: 4 },
           minio: { status: 'ok', latency_ms: 6 },
           qdrant: { status: 'ok', latency_ms: 8 },
-          ollama: { status: 'ok', latency_ms: 12 },
+          llm_provider: { status: 'ok', latency_ms: 12 },
+          embedding_provider: { status: 'ok', latency_ms: 12 },
+          backup: { status: 'ok', latency_ms: 3 },
+          notification_outbox: { status: 'ok', latency_ms: 2 },
+          domain_event_outbox: { status: 'ok', latency_ms: 2 },
         },
         modules: ['membership', 'contributions', 'policies', 'disciplinary', 'events'],
+      }),
+    })
+  })
+
+  await page.route('http://localhost:8000/api/v1/notifications/health', async (route) => {
+    await route.fulfill({
+      status: 200,
+      contentType: 'application/json',
+      body: JSON.stringify({
+        web_push_configured: true,
+        firebase_configured: true,
+        worker_running: true,
+        pending_outbox: 2,
+        failed_outbox: 0,
+        oldest_pending_seconds: 12,
+        disabled_web_subscriptions: 0,
+        disabled_fcm_tokens: 0,
+        last_successful_dispatch_at: '2026-09-27T08:00:00Z',
       }),
     })
   })
@@ -144,6 +168,10 @@ test.describe('Admin health center', () => {
     await expect(page.getByText('Object storage', { exact: true })).toBeVisible()
     await expect(page.getByText('Vector store', { exact: true })).toBeVisible()
     await expect(page.getByText('LLM provider', { exact: true })).toBeVisible()
+    await expect(page.getByText('Notification outbox', { exact: true })).toBeVisible()
+    await expect(page.getByText('Domain event outbox', { exact: true })).toBeVisible()
+    await expect(page.getByText('Backup archive', { exact: true })).toBeVisible()
+    await expect(page.getByText('Inbox outbox and worker')).toBeVisible()
     await expect(page.getByText('Latest drill completed with a clean restore.')).toBeVisible()
     await expect(page.getByTestId('health-center-warning-count')).toHaveText('0')
   })

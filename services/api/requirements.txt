@@ -8,7 +8,7 @@ pydantic-settings>=2.7.0,<3.0.0
 email-validator>=2.2.0,<3.0.0
 
 # ── Database ───────────────────────────────────────────────────────────────────
-sqlalchemy>=2.0.36,<3.0.0
+sqlalchemy[asyncio]>=2.0.36,<2.1.0
 # psycopg3 async driver — use postgresql+psycopg:// DSN (not python-jose CVE risk)
 psycopg[binary]>=3.2.0,<4.0.0
 alembic>=1.14.0,<2.0.0

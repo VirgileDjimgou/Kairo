@@ -657,7 +657,7 @@ test.describe('locale coverage', () => {
       ;(window as any).__forceHealthCenterError = true
     })
 
-    await page.route('**/api/v1/system/health', async (route) => {
+    await page.route('http://localhost:8000/health', async (route) => {
       const shouldFail = await page.evaluate(() => (window as any).__forceHealthCenterError === true)
       if (shouldFail) {
         await page.evaluate(() => {
@@ -678,6 +678,23 @@ test.describe('locale coverage', () => {
             database: { status: 'ok', latency_ms: 12 },
             redis: { status: 'ok', latency_ms: 8 },
           },
+        }),
+      })
+    })
+    await page.route('**/api/v1/notifications/health', async (route) => {
+      await route.fulfill({
+        status: 200,
+        contentType: 'application/json',
+        body: JSON.stringify({
+          web_push_configured: true,
+          firebase_configured: true,
+          worker_running: true,
+          pending_outbox: 0,
+          failed_outbox: 0,
+          oldest_pending_seconds: null,
+          disabled_web_subscriptions: 0,
+          disabled_fcm_tokens: 0,
+          last_successful_dispatch_at: null,
         }),
       })
     })
@@ -872,7 +889,7 @@ test.describe('locale coverage', () => {
 
   test('admin health center renders in French for principal admin', async ({ page }) => {
     await seedLocale(page, 'fr', 'principal_admin')
-    await page.route('**/api/v1/system/health', async (route) => {
+    await page.route('http://localhost:8000/health', async (route) => {
       await route.fulfill({
         status: 200,
         contentType: 'application/json',
@@ -884,7 +901,27 @@ test.describe('locale coverage', () => {
           checks: {
             database: { status: 'ok', latency_ms: 12 },
             redis: { status: 'ok', latency_ms: 8 },
+            backup: { status: 'ok', latency_ms: 3 },
+            notification_outbox: { status: 'ok', latency_ms: 2 },
+            domain_event_outbox: { status: 'ok', latency_ms: 2 },
           },
+        }),
+      })
+    })
+    await page.route('**/api/v1/notifications/health', async (route) => {
+      await route.fulfill({
+        status: 200,
+        contentType: 'application/json',
+        body: JSON.stringify({
+          web_push_configured: true,
+          firebase_configured: true,
+          worker_running: true,
+          pending_outbox: 0,
+          failed_outbox: 0,
+          oldest_pending_seconds: null,
+          disabled_web_subscriptions: 0,
+          disabled_fcm_tokens: 0,
+          last_successful_dispatch_at: null,
         }),
       })
     })

@@ -2,7 +2,7 @@
   <div class="p-4 p-lg-5">
     <div class="d-flex flex-column flex-lg-row justify-content-between gap-3 mb-4">
       <div>
-        <div class="text-uppercase small fw-semibold text-secondary mb-2">
+        <div class="text-uppercase small fw-semibold text-secondary-emphasis mb-2">
           {{ copy.kicker }}
         </div>
         <h1 class="h4 fw-bold mb-1">{{ copy.title }}</h1>
@@ -40,8 +40,8 @@
                 class="badge"
                 :class="
                   channel.configured
-                    ? 'bg-success-subtle text-success border border-success-subtle'
-                    : 'bg-secondary-subtle text-secondary border border-secondary-subtle'
+                    ? 'bg-success-subtle text-success-emphasis border border-success-subtle'
+                    : 'bg-secondary-subtle text-secondary-emphasis border border-secondary-subtle'
                 "
               >
                 {{ channel.configured ? copy.configured : copy.placeholder }}
@@ -76,7 +76,7 @@
                   {{ copy.simulationLead }}
                 </p>
               </div>
-              <span class="badge bg-warning-subtle text-warning border border-warning-subtle">
+              <span class="badge bg-warning-subtle text-warning-emphasis border border-warning-subtle">
                 {{ copy.noExternalDelivery }}
               </span>
             </div>
@@ -155,8 +155,8 @@
                 class="badge"
                 :class="
                   liveCapableChannels.length > 0
-                    ? 'bg-success-subtle text-success border border-success-subtle'
-                    : 'bg-secondary-subtle text-secondary border border-secondary-subtle'
+                    ? 'bg-success-subtle text-success-emphasis border border-success-subtle'
+                    : 'bg-secondary-subtle text-secondary-emphasis border border-secondary-subtle'
                 "
               >
                 {{ liveCapableChannels.length > 0 ? copy.liveEnabled : copy.liveUnavailable }}
@@ -192,7 +192,7 @@
 
         <div v-if="health" class="card shadow-sm border-0 mb-4">
           <div class="card-body p-4">
-            <div class="text-uppercase small fw-semibold text-secondary mb-3">
+            <div class="text-uppercase small fw-semibold text-secondary-emphasis mb-3">
               {{ copy.healthTitle }}
             </div>
             <div class="row g-2">
@@ -238,7 +238,7 @@
 
         <div class="card shadow-sm border-0 mb-4">
           <div class="card-body p-4">
-            <div class="text-uppercase small fw-semibold text-secondary mb-3">
+            <div class="text-uppercase small fw-semibold text-secondary-emphasis mb-3">
               {{ copy.triageTitle }}
             </div>
             <div class="row g-2 mb-3">
@@ -302,7 +302,7 @@
 
         <div class="card shadow-sm border-0">
           <div class="card-body p-4">
-            <div class="text-uppercase small fw-semibold text-secondary mb-2">
+            <div class="text-uppercase small fw-semibold text-secondary-emphasis mb-2">
               {{ copy.historyTitle }}
             </div>
 
@@ -763,12 +763,12 @@ function formatReconciliation(status: string) {
 
 function statusBadgeClass(entry: NotificationHistoryEntry) {
   if (entry.action === 'notification_test') {
-    return 'bg-warning-subtle text-warning border border-warning-subtle'
+    return 'bg-warning-subtle text-warning-emphasis border border-warning-subtle'
   }
   if (entry.delivery_stage === 'accepted' || entry.delivery_stage === 'delivered') {
-    return 'bg-success-subtle text-success border border-success-subtle'
+    return 'bg-success-subtle text-success-emphasis border border-success-subtle'
   }
-  return 'bg-danger-subtle text-danger border border-danger-subtle'
+  return 'bg-danger-subtle text-danger-emphasis border border-danger-subtle'
 }
 
 function canPollEntry(entry: NotificationHistoryEntry) {

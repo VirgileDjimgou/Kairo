@@ -3,7 +3,7 @@
     <div class="card-body p-4">
       <div class="d-flex justify-content-between gap-3 mb-4">
         <div>
-          <div class="text-uppercase small fw-semibold text-secondary mb-1">{{ t('members.detailsKicker') }}</div>
+          <div class="text-uppercase small fw-semibold text-secondary-emphasis mb-1">{{ t('members.detailsKicker') }}</div>
           <h2 class="h5 fw-bold mb-1">{{ member.display_name }}</h2>
           <div class="small text-muted font-monospace">{{ member.member_code }}</div>
         </div>

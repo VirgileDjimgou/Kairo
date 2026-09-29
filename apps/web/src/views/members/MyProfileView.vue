@@ -3,7 +3,7 @@
     <div class="hero-card rounded-4 p-4 p-lg-5 mb-4">
       <div class="d-flex flex-column flex-lg-row justify-content-between gap-4">
         <div>
-          <div class="text-uppercase small fw-semibold text-secondary mb-2">
+          <div class="text-uppercase small fw-semibold text-secondary-emphasis mb-2">
             {{ copy.kicker }}
           </div>
           <h1 class="h3 fw-bold mb-2">{{ copy.title }}</h1>
@@ -138,7 +138,7 @@
             <div class="card-body p-4">
               <div class="d-flex flex-column flex-md-row justify-content-between gap-3 mb-3">
                 <div>
-                  <div class="text-uppercase small fw-semibold text-secondary mb-1">
+                  <div class="text-uppercase small fw-semibold text-secondary-emphasis mb-1">
                     {{ copy.contributionHistory }}
                   </div>
                   <h2 class="h6 fw-bold mb-0">{{ copy.personalRecordsOnly }}</h2>
@@ -191,7 +191,7 @@
 
           <div class="card border-0 shadow-sm mt-4">
             <div class="card-body p-4">
-              <div class="text-uppercase small fw-semibold text-secondary mb-1">{{ copy.receiptDeclarations }}</div>
+              <div class="text-uppercase small fw-semibold text-secondary-emphasis mb-1">{{ copy.receiptDeclarations }}</div>
               <h2 class="h6 fw-bold mb-3">{{ copy.receiptDeclarationsLead }}</h2>
               <p v-if="receiptDeclarations.length === 0" class="text-muted small mb-0">{{ copy.noReceiptDeclarations }}</p>
               <div v-else class="vstack gap-2">
@@ -365,10 +365,10 @@ function formatStatus(status: string): string {
 
 function statusBadgeClass(status: string): string {
   const classes: Record<string, string> = {
-    paid: 'bg-success-subtle text-success border border-success-subtle',
-    partial: 'bg-warning-subtle text-warning border border-warning-subtle',
-    overdue: 'bg-danger-subtle text-danger border border-danger-subtle',
-    waived: 'bg-secondary-subtle text-secondary border border-secondary-subtle',
+    paid: 'bg-success-subtle text-success-emphasis border border-success-subtle',
+    partial: 'bg-warning-subtle text-warning-emphasis border border-warning-subtle',
+    overdue: 'bg-danger-subtle text-danger-emphasis border border-danger-subtle',
+    waived: 'bg-secondary-subtle text-secondary-emphasis border border-secondary-subtle',
     pending: 'bg-light text-dark border',
   }
 

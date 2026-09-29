@@ -480,7 +480,7 @@
             "type": "string"
           },
           "count": {
-            "minimum": 0.0,
+            "minimum": 0,
             "title": "Count",
             "type": "integer"
           },
@@ -1528,8 +1528,8 @@
           },
           "top_k": {
             "default": 6,
-            "maximum": 10.0,
-            "minimum": 1.0,
+            "maximum": 10,
+            "minimum": 1,
             "title": "Top K",
             "type": "integer"
           }
@@ -1554,8 +1554,8 @@
             "type": "array"
           },
           "confidence": {
-            "maximum": 1.0,
-            "minimum": 0.0,
+            "maximum": 1,
+            "minimum": 0,
             "title": "Confidence",
             "type": "number"
           },
@@ -1607,7 +1607,7 @@
           "amount": {
             "anyOf": [
               {
-                "exclusiveMinimum": 0.0,
+                "exclusiveMinimum": 0,
                 "type": "number"
               },
               {
@@ -1744,8 +1744,8 @@
           },
           "handover_reminder_days": {
             "default": 2,
-            "maximum": 7.0,
-            "minimum": 1.0,
+            "maximum": 7,
+            "minimum": 1,
             "title": "Handover Reminder Days",
             "type": "integer"
           },
@@ -1764,7 +1764,7 @@
           "processed_amount": {
             "anyOf": [
               {
-                "exclusiveMinimum": 0.0,
+                "exclusiveMinimum": 0,
                 "type": "number"
               },
               {
@@ -2162,7 +2162,7 @@
           "amount": {
             "anyOf": [
               {
-                "exclusiveMinimum": 0.0,
+                "exclusiveMinimum": 0,
                 "type": "number"
               },
               {
@@ -2287,8 +2287,8 @@
       "ContributionReceiptHandoverReminderUpdate": {
         "properties": {
           "reminder_days": {
-            "maximum": 7.0,
-            "minimum": 1.0,
+            "maximum": 7,
+            "minimum": 1,
             "title": "Reminder Days",
             "type": "integer"
           }
@@ -2466,7 +2466,7 @@
           "expected_amount": {
             "anyOf": [
               {
-                "minimum": 0.0,
+                "minimum": 0,
                 "type": "number"
               },
               {
@@ -2485,7 +2485,7 @@
           "paid_amount": {
             "anyOf": [
               {
-                "minimum": 0.0,
+                "minimum": 0,
                 "type": "number"
               },
               {
@@ -2501,8 +2501,8 @@
             "default": "pending"
           },
           "year": {
-            "maximum": 2100.0,
-            "minimum": 2000.0,
+            "maximum": 2100,
+            "minimum": 2000,
             "title": "Year",
             "type": "integer"
           }
@@ -2624,7 +2624,7 @@
           "expected_amount": {
             "anyOf": [
               {
-                "minimum": 0.0,
+                "minimum": 0,
                 "type": "number"
               },
               {
@@ -2640,7 +2640,7 @@
           "paid_amount": {
             "anyOf": [
               {
-                "minimum": 0.0,
+                "minimum": 0,
                 "type": "number"
               },
               {
@@ -2687,8 +2687,8 @@
           },
           "limit": {
             "default": 25,
-            "maximum": 100.0,
-            "minimum": 1.0,
+            "maximum": 100,
+            "minimum": 1,
             "title": "Limit",
             "type": "integer"
           },
@@ -2705,8 +2705,8 @@
           "year": {
             "anyOf": [
               {
-                "maximum": 2100.0,
-                "minimum": 2000.0,
+                "maximum": 2100,
+                "minimum": 2000,
                 "type": "integer"
               },
               {
@@ -2921,7 +2921,7 @@
           "amount": {
             "anyOf": [
               {
-                "minimum": 0.0,
+                "minimum": 0,
                 "type": "number"
               },
               {
@@ -3114,7 +3114,7 @@
           "amount": {
             "anyOf": [
               {
-                "minimum": 0.0,
+                "minimum": 0,
                 "type": "number"
               },
               {
@@ -3689,7 +3689,7 @@
           "amount": {
             "anyOf": [
               {
-                "exclusiveMinimum": 0.0,
+                "exclusiveMinimum": 0,
                 "type": "number"
               },
               {
@@ -5413,6 +5413,47 @@
         "title": "MobilePushTokenRequest",
         "type": "object"
       },
+      "ModuleNavigationEntryResponse": {
+        "properties": {
+          "capabilities": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Capabilities",
+            "type": "array"
+          },
+          "key": {
+            "title": "Key",
+            "type": "string"
+          },
+          "label_key": {
+            "title": "Label Key",
+            "type": "string"
+          },
+          "order": {
+            "title": "Order",
+            "type": "integer"
+          },
+          "path": {
+            "title": "Path",
+            "type": "string"
+          },
+          "section": {
+            "title": "Section",
+            "type": "string"
+          }
+        },
+        "required": [
+          "key",
+          "label_key",
+          "path",
+          "section",
+          "order",
+          "capabilities"
+        ],
+        "title": "ModuleNavigationEntryResponse",
+        "type": "object"
+      },
       "ModuleToggles": {
         "properties": {
           "announcements": {
@@ -6220,8 +6261,8 @@
           "status_code": {
             "anyOf": [
               {
-                "maximum": 599.0,
-                "minimum": 0.0,
+                "maximum": 599,
+                "minimum": 0,
                 "type": "integer"
               },
               {
@@ -6254,7 +6295,7 @@
           "amount": {
             "anyOf": [
               {
-                "exclusiveMinimum": 0.0,
+                "exclusiveMinimum": 0,
                 "type": "number"
               },
               {
@@ -6911,6 +6952,82 @@
         "title": "RefreshTokenResponse",
         "type": "object"
       },
+      "RegisteredModuleResponse": {
+        "properties": {
+          "capabilities": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Capabilities",
+            "type": "array"
+          },
+          "depends_on": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Depends On",
+            "type": "array"
+          },
+          "description": {
+            "title": "Description",
+            "type": "string"
+          },
+          "domain_event_types": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Domain Event Types",
+            "type": "array"
+          },
+          "enabled": {
+            "title": "Enabled",
+            "type": "boolean"
+          },
+          "key": {
+            "title": "Key",
+            "type": "string"
+          },
+          "name": {
+            "title": "Name",
+            "type": "string"
+          },
+          "navigation": {
+            "items": {
+              "$ref": "#/components/schemas/ModuleNavigationEntryResponse"
+            },
+            "title": "Navigation",
+            "type": "array"
+          }
+        },
+        "required": [
+          "key",
+          "name",
+          "description",
+          "enabled",
+          "capabilities",
+          "depends_on",
+          "domain_event_types",
+          "navigation"
+        ],
+        "title": "RegisteredModuleResponse",
+        "type": "object"
+      },
+      "RegisteredModulesResponse": {
+        "properties": {
+          "modules": {
+            "items": {
+              "$ref": "#/components/schemas/RegisteredModuleResponse"
+            },
+            "title": "Modules",
+            "type": "array"
+          }
+        },
+        "required": [
+          "modules"
+        ],
+        "title": "RegisteredModulesResponse",
+        "type": "object"
+      },
       "ReminderDeliveryStatus": {
         "enum": [
           "sent",
@@ -6972,6 +7089,52 @@
           "guidance"
         ],
         "title": "RestoreImportResponse",
+        "type": "object"
+      },
+      "RoleBundleCreate": {
+        "description": "A tenant-specific role bundle over canonical capabilities.",
+        "properties": {
+          "capabilities": {
+            "items": {
+              "type": "string"
+            },
+            "maxItems": 100,
+            "minItems": 1,
+            "title": "Capabilities",
+            "type": "array"
+          },
+          "code": {
+            "maxLength": 100,
+            "minLength": 3,
+            "pattern": "^[a-z][a-z0-9_]*$",
+            "title": "Code",
+            "type": "string"
+          },
+          "description": {
+            "anyOf": [
+              {
+                "maxLength": 2000,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Description"
+          },
+          "name": {
+            "maxLength": 255,
+            "minLength": 2,
+            "title": "Name",
+            "type": "string"
+          }
+        },
+        "required": [
+          "code",
+          "name",
+          "capabilities"
+        ],
+        "title": "RoleBundleCreate",
         "type": "object"
       },
       "RoleResponse": {
@@ -7062,7 +7225,7 @@
           },
           "score": {
             "description": "3 exact, 2 prefix, 1 substring match",
-            "minimum": 0.0,
+            "minimum": 0,
             "title": "Score",
             "type": "integer"
           },
@@ -7793,7 +7956,7 @@
   },
   "info": {
     "description": "Local-first multi-tenant RAG platform for organizations. Backend is the sole policy enforcement point.",
-    "title": "Kairo — OrgMind AI API",
+    "title": "Kairo � OrgMind AI API",
     "version": "0.1.0"
   },
   "openapi": "3.1.0",
@@ -13350,6 +13513,81 @@
         ]
       }
     },
+    "/api/v1/modules": {
+      "get": {
+        "description": "Return registry metadata for the active tenant and authenticated user.",
+        "operationId": "list_registered_modules_api_v1_modules_get",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RegisteredModulesResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "summary": "List Registered Modules",
+        "tags": [
+          "modules"
+        ]
+      }
+    },
+    "/api/v1/modules/{module_key}": {
+      "get": {
+        "description": "Return registry metadata for one registered module.",
+        "operationId": "get_registered_module_api_v1_modules__module_key__get",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "module_key",
+            "required": true,
+            "schema": {
+              "title": "Module Key",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RegisteredModuleResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "summary": "Get Registered Module",
+        "tags": [
+          "modules"
+        ]
+      }
+    },
     "/api/v1/notifications/channels": {
       "get": {
         "operationId": "list_notification_channels_api_v1_notifications_channels_get",
@@ -14610,6 +14848,37 @@
         ]
       }
     },
+    "/api/v1/sample/status": {
+      "get": {
+        "description": "Read-only extension probe; authority still comes from the backend.",
+        "operationId": "sample_status_api_v1_sample_status_get",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": {
+                    "type": "string"
+                  },
+                  "title": "Response Sample Status Api V1 Sample Status Get",
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Successful Response"
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "summary": "Sample Status",
+        "tags": [
+          "sample"
+        ]
+      }
+    },
     "/api/v1/search": {
       "get": {
         "description": "Permission-aware global search across authorized domains.\n\nProviders filter by tenant and role before returning results; titles of\nrecords the caller may not read are never produced.",
@@ -14922,7 +15191,7 @@
     },
     "/api/v1/tenants/{tenant_id}": {
       "get": {
-        "description": "Return a specific organization.\n\nReturns 403 if the current user is not a member — enforcing tenant isolation.",
+        "description": "Return a specific organization.\n\nReturns 403 if the current user is not a member � enforcing tenant isolation.",
         "operationId": "get_tenant_api_v1_tenants__tenant_id__get",
         "parameters": [
           {
@@ -15017,6 +15286,63 @@
           }
         ],
         "summary": "List Tenant Roles",
+        "tags": [
+          "tenants"
+        ]
+      },
+      "post": {
+        "description": "Create a tenant-specific role bundle over canonical capabilities.",
+        "operationId": "create_tenant_role_bundle_api_v1_tenants__tenant_id__roles_post",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "tenant_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "title": "Tenant Id",
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RoleBundleCreate"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RoleResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "summary": "Create Tenant Role Bundle",
         "tags": [
           "tenants"
         ]
@@ -15130,7 +15456,7 @@
     },
     "/health": {
       "get": {
-        "description": "Probes critical dependencies and returns their status.\n\nReturns HTTP 200 in all cases — callers should inspect the `status`\nfield (`ok` | `degraded` | `unavailable`) and per-service `checks`\nto determine overall health.",
+        "description": "Probes critical dependencies and returns their status.\n\nReturns HTTP 200 in all cases � callers should inspect the `status`\nfield (`ok` | `degraded` | `unavailable`) and per-service `checks`\nto determine overall health.",
         "operationId": "health_check_health_get",
         "responses": {
           "200": {
@@ -15147,6 +15473,50 @@
           }
         },
         "summary": "Health check",
+        "tags": [
+          "system"
+        ]
+      }
+    },
+    "/health/live": {
+      "get": {
+        "description": "Process liveness: always 200 while the API can answer requests.",
+        "operationId": "liveness_check_health_live_get",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": true,
+                  "title": "Response Liveness Check Health Live Get",
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Successful Response"
+          }
+        },
+        "summary": "Liveness probe",
+        "tags": [
+          "system"
+        ]
+      }
+    },
+    "/health/ready": {
+      "get": {
+        "description": "Readiness gates on critical dependencies only (database, Redis).",
+        "operationId": "readiness_check_health_ready_get",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            },
+            "description": "Successful Response"
+          }
+        },
+        "summary": "Readiness probe",
         "tags": [
           "system"
         ]

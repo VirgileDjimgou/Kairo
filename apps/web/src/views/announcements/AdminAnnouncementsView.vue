@@ -59,7 +59,7 @@
               <td class="small">{{ a.published_at ? formatDate(a.published_at) : '—' }}</td>
               <td class="small">{{ a.expires_at ? formatDate(a.expires_at) : '—' }}</td>
               <td>
-                <span class="badge bg-info-subtle text-info border border-info-subtle">{{ visibilityLabel(a.visibility_scope) }}</span>
+                <span class="badge bg-info-subtle text-info-emphasis border border-info-subtle">{{ visibilityLabel(a.visibility_scope) }}</span>
               </td>
               <td class="text-end pe-4">
                 <button class="btn btn-sm btn-outline-secondary me-1" :aria-label="copy.editAnnouncement" @click="editItem(a)">
@@ -72,7 +72,7 @@
             </tr>
       </template>
       <template #mobile-title="{ item }">{{ item.title }}</template>
-      <template #mobile-status="{ item }"><span class="badge bg-info-subtle text-info border border-info-subtle">{{ visibilityLabel(item.visibility_scope) }}</span></template>
+      <template #mobile-status="{ item }"><span class="badge bg-info-subtle text-info-emphasis border border-info-subtle">{{ visibilityLabel(item.visibility_scope) }}</span></template>
       <template #mobile-fields="{ item }">
         <div class="om-data-card-row"><span class="om-data-card-label">{{ copy.publishedColumn }}</span><span class="om-data-card-value">{{ item.published_at ? formatDate(item.published_at) : '—' }}</span></div>
         <div class="om-data-card-row"><span class="om-data-card-label">{{ copy.expiresColumn }}</span><span class="om-data-card-value">{{ item.expires_at ? formatDate(item.expires_at) : '—' }}</span></div>

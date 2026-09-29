@@ -108,13 +108,38 @@ def has_capability(role_codes: Iterable[str], capability: str) -> bool:
     return capability in capabilities_for_roles(role_codes)
 
 
-def capabilities_for_roles(role_codes: Iterable[str]) -> tuple[str, ...]:
+def known_capabilities() -> frozenset[str]:
+    """Every canonical capability constant declared in this module."""
+    return frozenset(
+        value
+        for name, value in globals().items()
+        if name.startswith("CAP_") and isinstance(value, str)
+    )
+
+
+def normalize_bundle_capabilities(
+    capabilities: Iterable[str],
+) -> tuple[tuple[str, ...], tuple[str, ...]]:
+    """Return ``(known_ordered, unknown)`` for a tenant-specific role bundle."""
+    known = known_capabilities()
+    requested = list(capabilities)
+    normalized = _ordered_capabilities(capability for capability in requested if capability in known)
+    unknown = tuple(sorted({capability for capability in requested if capability not in known}))
+    return normalized, unknown
+
+
+def capabilities_for_roles(
+    role_codes: Iterable[str],
+    bundle_capabilities: dict[str, Iterable[str]] | None = None,
+) -> tuple[str, ...]:
     from app.modules.tenancy.role_catalog import get_role_definition
 
     aggregated: set[str] = set()
+    bundles = bundle_capabilities or {}
     for code in role_codes:
         definition = get_role_definition(code)
         if definition is not None:
             aggregated.update(definition.capabilities)
         aggregated.update(LEGACY_ROLE_CAPABILITIES.get(code, ()))
+        aggregated.update(bundles.get(code, ()))
     return _ordered_capabilities(aggregated)

@@ -2,7 +2,7 @@
   <section class="container-fluid p-4 p-lg-5">
     <div class="d-flex flex-column flex-md-row justify-content-between gap-3 mb-4">
       <div>
-        <div class="text-uppercase small fw-semibold text-secondary">{{ t('operationJournal.kicker') }}</div>
+        <div class="text-uppercase small fw-semibold text-secondary-emphasis">{{ t('operationJournal.kicker') }}</div>
         <h1 class="h3 fw-bold mb-1">{{ t('operationJournal.title') }}</h1>
         <p class="text-muted mb-0">{{ t('operationJournal.description') }}</p>
       </div>

@@ -101,3 +101,12 @@ class TenantSettingsUpdate(BaseModel):
     branding: BrandingConfig | None = None
     modules: ModuleToggles | None = None
     operations: RecoveryEvidenceConfig | None = None
+
+
+class RoleBundleCreate(BaseModel):
+    """A tenant-specific role bundle over canonical capabilities."""
+
+    code: str = Field(min_length=3, max_length=100, pattern=r"^[a-z][a-z0-9_]*$")
+    name: str = Field(min_length=2, max_length=255)
+    description: str | None = Field(default=None, max_length=2000)
+    capabilities: list[str] = Field(min_length=1, max_length=100)

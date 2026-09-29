@@ -2,7 +2,7 @@
   <div class="p-4 p-lg-5">
     <div class="d-flex flex-column flex-lg-row justify-content-between gap-3 mb-4">
       <div>
-        <div class="text-uppercase small fw-semibold text-secondary mb-2">
+        <div class="text-uppercase small fw-semibold text-secondary-emphasis mb-2">
           {{ t('policies.kicker') }}
         </div>
         <h1 class="h4 fw-bold mb-1">{{ t('policies.adminTitle') }}</h1>
@@ -209,9 +209,9 @@ const form = ref<CreatePolicyPayload>({
 
 function statusClass(status: string): string {
   const map: Record<string, string> = {
-    draft: 'bg-warning-subtle text-warning border border-warning-subtle',
-    published: 'bg-success-subtle text-success border border-success-subtle',
-    archived: 'bg-secondary-subtle text-secondary border border-secondary-subtle',
+    draft: 'bg-warning-subtle text-warning-emphasis border border-warning-subtle',
+    published: 'bg-success-subtle text-success-emphasis border border-success-subtle',
+    archived: 'bg-secondary-subtle text-secondary-emphasis border border-secondary-subtle',
   }
   return map[status] || 'bg-light text-dark border'
 }

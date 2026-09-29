@@ -93,11 +93,11 @@ export function useFinanceFormatting() {
 
   function statusBadgeClass(status: string): string {
     const map: Record<string, string> = {
-      pending: 'bg-secondary-subtle text-secondary',
-      partial: 'bg-warning-subtle text-warning',
-      paid: 'bg-success-subtle text-success',
-      overdue: 'bg-danger-subtle text-danger',
-      waived: 'bg-info-subtle text-info',
+      pending: 'bg-secondary-subtle text-secondary-emphasis',
+      partial: 'bg-warning-subtle text-warning-emphasis',
+      paid: 'bg-success-subtle text-success-emphasis',
+      overdue: 'bg-danger-subtle text-danger-emphasis',
+      waived: 'bg-info-subtle text-info-emphasis',
     }
     return map[status] || 'bg-light text-dark'
   }

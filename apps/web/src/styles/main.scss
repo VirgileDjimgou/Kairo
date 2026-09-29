@@ -21,6 +21,17 @@
   --bs-btn-disabled-border-color: var(--om-primary);
 }
 
+// Primary outline button — use the tenant-aware primary instead of the
+// Bootstrap default, which did not meet WCAG AA contrast on the login surface.
+.btn-outline-primary {
+  --bs-btn-color: var(--om-primary);
+  --bs-btn-border-color: var(--om-primary);
+  --bs-btn-hover-bg: var(--om-primary);
+  --bs-btn-hover-border-color: var(--om-primary);
+  --bs-btn-active-bg: var(--om-primary-dark);
+  --bs-btn-active-border-color: var(--om-primary-dark);
+}
+
 // Secondary / outline buttons — cleaner Swiss feel
 .btn-outline-secondary {
   --bs-btn-color: var(--om-neutral-700);

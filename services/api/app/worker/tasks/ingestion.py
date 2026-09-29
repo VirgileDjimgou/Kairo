@@ -11,6 +11,7 @@ from app.core.dependencies import (
     get_object_storage_provider,
     get_vector_store_provider,
 )
+from app.core.request_context import current_request_id
 from app.db.session import async_session_factory
 from app.modules.documents.repository import DocumentRepository
 from app.modules.ingestion.service import IngestionService
@@ -48,8 +49,10 @@ def enqueue_ingestion_job(job_id: UUID) -> None:
     if not settings.ingestion_auto_enqueue:
         return
 
+    request_id = current_request_id.get()
+    headers = {"kairo_correlation_id": request_id} if request_id else None
     try:
-        process_ingestion_job.delay(str(job_id))
+        process_ingestion_job.apply_async(args=[str(job_id)], headers=headers)
     except Exception as exc:
         logger.warning("ingestion_enqueue_failed", job_id=str(job_id), error=str(exc))
 

@@ -2,7 +2,7 @@
   <div class="p-4 p-lg-5">
     <div class="d-flex flex-column flex-xl-row justify-content-between gap-3 mb-4">
       <div>
-        <div class="text-uppercase small fw-semibold text-secondary mb-2" data-testid="admin-onboarding-kicker">
+        <div class="text-uppercase small fw-semibold text-secondary-emphasis mb-2" data-testid="admin-onboarding-kicker">
           {{ copy.kicker }}
         </div>
         <h1 class="h4 fw-bold mb-1" data-testid="admin-onboarding-title">{{ copy.title }}</h1>
@@ -42,7 +42,7 @@
           <div class="card-body p-4 p-xl-5">
             <div class="d-flex flex-column flex-md-row justify-content-between gap-3 mb-4">
               <div>
-                <div class="text-uppercase small fw-semibold text-secondary mb-2">
+                <div class="text-uppercase small fw-semibold text-secondary-emphasis mb-2">
                   {{ copy.launchChecklist }}
                 </div>
                 <h2 class="h5 fw-bold mb-2">{{ statusTitle }}</h2>
@@ -61,8 +61,9 @@
             <div class="progress mb-4" style="height: 0.75rem">
               <div
                 class="progress-bar"
-                role="progressbar"
-                :aria-valuenow="progressPercent"
+          role="progressbar"
+          :aria-label="copy.checklistProgress"
+          :aria-valuenow="progressPercent"
                 aria-valuemin="0"
                 aria-valuemax="100"
                 :style="{ width: `${progressPercent}%` }"
@@ -104,7 +105,7 @@
                   <div class="text-md-end">
                     <span
                       class="badge mb-2"
-                      :class="step.completed ? 'bg-success-subtle text-success border border-success-subtle' : 'bg-secondary-subtle text-secondary border border-secondary-subtle'"
+                      :class="step.completed ? 'bg-success-subtle text-success-emphasis border border-success-subtle' : 'bg-secondary-subtle text-secondary-emphasis border border-secondary-subtle'"
                     >
                       {{ step.completed ? copy.completed : copy.pending }}
                     </span>
@@ -124,7 +125,7 @@
       <div class="col-xl-4">
         <div class="card shadow-sm border-0 mb-4">
           <div class="card-body p-4">
-            <div class="text-uppercase small fw-semibold text-secondary mb-2">
+            <div class="text-uppercase small fw-semibold text-secondary-emphasis mb-2">
               {{ copy.firstActions }}
             </div>
             <h2 class="h6 fw-bold mb-3">{{ copy.whatToDoFirst }}</h2>
@@ -140,7 +141,7 @@
 
         <div class="card shadow-sm border-0 mb-4">
           <div class="card-body p-4">
-            <div class="text-uppercase small fw-semibold text-secondary mb-2">
+            <div class="text-uppercase small fw-semibold text-secondary-emphasis mb-2">
               {{ copy.demoSeed }}
             </div>
             <h2 class="h6 fw-bold mb-3">{{ copy.demoSeedTitle }}</h2>
@@ -162,7 +163,7 @@
 
         <div class="card shadow-sm border-0 mb-4">
           <div class="card-body p-4">
-            <div class="text-uppercase small fw-semibold text-secondary mb-2">
+            <div class="text-uppercase small fw-semibold text-secondary-emphasis mb-2">
               {{ copy.guidedLinks }}
             </div>
             <div class="vstack gap-2" data-testid="admin-onboarding-links">
@@ -181,7 +182,7 @@
 
         <div class="card shadow-sm border-0">
           <div class="card-body p-4">
-            <div class="text-uppercase small fw-semibold text-secondary mb-2">
+            <div class="text-uppercase small fw-semibold text-secondary-emphasis mb-2">
               {{ copy.successCriteria }}
             </div>
             <h2 class="h6 fw-bold mb-3">{{ copy.firstWeekReady }}</h2>
@@ -224,6 +225,7 @@ const copy = computed(() => {
       introAdmin:
         'Nutzen Sie diese Einrichtungsansicht, um mit einer klaren Reihenfolge und einem verlässlichen Demo-Pfad von einem leeren Tenant zu einer arbeitsfaehigen Startkonfiguration zu gelangen.',
       launchChecklist: 'Start-Checkliste',
+      checklistProgress: 'Fortschritt der Start-Checkliste',
       complete: 'abgeschlossen',
       nextBestAction: 'Naechste sinnvolle Aktion',
       completed: 'Abgeschlossen',
@@ -278,6 +280,7 @@ const copy = computed(() => {
       introAdmin:
         'Use this setup view to move from a blank tenant into a working launch configuration with a clear sequence and a predictable demo seed path.',
       launchChecklist: 'Launch checklist',
+      checklistProgress: 'Launch checklist progress',
       complete: 'complete',
       nextBestAction: 'Next best action',
       completed: 'Completed',
@@ -330,7 +333,8 @@ const copy = computed(() => {
       'Utilisez cette vue de pilotage pour passer d’un tenant vide à une configuration exploitable sans mélanger les repères de démonstration et les décisions de production.',
     introAdmin:
       'Utilisez cette vue de préparation pour passer d’un tenant vide à une configuration exploitable avec une séquence claire et un chemin de démonstration prévisible.',
-    launchChecklist: 'Checklist de lancement',
+      launchChecklist: 'Checklist de lancement',
+      checklistProgress: 'Progression de la checklist de lancement',
     complete: 'terminé',
     nextBestAction: 'Prochaine meilleure action',
     completed: 'Terminé',

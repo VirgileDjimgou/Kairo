@@ -381,13 +381,13 @@ async function exportContributions() {
 
 function statusBadgeClass(status: string): string {
   const map: Record<string, string> = {
-    paid: 'bg-success-subtle text-success',
-    pending: 'bg-warning-subtle text-warning',
-    partial: 'bg-info-subtle text-info',
-    overdue: 'bg-danger-subtle text-danger',
-    waived: 'bg-secondary-subtle text-secondary',
+    paid: 'bg-success-subtle text-success-emphasis',
+    pending: 'bg-warning-subtle text-warning-emphasis',
+    partial: 'bg-info-subtle text-info-emphasis',
+    overdue: 'bg-danger-subtle text-danger-emphasis',
+    waived: 'bg-secondary-subtle text-secondary-emphasis',
   }
-  return map[status] || 'bg-secondary-subtle text-secondary'
+  return map[status] || 'bg-secondary-subtle text-secondary-emphasis'
 }
 
 function formatDate(dateStr: string): string {

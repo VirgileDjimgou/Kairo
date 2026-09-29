@@ -3,7 +3,7 @@
     <div class="governance-hero rounded-4 p-4 p-lg-5 mb-4" data-testid="governance-cockpit-hero">
       <div class="d-flex flex-column flex-xl-row justify-content-between gap-4 align-items-xl-end">
         <div>
-          <div class="text-uppercase small fw-semibold text-secondary mb-2">{{ copy.heroKicker }}</div>
+          <div class="text-uppercase small fw-semibold text-secondary-emphasis mb-2">{{ copy.heroKicker }}</div>
           <h1 class="h3 fw-bold mb-2">{{ heading }}</h1>
           <p class="text-muted mb-0 hero-copy" data-testid="governance-cockpit-subtitle">{{ subtitle }}</p>
         </div>
@@ -81,7 +81,7 @@
           <div class="card-body p-4">
             <div class="d-flex flex-column flex-lg-row justify-content-between gap-3 mb-3">
               <div>
-                <div class="text-uppercase small fw-semibold text-secondary mb-2">{{ copy.executiveActions }}</div>
+                <div class="text-uppercase small fw-semibold text-secondary-emphasis mb-2">{{ copy.executiveActions }}</div>
                 <h2 class="h6 fw-bold mb-1">{{ copy.limitedShortcuts }}</h2>
                 <p class="text-muted small mb-0">
                   {{ copy.limitedShortcutsHint }}
@@ -107,7 +107,7 @@
           <div class="card-body p-4">
             <div class="d-flex flex-column flex-lg-row justify-content-between gap-3 mb-3">
               <div>
-                <div class="text-uppercase small fw-semibold text-secondary mb-2">{{ copy.contextSnapshots }}</div>
+                <div class="text-uppercase small fw-semibold text-secondary-emphasis mb-2">{{ copy.contextSnapshots }}</div>
                 <h2 class="h6 fw-bold mb-1">{{ copy.roleSensitiveVisibility }}</h2>
                 <p class="text-muted small mb-0">
                   {{ copy.roleSensitiveVisibilityHint }}
@@ -163,7 +163,7 @@
       <div class="col-xl-4">
         <div class="card shadow-sm border-0 mb-4">
           <div class="card-body p-4">
-            <div class="text-uppercase small fw-semibold text-secondary mb-2">{{ copy.currentTenant }}</div>
+            <div class="text-uppercase small fw-semibold text-secondary-emphasis mb-2">{{ copy.currentTenant }}</div>
             <div class="vstack gap-2 small">
               <div class="d-flex justify-content-between gap-2">
                 <span class="text-muted">{{ copy.tenant }}</span>
@@ -187,7 +187,7 @@
 
         <div class="card shadow-sm border-0">
           <div class="card-body p-4">
-            <div class="text-uppercase small fw-semibold text-secondary mb-2">{{ copy.rolePosture }}</div>
+            <div class="text-uppercase small fw-semibold text-secondary-emphasis mb-2">{{ copy.rolePosture }}</div>
             <p class="small text-muted mb-3">
               {{ copy.rolePostureHint }}
             </p>

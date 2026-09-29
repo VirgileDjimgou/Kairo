@@ -7,10 +7,12 @@ from fastapi import HTTPException, status
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core.capabilities import (
+    CAP_ROLE_ASSIGN,
     CAP_ROLE_CATALOG_READ,
     CAP_TENANT_SETTINGS_WRITE,
     capabilities_for_roles,
     has_capability,
+    normalize_bundle_capabilities,
 )
 from app.modules.audit.service import AuditService
 from app.modules.tenancy.module_toggles import default_module_toggles, parse_module_toggles
@@ -21,6 +23,7 @@ from app.modules.tenancy.schemas import (
     ModuleToggles,
     RecoveryEvidenceConfig,
     RecoveryEvidenceResponse,
+    RoleBundleCreate,
     RoleResponse,
     TenantResponse,
     TenantSettingsResponse,
@@ -91,10 +94,89 @@ class TenancyService:
                 description=role.description,
                 is_system_role=role.is_system_role,
                 is_canonical=is_canonical_role(role.code),
-                capabilities=list(capabilities_for_roles([role.code])),
+                capabilities=list(
+                    capabilities_for_roles(
+                        [role.code], {role.code: self._stored_bundle(role)}
+                    )
+                ),
             )
             for role in roles
         ]
+
+    @staticmethod
+    def _stored_bundle(role) -> list[str]:
+        try:
+            parsed = json.loads(role.capabilities_json or "[]")
+        except json.JSONDecodeError:
+            return []
+        if isinstance(parsed, list):
+            return [str(capability) for capability in parsed]
+        return []
+
+    async def create_role_bundle(
+        self,
+        tenant_id: UUID,
+        requesting_user_id: UUID,
+        payload: RoleBundleCreate,
+    ) -> RoleResponse:
+        """Create a tenant-specific role bundle over canonical capabilities."""
+        membership = await self._repo.get_tenant_user(tenant_id, requesting_user_id)
+        if not membership or membership.membership_status != "active":
+            raise HTTPException(
+                status_code=status.HTTP_403_FORBIDDEN,
+                detail="You are not a member of this organization",
+            )
+        role_codes = await self._repo.get_user_role_codes(tenant_id, requesting_user_id)
+        if not has_capability(role_codes, CAP_ROLE_ASSIGN):
+            raise HTTPException(
+                status_code=status.HTTP_403_FORBIDDEN,
+                detail="Only authorized tenant administrators can create role bundles",
+            )
+        if is_canonical_role(payload.code):
+            raise HTTPException(
+                status_code=status.HTTP_409_CONFLICT,
+                detail="Canonical role codes cannot be replaced by tenant bundles",
+            )
+        existing = await self._repo.get_roles_for_tenant(tenant_id)
+        if any(role.code == payload.code for role in existing):
+            raise HTTPException(
+                status_code=status.HTTP_409_CONFLICT,
+                detail="A role with this code already exists in the organization",
+            )
+        normalized, unknown = normalize_bundle_capabilities(payload.capabilities)
+        if unknown:
+            raise HTTPException(
+                status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
+                detail=f"Unknown capabilities: {', '.join(unknown)}",
+            )
+        role = await self._repo.create_role(
+            tenant_id=tenant_id,
+            code=payload.code,
+            name=payload.name,
+            description=payload.description,
+            is_system_role=False,
+            capabilities=list(normalized),
+        )
+        await self._audit.record_event(
+            tenant_id=tenant_id,
+            actor_user_id=requesting_user_id,
+            action="role_bundle_created",
+            entity_type="role",
+            entity_id=role.id,
+            module_key="tenancy",
+            details={"code": role.code, "capabilities": list(normalized)},
+        )
+        await self._db.commit()
+        return RoleResponse(
+            id=role.id,
+            tenant_id=role.tenant_id,
+            code=role.code,
+            name=role.name,
+            description=role.description,
+            is_system_role=role.is_system_role,
+            is_canonical=False,
+            capabilities=list(normalized),
+        )
 
     # ── Tenant Settings ─────────────────────────────────────────────────────
 

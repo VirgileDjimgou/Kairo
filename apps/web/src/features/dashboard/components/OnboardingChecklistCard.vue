@@ -3,7 +3,7 @@
     <div class="card-body p-3 p-md-4 p-lg-5">
       <div class="d-flex flex-column flex-md-row justify-content-between gap-3 mb-4">
         <div>
-          <div class="text-uppercase small fw-semibold text-secondary mb-2">
+          <div class="text-uppercase small fw-semibold text-secondary-emphasis mb-2">
             {{ copy.firstRunChecklist }}
           </div>
           <h2 class="h5 fw-bold mb-2">{{ statusTitle }}</h2>
@@ -26,6 +26,7 @@
         <div
           class="progress-bar"
           role="progressbar"
+          :aria-label="copy.checklistProgress"
           :aria-valuenow="progressPercent"
           aria-valuemin="0"
           aria-valuemax="100"
@@ -69,7 +70,7 @@
             <div class="text-md-end">
               <span
                 class="badge mb-2"
-                :class="step.completed ? 'bg-success-subtle text-success border border-success-subtle' : 'bg-secondary-subtle text-secondary border border-secondary-subtle'"
+                :class="step.completed ? 'bg-success-subtle text-success-emphasis border border-success-subtle' : 'bg-secondary-subtle text-secondary-emphasis border border-secondary-subtle'"
               >
                 {{ step.completed ? copy.completed : copy.pending }}
               </span>

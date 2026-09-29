@@ -26,6 +26,19 @@ class MembershipRepository:
         )
         return result.scalar_one_or_none()
 
+    async def list_by_ids(
+        self, tenant_id: UUID, profile_ids: list[UUID]
+    ) -> list[MembershipProfile]:
+        if not profile_ids:
+            return []
+        result = await self._db.execute(
+            select(MembershipProfile).where(
+                MembershipProfile.tenant_id == tenant_id,
+                MembershipProfile.id.in_(profile_ids),
+            )
+        )
+        return list(result.scalars().all())
+
     async def get_by_user_id(self, tenant_id: UUID, user_id: UUID) -> MembershipProfile | None:
         result = await self._db.execute(
             select(MembershipProfile).where(

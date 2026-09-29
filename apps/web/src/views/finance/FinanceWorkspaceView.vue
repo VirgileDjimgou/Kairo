@@ -2,7 +2,7 @@
   <div class="p-4 p-lg-5">
     <div class="d-flex flex-column flex-lg-row justify-content-between gap-3 mb-4">
       <div>
-        <div class="text-uppercase small fw-semibold text-secondary mb-2">{{ t('finance.workspaceKicker') }}</div>
+        <div class="text-uppercase small fw-semibold text-secondary-emphasis mb-2">{{ t('finance.workspaceKicker') }}</div>
         <h1 class="h4 fw-bold mb-1">{{ t('finance.workspaceTitle') }}</h1>
         <p class="text-muted mb-0">
           {{ t('finance.workspaceSubtitle') }}

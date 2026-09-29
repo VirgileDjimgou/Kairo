@@ -1,6 +1,6 @@
 # Kairo — Current Architecture Snapshot
 
-Last verified: 2026-09-26 (Roadmap V2 Sprint 115)
+Last verified: 2026-09-27 (Roadmap V2 Sprint 117)
 
 This file is the concise description of what Kairo IS today. When code and this
 file disagree, trust the code and update this file. Historical narrative lives in
@@ -52,6 +52,17 @@ Vue 3 PWA (apps/web)          Flutter client (apps/flutter_kairo)
   stale generated TypeScript/Dart contract types or client calls that no longer
   map to a documented operation. Generated types coexist with thin hand-written
   gateways and never make authorization decisions.
+- **Modules compose through an internal registry** (ADR-013). Each module package
+  ships a `module.py` descriptor (capabilities, dependencies, routers, search/AI
+  hooks, health hook, domain events, navigation); `app/main.py`, module toggles,
+  search and chat consume the registry instead of importing modules directly.
+  Discovery is repository-internal — no untrusted plugin execution. Navigation
+  metadata is served tenant/capability-filtered by `GET /api/v1/modules`.
+- **Operational health is layered and privacy-safe** (ADR-012). `/health` returns
+  dependency, backup and outbox-pipeline status with counts only; `/health/live`
+  and `/health/ready` serve orchestration probes; `/metrics` carries outbox and
+  backup gauges without tenant/member/token labels; worker logs bind task and
+  request correlation ids.
 - **Operational documents never enter Git** (ADR-007). Association documents
   live in MinIO/S3 through the document module.
 
@@ -82,7 +93,7 @@ Vue 3 PWA (apps/web)          Flutter client (apps/flutter_kairo)
 | Finance | `contributions/` (models, schemas, repository, router) + `finance/` (bounded context) | contributions, payments, receipts + custody handover, expenses, budgets, exports, reminders. `finance/` holds the decomposed domains (`contributions`, `receipts`, `custody`, `expenses`, `budgeting`, `reminders`, `reporting`), a notification contract seam (`notifications.py`) and a `ContributionService` facade; `contributions/service.py` re-exports the facade for API compatibility. Each command keeps its own transaction. |
 | Governance | `disciplinary/`, `events/`, `announcements/`, policies | role-scoped visibility |
 | Knowledge | `documents/`, `rag/`, `chat/` | ingestion, citations, refusal behavior. `chat/contexts/` holds the authorized domain context provider registry (membership, finance, governance, documents/publication, disciplinary, events/sports); providers check the capability-derived domain policy before querying, and `ChatService` consumes only the registry plus permission-aware RAG retrieval. |
-| Operations | `audit/`, `backup/`, `notifications/`, `domain_events/`, `worker/` | journal, encrypted backups, outbox delivery. `notifications/` is decomposed into `inbox`, `policy`, `preferences`, `devices`, `health`, `outbox` (user-facing) and `history`, `reconciliation`, `dispatch` (operator-facing), composed behind the unchanged `UserNotificationService` and `NotificationService` facades. `domain_events/` holds the internal event log, consumer registry and outbox service; `audit/event_handlers.py` and `notifications/event_handlers.py` consume events without business modules importing transport code. Push transports are provider protocols under `app/providers/push/` (Web Push VAPID + Firebase Admin FCM) with deterministic fakes for tests. |
+| Operations | `audit/`, `backup/`, `notifications/`, `domain_events/`, `module_registry/`, `worker/` | journal, encrypted backups, outbox delivery. `notifications/` is decomposed into `inbox`, `policy`, `preferences`, `devices`, `health`, `outbox` (user-facing) and `history`, `reconciliation`, `dispatch` (operator-facing), composed behind the unchanged `UserNotificationService` and `NotificationService` facades. `domain_events/` holds the internal event log, consumer registry and outbox service; `audit/event_handlers.py` and `notifications/event_handlers.py` consume events without business modules importing transport code. Push transports are provider protocols under `app/providers/push/` (Web Push VAPID + Firebase Admin FCM) with deterministic fakes for tests. `module_registry/` discovers per-module descriptors and composes routers, toggles, search/AI hooks, health checks and navigation (`GET /api/v1/modules`). |
 
 ## Clients
 
@@ -110,12 +121,14 @@ Vue 3 PWA (apps/web)          Flutter client (apps/flutter_kairo)
 
 ## Quality gates
 
-Backend `ruff` + `mypy` (275 source files) + `pytest` (337 tests), Web `vue-tsc` + `vite build` +
+Backend `ruff` + `mypy` (301 source files) + `pytest` (359 tests), Web `vue-tsc` + `vite build` +
 three Playwright packs (locale, roles, release-candidate), Flutter `analyze` +
 `test` (50 tests) + web/Android builds, OpenAPI contract checks
 (`scripts/check-openapi-contract.mjs`, generated-contract drift check, client
-route coverage), repository guards (`check-sensitive-files`, `check-i18n-coverage`,
-`check-api-collection-paths`) and gitleaks history scan.
+route coverage), an opt-in performance regression check
+(`npm run perf:check`, statement counts deterministic), repository guards
+(`check-sensitive-files`, `check-i18n-coverage`, `check-api-collection-paths`)
+and gitleaks history scan.
 Commands of record: `docs/operations/validation-baseline.md`.
 
 ## Known structural debt (tracked in Roadmap V2)
@@ -158,11 +171,28 @@ Commands of record: `docs/operations/validation-baseline.md`.
   client call is verified against a documented operation, and the client feature
   parity matrix lives in `docs/api/CLIENT_FEATURE_PARITY.md` (337 backend tests,
   50 Flutter tests pass).
+- Sprint 116 made Kairo operationally diagnosable and measurable: `/health` now
+  covers backup and both outboxes with counts only, `/health/live` and
+  `/health/ready` serve orchestration probes, `/metrics` gained outbox/backup
+  gauges plus Grafana panels, Celery tasks carry request correlation into
+  structured worker logs, a committed 200/1000-member performance baseline with
+  p50/p95 and statement counts lives under `docs/performance/`, and the first
+  N+1 offenders (managed-user directory, unreachable notifications, batch
+  reminders, member statements) are batched with regression tests (346 backend
+  tests pass).
+- Sprint 117 added the internal module registry: every module ships a `module.py`
+  descriptor and central composition (routers, tenant toggles, search providers,
+  optional AI context providers, health hooks, navigation metadata) consumes the
+  registry; validation rejects duplicate keys, unknown/cyclic dependencies and
+  unknown capabilities; `GET /api/v1/modules` serves tenant/capability-filtered
+  navigation metadata; tenant-specific role bundles store validated canonical
+  capabilities (migration 0033) and merge into effective capabilities; a minimal
+  sample module proves automatic discovery (359 backend tests pass).
 - Sprint 107 decomposed the finance, dashboard and member-admin mega-views into
   `src/features/` modules (finance workspace 1252 → 216 lines, dashboard
   823 → 104, member admin 771 → 170) without changing behavior or moving
   authorization into the frontend.
-- Status: sprints 108–115 addressed i18n, capabilities, service decomposition,
-  domain events, notification convergence and the contract boundary; remaining
-  items (observability/performance, module framework, hardening) are tracked by
-  Roadmap V2 sprints 116–118.
+- Status: sprints 108–117 addressed i18n, capabilities, service decomposition,
+  domain events, notification convergence, the contract boundary, operational
+  health/performance and the module framework; remaining release hardening is
+  tracked by Roadmap V2 sprint 118.

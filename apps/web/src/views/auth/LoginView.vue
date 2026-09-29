@@ -156,7 +156,7 @@
           <p class="text-muted small mb-1 fw-medium">
             <i class="bi bi-info-circle me-1"></i>{{ localeStore.t('login.devCredentials') }}
           </p>
-          <code class="small d-block text-secondary">admin@demo.org / Admin123!</code>
+          <code class="small d-block text-body">admin@demo.org / Admin123!</code>
           <button class="btn btn-outline-secondary btn-sm mt-1" @click="fillDemoCredentials">
             {{ localeStore.t('login.fillDemoCredentials') }}
           </button>
@@ -397,10 +397,10 @@
                 <p class="text-muted small mb-1 fw-medium">
                   <i class="bi bi-info-circle me-1"></i>{{ localeStore.t('login.devCredentials') }}
                 </p>
-                <code class="small d-block text-secondary">admin@demo.org</code>
-                <code class="small d-block text-secondary">Admin123!</code>
-                <code class="small d-block text-secondary">alice@demo.org</code>
-                <code class="small d-block text-secondary">Member123!</code>
+                <code class="small d-block text-body">admin@demo.org</code>
+                <code class="small d-block text-body">Admin123!</code>
+                <code class="small d-block text-body">alice@demo.org</code>
+                <code class="small d-block text-body">Member123!</code>
                 <button class="btn btn-outline-secondary btn-sm mt-2" @click="fillDemoCredentials">
                   {{ localeStore.t('login.fillDemoCredentials') }}
                 </button>
@@ -631,7 +631,7 @@ function handleLogout() {
 
 .login-mobile__brand-info span {
   font-size: 0.6875rem;
-  color: #6c757d;
+  color: var(--om-neutral-600);
   line-height: 1.2;
   white-space: nowrap;
   overflow: hidden;
@@ -676,7 +676,7 @@ function handleLogout() {
 
 .login-mobile__subtitle {
   font-size: 0.8rem;
-  color: #6c757d;
+  color: var(--om-neutral-600);
   text-align: center;
   margin: 0 0 0.25rem;
 }

@@ -190,3 +190,9 @@ jobs:
         run: |
           cd apps/web
           npm run test:e2e:release-candidate
+
+      - name: Run accessibility audit pack
+        if: success() || failure()
+        run: |
+          cd apps/web
+          npm run test:e2e:a11y

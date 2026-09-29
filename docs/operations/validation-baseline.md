@@ -28,9 +28,9 @@ python -m mypy --config-file services/api/pyproject.toml --explicit-package-base
 Notes:
 
 - The backend test suite defaults to an isolated SQLite database when `TEST_DATABASE_URL` is not set to PostgreSQL.
-- 337 integration tests pass (latest verified count, 2026-09-26).
+- 362 integration tests pass (latest verified count, 2026-09-27; includes the three notification-recovery tests added in Sprint 118).
 - Ruff baseline covers the entire `app/` tree and all tests with `--ignore E501` to focus on meaningful rules (security, unused imports, error handling) without cosmetic line-length noise.
-- Mypy baseline now covers all 275 source files across the entire `app/` tree — all modules, providers, core, db, and main.py — with zero errors.
+- Mypy baseline now covers all 301 source files across the entire `app/` tree — all modules, providers, core, db, and main.py — with zero errors.
 
 ## Frontend
 
@@ -81,6 +81,19 @@ Run the release-candidate backend matrix:
 ```bash
 python -m pytest services/api/tests/test_release_candidate_matrix.py -q
 ```
+
+Run the accessibility audit pack (axe-core, WCAG 2.2 AA tags):
+
+```bash
+cd apps/web
+npm run test:e2e:a11y
+```
+
+- The pack scans the public login at 320 px and desktop widths, the authenticated
+  shell at phone and desktop widths, the skip link, visible focus and reduced
+  motion. `@axe-core/playwright` is a web dev dependency. Audit record:
+  `docs/operations/accessibility-audit.md`.
+- Latest verified result: 6 Chromium tests passed.
 
 Run the production gateway smoke check after starting the production Compose stack:
 
@@ -142,6 +155,21 @@ npm run notifications:firebase:doctor -- --json
   passed with `FIREBASE_TEST_TOKEN`; it never runs in generic CI.
 - Event matrix and operator guide: `docs/notifications/NOTIFICATION_EVENT_MATRIX.md`
   and `docs/notifications/NOTIFICATION_OPERATOR_GUIDE.md`.
+
+## Performance
+
+```bash
+npm run perf:baseline
+npm run perf:check
+```
+
+- The harness seeds deterministic 200- and 1000-member tenants with three years
+  of finance history and records p50/p95 latency plus SQL statement counts for
+  representative operations in `docs/performance/performance-baseline.json` and
+  `docs/performance/PERFORMANCE_BASELINE.md` (ADR-012).
+- `perf:check` reruns the 200-member workload and fails when p95 or statement
+  counts exceed committed thresholds. It is opt-in (not generic CI) because
+  absolute latency depends on the machine; statement counts are deterministic.
 
 ## Contracts
 

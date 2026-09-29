@@ -1,3 +1,4 @@
+import json
 from datetime import UTC, datetime
 from uuid import UUID
 
@@ -200,6 +201,24 @@ class TenancyRepository:
         roles = await self.get_user_roles(tenant_id, user_id)
         return [r.code for r in roles]
 
+    async def get_user_role_codes_for_users(
+        self, tenant_id: UUID, user_ids: list[UUID]
+    ) -> dict[UUID, list[str]]:
+        """Batched role lookup for directories; one query instead of 2N."""
+        if not user_ids:
+            return {}
+        result = await self._db.execute(
+            select(TenantUser.user_id, Role.code)
+            .join(user_roles, user_roles.c.tenant_user_id == TenantUser.id)
+            .join(Role, Role.id == user_roles.c.role_id)
+            .where(TenantUser.tenant_id == tenant_id, TenantUser.user_id.in_(user_ids))
+            .order_by(TenantUser.user_id, Role.code.asc())
+        )
+        roles: dict[UUID, list[str]] = {}
+        for user_id, code in result.all():
+            roles.setdefault(user_id, []).append(code)
+        return roles
+
     async def create_role(
         self,
         tenant_id: UUID,
@@ -207,6 +226,7 @@ class TenancyRepository:
         name: str,
         description: str | None = None,
         is_system_role: bool = False,
+        capabilities: list[str] | None = None,
     ) -> Role:
         role = Role(
             tenant_id=tenant_id,
@@ -214,11 +234,34 @@ class TenancyRepository:
             name=name,
             description=description,
             is_system_role=is_system_role,
+            capabilities_json=json.dumps(list(capabilities or [])),
         )
         self._db.add(role)
         await self._db.flush()
         await self._db.refresh(role)
         return role
+
+    async def get_role_bundle_capabilities(
+        self, tenant_id: UUID, role_codes: list[str]
+    ) -> dict[str, list[str]]:
+        """Stored capabilities for tenant-specific role bundles (one query)."""
+        if not role_codes:
+            return {}
+        result = await self._db.execute(
+            select(Role.code, Role.capabilities_json).where(
+                Role.tenant_id == tenant_id,
+                Role.code.in_(role_codes),
+            )
+        )
+        bundles: dict[str, list[str]] = {}
+        for code, raw in result.all():
+            try:
+                parsed = json.loads(raw) if isinstance(raw, str) and raw.strip() else []
+            except json.JSONDecodeError:
+                parsed = []
+            if isinstance(parsed, list) and parsed:
+                bundles[code] = [str(capability) for capability in parsed]
+        return bundles
 
     async def ensure_canonical_role_catalog(self, tenant_id: UUID) -> list[Role]:
         existing_roles = {

@@ -3,7 +3,7 @@
     <div class="secretary-hero rounded-4 p-4 p-lg-5 mb-4" data-testid="secretary-overview">
       <div class="d-flex flex-column flex-xl-row justify-content-between gap-4">
         <div>
-          <div class="text-uppercase small fw-semibold text-secondary mb-2">
+          <div class="text-uppercase small fw-semibold text-secondary-emphasis mb-2">
             {{ copy.kicker }}
           </div>
           <h1 class="h3 fw-bold mb-2">{{ copy.title }}</h1>
@@ -64,7 +64,7 @@
 
     <div class="card border-0 shadow-sm">
       <div class="card-body p-4">
-        <div class="text-uppercase small fw-semibold text-secondary mb-2">
+        <div class="text-uppercase small fw-semibold text-secondary-emphasis mb-2">
           {{ copy.boundariesTitle }}
         </div>
         <div class="row g-3">

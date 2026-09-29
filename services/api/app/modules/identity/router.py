@@ -119,7 +119,7 @@ async def get_me(current: AuthDep, db: DbDep) -> UserWithMembershipsResponse:
         status=current.user.status,
         tenant_id=current.tenant_id,
         roles=current.roles,
-        capabilities=list(capabilities_for_roles(current.roles)),
+        capabilities=current.capabilities or list(capabilities_for_roles(current.roles)),
         last_login_at=current.user.last_login_at,
         password_change_required=current.user.password_change_required,
         memberships=memberships,

@@ -1,0 +1,254 @@
+{
+  "roadmap": "KAIRO_V3",
+  "version": 3,
+  "status": "DRAFT",
+  "created_at": "2026-09-27T00:00:00Z",
+  "baseline": "Post Sprint 118 release candidate (S100-S118 complete): 362 API tests, web/Flutter release builds, encrypted restore drill and upgrade path verified.",
+  "objective": "REPRODUCE -> RELEASE -> HARDEN -> VERIFY -> QUALITY -> EVALUATE without replacing the stack, weakening tenant isolation, or rewriting remote history.",
+  "canonical_active_roadmap": false,
+  "historical_roadmap": "docs/roadmap/KAIRO_V2_ROADMAP.md",
+  "activation": {
+    "requires_operator_approval": true,
+    "steps": [
+      "Approve or amend this draft roadmap.",
+      "Point scripts/sprint-batch/roadmap.mjs at docs/roadmap/KAIRO_V3_ROADMAP.json (or add explicit roadmap selection).",
+      "Update AGENTS.md read order and autopilot aliases from V2 to V3; mark V2 as historical.",
+      "Start a fresh batch; V3 numbering begins at 119 so V2 completion is inherited historically, not by state."
+    ]
+  },
+  "concurrency": {
+    "max_consecutive_sprints": 10,
+    "repair_rounds": 3
+  },
+  "sprints": [
+    {
+      "id": 119,
+      "key": "reproducible-dependency-and-image-supply-chain",
+      "title": "Reproducible Dependency And Image Supply Chain",
+      "phase": "REPRODUCE",
+      "dependencies": [],
+      "goal": "Prevent silent dependency drift like the Sprint 118 SQLAlchemy 2.1/greenlet production-image startup blocker.",
+      "tasks": [
+        "Produce a committed Python constraints lock from requirements.txt on the supported interpreter and install production images from the lock.",
+        "Pin container base images (python:3.12-slim and the postgres/redis/minio references) to digests used by the release.",
+        "Add a CI job that builds the production api/worker image, starts api and worker against ephemeral postgres/redis, and asserts /health plus Celery readiness; the job fails when a container cannot start.",
+        "Add dependency vulnerability scanning (pip-audit and npm audit --omit=dev) with an explicit, documented failing policy for critical findings.",
+        "Document the procedure for refreshing the lock and digests.",
+        "Keep the tested workstation baseline and CI on the same resolved versions."
+      ],
+      "acceptance": [
+        "The production image start smoke passes in CI and locally.",
+        "The lock installs the exact tested versions and pip check is clean inside the image.",
+        "A synthetic regression (removing the asyncio extra) is caught by the smoke without weakening any test.",
+        "Vulnerability scanning runs in CI and its policy is documented."
+      ],
+      "gate_profile": "full"
+    },
+    {
+      "id": 120,
+      "key": "release-operations-enablement",
+      "title": "Release Operations Enablement",
+      "phase": "RELEASE",
+      "dependencies": [119],
+      "goal": "Turn the release-candidate runbooks into rehearsable operations while keeping store, DNS and secret actions behind explicit human approval.",
+      "tasks": [
+        "Add a staging deployment validation script for the Flutter Web staging compose stack with an end-to-end smoke (sign-in and core navigation).",
+        "Automate a rollback rehearsal in staging: deploy, create a backup, restore the previous archive, verify smoke, and keep evidence artifacts.",
+        "Produce an operator checklist for the HUMAN_REQUIRED items: Android upload keystore, Play Console internal testing, Flutter Web staging hostname promotion, historical JWT rotation.",
+        "Extend pilot_acceptance_preflight.ps1 to verify release artifacts and non-placeholder configuration without printing secrets.",
+        "Record evidence paths and approval gates in docs/operations/."
+      ],
+      "acceptance": [
+        "Staging validation and rollback rehearsal run reproducibly and store evidence.",
+        "The checklist covers each human gate with exact commands and rollback criteria.",
+        "No production hostname, credential or store metadata is changed by the automation."
+      ],
+      "gate_profile": "release"
+    },
+    {
+      "id": 121,
+      "key": "windows-recovery-parity-and-archive-integrity",
+      "title": "Windows Recovery Path Parity And Archive Integrity",
+      "phase": "HARDEN",
+      "dependencies": [],
+      "goal": "Remove the Windows-host recovery caveat found in Sprint 118 and guarantee every archive is verifiably restorable.",
+      "tasks": [
+        "Replace host tar.exe archiving on Windows with a container-based archiver over the MinIO volume so archives match the Linux path.",
+        "Verify archive integrity immediately after creation and fail the backup when verification fails.",
+        "Harden Test-KairoRecoveryDrill.ps1: clean up extraction workspaces, exit non-zero on any failed step, and print a compact evidence summary.",
+        "Add a parity check proving the Windows archive contains the same component set as the Linux archive.",
+        "Update the recovery runbooks to the corrected commands."
+      ],
+      "acceptance": [
+        "A Windows full backup (PostgreSQL, Redis, MinIO) is created, verified and restored isolated without the bsdtar failure.",
+        "A tampered or truncated archive is rejected by the verification step.",
+        "Drill cleanup leaves no extracted operational data on disk.",
+        "No runbook mentions an obsolete command."
+      ],
+      "gate_profile": "full"
+    },
+    {
+      "id": 122,
+      "key": "outbox-crash-recovery-and-stale-reclaim",
+      "title": "Outbox Crash Recovery And Stale Reclaim",
+      "phase": "HARDEN",
+      "dependencies": [],
+      "goal": "Guarantee that a worker crash mid-delivery cannot permanently strand outbox rows in processing.",
+      "tasks": [
+        "Add stale reclaim for notification outbox and domain-event rows left in processing beyond a bounded age, returning them to pending with recorded reason and bounded attempts.",
+        "Preserve deduplication and idempotent projections: reclaim must never duplicate inbox rows, audit projections or finance effects.",
+        "Expose reclaimed counts through /metrics and /health details without user data.",
+        "Cover crash-and-recovery for both outboxes with tests, including attempts exhaustion.",
+        "Document the recovery semantics in the notification and domain-event operator guides."
+      ],
+      "acceptance": [
+        "A processing row older than the reclaim threshold is retried and completed exactly once.",
+        "Reclaiming never duplicates notifications, audit entries or payments.",
+        "Metrics and health expose reclaimed counts safely."
+      ],
+      "gate_profile": "backend"
+    },
+    {
+      "id": 123,
+      "key": "offsite-backup-and-pitr-validation",
+      "title": "Offsite Backup And Point-In-Time Recovery Validation",
+      "phase": "HARDEN",
+      "dependencies": [121],
+      "goal": "Prove recovery beyond local disk: offsite destination plus WAL point-in-time recovery into an isolated target.",
+      "tasks": [
+        "Automate the external S3-compatible upload against a configured endpoint only; fail closed when unconfigured and document it as an operator step.",
+        "Add a WAL/PITR drill restoring to a chosen timestamp in an isolated container with schema and row-count verification.",
+        "Schedule a periodic non-destructive drill (Celery beat) that records privacy-safe evidence in the tenant recovery centre.",
+        "Validate archive and WAL retention/rotation, reporting counts only.",
+        "Update the encrypted recovery runbook with tested commands and expected outputs."
+      ],
+      "acceptance": [
+        "Offsite upload and retrieval succeed against a locally emulated S3 endpoint.",
+        "The PITR drill restores to a target timestamp and passes integrity checks.",
+        "The recovery centre shows the latest drill evidence."
+      ],
+      "gate_profile": "release"
+    },
+    {
+      "id": 124,
+      "key": "full-stack-integration-smoke-track",
+      "title": "Full-Stack Integration Smoke Track",
+      "phase": "VERIFY",
+      "dependencies": [120],
+      "goal": "Add a real-stack integration layer between backend tests and the mocked browser packs.",
+      "tasks": [
+        "Compose an integration environment (postgres, redis, minio, api, worker, web) with a deterministic seed.",
+        "Add an HTTP/browser smoke suite covering sign-in for every canonical role, tenant-isolation assertions, one finance lifecycle, one disciplinary read, the notification inbox and module toggles.",
+        "Run the suite on a schedule and on demand; document runtime and resource expectations.",
+        "Produce downloadable failure evidence (logs, screenshots) without exposing secrets."
+      ],
+      "acceptance": [
+        "The suite passes against the real stack and fails when a seeded role boundary is broken.",
+        "No mocked API responses are used in this track.",
+        "Failure evidence artifacts are produced."
+      ],
+      "gate_profile": "full"
+    },
+    {
+      "id": 125,
+      "key": "internationalization-completion",
+      "title": "Internationalization Completion",
+      "phase": "QUALITY",
+      "dependencies": [],
+      "goal": "Close the remaining translation gap and make the coverage guard enforcing.",
+      "tasks": [
+        "Move every remaining hardcoded user-facing string reported by check-i18n-coverage.mjs into FR/EN/DE catalogs or the view copy pattern with all three locales.",
+        "Remove the residual inline locale ternaries tracked since Sprint 108.",
+        "Convert check-i18n-coverage.mjs from informational to a failing gate with an explicit allowlist that must shrink.",
+        "Keep backend enum values untranslated and preserve locale parity."
+      ],
+      "acceptance": [
+        "check-i18n-coverage.mjs exits non-zero with an empty or documented tiny allowlist.",
+        "FR/EN/DE parity holds for all catalogs and view copy objects.",
+        "The locale, role and release-candidate browser packs stay green."
+      ],
+      "gate_profile": "web"
+    },
+    {
+      "id": 126,
+      "key": "accessibility-depth-and-role-workspace-coverage",
+      "title": "Accessibility Depth And Role-Workspace Coverage",
+      "phase": "QUALITY",
+      "dependencies": [],
+      "goal": "Extend the Sprint 118 audit from the shell to every role workspace and add a repeatable manual protocol.",
+      "tasks": [
+        "Run and fix axe WCAG 2.2 AA findings for every workspace reachable by the canonical roles at 320/390/1280 widths.",
+        "Add Flutter accessibility tests for the role shell, finance, discipline and inbox surfaces at 200% text scaling and dark mode.",
+        "Define a manual screen-reader protocol (NVDA and Android TalkBack) and record a pilot pass.",
+        "Add focus-order and keyboard-only journey checks for the main office workflows."
+      ],
+      "acceptance": [
+        "The accessibility pack covers all role workspaces and passes.",
+        "The manual protocol is documented with results for at least one office role and one member role.",
+        "No regression in the locale, role or release-candidate packs."
+      ],
+      "gate_profile": "full"
+    },
+    {
+      "id": 127,
+      "key": "data-retention-and-privacy-operations",
+      "title": "Data Retention And Privacy Operations",
+      "phase": "QUALITY",
+      "dependencies": [],
+      "goal": "Give operators tenant-scoped retention and privacy operations that are auditable and never bypass authorization.",
+      "tasks": [
+        "Add configurable retention windows per tenant for audit events, notification history, chat conversations and ingestion logs.",
+        "Implement member personal-data export and erasure workflows executed online in the backend, audited and restricted to authorised roles.",
+        "Keep statutory finance and disciplinary records out of erasure scope unless legally allowed; document the retention matrix.",
+        "Add tests proving tenant isolation, audit entries and role restrictions for every operation.",
+        "Run retention in the worker with idempotent, privacy-safe counts."
+      ],
+      "acceptance": [
+        "Retention tasks run in the worker, are idempotent and log counts only.",
+        "Export and erasure are backend-only, role-gated, audited and covered by tests.",
+        "Documentation states what is retained and why."
+      ],
+      "gate_profile": "backend"
+    },
+    {
+      "id": 128,
+      "key": "identity-federation-evaluation",
+      "title": "Identity Federation Evaluation",
+      "phase": "EVALUATE",
+      "dependencies": [],
+      "goal": "Decide, with evidence, whether OIDC/SAML federation belongs in the product and how it preserves tenant isolation.",
+      "tasks": [
+        "Write an ADR evaluating OIDC/SAML against the existing identity module: provider abstraction, tenant mapping, role claims and session implications.",
+        "Build a spike against a local OIDC provider behind a feature flag that is never enabled by default.",
+        "Document threat-model impacts: token validation, replay, logout, MFA interaction and recovery paths.",
+        "Produce a go/no-go recommendation with estimated effort; do not ship federation to production in this sprint."
+      ],
+      "acceptance": [
+        "The ADR exists with a clear recommendation and rejected alternatives.",
+        "The spike demonstrates login mapping in the test environment only.",
+        "No production behaviour changes while the flag is off."
+      ],
+      "gate_profile": "backend"
+    },
+    {
+      "id": 129,
+      "key": "flutter-pilot-completion",
+      "title": "Flutter Pilot Completion",
+      "phase": "RELEASE",
+      "dependencies": [120],
+      "goal": "Finish the deferred pilot items so the Flutter client can enter a controlled internal-testing pilot.",
+      "tasks": [
+        "Implement permanent member deletion parity behind the president/secretary role gate with its confirmation flow, consuming the existing API only.",
+        "Prepare Play Console internal-testing packaging assets: signed AAB checklist, store listing text in FR/EN/DE and data-safety answers.",
+        "Validate iOS/desktop architecture readiness with build checks and no release commitment.",
+        "Update docs/flutter/FEATURE_PARITY.md and the Flutter PROJECT_STATUS.md with evidence."
+      ],
+      "acceptance": [
+        "Member deletion works through the API with role tests and updates the parity matrix.",
+        "Internal-testing assets are prepared; signing and store actions remain operator-gated.",
+        "iOS/desktop checks are documented as non-release validation."
+      ],
+      "gate_profile": "release"
+    }
+  ]
+}

@@ -64,15 +64,21 @@ Dashboard panels map directly to the current API runtime metrics:
 | Ingestion retries | `kairo_ingestion_retries_total` |
 | Chat workload | `kairo_chat_queries_total` |
 | Chat refusals | `kairo_chat_queries_refused_total` |
+| Notification outbox backlog | `kairo_notification_outbox_pending`, `kairo_notification_outbox_failed`, `kairo_notification_outbox_oldest_age_seconds` |
+| Domain event outbox | `kairo_domain_event_outbox_pending`, `kairo_domain_event_outbox_failed`, `kairo_domain_event_outbox_oldest_age_seconds` |
+| Backup health | `kairo_backup_last_success_age_seconds`, `kairo_backup_failed_runs` |
 
 ## How To Read It With `/health`
 
 Use the dashboard and the health endpoints together:
 
-1. Check Grafana for request, error, ingestion, and refusal trends.
-2. Check `GET /health` for dependency status and latency.
-3. Check the admin health center for tenant-entered recovery evidence and alert posture.
-4. Use `X-Request-ID` from a failing response to correlate logs and operator reports.
+1. Check Grafana for request, error, ingestion, refusal, outbox and backup trends.
+2. Check `GET /health` for the full operational picture and `GET /health/ready`
+   for traffic readiness (HTTP 503 when a critical dependency is down).
+3. Check the admin health center for dependency checks, tenant recovery evidence,
+   alert posture and the notification pipeline card.
+4. Use `X-Request-ID` from a failing response (and inbox `correlation_id`) to
+   correlate API and worker logs.
 
 ## Validation Contract
 

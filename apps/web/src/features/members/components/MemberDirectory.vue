@@ -20,7 +20,7 @@
         <td class="ps-4 font-monospace small">{{ member.member_code }}</td>
         <td class="fw-medium">{{ member.display_name }}</td>
         <td class="small text-muted">{{ member.email || '—' }}</td>
-        <td><span class="badge" :class="member.status === 'active' ? 'bg-success-subtle text-success' : 'bg-secondary-subtle text-secondary'">{{ member.status }}</span></td>
+        <td><span class="badge" :class="member.status === 'active' ? 'bg-success-subtle text-success-emphasis' : 'bg-secondary-subtle text-secondary-emphasis'">{{ member.status }}</span></td>
         <td class="small">{{ formatMemberDate(member.joined_at) }}</td>
         <td class="text-end pe-4">
           <button class="btn btn-sm btn-outline-secondary me-1" :aria-label="t('members.editMember')" @click.stop="emit('edit', member)"><i class="bi bi-pencil"></i></button>
@@ -35,7 +35,7 @@
       <div class="small text-muted font-monospace">{{ member.member_code }}</div>
     </template>
     <template #mobile-status="{ item: member }">
-      <span class="badge" :class="member.status === 'active' ? 'bg-success-subtle text-success' : 'bg-secondary-subtle text-secondary'">{{ member.status }}</span>
+      <span class="badge" :class="member.status === 'active' ? 'bg-success-subtle text-success-emphasis' : 'bg-secondary-subtle text-secondary-emphasis'">{{ member.status }}</span>
     </template>
     <template #mobile-fields="{ item: member }">
       <div class="om-data-card-row"><span class="om-data-card-label">{{ t('common.email') }}</span><span class="om-data-card-value om-technical-value">{{ member.email || '—' }}</span></div>

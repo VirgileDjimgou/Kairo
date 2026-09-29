@@ -1,7 +1,7 @@
 <template>
   <div class="p-4 p-lg-5">
     <div class="mb-4">
-      <div class="text-uppercase small fw-semibold text-secondary mb-2">
+      <div class="text-uppercase small fw-semibold text-secondary-emphasis mb-2">
         {{ copy.administration }}
       </div>
       <h1 class="h4 fw-bold mb-1">{{ copy.title }}</h1>

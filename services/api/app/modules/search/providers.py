@@ -375,13 +375,7 @@ class DisciplineSearchProvider:
 
 
 def default_providers() -> list[SearchProvider]:
-    return [
-        MembersSearchProvider(),
-        DocumentsSearchProvider(),
-        EventsSearchProvider(),
-        AnnouncementsSearchProvider(),
-        PaymentsSearchProvider(),
-        ReceiptsSearchProvider(),
-        AuditSearchProvider(),
-        DisciplineSearchProvider(),
-    ]
+    """Compose providers from module registry metadata (order preserved)."""
+    from app.modules.module_registry.descriptor import default_registry
+
+    return list(default_registry().search_providers())

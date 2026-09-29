@@ -2,7 +2,7 @@
   <div class="p-4 p-lg-5">
     <div class="d-flex flex-column flex-xl-row justify-content-between gap-3 mb-4">
       <div>
-        <div class="text-uppercase small fw-semibold text-secondary mb-2">
+        <div class="text-uppercase small fw-semibold text-secondary-emphasis mb-2">
           {{ copy.kicker }}
         </div>
         <h1 class="h4 fw-bold mb-1">{{ copy.title }}</h1>
@@ -45,7 +45,7 @@
           <div class="card-body p-4">
             <div class="d-flex flex-column flex-md-row justify-content-between gap-3 mb-3">
               <div>
-                <div class="text-uppercase small fw-semibold text-secondary mb-2">
+                <div class="text-uppercase small fw-semibold text-secondary-emphasis mb-2">
                   {{ copy.liveDependencyHealth }}
                 </div>
                 <h2 class="h6 fw-bold mb-1">{{ copy.systemStatus }}</h2>
@@ -98,7 +98,7 @@
           <div class="card-body p-4">
             <div class="d-flex flex-column flex-md-row justify-content-between gap-3 mb-3">
               <div>
-                <div class="text-uppercase small fw-semibold text-secondary mb-2">
+                <div class="text-uppercase small fw-semibold text-secondary-emphasis mb-2">
                   {{ copy.recoveryEvidence }}
                 </div>
                 <h2 class="h6 fw-bold mb-1">{{ copy.recoveryTitle }}</h2>
@@ -153,12 +153,52 @@
             </div>
           </div>
         </div>
+
+        <div class="card shadow-sm border-0 mt-4">
+          <div class="card-body p-4">
+            <div class="text-uppercase small fw-semibold text-secondary-emphasis mb-2">
+              {{ copy.notificationPipeline }}
+            </div>
+            <h2 class="h6 fw-bold mb-3">{{ copy.pipelineTitle }}</h2>
+            <div v-if="notificationHealth" class="row g-3">
+              <div class="col-6">
+                <div class="mini-stat h-100">
+                  <div class="small text-muted">{{ copy.pipelineWorker }}</div>
+                  <span class="badge" :class="notificationHealth.worker_running ? 'bg-success-subtle text-success-emphasis border border-success-subtle' : 'bg-danger-subtle text-danger-emphasis border border-danger-subtle'">
+                    {{ notificationHealth.worker_running ? copy.pipelineYes : copy.pipelineNo }}
+                  </span>
+                </div>
+              </div>
+              <div class="col-6">
+                <div class="mini-stat h-100">
+                  <div class="small text-muted">{{ copy.pipelinePending }}</div>
+                  <div class="fw-semibold">{{ notificationHealth.pending_outbox }}</div>
+                </div>
+              </div>
+              <div class="col-6">
+                <div class="mini-stat h-100">
+                  <div class="small text-muted">{{ copy.pipelineFailed }}</div>
+                  <div class="fw-semibold">{{ notificationHealth.failed_outbox }}</div>
+                </div>
+              </div>
+              <div class="col-6">
+                <div class="mini-stat h-100">
+                  <div class="small text-muted">{{ copy.pipelineOldest }}</div>
+                  <div class="fw-semibold">
+                    {{ notificationHealth.oldest_pending_seconds === null ? copy.pipelineUnavailable : `${notificationHealth.oldest_pending_seconds} s` }}
+                  </div>
+                </div>
+              </div>
+            </div>
+            <p v-else class="text-muted small mb-0">{{ copy.pipelineUnavailable }}</p>
+          </div>
+        </div>
       </div>
 
       <div class="col-xl-4">
         <div class="card shadow-sm border-0 mb-4">
           <div class="card-body p-4">
-            <div class="text-uppercase small fw-semibold text-secondary mb-2">
+            <div class="text-uppercase small fw-semibold text-secondary-emphasis mb-2">
               {{ copy.incidentAnnotations }}
             </div>
             <h2 class="h6 fw-bold mb-3">{{ copy.currentNote }}</h2>
@@ -173,7 +213,7 @@
 
         <div class="card shadow-sm border-0 mb-4">
           <div class="card-body p-4">
-            <div class="text-uppercase small fw-semibold text-secondary mb-2">
+            <div class="text-uppercase small fw-semibold text-secondary-emphasis mb-2">
               {{ copy.operationalSnapshot }}
             </div>
             <div class="vstack gap-2 small">
@@ -199,7 +239,7 @@
 
         <div class="card shadow-sm border-0">
           <div class="card-body p-4">
-            <div class="text-uppercase small fw-semibold text-secondary mb-2">
+            <div class="text-uppercase small fw-semibold text-secondary-emphasis mb-2">
               {{ copy.fastPaths }}
             </div>
             <div class="vstack gap-2">
@@ -226,6 +266,7 @@
 <script setup lang="ts">
 import { computed, onMounted, ref } from 'vue'
 import { RouterLink } from 'vue-router'
+import { getNotificationHealth, type NotificationHealth } from '@/api/notifications.api'
 import { getTenantSettings, type RecoveryEvidenceResponse } from '@/api/settings.api'
 import { getSystemHealth, type SystemHealthResponse } from '@/api/system.api'
 import { useRecoveryState } from '@/composables/useRecoveryState'
@@ -245,6 +286,7 @@ const tenantStore = useTenantStore()
 const { loading, error, isRecovering, run, retry, clearError } = useRecoveryState()
 const systemHealth = ref<SystemHealthResponse | null>(null)
 const recovery = ref<RecoveryEvidenceResponse | null>(null)
+const notificationHealth = ref<NotificationHealth | null>(null)
 
 const copy = computed(() => {
   if (localeStore.currentLocale === 'de') {
@@ -273,6 +315,15 @@ const copy = computed(() => {
       alertContactsMissing: 'Alarmkontakte fehlen',
       freshnessWarnings: 'Aktualitätswarnungen',
       freshnessWarningsHint: 'Veraltete oder fehlende Signale mit Handlungsbedarf',
+      notificationPipeline: 'Benachrichtigungs-Pipeline',
+      pipelineTitle: 'Inbox-Outbox und Worker',
+      pipelineWorker: 'Worker aktiv',
+      pipelinePending: 'Ausstehende Zustellungen',
+      pipelineFailed: 'Fehlgeschlagen',
+      pipelineOldest: 'Älteste ausstehende',
+      pipelineUnavailable: 'Nicht verfügbar',
+      pipelineYes: 'Ja',
+      pipelineNo: 'Nein',
       incidentAnnotations: 'Vorfallhinweise',
       currentNote: 'Aktuelle Notiz',
       noIncidentNote: 'Noch kein Vorfallhinweis erfasst.',
@@ -344,6 +395,15 @@ const copy = computed(() => {
       alertContactsMissing: 'Alert contacts missing',
       freshnessWarnings: 'Freshness warnings',
       freshnessWarningsHint: 'Stale or missing signals that deserve attention',
+      notificationPipeline: 'Notification pipeline',
+      pipelineTitle: 'Inbox outbox and worker',
+      pipelineWorker: 'Worker running',
+      pipelinePending: 'Pending deliveries',
+      pipelineFailed: 'Failed',
+      pipelineOldest: 'Oldest pending',
+      pipelineUnavailable: 'Unavailable',
+      pipelineYes: 'Yes',
+      pipelineNo: 'No',
       incidentAnnotations: 'Incident annotations',
       currentNote: 'Current note',
       noIncidentNote: 'No incident annotation recorded yet.',
@@ -371,6 +431,7 @@ const copy = computed(() => {
         passed: 'passed',
         ok: 'ok',
         degraded: 'degraded',
+      disabled: 'disabled',
         unavailable: 'unavailable',
         error: 'error',
       },
@@ -414,6 +475,15 @@ const copy = computed(() => {
     alertContactsMissing: 'Contacts d’alerte manquants',
     freshnessWarnings: 'Alertes de fraîcheur',
     freshnessWarningsHint: 'Signaux obsolètes ou manquants à surveiller',
+    notificationPipeline: 'Pipeline de notification',
+    pipelineTitle: 'Boîte de réception, outbox et worker',
+    pipelineWorker: 'Worker actif',
+    pipelinePending: 'Envois en attente',
+    pipelineFailed: 'En échec',
+    pipelineOldest: 'Plus ancien en attente',
+    pipelineUnavailable: 'Indisponible',
+    pipelineYes: 'Oui',
+    pipelineNo: 'Non',
     incidentAnnotations: 'Annotations d’incident',
     currentNote: 'Note actuelle',
     noIncidentNote: 'Aucune annotation d’incident enregistrée pour le moment.',
@@ -508,6 +578,9 @@ const serviceRows = computed<ServiceRow[]>(() => {
     qdrant: 'Vector store',
     llm_provider: 'LLM provider',
     embedding_provider: 'Embedding provider',
+    backup: 'Backup archive',
+    notification_outbox: 'Notification outbox',
+    domain_event_outbox: 'Domain event outbox',
   }
 
   return Object.entries(checks).map(([name, check]) => ({
@@ -521,20 +594,21 @@ const serviceRows = computed<ServiceRow[]>(() => {
 
 function statusBadgeClass(status?: string) {
   return {
-    ok: 'bg-success-subtle text-success border border-success-subtle',
-    healthy: 'bg-success-subtle text-success border border-success-subtle',
-    degraded: 'bg-warning-subtle text-warning border border-warning-subtle',
-    unavailable: 'bg-danger-subtle text-danger border border-danger-subtle',
-    error: 'bg-danger-subtle text-danger border border-danger-subtle',
-    critical: 'bg-danger-subtle text-danger border border-danger-subtle',
+    ok: 'bg-success-subtle text-success-emphasis border border-success-subtle',
+    healthy: 'bg-success-subtle text-success-emphasis border border-success-subtle',
+    degraded: 'bg-warning-subtle text-warning-emphasis border border-warning-subtle',
+    unavailable: 'bg-danger-subtle text-danger-emphasis border border-danger-subtle',
+    error: 'bg-danger-subtle text-danger-emphasis border border-danger-subtle',
+    critical: 'bg-danger-subtle text-danger-emphasis border border-danger-subtle',
+    disabled: 'bg-light text-dark border',
   }[status || 'unknown'] || 'bg-light text-dark border'
 }
 
 function recoveryBadgeClass(status?: string) {
   return {
-    healthy: 'bg-success-subtle text-success border border-success-subtle',
-    warning: 'bg-warning-subtle text-warning border border-warning-subtle',
-    critical: 'bg-danger-subtle text-danger border border-danger-subtle',
+    healthy: 'bg-success-subtle text-success-emphasis border border-success-subtle',
+    warning: 'bg-warning-subtle text-warning-emphasis border border-warning-subtle',
+    critical: 'bg-danger-subtle text-danger-emphasis border border-danger-subtle',
   }[status || 'unknown'] || 'bg-light text-dark border'
 }
 
@@ -563,6 +637,12 @@ async function loadHealthCenter() {
   ])
   systemHealth.value = health
   recovery.value = settings.operations
+  try {
+    notificationHealth.value = await getNotificationHealth()
+  } catch {
+    // Pipeline health is additive; the dependency checks remain the primary view.
+    notificationHealth.value = null
+  }
 }
 
 async function refresh() {

@@ -1,7 +1,7 @@
 <template>
   <section class="card shadow-sm border-0" data-testid="change-password-card">
     <div class="card-body p-4">
-      <div class="text-uppercase small fw-semibold text-secondary mb-2">{{ copy.kicker }}</div>
+      <div class="text-uppercase small fw-semibold text-secondary-emphasis mb-2">{{ copy.kicker }}</div>
       <h2 class="h6 fw-bold mb-1">{{ copy.title }}</h2>
       <p class="text-muted small mb-3">{{ copy.description }}</p>
 

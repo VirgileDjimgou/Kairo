@@ -3,7 +3,7 @@
     <div class="card-body p-4">
       <div class="d-flex flex-column flex-md-row justify-content-between gap-2 mb-3">
         <div>
-          <div class="text-uppercase small fw-semibold text-secondary mb-1">{{ t('finance.receiptValidationKicker') }}</div>
+          <div class="text-uppercase small fw-semibold text-secondary-emphasis mb-1">{{ t('finance.receiptValidationKicker') }}</div>
           <h2 class="h5 fw-bold mb-1">{{ t('finance.receiptValidationTitle') }}</h2>
           <p class="small text-muted mb-0">{{ t('finance.receiptValidationLead') }}</p>
         </div>

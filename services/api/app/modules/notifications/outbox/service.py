@@ -5,6 +5,7 @@ import json
 from datetime import UTC, datetime, timedelta
 from uuid import UUID
 
+import structlog
 from sqlalchemy import func, select
 
 from app.core.config import settings
@@ -36,6 +37,8 @@ PUSH_RETRY_ATTEMPTS = 3
 PUSH_RETRY_BASE_SECONDS = 1.0
 PUSH_RETRY_MAX_SECONDS = 5.0
 
+logger = structlog.get_logger(__name__)
+
 
 class OutboxMixin(UserNotificationServiceBase):
     async def process_outbox(self, batch_size: int = 100) -> int:
@@ -61,6 +64,13 @@ class OutboxMixin(UserNotificationServiceBase):
                 event.status = "pending" if event.attempts < 5 else "failed"
                 event.available_at = datetime.now(UTC) + timedelta(minutes=min(30, 2 ** event.attempts))
                 event.last_error = type(exc).__name__
+                logger.warning(
+                    "notification_outbox_delivery_failed",
+                    event_id=str(event.id),
+                    event_type=event.event_type,
+                    attempts=event.attempts,
+                    error=type(exc).__name__,
+                )
             await self._db.commit()
         return completed
     async def unreachable_recipients(self, tenant_id: UUID, limit: int = 100) -> list[UnreachableNotificationRecipient]:
@@ -72,23 +82,66 @@ class OutboxMixin(UserNotificationServiceBase):
             .order_by(func.max(UserNotification.created_at).desc())
             .limit(limit)
         )
-        result: list[UnreachableNotificationRecipient] = []
-        for user_id, display_name, pending, last_at in rows.all():
-            web_reachable = await self._db.scalar(
-                select(func.count(WebPushSubscription.id))
-                .select_from(WebPushSubscription)
-                .join(NotificationDeviceProfile, NotificationDeviceProfile.device_id == WebPushSubscription.device_id)
-                .where(WebPushSubscription.tenant_id == tenant_id, WebPushSubscription.disabled_at.is_(None), NotificationDeviceProfile.user_id == user_id, NotificationDeviceProfile.push_enabled.is_(True), NotificationDeviceProfile.revoked_at.is_(None))
+        outstanding = list(rows.all())
+        if not outstanding:
+            return []
+        recipient_ids = [user_id for user_id, _, _, _ in outstanding]
+        web_reachable = await self._web_reachable_user_ids(tenant_id, recipient_ids)
+        firebase_reachable = await self._firebase_reachable_user_ids(tenant_id, recipient_ids)
+        reachable = web_reachable | firebase_reachable
+        return [
+            UnreachableNotificationRecipient(
+                user_id=user_id,
+                display_name=display_name,
+                pending_notifications=int(pending),
+                last_notification_at=last_at,
             )
-            firebase_reachable = await self._db.scalar(
-                select(func.count(FirebasePushSubscription.id))
-                .select_from(FirebasePushSubscription)
-                .join(NotificationDeviceProfile, NotificationDeviceProfile.device_id == FirebasePushSubscription.device_id)
-                .where(FirebasePushSubscription.tenant_id == tenant_id, FirebasePushSubscription.disabled_at.is_(None), FirebasePushSubscription.recipient_user_id == user_id, NotificationDeviceProfile.user_id == user_id, NotificationDeviceProfile.push_enabled.is_(True), NotificationDeviceProfile.revoked_at.is_(None))
+            for user_id, display_name, pending, last_at in outstanding
+            if user_id not in reachable
+        ]
+
+    async def _web_reachable_user_ids(
+        self, tenant_id: UUID, recipient_ids: list[UUID]
+    ) -> set[UUID]:
+        result = await self._db.execute(
+            select(NotificationDeviceProfile.user_id)
+            .select_from(WebPushSubscription)
+            .join(
+                NotificationDeviceProfile,
+                NotificationDeviceProfile.device_id == WebPushSubscription.device_id,
             )
-            if not web_reachable and not firebase_reachable:
-                result.append(UnreachableNotificationRecipient(user_id=user_id, display_name=display_name, pending_notifications=int(pending), last_notification_at=last_at))
-        return result
+            .where(
+                WebPushSubscription.tenant_id == tenant_id,
+                WebPushSubscription.disabled_at.is_(None),
+                NotificationDeviceProfile.user_id.in_(recipient_ids),
+                NotificationDeviceProfile.push_enabled.is_(True),
+                NotificationDeviceProfile.revoked_at.is_(None),
+            )
+            .distinct()
+        )
+        return set(result.scalars().all())
+
+    async def _firebase_reachable_user_ids(
+        self, tenant_id: UUID, recipient_ids: list[UUID]
+    ) -> set[UUID]:
+        result = await self._db.execute(
+            select(NotificationDeviceProfile.user_id)
+            .select_from(FirebasePushSubscription)
+            .join(
+                NotificationDeviceProfile,
+                NotificationDeviceProfile.device_id == FirebasePushSubscription.device_id,
+            )
+            .where(
+                FirebasePushSubscription.tenant_id == tenant_id,
+                FirebasePushSubscription.disabled_at.is_(None),
+                FirebasePushSubscription.recipient_user_id == NotificationDeviceProfile.user_id,
+                NotificationDeviceProfile.user_id.in_(recipient_ids),
+                NotificationDeviceProfile.push_enabled.is_(True),
+                NotificationDeviceProfile.revoked_at.is_(None),
+            )
+            .distinct()
+        )
+        return set(result.scalars().all())
     async def _deliver_event(self, event: NotificationOutboxEvent) -> None:
         payload = json.loads(event.payload_json)
         recipients = [UUID(raw) for raw in payload.get("recipients", [])]
@@ -135,7 +188,10 @@ class OutboxMixin(UserNotificationServiceBase):
     ) -> PushOutcome:
         outcome = PushOutcome.TRANSIENT
         for attempt in range(PUSH_RETRY_ATTEMPTS):
-            outcome = provider.send(target, message)
+            try:
+                outcome = provider.send(target, message)
+            except Exception:
+                outcome = PushOutcome.TRANSIENT
             if outcome is not PushOutcome.TRANSIENT:
                 return outcome
             if attempt < PUSH_RETRY_ATTEMPTS - 1:

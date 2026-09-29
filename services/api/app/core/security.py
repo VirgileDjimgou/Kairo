@@ -25,6 +25,7 @@ def create_access_token(
     tenant_id: UUID,
     roles: list[str],
     session_id: UUID,
+    capabilities: list[str] | None = None,
 ) -> str:
     now = datetime.now(UTC)
     payload: dict = {
@@ -36,6 +37,8 @@ def create_access_token(
         "iat": now,
         "exp": now + timedelta(minutes=settings.access_token_expire_minutes),
     }
+    if capabilities is not None:
+        payload["capabilities"] = capabilities
     return jwt.encode(payload, settings.jwt_secret_key, algorithm=settings.jwt_algorithm)
 
 

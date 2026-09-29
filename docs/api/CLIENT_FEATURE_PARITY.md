@@ -32,6 +32,7 @@ call no longer maps to a documented operation.
 | Search and attention | `GET /api/v1/search`, `GET /api/v1/attention` | `src/api/search.api.ts`, `src/api/attention.api.ts` | `features/foundation/presentation/role_shell.dart` (attention) | Route coverage + S105/S106 tests |
 | Operation journal, audit, recovery | `GET /api/v1/admin/audit/operation-journal`, `GET /api/v1/recovery/backups` | `src/api/audit.api.ts` | `features/governance/data/operation_journal_gateway.dart` | Route coverage; operation journal appends query suffixes dynamically |
 | System | `GET /health`, `GET /metrics` | `src/api/system.api.ts` | — (operator surface only) | Route coverage |
+| Module registry | `GET /api/v1/modules`, `GET /api/v1/modules/{module_key}` | — (clients may adopt incrementally) | — (clients may adopt incrementally) | `test_module_registry.py` + route coverage |
 
 ## Intentional differences
 

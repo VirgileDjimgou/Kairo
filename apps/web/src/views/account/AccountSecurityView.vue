@@ -2,7 +2,7 @@
   <div class="p-4 p-lg-5">
     <div class="d-flex flex-column flex-xl-row justify-content-between gap-3 mb-4">
       <div>
-        <div class="text-uppercase small fw-semibold text-secondary mb-2">
+        <div class="text-uppercase small fw-semibold text-secondary-emphasis mb-2">
           {{ copy.personalAccountSecurity }}
         </div>
         <h1 class="h4 fw-bold mb-1">{{ copy.accountSecurity }}</h1>
@@ -40,7 +40,7 @@
           <div class="card-body p-4">
             <div class="d-flex flex-column flex-lg-row justify-content-between gap-3 mb-3">
               <div>
-                <div class="text-uppercase small fw-semibold text-secondary mb-2">
+                <div class="text-uppercase small fw-semibold text-secondary-emphasis mb-2">
                   Multi-factor authentication
                 </div>
                 <h2 class="h6 fw-bold mb-1">Protect sign-in with an authenticator app</h2>
@@ -48,7 +48,7 @@
                   MFA is enforced by the backend. This screen only helps the user complete the secure setup flow.
                 </p>
               </div>
-              <span class="badge align-self-start" :class="mfaStatus.enabled ? 'bg-success-subtle text-success' : 'bg-warning-subtle text-warning'">
+              <span class="badge align-self-start" :class="mfaStatus.enabled ? 'bg-success-subtle text-success-emphasis' : 'bg-warning-subtle text-warning-emphasis'">
                 {{ mfaStatus.enabled ? 'Enabled' : mfaStatus.enrolled ? 'Pending verification' : 'Not enabled' }}
               </span>
             </div>
@@ -145,7 +145,7 @@
           <div class="card-body p-4">
             <div class="d-flex flex-column flex-lg-row justify-content-between gap-3 mb-3">
               <div>
-                <div class="text-uppercase small fw-semibold text-secondary mb-2">
+                <div class="text-uppercase small fw-semibold text-secondary-emphasis mb-2">
                   Active sessions
                 </div>
                 <h2 class="h6 fw-bold mb-1">Review and revoke access paths</h2>
@@ -179,7 +179,7 @@
                 <div class="d-flex flex-column flex-lg-row justify-content-between gap-3">
                   <div>
                     <div class="d-flex flex-wrap gap-2 align-items-center mb-2">
-                      <span class="badge" :class="session.current ? 'bg-success-subtle text-success' : 'bg-light text-dark border'">
+                      <span class="badge" :class="session.current ? 'bg-success-subtle text-success-emphasis' : 'bg-light text-dark border'">
                         {{ session.current ? 'Current session' : 'Active session' }}
                       </span>
                       <span class="small text-muted">{{ formatDateTime(session.last_seen_at) }}</span>
@@ -212,7 +212,7 @@
       <div class="col-xl-5">
         <div class="card shadow-sm border-0 mb-4">
           <div class="card-body p-4">
-            <div class="text-uppercase small fw-semibold text-secondary mb-2">
+            <div class="text-uppercase small fw-semibold text-secondary-emphasis mb-2">
               Security guidance
             </div>
             <div class="vstack gap-3 small text-muted" data-testid="account-security-guidance">
@@ -231,7 +231,7 @@
 
         <div class="card shadow-sm border-0 mb-4">
           <div class="card-body p-4">
-            <div class="text-uppercase small fw-semibold text-secondary mb-2">
+            <div class="text-uppercase small fw-semibold text-secondary-emphasis mb-2">
               Recent security activity
             </div>
             <div v-if="securityEvents.length === 0" class="security-panel small text-muted">
@@ -253,7 +253,7 @@
 
         <div class="card shadow-sm border-0">
           <div class="card-body p-4">
-            <div class="text-uppercase small fw-semibold text-secondary mb-2">
+            <div class="text-uppercase small fw-semibold text-secondary-emphasis mb-2">
               Recommended path
             </div>
             <div class="timeline-item">

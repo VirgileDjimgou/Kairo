@@ -9,11 +9,12 @@ import pytest_asyncio
 from fakes import FakeFirebasePushProvider, FakeWebPushProvider
 from helpers import create_tenant_with_user, create_user_for_tenant, login
 from httpx import AsyncClient
-from sqlalchemy import delete, select
+from sqlalchemy import delete, func, select
 from sqlalchemy.ext.asyncio import AsyncSession
 from test_domain_events import _validated_receipt_context
 
 from app.core.metrics import metrics
+from app.modules.contributions.models import ContributionRecord
 from app.modules.domain_events.models import DomainEvent
 from app.modules.notifications.user_models import (
     FirebasePushSubscription,
@@ -632,6 +633,175 @@ async def test_producers_route_through_the_canonical_pipeline(
     assert member["user"].id in _recipients(payment_row)
     expense_row = by_key[f"expense-recorded:{expense.json()['id']}"]
     assert _recipients(expense_row) == [auditor["user"].id]
+
+
+class _RaisingWebPushProvider:
+    """Transport double whose provider boundary raises instead of returning."""
+
+    def __init__(self) -> None:
+        self.calls = 0
+
+    def send(self, target: object, message: object) -> PushOutcome:
+        self.calls += 1
+        raise RuntimeError("push transport crashed")
+
+
+@pytest.mark.asyncio
+async def test_push_provider_outage_keeps_the_inbox_and_contains_the_failure(
+    client: AsyncClient,
+    db_session: AsyncSession,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    monkeypatch.setattr(
+        "app.modules.notifications.outbox.service.PUSH_RETRY_BASE_SECONDS", 0.0
+    )
+    monkeypatch.setattr(
+        "app.modules.notifications.outbox.service.PUSH_RETRY_MAX_SECONDS", 0.0
+    )
+    context = await create_tenant_with_user(db_session, f"conv-outage-{uuid.uuid4().hex[:6]}")
+    await _bind_push(db_session, context["tenant"].id, context["user"].id, firebase=False)
+    await _drain_outbox(db_session)
+    web_push = FakeWebPushProvider([PushOutcome.TRANSIENT] * 9)
+    service = UserNotificationService(
+        db_session, web_push_provider=web_push, firebase_push_provider=FakeFirebasePushProvider()
+    )
+    await service.notify(
+        tenant_id=context["tenant"].id,
+        event_type="finance.payment_recorded",
+        recipients=[context["user"].id],
+        category="finance",
+        target_path="/finance",
+        deduplication_key="provider-outage",
+    )
+    await db_session.commit()
+
+    assert await service.process_outbox() == 1
+
+    event = await db_session.scalar(
+        select(NotificationOutboxEvent).where(
+            NotificationOutboxEvent.tenant_id == context["tenant"].id
+        )
+    )
+    assert event is not None
+    assert event.status == "completed"
+    assert len(web_push.sent) == 3
+    inbox_items = list(
+        (
+            await db_session.execute(
+                select(UserNotification).where(UserNotification.tenant_id == context["tenant"].id)
+            )
+        ).scalars()
+    )
+    assert len(inbox_items) == 1
+    subscription = await db_session.scalar(
+        select(WebPushSubscription).where(WebPushSubscription.tenant_id == context["tenant"].id)
+    )
+    assert subscription is not None
+    assert subscription.disabled_at is None
+    assert subscription.failure_count == 1
+    assert metrics.push_deliveries[("web_push", "transient")] >= 1
+
+    assert await service.process_outbox() == 0
+    repeated = await db_session.scalar(
+        select(func.count(UserNotification.id)).where(
+            UserNotification.tenant_id == context["tenant"].id
+        )
+    )
+    assert repeated == 1
+
+
+@pytest.mark.asyncio
+async def test_unexpected_provider_exception_is_contained_as_a_transient_failure(
+    client: AsyncClient,
+    db_session: AsyncSession,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    monkeypatch.setattr(
+        "app.modules.notifications.outbox.service.PUSH_RETRY_BASE_SECONDS", 0.0
+    )
+    monkeypatch.setattr(
+        "app.modules.notifications.outbox.service.PUSH_RETRY_MAX_SECONDS", 0.0
+    )
+    context = await create_tenant_with_user(db_session, f"conv-raised-{uuid.uuid4().hex[:6]}")
+    await _bind_push(db_session, context["tenant"].id, context["user"].id, firebase=False)
+    await _drain_outbox(db_session)
+    raising = _RaisingWebPushProvider()
+    service = UserNotificationService(
+        db_session,
+        web_push_provider=raising,  # type: ignore[arg-type]
+        firebase_push_provider=FakeFirebasePushProvider(),
+    )
+    await service.notify(
+        tenant_id=context["tenant"].id,
+        event_type="finance.payment_recorded",
+        recipients=[context["user"].id],
+        category="finance",
+        target_path="/finance",
+        deduplication_key="provider-raised",
+    )
+    await db_session.commit()
+
+    assert await service.process_outbox() == 1
+
+    assert raising.calls == 3
+    event = await db_session.scalar(
+        select(NotificationOutboxEvent).where(
+            NotificationOutboxEvent.tenant_id == context["tenant"].id
+        )
+    )
+    assert event is not None
+    assert event.status == "completed"
+    assert event.last_error is None
+    inbox_count = await db_session.scalar(
+        select(func.count(UserNotification.id)).where(
+            UserNotification.tenant_id == context["tenant"].id
+        )
+    )
+    assert inbox_count == 1
+
+
+@pytest.mark.asyncio
+async def test_worker_outage_defers_delivery_but_preserves_business_state(
+    client: AsyncClient,
+    db_session: AsyncSession,
+) -> None:
+    context = await _validated_receipt_context(client, db_session)
+    contribution = await db_session.get(
+        ContributionRecord, uuid.UUID(context["contribution_id"])
+    )
+    assert contribution is not None
+    paid_before = contribution.paid_amount
+
+    inbox_before = await db_session.scalar(
+        select(func.count(UserNotification.id)).where(
+            UserNotification.tenant_id == context["tenant_id"]
+        )
+    )
+    assert inbox_before == 0
+
+    await _drain_outbox(db_session)
+
+    inbox_items = list(
+        (
+            await db_session.execute(
+                select(UserNotification).where(UserNotification.tenant_id == context["tenant_id"])
+            )
+        ).scalars()
+    )
+    assert inbox_items
+    assert any(item.recipient_user_id == context["member_user_id"] for item in inbox_items)
+    assert all(item.deduplication_key for item in inbox_items)
+
+    await db_session.refresh(contribution)
+    assert contribution.paid_amount == paid_before
+
+    assert await UserNotificationService(db_session).process_outbox() == 0
+    inbox_after = await db_session.scalar(
+        select(func.count(UserNotification.id)).where(
+            UserNotification.tenant_id == context["tenant_id"]
+        )
+    )
+    assert inbox_after == len(inbox_items)
 
 
 def _recipients(row: NotificationOutboxEvent) -> list[uuid.UUID]:

@@ -6,6 +6,7 @@ from decimal import Decimal
 from typing import Any, Self
 from uuid import UUID
 
+import structlog
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -26,6 +27,8 @@ from app.providers.notifications.base import NotificationProvider
 
 MAX_HANDLER_ATTEMPTS = 5
 MAX_RETRY_DELAY_MINUTES = 30
+
+logger = structlog.get_logger(__name__)
 
 
 def _json_default(value: Any) -> Any:
@@ -122,6 +125,14 @@ class DomainEventService:
                     minutes=min(MAX_RETRY_DELAY_MINUTES, 2**event.attempts)
                 )
                 event.last_error = f"{handler.name}:{type(exc).__name__}"
+                logger.warning(
+                    "domain_event_handler_failed",
+                    event_id=str(event.id),
+                    event_type=event.event_type,
+                    handler=handler.name,
+                    attempts=event.attempts,
+                    error=type(exc).__name__,
+                )
                 await self._db.flush()
                 return False
             applied.add(handler.name)

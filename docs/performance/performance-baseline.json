@@ -1,0 +1,170 @@
+{
+  "environment": {
+    "database": "sqlite",
+    "iterations": 5,
+    "python": "3.13.2"
+  },
+  "generated_at": "2026-09-27T14:49:54.690953+00:00",
+  "sizes": {
+    "1000": {
+      "annual_budget": {
+        "p50_ms": 46.8,
+        "p95_ms": 60.85,
+        "statements": 3
+      },
+      "attention_overview": {
+        "p50_ms": 5.98,
+        "p95_ms": 9.56,
+        "statements": 6
+      },
+      "audit_journal": {
+        "p50_ms": 3.83,
+        "p95_ms": 4.33,
+        "statements": 1
+      },
+      "contribution_summary": {
+        "p50_ms": 2.72,
+        "p95_ms": 4.23,
+        "statements": 1
+      },
+      "domain_event_outbox_drain": {
+        "p50_ms": 608.03,
+        "p95_ms": 708.09,
+        "statements": 52
+      },
+      "global_search": {
+        "p50_ms": 10.58,
+        "p95_ms": 16.14,
+        "statements": 8
+      },
+      "managed_users": {
+        "p50_ms": 53.58,
+        "p95_ms": 128.67,
+        "statements": 6
+      },
+      "member_statement": {
+        "p50_ms": 3.42,
+        "p95_ms": 5.21,
+        "statements": 2
+      },
+      "members_list": {
+        "p50_ms": 36.61,
+        "p95_ms": 96.18,
+        "statements": 1
+      },
+      "notification_outbox_drain": {
+        "p50_ms": 737.07,
+        "p95_ms": 867.85,
+        "statements": 103
+      },
+      "unreachable_notifications": {
+        "p50_ms": 23.82,
+        "p95_ms": 27.15,
+        "statements": 3
+      }
+    },
+    "200": {
+      "annual_budget": {
+        "p50_ms": 15.39,
+        "p95_ms": 17.1,
+        "statements": 3
+      },
+      "attention_overview": {
+        "p50_ms": 5.65,
+        "p95_ms": 11.93,
+        "statements": 6
+      },
+      "audit_journal": {
+        "p50_ms": 3.24,
+        "p95_ms": 4.85,
+        "statements": 1
+      },
+      "contribution_summary": {
+        "p50_ms": 2.17,
+        "p95_ms": 6.09,
+        "statements": 1
+      },
+      "domain_event_outbox_drain": {
+        "p50_ms": 560.76,
+        "p95_ms": 601.52,
+        "statements": 52
+      },
+      "global_search": {
+        "p50_ms": 8.4,
+        "p95_ms": 13.63,
+        "statements": 8
+      },
+      "managed_users": {
+        "p50_ms": 13.17,
+        "p95_ms": 21.9,
+        "statements": 6
+      },
+      "member_statement": {
+        "p50_ms": 3.89,
+        "p95_ms": 6.34,
+        "statements": 2
+      },
+      "members_list": {
+        "p50_ms": 8.65,
+        "p95_ms": 12.24,
+        "statements": 1
+      },
+      "notification_outbox_drain": {
+        "p50_ms": 665.25,
+        "p95_ms": 717.58,
+        "statements": 103
+      },
+      "unreachable_notifications": {
+        "p50_ms": 9.94,
+        "p95_ms": 10.9,
+        "statements": 3
+      }
+    }
+  },
+  "thresholds": {
+    "annual_budget": {
+      "max_p95_ms": 343.4,
+      "max_statements": 6
+    },
+    "attention_overview": {
+      "max_p95_ms": 147.72,
+      "max_statements": 12
+    },
+    "audit_journal": {
+      "max_p95_ms": 119.4,
+      "max_statements": 2
+    },
+    "contribution_summary": {
+      "max_p95_ms": 124.36,
+      "max_statements": 2
+    },
+    "domain_event_outbox_drain": {
+      "max_p95_ms": 2932.36,
+      "max_statements": 104
+    },
+    "global_search": {
+      "max_p95_ms": 164.56,
+      "max_statements": 16
+    },
+    "managed_users": {
+      "max_p95_ms": 614.68,
+      "max_statements": 12
+    },
+    "member_statement": {
+      "max_p95_ms": 125.36,
+      "max_statements": 4
+    },
+    "members_list": {
+      "max_p95_ms": 484.72,
+      "max_statements": 2
+    },
+    "notification_outbox_drain": {
+      "max_p95_ms": 3571.4,
+      "max_statements": 206
+    },
+    "unreachable_notifications": {
+      "max_p95_ms": 208.6,
+      "max_statements": 6
+    }
+  }
+}

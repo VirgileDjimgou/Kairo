@@ -3,7 +3,7 @@
     <div class="card-body p-4">
       <div class="d-flex align-items-center justify-content-between gap-3 mb-3">
         <div>
-          <div class="text-uppercase small fw-semibold text-secondary mb-1">
+          <div class="text-uppercase small fw-semibold text-secondary-emphasis mb-1">
             {{ copy.tenantSnapshot }}
           </div>
           <h2 class="h6 fw-bold mb-0">{{ copy.liveUsageSignals }}</h2>

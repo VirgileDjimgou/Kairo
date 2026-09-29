@@ -3,7 +3,7 @@
     <div class="auditor-hero rounded-4 p-4 p-lg-5 mb-4" data-testid="auditor-finance-overview">
       <div class="d-flex flex-column flex-xl-row justify-content-between gap-4">
         <div>
-          <div class="text-uppercase small fw-semibold text-secondary mb-2">
+          <div class="text-uppercase small fw-semibold text-secondary-emphasis mb-2">
             {{ t('auditor.kicker') }}
           </div>
           <h1 class="h3 fw-bold mb-2">{{ t('auditor.title') }}</h1>
@@ -87,7 +87,7 @@
 
     <section class="card shadow-sm border-0 mb-4 auditor-member-lookup">
       <div class="card-body p-4">
-        <div class="text-uppercase small fw-semibold text-secondary mb-1">{{ t('finance.memberLookup') }}</div>
+        <div class="text-uppercase small fw-semibold text-secondary-emphasis mb-1">{{ t('finance.memberLookup') }}</div>
         <h2 class="h6 fw-bold mb-3">{{ t('finance.memberFinanceSearchTitle') }}</h2>
         <div class="position-relative">
           <input v-model.trim="memberSearch" class="form-control" :placeholder="t('finance.memberSearchPlaceholder')" @focus="showMemberResults = true" />
@@ -117,7 +117,7 @@
           <div class="card-body p-0">
             <div class="px-4 pt-4 pb-2 d-flex justify-content-between align-items-center">
               <div>
-                <div class="text-uppercase small fw-semibold text-secondary mb-1">{{ t('auditor.memberBalances') }}</div>
+                <div class="text-uppercase small fw-semibold text-secondary-emphasis mb-1">{{ t('auditor.memberBalances') }}</div>
                 <h2 class="h6 fw-bold mb-0">{{ t('auditor.memberExposure') }}</h2>
               </div>
               <span class="badge text-bg-light border text-dark">{{ memberRows.length }} members</span>
@@ -178,7 +178,7 @@
           <div class="card-body p-0">
             <div class="px-4 pt-4 pb-2 d-flex justify-content-between align-items-center">
               <div>
-                <div class="text-uppercase small fw-semibold text-secondary mb-1">{{ t('auditor.paymentActivity') }}</div>
+                <div class="text-uppercase small fw-semibold text-secondary-emphasis mb-1">{{ t('auditor.paymentActivity') }}</div>
                 <h2 class="h6 fw-bold mb-0">Recent recorded payments</h2>
               </div>
               <span class="badge text-bg-light border text-dark">{{ visiblePayments.length }} shown</span>

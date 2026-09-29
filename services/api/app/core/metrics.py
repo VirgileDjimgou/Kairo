@@ -166,6 +166,8 @@ async def build_runtime_metrics(db: AsyncSession) -> str:
     # Imported lazily: the notifications package re-exports its router, and a
     # module-level import here would create a cycle for tools that import
     # ``app.main`` for schema generation.
+    from app.modules.backup.models import BackupRun
+    from app.modules.domain_events.models import DomainEvent
     from app.modules.notifications.user_models import (
         FirebasePushSubscription,
         NotificationOutboxEvent,
@@ -233,6 +235,54 @@ async def build_runtime_metrics(db: AsyncSession) -> str:
         )
         or 0
     )
+    notification_processing = int(
+        await db.scalar(
+            select(func.count(NotificationOutboxEvent.id)).where(
+                NotificationOutboxEvent.status == "processing"
+            )
+        )
+        or 0
+    )
+    domain_pending = int(
+        await db.scalar(
+            select(func.count(DomainEvent.id)).where(DomainEvent.status == "pending")
+        )
+        or 0
+    )
+    domain_failed = int(
+        await db.scalar(
+            select(func.count(DomainEvent.id)).where(DomainEvent.status == "failed")
+        )
+        or 0
+    )
+    domain_oldest = await db.scalar(
+        select(func.min(DomainEvent.created_at)).where(DomainEvent.status == "pending")
+    )
+    if domain_oldest is not None and domain_oldest.tzinfo is None:
+        domain_oldest = domain_oldest.replace(tzinfo=UTC)
+    domain_oldest_age = (
+        int((datetime.now(UTC) - domain_oldest).total_seconds())
+        if domain_oldest is not None
+        else 0
+    )
+    last_backup_at = await db.scalar(
+        select(func.max(BackupRun.completed_at)).where(
+            BackupRun.status.in_(("available", "restore_drill_passed"))
+        )
+    )
+    if last_backup_at is not None and last_backup_at.tzinfo is None:
+        last_backup_at = last_backup_at.replace(tzinfo=UTC)
+    backup_age = (
+        int((datetime.now(UTC) - last_backup_at).total_seconds())
+        if last_backup_at is not None
+        else -1
+    )
+    backup_failed = int(
+        await db.scalar(
+            select(func.count(BackupRun.id)).where(BackupRun.status == "failed")
+        )
+        or 0
+    )
 
     lines.extend(
         [
@@ -266,6 +316,24 @@ async def build_runtime_metrics(db: AsyncSession) -> str:
             "# HELP kairo_disabled_fcm_tokens Disabled Android FCM tokens.",
             "# TYPE kairo_disabled_fcm_tokens gauge",
             f"kairo_disabled_fcm_tokens {disabled_fcm}",
+            "# HELP kairo_notification_outbox_processing Notification outbox events currently claimed by a worker.",
+            "# TYPE kairo_notification_outbox_processing gauge",
+            f"kairo_notification_outbox_processing {notification_processing}",
+            "# HELP kairo_domain_event_outbox_pending Domain events awaiting consumer dispatch.",
+            "# TYPE kairo_domain_event_outbox_pending gauge",
+            f"kairo_domain_event_outbox_pending {domain_pending}",
+            "# HELP kairo_domain_event_outbox_failed Domain events in a terminal failed state.",
+            "# TYPE kairo_domain_event_outbox_failed gauge",
+            f"kairo_domain_event_outbox_failed {domain_failed}",
+            "# HELP kairo_domain_event_outbox_oldest_age_seconds Age of the oldest pending domain event.",
+            "# TYPE kairo_domain_event_outbox_oldest_age_seconds gauge",
+            f"kairo_domain_event_outbox_oldest_age_seconds {domain_oldest_age}",
+            "# HELP kairo_backup_last_success_age_seconds Seconds since the last successful backup (-1 when none).",
+            "# TYPE kairo_backup_last_success_age_seconds gauge",
+            f"kairo_backup_last_success_age_seconds {backup_age}",
+            "# HELP kairo_backup_failed_runs Backup runs recorded as failed.",
+            "# TYPE kairo_backup_failed_runs gauge",
+            f"kairo_backup_failed_runs {backup_failed}",
         ]
     )
     return "\n".join(lines) + "\n"

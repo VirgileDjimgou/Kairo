@@ -30,9 +30,10 @@ class AdministrationMixin(IdentityServiceBase):
             tenant_id=tenant_id,
             user_ids=user_ids,
         )
+        role_map = await self._tenancy_repo.get_user_role_codes_for_users(tenant_id, user_ids)
         result: list[ManagedTenantUserResponse] = []
         for membership, user in rows:
-            roles = await self._tenancy_repo.get_user_role_codes(tenant_id, user.id)
+            roles = role_map.get(user.id, [])
             latest_event = latest_events.get(user.id)
             result.append(
                 ManagedTenantUserResponse(

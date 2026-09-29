@@ -892,6 +892,15 @@ export interface MobilePushTokenRequest {
   platform?: string | null;
 }
 
+export interface ModuleNavigationEntryResponse {
+  capabilities: Array<string>;
+  key: string;
+  label_key: string;
+  order: number;
+  path: string;
+  section: string;
+}
+
 export interface ModuleToggles {
   announcements?: boolean;
   chat?: boolean;
@@ -1175,6 +1184,21 @@ export interface RefreshTokenResponse {
   token_type?: string;
 }
 
+export interface RegisteredModuleResponse {
+  capabilities: Array<string>;
+  depends_on: Array<string>;
+  description: string;
+  domain_event_types: Array<string>;
+  enabled: boolean;
+  key: string;
+  name: string;
+  navigation: Array<ModuleNavigationEntryResponse>;
+}
+
+export interface RegisteredModulesResponse {
+  modules: Array<RegisteredModuleResponse>;
+}
+
 export type ReminderDeliveryStatus = "sent" | "simulated" | "failed" | "skipped";
 
 export interface ResetPasswordRequest {
@@ -1190,6 +1214,13 @@ export interface RestoreImportResponse {
   guidance: string;
   run: BackupRunResponse;
   verified: boolean;
+}
+
+export interface RoleBundleCreate {
+  capabilities: Array<string>;
+  code: string;
+  description?: string | null;
+  name: string;
 }
 
 export interface RoleResponse {
@@ -1465,6 +1496,8 @@ export interface ApiOperations {
   'DELETE /api/v1/memberships/{profile_id}': { request: undefined; response: undefined };
   'GET /api/v1/memberships/{profile_id}/balance': { request: undefined; response: MemberBalanceResponse };
   'GET /api/v1/memberships/{profile_id}/statement': { request: undefined; response: MemberStatementResponse };
+  'GET /api/v1/modules': { request: undefined; response: RegisteredModulesResponse };
+  'GET /api/v1/modules/{module_key}': { request: undefined; response: RegisteredModuleResponse };
   'GET /api/v1/notifications/channels': { request: undefined; response: Array<NotificationChannelResponse> };
   'POST /api/v1/notifications/devices': { request: DeviceRegistrationRequest; response: undefined };
   'POST /api/v1/notifications/devices/{installation_id}/revoke': { request: undefined; response: NotificationDeviceRevocationResponse };
@@ -1495,6 +1528,7 @@ export interface ApiOperations {
   'POST /api/v1/recovery/backups': { request: BackupRequest; response: undefined };
   'POST /api/v1/recovery/backups/import': { request: undefined; response: RestoreImportResponse };
   'GET /api/v1/recovery/backups/{run_id}': { request: undefined; response: BackupRunResponse };
+  'GET /api/v1/sample/status': { request: undefined; response: Record<string, string> };
   'GET /api/v1/search': { request: undefined; response: SearchResponse };
   'GET /api/v1/sports/events': { request: undefined; response: Array<EventResponse> };
   'POST /api/v1/sports/events': { request: EventCreate; response: EventResponse };
@@ -1504,8 +1538,11 @@ export interface ApiOperations {
   'GET /api/v1/tenants/': { request: undefined; response: Array<TenantResponse> };
   'GET /api/v1/tenants/{tenant_id}': { request: undefined; response: TenantResponse };
   'GET /api/v1/tenants/{tenant_id}/roles': { request: undefined; response: Array<RoleResponse> };
+  'POST /api/v1/tenants/{tenant_id}/roles': { request: RoleBundleCreate; response: RoleResponse };
   'GET /api/v1/tenants/{tenant_id}/settings': { request: undefined; response: TenantSettingsResponse };
   'PUT /api/v1/tenants/{tenant_id}/settings': { request: TenantSettingsUpdate; response: TenantSettingsResponse };
   'GET /health': { request: undefined; response: Record<string, unknown> };
+  'GET /health/live': { request: undefined; response: Record<string, unknown> };
+  'GET /health/ready': { request: undefined; response: unknown };
   'GET /metrics': { request: undefined; response: unknown };
 }

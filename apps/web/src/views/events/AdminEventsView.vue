@@ -46,11 +46,11 @@
               <td class="small">{{ event.end_at ? formatDate(event.end_at) : '—' }}</td>
               <td class="small text-muted">{{ event.location || '—' }}</td>
               <td>
-                <span class="badge bg-info-subtle text-info border border-info-subtle">{{ event.visibility_scope }}</span>
+                <span class="badge bg-info-subtle text-info-emphasis border border-info-subtle">{{ event.visibility_scope }}</span>
               </td>
               <td>
                 <span class="badge"
-                  :class="event.status === 'published' ? 'bg-success-subtle text-success' : event.status === 'cancelled' ? 'bg-danger-subtle text-danger' : 'bg-secondary-subtle text-secondary'">
+                  :class="event.status === 'published' ? 'bg-success-subtle text-success-emphasis' : event.status === 'cancelled' ? 'bg-danger-subtle text-danger-emphasis' : 'bg-secondary-subtle text-secondary-emphasis'">
                   {{ event.status }}
                 </span>
               </td>
@@ -66,7 +66,7 @@
       </template>
       <template #mobile-title="{ item: event }">{{ event.title }}</template>
       <template #mobile-status="{ item: event }">
-        <span class="badge" :class="event.status === 'published' ? 'bg-success-subtle text-success' : event.status === 'cancelled' ? 'bg-danger-subtle text-danger' : 'bg-secondary-subtle text-secondary'">{{ event.status }}</span>
+        <span class="badge" :class="event.status === 'published' ? 'bg-success-subtle text-success-emphasis' : event.status === 'cancelled' ? 'bg-danger-subtle text-danger-emphasis' : 'bg-secondary-subtle text-secondary-emphasis'">{{ event.status }}</span>
       </template>
       <template #mobile-fields="{ item: event }">
         <div class="om-data-card-row"><span class="om-data-card-label">{{ t('common.start') }}</span><span class="om-data-card-value">{{ formatDate(event.start_at) }}</span></div>

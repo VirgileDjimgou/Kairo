@@ -3,7 +3,7 @@
     <div class="sports-hero rounded-4 p-4 p-lg-5 mb-4" data-testid="sports-workspace-hero">
       <div class="d-flex flex-column flex-xl-row justify-content-between gap-4 align-items-xl-end">
         <div>
-          <div class="text-uppercase small fw-semibold text-secondary mb-2">{{ copy.kicker }}</div>
+          <div class="text-uppercase small fw-semibold text-secondary-emphasis mb-2">{{ copy.kicker }}</div>
           <h1 class="h3 fw-bold mb-2">{{ copy.title }}</h1>
           <p class="text-muted mb-0 hero-copy">
             {{ copy.lead }}
@@ -67,7 +67,7 @@
           <div class="card-body p-4">
             <div class="d-flex align-items-start justify-content-between gap-3 mb-3">
               <div>
-                <div class="text-uppercase small fw-semibold text-secondary mb-1">{{ copy.editor }}</div>
+                <div class="text-uppercase small fw-semibold text-secondary-emphasis mb-1">{{ copy.editor }}</div>
                 <h2 class="h6 fw-bold mb-0">{{ editingId ? copy.editEvent : copy.createEvent }}</h2>
               </div>
               <span class="badge text-bg-light border text-dark">{{ editingId ? copy.editing : copy.newLabel }}</span>
@@ -166,7 +166,7 @@
                     <td class="small">{{ formatDate(event.start_at) }}</td>
                     <td class="small text-muted">{{ event.location || '—' }}</td>
                     <td>
-                      <span class="badge bg-info-subtle text-info border border-info-subtle">{{ visibilityLabel(event.visibility_scope) }}</span>
+                      <span class="badge bg-info-subtle text-info-emphasis border border-info-subtle">{{ visibilityLabel(event.visibility_scope) }}</span>
                     </td>
                     <td>
                       <span class="badge" :class="statusBadgeClass(event.status)">{{ statusLabel(event.status) }}</span>
@@ -420,10 +420,10 @@ function formatDate(value: string): string {
 
 function statusBadgeClass(status: string): string {
   const map: Record<string, string> = {
-    published: 'bg-success-subtle text-success',
-    draft: 'bg-secondary-subtle text-secondary',
-    cancelled: 'bg-danger-subtle text-danger',
-    completed: 'bg-info-subtle text-info',
+    published: 'bg-success-subtle text-success-emphasis',
+    draft: 'bg-secondary-subtle text-secondary-emphasis',
+    cancelled: 'bg-danger-subtle text-danger-emphasis',
+    completed: 'bg-info-subtle text-info-emphasis',
   }
   return map[status] || 'bg-light text-dark'
 }

@@ -106,7 +106,24 @@ contents are never logged.
 | Push after sign-out | Expected to stop: sign-out revokes the profile binding. Re-enabling requires a new sign-in. |
 | Detail missing on lock screen | By design; open Kairo and read the authenticated inbox. |
 
-## 6. Physical-device validation checklist
+## 6. Recovery from provider or worker outages
+
+The inbox is the durable record; push is best-effort. Business operations remain
+consistent in every validated outage:
+
+| Outage | Guarantee | Recovery |
+| --- | --- | --- |
+| Celery/Redis (worker) unavailable | The producer transaction already persisted the authenticated inbox rows inline; pending push-outbox rows wait untouched. | When the worker returns, `notifications.process_user_outbox` drains pending rows. No business action must be repeated. |
+| Web Push or Firebase temporarily unavailable | The provider returns `TRANSIENT`; up to three bounded attempts run; the event still completes and the subscription `failure_count` increments. | Next event attempts delivery again; the inbox already shows the notification. |
+| Push provider raises an unexpected exception | The outbox contains it as a transient failure; the event completes and no retry loop can wedge the queue. | The inbox row is already durable; investigate the provider library if failures repeat. |
+| Invalid target (Web Push 404/410, FCM unregistered) | The subscription is disabled by design instead of retrying forever. | The member re-enables push from the inbox; a new subscription row is created. |
+
+Validated by `services/api/tests/test_notification_convergence.py`:
+`test_push_provider_outage_keeps_the_inbox_and_contains_the_failure`,
+`test_unexpected_provider_exception_is_contained_as_a_transient_failure`, and
+`test_worker_outage_defers_delivery_but_preserves_business_state`.
+
+## 7. Physical-device validation checklist
 
 1. Sign in on a physical Android device with the production APK.
 2. Grant notification permission from the inbox screen.
@@ -118,7 +135,7 @@ contents are never logged.
 6. Sign out and confirm a new push is not delivered to that installation.
 7. Re-sign-in and confirm push is re-enabled automatically after the next opt-in.
 
-## 7. Secret hygiene
+## 8. Secret hygiene
 
 - Never commit: `google-services.json`, Firebase Admin service account JSON, VAPID
   private key, FCM credentials, tokens.

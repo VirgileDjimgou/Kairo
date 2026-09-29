@@ -2831,6 +2831,35 @@ class MobilePushTokenRequest {
       };
 }
 
+class ModuleNavigationEntryResponse {
+  const ModuleNavigationEntryResponse({this.capabilities, this.key, this.label_key, this.order, this.path, this.section});
+
+  factory ModuleNavigationEntryResponse.fromJson(Map<String, dynamic> json) => ModuleNavigationEntryResponse(
+        capabilities: (json['capabilities'] as List<dynamic>?)?.map((dynamic item) => item as String).toList(),
+        key: json['key'] as String?,
+        label_key: json['label_key'] as String?,
+        order: json['order'] as int?,
+        path: json['path'] as String?,
+        section: json['section'] as String?,
+      );
+
+  final List<String>? capabilities;
+  final String? key;
+  final String? label_key;
+  final int? order;
+  final String? path;
+  final String? section;
+
+  Map<String, dynamic> toJson() => <String, dynamic>{
+        if (capabilities != null) 'capabilities': capabilities,
+        if (key != null) 'key': key,
+        if (label_key != null) 'label_key': label_key,
+        if (order != null) 'order': order,
+        if (path != null) 'path': path,
+        if (section != null) 'section': section,
+      };
+}
+
 class ModuleToggles {
   const ModuleToggles({this.announcements, this.chat, this.contributions, this.disciplinary, this.events, this.membership, this.notifications, this.policies});
 
@@ -3736,6 +3765,55 @@ class RefreshTokenResponse {
       };
 }
 
+class RegisteredModuleResponse {
+  const RegisteredModuleResponse({this.capabilities, this.depends_on, this.description, this.domain_event_types, this.enabled, this.key, this.name, this.navigation});
+
+  factory RegisteredModuleResponse.fromJson(Map<String, dynamic> json) => RegisteredModuleResponse(
+        capabilities: (json['capabilities'] as List<dynamic>?)?.map((dynamic item) => item as String).toList(),
+        depends_on: (json['depends_on'] as List<dynamic>?)?.map((dynamic item) => item as String).toList(),
+        description: json['description'] as String?,
+        domain_event_types: (json['domain_event_types'] as List<dynamic>?)?.map((dynamic item) => item as String).toList(),
+        enabled: json['enabled'] as bool?,
+        key: json['key'] as String?,
+        name: json['name'] as String?,
+        navigation: (json['navigation'] as List<dynamic>?)?.map((dynamic item) => ModuleNavigationEntryResponse.fromJson(item as Map<String, dynamic>)).toList(),
+      );
+
+  final List<String>? capabilities;
+  final List<String>? depends_on;
+  final String? description;
+  final List<String>? domain_event_types;
+  final bool? enabled;
+  final String? key;
+  final String? name;
+  final List<ModuleNavigationEntryResponse>? navigation;
+
+  Map<String, dynamic> toJson() => <String, dynamic>{
+        if (capabilities != null) 'capabilities': capabilities,
+        if (depends_on != null) 'depends_on': depends_on,
+        if (description != null) 'description': description,
+        if (domain_event_types != null) 'domain_event_types': domain_event_types,
+        if (enabled != null) 'enabled': enabled,
+        if (key != null) 'key': key,
+        if (name != null) 'name': name,
+        if (navigation != null) 'navigation': navigation!.map((item) => item.toJson()).toList(),
+      };
+}
+
+class RegisteredModulesResponse {
+  const RegisteredModulesResponse({this.modules});
+
+  factory RegisteredModulesResponse.fromJson(Map<String, dynamic> json) => RegisteredModulesResponse(
+        modules: (json['modules'] as List<dynamic>?)?.map((dynamic item) => RegisteredModuleResponse.fromJson(item as Map<String, dynamic>)).toList(),
+      );
+
+  final List<RegisteredModuleResponse>? modules;
+
+  Map<String, dynamic> toJson() => <String, dynamic>{
+        if (modules != null) 'modules': modules!.map((item) => item.toJson()).toList(),
+      };
+}
+
 typedef ReminderDeliveryStatus = String;
 
 class ResetPasswordRequest {
@@ -3786,6 +3864,29 @@ class RestoreImportResponse {
         if (guidance != null) 'guidance': guidance,
         if (run != null) 'run': run!.toJson(),
         if (verified != null) 'verified': verified,
+      };
+}
+
+class RoleBundleCreate {
+  const RoleBundleCreate({this.capabilities, this.code, this.description, this.name});
+
+  factory RoleBundleCreate.fromJson(Map<String, dynamic> json) => RoleBundleCreate(
+        capabilities: (json['capabilities'] as List<dynamic>?)?.map((dynamic item) => item as String).toList(),
+        code: json['code'] as String?,
+        description: json['description'] as String?,
+        name: json['name'] as String?,
+      );
+
+  final List<String>? capabilities;
+  final String? code;
+  final String? description;
+  final String? name;
+
+  Map<String, dynamic> toJson() => <String, dynamic>{
+        if (capabilities != null) 'capabilities': capabilities,
+        if (code != null) 'code': code,
+        if (description != null) 'description': description,
+        if (name != null) 'name': name,
       };
 }
 
@@ -4402,6 +4503,8 @@ const Map<String, String> apiOperationIds = <String, String>{
   'DELETE /api/v1/memberships/{profile_id}': 'delete_profile_api_v1_memberships__profile_id__delete',
   'GET /api/v1/memberships/{profile_id}/balance': 'get_member_balance_api_v1_memberships__profile_id__balance_get',
   'GET /api/v1/memberships/{profile_id}/statement': 'get_member_statement_api_v1_memberships__profile_id__statement_get',
+  'GET /api/v1/modules': 'list_registered_modules_api_v1_modules_get',
+  'GET /api/v1/modules/{module_key}': 'get_registered_module_api_v1_modules__module_key__get',
   'GET /api/v1/notifications/channels': 'list_notification_channels_api_v1_notifications_channels_get',
   'POST /api/v1/notifications/devices': 'register_notification_device_api_v1_notifications_devices_post',
   'POST /api/v1/notifications/devices/{installation_id}/revoke': 'revoke_notification_device_api_v1_notifications_devices__installation_id__revoke_post',
@@ -4432,6 +4535,7 @@ const Map<String, String> apiOperationIds = <String, String>{
   'POST /api/v1/recovery/backups': 'request_backup_api_v1_recovery_backups_post',
   'POST /api/v1/recovery/backups/import': 'import_backup_api_v1_recovery_backups_import_post',
   'GET /api/v1/recovery/backups/{run_id}': 'get_backup_api_v1_recovery_backups__run_id__get',
+  'GET /api/v1/sample/status': 'sample_status_api_v1_sample_status_get',
   'GET /api/v1/search': 'global_search_api_v1_search_get',
   'GET /api/v1/sports/events': 'list_sports_events_api_v1_sports_events_get',
   'POST /api/v1/sports/events': 'create_sports_event_api_v1_sports_events_post',
@@ -4441,8 +4545,11 @@ const Map<String, String> apiOperationIds = <String, String>{
   'GET /api/v1/tenants/': 'list_my_tenants_api_v1_tenants__get',
   'GET /api/v1/tenants/{tenant_id}': 'get_tenant_api_v1_tenants__tenant_id__get',
   'GET /api/v1/tenants/{tenant_id}/roles': 'list_tenant_roles_api_v1_tenants__tenant_id__roles_get',
+  'POST /api/v1/tenants/{tenant_id}/roles': 'create_tenant_role_bundle_api_v1_tenants__tenant_id__roles_post',
   'GET /api/v1/tenants/{tenant_id}/settings': 'get_tenant_settings_api_v1_tenants__tenant_id__settings_get',
   'PUT /api/v1/tenants/{tenant_id}/settings': 'update_tenant_settings_api_v1_tenants__tenant_id__settings_put',
   'GET /health': 'health_check_health_get',
+  'GET /health/live': 'liveness_check_health_live_get',
+  'GET /health/ready': 'readiness_check_health_ready_get',
   'GET /metrics': 'metrics_metrics_get',
 };

@@ -2,7 +2,7 @@
   <div class="p-4 p-lg-5">
     <div class="d-flex flex-column flex-lg-row justify-content-between gap-3 mb-4">
       <div>
-        <div class="text-uppercase small fw-semibold text-secondary mb-2">
+        <div class="text-uppercase small fw-semibold text-secondary-emphasis mb-2">
           {{ t('disciplinary.kicker') }}
         </div>
         <h1 class="h4 fw-bold mb-1">{{ t('disciplinary.adminTitle') }}</h1>
@@ -219,10 +219,10 @@ const form = ref<CreateDisciplinaryPayload>({
 
 function statusClass(status: string): string {
   const map: Record<string, string> = {
-    open: 'bg-danger-subtle text-danger border border-danger-subtle',
-    under_review: 'bg-warning-subtle text-warning border border-warning-subtle',
-    resolved: 'bg-success-subtle text-success border border-success-subtle',
-    waived: 'bg-secondary-subtle text-secondary border border-secondary-subtle',
+    open: 'bg-danger-subtle text-danger-emphasis border border-danger-subtle',
+    under_review: 'bg-warning-subtle text-warning-emphasis border border-warning-subtle',
+    resolved: 'bg-success-subtle text-success-emphasis border border-success-subtle',
+    waived: 'bg-secondary-subtle text-secondary-emphasis border border-secondary-subtle',
   }
   return map[status] || 'bg-light text-dark border'
 }

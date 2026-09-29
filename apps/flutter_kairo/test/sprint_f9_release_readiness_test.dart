@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:kairo_flutter/app/app_environment.dart';
 import 'package:kairo_flutter/app/localization/kairo_localizations.dart';
+import 'package:kairo_flutter/app/theme/kairo_theme.dart';
 import 'package:kairo_flutter/core/api/kairo_api_client.dart';
 import 'package:kairo_flutter/core/security/session_storage.dart';
 import 'package:kairo_flutter/features/auth/data/auth_gateway.dart';
@@ -59,6 +60,65 @@ void main() {
         ),
       );
     }
+    await tester.binding.setSurfaceSize(null);
+    handle.dispose();
+  });
+
+  testWidgets('F9 sign-in stays usable at 200% Android text scaling', (
+    WidgetTester tester,
+  ) async {
+    final SemanticsHandle handle = tester.ensureSemantics();
+    await tester.binding.setSurfaceSize(const Size(390, 844));
+    await tester.pumpWidget(
+      MaterialApp(
+        theme: KairoTheme.light(),
+        home: MediaQuery(
+          data: const MediaQueryData(
+            size: Size(390, 844),
+            textScaler: TextScaler.linear(2.0),
+          ),
+          child: LoginPage(controller: _controller(), locale: KairoLocale.fr),
+        ),
+      ),
+    );
+    await tester.pump();
+    await tester.pump(const Duration(seconds: 1));
+
+    expect(find.bySemanticsLabel('Se connecter'), findsOneWidget);
+    expect(find.bySemanticsLabel('Afficher le mot de passe'), findsOneWidget);
+    expect(tester.takeException(), isNull);
+
+    final Size toggleSize = tester.getSize(
+      find.bySemanticsLabel('Afficher le mot de passe'),
+    );
+    expect(toggleSize.height, greaterThanOrEqualTo(44));
+
+    await tester.binding.setSurfaceSize(null);
+    handle.dispose();
+  });
+
+  testWidgets('F9 sign-in renders with the dark theme and exposes semantics', (
+    WidgetTester tester,
+  ) async {
+    final SemanticsHandle handle = tester.ensureSemantics();
+    await tester.binding.setSurfaceSize(const Size(390, 844));
+    await tester.pumpWidget(
+      MaterialApp(
+        theme: KairoTheme.light(),
+        darkTheme: KairoTheme.dark(),
+        themeMode: ThemeMode.dark,
+        home: LoginPage(controller: _controller(), locale: KairoLocale.fr),
+      ),
+    );
+    await tester.pump();
+    await tester.pump(const Duration(seconds: 1));
+
+    final BuildContext context = tester.element(find.byType(LoginPage));
+    expect(Theme.of(context).brightness, Brightness.dark);
+    expect(find.bySemanticsLabel('Se connecter'), findsOneWidget);
+    expect(find.bySemanticsLabel('Afficher le mot de passe'), findsOneWidget);
+    expect(tester.takeException(), isNull);
+
     await tester.binding.setSurfaceSize(null);
     handle.dispose();
   });

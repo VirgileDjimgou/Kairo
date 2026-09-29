@@ -10,6 +10,7 @@ export interface DashboardCopy {
   loadingTitle: string
   loadingBody: string
   firstRunChecklist: string
+  checklistProgress: string
   complete: string
   nextBestAction: string
   completed: string
@@ -43,6 +44,7 @@ export function useDashboardCopy(roles: DashboardRoleFlags): {
         loadingTitle: 'Tenant-Startleitfaden wird geladen',
         loadingBody: 'Dokumente, Mitglieder, Ankuendigungen und Veranstaltungen werden geprueft, damit die Checkliste den echten Tenant-Stand widerspiegelt.',
         firstRunChecklist: 'Erststart-Checkliste',
+        checklistProgress: 'Fortschritt der Erststart-Checkliste',
         complete: 'abgeschlossen',
         nextBestAction: 'Beste naechste Aktion',
         completed: 'Abgeschlossen',
@@ -67,6 +69,7 @@ export function useDashboardCopy(roles: DashboardRoleFlags): {
         loadingTitle: 'Loading tenant onboarding guidance',
         loadingBody: 'We are checking documents, members, announcements, and events so the checklist reflects the live tenant state.',
         firstRunChecklist: 'First-run checklist',
+        checklistProgress: 'First-run checklist progress',
         complete: 'complete',
         nextBestAction: 'Next best action',
         completed: 'Completed',
@@ -90,6 +93,7 @@ export function useDashboardCopy(roles: DashboardRoleFlags): {
       loadingTitle: 'Chargement du guide de démarrage du tenant',
       loadingBody: "Nous vérifions les documents, membres, annonces et événements pour refléter l'état réel du tenant.",
       firstRunChecklist: 'Checklist de premier démarrage',
+      checklistProgress: 'Progression de la checklist de premier démarrage',
       complete: 'terminé',
       nextBestAction: 'Prochaine meilleure action',
       completed: 'Terminé',

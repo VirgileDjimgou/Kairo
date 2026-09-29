@@ -18,7 +18,7 @@
     </div>
     <div class="col-xl-7">
       <div class="card shadow-sm border-0 recent-expenses-card h-100"><div class="card-body p-4">
-        <div class="d-flex align-items-center justify-content-between gap-2 mb-3"><div><div class="text-uppercase small fw-semibold text-secondary">{{ t('finance.expenseKicker') }}</div><h2 class="h5 fw-bold mb-0">{{ t('finance.recentExpenses') }}</h2></div><span class="badge text-bg-light border text-dark">{{ budget?.recent_expenses.length || 0 }}</span></div>
+        <div class="d-flex align-items-center justify-content-between gap-2 mb-3"><div><div class="text-uppercase small fw-semibold text-secondary-emphasis">{{ t('finance.expenseKicker') }}</div><h2 class="h5 fw-bold mb-0">{{ t('finance.recentExpenses') }}</h2></div><span class="badge text-bg-light border text-dark">{{ budget?.recent_expenses.length || 0 }}</span></div>
         <p v-if="!budget || budget.recent_expenses.length === 0" class="text-muted small mb-0">{{ t('finance.noExpenses') }}</p>
         <div v-else class="vstack gap-2"><article v-for="expense in budget.recent_expenses" :key="expense.id" class="recent-expense-item"><div class="expense-category-icon"><i class="bi bi-arrow-up-right"></i></div><div class="flex-grow-1 min-w-0"><div class="d-flex flex-wrap justify-content-between gap-2"><strong>{{ expenseCategoryLabel(expense.category) }}</strong><strong class="text-danger">− {{ formatMoney(expense.amount) }}</strong></div><div class="small text-muted text-truncate">{{ expense.description }}</div><div class="small text-secondary mt-1">{{ formatDate(expense.spent_at) }}<span v-if="expense.payee"> · {{ expense.payee }}</span></div></div></article></div>
       </div></div>

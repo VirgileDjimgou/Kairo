@@ -2,7 +2,7 @@
   <div class="p-4 p-lg-5">
     <div class="d-flex flex-column flex-lg-row justify-content-between gap-3 mb-4">
       <div>
-        <div class="text-uppercase small fw-semibold text-secondary mb-2">
+        <div class="text-uppercase small fw-semibold text-secondary-emphasis mb-2">
           {{ copy.kicker }}
         </div>
         <h1 class="h4 fw-bold mb-1">{{ copy.title }}</h1>
@@ -44,7 +44,7 @@
                 <h2 class="h6 fw-bold mb-1">{{ policy.title }}</h2>
                 <div class="small text-muted">{{ policy.category }}</div>
               </div>
-              <span class="badge text-bg-success-subtle text-success border border-success-subtle">
+              <span class="badge text-bg-success-subtle text-success-emphasis border border-success-subtle">
                 {{ policy.status }}
               </span>
             </div>

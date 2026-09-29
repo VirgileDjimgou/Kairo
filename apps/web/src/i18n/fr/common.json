@@ -147,5 +147,6 @@
   "layout.secretarySubtitle": "Documents officiels et communication associative",
   "layout.secretaryWorkspace": "Espace secrétariat",
   "layout.backToPortal": "Retour au portail",
-  "nav.more": "Plus"
+  "nav.more": "Plus",
+  "layout.skipToContent": "Aller au contenu principal"
 }

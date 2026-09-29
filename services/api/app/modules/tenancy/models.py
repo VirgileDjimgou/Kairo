@@ -173,6 +173,9 @@ class Role(Base):
     is_system_role: Mapped[bool] = mapped_column(
         Boolean, nullable=False, server_default="false"
     )
+    capabilities_json: Mapped[str] = mapped_column(
+        Text, nullable=False, server_default=text("'[]'")
+    )
     created_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True),
         nullable=False,
