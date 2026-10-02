@@ -1,8 +1,11 @@
 # Accessibility Audit — Kairo V2 Release Candidate
 
-Last updated: 2026-09-27 (Roadmap V2 Sprint 118)
+Last updated: 2026-10-03 (Roadmap V2 Sprint 119)
 
-Target: WCAG 2.2 AA where practical, across the Vue 3 PWA and the Flutter client.
+Target: WCAG 2.2 AA where practical for the canonical Vue 3 PWA. Flutter
+(`apps/flutter_kairo/`) is frozen as legacy/reference code (ADR-014); its
+historical accessibility evidence below is retained for reference and is not
+part of the blocking release pipeline.
 
 ## Automated evidence
 
@@ -10,7 +13,7 @@ Target: WCAG 2.2 AA where practical, across the Vue 3 PWA and the Flutter client
 | --- | --- | --- |
 | Vue PWA (axe-core WCAG 2.2 AA tags) | `cd apps/web && npm run test:e2e:a11y` | 6 Chromium tests pass |
 | Vue PWA regression packs (unchanged behaviour) | `npm run test:e2e:locale`, `npm run test:e2e:roles`, `npm run test:e2e:release-candidate` | 20 + 17 + 9 pass |
-| Flutter semantics, text scaling and dark mode | `apps/flutter_kairo/scripts/flutter.ps1 test` | F9 release-readiness and design-system tests pass |
+| Flutter semantics, text scaling and dark mode (historical, optional) | `apps/flutter_kairo/scripts/flutter.ps1 test` | F9 release-readiness and design-system tests passed |
 
 The browser audit (`apps/web/e2e/accessibility.spec.ts`) covers:
 
@@ -22,7 +25,8 @@ The browser audit (`apps/web/e2e/accessibility.spec.ts`) covers:
   focus styles on the login form (email → password traversal);
 - `prefers-reduced-motion: reduce`, where no element keeps an infinite animation.
 
-Flutter coverage added in Sprint 118:
+Historical Flutter coverage added in Sprint 118 (reference only; the client is
+frozen per ADR-014):
 
 - sign-in at 200% Android text scaling with no overflow, semantics preserved and a
   password-visibility target of at least 44 logical pixels;
@@ -51,8 +55,8 @@ Flutter coverage added in Sprint 118:
 
 ## Intentional limitations
 
-- The Vue PWA has no dark theme; dark-mode validation applies to the Flutter
-  client, which ships light/dark Material 3 themes.
+- The Vue PWA has no dark theme. Dark-mode validation existed only for the
+  Flutter client, which is now frozen as legacy/reference code (ADR-014).
 - Automated axe coverage detects rule violations, not every usability barrier.
   Manual screen-reader passes on physical devices remain part of the operator
   pilot checklist.

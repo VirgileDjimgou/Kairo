@@ -1,6 +1,16 @@
 # Flutter Client Project Status
 
-Last updated: 2026-09-13
+Status: **FROZEN / LEGACY REFERENCE** (Roadmap V2 Sprint 119, ADR-014).
+
+This document is the historical F0–F9 record of the former parallel Flutter track.
+The Vue 3 PWA (`apps/web/`) is the canonical client; Flutter receives no new
+business features, is not a blocking job of the default release pipeline, and its
+source is preserved for behavior, notification and parity reference only. Capability
+continuity and the S120–S124 notification/deep-link gaps live in
+`docs/pwa/FLUTTER_TO_PWA_PARITY.md`. Flutter archival or deletion is a separate
+explicit decision after S128, never part of S119–S128.
+
+Last updated: 2026-09-13 (historical)
 
 ## Track Purpose
 
@@ -8,21 +18,23 @@ Build a separate Kairo Flutter client that reproduces the authorised functional 
 visual behaviour of the existing Vue 3 PWA while adding a reliable native Android
 experience, offline capability, native sharing, and native notifications.
 
-The Vue 3 PWA remains the production client throughout this track.
+The Vue 3 PWA was the production client throughout this track and is now the
+canonical client.
 
-## Current Sprint
+## Track End State
 
-Flutter Sprint F9 — Release Readiness, Accessibility, And Controlled Android/Web Launch
-
-Status: In progress — controlled release configuration is implemented without changing
-the production Vue PWA. Android release signing deliberately fails closed until the
-association supplies its private upload keystore. Flutter Web has a separate staging
-Docker configuration and requires an explicit Cloudflare hostname before it is public.
+Flutter Sprint F9 — Release Readiness, Accessibility, And Controlled Android/Web
+Launch — is **closed without promotion**. Controlled release configuration was
+implemented without changing the production Vue PWA; Android release signing
+deliberately fails closed until the association supplies its private upload
+keystore, and Flutter Web staging requires an explicit Cloudflare hostname. The
+S119 freeze (ADR-014) means neither promotion proceeds while Flutter is legacy
+reference code.
 
 ## Official Next Action
 
-Complete F9 verification, then request explicit approval before any Flutter Android or
-Cloudflare production promotion.
+None. Do not start Flutter work. Use the Vue 3 PWA for all product capability;
+consult `docs/pwa/FLUTTER_TO_PWA_PARITY.md` for reference behavior and deprecations.
 
 ## Sprint F0 Evidence
 

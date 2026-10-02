@@ -55,15 +55,16 @@ Repository methods always accept `tenant_id: UUID` as a mandatory argument.
 - Do not skip ahead to later roadmap sprints unless explicitly requested.
 - If sprint progress changes, update `PROJECT_STATUS.md` and `IMPLEMENTATION_ROADMAP.md`.
 
-## Flutter parallel client
+## Flutter client (FROZEN / LEGACY REFERENCE)
 
-- The production Vue 3 PWA under `apps/web/` must remain intact while Flutter is built
-  under `apps/flutter_kairo/`.
-- For Flutter tasks, read `apps/flutter_kairo/AGENTS.md`,
-  `docs/flutter/PROJECT_STATUS.md`, `docs/flutter/FLUTTER_APP_ROADMAP.md`, and
-  `docs/flutter/FEATURE_PARITY.md` first.
-- Treat FastAPI as the only source of authorization and business truth. Flutter may
-  cache data and queue safe drafts, but it must not validate finance, discipline, role,
-  or tenant permissions by itself.
-- Android and Flutter Web are the initial targets. Keep iOS and desktop portable, but
-  do not add platform-specific release work unless the active Flutter sprint requests it.
+- The Vue 3 PWA under `apps/web/` is the canonical client. Flutter
+  (`apps/flutter_kairo/`) is frozen as legacy/reference code (ADR-014): no new
+  business features, not a blocking job of the default release pipeline, and no
+  replacement of the PWA.
+- For reference inspection only, read `apps/flutter_kairo/AGENTS.md`,
+  `docs/pwa/FLUTTER_TO_PWA_PARITY.md`, `docs/flutter/PROJECT_STATUS.md`,
+  `docs/flutter/FLUTTER_APP_ROADMAP.md`, and `docs/flutter/FEATURE_PARITY.md`.
+- Treat FastAPI as the only source of authorization and business truth. Neither
+  client may validate finance, discipline, role, or tenant permissions by itself.
+- Flutter source is preserved for behavior, notification and parity reference;
+  archival or deletion is a separate explicit decision after S128.

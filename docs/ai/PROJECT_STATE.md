@@ -1,6 +1,6 @@
 # Project State
 
-Last verified: 2026-09-27 (Roadmap V2 Sprint 118)
+Last verified: 2026-10-03 (Roadmap V2 Sprint 119)
 
 ## What this file is
 
@@ -14,9 +14,10 @@ Kairo is a multi-tenant association-management platform: role-aware workspaces
 (membership, finance with receipt custody, governance, discipline, documents,
 events, announcements), a secure citation-based private assistant, an
 authenticated notification inbox with Web Push and Android FCM delivery, audit
-journaling and encrypted backup/recovery. The Vue 3 PWA is the production
-client; a parallel Flutter client (Android + Flutter Web) consumes the same
-FastAPI contracts.
+journaling and encrypted backup/recovery. The Vue 3 PWA is the canonical,
+supported client (ADR-014); the Flutter client (Android + Flutter Web) is frozen
+as legacy/reference code, consumes the same FastAPI contracts, and receives no
+new business features during S119–S128.
 
 ## Where truth lives
 
@@ -32,10 +33,11 @@ FastAPI contracts.
 
 ## Current engineering posture
 
-- Verified baseline (2026-09-27): 362 backend tests, web type-check/build, four
+- Verified baseline (2026-10-03): 362 backend tests, web type-check/build, four
   Playwright packs (locale 20, roles 17, release-candidate 9, accessibility 6),
-  Flutter analyze + 52 tests + web/Android builds, OpenAPI contract checks, an
-  opt-in performance regression check, repository guards green. Details:
+  OpenAPI contract checks, an opt-in performance regression check, repository
+  guards green. Flutter analyze/tests/builds are optional and manual since
+  Sprint 119 (`.github/workflows/flutter-legacy.yml`, ADR-014). Details:
   `docs/operations/validation-baseline.md`. Sprint 118 evidence:
   `docs/sprint-118-release-candidate-evidence.md`.
 - Open security item (HUMAN_REQUIRED): historical JWT secret rotation and
@@ -110,3 +112,8 @@ FastAPI contracts.
   Firebase outages gained regression tests, and a WCAG 2.2 AA audit added a
   localized skip link, named progress bars and app-wide contrast fixes; the
   backend suite has 362 passing tests.
+  Sprint 119 consolidated the client surface: the Vue 3 PWA is the canonical
+  client, Flutter is frozen as legacy/reference code (ADR-014), the blocking CI
+  pipeline no longer runs Flutter, and Flutter-only capability continuity plus
+  the S120–S124 notification/deep-link gaps are recorded in
+  `docs/pwa/FLUTTER_TO_PWA_PARITY.md`.

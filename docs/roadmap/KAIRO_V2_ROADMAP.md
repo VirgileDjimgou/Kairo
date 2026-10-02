@@ -724,6 +724,10 @@ as legacy/reference code without deleting it.
   S120–S124, or explicitly deprecated.
 - Flutter source remains present as legacy reference.
 
+**Artifacts:** `docs/architecture/decisions/0014-pwa-first-flutter-frozen.md`,
+`docs/pwa/FLUTTER_TO_PWA_PARITY.md` (capability inventory, deprecations and the
+S120–S124 notification/deep-link gap register).
+
 ---
 
 ## Sprint 120 — Unified PWA Service Worker

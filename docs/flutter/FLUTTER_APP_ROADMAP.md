@@ -1,5 +1,11 @@
 # Kairo Flutter Client Roadmap
 
+Status: **FROZEN / LEGACY REFERENCE** (Roadmap V2 Sprint 119, ADR-014). This is the
+historical F0–F9 record. The Vue 3 PWA is the canonical client and Flutter receives
+no new business features during S119–S128. Do not start a new Flutter sprint from
+this document; capability continuity is tracked in
+`docs/pwa/FLUTTER_TO_PWA_PARITY.md`.
+
 ## Purpose
 
 Create a separate, production-grade Flutter application that reproduces the functional
@@ -198,9 +204,10 @@ to browser-style storage.
 
 ## Sprint F9 — Release Readiness, Accessibility, And Controlled Android/Web Launch
 
-**Status:** In progress — release configuration, documentation and regression
-verification are being prepared. Android/Cloudflare production promotion is blocked
-until a private upload keystore and explicit association approval are supplied.
+**Status:** Closed without promotion — release configuration, documentation and
+regression verification were prepared, but Android/Cloudflare production promotion
+remains blocked by the missing private upload keystore and by the S119 freeze
+(ADR-014).
 
 **Goal:** prepare a controlled release while retaining the PWA as a stable fallback.
 

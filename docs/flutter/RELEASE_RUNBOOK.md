@@ -1,5 +1,10 @@
 # Flutter Android And Web Release Runbook
 
+Status: **HISTORICAL / INACTIVE** — the Flutter client is FROZEN as
+legacy/reference code (ADR-014, Roadmap V2 Sprint 119). This runbook is retained
+for reference only; Flutter is not part of the default release pipeline and must
+not be promoted while the freeze is active.
+
 ## Scope and safety boundary
 
 This runbook prepares the separate Flutter Android/Web pilot. The Vue 3 PWA remains

@@ -1,7 +1,12 @@
 # Flutter Continuation Prompt
 
-Use this exact instruction in Codex, GitHub Copilot Chat, Cursor, or another coding
-agent that has access to this repository:
+**CLOSED — the Flutter client is FROZEN as legacy/reference code during the active
+Roadmap V2 program S119–S128 (ADR-014). Do not use the command below to start new
+Flutter business work.** The Vue 3 PWA (`apps/web/`) is the canonical client;
+capability continuity is tracked in `docs/pwa/FLUTTER_TO_PWA_PARITY.md`.
+
+The instruction below is retained as the historical record of the former Flutter
+track:
 
 ```text
 Continue Next Sprint Implementation Flutter App

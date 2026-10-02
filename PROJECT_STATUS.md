@@ -1,6 +1,6 @@
 # Project Status
 
-Last updated: 2026-09-27
+Last updated: 2026-10-03
 
 ## Active Roadmap Status
 
@@ -19,25 +19,24 @@ npm run sprint:batch:status   # current sprint, progress, next sprint
 Everything below is the product-state and historical delivery record (Sprints
 0–99), preserved for traceability and marked as historical where applicable.
 
-## Parallel Flutter Client Track
+## Client Ownership — PWA First
 
-Status: In progress — Flutter Sprints F0 through F8 are complete and Sprint F9 release
-readiness is under controlled verification. Android release signing now fails closed
-until a private upload key is configured; Flutter Web remains a separate staging
-service until explicit Cloudflare promotion approval.
+The Vue 3 PWA (`apps/web/`) is the canonical, supported Kairo client. All new
+product capability during the active S119–S128 program is delivered there.
 
-The Vue 3 PWA remains the production client. A separate Flutter client will be built
-under `apps/flutter_kairo/` for Android and Flutter Web first, with iOS and desktop
-kept architecture-ready for a later product decision. The active Flutter action is
-**Sprint F9 — Release Readiness, Accessibility, And Controlled Android/Web Launch**. Its ten-sprint
-roadmap, parity matrix, and portable continuation prompt are maintained under
-`docs/flutter/` and `prompts/FLUTTER_CONTINUE_UNIVERSAL.md`.
+The Flutter client (`apps/flutter_kairo/`) is **FROZEN / LEGACY REFERENCE**
+(ADR-014). Flutter sprints F0–F9 and the visual redesign are historical: the
+source tree is preserved so it can be consulted for behavior, notification and
+parity reference, but it receives no new business features, is not a blocking
+job of the default release pipeline, and must not replace, weaken or silently
+change the PWA. Flutter analyze/test/builds run only through the manual
+`flutter-legacy` GitHub workflow. Capability continuity, intentional
+deprecations and the notification/deep-link gaps owned by S120–S124 are
+recorded in `docs/pwa/FLUTTER_TO_PWA_PARITY.md`. Flutter archival or deletion is
+a separate explicit decision after S128; it is never part of these sprints.
 
-The isolated Flutter source tree now lives in `apps/flutter_kairo/`. It has a
-production-safe environment resolver, typed API client, responsive role shell,
-French/English/German copy, secure offline drafts, native sharing/files, Android FCM,
-42 passing Flutter tests and Android/Web build gates. The Vue 3 PWA source and release
-path remain unchanged.
+The former Flutter track documents under `docs/flutter/` remain as the
+historical F0–F9 record and are read-only reference.
 
 ## Active Delivery Frame
 

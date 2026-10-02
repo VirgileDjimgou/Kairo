@@ -1,6 +1,7 @@
 # ADR-006: Separate Flutter Client, PWA Stays Production
 
-Status: Accepted
+Status: Superseded by ADR-014 for client ownership and release targets. Retained
+as the historical record of how the Flutter client was introduced.
 
 ## Context
 

@@ -17,7 +17,7 @@ Membership · Treasury · Governance · Discipline · Communications · Document
 
 [![CI](https://github.com/VirgileDjimgou/Kairo/actions/workflows/ci.yml/badge.svg)](https://github.com/VirgileDjimgou/Kairo/actions/workflows/ci.yml)
 ![Vue 3](https://img.shields.io/badge/client-Vue_3-42b883?logo=vuedotjs&logoColor=white)
-![Flutter](https://img.shields.io/badge/client-Flutter-02569B?logo=flutter&logoColor=white)
+![Flutter](https://img.shields.io/badge/client-Flutter_legacy_reference-9E9E9E?logo=flutter&logoColor=white)
 ![FastAPI](https://img.shields.io/badge/API-FastAPI-009688?logo=fastapi&logoColor=white)
 ![PostgreSQL](https://img.shields.io/badge/data-PostgreSQL-4169E1?logo=postgresql&logoColor=white)
 ![Docker](https://img.shields.io/badge/runtime-Docker-2496ED?logo=docker&logoColor=white)
@@ -211,17 +211,21 @@ The operator side (pipeline health, pending/failed counts, channel history) is s
 the administration section above and documented in the
 [notification operator guide](docs/notifications/NOTIFICATION_OPERATOR_GUIDE.md).
 
-### Flutter client — Android and Web companion
+### Flutter client — frozen legacy reference
 
-A separate Flutter application consumes the same FastAPI contracts: secure storage,
-offline drafts, native sharing, Firebase push and an allowlisted deep-link router.
+The Flutter application under `apps/flutter_kairo/` is **FROZEN / LEGACY REFERENCE**
+(ADR-014): it consumes the same FastAPI contracts, but it receives no new business
+features and is not part of the default release pipeline. Its source and the
+historical screenshots below are preserved for behavior, notification and parity
+reference. Capability continuity is tracked in the
+[Flutter → PWA parity matrix](docs/pwa/FLUTTER_TO_PWA_PARITY.md).
 
 <table>
   <tr>
-    <td width="25%" valign="top"><strong>Member contributions</strong><br /><img alt="Flutter member contributions" src="apps/flutter_kairo/artifacts/sprint-f3/member-android-contributions.png" width="200" /></td>
-    <td width="25%" valign="top"><strong>Offline draft</strong><br /><img alt="Flutter offline draft" src="apps/flutter_kairo/artifacts/sprint-f7/android-offline-draft.png" width="200" /></td>
-    <td width="25%" valign="top"><strong>Censor discipline</strong><br /><img alt="Flutter censor discipline" src="apps/flutter_kairo/artifacts/sprint-f5/censor-android-discipline.png" width="200" /></td>
-    <td width="25%" valign="top"><strong>Push notification</strong><br /><img alt="Flutter Android push notification" src="apps/flutter_kairo/artifacts/live-device-validation/2026-08-20/12-fcm-background-notification.png" width="200" /></td>
+    <td width="25%" valign="top"><strong>Member contributions (historical)</strong><br /><img alt="Flutter member contributions" src="apps/flutter_kairo/artifacts/sprint-f3/member-android-contributions.png" width="200" /></td>
+    <td width="25%" valign="top"><strong>Offline draft (historical)</strong><br /><img alt="Flutter offline draft" src="apps/flutter_kairo/artifacts/sprint-f7/android-offline-draft.png" width="200" /></td>
+    <td width="25%" valign="top"><strong>Censor discipline (historical)</strong><br /><img alt="Flutter censor discipline" src="apps/flutter_kairo/artifacts/sprint-f5/censor-android-discipline.png" width="200" /></td>
+    <td width="25%" valign="top"><strong>Push notification (historical)</strong><br /><img alt="Flutter Android push notification" src="apps/flutter_kairo/artifacts/live-device-validation/2026-08-20/12-fcm-background-notification.png" width="200" /></td>
   </tr>
 </table>
 
@@ -274,14 +278,16 @@ workspace, and works cleanly on desktop and mobile browsers.
 | Notifications | Durable in-app inbox, preferences, opt-in Web Push and Android FCM through one audited pipeline with operator health |
 | Configuration | Tenant branding, languages and per-tenant module toggles; capability-driven navigation from the internal module registry |
 | Observability | `/health`, `/health/live`, `/health/ready`, `/metrics`, Grafana package and a committed performance baseline |
-| Native client | Flutter Android/Web companion with secure storage, offline drafts, sharing and push deep links |
+| Mobile &amp; PWA | Responsive phone layouts, bottom navigation and an installable Progressive Web App shell |
+| Reference client (frozen) | Flutter under `apps/flutter_kairo/` — legacy/reference only, no new business features (ADR-014) |
 | Private AI | Optional local Ollama/Qdrant runtime behind a signed gateway; the cloud core can run without it |
 
 ## Recent additions (Roadmap V2)
 
-Sprints 100–118 turned the platform into a hardened release candidate. The most
-visible additions:
+Sprints 100–119 turned the platform into a hardened release candidate and
+consolidated it on the Vue 3 PWA. The most visible additions:
 
+- **PWA-first client consolidation** — the Vue 3 PWA is the canonical client; Flutter is frozen as legacy/reference code (ADR-014) and its checks no longer block CI.
 - **Capability-driven interface** — `/auth/me` exposes effective capabilities; navigation and actions derive from them, with validated per-tenant role bundles.
 - **Module registry and tenant toggles** — every backend module ships a descriptor; `GET /api/v1/modules` returns tenant-filtered navigation metadata, and a disabled module disappears from every client.
 - **Notification convergence** — one canonical pipeline with per-user preferences, Web Push + Android FCM transports, invalid-target disabling, bounded retries, an operator pipeline-health console and tested outage recovery.
@@ -289,7 +295,6 @@ visible additions:
 - **Operational health and performance** — `/health` plus live/ready probes, metrics for both outboxes and backup freshness, a Grafana dashboard package and a committed 200/1000-member performance baseline (`npm run perf:check`).
 - **OpenAPI as the client contract** — versioned schema, breaking-change detection, generated TypeScript/Dart types and route-coverage checks in CI.
 - **Accessibility and i18n depth** — skip link, WCAG 2.2 AA automated audit pack, reduced-motion support and enforced FR/EN/DE parity.
-- **Flutter client maturity** — offline drafts, native sharing, Firebase push with allowlisted deep links and Material 3 light/dark themes.
 - **Release hardening** — encrypted signed backups, restore and rollback drills, reproducible production images and upgrade runbooks.
 
 Full evidence: [Sprint 118 release-candidate record](docs/sprint-118-release-candidate-evidence.md) · [Release notes](docs/operations/release-notes-v2.0.0-rc.md) · [Accessibility audit](docs/operations/accessibility-audit.md).
@@ -431,13 +436,13 @@ Operator runbooks: [Hetzner portfolio runbook](docs/operations/hetzner-portfolio
 | Layer | Technology |
 | --- | --- |
 | Web client | Vue 3, TypeScript, Pinia, Vue Router, Vite, Bootstrap, PWA |
-| Native client | Flutter (Android and Web first, iOS/desktop architecture-ready) |
+| Reference client (frozen) | Flutter under `apps/flutter_kairo/` — legacy/reference only (ADR-014) |
 | API | Python 3.12, FastAPI, SQLAlchemy, Pydantic, Alembic |
 | Data & jobs | PostgreSQL, Redis, Celery worker and scheduler |
 | Object storage | MinIO / S3-compatible |
 | Private AI (optional) | Signed AI gateway, Ollama, Qdrant |
 | Delivery | Docker Compose, Nginx, Cloudflare Tunnel |
-| Quality | pytest, ruff, mypy, vue-tsc, Playwright, flutter analyze/test, gitleaks, GitHub Actions |
+| Quality | pytest, ruff, mypy, vue-tsc, Playwright, gitleaks, GitHub Actions (Flutter checks optional/manual) |
 
 ## Security and data boundaries
 
@@ -509,8 +514,8 @@ unavailable, Kairo keeps the core platform available and reports the AI state cl
 
 ```text
 kairo/
-├── apps/web/                 Vue 3 client and PWA
-├── apps/flutter_kairo/       Parallel Flutter client (Android and Web first)
+├── apps/web/                 Vue 3 client and PWA (canonical client)
+├── apps/flutter_kairo/       Flutter client (frozen legacy reference, ADR-014)
 ├── services/api/             FastAPI modular monolith and workers
 ├── docs/                     Architecture, operations and validation guides
 ├── scripts/                  Docker, deployment and recovery helpers
@@ -538,7 +543,8 @@ npm run test:e2e:release-candidate
 npm run test:e2e:a11y
 Set-Location ../..
 
-# Flutter client (use .\scripts\flutter.ps1 when the SDK is not on PATH)
+# Flutter client — optional/manual reference checks only (frozen, ADR-014)
+# Run the manual "Flutter Legacy Reference" GitHub workflow instead of blocking CI.
 Set-Location apps/flutter_kairo
 flutter analyze
 flutter test
@@ -560,17 +566,19 @@ For the maintained validation commands and responsive checks, see [`docs/operati
 
 ## Project status and roadmap
 
-Kairo is an active portfolio project. The Vue 3 PWA is the production client; the Flutter
-Android/Web client is tracked separately and consumes the same API contracts.
+Kairo is an active portfolio project. The Vue 3 PWA is the canonical, supported
+client (ADR-014); the Flutter Android/Web client is frozen as legacy/reference code,
+consumes the same API contracts, and receives no new business features during
+S119–S128.
 
-- **Roadmap V2 (Sprints 100–118) — complete.** Release-candidate gates are green: 362 API tests, four browser packs, Flutter analysis/tests/builds, contracts and repository guards. See the [release-candidate evidence](docs/sprint-118-release-candidate-evidence.md) and [release notes](docs/operations/release-notes-v2.0.0-rc.md).
-- **Roadmap V3 (Sprints 119–129) — proposed.** Reproducible image supply chain, release operations, outbox crash recovery, PITR drills, full-stack integration smoke, i18n completion, accessibility depth, retention/privacy operations, identity-federation evaluation and Flutter pilot completion. Draft: [`docs/roadmap/KAIRO_V3_ROADMAP.md`](docs/roadmap/KAIRO_V3_ROADMAP.md).
-- Vue 3 PWA — production client.
-- Flutter client — functional parity reached through release-readiness work; Android and Flutter Web are the release targets.
-- iOS and desktop — architecture-ready, deliberately deferred.
+- **Roadmap V2 (Sprints 100–118) — complete.** Release-candidate gates are green: 362 API tests, four browser packs, contracts and repository guards. See the [release-candidate evidence](docs/sprint-118-release-candidate-evidence.md) and [release notes](docs/operations/release-notes-v2.0.0-rc.md).
+- **Roadmap V2 (Sprints 119–128) — active: PWA-first, white-label SaaS.** Client consolidation, unified PWA Service Worker, Web Push/FCM installations, actionable deep links, tenant branding, tenant domains, outbox reliability, reproducible CI and the real full-stack COMBIS pilot. See [`docs/roadmap/KAIRO_V2_ROADMAP.md`](docs/roadmap/KAIRO_V2_ROADMAP.md).
+- Vue 3 PWA — canonical client.
+- Flutter client — frozen legacy/reference source; not a release target.
+- iOS and desktop — no release commitment; tracked only as Flutter reference history.
 
 See [`PROJECT_STATUS.md`](PROJECT_STATUS.md), [`docs/ai/PROJECT_STATE.md`](docs/ai/PROJECT_STATE.md) and
-[`docs/flutter/FLUTTER_APP_ROADMAP.md`](docs/flutter/FLUTTER_APP_ROADMAP.md) for the current state.
+[`docs/pwa/FLUTTER_TO_PWA_PARITY.md`](docs/pwa/FLUTTER_TO_PWA_PARITY.md) for the current state.
 
 ## Documentation
 
@@ -583,11 +591,12 @@ See [`PROJECT_STATUS.md`](PROJECT_STATUS.md), [`docs/ai/PROJECT_STATE.md`](docs/
 - [Validation baseline](docs/operations/validation-baseline.md)
 - [Frontend architecture](docs/FRONTEND_ARCHITECTURE.md)
 - [Design system](docs/DESIGN_SYSTEM.md)
-- [Flutter client roadmap](docs/flutter/FLUTTER_APP_ROADMAP.md)
-- [Flutter feature parity matrix](docs/flutter/FEATURE_PARITY.md)
+- [Flutter → PWA parity matrix](docs/pwa/FLUTTER_TO_PWA_PARITY.md)
+- [Flutter client roadmap (frozen, historical)](docs/flutter/FLUTTER_APP_ROADMAP.md)
+- [Flutter feature parity matrix (frozen, historical)](docs/flutter/FEATURE_PARITY.md)
 - [Project status](PROJECT_STATUS.md)
-- [Roadmap V2 (historical)](docs/roadmap/KAIRO_V2_ROADMAP.md)
-- [Roadmap V3 (draft)](docs/roadmap/KAIRO_V3_ROADMAP.md)
+- [Roadmap V2 (active)](docs/roadmap/KAIRO_V2_ROADMAP.md)
+- [Roadmap V3 (draft, not active)](docs/roadmap/KAIRO_V3_ROADMAP.md)
 - [Contributing](CONTRIBUTING.md)
 
 ## License

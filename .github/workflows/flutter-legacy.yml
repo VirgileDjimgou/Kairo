@@ -1,0 +1,49 @@
+name: Flutter Legacy Reference
+
+# FROZEN / LEGACY REFERENCE (ADR-014, Roadmap V2 Sprint 119).
+#
+# The Flutter client is no longer part of the default blocking release pipeline.
+# This workflow is manual-only: run it when Flutter reference behavior must be
+# verified (for example before a parity decision or after an intentional API
+# contract change that touches the frozen client). It must never gate `main`.
+
+on:
+  workflow_dispatch:
+    inputs:
+      api_base_url:
+        description: "API base URL passed to the Flutter builds"
+        required: false
+        default: "https://app.combissportverein.org/api/v1"
+
+jobs:
+  flutter-reference:
+    name: Flutter — legacy reference verification (manual)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: subosito/flutter-action@v2
+        with:
+          # Pinned to the version that authored the golden files. An unpinned
+          # "stable" channel silently upgraded the engine and broke every
+          # pixel golden while local runs stayed green.
+          flutter-version: "3.44.9"
+          channel: stable
+          cache: true
+      - name: Install Flutter packages
+        working-directory: apps/flutter_kairo
+        run: flutter pub get
+      - name: Analyze Flutter client
+        working-directory: apps/flutter_kairo
+        run: flutter analyze
+      - name: Verify Flutter formatting
+        working-directory: apps/flutter_kairo
+        run: dart format --set-exit-if-changed lib test
+      - name: Test Flutter client
+        working-directory: apps/flutter_kairo
+        run: flutter test
+      - name: Build Flutter web
+        working-directory: apps/flutter_kairo
+        run: flutter build web --dart-define=KAIRO_FLAVOR=production --dart-define=KAIRO_API_BASE_URL=${{ inputs.api_base_url }}
+      - name: Build Android debug APK
+        working-directory: apps/flutter_kairo
+        run: flutter build apk --debug --dart-define=KAIRO_FLAVOR=production --dart-define=KAIRO_API_BASE_URL=${{ inputs.api_base_url }}

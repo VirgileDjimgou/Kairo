@@ -1,6 +1,6 @@
 # Validation Baseline
 
-Last updated: 2026-09-26
+Last updated: 2026-10-03
 
 This document captures the active quality-gate commands that are expected to work from the repository root unless noted otherwise.
 
@@ -142,6 +142,24 @@ Notes:
 - The controlled member import runs only from `scripts/import_real_members.ps1`; it blocks active Quick Tunnels, makes a private database dump, and preserves all non-member-only tenant data.
 - The named production tunnel uses the same-origin `app.combissportverein.org` hostname. Rotate the existing local PostgreSQL password through `scripts/activate_production_database_credentials.ps1` only after the production environment is generated and before the first production Compose start.
 - `vue-tsc` runs with `strict`, `exactOptionalPropertyTypes`, and `noUncheckedIndexedAccess`, so optional API fields and list access must be handled explicitly.
+
+## Flutter (frozen reference — optional/manual)
+
+Flutter is **FROZEN / LEGACY REFERENCE** (ADR-014, Sprint 119). It is not part of
+the default blocking pipeline; a Flutter failure cannot make `main` red.
+
+```powershell
+# Optional, manual: run the "Flutter Legacy Reference" GitHub workflow instead.
+Set-Location apps/flutter_kairo
+.\scripts\flutter.ps1 analyze
+.\scripts\flutter.ps1 test
+Set-Location ../..
+```
+
+- The generated Dart contract drift check and the Flutter route-coverage scan
+  remain in the blocking Contracts job because they are deterministic, SDK-free
+  checks of the API boundary (`npm run contracts:check`).
+- Capability continuity and deprecations: `docs/pwa/FLUTTER_TO_PWA_PARITY.md`.
 
 ## Notification Operations
 

@@ -1,6 +1,6 @@
 # Kairo — Current Architecture Snapshot
 
-Last verified: 2026-09-27 (Roadmap V2 Sprint 117)
+Last verified: 2026-10-03 (Roadmap V2 Sprint 119)
 
 This file is the concise description of what Kairo IS today. When code and this
 file disagree, trust the code and update this file. Historical narrative lives in
@@ -16,18 +16,19 @@ queue, the PostgreSQL domain-event outbox and the notification outbox.
 
 ```
 Vue 3 PWA (apps/web)          Flutter client (apps/flutter_kairo)
-   |   consumes API contracts only        |  Android + Flutter Web first
+   |   canonical client                    |  FROZEN legacy/reference (ADR-014)
+   |   consumes API contracts only         |  no new business features
    +-------------------+------------------+
-                       v
-        FastAPI modular monolith (services/api/app)
-        core/ identity/ tenancy/ membership/ contributions/
-        governance/ disciplinary/ events/ announcements/ documents/
-        notifications/ audit/ chat/ rag/ backup/ worker/
-                       |
-     +---------+-------+--------+-----------+
-     v         v       v        v           v
- PostgreSQL   Redis   MinIO   Qdrant   Ollama/Qdrant (optional private AI)
-             Celery   objects  vectors
+                        v
+         FastAPI modular monolith (services/api/app)
+         core/ identity/ tenancy/ membership/ contributions/
+         governance/ disciplinary/ events/ announcements/ documents/
+         notifications/ audit/ chat/ rag/ backup/ worker/
+                        |
+      +---------+-------+--------+-----------+
+      v         v       v        v           v
+  PostgreSQL   Redis   MinIO   Qdrant   Ollama/Qdrant (optional private AI)
+              Celery   objects  vectors
 ```
 
 ## Load-bearing boundaries
@@ -97,19 +98,26 @@ Vue 3 PWA (apps/web)          Flutter client (apps/flutter_kairo)
 
 ## Clients
 
-- **Vue 3 PWA** (`apps/web`) — production client. Pinia stores, vue-router,
-  typed API gateways under `src/api/`, shared capability constants under
-  `src/config/capabilities.ts`, and domain feature modules under `src/features/`
-  (`finance`, `dashboard`, `members`, `attention`, `search`). Router views are
-  thin containers that orchestrate feature components and composables;
-  navigation and action visibility follow API capabilities, and no
+- **Vue 3 PWA** (`apps/web`) — canonical supported client (ADR-014). Pinia
+  stores, vue-router, typed API gateways under `src/api/`, shared capability
+  constants under `src/config/capabilities.ts`, and domain feature modules under
+  `src/features/` (`finance`, `dashboard`, `members`, `attention`, `search`).
+  Router views are thin containers that orchestrate feature components and
+  composables; navigation and action visibility follow API capabilities, and no
   authorization decision is made in the client. Notification inbox/push/health
   DTOs come from the generated OpenAPI contract types
-  (`src/api/generated/contracts.ts`).
-- **Flutter client** (`apps/flutter_kairo/`) — parallel Android + Flutter Web
-  client, same API contracts, no local authorization decisions. The PWA is never
-  replaced by it (see `docs/flutter/`). Typed OpenAPI contract classes live in
-  `lib/core/api/generated/contracts.dart`; thin gateways remain hand-written.
+  (`src/api/generated/contracts.ts`). A single canonical Service Worker
+  (`src/sw.ts`, vite-plugin-pwa `injectManifest`) owns caching, Web Push display
+  and notification-click routing.
+- **Flutter client** (`apps/flutter_kairo/`) — **FROZEN / LEGACY REFERENCE**
+  (ADR-014). It consumes the same API contracts and makes no local authorization
+  decisions, but receives no new business features and is not a blocking job of
+  the default release pipeline. Its source tree is preserved for behavior,
+  notification and parity reference; Flutter-only capability continuity and the
+  S120–S124 notification/deep-link gaps are tracked in
+  `docs/pwa/FLUTTER_TO_PWA_PARITY.md`. Typed OpenAPI contract classes remain in
+  `lib/core/api/generated/contracts.dart` and are still drift-checked by the
+  SDK-free contract job.
 
 ## Runtime and deployment
 
@@ -122,14 +130,15 @@ Vue 3 PWA (apps/web)          Flutter client (apps/flutter_kairo)
 ## Quality gates
 
 Backend `ruff` + `mypy` (301 source files) + `pytest` (359 tests), Web `vue-tsc` + `vite build` +
-three Playwright packs (locale, roles, release-candidate), Flutter `analyze` +
-`test` (50 tests) + web/Android builds, OpenAPI contract checks
+three Playwright packs (locale, roles, release-candidate), OpenAPI contract checks
 (`scripts/check-openapi-contract.mjs`, generated-contract drift check, client
 route coverage), an opt-in performance regression check
 (`npm run perf:check`, statement counts deterministic), repository guards
 (`check-sensitive-files`, `check-i18n-coverage`, `check-api-collection-paths`)
-and gitleaks history scan.
-Commands of record: `docs/operations/validation-baseline.md`.
+and gitleaks history scan. Flutter `analyze`/`test`/builds are **optional and
+manual** since Sprint 119 (`.github/workflows/flutter-legacy.yml`, ADR-014) and
+never block the release pipeline. Commands of record:
+`docs/operations/validation-baseline.md`.
 
 ## Known structural debt (tracked in Roadmap V2)
 
@@ -192,7 +201,18 @@ Commands of record: `docs/operations/validation-baseline.md`.
   `src/features/` modules (finance workspace 1252 → 216 lines, dashboard
   823 → 104, member admin 771 → 170) without changing behavior or moving
   authorization into the frontend.
-- Status: sprints 108–117 addressed i18n, capabilities, service decomposition,
+- Sprint 118 produced the release candidate: fresh-image dependency pinning,
+  the 0029 → 0033 upgrade with a pre-migration safety backup, encrypted-archive
+  restore and rollback drills, notification outage recovery tests, and a WCAG
+  2.2 AA accessibility pass.
+- Sprint 119 consolidated the client surface: the Vue 3 PWA is the canonical
+  client and Flutter is frozen as legacy/reference code (ADR-014), Flutter
+  analyze/test/builds moved to the manual `flutter-legacy` workflow so they can
+  no longer block `main`, and Flutter-only capability continuity plus the
+  S120–S124 notification/deep-link gaps are recorded in
+  `docs/pwa/FLUTTER_TO_PWA_PARITY.md`.
+- Status: sprints 108–119 addressed i18n, capabilities, service decomposition,
   domain events, notification convergence, the contract boundary, operational
-  health/performance and the module framework; remaining release hardening is
-  tracked by Roadmap V2 sprint 118.
+  health/performance, the module framework, release hardening and the PWA-first
+  client consolidation; the active program is S119–S128 (PWA-first, white-label
+  SaaS).

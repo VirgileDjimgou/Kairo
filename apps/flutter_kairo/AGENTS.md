@@ -2,20 +2,28 @@
 
 ## Purpose
 
-`apps/flutter_kairo/` is the future native-style Kairo client. It is a separate
-application from `apps/web/`, not a migration branch and not a WebView wrapper.
-It will first ship on Android and Flutter Web, while preserving a path to iOS and
-desktop later.
+**Status: FROZEN / LEGACY REFERENCE** (Roadmap V2 Sprint 119, ADR-014).
 
-## Required Reading
+`apps/flutter_kairo/` was the parallel native-style Kairo client. It is now frozen:
+it receives no new business features, is not a blocking job of the default release
+pipeline, and its source is preserved only so it can be consulted for behavior,
+notification and parity reference. The Vue 3 PWA (`apps/web/`) is the canonical
+client. Flutter archival or deletion is a separate explicit decision after S128;
+do not start Flutter business work while the freeze is active.
 
-Before any Flutter change, read in this order:
+Capability continuity, intentional deprecations and the S120–S124
+notification/deep-link gaps are tracked in
+`docs/pwa/FLUTTER_TO_PWA_PARITY.md`.
+
+## Required Reading (reference only)
+
+Before inspecting Flutter reference code, read in this order:
 
 1. `../../AGENTS.md`
-2. `../../docs/flutter/PROJECT_STATUS.md`
-3. `../../docs/flutter/FLUTTER_APP_ROADMAP.md`
-4. `../../docs/flutter/FEATURE_PARITY.md`
-5. `../../prompts/FLUTTER_CONTINUE_UNIVERSAL.md`
+2. `../../docs/pwa/FLUTTER_TO_PWA_PARITY.md`
+3. `../../docs/flutter/PROJECT_STATUS.md`
+4. `../../docs/flutter/FLUTTER_APP_ROADMAP.md`
+5. `../../docs/flutter/FEATURE_PARITY.md`
 6. the relevant existing Vue screen and FastAPI API contract
 
 ## Architecture Rules
