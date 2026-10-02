@@ -398,10 +398,25 @@ class _InboxText {
         'Einnahme bestätigt',
         'Encaissement validé',
       ],
+      'finance.receipt_validated': <String>[
+        'Receipt validated',
+        'Einnahme bestätigt',
+        'Encaissement validé',
+      ],
       'receipt_rejected': <String>[
         'Receipt rejected',
         'Einnahme abgelehnt',
         'Encaissement rejeté',
+      ],
+      'finance.receipt_rejected': <String>[
+        'Receipt rejected',
+        'Einnahme abgelehnt',
+        'Encaissement rejeté',
+      ],
+      'finance.receipt_received_in_treasury': <String>[
+        'Cash received in treasury',
+        'Bargeld in der Kasse eingegangen',
+        'Espèces reçues en caisse',
       ],
       'cash_handover_due': <String>[
         'Cash handover reminder',

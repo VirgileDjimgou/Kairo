@@ -1,1 +1,1 @@
-{"model": "text-embedding-nomic-embed-text-v1.5", "provider": "openai_compatible"}
+{"model": "text-embedding-nomic-embed-text-v1.5", "identity": "text-embedding-nomic-embed-text-v1.5", "dimensions": 1024, "provider": "openai_compatible"}

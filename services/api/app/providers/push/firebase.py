@@ -52,6 +52,9 @@ class FirebaseAdminPushProvider:
                         title=message.title, body=message.body
                     ),
                     data={"target_path": message.target_path},
+                    # Financial workflow alerts must wake a background Android
+                    # client promptly; the inbox remains the authoritative detail.
+                    android=messaging.AndroidConfig(priority="high"),
                 )
             )
             return PushOutcome.DELIVERED
