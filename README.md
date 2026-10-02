@@ -266,8 +266,8 @@ workspace, and works cleanly on desktop and mobile browsers.
 
 | Area | Included capabilities |
 | --- | --- |
-| Members | Registration, member search, profiles, lifecycle controls, address and contact records |
-| Treasury | Contributions, non-member income, expenses, validation queues, custody tracking, exports and budget views |
+| Members | Registration, member search, profiles, lifecycle controls, address and contact records, with optional direct account access |
+| Treasury | Contributions, non-member income, expenses, validation queues, cash custody tracking, exports and budget views |
 | Governance | Role-aware dashboards, documents, policies, announcements, events and an understandable operations journal |
 | Discipline | Confidential disciplinary files, sanction history and explicit read/write boundaries |
 | Continuity | Encrypted backups, integrity checks, scheduled snapshots, recovery centre and PostgreSQL WAL archiving |
@@ -285,6 +285,7 @@ visible additions:
 - **Capability-driven interface** — `/auth/me` exposes effective capabilities; navigation and actions derive from them, with validated per-tenant role bundles.
 - **Module registry and tenant toggles** — every backend module ships a descriptor; `GET /api/v1/modules` returns tenant-filtered navigation metadata, and a disabled module disappears from every client.
 - **Notification convergence** — one canonical pipeline with per-user preferences, Web Push + Android FCM transports, invalid-target disabling, bounded retries, an operator pipeline-health console and tested outage recovery.
+- **Cash-to-treasury workflow** — a secretary can register a member and declare cash received; the treasurer alone validates it, confirms receipt in treasury, and every transition is journalled and notified through the authenticated inbox.
 - **Operational health and performance** — `/health` plus live/ready probes, metrics for both outboxes and backup freshness, a Grafana dashboard package and a committed 200/1000-member performance baseline (`npm run perf:check`).
 - **OpenAPI as the client contract** — versioned schema, breaking-change detection, generated TypeScript/Dart types and route-coverage checks in CI.
 - **Accessibility and i18n depth** — skip link, WCAG 2.2 AA automated audit pack, reduced-motion support and enforced FR/EN/DE parity.
@@ -298,6 +299,7 @@ Full evidence: [Sprint 118 release-candidate record](docs/sprint-118-release-can
 ### Association operations
 
 - Member registration with automatic member codes, structured address, contribution type and optional immediate access.
+- Direct member access with a temporary first-login password that must be replaced before normal use.
 - Progressive member search by name, surname, member code, phone number or email.
 - Read-only member detail panel with authorised contribution and disciplinary history.
 - Member lifecycle controls: edit, pause, reactivate and, for authorised roles, delete.
@@ -308,7 +310,7 @@ Full evidence: [Sprint 118 release-candidate record](docs/sprint-118-release-can
 
 - Individual and family contributions, partial payments and member balance statements.
 - Receipt declarations for contributions, donations, sponsorships, tournament income and other revenue.
-- Treasurer-only validation, rejection with reason, custody handover follow-up and configurable reminders.
+- Treasurer-only validation, rejection with reason, custody handover follow-up, final treasury-receipt confirmation and configurable reminders.
 - Treasurer-only expense recording with categorised annual budget impact.
 - Finance audit workspace, operations journal and exports to Excel, PDF and WhatsApp-ready summaries.
 - Responsive budget charts separating income sources from expenditure categories.
@@ -327,6 +329,7 @@ Full evidence: [Sprint 118 release-candidate record](docs/sprint-118-release-can
 - Accessible confirmation, warning and error notifications with field-level validation feedback.
 - Tenant-isolated inbox, per-user preferences, opt-in Web Push and Android FCM with audited delivery outcomes.
 - Push payloads are deliberately generic; finance and disciplinary detail stays behind authentication.
+- Android FCM opens an allowlisted in-app destination; financial alerts are delivered with high Android priority when the app is in the background.
 - Operator pipeline health (`/notifications/health`) with pending/failed counts and disabled-target visibility.
 
 ### Reliability and privacy
