@@ -42,8 +42,29 @@ export function loadRoadmap(rootDir = findRoot()) {
       throw new Error(`Duplicate roadmap sprint id: ${sprint.id}`);
     }
     ids.add(sprint.id);
+    if (sprint.dependencies !== undefined && !Array.isArray(sprint.dependencies)) {
+      throw new Error(`Sprint ${sprint.id} dependencies must be an array`);
+    }
+    if (typeof sprint.gate_profile !== 'string' || sprint.gate_profile.length === 0) {
+      throw new Error(`Sprint ${sprint.id} must declare a gate_profile`);
+    }
   }
   return parsed;
+}
+
+export function validateDependencies(roadmap) {
+  const positions = new Map(roadmap.sprints.map((sprint, index) => [sprint.id, index]));
+  const problems = [];
+  for (const sprint of roadmap.sprints) {
+    for (const dependency of sprint.dependencies ?? []) {
+      if (!positions.has(dependency)) {
+        problems.push(`S${sprint.id} depends on unknown sprint S${dependency}`);
+      } else if (positions.get(dependency) >= positions.get(sprint.id)) {
+        problems.push(`S${sprint.id} depends on S${dependency}, which is not ordered before it`);
+      }
+    }
+  }
+  return { ok: problems.length === 0, problems };
 }
 
 export function getSprint(roadmap, id) {

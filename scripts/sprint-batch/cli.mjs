@@ -1,5 +1,6 @@
 #!/usr/bin/env node
-import { existsSync } from 'node:fs';
+import { existsSync, readFileSync } from 'node:fs';
+import { resolve } from 'node:path';
 import { spawnSync } from 'node:child_process';
 import {
   acquireLock,
@@ -9,16 +10,21 @@ import {
   ensureStateDir,
   findSprintState,
   heartbeat,
+  isLockStale,
   isStopRequested,
   loadLock,
   loadState,
   LockConflictError,
   markSprint,
+  pauseForHuman,
   recordBatch,
+  recordRepairAttempt,
+  reconcileSprints,
   releaseLock,
   requestStop,
   saveState,
 } from './state.mjs';
+import { loadHandoff, normalizeHandoff, writeHandoff } from './handoff.mjs';
 import {
   dependenciesSatisfied,
   findRoot,
@@ -36,6 +42,7 @@ import {
 import { formatDoctor, runDoctor } from './doctor.mjs';
 
 const MAX_BATCH = 10;
+const MAX_REPAIR_ATTEMPTS = 3;
 const TERMINAL_STATES = new Set(['completed', 'failed', 'idle']);
 
 function fail(message, code = 1) {
@@ -49,7 +56,18 @@ function gitSha(rootDir) {
 }
 
 function parseArgs(argv) {
-  const options = { count: null, resume: false, json: false, sprint: null, reason: null, summary: null, verdict: null };
+  const options = {
+    count: null,
+    resume: false,
+    json: false,
+    sprint: null,
+    reason: null,
+    summary: null,
+    verdict: null,
+    dryRun: false,
+    file: null,
+    humanResolved: false,
+  };
   const positional = [];
   for (let index = 0; index < argv.length; index += 1) {
     const arg = argv[index];
@@ -57,6 +75,13 @@ function parseArgs(argv) {
       options.resume = true;
     } else if (arg === '--json') {
       options.json = true;
+    } else if (arg === '--dry-run') {
+      options.dryRun = true;
+    } else if (arg === '--human-resolved') {
+      options.humanResolved = true;
+    } else if (arg === '--file') {
+      options.file = argv[index + 1];
+      index += 1;
     } else if (arg === '--count') {
       options.count = Number(argv[index + 1]);
       index += 1;
@@ -164,7 +189,140 @@ function printStartOutput(rootDir, roadmap, state, sprint, attempts) {
   console.log('  6. Then continue immediately with the next sprint until the requested count is reached.');
 }
 
+function buildHumanReport(state, sprint, blockingReason) {
+  const remaining = Math.max(0, (state.requested_count ?? 0) - (state.completed_count ?? 0));
+  const lines = [];
+  lines.push('KAIRO HUMAN STOP REPORT');
+  lines.push('');
+  lines.push(`Completed: ${state.completed_count ?? 0}/${state.requested_count ?? 0} sprints in batch ${state.batch_id}`);
+  lines.push(`Current sprint: ${sprint ? `S${sprint.id} — ${sprint.title}` : 'none'}`);
+  lines.push(`Current checkpoint: ${state.current_phase ?? 'unknown'}`);
+  lines.push(`Remaining requested batch: ${remaining}`);
+  lines.push(`Blocking reason: ${blockingReason}`);
+  lines.push('Exact human action required: resolve the blocking condition, then resume the batch explicitly.');
+  lines.push('How to validate completion: run "npm run sprint:batch:doctor" and "npm run sprint:batch:status" after resuming.');
+  lines.push('Resume command: Start Next Sprint Resume');
+  return lines.join('\n');
+}
+
+function assertSprintRepairable(rootDir, state, sprint, options) {
+  const sprintState = findSprintState(state, sprint.id);
+  const attempts = sprintState?.repair_attempts ?? 0;
+  if (attempts >= MAX_REPAIR_ATTEMPTS && state.status === 'paused_for_human' && !options.humanResolved) {
+    console.log(buildHumanReport(
+      state,
+      sprint,
+      `Repair limit reached (${attempts}/${MAX_REPAIR_ATTEMPTS}): ${state.pause_reason ?? sprintState?.last_error ?? 'unresolved failure'}`,
+    ));
+    process.exit(2);
+  }
+  if (options.humanResolved && sprintState) {
+    sprintState.repair_attempts = 0;
+    sprintState.last_error = null;
+    state.repair_attempt = 0;
+    state.pause_reason = null;
+    state.last_error = null;
+    saveState(rootDir, state);
+  }
+}
+
+function buildDryRunPlan(rootDir, roadmap, options) {
+  let state = loadState(rootDir);
+  let existingBatch = true;
+  if (!state || TERMINAL_STATES.has(state.status)) {
+    existingBatch = false;
+    const requested = options.count ?? state?.requested_count ?? 1;
+    const inherited = completedSprintsFromHistory(rootDir);
+    const completedFromState = new Map(
+      (state?.sprints ?? [])
+        .filter((sprint) => sprint.status === 'completed')
+        .map((sprint) => [sprint.id, sprint.completed_at ?? null]),
+    );
+    state = {
+      batch_id: '(new batch)',
+      status: 'idle',
+      requested_count: Math.max(1, Math.min(MAX_BATCH, requested)),
+      completed_count: 0,
+      current_sprint: null,
+      current_phase: null,
+      sprints: [],
+    };
+    for (const sprint of roadmap.sprints) {
+      const inheritedAt = completedFromState.has(sprint.id)
+        ? completedFromState.get(sprint.id)
+        : inherited.get(sprint.id);
+      state.sprints.push({
+        id: sprint.id,
+        title: sprint.title,
+        status: inheritedAt !== undefined ? 'completed' : 'pending',
+        inherited: inheritedAt !== undefined,
+        attempts: 0,
+        repair_attempts: 0,
+        handoff: null,
+        last_error: null,
+        completed_at: inheritedAt ?? null,
+      });
+    }
+  } else {
+    reconcileSprints(rootDir, state, roadmap, { persist: false });
+  }
+  const sprint = options.sprint
+    ? roadmap.sprints.find((entry) => entry.id === options.sprint) ?? null
+    : (() => {
+      const completed = new Set(
+        state.sprints.filter((entry) => entry.status === 'completed').map((entry) => entry.id),
+      );
+      return roadmap.sprints.find((entry) => !completed.has(entry.id)) ?? null;
+    })();
+  const sprintState = sprint ? findSprintState(state, sprint.id) : null;
+  const dependencies = sprint
+    ? dependenciesSatisfied(roadmap, state, sprint)
+    : { ok: true, blocking: [] };
+  return { state, sprint, sprintState, dependencies, existingBatch };
+}
+
+function commandDryRun(rootDir, options) {
+  const roadmap = loadRoadmap(rootDir);
+  const plan = buildDryRunPlan(rootDir, roadmap, options);
+  console.log('KAIRO SPRINT BATCH — DRY RUN');
+  console.log('No state file, lock, or repository file was modified.');
+  console.log('');
+  if (options.json) {
+    console.log(JSON.stringify({
+      existing_batch: plan.existingBatch,
+      batch_id: plan.state.batch_id,
+      requested_count: plan.state.requested_count,
+      completed_count: plan.state.completed_count,
+      next_sprint: plan.sprint ? { id: plan.sprint.id, title: plan.sprint.title, phase: plan.sprint.phase } : null,
+      dependencies_satisfied: plan.dependencies.ok,
+      blocking: plan.dependencies.blocking,
+      repair_attempts: plan.sprintState?.repair_attempts ?? 0,
+    }, null, 2));
+    return;
+  }
+  console.log(`Batch: ${plan.state.batch_id}${plan.existingBatch ? '' : ' (would be created)'}`);
+  console.log(`Requested: ${plan.state.requested_count}`);
+  console.log(`Completed so far: ${plan.state.completed_count}`);
+  if (!plan.sprint) {
+    console.log('Next sprint: none (roadmap exhausted or all sprints completed).');
+    return;
+  }
+  console.log(`Next sprint: S${plan.sprint.id} — ${plan.sprint.title}`);
+  console.log(`Phase: ${plan.sprint.phase}`);
+  console.log(`Dependencies satisfied: ${plan.dependencies.ok ? 'yes' : 'no'}`);
+  if (!plan.dependencies.ok) {
+    console.log(`Blocking dependencies: ${plan.dependencies.blocking.map((id) => `S${id}`).join(', ')}`);
+  }
+  console.log(`Repair attempts recorded: ${plan.sprintState?.repair_attempts ?? 0}/${MAX_REPAIR_ATTEMPTS}`);
+  console.log('');
+  console.log(formatSprintSpec(plan.sprint));
+}
+
 function commandStart(rootDir, options) {
+  if (options.dryRun) {
+    commandDryRun(rootDir, options);
+    return;
+  }
   const roadmap = loadRoadmap(rootDir);
   const requested = options.count ?? 1;
   const count = Math.max(1, Math.min(MAX_BATCH, requested));
@@ -219,29 +377,37 @@ function commandStart(rootDir, options) {
 }
 
 function commandResume(rootDir, options, existingState, roadmap) {
+  if (options.dryRun) {
+    commandDryRun(rootDir, options);
+    return;
+  }
   const state = existingState ?? requireState(rootDir);
+  const activeRoadmap = roadmap ?? loadRoadmap(rootDir);
   if (TERMINAL_STATES.has(state.status) && state.completed_count >= state.requested_count) {
     console.log(`Batch ${state.batch_id} is already ${state.status}. Nothing to resume.`);
     return;
   }
-  state.status = 'running';
-  clearStop(state);
-  saveState(rootDir, state);
-  const sprint = currentSprintFor(rootDir, state, roadmap, options.sprint ?? state.current_sprint);
+  reconcileSprints(rootDir, state, activeRoadmap);
+  const sprint = currentSprintFor(rootDir, state, activeRoadmap, options.sprint ?? state.current_sprint);
   if (!sprint) {
     console.log('All sprints in this batch are complete.');
     return;
   }
+  assertSprintRepairable(rootDir, state, sprint, options);
   const sprintState = findSprintState(state, sprint.id);
   const resumedPhase = sprintState?.status === 'completed' ? 'pending' : (sprintState?.status ?? 'pending');
-  const { attempts } = beginSprint(rootDir, roadmap, state, sprint);
+  state.status = 'running';
+  state.pause_reason = null;
+  clearStop(state);
+  saveState(rootDir, state);
+  const { attempts } = beginSprint(rootDir, activeRoadmap, state, sprint);
   if (options.json) {
     console.log(JSON.stringify({ batch: state.batch_id, status: state.status, sprint: sprint.id, resumed_from: resumedPhase }, null, 2));
     return;
   }
   console.log(`Resuming batch ${state.batch_id} (resumed sprint ${sprint.id} from phase ${resumedPhase}).`);
   console.log('');
-  printStartOutput(rootDir, roadmap, state, sprint, attempts);
+  printStartOutput(rootDir, activeRoadmap, state, sprint, attempts);
 }
 
 function commandBegin(rootDir, options) {
@@ -327,15 +493,27 @@ function commandComplete(rootDir, options) {
     fail('Verdict must be PASS, BLOCKED or FAILED.', 1);
   }
   if (verdict === 'PASS') {
+    const handoff = loadHandoff(rootDir, sprint.id);
+    if (!handoff) {
+      fail(
+        `Sprint ${sprint.id} has no handoff file, so it cannot be marked PASS.\n`
+        + `Write it first: node scripts/sprint-batch/cli.mjs handoff --sprint ${sprint.id} --file <handoff.json>\n`
+        + 'The required fields are documented in docs/automation/SPRINT_BATCH_AUTOPILOT.md.',
+        1,
+      );
+    }
     const sprintState = findSprintState(state, sprint.id);
     if (sprintState && sprintState.status !== 'completed') {
       markSprint(rootDir, state, sprint.id, 'verifying');
       markSprint(rootDir, state, sprint.id, 'evaluating');
       markSprint(rootDir, state, sprint.id, 'completed', {
         verification: { self_review: true },
+        handoff: `.kairo/sprint-batch/handoffs/sprint-${sprint.id}.json`,
       });
     } else {
-      markSprint(rootDir, state, sprint.id, 'completed');
+      markSprint(rootDir, state, sprint.id, 'completed', {
+        handoff: `.kairo/sprint-batch/handoffs/sprint-${sprint.id}.json`,
+      });
     }
     batchSummaryFromSprint(rootDir, state, sprint, 'PASS', options);
     return;
@@ -366,6 +544,135 @@ function commandComplete(rootDir, options) {
   process.exitCode = 2;
 }
 
+function commandHandoff(rootDir, options) {
+  const roadmap = loadRoadmap(rootDir);
+  const state = requireState(rootDir);
+  const sprint = currentSprintFor(rootDir, state, roadmap, options.sprint ?? state.current_sprint);
+  if (!sprint) {
+    fail('No unfinished sprint found in the current batch.', 1);
+  }
+  if (!options.file) {
+    fail('Usage: node scripts/sprint-batch/cli.mjs handoff --sprint <id> --file <handoff.json>', 1);
+  }
+  const path = resolve(rootDir, options.file);
+  if (!existsSync(path)) {
+    fail(`Handoff file not found: ${path}`, 1);
+  }
+  let parsed;
+  try {
+    parsed = JSON.parse(readFileSync(path, 'utf8'));
+  } catch (error) {
+    fail(`Handoff file is not parseable JSON: ${error.message}`, 1);
+  }
+  const handoff = normalizeHandoff(parsed, sprint.id);
+  const written = writeHandoff(rootDir, handoff);
+  const sprintState = findSprintState(state, sprint.id);
+  if (sprintState) {
+    sprintState.handoff = `.kairo/sprint-batch/handoffs/sprint-${sprint.id}.json`;
+    saveState(rootDir, state);
+  }
+  heartbeat(rootDir, state.batch_id, 'handoff', sprint.id);
+  console.log(`Handoff for sprint ${sprint.id} written: ${written}`);
+}
+
+function commandRepair(rootDir, options) {
+  const roadmap = loadRoadmap(rootDir);
+  const state = requireState(rootDir);
+  const sprint = currentSprintFor(rootDir, state, roadmap, options.sprint ?? state.current_sprint);
+  if (!sprint) {
+    fail('No unfinished sprint found in the current batch.', 1);
+  }
+  const reason = options.reason ?? options.summary ?? 'verification failure';
+  const attempts = recordRepairAttempt(rootDir, state, sprint.id, reason);
+  markSprint(rootDir, state, sprint.id, 'implementing', { last_error: reason });
+  heartbeat(rootDir, state.batch_id, 'repairing', sprint.id);
+  if (attempts >= MAX_REPAIR_ATTEMPTS) {
+    pauseForHuman(
+      rootDir,
+      state,
+      `Repair limit reached (${attempts}/${MAX_REPAIR_ATTEMPTS}) for sprint ${sprint.id}: ${reason}`,
+      sprint.id,
+    );
+    console.log(`Repair limit reached (${attempts}/${MAX_REPAIR_ATTEMPTS}).`);
+    console.log('');
+    console.log(buildHumanReport(state, sprint, `Repair limit reached (${attempts}/${MAX_REPAIR_ATTEMPTS}): ${reason}`));
+    process.exitCode = 2;
+    return;
+  }
+  console.log(`Repair attempt ${attempts}/${MAX_REPAIR_ATTEMPTS} recorded for sprint ${sprint.id}.`);
+  console.log(`Reason: ${reason}`);
+  console.log(`Remaining automatic repair attempts: ${MAX_REPAIR_ATTEMPTS - attempts}.`);
+}
+
+const ACTIVE_SPRINT_PHASES = new Set(['preflight', 'implementing', 'verifying', 'evaluating']);
+
+function commandReset(rootDir, options) {
+  const state = requireState(rootDir);
+  if (TERMINAL_STATES.has(state.status)) {
+    console.log(`Batch ${state.batch_id} is already ${state.status}. Nothing to archive.`);
+    return;
+  }
+  const lock = loadLock(rootDir);
+  if (lock && !lock.released_at && !isLockStale(lock)) {
+    fail('An active runner lock exists. Stop or pause the running agent before archiving the batch.', 3);
+  }
+  const inProgress = (state.sprints ?? []).filter((sprint) => ACTIVE_SPRINT_PHASES.has(sprint.status));
+  if (inProgress.length > 0) {
+    fail(
+      `Batch ${state.batch_id} has sprint(s) in progress: ${inProgress.map((sprint) => `S${sprint.id}`).join(', ')}. `
+      + 'Resume or pause them instead of archiving unfinished work.',
+      1,
+    );
+  }
+  const reason = options.reason ?? options.summary ?? 'operator archive of an orphaned batch';
+  recordBatch(rootDir, {
+    batch_id: state.batch_id,
+    status: 'completed',
+    requested_count: state.requested_count,
+    completed_count: state.completed_count,
+    started_at: state.started_at ?? null,
+    finished_at: new Date().toISOString(),
+    archived: true,
+    archive_reason: reason,
+    sprints: (state.sprints ?? []).map((sprint) => ({
+      id: sprint.id,
+      status: sprint.status,
+      completed_at: sprint.completed_at ?? null,
+      summary: sprint.summary ?? null,
+    })),
+  });
+  state.status = 'completed';
+  state.current_phase = null;
+  state.current_sprint = null;
+  state.stop_requested = false;
+  state.pause_reason = null;
+  state.archive_reason = reason;
+  state.completed_at = new Date().toISOString();
+  saveState(rootDir, state);
+  releaseLock(rootDir);
+  console.log(`Batch ${state.batch_id} archived (${reason}).`);
+  console.log('Start a new batch with: npm run sprint:batch:start -- <N>');
+}
+
+function commandPauseHuman(rootDir, options) {
+  const roadmap = loadRoadmap(rootDir);
+  const state = requireState(rootDir);
+  const sprint = currentSprintFor(rootDir, state, roadmap, options.sprint ?? state.current_sprint);
+  const reason = options.reason ?? options.summary ?? 'human intervention required';
+  pauseForHuman(rootDir, state, reason, sprint?.id ?? state.current_sprint);
+  if (options.json) {
+    console.log(JSON.stringify({
+      batch: state.batch_id,
+      status: state.status,
+      pause_reason: reason,
+      sprint: sprint?.id ?? null,
+      resume_command: 'Start Next Sprint Resume',
+    }, null, 2));
+    return;
+  }
+  console.log(buildHumanReport(state, sprint, reason));
+}
+
 function commandStop(rootDir, options) {
   const state = loadState(rootDir);
   if (!state || TERMINAL_STATES.has(state.status)) {
@@ -383,13 +690,15 @@ function commandStop(rootDir, options) {
   }
 }
 
-function commandPause(rootDir) {
+function commandPause(rootDir, options = {}) {
   const state = requireState(rootDir);
-  requestStop(rootDir, state, 'operator pause');
+  const reason = options.reason ?? 'operator pause';
+  requestStop(rootDir, state, reason);
   state.status = 'paused';
+  state.pause_reason = reason;
   saveState(rootDir, state);
   releaseLock(rootDir);
-  console.log(`Batch ${state.batch_id} paused.`);
+  console.log(`Batch ${state.batch_id} paused (${reason}).`);
 }
 
 function commandStatus(rootDir, options) {
@@ -465,8 +774,25 @@ function main() {
     case 'verify':
       commandPhase(rootDir, options, 'verifying');
       break;
+    case 'preflight':
+      commandPhase(rootDir, options, 'preflight');
+      break;
     case 'evaluate':
       commandPhase(rootDir, options, 'evaluating');
+      break;
+    case 'handoff':
+      commandHandoff(rootDir, options);
+      break;
+    case 'repair':
+      commandRepair(rootDir, options);
+      break;
+    case 'pause-human':
+    case 'human':
+      commandPauseHuman(rootDir, options);
+      break;
+    case 'reset':
+    case 'archive':
+      commandReset(rootDir, options);
       break;
     case 'complete':
       commandComplete(rootDir, options);
@@ -481,7 +807,7 @@ function main() {
       commandStop(rootDir, options);
       break;
     case 'pause':
-      commandPause(rootDir);
+      commandPause(rootDir, options);
       break;
     case 'status':
       commandStatus(rootDir, options);
@@ -498,19 +824,30 @@ function main() {
     default:
       console.log('Kairo sprint batch CLI');
       console.log('');
+      console.log('Canonical operator intents:');
+      console.log('  Start Next Sprint                  one sprint');
+      console.log('  Start Next Sprint N                up to N consecutive sprints (1..10)');
+      console.log('  Start Next Sprint Resume           resume the incomplete batch');
+      console.log('  Start Next Sprints N               backward-compatible alias of "Start Next Sprint N"');
+      console.log('');
       console.log('Commands:');
-      console.log('  start [N|--count N] [--resume]   start or resume a batch');
-      console.log('  resume                            resume the incomplete batch');
-      console.log('  next|begin                        mark and print the next sprint');
-      console.log('  verify --sprint N                 mark the sprint verifying');
-      console.log('  evaluate --sprint N               mark the sprint evaluating');
+      console.log('  start [N|--count N] [--resume] [--dry-run]   start or resume a batch');
+      console.log('  resume [--dry-run] [--human-resolved]        resume the incomplete batch');
+      console.log('  next|begin [--dry-run]                       mark and print the next sprint');
+      console.log('  preflight --sprint N                         mark the sprint preflight');
+      console.log('  verify --sprint N                            mark the sprint verifying');
+      console.log('  evaluate --sprint N                          mark the sprint evaluating');
+      console.log('  handoff --sprint N --file <json>             persist the sprint handoff');
+      console.log('  repair --sprint N [--reason TEXT]            record a repair attempt (max 3)');
       console.log('  complete --sprint N [--verdict PASS|BLOCKED|FAILED] [--summary TEXT]');
       console.log('  block|fail --sprint N --reason TEXT');
-      console.log('  stop | pause                      request stop / pause the batch');
-      console.log('  status [--json]                   batch status');
-      console.log('  doctor [--json]                   environment checks');
-      console.log('  report                            write and print the batch report');
-      console.log('  roadmap [--json]                  list roadmap sprints');
+      console.log('  pause-human [--reason TEXT] [--json]         pause for a mandatory human action');
+      console.log('  reset [--reason TEXT]                        archive an orphaned batch safely');
+      console.log('  stop | pause [--reason TEXT]                 request stop / pause the batch');
+      console.log('  status [--json]                              batch status');
+      console.log('  doctor [--json]                              environment checks');
+      console.log('  report                                       write and print the batch report');
+      console.log('  roadmap [--json]                             list roadmap sprints');
       if (command) {
         process.exitCode = 1;
       }

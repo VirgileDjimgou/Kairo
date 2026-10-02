@@ -3,6 +3,7 @@ import {
   mkdirSync,
   readFileSync,
   renameSync,
+  rmSync,
   writeFileSync,
 } from 'node:fs';
 import { join } from 'node:path';
@@ -12,16 +13,19 @@ export const STATE_STATUSES = [
   'idle',
   'running',
   'paused',
+  'paused_for_human',
   'blocked',
   'completed',
   'failed',
 ];
 export const SPRINT_STATUSES = [
   'pending',
+  'preflight',
   'implementing',
   'verifying',
   'evaluating',
   'completed',
+  'paused',
   'blocked',
   'failed',
 ];
@@ -49,8 +53,13 @@ export function reportsDir(rootDir) {
   return join(stateDir(rootDir), 'reports');
 }
 
+export function handoffsDir(rootDir) {
+  return join(stateDir(rootDir), 'handoffs');
+}
+
 export function ensureStateDir(rootDir) {
   mkdirSync(reportsDir(rootDir), { recursive: true });
+  mkdirSync(handoffsDir(rootDir), { recursive: true });
 }
 
 export function readJsonFile(path, fallback = null) {
@@ -74,9 +83,49 @@ export function loadState(rootDir) {
   return readJsonFile(statePath(rootDir), null);
 }
 
+export function runnerStatusFrom(status) {
+  switch (status) {
+    case 'idle':
+      return 'IDLE';
+    case 'running':
+      return 'RUNNING';
+    case 'paused':
+    case 'paused_for_human':
+      return 'PAUSED_FOR_HUMAN';
+    case 'blocked':
+      return 'BLOCKED';
+    case 'failed':
+      return 'FAILED';
+    case 'completed':
+      return 'COMPLETED';
+    default:
+      return String(status ?? 'IDLE').toUpperCase();
+  }
+}
+
+export function refreshDerivedState(state) {
+  const requested = Number.isFinite(state.requested_count) ? state.requested_count : 0;
+  const completed = Number.isFinite(state.completed_count) ? state.completed_count : 0;
+  state.batch_requested = requested;
+  state.batch_completed = completed;
+  state.batch_remaining = Math.max(0, requested - completed);
+  const sprint = state.current_sprint !== null && state.current_sprint !== undefined
+    ? findSprintState(state, state.current_sprint)
+    : null;
+  state.sprint_status = sprint?.status ?? state.current_phase ?? null;
+  state.runner_status = runnerStatusFrom(state.status);
+  return state;
+}
+
 export function saveState(rootDir, state) {
+  refreshDerivedState(state);
   state.updated_at = new Date().toISOString();
   ensureStateDir(rootDir);
+  const lock = existsSync(lockPath(rootDir)) ? readJsonFile(lockPath(rootDir), null) : null;
+  if (lock && lock.batch_id === state.batch_id) {
+    state.lock_owner = lock.pid ?? null;
+    state.heartbeat = lock.heartbeat_at ?? null;
+  }
   writeJsonFile(statePath(rootDir), state);
   return state;
 }
@@ -99,7 +148,11 @@ export function releaseLock(rootDir) {
       writeJsonFile(path, lock);
     }
     // Rename to a released marker so stale detection never trips on a closed lock.
-    renameSync(path, `${path}.released`);
+    const releasedPath = `${path}.released`;
+    if (existsSync(releasedPath)) {
+      rmSync(releasedPath, { force: true });
+    }
+    renameSync(path, releasedPath);
   }
 }
 
@@ -162,11 +215,12 @@ export class LockConflictError extends Error {
 export function acquireLock(rootDir, batchId, phase = 'starting', sprintId = null) {
   ensureStateDir(rootDir);
   const existing = loadLock(rootDir);
+  let takeover = null;
   if (existing && existing.batch_id !== batchId) {
     if (!isLockStale(existing)) {
       throw new LockConflictError(existing);
     }
-    existing.taken_over_at = new Date().toISOString();
+    takeover = existing.batch_id;
   }
   const now = new Date().toISOString();
   const lock = {
@@ -178,6 +232,10 @@ export function acquireLock(rootDir, batchId, phase = 'starting', sprintId = nul
     phase,
     current_sprint: sprintId,
   };
+  if (takeover) {
+    lock.taken_over_at = now;
+    lock.taken_over_from = takeover;
+  }
   writeLock(rootDir, lock);
   return lock;
 }
@@ -237,10 +295,13 @@ export function createBatch({
         status: 'completed',
         inherited: true,
         attempts: 0,
+        repair_attempts: 0,
         started_at: null,
         completed_at: inheritedCompletedAt ?? new Date().toISOString(),
         verification: { inherited: true },
         summary: 'Completed in an earlier batch; inherited for dependency tracking.',
+        handoff: null,
+        last_error: null,
       };
     }
     return {
@@ -248,10 +309,13 @@ export function createBatch({
       title: sprint.title,
       status: 'pending',
       attempts: 0,
+      repair_attempts: 0,
       started_at: null,
       completed_at: null,
       verification: {},
       summary: null,
+      handoff: null,
+      last_error: null,
     };
   });
   const state = {
@@ -268,6 +332,12 @@ export function createBatch({
     stop_requested: false,
     queue_available: queueAvailable,
     blockers: [],
+    last_successful_gate: null,
+    pause_reason: null,
+    last_error: null,
+    repair_attempt: 0,
+    lock_owner: null,
+    heartbeat: null,
     sprints: sprintEntries,
   };
   return saveState(rootDir, state);
@@ -292,6 +362,7 @@ export function markSprint(rootDir, state, id, status, extra = {}) {
   }
   if (status === 'completed') {
     sprint.completed_at = new Date().toISOString();
+    state.last_successful_gate = `S${id} completed`;
   }
   Object.assign(sprint, extra);
   state.current_sprint = id;
@@ -300,6 +371,67 @@ export function markSprint(rootDir, state, id, status, extra = {}) {
     (entry) => entry.status === 'completed' && !entry.inherited,
   ).length;
   return saveState(rootDir, state);
+}
+
+export function reconcileSprints(rootDir, state, roadmap, { persist = true } = {}) {
+  if (!state || !Array.isArray(state.sprints) || !roadmap || !Array.isArray(roadmap.sprints)) {
+    return false;
+  }
+  let changed = false;
+  for (const sprint of roadmap.sprints) {
+    const existing = findSprintState(state, sprint.id);
+    if (!existing) {
+      state.sprints.push({
+        id: sprint.id,
+        title: sprint.title,
+        status: 'pending',
+        attempts: 0,
+        repair_attempts: 0,
+        started_at: null,
+        completed_at: null,
+        verification: {},
+        summary: null,
+        handoff: null,
+        last_error: null,
+      });
+      changed = true;
+    } else if (existing.title !== sprint.title) {
+      existing.title = sprint.title;
+      changed = true;
+    }
+  }
+  if (changed) {
+    state.sprints.sort((left, right) => left.id - right.id);
+    if (persist) {
+      saveState(rootDir, state);
+    }
+  }
+  return changed;
+}
+
+export function recordRepairAttempt(rootDir, state, id, reason) {
+  const sprint = findSprintState(state, id);
+  if (!sprint) {
+    throw new Error(`Sprint ${id} is not part of the current batch`);
+  }
+  sprint.repair_attempts = (sprint.repair_attempts ?? 0) + 1;
+  sprint.last_error = reason ?? 'verification failure';
+  state.repair_attempt = sprint.repair_attempts;
+  state.last_error = sprint.last_error;
+  saveState(rootDir, state);
+  return sprint.repair_attempts;
+}
+
+export function pauseForHuman(rootDir, state, reason, sprintId = null) {
+  state.status = 'paused_for_human';
+  state.pause_reason = reason ?? 'human intervention required';
+  state.last_error = state.pause_reason;
+  if (sprintId !== null && sprintId !== undefined) {
+    state.current_sprint = sprintId;
+  }
+  saveState(rootDir, state);
+  releaseLock(rootDir);
+  return state;
 }
 
 export function requestStop(rootDir, state, reason = 'operator stop requested') {

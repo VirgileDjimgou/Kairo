@@ -1,9 +1,12 @@
 {
   "roadmap": "KAIRO_V2",
-  "version": 2,
+  "version": 3,
   "created_at": "2026-09-25T00:00:00Z",
-  "baseline": "Post Sprint 99 (Vue 3 PWA production) plus Flutter Sprint F9 (controlled release readiness)",
-  "objective": "STABILIZE -> SIMPLIFY -> DECOUPLE -> STANDARDIZE -> EXTEND -> HARDEN without replacing the stack, weakening tenant isolation, or rewriting remote history.",
+  "updated_at": "2026-10-03T00:00:00Z",
+  "baseline": "Sprints 100-118 completed (V2 stabilization and release candidate) plus the frozen Flutter client as legacy reference",
+  "active_program": "PWA_FIRST_WHITE_LABEL_SAAS",
+  "program_range": "S119-S128",
+  "objective": "CONSOLIDATE the Vue 3 PWA as the canonical client, freeze Flutter as legacy reference, and make Kairo a production-oriented multi-tenant white-label SaaS without replacing the modular monolith, weakening tenant isolation, or rewriting remote history.",
   "canonical_active_roadmap": true,
   "historical_roadmap": "IMPLEMENTATION_ROADMAP.md",
   "concurrency": {
@@ -492,6 +495,231 @@
         "Notification convergence production-ready.",
         "Repository contains no production secrets.",
         "Release candidate can be demonstrated end-to-end."
+      ],
+      "gate_profile": "release"
+    },
+    {
+      "id": 119,
+      "key": "pwa-first-product-consolidation",
+      "title": "PWA-First Product Consolidation",
+      "phase": "CONSOLIDATE",
+      "dependencies": [],
+      "goal": "Make the Vue 3 PWA the canonical supported Kairo client and freeze Flutter as legacy/reference code without deleting it.",
+      "tasks": [
+        "Classify Flutter as FROZEN / LEGACY REFERENCE in architecture documentation, project status and roadmap ownership.",
+        "Stop new Flutter business feature development while preserving the source tree for reference.",
+        "Remove Flutter from the default blocking CI release pipeline and retain optional/manual checks where useful.",
+        "Inventory Flutter-only useful capabilities and build an explicit Flutter-to-PWA parity matrix.",
+        "Identify notification and deep-link gaps that S120-S124 must close.",
+        "Eliminate obsolete active-roadmap dependencies on Flutter.",
+        "Do not delete the Flutter application."
+      ],
+      "acceptance": [
+        "Vue/PWA is documented as the canonical client.",
+        "A Flutter failure cannot make the normal main release pipeline red.",
+        "Every important Flutter-only capability is available in the PWA, planned in S120-S124, or explicitly deprecated.",
+        "Flutter source remains present as legacy reference."
+      ],
+      "gate_profile": "docs"
+    },
+    {
+      "id": 120,
+      "key": "unified-pwa-service-worker",
+      "title": "Unified PWA Service Worker",
+      "phase": "PWA",
+      "dependencies": [119],
+      "goal": "Create a single reliable PWA/notification Service Worker architecture with one canonical Service Worker and no competing registrations.",
+      "tasks": [
+        "Adopt Vue 3 + Vite + vite-plugin-pwa with injectManifest and a custom Service Worker.",
+        "Handle install, activate, cache lifecycle, offline strategy and update detection in one canonical worker.",
+        "Handle Firebase background messaging, notification click, focused-window reuse and opening a new application window.",
+        "Support clients.matchAll(), client.focus(), clients.openWindow() and postMessage().",
+        "Implement the SERVICE WORKER -> NAVIGATE(targetPath) -> VUE ROUTER contract.",
+        "Cover app open, backgrounded, closed, multiple tabs, standalone PWA and browser-window cases."
+      ],
+      "acceptance": [
+        "On an Android-compatible browser a notification click focuses the existing PWA or opens it.",
+        "The PWA lands on the exact target route with no unnecessary dashboard redirect.",
+        "Only one Service Worker controls the application origin and scope.",
+        "Offline and update behavior remain correct."
+      ],
+      "gate_profile": "pwa"
+    },
+    {
+      "id": 121,
+      "key": "web-push-fcm-installation-registration",
+      "title": "Web Push / FCM Installation Registration",
+      "phase": "PWA",
+      "dependencies": [120],
+      "goal": "Reach browser notification delivery parity with the useful Flutter implementation through a normalized installation model.",
+      "tasks": [
+        "Create or normalize the browser installation model: tenant_id, user_id, installation_id, provider, push token/subscription, platform, browser, device metadata, status, created_at, updated_at, last_seen_at, revoked_at.",
+        "Implement notification permission UX, Firebase Web Messaging, VAPID configuration, token registration and token renewal.",
+        "Support installation identity, multiple devices, multiple browsers, logout revocation, invalid-token cleanup, tenant switching and notification preferences.",
+        "Add retry telemetry.",
+        "Never use Firebase topics as the authorization mechanism; backend recipient resolution stays authoritative."
+      ],
+      "acceptance": [
+        "One user can safely use multiple installations.",
+        "No notification can leak between tenants.",
+        "Sign-out invalidates the corresponding push binding.",
+        "Tenant isolation tests cover installations and push tokens."
+      ],
+      "gate_profile": "notifications"
+    },
+    {
+      "id": 122,
+      "key": "actionable-notifications-secure-deep-links",
+      "title": "Actionable Notifications And Secure Deep Links",
+      "phase": "PWA",
+      "dependencies": [121],
+      "goal": "Make notification interaction and deep links equivalent to the useful Flutter behavior, with privacy-safe payloads and allowlisted internal routes.",
+      "tasks": [
+        "Define one canonical notification envelope: notification_id, event_id, tenant_id, event_type, category, priority, target_path, deduplication_key, correlation_id, safe_metadata.",
+        "Keep push payloads privacy-safe; sensitive detail stays behind authenticated API access.",
+        "Implement push -> click -> application -> authentication -> tenant verification -> capability verification -> resource authorization -> exact target.",
+        "Never allow arbitrary external navigation from an untrusted payload; use internal route allowlisting or route validation.",
+        "Fallback to the authenticated notification inbox when the target is inaccessible.",
+        "Validate payment, contribution, receipt declaration, cash handover, treasury confirmation, expense, announcement, event, disciplinary and administrative cases."
+      ],
+      "acceptance": [
+        "No sensitive finance or disciplinary detail appears in a push payload.",
+        "Every notification target resolves through an allowlisted internal route.",
+        "INACCESSIBLE target falls back safely to the authenticated inbox.",
+        "Representative business cases are covered by tests."
+      ],
+      "gate_profile": "notifications"
+    },
+    {
+      "id": 123,
+      "key": "white-label-tenant-branding",
+      "title": "White-Label Tenant Branding",
+      "phase": "WHITELABEL",
+      "dependencies": [119],
+      "goal": "Separate platform identity from tenant identity through canonical TenantBranding configuration with safe Kairo defaults.",
+      "tasks": [
+        "Introduce canonical TenantBranding: display_name, short_name, legal_name, logo, logo_dark, favicon, icon_192, icon_512, maskable_icon, primary_color, secondary_color, background_color, theme_color, notification_name, support_name, support_email, custom_domain.",
+        "Apply branding consistently to authentication, navigation shell, dashboard, loading/splash, favicon, page title, PWA metadata, launcher identity, icons, notification sender and transactional email presentation where relevant.",
+        "Provide safe Kairo defaults.",
+        "Ensure no business logic depends on branding.",
+        "Configure the COMBIS pilot through configuration only, with no COMBIS-specific conditional code."
+      ],
+      "acceptance": [
+        "Branding is tenant-scoped configuration, never hardcoded product logic.",
+        "Default Kairo branding applies when a tenant has no branding.",
+        "All listed surfaces consume the same branding contract.",
+        "COMBIS branding requires configuration only."
+      ],
+      "gate_profile": "whitelabel"
+    },
+    {
+      "id": 124,
+      "key": "tenant-aware-pwa-installation",
+      "title": "Tenant-Aware PWA Installation",
+      "phase": "WHITELABEL",
+      "dependencies": [123, 120],
+      "goal": "Make an installed PWA look like the tenant's own application on Android, including tenant-aware manifest, icons, name and install UX.",
+      "tasks": [
+        "Implement tenant-aware manifest, application name, short name, icon, maskable icon, theme color, background color, start URL and scope strategy.",
+        "Add installation UX: beforeinstallprompt where available, custom CTA, appinstalled, standalone-mode detection, already-installed UX where feasible, browser-specific fallback guidance and post-install onboarding.",
+        "Do not request notification permission immediately on first visit; ask after meaningful interaction or during an explicit notification-enablement step.",
+        "Validate the target journey: link -> authenticate/onboard -> Installer <TENANT> -> installation -> launcher search -> standalone launch."
+      ],
+      "acceptance": [
+        "An installed COMBIS PWA shows COMBIS rather than Kairo.",
+        "Manifest, icons and theme are tenant-aware and validated at phone width.",
+        "Installation is offered without aggressive permission prompts.",
+        "No separate frontend codebase is created per association."
+      ],
+      "gate_profile": "pwa"
+    },
+    {
+      "id": 125,
+      "key": "tenant-domains-host-based-resolution",
+      "title": "Tenant Domains And Host-Based Resolution",
+      "phase": "WHITELABEL",
+      "dependencies": [123],
+      "goal": "Allow association-specific addresses without duplicating deployments through canonical host-based tenant resolution.",
+      "tasks": [
+        "Support combis.<platform-domain>, association-x.<platform-domain> and prepare app.customer-domain.de.",
+        "Implement explicit allowed-host mapping and reject unknown mappings.",
+        "Never trust a client-supplied tenant override; enforce a canonical tenant/domain relation.",
+        "Review HTTPS production requirements, cookies/session behavior, CORS, CSRF, Service Worker origin/scope and Web Push origin constraints.",
+        "Document tenant onboarding: create tenant -> branding -> domain -> TLS -> principal admin -> permissions -> PWA installation."
+      ],
+      "acceptance": [
+        "Host-based tenant resolution is explicit and server-authoritative.",
+        "Unknown hosts cannot select a tenant.",
+        "Cross-tenant leakage through domains, cookies or Service Worker scope is tested and prevented.",
+        "Tenant onboarding is documented end to end."
+      ],
+      "gate_profile": "whitelabel"
+    },
+    {
+      "id": 126,
+      "key": "notification-outbox-reliability",
+      "title": "Notification Outbox Reliability",
+      "phase": "RELIABILITY",
+      "dependencies": [],
+      "goal": "Remove the production reliability gap where a processing event can be permanently stranded after a worker crash.",
+      "tasks": [
+        "Implement processing lease, processing timestamp, stale-processing detection and automatic reclaim.",
+        "Add retry count, bounded retry policy, backoff, idempotent delivery, deduplication and failed/dead-letter state.",
+        "Persist reason/error details and add a reconciliation task with health/metrics visibility.",
+        "Apply equivalent reliability principles to domain-event dispatch where relevant."
+      ],
+      "acceptance": [
+        "A simulated worker crash after claiming an event does not strand it permanently.",
+        "Another worker reclaims the expired lease and delivers the event.",
+        "No duplicate business side effects are produced.",
+        "Health and metrics expose stranded, retrying and dead-letter events."
+      ],
+      "gate_profile": "backend"
+    },
+    {
+      "id": 127,
+      "key": "green-ci-reproducible-builds-repository-hygiene",
+      "title": "Green CI, Reproducible Builds And Repository Hygiene",
+      "phase": "HARDEN",
+      "dependencies": [],
+      "goal": "Make main consistently green and reproducible, and remove runtime evidence from the tracked repository without weakening security checks.",
+      "tasks": [
+        "Install Tesseract correctly in CI so OCR tests pass and are never skipped.",
+        "Ensure OpenAPI generation emits pure machine-readable JSON with no logging pollution.",
+        "Restore generated TypeScript contract checks after the Flutter freeze.",
+        "Remove inappropriate tracked runtime evidence without weakening the sensitive-file checker; move screenshots, XML dumps, Playwright artifacts, test videos, device captures and temporary exports to CI artifacts or non-versioned storage.",
+        "Run secret scanning after guard checks.",
+        "Implement Python lock/constraints, deterministic npm lock, reproducible production dependencies and appropriate image/version pinning.",
+        "Build the actual production image in CI, start it and run a basic health/readiness check."
+      ],
+      "acceptance": [
+        "Mandatory default pipeline passes: Security, API, Contracts, Web, Production.",
+        "Flutter is not a blocking release job.",
+        "OCR tests run and pass in CI.",
+        "Dependency resolution is deterministic and the production image is health-checked."
+      ],
+      "gate_profile": "ci"
+    },
+    {
+      "id": 128,
+      "key": "real-full-stack-release-gate-combis-pilot",
+      "title": "Real Full-Stack Release Gate And COMBIS Pilot",
+      "phase": "RELEASE",
+      "dependencies": [122, 124, 125, 126, 127],
+      "goal": "Verify Kairo as a real integrated SaaS platform with a deterministic production-like environment and prepare the COMBIS real-device pilot checklist.",
+      "tasks": [
+        "Build a deterministic production-like test environment: PostgreSQL, Redis, MinIO, API, Celery worker, Vue/PWA, using seeded test tenants (COMBIS roles and a Tenant X isolation control).",
+        "Execute at least one important business scenario through browser -> Vue -> real API -> real database -> domain event -> outbox -> worker -> notification inbox -> deep-link contract -> target route -> authorization, without API mocking.",
+        "Verify tenant isolation, role/capability authorization, finance lifecycle, notification creation, preferences, installation registration, logout/revocation, branding, tenant manifest, custom host resolution, Service Worker, PWA installability, application update, offline behavior where supported, accessibility, FR/EN/DE and responsive Android viewport.",
+        "Prepare the explicit COMBIS real-device pilot checklist for Chrome Android, including closed-application notification, exact deep link, token revocation and application update.",
+        "Update CURRENT_ARCHITECTURE, PROJECT_STATUS, active roadmap, notification architecture, PWA architecture, white-label architecture, tenant onboarding, deployment, COMBIS pilot instructions, known limitations and the operational checklist.",
+        "Never claim production readiness unless the defined automated gates pass; pause the runner for manual real-device validation when no automated equivalent exists."
+      ],
+      "acceptance": [
+        "The full-stack scenario passes against real seeded infrastructure without API mocking.",
+        "Tenant isolation and authorization are proven for the representative scenario.",
+        "The COMBIS pilot checklist exists and its manual steps are marked as human-validated or explicitly pending.",
+        "Documentation reflects the implemented reality; no fabricated PASS is recorded."
       ],
       "gate_profile": "release"
     }

@@ -1,4 +1,4 @@
-# Kairo Roadmap V2 — Sprint 100 To Sprint 118
+# Kairo Roadmap V2 — Sprint 100 To Sprint 128
 
 Status: ACTIVE (canonical execution roadmap)
 
@@ -9,14 +9,23 @@ read-only for planning purposes.
 Machine-readable companion: `docs/roadmap/KAIRO_V2_ROADMAP.json`.
 Execution policy: `docs/automation/SPRINT_BATCH_AUTOPILOT.md`.
 
-Objective: **STABILIZE → SIMPLIFY → DECOUPLE → STANDARDIZE → EXTEND → HARDEN**.
+Sprints 100–118 are complete. The active program is **S119–S128: PWA-first,
+white-label SaaS**. The Vue 3 PWA is the canonical client; the Flutter client is
+frozen as legacy/reference code and receives no new business features.
+
+Objective: **CONSOLIDATE → PWA → NOTIFICATIONS → WHITE-LABEL → RELIABILITY → HARDEN → RELEASE**.
 
 Constraints that apply to every sprint:
 
 - preserve tenant isolation, backend-owned permissions, capability enforcement, audit
   integrity and transaction correctness;
 - preserve the modular monolith (no microservices, no Kafka);
-- preserve Vue PWA production viability and the Flutter client track;
+- the Vue 3 PWA is the canonical client; Flutter is frozen as legacy/reference code,
+  receives no new business features and must not block the default release pipeline;
+- white-label branding, domains, manifests and notification identity come from tenant
+  configuration, never from hardcoded product logic;
+- authorization remains server-owned; PWA manifests, Service Workers, notification
+  payloads, Firebase topics and client role checks are never security boundaries;
 - preserve API backward compatibility unless a migration is explicitly planned;
 - never expose finance or disciplinary detail through push notifications;
 - retrieval authorization must happen before prompt assembly;
@@ -684,3 +693,315 @@ Phase: HARDEN. Dependencies: 117.
 - Notification convergence production-ready.
 - Repository contains no production secrets.
 - Release candidate can be demonstrated end-to-end.
+
+---
+
+## Sprint 119 — PWA-First Product Consolidation
+
+Phase: CONSOLIDATE. Dependencies: none.
+
+**Goal:** Make the Vue 3 PWA the canonical supported Kairo client and freeze Flutter
+as legacy/reference code without deleting it.
+
+**Tasks**
+
+- Classify Flutter as `FROZEN / LEGACY REFERENCE` in architecture documentation,
+  project status and roadmap ownership.
+- Stop new Flutter business feature development while preserving the source tree.
+- Remove Flutter from the default blocking CI release pipeline; retain
+  optional/manual checks where useful.
+- Inventory Flutter-only useful capabilities and build an explicit Flutter → PWA
+  parity matrix.
+- Identify notification/deep-link gaps that S120–S124 must close.
+- Eliminate obsolete active-roadmap dependencies on Flutter.
+- Do not delete the Flutter application.
+
+**Acceptance**
+
+- Vue/PWA is documented as the canonical client.
+- A Flutter failure cannot make the normal `main` release pipeline red.
+- Every important Flutter-only capability is available in the PWA, planned in
+  S120–S124, or explicitly deprecated.
+- Flutter source remains present as legacy reference.
+
+---
+
+## Sprint 120 — Unified PWA Service Worker
+
+Phase: PWA. Dependencies: 119.
+
+**Goal:** Create a single reliable PWA/notification Service Worker architecture with
+one canonical worker and no competing registrations.
+
+**Tasks**
+
+- Adopt Vue 3 + Vite + `vite-plugin-pwa` with `injectManifest` and a custom Service
+  Worker.
+- Handle install, activate, cache lifecycle, offline strategy and update detection in
+  the canonical worker.
+- Handle Firebase background messaging, notification click, focused-window reuse and
+  opening a new application window.
+- Support `clients.matchAll()`, `client.focus()`, `clients.openWindow()` and
+  `postMessage()`.
+- Implement the `SERVICE WORKER → NAVIGATE(targetPath) → VUE ROUTER` contract.
+- Cover app open, backgrounded, closed, multiple tabs, standalone PWA and browser
+  window.
+
+**Acceptance**
+
+- On an Android-compatible browser, a notification click focuses the existing PWA or
+  opens it.
+- The PWA lands on the exact target route with no unnecessary dashboard redirect.
+- Only one Service Worker controls the application origin and scope.
+- Offline and update behavior remain correct.
+
+---
+
+## Sprint 121 — Web Push / FCM Installation Registration
+
+Phase: PWA. Dependencies: 120.
+
+**Goal:** Reach browser notification delivery parity with the useful Flutter
+implementation through a normalized installation model.
+
+**Tasks**
+
+- Create or normalize the browser installation model: `tenant_id`, `user_id`,
+  `installation_id`, provider, push token/subscription, platform, browser, device
+  metadata, status, `created_at`, `updated_at`, `last_seen_at`, `revoked_at`.
+- Implement notification permission UX, Firebase Web Messaging, VAPID configuration,
+  token registration and token renewal.
+- Support installation identity, multiple devices, multiple browsers, logout
+  revocation, invalid-token cleanup, tenant switching and notification preferences.
+- Add retry telemetry.
+- Never use Firebase topics as the authorization mechanism; backend recipient
+  resolution stays authoritative.
+
+**Acceptance**
+
+- One user can safely use multiple installations.
+- No notification can leak between tenants.
+- Sign-out invalidates the corresponding push binding.
+- Tenant isolation tests cover installations and push tokens.
+
+---
+
+## Sprint 122 — Actionable Notifications And Secure Deep Links
+
+Phase: PWA. Dependencies: 121.
+
+**Goal:** Make notification interaction and deep links equivalent to the useful
+Flutter behavior, with privacy-safe payloads and allowlisted internal routes.
+
+**Tasks**
+
+- Define one canonical notification envelope: `notification_id`, `event_id`,
+  `tenant_id`, `event_type`, `category`, `priority`, `target_path`,
+  `deduplication_key`, `correlation_id`, `safe_metadata`.
+- Keep push payloads privacy-safe; sensitive detail remains behind authenticated API
+  access.
+- Implement push → click → application → authentication → tenant verification →
+  capability verification → resource authorization → exact target.
+- Never allow arbitrary external navigation from an untrusted payload; use internal
+  route allowlisting or route validation.
+- Fall back to the authenticated notification inbox when the target is inaccessible.
+- Validate payment, contribution, receipt declaration, cash handover, treasury
+  confirmation, expense, announcement, event, disciplinary and administrative cases.
+
+**Acceptance**
+
+- No sensitive finance or disciplinary detail appears in a push payload.
+- Every notification target resolves through an allowlisted internal route.
+- An inaccessible target falls back safely to the authenticated inbox.
+- Representative business cases are covered by tests.
+
+---
+
+## Sprint 123 — White-Label Tenant Branding
+
+Phase: WHITELABEL. Dependencies: 119.
+
+**Goal:** Separate platform identity from tenant identity through canonical
+`TenantBranding` configuration with safe Kairo defaults.
+
+**Tasks**
+
+- Introduce canonical `TenantBranding`: `display_name`, `short_name`, `legal_name`,
+  logo, dark logo, favicon, 192/512 icons, maskable icon, primary/secondary/background/
+  theme colors, notification name, support name/e-mail, custom domain.
+- Apply branding consistently to authentication, navigation shell, dashboard,
+  loading/splash, favicon, page title, PWA metadata, launcher identity, icons,
+  notification sender and transactional email presentation where relevant.
+- Provide safe Kairo defaults; no business logic may depend on branding.
+- Configure the COMBIS pilot through configuration only, with no COMBIS-specific
+  conditional code.
+
+**Acceptance**
+
+- Branding is tenant-scoped configuration, never hardcoded product logic.
+- Default Kairo branding applies when a tenant has no branding.
+- All listed surfaces consume the same branding contract.
+- COMBIS branding requires configuration only.
+
+---
+
+## Sprint 124 — Tenant-Aware PWA Installation
+
+Phase: WHITELABEL. Dependencies: 123, 120.
+
+**Goal:** Make an installed PWA look like the tenant's own application on Android,
+including tenant-aware manifest, icons, name and install UX.
+
+**Tasks**
+
+- Implement tenant-aware manifest, application name, short name, icon, maskable icon,
+  theme color, background color, start URL and scope strategy.
+- Add installation UX: `beforeinstallprompt` where available, custom CTA,
+  `appinstalled`, standalone-mode detection, already-installed UX where feasible,
+  browser-specific fallback guidance and post-install onboarding.
+- Do not request notification permission immediately on first visit; ask after
+  meaningful interaction or during an explicit notification-enablement step.
+- Validate the target journey: link → authenticate/onboard → Installer `<TENANT>` →
+  installation → launcher search → standalone launch.
+
+**Acceptance**
+
+- An installed COMBIS PWA shows `COMBIS` rather than `Kairo`.
+- Manifest, icons and theme are tenant-aware and validated at phone width.
+- Installation is offered without aggressive permission prompts.
+- No separate frontend codebase is created per association.
+
+---
+
+## Sprint 125 — Tenant Domains And Host-Based Resolution
+
+Phase: WHITELABEL. Dependencies: 123.
+
+**Goal:** Allow association-specific addresses without duplicating deployments
+through canonical host-based tenant resolution.
+
+**Tasks**
+
+- Support `combis.<platform-domain>`, `association-x.<platform-domain>` and prepare
+  `app.customer-domain.de`.
+- Implement explicit allowed-host mapping and reject unknown mappings.
+- Never trust a client-supplied tenant override; enforce a canonical tenant/domain
+  relation.
+- Review HTTPS production requirements, cookies/session behavior, CORS, CSRF, Service
+  Worker origin/scope and Web Push origin constraints.
+- Document tenant onboarding: create tenant → branding → domain → TLS → principal
+  admin → permissions → PWA installation.
+
+**Acceptance**
+
+- Host-based tenant resolution is explicit and server-authoritative.
+- Unknown hosts cannot select a tenant.
+- Cross-tenant leakage through domains, cookies or Service Worker scope is tested and
+  prevented.
+- Tenant onboarding is documented end to end.
+
+---
+
+## Sprint 126 — Notification Outbox Reliability
+
+Phase: RELIABILITY. Dependencies: none.
+
+**Goal:** Remove the production reliability gap where a processing event can be
+permanently stranded after a worker crash.
+
+**Tasks**
+
+- Implement processing lease, processing timestamp, stale-processing detection and
+  automatic reclaim.
+- Add retry count, bounded retry policy, backoff, idempotent delivery, deduplication
+  and failed/dead-letter state.
+- Persist reason/error details and add a reconciliation task with health/metrics
+  visibility.
+- Apply equivalent reliability principles to domain-event dispatch where relevant.
+
+**Acceptance**
+
+- A simulated worker crash after claiming an event does not strand it permanently.
+- Another worker reclaims the expired lease and delivers the event.
+- No duplicate business side effects are produced.
+- Health and metrics expose stranded, retrying and dead-letter events.
+
+---
+
+## Sprint 127 — Green CI, Reproducible Builds And Repository Hygiene
+
+Phase: HARDEN. Dependencies: none.
+
+**Goal:** Make `main` consistently green and reproducible, and remove runtime evidence
+from the tracked repository without weakening security checks.
+
+**Tasks**
+
+- Install Tesseract correctly in CI so OCR tests pass and are never skipped.
+- Ensure OpenAPI generation emits pure machine-readable JSON with no logging pollution.
+- Restore generated TypeScript contract checks after the Flutter freeze.
+- Remove inappropriate tracked runtime evidence without weakening the sensitive-file
+  checker; move screenshots, XML dumps, Playwright artifacts, test videos, device
+  captures and temporary exports to CI artifacts or non-versioned storage.
+- Run secret scanning after guard checks.
+- Implement Python lock/constraints, deterministic npm lock, reproducible production
+  dependencies and appropriate image/version pinning.
+- Build the actual production image in CI, start it and run a basic health/readiness
+  check.
+
+**Acceptance**
+
+- Mandatory default pipeline passes: Security, API, Contracts, Web, Production.
+- Flutter is not a blocking release job.
+- OCR tests run and pass in CI.
+- Dependency resolution is deterministic and the production image is health-checked.
+
+---
+
+## Sprint 128 — Real Full-Stack Release Gate And COMBIS Pilot
+
+Phase: RELEASE. Dependencies: 122, 124, 125, 126, 127.
+
+**Goal:** Verify Kairo as a real integrated SaaS platform with a deterministic
+production-like environment and prepare the COMBIS real-device pilot checklist.
+
+**Tasks**
+
+- Build a deterministic production-like test environment: PostgreSQL, Redis, MinIO,
+  API, Celery worker, Vue/PWA, using seeded test tenants (COMBIS roles and a Tenant X
+  isolation control).
+- Execute at least one important business scenario through browser → Vue → real API →
+  real database → domain event → outbox → worker → notification inbox → deep-link
+  contract → target route → authorization, without API mocking.
+- Verify tenant isolation, role/capability authorization, finance lifecycle,
+  notification creation, preferences, installation registration, logout/revocation,
+  branding, tenant manifest, custom host resolution, Service Worker, PWA
+  installability, application update, offline behavior where supported,
+  accessibility, FR/EN/DE and responsive Android viewport.
+- Prepare the explicit COMBIS real-device pilot checklist for Chrome Android,
+  including closed-application notification, exact deep link, token revocation and
+  application update.
+- Update CURRENT_ARCHITECTURE, PROJECT_STATUS, active roadmap, notification
+  architecture, PWA architecture, white-label architecture, tenant onboarding,
+  deployment, COMBIS pilot instructions, known limitations and the operational
+  checklist.
+- Never claim production readiness unless the defined automated gates pass; pause the
+  runner for manual real-device validation when no automated equivalent exists.
+
+**Acceptance**
+
+- The full-stack scenario passes against real seeded infrastructure without API
+  mocking.
+- Tenant isolation and authorization are proven for the representative scenario.
+- The COMBIS pilot checklist exists and its manual steps are marked as
+  human-validated or explicitly pending.
+- Documentation reflects the implemented reality; no fabricated PASS is recorded.
+
+---
+
+## Flutter Exit Condition
+
+Flutter is not deleted during S119–S128. After S128, archival can be considered only
+when PWA installability, background/closed push, deep-link parity and the COMBIS pilot
+are validated and no required Flutter-only workflow remains. Any removal is a separate
+explicit change outside this roadmap.

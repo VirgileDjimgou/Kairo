@@ -1,8 +1,8 @@
 import { existsSync, readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { spawnSync } from 'node:child_process';
-import { loadRoadmap } from './roadmap.mjs';
-import { isLockStale, loadLock, loadState, ensureStateDir, stateDir } from './state.mjs';
+import { loadRoadmap, validateDependencies } from './roadmap.mjs';
+import { isLockStale, loadLock, loadState, ensureStateDir, stateDir, handoffsDir } from './state.mjs';
 
 function run(command, args = []) {
   const isWindows = process.platform === 'win32';
@@ -117,9 +117,21 @@ export function runDoctor(rootDir) {
     return { status: 'ok', detail: `${roadmap.sprints.length} sprints (S${roadmap.sprints[0].id}–S${roadmap.sprints[roadmap.sprints.length - 1].id})` };
   }));
 
+  checks.push(check('Roadmap paths', () => {
+    const result = validateDependencies(roadmap);
+    return result.ok
+      ? { status: 'ok', detail: 'all sprint dependencies are ordered and resolvable' }
+      : { status: 'fail', detail: result.problems.join('; ') };
+  }));
+
   checks.push(check('State directory writable', () => {
     ensureStateDir(rootDir);
     return { status: 'ok', detail: stateDir(rootDir) };
+  }));
+
+  checks.push(check('Handoffs directory writable', () => {
+    ensureStateDir(rootDir);
+    return { status: 'ok', detail: handoffsDir(rootDir) };
   }));
 
   checks.push(check('Competing active batch', () => {

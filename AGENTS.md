@@ -10,28 +10,44 @@ Use this file as the universal entry point before implementing or reviewing anyt
 
 Roadmap V2 (`docs/roadmap/KAIRO_V2_ROADMAP.md` and
 `docs/roadmap/KAIRO_V2_ROADMAP.json`) is the canonical active execution roadmap.
-`IMPLEMENTATION_ROADMAP.md` is the historical Sprint 0–99 record. Execution policy
-lives in `docs/automation/SPRINT_BATCH_AUTOPILOT.md`.
+Sprints 100–118 are complete. The active program is **S119–S128: PWA-first,
+white-label SaaS**. `IMPLEMENTATION_ROADMAP.md` is the historical Sprint 0–99 record.
+Execution policy lives in `docs/automation/SPRINT_BATCH_AUTOPILOT.md`.
 
 Interpret these operator phrases exactly:
 
-- **Start Next Sprint** → execute exactly ONE next unfinished Roadmap V2 sprint.
-- **Start Next Sprints N** → execute `N` consecutive Roadmap V2 sprints, one at a
-  time, with hard quality gates between sprints. Default `N = 1`; allowed
-  `1 <= N <= 10`; hard maximum 10 per autonomous batch. If `N > 10`, cap at 10 and
-  report the cap.
-- **Start Next Sprints Resume** → resume the incomplete batch from its real state
+- **Start Next Sprint** → execute exactly ONE unfinished Roadmap V2 sprint.
+- **Start Next Sprint N** → execute up to `N` consecutive unfinished Roadmap V2
+  sprints, one at a time, with hard quality gates between sprints. Default `N = 1`;
+  allowed `1 <= N <= 10`; hard maximum 10 per autonomous batch. If `N > 10`, cap at
+  10 and report the cap. If fewer remain, execute only those and never invent a
+  sprint.
+- **Start Next Sprint Resume** → resume the incomplete batch from its real state
   (never repeat a completed sprint, never restart a partially implemented sprint
   from scratch without inspecting it first).
+- **Start Next Sprints N** and **Start Next Sprints Resume** are backward-compatible
+  aliases of the two commands above.
 
-Equivalent entry points: `/start-next-sprint`, `/start-next-sprints N`,
-`/sprint-batch-status`, `/sprint-batch-resume`, `/sprint-batch-stop`, and the
-`npm run sprint:batch:*` commands.
+Equivalent entry points: `/start-next-sprint [N]`, `/start-next-sprints N`,
+`/start-next-sprint-resume`, `/sprint-batch-status`, `/sprint-batch-resume`,
+`/sprint-batch-stop`, and the `npm run sprint:batch:*` commands.
 
-Runtime batch state lives in `.kairo/sprint-batch/` and is untracked. The machine
-roadmap is tracked. During a batch, record sprint transitions through
-`scripts/sprint-batch/cli.mjs` (`begin`, `verify`, `evaluate`, `complete`, `block`,
-`fail`) so the state machine stays the source of truth.
+Runtime batch state lives in `.kairo/sprint-batch/` and is untracked:
+
+```text
+.kairo/sprint-batch/state.json      batch and sprint state
+.kairo/sprint-batch/lock.json       single-runner lock with heartbeat
+.kairo/sprint-batch/history.json    batch history
+.kairo/sprint-batch/handoffs/       one machine-readable handoff per completed sprint
+.kairo/sprint-batch/reports/        per-sprint and per-batch reports
+```
+
+The machine roadmap is tracked. During a batch, record sprint transitions through
+`scripts/sprint-batch/cli.mjs` (`preflight`, `verify`, `evaluate`, `handoff`,
+`repair`, `complete`, `block`, `fail`, `pause-human`) so the state machine stays the
+source of truth. A sprint cannot be marked PASS without its handoff file. Each
+sprint runs in a fresh agent context and must be resumable by a different agent that
+only reads the roadmap, the handoff and the repository.
 
 ## Read Order
 
@@ -132,22 +148,28 @@ Kairo uses a French-first, English-second, German-third i18n contract.
 - Run `node scripts/check-i18n-coverage.mjs` to scan for potential hardcoded strings.
 - Future UI copy additions must have an obvious home in `messages.ts` and a validation path.
 
-## Flutter Parallel Client Track
+## Flutter Client — Frozen Legacy Reference
 
-The Vue 3 PWA remains the current production client. The Flutter client is a separate
-application under `apps/flutter_kairo/`; it must not replace, weaken, or silently
-change the PWA during its implementation.
+The Vue 3 PWA is the canonical client. The Flutter client under
+`apps/flutter_kairo/` is **FROZEN as legacy/reference code**:
 
-For Flutter work, read these additional files before editing:
+- it receives no new business features during S119–S128;
+- it is not a blocking job of the default release pipeline;
+- its source is preserved temporarily so it can be consulted for behavior,
+  notification and parity reference;
+- it must not replace, weaken, or silently change the PWA;
+- any archival or deletion is a separate explicit decision after S128, never part of
+  these sprints.
+
+For reference-only inspection of Flutter work, read:
 
 1. `apps/flutter_kairo/AGENTS.md`
 2. `docs/flutter/PROJECT_STATUS.md`
 3. `docs/flutter/FLUTTER_APP_ROADMAP.md`
 4. `docs/flutter/FEATURE_PARITY.md`
-5. `prompts/FLUTTER_CONTINUE_UNIVERSAL.md`
 
 The Flutter client consumes the existing API contracts only. It never implements
 authorization decisions locally, stores passwords, bypasses tenant boundaries, or
-duplicates backend business rules. Android and Flutter Web are the first release
-targets. iOS and desktop must remain architecture-ready, but are not release targets
-until the roadmap explicitly promotes them.
+duplicates backend business rules. The `Continue Next Sprint Implementation Flutter
+App` command must not be used to start new Flutter business work while the freeze is
+active.

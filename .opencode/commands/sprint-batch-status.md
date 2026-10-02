@@ -11,8 +11,9 @@ Steps:
 1. Run `npm run sprint:batch:status`.
 2. Also run `node scripts/sprint-batch/cli.mjs next --json` when a batch is active,
    to report the next unfinished sprint and its dependencies.
-3. Summarize concisely: batch id, roadmap, status, requested vs completed count,
-   current sprint and phase, stop-requested flag, queue availability, remaining
-   sprints in the batch, next unfinished sprint, and any blockers.
+3. Summarize concisely: batch id, roadmap, runner status, requested vs completed
+   count, current sprint, sprint status/phase, repair attempt, last successful gate,
+   stop-requested flag, pause reason, queue availability, remaining sprints in the
+   batch, next unfinished sprint, and any blockers.
 
 Do not modify any state in this command.

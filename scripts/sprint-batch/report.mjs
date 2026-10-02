@@ -27,7 +27,7 @@ export function buildStatusReport(state, roadmap) {
 
   const currentSprint = state.current_sprint
     ? getSprint(roadmap, state.current_sprint)
-    : nextUnfinishedSprint(roadmap, state);
+    : (['completed', 'idle'].includes(state.status) ? null : nextUnfinishedSprint(roadmap, state));
   const remainingInBatch = Math.max(0, state.requested_count - state.completed_count);
   const nextUnfinished = nextUnfinishedSprint(roadmap, state);
   const nextAfterBatch = state.current_sprint
@@ -56,11 +56,23 @@ export function buildStatusReport(state, roadmap) {
   lines.push(
     `Current: ${currentSprint ? `Sprint ${currentSprint.id} — ${currentSprint.title}` : 'none'}`,
   );
-  lines.push(`Phase: ${sprintStatusLabel(state.current_phase)}`);
+  lines.push(`Phase: ${sprintStatusLabel(state.current_phase ?? 'pending')}`);
   lines.push(`Started: ${state.started_at ?? 'unknown'}`);
   lines.push(`Last update: ${state.updated_at ?? 'unknown'}`);
   lines.push(`Baseline SHA: ${state.baseline_sha ?? 'unknown'}`);
   lines.push(`Queue: ${state.queue_available ? 'available' : 'not available'}`);
+  lines.push(`Runner status: ${state.runner_status ?? 'UNKNOWN'}`);
+  lines.push(`Sprint status: ${sprintStatusLabel(state.sprint_status ?? state.current_phase ?? 'pending')}`);
+  lines.push(`Repair attempt: ${state.repair_attempt ?? 0}/3`);
+  if (state.last_successful_gate) {
+    lines.push(`Last successful gate: ${state.last_successful_gate}`);
+  }
+  if (state.pause_reason) {
+    lines.push(`Pause reason: ${state.pause_reason}`);
+  }
+  if (state.last_error) {
+    lines.push(`Last error: ${state.last_error}`);
+  }
   lines.push(`Stop requested: ${state.stop_requested ? 'yes' : 'no'}`);
   lines.push('');
   if (recent.length > 0) {
@@ -186,6 +198,10 @@ export function buildBatchReport(state, roadmap) {
   lines.push(`Started: ${state.started_at ?? 'unknown'}`);
   lines.push(`Finished: ${new Date().toISOString()}`);
   lines.push(`Sprints: ${(state.sprints ?? []).map((sprint) => `S${sprint.id} ${sprintStatusLabel(sprint.status)}`).join(', ')}`);
+  const repaired = (state.sprints ?? []).filter((sprint) => (sprint.repair_attempts ?? 0) > 0);
+  if (repaired.length > 0) {
+    lines.push(`Repair attempts: ${repaired.map((sprint) => `S${sprint.id} ${sprint.repair_attempts}/3`).join(', ')}`);
+  }
   lines.push('');
   lines.push('Remaining known issues:');
   if (blocked.length === 0 && failed.length === 0 && !state.stop_requested) {

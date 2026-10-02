@@ -16,11 +16,15 @@ whose entry is not recorded as `completed` in `.kairo/sprint-batch/state.json`
 
 ## Rules
 
+- The active program is S119–S128 (PWA-first, white-label SaaS); the Vue 3 PWA is the
+  canonical client and Flutter is frozen as legacy/reference code.
 - Execute exactly one sprint at a time unless the operator requests a batch
-  (`Start Next Sprints N`, `1 <= N <= 10`).
+  (`Start Next Sprint N`, `1 <= N <= 10`; `Start Next Sprints N` is a
+  backward-compatible alias).
 - Dependencies in the roadmap JSON must be completed first; never skip a sprint.
 - A blocked sprint blocks the batch; record it through
   `scripts/sprint-batch/cli.mjs` and stop.
+- A PASS requires a machine-readable handoff in `.kairo/sprint-batch/handoffs/`.
 
 ## Historical note
 
