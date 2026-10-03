@@ -1,5 +1,5 @@
 # ── Stage 1: development ──────────────────────────────────────────────────────
-FROM node:20-alpine AS development
+FROM node:20-alpine@sha256:fb4cd12c85ee03686f6af5362a0b0d56d50c58a04632e6c0fb8363f609372293 AS development
 
 WORKDIR /app
 
@@ -14,7 +14,7 @@ EXPOSE 5173
 CMD ["npm", "run", "dev"]
 
 # ── Stage 2: production build ──────────────────────────────────────────────────
-FROM node:20-alpine AS builder
+FROM node:20-alpine@sha256:fb4cd12c85ee03686f6af5362a0b0d56d50c58a04632e6c0fb8363f609372293 AS builder
 
 WORKDIR /app
 ARG VITE_API_BASE_URL=/api/v1
@@ -47,7 +47,7 @@ COPY . .
 RUN npm run build
 
 # ── Stage 3: production serve (nginx) ─────────────────────────────────────────
-FROM nginx:alpine AS production
+FROM nginx:1.27-alpine@sha256:65645c7bb6a0661892a8b03b89d0743208a18dd2f3f17a54ef4b76fb8e2f2a10 AS production
 
 COPY --from=builder /app/dist /usr/share/nginx/html
 COPY nginx.conf /etc/nginx/conf.d/default.conf

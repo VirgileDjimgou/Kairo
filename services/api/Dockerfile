@@ -1,5 +1,5 @@
 # ── Stage 1: dependency builder ────────────────────────────────────────────────
-FROM python:3.12-slim AS builder
+FROM python:3.12-slim@sha256:dddfd7e07f9d15aeeca61529320492139d21cac7f0070c00609243e51e4e0016 AS builder
 
 WORKDIR /build
 
@@ -9,12 +9,14 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     libpq-dev \
     && rm -rf /var/lib/apt/lists/*
 
-COPY requirements.txt .
+# requirements.txt is the direct dependency contract; requirements.lock pins
+# every resolved version for reproducible production builds.
+COPY requirements.txt requirements.lock ./
 RUN pip install --upgrade pip && \
-    pip install --prefix=/install --no-cache-dir -r requirements.txt
+    pip install --prefix=/install --no-cache-dir -r requirements.txt -c requirements.lock
 
 # ── Stage 2: development (with hot-reload) ────────────────────────────────────
-FROM python:3.12-slim AS development
+FROM python:3.12-slim@sha256:dddfd7e07f9d15aeeca61529320492139d21cac7f0070c00609243e51e4e0016 AS development
 
 WORKDIR /app
 
@@ -36,7 +38,7 @@ EXPOSE 8000
 CMD ["sh", "-c", "alembic upgrade head && uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload --proxy-headers --forwarded-allow-ips='*'"]
 
 # ── Stage 3: production ───────────────────────────────────────────────────────
-FROM python:3.12-slim AS production
+FROM python:3.12-slim@sha256:dddfd7e07f9d15aeeca61529320492139d21cac7f0070c00609243e51e4e0016 AS production
 
 WORKDIR /app
 

@@ -67,4 +67,4 @@ All defects have been corrected at their source.
   decorative orbs in the desktop hero panel.
 # 2026-07-27 mobile data-view repair
 
-The second responsive stabilization pass replaced compressed business tables with mobile cards through `ResponsiveDataView`, removed inherited `overflow-wrap:anywhere` from normal cards, stabilized bottom navigation labels, and corrected mobile action grids. Visual evidence and the exact coverage matrix are stored in `apps/web/artifacts/responsive-proof/2026-07-27/`.
+The second responsive stabilization pass replaced compressed business tables with mobile cards through `ResponsiveDataView`, removed inherited `overflow-wrap:anywhere` from normal cards, stabilized bottom navigation labels, and corrected mobile action grids. Visual evidence is produced by the responsive Playwright suites and uploaded as CI artifacts (`apps/web/artifacts/responsive-proof/`, not versioned since Sprint 127).

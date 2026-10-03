@@ -324,9 +324,49 @@ node scripts/check-capability-bundles.mjs
 
 - The i18n parity guard compares every feature catalog under `apps/web/src/i18n/{fr,en,de}` and fails when a locale is missing a catalog file, a key, or a value. Verified 2026-09-26: 11 feature catalogs, 873 keys per locale, exact parity.
 
-- The sensitive-file scanner rejects database files, backup/dump archives, spreadsheet workbooks, operational documents (PDF/DOCX/DOC/ODT/PPTX/RTF), tabular exports (CSV/TSV outside the fictional `seed/` fixtures), member/finance exports and secret-bearing key material. Source directories named `backup` or `export` are correctly ignored (they are module code, not archives), and the member/finance data-export rule skips source trees (`apps/web/src/`, `apps/flutter_kairo/lib/`, `services/api/app/`) so JSON catalogs such as `apps/web/src/i18n/fr/membership.json` are treated as code. Verified 2026-09-26: 1144 tracked files pass; a synthetic root-level `member-export.json` is still rejected. See `docs/security/OPERATIONAL_DATA_POLICY.md`.
-- The gitleaks CI step scans the full git history. `.gitleaks.toml` allowlists exactly one verified false positive (the recovery password alphabet constant in `services/api/app/modules/identity/service.py`). No real secret is allowlisted.
+- The sensitive-file scanner rejects database files, backup/dump archives, spreadsheet workbooks, operational documents (PDF/DOCX/DOC/ODT/PPTX/RTF), tabular exports (CSV/TSV outside the fictional `seed/` fixtures), member/finance exports and secret-bearing key material. Source directories named `backup` or `export` are correctly ignored (they are module code, not archives), and the member/finance data-export rule skips source trees (`apps/web/src/`, `apps/flutter_kairo/lib/`, `services/api/app/`) so JSON catalogs such as `apps/web/src/i18n/fr/membership.json` are treated as code. Verified 2026-10-03: 1202 tracked files pass (runtime evidence untracked in Sprint 127); a synthetic root-level `member-export.json` is still rejected. See `docs/security/OPERATIONAL_DATA_POLICY.md`.
+- The gitleaks CI step scans the full git history **after** the repository guards. `.gitleaks.toml` allowlists exactly one verified false positive (the recovery password alphabet constant in `services/api/app/modules/identity/service.py`). No real secret is allowlisted.
 - Known open security item (HUMAN_REQUIRED): a historical `JWT_SECRET_KEY` value remains in commit `2f03643f` (`docker-compose.prod.yml`). HEAD now fails closed and requires the operator environment, but any deployment that used the committed value must rotate its JWT secret, and the history exposure is tracked for Sprint 101 remediation.
+
+## CI Pipeline And Reproducible Builds
+
+The default `main` pipeline is **Security → API → Contracts → Web →
+Production**; Flutter is not blocking (ADR-014). Full details:
+`docs/operations/reproducible-builds.md`.
+
+- API dependencies resolve through `services/api/requirements.lock` (123 exact
+  pins generated on `python:3.12-slim`); the API job installs
+  `tesseract-ocr` with eng/fra/deu so OCR tests run and pass.
+- The Contracts job asserts pure-JSON OpenAPI generation and checks the
+  generated **TypeScript** contracts; the frozen Dart contracts are checked in
+  the manual Flutter workflow only.
+- The Production job builds the real `api`/`web` images, applies the full
+  Alembic chain on PostgreSQL, starts the stack and verifies
+  `/health/live`, `/health/ready` and the served web shell.
+
+Local equivalent of the production smoke:
+
+```bash
+docker compose --env-file .env.example \
+  -f docker-compose.yml -f docker-compose.prod.yml -f docker-compose.ci.yml \
+  build api web
+docker compose -p kairo-ci-smoke --env-file .env.example \
+  -f docker-compose.yml -f docker-compose.prod.yml -f docker-compose.ci.yml \
+  up -d postgres redis
+docker compose -p kairo-ci-smoke --env-file .env.example \
+  -f docker-compose.yml -f docker-compose.prod.yml -f docker-compose.ci.yml \
+  run --rm api alembic upgrade head
+docker compose -p kairo-ci-smoke --env-file .env.example \
+  -f docker-compose.yml -f docker-compose.prod.yml -f docker-compose.ci.yml \
+  up -d api web
+docker compose -p kairo-ci-smoke --env-file .env.example \
+  -f docker-compose.yml -f docker-compose.prod.yml -f docker-compose.ci.yml \
+  down -v
+```
+
+Base images and service images are pinned (digests or exact versions) and
+`.dockerignore` files keep secrets, databases, logs and test output out of build
+contexts.
 
 ## Sprint Batch Autopilot
 

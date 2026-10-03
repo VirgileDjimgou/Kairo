@@ -1,0 +1,21 @@
+# CI-only override (Sprint 127).
+#
+# MinIO's public images moved behind registry authentication in 2025 and cannot
+# be pulled anonymously. The production smoke job verifies the API, web,
+# PostgreSQL and Redis; MinIO/S3 remains an operator-provisioned dependency.
+#
+# Usage:
+#   docker compose -f docker-compose.yml -f docker-compose.prod.yml \
+#     -f docker-compose.ci.yml <command>
+services:
+  api:
+    depends_on: !reset
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+
+  web:
+    depends_on: !reset
+      api:
+        condition: service_started

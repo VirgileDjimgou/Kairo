@@ -21,6 +21,11 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+      - name: Verify frozen Flutter generated contracts are current
+        run: node scripts/generate-client-contracts.mjs --check
       - uses: subosito/flutter-action@v2
         with:
           # Pinned to the version that authored the golden files. An unpinned

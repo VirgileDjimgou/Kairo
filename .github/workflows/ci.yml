@@ -6,13 +6,14 @@ on:
   pull_request:
     branches: [main, develop]
 
+# Mandatory default pipeline: Security, API, Contracts, Web, Production.
 # Flutter is FROZEN as legacy/reference code (ADR-014). Its analyze/test/build
 # checks are not part of this blocking pipeline; run them manually through the
 # "Flutter Legacy Reference" workflow (.github/workflows/flutter-legacy.yml)
 # when reference behavior must be verified.
 jobs:
   security:
-    name: Security — Secret And Sensitive File Guard
+    name: Security — Guards, Sensitive Files, Secrets
     runs-on: ubuntu-latest
 
     steps:
@@ -26,6 +27,20 @@ jobs:
 
       - name: Reject databases, backups, and sensitive data exports
         run: node scripts/check-sensitive-files.mjs
+
+      # Repository guards run before secret scanning so a policy violation is
+      # reported first and the secret scan still runs afterwards.
+      - name: Guard canonical API collection paths
+        run: node scripts/check-api-collection-paths.mjs
+
+      - name: Guard FR/EN/DE catalog parity
+        run: node scripts/check-i18n-parity.mjs
+
+      - name: Guard capability fallback bundles
+        run: node scripts/check-capability-bundles.mjs
+
+      - name: Guard canonical PWA Service Worker
+        run: node scripts/check-pwa-service-worker.mjs
 
       - name: Scan repository history for secrets
         uses: gitleaks/gitleaks-action@v2
@@ -43,10 +58,20 @@ jobs:
         with:
           python-version: "3.12"
           cache: "pip"
-          cache-dependency-path: services/api/requirements.txt
+          cache-dependency-path: |
+            services/api/requirements.txt
+            services/api/requirements.lock
 
-      - name: Install API dependencies
-        run: pip install -r services/api/requirements.txt
+      # OCR tests exercise real pytesseract and must never be skipped in CI.
+      - name: Install OCR runtime
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y --no-install-recommends \
+            tesseract-ocr tesseract-ocr-eng tesseract-ocr-fra tesseract-ocr-deu
+          tesseract --version
+
+      - name: Install API dependencies (locked)
+        run: pip install -r services/api/requirements.txt -c services/api/requirements.lock
 
       - name: Lint all backend modules (ruff)
         run: >
@@ -77,14 +102,24 @@ jobs:
         with:
           python-version: "3.12"
           cache: "pip"
-          cache-dependency-path: services/api/requirements.txt
+          cache-dependency-path: |
+            services/api/requirements.txt
+            services/api/requirements.lock
 
-      - name: Install API dependencies
-        run: pip install -r services/api/requirements.txt
+      - name: Install API dependencies (locked)
+        run: pip install -r services/api/requirements.txt -c services/api/requirements.lock
 
       - uses: actions/setup-node@v4
         with:
           node-version: "20"
+
+      - name: Verify OpenAPI generation emits pure machine-readable JSON
+        env:
+          JWT_SECRET_KEY: ci-test-secret-key-not-for-production
+          APP_ENV: test
+        run: |
+          python services/api/scripts/export_openapi.py \
+            | python -c "import json, sys; json.load(sys.stdin); print('OK: pure JSON schema')"
 
       - name: Detect breaking OpenAPI changes
         env:
@@ -92,8 +127,11 @@ jobs:
           APP_ENV: test
         run: node scripts/check-openapi-contract.mjs
 
-      - name: Verify generated client contracts are current
-        run: node scripts/generate-client-contracts.mjs --check
+      # TypeScript contract drift is the mandatory boundary check. Dart drift is
+      # verified through the manual Flutter Legacy Reference workflow so the
+      # frozen client can never block the release pipeline (ADR-014).
+      - name: Verify generated TypeScript client contracts are current
+        run: node scripts/generate-client-contracts.mjs --check --typescript-only
 
       - name: Verify client calls map to documented operations
         run: node scripts/check-client-route-coverage.mjs
@@ -121,20 +159,8 @@ jobs:
           cd apps/web
           npm run type-check
 
-      - name: Guard canonical API collection paths
-        run: node scripts/check-api-collection-paths.mjs
-
-      - name: Guard FR/EN/DE catalog parity
-        run: node scripts/check-i18n-parity.mjs
-
-      - name: Guard capability fallback bundles
-        run: node scripts/check-capability-bundles.mjs
-
       - name: Report potential hardcoded user-facing strings
         run: node scripts/check-i18n-coverage.mjs
-
-      - name: Guard canonical PWA Service Worker
-        run: node scripts/check-pwa-service-worker.mjs
 
       - name: Build
         run: |
@@ -195,3 +221,76 @@ jobs:
         run: |
           cd apps/web
           npm run test:e2e:pwa:built
+
+      # Runtime evidence is never committed (Sprint 127); it is uploaded as a
+      # workflow artifact instead.
+      - name: Upload browser evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: web-browser-evidence
+          path: |
+            apps/web/playwright-report/
+            apps/web/test-results/
+            apps/web/artifacts/
+          if-no-files-found: ignore
+          retention-days: 14
+
+  production:
+    name: Production — Image Build And Health
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Prepare production-like environment
+        run: |
+          cp .env.example .env
+          {
+            echo "JWT_SECRET_KEY=ci-production-smoke-$(openssl rand -hex 24)"
+          } >> "$GITHUB_ENV"
+
+      - name: Build production images (api, web)
+        run: docker compose -f docker-compose.yml -f docker-compose.prod.yml -f docker-compose.ci.yml build api web
+
+      - name: Start dependencies
+        run: |
+          docker compose -f docker-compose.yml -f docker-compose.prod.yml -f docker-compose.ci.yml \
+            up -d postgres redis minio
+
+      - name: Apply migrations on a real PostgreSQL database
+        run: |
+          docker compose -f docker-compose.yml -f docker-compose.prod.yml -f docker-compose.ci.yml \
+            run --rm api alembic upgrade head
+
+      - name: Start production api and web
+        run: |
+          docker compose -f docker-compose.yml -f docker-compose.prod.yml -f docker-compose.ci.yml up -d api web
+
+      - name: Wait for API readiness
+        run: |
+          for attempt in $(seq 1 30); do
+            if docker compose -f docker-compose.yml -f docker-compose.prod.yml -f docker-compose.ci.yml \
+              exec -T api python -c "import urllib.request; urllib.request.urlopen('http://localhost:8000/health/ready')" 2>/dev/null; then
+              echo "API ready after ${attempt} attempt(s)"
+              exit 0
+            fi
+            sleep 5
+          done
+          echo "API did not become ready in time"
+          docker compose -f docker-compose.yml -f docker-compose.prod.yml -f docker-compose.ci.yml logs api
+          exit 1
+
+      - name: Verify liveness, readiness and served web shell
+        run: |
+          docker compose -f docker-compose.yml -f docker-compose.prod.yml -f docker-compose.ci.yml \
+            exec -T api python -c "import urllib.request; urllib.request.urlopen('http://localhost:8000/health/live')"
+          docker compose -f docker-compose.yml -f docker-compose.prod.yml -f docker-compose.ci.yml \
+            exec -T api python -c "import urllib.request; urllib.request.urlopen('http://localhost:8000/health/ready')"
+          docker compose -f docker-compose.yml -f docker-compose.prod.yml -f docker-compose.ci.yml \
+            exec -T web wget -qO- http://localhost/ | grep -q '<div id="app">'
+          echo "Production image health check passed"
+
+      - name: Tear down
+        if: always()
+        run: docker compose -f docker-compose.yml -f docker-compose.prod.yml -f docker-compose.ci.yml down -v

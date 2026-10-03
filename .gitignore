@@ -33,6 +33,13 @@ htmlcov/
 .mypy_cache/
 .ruff_cache/
 
+# Runtime evidence is never versioned (Sprint 127): screenshots, XML/JSON dumps,
+# Playwright reports and test videos live in CI artifacts or local storage only.
+artifacts/
+apps/web/artifacts/
+apps/web/playwright-report/
+apps/web/test-results/
+
 # IDE
 .vscode/settings.json
 .idea/

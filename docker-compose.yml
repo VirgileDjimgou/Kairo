@@ -1,6 +1,6 @@
 services:
   postgres:
-    image: postgres:16-alpine
+    image: postgres:16-alpine@sha256:721873c34ceb9f8d8fc265984940dc982404c105f19ad51be9fdc5970a6080ea
     environment:
       POSTGRES_DB: ${POSTGRES_DB}
       POSTGRES_USER: ${POSTGRES_USER}
@@ -17,7 +17,7 @@ services:
       start_period: 10s
 
   redis:
-    image: redis:7-alpine
+    image: redis:7-alpine@sha256:858f009f9709ce576febc734aa78b8f6d624b82571f9ddb6bda4377c833b3499
     ports:
       - "6379:6379"
     volumes:
@@ -29,7 +29,7 @@ services:
       retries: 5
 
   qdrant:
-    image: qdrant/qdrant:latest
+    image: qdrant/qdrant:v1.19.1
     ports:
       - "6333:6333"
       - "6334:6334"
@@ -43,7 +43,10 @@ services:
       start_period: 10s
 
   minio:
-    image: minio/minio:latest
+    # MinIO's public images moved behind registry authentication in 2025.
+    # Operators must provide registry credentials or an equivalent S3 endpoint;
+    # CI excludes MinIO through docker-compose.ci.yml.
+    image: quay.io/minio/minio:RELEASE.2024-06-13T22-53-53Z
     command: server /data --console-address ":9001"
     environment:
       MINIO_ROOT_USER: ${MINIO_ROOT_USER}
@@ -61,7 +64,7 @@ services:
       start_period: 10s
 
   ollama:
-    image: ollama/ollama:latest
+    image: ollama/ollama:0.35.1
     ports:
       - "11434:11434"
     volumes:
@@ -151,7 +154,7 @@ services:
       start_period: 30s
 
   cloudflared:
-    image: cloudflare/cloudflared:latest
+    image: cloudflare/cloudflared:2026.9.3
     command: tunnel --no-autoupdate run --token ${CLOUDFLARE_TUNNEL_TOKEN}
     depends_on:
       - web
@@ -165,3 +168,4 @@ volumes:
   qdrant_data:
   minio_data:
   ollama_data:
+

@@ -1,6 +1,6 @@
 # Project State
 
-Last verified: 2026-10-03 (Roadmap V2 Sprint 126)
+Last verified: 2026-10-03 (Roadmap V2 Sprint 127)
 
 ## What this file is
 
@@ -173,3 +173,12 @@ new business features during S119–S128.
   expose stranded/retrying/dead-letter counts; domain-event dispatch gained the
   same lease/reclaim. Design: `docs/notifications/NOTIFICATION_OUTBOX_RELIABILITY.md`;
   the backend suite has 422 passing tests.
+  Sprint 127 made `main` consistently green and reproducible: Tesseract runs in
+  CI so OCR tests are never skipped, OpenAPI generation is asserted pure JSON,
+  the generated TypeScript contract check is mandatory while Dart stays in the
+  manual Flutter workflow, runtime evidence is untracked and uploaded as CI
+  artifacts (the sensitive-file scanner is green again), secret scanning runs
+  after the guards, Python resolves through `requirements.lock`, npm uses
+  `npm ci`, base/service images are pinned, `.dockerignore` protects build
+  contexts, and a Production job builds the real images, migrates PostgreSQL and
+  health-checks the stack (`docs/operations/reproducible-builds.md`).

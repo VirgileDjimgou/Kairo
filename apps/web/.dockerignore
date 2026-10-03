@@ -1,0 +1,10 @@
+# Dependencies are installed inside the image with `npm ci`.
+node_modules/
+
+# Build output and runtime evidence are never copied into the image.
+dist/
+.vite/
+playwright-report/
+test-results/
+artifacts/
+*.log

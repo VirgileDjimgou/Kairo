@@ -1,6 +1,6 @@
 # Kairo — Current Architecture Snapshot
 
-Last verified: 2026-10-03 (Roadmap V2 Sprint 126)
+Last verified: 2026-10-03 (Roadmap V2 Sprint 127)
 
 This file is the concise description of what Kairo IS today. When code and this
 file disagree, trust the code and update this file. Historical narrative lives in
@@ -146,9 +146,15 @@ Vue 3 PWA (apps/web)          Flutter client (apps/flutter_kairo)
 
 - Docker Compose stack (api, worker, web, postgres, redis, minio, qdrant,
   ollama, cloudflared); production override `docker-compose.prod.yml` fails
-  closed on missing secrets.
+  closed on missing secrets. Base and service images are pinned (digests or
+  exact versions), Python resolves through `services/api/requirements.lock`,
+  npm through the committed lock with `npm ci`, and `.dockerignore` files keep
+  secrets, databases, logs and test output out of build contexts.
 - Cloudflare Tunnel ingress; Nginx serves the built PWA and proxies `/api/`.
 - Encrypted, signed PostgreSQL/MinIO backup archives with restore drills.
+- MinIO's public images moved behind registry authentication in 2025;
+  operators provide registry credentials or an equivalent S3 endpoint, and CI
+  uses `docker-compose.ci.yml` to smoke-test API/web/PostgreSQL/Redis without it.
 
 ## Quality gates
 
@@ -163,8 +169,14 @@ client route coverage), an opt-in performance regression check
 (`check-sensitive-files`, `check-i18n-coverage`, `check-api-collection-paths`)
 and gitleaks history scan. Flutter `analyze`/`test`/builds are **optional and
 manual** since Sprint 119 (`.github/workflows/flutter-legacy.yml`, ADR-014) and
-never block the release pipeline. Commands of record:
-`docs/operations/validation-baseline.md`.
+  never block the release pipeline. The default pipeline is Security → API →
+  Contracts → Web → Production: Tesseract runs in the API job, OpenAPI
+  generation is asserted pure JSON, the generated TypeScript contract check is
+  mandatory, runtime evidence is untracked and uploaded as CI artifacts, secret
+  scanning runs after the guards, and the Production job builds the real images,
+  applies the full Alembic chain on PostgreSQL and health-checks the stack
+  (`docs/operations/reproducible-builds.md`). Commands of record:
+  `docs/operations/validation-baseline.md`.
 
 ## Known structural debt (tracked in Roadmap V2)
 
@@ -289,10 +301,18 @@ never block the release pipeline. Commands of record:
   `/notifications/health`, `/health` and `/metrics`; domain-event dispatch
   gained the same lease/reclaim principles
   (`docs/notifications/NOTIFICATION_OUTBOX_RELIABILITY.md`).
-- Status: sprints 108–126 addressed i18n, capabilities, service decomposition,
+- Sprint 127 made `main` consistently green and reproducible: OCR tests run in
+  CI, OpenAPI generation is pure JSON, the TypeScript contract check is
+  mandatory (Dart stays in the manual Flutter workflow), runtime evidence is
+  untracked and uploaded as CI artifacts, secret scanning runs after the
+  guards, dependencies and images are pinned, `.dockerignore` protects build
+  contexts, and the Production job builds the real images, migrates PostgreSQL
+  and health-checks the stack (`docs/operations/reproducible-builds.md`).
+- Status: sprints 108–127 addressed i18n, capabilities, service decomposition,
   domain events, notification convergence, the contract boundary, operational
   health/performance, the module framework, release hardening, the PWA-first
   client consolidation, the unified PWA Service Worker, the normalized
   notification installation model, secure actionable deep links, white-label
-  tenant branding, tenant-aware PWA installation, tenant domains and outbox
-  reliability; the active program is S119–S128 (PWA-first, white-label SaaS).
+  tenant branding, tenant-aware PWA installation, tenant domains, outbox
+  reliability and reproducible CI; the active program is S119–S128 (PWA-first,
+  white-label SaaS).

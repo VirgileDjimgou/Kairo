@@ -7,6 +7,11 @@
  * Usage:
  *   node scripts/generate-client-contracts.mjs          # write generated files
  *   node scripts/generate-client-contracts.mjs --check  # fail on drift
+ *   node scripts/generate-client-contracts.mjs --check --typescript-only
+ *
+ * `--typescript-only` is the default pipeline check since the Flutter freeze
+ * (ADR-014): the frozen Dart contracts remain available through the manual
+ * Flutter Legacy Reference workflow without blocking the release pipeline.
  */
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs';
 import path from 'node:path';
@@ -17,6 +22,7 @@ const schemaPath = path.join(root, 'docs/api/openapi.json');
 const tsOutput = path.join(root, 'apps/web/src/api/generated/contracts.ts');
 const dartOutput = path.join(root, 'apps/flutter_kairo/lib/core/api/generated/contracts.dart');
 const check = process.argv.includes('--check');
+const typescriptOnly = process.argv.includes('--typescript-only');
 
 const schema = JSON.parse(readFileSync(schemaPath, 'utf8'));
 const schemas = schema.components?.schemas ?? {};
@@ -351,10 +357,10 @@ function renderDart() {
   return lines.join('\n');
 }
 
-const rendered = [
-  { path: tsOutput, content: renderTypeScript() },
-  { path: dartOutput, content: renderDart() },
-];
+const rendered = [{ path: tsOutput, content: renderTypeScript() }];
+if (!typescriptOnly) {
+  rendered.push({ path: dartOutput, content: renderDart() });
+}
 
 if (check) {
   let failed = false;
