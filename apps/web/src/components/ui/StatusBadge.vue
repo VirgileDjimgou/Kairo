@@ -42,22 +42,22 @@ const tone = computed(() => props.tone ?? 'neutral')
 
 .status-badge--success {
   background: var(--om-success-subtle);
-  color: var(--om-success);
+  color: var(--om-success-strong);
 }
 
 .status-badge--warning {
   background: var(--om-warning-subtle);
-  color: var(--om-warning);
+  color: var(--om-warning-strong);
 }
 
 .status-badge--danger {
   background: var(--om-danger-subtle);
-  color: var(--om-danger);
+  color: var(--om-danger-strong);
 }
 
 .status-badge--info {
   background: var(--om-info-subtle);
-  color: var(--om-info);
+  color: var(--om-info-strong);
 }
 
 .status-badge-dot {

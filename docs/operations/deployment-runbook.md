@@ -127,3 +127,41 @@ bash scripts/backup.sh /mnt/backups
 ## 7. Recovery evidence
 
 After every real backup, restore drill, upgrade, or rollback, update the tenant recovery evidence in the product so the admin health center reflects the latest operational truth.
+
+## 8. Real full-stack release gate (S128)
+
+Before promoting a release candidate, run the deterministic production-like gate
+against seeded COMBIS and Tenant X data. It exercises the real path browser → Vue
+→ nginx → FastAPI → PostgreSQL → domain event → notification outbox → Celery
+worker → authenticated inbox → deep link → authorized route, with no API mocking:
+
+```bash
+docker compose -p kairo-release-gate \
+  -f docker-compose.yml -f docker-compose.prod.yml \
+  -f docker-compose.ci.yml -f docker-compose.release-gate.yml \
+  up -d postgres redis
+docker compose -p kairo-release-gate \
+  -f docker-compose.yml -f docker-compose.prod.yml \
+  -f docker-compose.ci.yml -f docker-compose.release-gate.yml \
+  run --rm api alembic upgrade head
+docker compose -p kairo-release-gate \
+  -f docker-compose.yml -f docker-compose.prod.yml \
+  -f docker-compose.ci.yml -f docker-compose.release-gate.yml \
+  run --rm api python /app/scripts/seed_full_stack.py
+docker compose -p kairo-release-gate \
+  -f docker-compose.yml -f docker-compose.prod.yml \
+  -f docker-compose.ci.yml -f docker-compose.release-gate.yml \
+  up -d api worker web
+
+KAIRO_GATE_BASE_URL=http://localhost:8080 node scripts/run-full-stack-gate.mjs
+cd apps/web && KAIRO_GATE_BASE_URL=http://localhost:8080 npm run test:e2e:real
+```
+
+`docker-compose.release-gate.yml` runs Celery with an embedded beat (so the
+outbox drains automatically), publishes web/API ports for the browser gate
+(`KAIRO_GATE_WEB_PORT`/`KAIRO_GATE_API_PORT`) and sets `PLATFORM_BASE_DOMAIN` for
+host-resolution checks. `docker-compose.ci.yml` excludes MinIO because MinIO
+public images are operator-provisioned since 2025. The workflow
+`.github/workflows/full-stack-release-gate.yml` runs the same steps manually or
+nightly with evidence upload; the automated and manual results are tracked in
+`docs/pwa/COMBIS_PILOT_CHECKLIST.md`.

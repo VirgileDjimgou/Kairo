@@ -94,6 +94,41 @@ Use the admin health center or the admin overview to confirm the recovery eviden
 - Capture backup evidence before applying a schema change.
 - Re-run the smoke check after every upgrade or rollback.
 
+## 7. Real Full-Stack Release Gate (S128)
+
+Before a controlled pilot or promotion, run the deterministic production-like gate
+(PostgreSQL, Redis, API, Celery worker with embedded beat, Vue/PWA, seeded COMBIS
+and Tenant X):
+
+```bash
+KAIRO_GATE_BASE_URL=http://localhost:8080 node scripts/run-full-stack-gate.mjs
+cd apps/web && KAIRO_GATE_BASE_URL=http://localhost:8080 npm run test:e2e:real
+```
+
+Expected outcome (validated 2026-10-03):
+
+- 30/30 API/worker scenario steps pass: finance lifecycle, domain event → outbox
+  → worker → inbox, deep-link contract, installation registration/revocation,
+  branding, manifest, host resolution, tenant isolation and role authorization.
+- 3/3 real browser tests pass: branding/manifest, single Service Worker, WCAG 2.2
+  AA, exact deep-link route, offline shell, FR/EN/DE, Android viewport, sign-out.
+
+Full commands: `docs/operations/deployment-runbook.md` §8. Automated evidence and
+the pending manual Chrome Android steps:
+`docs/pwa/COMBIS_PILOT_CHECKLIST.md`.
+
+### Known limitations of the gate
+
+- MinIO is operator-provisioned (public images require registry authentication
+  since 2025); the validated scenario does not upload documents.
+- The GitHub workflow is configured but has not yet executed in GitHub Actions.
+- Real-device validation (closed-app push, system-notification deep link,
+  on-device revocation, application update) has no automated equivalent and stays
+  explicitly pending until the operator records it.
+- The historical `JWT_SECRET_KEY` exposure in commit `2f03643f` remains a
+  HUMAN_REQUIRED rotation/remediation item; HEAD fails closed without an operator
+  secret.
+
 ## Evidence To Record
 
 - compose config output

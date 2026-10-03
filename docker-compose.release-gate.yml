@@ -1,0 +1,22 @@
+# Release-gate override (Roadmap V2 Sprint 128).
+#
+# Runs the real production-like stack with an embedded Celery beat (so the
+# notification outbox is processed automatically) and published web/api ports
+# for the browser gate. Combine with docker-compose.ci.yml to exclude MinIO.
+#
+# Usage:
+#   docker compose -f docker-compose.yml -f docker-compose.prod.yml \
+#     -f docker-compose.ci.yml -f docker-compose.release-gate.yml up -d
+services:
+  worker:
+    command: celery -A app.worker.celery_app worker --beat --loglevel=info --concurrency=2
+    environment:
+      - PLATFORM_BASE_DOMAIN=${PLATFORM_BASE_DOMAIN:-kairo.test}
+
+  web:
+    ports: !override ["${KAIRO_GATE_WEB_PORT:-8080}:80"]
+
+  api:
+    ports: !override ["${KAIRO_GATE_API_PORT:-8000}:8000"]
+    environment:
+      - PLATFORM_BASE_DOMAIN=${PLATFORM_BASE_DOMAIN:-kairo.test}

@@ -193,3 +193,23 @@
     min-width: 120px;
   }
 }
+
+// ── Accessible toast surfaces (WCAG 2.2 AA 4.5:1 with white/dark text) ──
+// The toastification defaults (#07bc0c success, #e74c3c error, #3498db info)
+// fail contrast. Real-stack auditing surfaced this in Sprint 128.
+.Vue-Toastification__toast--success {
+  background-color: #146c43;
+}
+
+.Vue-Toastification__toast--error {
+  background-color: #b02a37;
+}
+
+.Vue-Toastification__toast--info {
+  background-color: #0a58ca;
+}
+
+.Vue-Toastification__toast--warning {
+  background-color: #ffc107;
+  color: #212529;
+}

@@ -1,0 +1,117 @@
+name: Full-Stack Release Gate
+
+# Roadmap V2 Sprint 128: deterministic production-like gate. Manual dispatch and
+# nightly schedule only; the default CI pipeline stays fast.
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: "0 3 * * *"
+
+jobs:
+  full-stack:
+    name: Real Full-Stack Release Gate
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: "npm"
+          cache-dependency-path: apps/web/package-lock.json
+
+      - name: Prepare production-like environment
+        run: |
+          cp .env.example .env
+          echo "PLATFORM_BASE_DOMAIN=kairo.test" >> .env
+          {
+            echo "JWT_SECRET_KEY=ci-release-gate-$(openssl rand -hex 24)"
+          } >> "$GITHUB_ENV"
+
+      - name: Build production images
+        run: |
+          docker compose -f docker-compose.yml -f docker-compose.prod.yml \
+            -f docker-compose.ci.yml -f docker-compose.release-gate.yml \
+            build api web worker
+
+      - name: Start dependencies
+        run: |
+          docker compose -f docker-compose.yml -f docker-compose.prod.yml \
+            -f docker-compose.ci.yml -f docker-compose.release-gate.yml \
+            up -d postgres redis
+
+      - name: Apply migrations on PostgreSQL
+        run: |
+          docker compose -f docker-compose.yml -f docker-compose.prod.yml \
+            -f docker-compose.ci.yml -f docker-compose.release-gate.yml \
+            run --rm api alembic upgrade head
+
+      - name: Seed COMBIS and Tenant X
+        run: |
+          docker compose -f docker-compose.yml -f docker-compose.prod.yml \
+            -f docker-compose.ci.yml -f docker-compose.release-gate.yml \
+            run --rm api python /app/scripts/seed_full_stack.py
+
+      - name: Start API, worker (embedded beat) and PWA
+        run: |
+          docker compose -f docker-compose.yml -f docker-compose.prod.yml \
+            -f docker-compose.ci.yml -f docker-compose.release-gate.yml \
+            up -d api worker web
+
+      - name: Wait for the API readiness probe
+        run: |
+          for attempt in $(seq 1 30); do
+            if curl -fsS http://localhost:8000/health/ready >/dev/null 2>&1; then
+              echo "API ready after ${attempt} attempt(s)"
+              exit 0
+            fi
+            sleep 5
+          done
+          docker compose -f docker-compose.yml -f docker-compose.prod.yml \
+            -f docker-compose.ci.yml -f docker-compose.release-gate.yml logs api
+          exit 1
+
+      - name: Run the real API/worker/notification scenario
+        env:
+          KAIRO_GATE_BASE_URL: http://localhost:8080
+        run: node scripts/run-full-stack-gate.mjs
+
+      - name: Install web test dependencies
+        run: |
+          cd apps/web
+          npm ci
+          npx playwright install --with-deps chromium
+
+      - name: Run the real browser gate (no API mocking)
+        env:
+          KAIRO_GATE_BASE_URL: http://localhost:8080
+        run: |
+          cd apps/web
+          npm run test:e2e:real
+
+      - name: Capture container logs
+        if: always()
+        run: |
+          docker compose -f docker-compose.yml -f docker-compose.prod.yml \
+            -f docker-compose.ci.yml -f docker-compose.release-gate.yml \
+            logs --no-color > release-gate-containers.log || true
+
+      - name: Upload release-gate evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: full-stack-release-gate-evidence
+          path: |
+            release-gate-containers.log
+            apps/web/playwright-report/
+            apps/web/test-results/
+          if-no-files-found: ignore
+          retention-days: 14
+
+      - name: Tear down
+        if: always()
+        run: |
+          docker compose -f docker-compose.yml -f docker-compose.prod.yml \
+            -f docker-compose.ci.yml -f docker-compose.release-gate.yml down -v

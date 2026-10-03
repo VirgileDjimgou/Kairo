@@ -270,6 +270,35 @@ npm run notifications:firebase:doctor -- --json
 - Event matrix and operator guide: `docs/notifications/NOTIFICATION_EVENT_MATRIX.md`
   and `docs/notifications/NOTIFICATION_OPERATOR_GUIDE.md`.
 
+## Real Full-Stack Release Gate (S128)
+
+```bash
+# Start the production-like stack (see docs/operations/deployment-runbook.md §8)
+docker compose -p kairo-release-gate \
+  -f docker-compose.yml -f docker-compose.prod.yml \
+  -f docker-compose.ci.yml -f docker-compose.release-gate.yml up -d postgres redis
+# migrate, seed and start api/worker/web, then:
+KAIRO_GATE_BASE_URL=http://localhost:8080 node scripts/run-full-stack-gate.mjs
+cd apps/web && KAIRO_GATE_BASE_URL=http://localhost:8080 npm run test:e2e:real
+```
+
+- `scripts/run-full-stack-gate.mjs` proves 30 scenario steps against the real
+  API/database/worker: finance lifecycle, domain event → outbox → Celery worker →
+  authenticated inbox, deep-link contract, installation registration/preferences/
+  revocation, branding, tenant manifest, host resolution, tenant isolation and
+  role authorization. Latest verified result: **30 passed, 0 failed**.
+- `apps/web/e2e-real/full-stack.spec.ts` proves branding/manifest, exactly one
+  controlling Service Worker, zero WCAG 2.2 AA axe violations, the exact
+  notification deep-link route, the offline `/dashboard` shell, FR/EN/DE, the
+  390 × 844 Android viewport and sign-out in a real Chromium browser against
+  nginx and the real API. Latest verified result: **3 passed**.
+- Seeded accounts/tenants come from `services/api/scripts/seed_full_stack.py`
+  (COMBIS roles plus a Tenant X isolation control); MinIO stays
+  operator-provisioned. GitHub Actions wiring:
+  `.github/workflows/full-stack-release-gate.yml` (manual/nightly).
+- Automated evidence and the pending manual Chrome Android steps:
+  `docs/pwa/COMBIS_PILOT_CHECKLIST.md`.
+
 ## Performance
 
 ```bash

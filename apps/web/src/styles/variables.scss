@@ -42,6 +42,12 @@
   --om-info: #1864AB;
   --om-info-subtle: rgba(24, 100, 171, 0.10);
   --om-accent: #00A3A3;
+  // Strong text variants for small text on subtle backgrounds (WCAG 2.2 AA
+  // 4.5:1). The vivid colors above stay for icons, borders and large text.
+  --om-success-strong: #0F5132;
+  --om-warning-strong: #664D03;
+  --om-danger-strong: #842029;
+  --om-info-strong: #0A4275;
 
   // ── Legacy aliases (backward compatibility) ──
   --om-bg: var(--om-neutral-50);

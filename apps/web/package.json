@@ -16,7 +16,8 @@
     "test:e2e:pwa": "playwright test e2e/pwa-service-worker.spec.ts e2e/pwa-update-notice.spec.ts --project=chromium",
     "test:e2e:pwa:built": "playwright test --config playwright.pwa.config.ts",
     "test:e2e:notifications": "playwright test e2e/notification-installations.spec.ts e2e/operation-notifications.spec.ts --project=chromium",
-    "test:e2e:whitelabel": "playwright test e2e/tenant-branding.spec.ts e2e/tenant-installation.spec.ts e2e/host-tenant.spec.ts --project=chromium"
+    "test:e2e:whitelabel": "playwright test e2e/tenant-branding.spec.ts e2e/tenant-installation.spec.ts e2e/host-tenant.spec.ts --project=chromium",
+    "test:e2e:real": "playwright test --config playwright.real.config.ts"
   },
   "dependencies": {
     "axios": "^1.7.9",

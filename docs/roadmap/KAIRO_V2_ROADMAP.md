@@ -1,6 +1,6 @@
 # Kairo Roadmap V2 — Sprint 100 To Sprint 128
 
-Status: ACTIVE (canonical execution roadmap)
+Status: COMPLETE — Sprints 100–128 delivered (canonical V2 record)
 
 This roadmap is the single active execution source for Kairo after the historical
 Sprint 0–99 track. The historical record remains in `IMPLEMENTATION_ROADMAP.md` and is
@@ -9,9 +9,13 @@ read-only for planning purposes.
 Machine-readable companion: `docs/roadmap/KAIRO_V2_ROADMAP.json`.
 Execution policy: `docs/automation/SPRINT_BATCH_AUTOPILOT.md`.
 
-Sprints 100–118 are complete. The active program is **S119–S128: PWA-first,
-white-label SaaS**. The Vue 3 PWA is the canonical client; the Flutter client is
-frozen as legacy/reference code and receives no new business features.
+Sprints 100–128 are complete. The **S119–S128 program (PWA-first, white-label
+SaaS)** closed with Sprint 128: the real full-stack release gate validated the
+integrated platform against a deterministic production-like stack and the COMBIS
+Chrome Android pilot checklist was prepared (`docs/pwa/COMBIS_PILOT_CHECKLIST.md`).
+The Vue 3 PWA is the canonical client; the Flutter client is frozen as
+legacy/reference code and receives no new business features. Any further product
+work is a new planning decision (see `docs/roadmap/KAIRO_V3_ROADMAP.md`).
 
 Objective: **CONSOLIDATE → PWA → NOTIFICATIONS → WHITE-LABEL → RELIABILITY → HARDEN → RELEASE**.
 

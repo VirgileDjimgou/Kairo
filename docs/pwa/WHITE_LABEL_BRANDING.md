@@ -81,3 +81,7 @@ product source; the demo tenant and any association use the same contract.
   theme-color, logo, primary color, defaults and unsafe-asset fallback.
 - Commands: `python -m pytest services/api/tests/test_tenant_branding.py -q` and
   `cd apps/web && npm run test:e2e:whitelabel`.
+- Real stack (S128): the release gate verifies COMBIS branding on `/auth/me`, the
+  `COMBIS App` page title and the tenant manifest against the production-like
+  stack (`node scripts/run-full-stack-gate.mjs`, `npm run test:e2e:real`); see
+  `docs/pwa/COMBIS_PILOT_CHECKLIST.md`.

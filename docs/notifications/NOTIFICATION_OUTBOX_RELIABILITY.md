@@ -71,3 +71,10 @@ lease is reclaimed.
 ```bash
 python -m pytest services/api/tests/test_outbox_reliability.py -q
 ```
+
+The S128 real-stack gate additionally proves the happy path end to end through a
+real Celery worker: receipt declaration → domain event → user outbox → worker →
+authenticated inbox (`finance.receipt_declared`, `finance.receipt_validated`)
+with the canonical deep-link target, against PostgreSQL and Redis without API
+mocking (`node scripts/run-full-stack-gate.mjs`). See
+`docs/pwa/COMBIS_PILOT_CHECKLIST.md`.

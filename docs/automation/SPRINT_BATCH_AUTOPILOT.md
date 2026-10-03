@@ -1,7 +1,9 @@
 # Sprint Batch Autopilot
 
-Status: Active — canonical execution policy for Kairo Roadmap V2, program S119–S128
-(PWA-first, white-label SaaS).
+Status: Canonical execution policy, retained — Kairo Roadmap V2 (S100–S128) is
+complete; the S119–S128 program (PWA-first, white-label SaaS) closed with Sprint
+128 (real full-stack release gate and COMBIS pilot checklist). The state machine
+below stays valid for any future roadmap or stabilization program.
 
 This document defines how Kairo executes its canonical roadmap autonomously under
 OpenCode. It is deliberately independent of any queue plugin: the repository batch

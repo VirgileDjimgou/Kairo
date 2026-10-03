@@ -308,11 +308,25 @@ manual** since Sprint 119 (`.github/workflows/flutter-legacy.yml`, ADR-014) and
   guards, dependencies and images are pinned, `.dockerignore` protects build
   contexts, and the Production job builds the real images, migrates PostgreSQL
   and health-checks the stack (`docs/operations/reproducible-builds.md`).
-- Status: sprints 108–127 addressed i18n, capabilities, service decomposition,
+- Sprint 128 added the real full-stack release gate: a deterministic
+  production-like stack (PostgreSQL, Redis, API, Celery worker with embedded
+  beat, Vue/PWA, seeded COMBIS roles and a Tenant X isolation control) exercises
+  the complete path browser → Vue → real API → database → domain event →
+  notification outbox → worker → authenticated inbox → deep-link contract →
+  authorized route without API mocking. `scripts/run-full-stack-gate.mjs` proves
+  30 API/worker scenario steps (finance lifecycle, inbox delivery, installation
+  registration/revocation, branding, manifest, host resolution, tenant isolation
+  and role authorization) and `apps/web/e2e-real/full-stack.spec.ts` proves
+  branding/manifest, single Service Worker, WCAG 2.2 AA, the exact deep-link
+  target, offline shell, FR/EN/DE, Android viewport and sign-out in a real
+  browser. The COMBIS Chrome Android pilot checklist
+  (`docs/pwa/COMBIS_PILOT_CHECKLIST.md`) records the automated evidence and the
+  manual real-device steps that remain explicitly pending.
+- Status: sprints 108–128 addressed i18n, capabilities, service decomposition,
   domain events, notification convergence, the contract boundary, operational
   health/performance, the module framework, release hardening, the PWA-first
   client consolidation, the unified PWA Service Worker, the normalized
   notification installation model, secure actionable deep links, white-label
   tenant branding, tenant-aware PWA installation, tenant domains, outbox
-  reliability and reproducible CI; the active program is S119–S128 (PWA-first,
-  white-label SaaS).
+  reliability, reproducible CI and the real full-stack release gate; the
+  S119–S128 program (PWA-first, white-label SaaS) is complete.

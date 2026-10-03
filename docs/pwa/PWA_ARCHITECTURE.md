@@ -124,6 +124,10 @@ cd apps/web && npm run test:e2e:whitelabel  # branding + tenant installation
 
 The built pack proves that exactly one Service Worker controls the origin, that
 the web manifest is installable, and that an offline navigation falls back to
-the cached shell. Manual real-device validation (Android Chrome, installed PWA,
-background/closed delivery, launcher identity) remains part of the S128 pilot
-checklist.
+the cached shell. The S128 real-stack browser gate additionally proves the
+controlling worker, the tenant manifest swap, WCAG 2.2 AA, the exact deep-link
+target and the offline `/dashboard` shell against nginx and the real API
+(`apps/web/e2e-real/full-stack.spec.ts`, `npm run test:e2e:real`). Manual
+real-device validation (Android Chrome, installed PWA, background/closed
+delivery, launcher identity) is recorded, still pending, in
+`docs/pwa/COMBIS_PILOT_CHECKLIST.md`.

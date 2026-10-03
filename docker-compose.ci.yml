@@ -15,6 +15,13 @@ services:
       redis:
         condition: service_healthy
 
+  worker:
+    depends_on: !reset
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+
   web:
     depends_on: !reset
       api:

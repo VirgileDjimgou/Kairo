@@ -1,6 +1,6 @@
 # Project State
 
-Last verified: 2026-10-03 (Roadmap V2 Sprint 127)
+Last verified: 2026-10-03 (Roadmap V2 Sprint 128)
 
 ## What this file is
 
@@ -182,3 +182,17 @@ new business features during S119–S128.
   `npm ci`, base/service images are pinned, `.dockerignore` protects build
   contexts, and a Production job builds the real images, migrates PostgreSQL and
   health-checks the stack (`docs/operations/reproducible-builds.md`).
+  Sprint 128 closed the program with the real full-stack release gate: a
+  deterministic production-like stack (PostgreSQL, Redis, API, Celery worker
+  with embedded beat, Vue/PWA) is seeded with COMBIS roles and a Tenant X
+  isolation control, and the complete path browser → Vue → real API → database →
+  domain event → notification outbox → worker → authenticated inbox → deep-link
+  contract → authorized route is exercised without API mocking. `scripts/run-full-stack-gate.mjs`
+  passed 30/30 API/worker checks and `apps/web/e2e-real/full-stack.spec.ts`
+  passed 3/3 real browser checks (branding/manifest, single Service Worker,
+  WCAG 2.2 AA, exact deep link, offline shell, FR/EN/DE, Android viewport,
+  sign-out), with tenant isolation and role authorization proven. The COMBIS
+  Chrome Android pilot checklist (`docs/pwa/COMBIS_PILOT_CHECKLIST.md`) records
+  the automated evidence and the manual real-device steps that remain explicitly
+  pending. MinIO stays operator-provisioned and the GitHub workflow
+  (`.github/workflows/full-stack-release-gate.yml`) is manual/nightly.

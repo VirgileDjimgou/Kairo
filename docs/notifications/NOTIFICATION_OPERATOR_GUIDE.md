@@ -167,6 +167,15 @@ Validated by `services/api/tests/test_notification_convergence.py`:
 6. Sign out and confirm a new push is not delivered to that installation.
 7. Re-sign-in and confirm push is re-enabled automatically after the next opt-in.
 
+The S128 release gate automates the real-stack portion without API mocking:
+receipt declaration → domain event → outbox → Celery worker → authenticated
+inbox → deep-link contract → `/finance` route, plus installation registration,
+preferences read/update and revocation (`node scripts/run-full-stack-gate.mjs`,
+30/30 steps) and the browser inbox-click target (`npm run test:e2e:real` in
+`apps/web`). Device-only steps (closed-application delivery, system notification
+tap, on-device token revocation, application update) remain explicitly pending in
+`docs/pwa/COMBIS_PILOT_CHECKLIST.md`.
+
 ## 8. Secret hygiene
 
 - Never commit: `google-services.json`, Firebase Admin service account JSON, VAPID
