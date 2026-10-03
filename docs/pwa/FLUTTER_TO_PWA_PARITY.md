@@ -69,9 +69,9 @@ reference only.
 | G5 | Normalized browser installation model (`status`, browser/device metadata, `last_seen_at`, `revoked_at`) beyond the current subscription record. | S121 | Closed in S121 (migration 0034, `docs/notifications/NOTIFICATION_INSTALLATION_MODEL.md`) |
 | G6 | FCM web token registration, renewal and invalid-token cleanup through the same installation identity; retry telemetry. | S121 | Closed in S121 (Firebase Web Messaging fallback, token rotation, retry counters in notification health) |
 | G7 | Tenant switching and logout revoke only the matching profile binding; no cross-tenant or cross-account leakage. | S121 | Closed in S121 (revoke-before-switch, multi-profile safety, tenant-isolation tests) |
-| G8 | Click target verification: authentication → tenant → capability → resource authorization; fall back to the authenticated inbox when the target is inaccessible (currently falls back to the dashboard). | S122 | Pending |
-| G9 | Client-side internal route allowlist/validation aligned with the backend deep-link contract. | S122 | Pending |
-| G10 | Privacy-safe payload verification for payment, contribution, receipt, cash handover, treasury confirmation, expense, announcement, event, disciplinary and administrative cases. | S122 | Pending |
+| G8 | Click target verification: authentication → tenant → capability → resource authorization; fall back to the authenticated inbox when the target is inaccessible (currently falls back to the dashboard). | S122 | Closed in S122 (client route validation + inbox fallback; ADR-015) |
+| G9 | Client-side internal route allowlist/validation aligned with the backend deep-link contract. | S122 | Closed in S122 (backend `deep_links.py` allowlist + client router validation) |
+| G10 | Privacy-safe payload verification for payment, contribution, receipt, cash handover, treasury confirmation, expense, announcement, event, disciplinary and administrative cases. | S122 | Closed in S122 (representative-case tests assert generic push payloads and exact targets) |
 | G11 | Tenant-aware manifest, application name, short name, icons, maskable icon, theme and background colors. | S123, S124 | Pending |
 | G12 | Installation UX (`beforeinstallprompt`, custom CTA, `appinstalled`, standalone detection, fallback guidance, post-install onboarding) without aggressive permission prompts. | S124 | Pending |
 

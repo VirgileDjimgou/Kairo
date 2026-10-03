@@ -1,6 +1,6 @@
 # Notification Event Matrix
 
-Last verified: 2026-09-26 (Roadmap V2 Sprint 114)
+Last verified: 2026-10-03 (Roadmap V2 Sprint 122)
 
 Every row is backend-owned. Clients never decide recipients or access; push payloads
 are generic delivery hints and all detail is read from the authenticated inbox.
@@ -29,6 +29,7 @@ Authenticated inbox (UserNotification)  +  Push delivery (outbox worker)
 
 | Field | Where | Notes |
 | --- | --- | --- |
+| `envelope_version` | outbox payload | Canonical envelope revision (currently `1`). |
 | `notification_id` | `user_notifications.id` | Stable inbox identity. |
 | `event_id` | `user_notifications.event_id`, outbox payload | Domain event id when the producer is event-driven. |
 | `tenant_id` | both tables | Every query is tenant-scoped. |
@@ -36,12 +37,38 @@ Authenticated inbox (UserNotification)  +  Push delivery (outbox worker)
 | `category` | `finance`, `discipline`, `announcements`, `events` | Drives per-profile preference filtering. |
 | `priority` | `normal` / `high` | Presentation hint only. |
 | `event_type` | e.g. `finance.receipt_validated` | Client label lookup key. |
-| `target_path` | safe internal path | Validated by clients before navigation. |
+| `target_path` | allowlisted internal path | Normalized server-side by `deep_links.resolve_target_path()`; unknown/external values become `/notifications`. Re-validated by the client against the router and current authorization. |
 | `created_at` | both tables | Ordering and staleness. |
 | `deduplication_key` | outbox + per recipient | Idempotency; retries cannot duplicate. |
 | `correlation_id` | request `X-Request-ID` | End-to-end traceability. |
-| `metadata` | JSON | Safe, non-secret context (amount/category/income type). |
+| `metadata` (safe metadata) | JSON | Safe, non-secret context (amount/category/income type). Never pushed. |
 | `push_policy` | `generic` | No sensitive content is ever pushed. |
+
+## Deep-link contract
+
+```text
+producer target_path
+      |
+      v
+backend allowlist (deep_links.resolve_target_path)   unknown/external -> /notifications
+      |
+      v
+outbox payload -> authenticated inbox item + generic push (target only)
+      |
+      v
+Service Worker safeTarget()                          unsafe/missing -> /notifications
+      |
+      v
+client resolveNotificationTarget()                   unknown/forbidden/redirect -> /notifications
+      |
+      v
+Vue Router guard -> FastAPI authorization -> exact target
+```
+
+- Unauthenticated targets survive sign-in through `/login?redirect=<target>`.
+- An inaccessible target (role, module toggle, removed route) falls back to the
+  authenticated inbox instead of the dashboard.
+- Decision record: ADR-015.
 
 ## Event matrix
 

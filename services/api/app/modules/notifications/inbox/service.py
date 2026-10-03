@@ -8,6 +8,7 @@ from uuid import UUID
 
 from sqlalchemy import CursorResult, func, select, update
 
+from app.modules.notifications.deep_links import resolve_target_path
 from app.modules.notifications.user_base import UserNotificationServiceBase
 from app.modules.notifications.user_models import (
     NotificationOutboxEvent,
@@ -39,14 +40,16 @@ class InboxMixin(UserNotificationServiceBase):
         recipient_ids = sorted({str(user_id) for user_id in recipients})
         if not recipient_ids:
             return
+        safe_target = resolve_target_path(target_path)
         event = NotificationOutboxEvent(
             tenant_id=tenant_id,
             event_type=event_type,
             deduplication_key=deduplication_key,
             payload_json=json.dumps({
+                "envelope_version": 1,
                 "recipients": recipient_ids,
                 "category": category,
-                "target_path": target_path,
+                "target_path": safe_target,
                 "metadata": metadata or {},
                 "priority": priority,
                 "event_id": str(event_id) if event_id is not None else None,

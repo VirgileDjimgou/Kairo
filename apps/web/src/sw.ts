@@ -14,7 +14,7 @@ type PushPayload = { title?: string; body?: string; url?: string }
 
 declare let self: ServiceWorkerGlobalScope & { __WB_MANIFEST: PrecacheEntry[] }
 
-const DEFAULT_TARGET = '/dashboard'
+const DEFAULT_TARGET = '/notifications'
 const PWA_NAVIGATE_MESSAGE = 'kairo:navigate'
 const GENERIC_TITLE = 'Kairo'
 const GENERIC_BODY = 'Une nouvelle notification est disponible.'

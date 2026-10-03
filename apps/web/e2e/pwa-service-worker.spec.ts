@@ -77,17 +77,35 @@ test('a notification click navigates an authenticated client to the exact target
   await expect(page.getByRole('heading', { level: 1, name: /Boîte de réception|Inbox/ })).toBeVisible()
 })
 
-test('unsafe notification targets are ignored instead of navigating externally', async ({ page }) => {
+test('unsafe notification targets fall back to the authenticated inbox', async ({ page }) => {
   await installAuthenticatedMember(page)
   await page.goto('/more')
   await expect(page).toHaveURL(/\/more$/)
 
   await dispatchNavigate(page, 'https://evil.example/collect')
-  await dispatchNavigate(page, '//evil.example/collect')
-  await dispatchNavigate(page, 'javascript:alert(1)')
-  await dispatchNavigate(page, '')
+  await expect(page).toHaveURL(/\/notifications$/)
 
+  await page.goto('/more')
+  await dispatchNavigate(page, '//evil.example/collect')
+  await expect(page).toHaveURL(/\/notifications$/)
+
+  await page.goto('/more')
+  await dispatchNavigate(page, 'javascript:alert(1)')
+  await expect(page).toHaveURL(/\/notifications$/)
+})
+
+test('inaccessible notification targets fall back to the authenticated inbox', async ({ page }) => {
+  await installAuthenticatedMember(page)
+  await page.goto('/more')
   await expect(page).toHaveURL(/\/more$/)
+
+  // A member is not authorized for the treasurer finance workspace.
+  await dispatchNavigate(page, '/finance')
+  await expect(page).toHaveURL(/\/notifications$/)
+
+  await page.goto('/more')
+  await dispatchNavigate(page, '/does-not-exist')
+  await expect(page).toHaveURL(/\/notifications$/)
 })
 
 test('an unauthenticated notification target survives the login redirect', async ({ page }) => {

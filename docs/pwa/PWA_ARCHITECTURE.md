@@ -53,16 +53,20 @@ notificationclick
         +-- no window?        clients.openWindow(target)
 ```
 
-- Targets are backend-owned safe internal paths. `safeTarget()` in the worker
-  rejects anything that is not a same-origin absolute path and falls back to
-  `/dashboard`; `safeInternalTarget()` in
-  `apps/web/src/services/pwa-navigation.ts` repeats the validation on the client.
+- Targets are backend-owned safe internal paths. The backend normalizes every
+  enqueue through `deep_links.resolve_target_path()`; `safeTarget()` in the
+  worker rejects anything that is not a same-origin absolute path and falls back
+  to `/notifications`; `resolveNotificationTarget()` in
+  `apps/web/src/services/pwa-navigation.ts` re-validates the target against the
+  actual router, the authentication state, the role/module route meta and the
+  tenant module toggles. An unsafe, unknown, redirected or inaccessible target
+  resolves to the authenticated inbox.
 - The client never trusts the payload for authorization: the Vue Router guard
   re-checks authentication, role and module state, and the backend authorizes
   every request. An unauthenticated target becomes
   `/login?redirect=<target>` so the exact destination survives sign-in.
 - This is navigation safety, not access control; no notification payload can
-  navigate to an external URL.
+  navigate to an external URL. Decision record: ADR-015.
 
 ## Push transports
 

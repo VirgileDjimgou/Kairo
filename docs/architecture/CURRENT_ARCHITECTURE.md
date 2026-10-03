@@ -1,6 +1,6 @@
 # Kairo — Current Architecture Snapshot
 
-Last verified: 2026-10-03 (Roadmap V2 Sprint 121)
+Last verified: 2026-10-03 (Roadmap V2 Sprint 122)
 
 This file is the concise description of what Kairo IS today. When code and this
 file disagree, trust the code and update this file. Historical narrative lives in
@@ -94,7 +94,7 @@ Vue 3 PWA (apps/web)          Flutter client (apps/flutter_kairo)
 | Finance | `contributions/` (models, schemas, repository, router) + `finance/` (bounded context) | contributions, payments, receipts + custody handover, expenses, budgets, exports, reminders. `finance/` holds the decomposed domains (`contributions`, `receipts`, `custody`, `expenses`, `budgeting`, `reminders`, `reporting`), a notification contract seam (`notifications.py`) and a `ContributionService` facade; `contributions/service.py` re-exports the facade for API compatibility. Each command keeps its own transaction. |
 | Governance | `disciplinary/`, `events/`, `announcements/`, policies | role-scoped visibility |
 | Knowledge | `documents/`, `rag/`, `chat/` | ingestion, citations, refusal behavior. `chat/contexts/` holds the authorized domain context provider registry (membership, finance, governance, documents/publication, disciplinary, events/sports); providers check the capability-derived domain policy before querying, and `ChatService` consumes only the registry plus permission-aware RAG retrieval. |
-| Operations | `audit/`, `backup/`, `notifications/`, `domain_events/`, `module_registry/`, `worker/` | journal, encrypted backups, outbox delivery. `notifications/` is decomposed into `inbox`, `policy`, `preferences`, `devices`, `health`, `outbox` (user-facing) and `history`, `reconciliation`, `dispatch` (operator-facing), composed behind the unchanged `UserNotificationService` and `NotificationService` facades. `domain_events/` holds the internal event log, consumer registry and outbox service; `audit/event_handlers.py` and `notifications/event_handlers.py` consume events without business modules importing transport code. Push transports are provider protocols under `app/providers/push/` (Web Push VAPID + Firebase Admin FCM) with deterministic fakes for tests. Browser/Android installations are normalized in `notification_devices` (platform, browser, bounded metadata, status, timestamps) with provider subscriptions in `web_push_subscriptions`/`firebase_push_subscriptions`; delivery is deduplicated per `(recipient, installation)` (`docs/notifications/NOTIFICATION_INSTALLATION_MODEL.md`). `module_registry/` discovers per-module descriptors and composes routers, toggles, search/AI hooks, health checks and navigation (`GET /api/v1/modules`). |
+| Operations | `audit/`, `backup/`, `notifications/`, `domain_events/`, `module_registry/`, `worker/` | journal, encrypted backups, outbox delivery. `notifications/` is decomposed into `inbox`, `policy`, `preferences`, `devices`, `health`, `outbox` (user-facing) and `history`, `reconciliation`, `dispatch` (operator-facing), composed behind the unchanged `UserNotificationService` and `NotificationService` facades. `domain_events/` holds the internal event log, consumer registry and outbox service; `audit/event_handlers.py` and `notifications/event_handlers.py` consume events without business modules importing transport code. Push transports are provider protocols under `app/providers/push/` (Web Push VAPID + Firebase Admin FCM) with deterministic fakes for tests. Browser/Android installations are normalized in `notification_devices` (platform, browser, bounded metadata, status, timestamps) with provider subscriptions in `web_push_subscriptions`/`firebase_push_subscriptions`; delivery is deduplicated per `(recipient, installation)` (`docs/notifications/NOTIFICATION_INSTALLATION_MODEL.md`). Notification targets are normalized by a boundary-aware internal allowlist (`deep_links.py`, ADR-015); the outbox carries a versioned canonical envelope and clients fall back to the authenticated inbox for unsafe or inaccessible targets. `module_registry/` discovers per-module descriptors and composes routers, toggles, search/AI hooks, health checks and navigation (`GET /api/v1/modules`). |
 
 ## Clients
 
@@ -110,9 +110,11 @@ Vue 3 PWA (apps/web)          Flutter client (apps/flutter_kairo)
   (`src/sw.ts`, vite-plugin-pwa `injectManifest`) owns install/activate, the
   offline strategy, update detection, Web Push display, Firebase background
   messages and notification-click routing. Notification clicks focus an existing
-  window and post a `kairo:navigate` message so Vue Router opens the exact
-  authorized target; the worker falls back to `openWindow` and `/dashboard`
-  only for unsafe or missing targets. See `docs/pwa/PWA_ARCHITECTURE.md`.
+  window and post a `kairo:navigate` message; the client validates the target
+  against the router, authentication state, role/module metadata and tenant
+  toggles and opens the exact authorized route, falling back to the
+  authenticated inbox for unsafe, unknown, redirected or inaccessible targets.
+  See `docs/pwa/PWA_ARCHITECTURE.md` and ADR-015.
 - **Flutter client** (`apps/flutter_kairo/`) — **FROZEN / LEGACY REFERENCE**
   (ADR-014). It consumes the same API contracts and makes no local authorization
   decisions, but receives no new business features and is not a blocking job of
@@ -133,7 +135,7 @@ Vue 3 PWA (apps/web)          Flutter client (apps/flutter_kairo)
 
 ## Quality gates
 
-Backend `ruff` + `mypy` (302 source files) + `pytest` (370 tests), Web `vue-tsc` + `vite build` +
+Backend `ruff` + `mypy` (303 source files) + `pytest` (394 tests), Web `vue-tsc` + `vite build` +
 four Playwright packs (locale, roles, release-candidate, accessibility) plus the
 PWA packs (navigation contract on the dev server; single-worker/offline on the
 built preview) and the notification-installation pack, the canonical Service
@@ -234,9 +236,16 @@ never block the release pipeline. Commands of record:
   tenant switching revokes the previous tenant binding first, and notification
   health reports retrying subscriptions. See
   `docs/notifications/NOTIFICATION_INSTALLATION_MODEL.md`.
-- Status: sprints 108–121 addressed i18n, capabilities, service decomposition,
+- Sprint 122 secured notification deep links: a boundary-aware backend allowlist
+  normalizes every target (unknown/external values become `/notifications`), the
+  outbox payload carries `envelope_version: 1`, the PWA re-validates targets
+  against the actual router, authentication state, role/module metadata and
+  tenant toggles, and unsafe/unknown/redirected/inaccessible targets fall back
+  to the authenticated inbox instead of the dashboard; representative business
+  cases prove generic push payloads and exact targets (ADR-015).
+- Status: sprints 108–122 addressed i18n, capabilities, service decomposition,
   domain events, notification convergence, the contract boundary, operational
   health/performance, the module framework, release hardening, the PWA-first
-  client consolidation, the unified PWA Service Worker and the normalized
-  notification installation model; the active program is S119–S128 (PWA-first,
-  white-label SaaS).
+  client consolidation, the unified PWA Service Worker, the normalized
+  notification installation model and secure actionable deep links; the active
+  program is S119–S128 (PWA-first, white-label SaaS).

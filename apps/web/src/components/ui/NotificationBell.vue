@@ -34,6 +34,7 @@ import { useRouter } from 'vue-router'
 import { useToast } from 'vue-toastification'
 import { getNotificationInbox, getNotificationPreferences, markAllNotificationsRead, markNotificationRead, updateNotificationPreferences, type InboxNotification, type NotificationPreferences } from '@/api/notifications.api'
 import { enablePushForCurrentProfile, hasActivePushSubscription, registerCurrentDevice, revokeCurrentDevice } from '@/services/web-push'
+import { resolveNotificationTarget } from '@/services/pwa-navigation'
 import { useLocaleStore } from '@/stores/locale.store'
 
 const router = useRouter()
@@ -77,7 +78,8 @@ async function markAllRead(): Promise<void> {
 
 async function open(item: InboxNotification): Promise<void> {
   if (!item.read_at) await markNotificationRead(item.id)
-  await router.push(item.target_path)
+  // Stale or inaccessible targets fall back to the authenticated inbox.
+  await router.push(resolveNotificationTarget(router, item.target_path))
   await refresh()
 }
 

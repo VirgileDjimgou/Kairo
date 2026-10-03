@@ -1,6 +1,6 @@
 # Project State
 
-Last verified: 2026-10-03 (Roadmap V2 Sprint 121)
+Last verified: 2026-10-03 (Roadmap V2 Sprint 122)
 
 ## What this file is
 
@@ -33,7 +33,7 @@ new business features during S119–S128.
 
 ## Current engineering posture
 
-- Verified baseline (2026-10-03): 370 backend tests, web type-check/build, four
+- Verified baseline (2026-10-03): 394 backend tests, web type-check/build, four
   Playwright packs (locale 20, roles 17, release-candidate 9, accessibility 6)
   plus the PWA and notification-installation packs, OpenAPI contract checks, an
   opt-in performance regression check, repository guards green. Flutter
@@ -135,3 +135,10 @@ new business features during S119–S128.
   health and added eight backend plus four web installation tests; the backend
   suite has 370 passing tests and the model is documented in
   `docs/notifications/NOTIFICATION_INSTALLATION_MODEL.md`.
+  Sprint 122 secured notification deep links: a boundary-aware backend allowlist
+  normalizes every target (unknown/external values become `/notifications`), the
+  outbox payload carries `envelope_version: 1`, the PWA re-validates targets
+  against the router, authentication state, role/module metadata and tenant
+  toggles with an authenticated-inbox fallback, and representative business
+  cases prove generic push payloads and exact targets (ADR-015); the backend
+  suite has 394 passing tests.
