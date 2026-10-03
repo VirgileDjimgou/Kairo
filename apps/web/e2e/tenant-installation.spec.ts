@@ -121,7 +121,7 @@ test('installation is offered through an explicit prompt and hides after install
 
   await page.evaluate(() => window.dispatchEvent(new Event('appinstalled')))
   await expect(installButton).toHaveCount(0)
-  await expect(page.locator('.Vue-Toastification__toast')).toBeVisible()
+  await expect(page.locator('.Vue-Toastification__toast--success')).toBeVisible()
 })
 
 test('dismissing the install prompt persists for the installation', async ({ page }) => {

@@ -16,6 +16,9 @@ class Settings(BaseSettings):
     app_name: str = "Kairo"
     app_env: str = "development"
     app_debug: bool = False
+    # White-label tenant domains: the base domain whose direct subdomains map to
+    # tenant slugs (for example "kairo.example" resolves "combis.kairo.example").
+    platform_base_domain: str | None = None
 
     # CORS
     # Keep the documented comma-separated environment variable contract. Pydantic

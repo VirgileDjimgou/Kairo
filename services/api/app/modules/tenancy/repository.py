@@ -38,6 +38,24 @@ class TenancyRepository:
         )
         return result.scalar_one_or_none()
 
+    async def get_tenant_by_custom_domain(self, domain: str) -> Tenant | None:
+        result = await self._db.execute(
+            select(Tenant).where(
+                Tenant.custom_domain == domain.lower().strip(),
+                Tenant.status == "active",
+            )
+        )
+        return result.scalar_one_or_none()
+
+    async def set_tenant_custom_domain(
+        self, tenant_id: UUID, custom_domain: str | None
+    ) -> None:
+        tenant = await self.get_tenant_by_id(tenant_id)
+        if tenant is None:
+            return
+        tenant.custom_domain = custom_domain
+        await self._db.flush()
+
     async def update_tenant(
         self, tenant_id: UUID, *, name: str | None = None,
         default_language: str | None = None,

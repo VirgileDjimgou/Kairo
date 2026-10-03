@@ -1132,6 +1132,15 @@ export interface PolicyRecordUpdate {
 
 export type PolicyStatus = "draft" | "published" | "archived";
 
+export interface PublicTenantResolutionResponse {
+  branding: TenantBranding;
+  default_language: string;
+  manifest_url: string;
+  name: string;
+  slug: string;
+  tenant_id: string;
+}
+
 export interface PushConfigurationResponse {
   enabled: boolean;
   public_key?: string | null;
@@ -1559,6 +1568,7 @@ export interface ApiOperations {
   'PATCH /api/v1/sports/events/{event_id}': { request: EventUpdate; response: EventResponse };
   'DELETE /api/v1/sports/events/{event_id}': { request: undefined; response: undefined };
   'GET /api/v1/tenants/': { request: undefined; response: Array<TenantResponse> };
+  'GET /api/v1/tenants/public/resolve': { request: undefined; response: PublicTenantResolutionResponse };
   'GET /api/v1/tenants/public/{slug}/manifest': { request: undefined; response: unknown };
   'GET /api/v1/tenants/{tenant_id}': { request: undefined; response: TenantResponse };
   'GET /api/v1/tenants/{tenant_id}/roles': { request: undefined; response: Array<RoleResponse> };

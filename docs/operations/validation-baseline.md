@@ -28,7 +28,7 @@ python -m mypy --config-file services/api/pyproject.toml --explicit-package-base
 Notes:
 
 - The backend test suite defaults to an isolated SQLite database when `TEST_DATABASE_URL` is not set to PostgreSQL.
-- 409 integration tests pass (latest verified count, 2026-10-03; includes the installation-model (S121), deep-link (S122), branding (S123) and manifest (S124) suites).
+- 416 integration tests pass (latest verified count, 2026-10-03; includes the installation-model (S121), deep-link (S122), branding (S123), manifest (S124) and tenant-domain (S125) suites).
 - Ruff baseline covers the entire `app/` tree and all tests with `--ignore E501` to focus on meaningful rules (security, unused imports, error handling) without cosmetic line-length noise.
 - Mypy baseline now covers all 301 source files across the entire `app/` tree — all modules, providers, core, db, and main.py — with zero errors.
 
@@ -229,6 +229,20 @@ cd apps/web && npm run test:e2e:whitelabel
   width).
 - Contract and configuration: `docs/pwa/WHITE_LABEL_BRANDING.md`,
   `docs/pwa/PWA_ARCHITECTURE.md`.
+
+## Tenant Domains
+
+```bash
+python -m pytest services/api/tests/test_tenant_domains.py -q
+cd apps/web && npm run test:e2e:whitelabel
+```
+
+- Backend coverage: exact custom-domain and platform-subdomain resolution, host
+  normalization (case/port), unknown/nested/inactive rejection, client-override
+  immunity and cross-tenant domain uniqueness (`409`).
+- Web coverage (white-label pack): pre-auth branding and manifest from the
+  resolved host, safe defaults for unmapped hosts and login tenant seeding.
+- Mapping, security review and onboarding runbook: `docs/pwa/TENANT_DOMAINS.md`.
 
 ## Notification Operations
 

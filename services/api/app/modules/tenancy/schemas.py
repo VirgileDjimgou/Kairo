@@ -130,6 +130,17 @@ class TenantSettingsUpdate(BaseModel):
     operations: RecoveryEvidenceConfig | None = None
 
 
+class PublicTenantResolutionResponse(BaseModel):
+    """Host-resolved tenant identity for pre-authentication presentation."""
+
+    tenant_id: UUID
+    slug: str
+    name: str
+    default_language: str
+    branding: TenantBranding
+    manifest_url: str
+
+
 class RoleBundleCreate(BaseModel):
     """A tenant-specific role bundle over canonical capabilities."""
 

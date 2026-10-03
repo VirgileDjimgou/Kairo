@@ -1,6 +1,6 @@
 # Project State
 
-Last verified: 2026-10-03 (Roadmap V2 Sprint 124)
+Last verified: 2026-10-03 (Roadmap V2 Sprint 125)
 
 ## What this file is
 
@@ -33,12 +33,12 @@ new business features during S119–S128.
 
 ## Current engineering posture
 
-- Verified baseline (2026-10-03): 409 backend tests, web type-check/build, four
+- Verified baseline (2026-10-03): 416 backend tests, web type-check/build, four
   Playwright packs (locale 20, roles 17, release-candidate 9, accessibility 6)
-  plus the PWA, notification-installation and white-label/installation packs,
-  OpenAPI contract checks, an opt-in performance regression check, repository
-  guards green. Flutter analyze/tests/builds are optional and manual since
-  Sprint 119 (`.github/workflows/flutter-legacy.yml`, ADR-014). Details:
+  plus the PWA, notification-installation and white-label/domain packs, OpenAPI
+  contract checks, an opt-in performance regression check, repository guards
+  green. Flutter analyze/tests/builds are optional and manual since Sprint 119
+  (`.github/workflows/flutter-legacy.yml`, ADR-014). Details:
   `docs/operations/validation-baseline.md`. Sprint 118 evidence:
   `docs/sprint-118-release-candidate-evidence.md`.
 - Open security item (HUMAN_REQUIRED): historical JWT secret rotation and
@@ -157,3 +157,11 @@ new business features during S119–S128.
   persistence, standalone detection and browser guidance, and never requests
   notification permission during installation; the backend suite has 409
   passing tests.
+  Sprint 125 added server-authoritative tenant domains: the public resolve
+  endpoint maps an exact `custom_domain` (unique, indexed, 409 on conflict) or a
+  direct `<slug>.<PLATFORM_BASE_DOMAIN>` subdomain to a tenant, ignores
+  unknown/nested hosts and client overrides, and the PWA applies the resolved
+  branding/manifest pre-auth and seeds the login tenant. HTTPS/cookie/CORS/CSRF/
+  Service Worker/Web Push origin behavior and the onboarding runbook are
+  documented in `docs/pwa/TENANT_DOMAINS.md`; the backend suite has 416 passing
+  tests.

@@ -1,6 +1,6 @@
 # Kairo — Current Architecture Snapshot
 
-Last verified: 2026-10-03 (Roadmap V2 Sprint 124)
+Last verified: 2026-10-03 (Roadmap V2 Sprint 125)
 
 This file is the concise description of what Kairo IS today. When code and this
 file disagree, trust the code and update this file. Historical narrative lives in
@@ -83,7 +83,11 @@ Vue 3 PWA (apps/web)          Flutter client (apps/flutter_kairo)
   sender and transactional email. Branding is configuration only and never
   affects authorization or business rules (`docs/pwa/WHITE_LABEL_BRANDING.md`).
   A public manifest endpoint exposes branding-only install metadata for the
-  tenant-aware PWA installation.
+  tenant-aware PWA installation. Host-based resolution is server-authoritative:
+  `GET /api/v1/tenants/public/resolve` maps an exact unique `custom_domain`
+  column or a direct `<slug>.<PLATFORM_BASE_DOMAIN>` subdomain to an active
+  tenant; unknown hosts and client overrides never select a tenant
+  (`docs/pwa/TENANT_DOMAINS.md`).
 - Canonical office roles: member, secretary_general, treasurer, auditor, censor,
   sports_manager, president, vice_president, principal_admin (+ legacy `admin`).
 - Roles are capability bundles. Effective capabilities are exposed read-only on
@@ -126,7 +130,8 @@ Vue 3 PWA (apps/web)          Flutter client (apps/flutter_kairo)
   variables, with safe Kairo defaults. After sign-in the manifest link follows
   the tenant (`GET /api/v1/tenants/public/{slug}/manifest`) and an explicit
   install CTA handles `beforeinstallprompt`/`appinstalled` without requesting
-  notification permission.
+  notification permission. A host-resolved tenant (`services/host-tenant.ts`)
+  applies the same branding and manifest before authentication.
 - **Flutter client** (`apps/flutter_kairo/`) — **FROZEN / LEGACY REFERENCE**
   (ADR-014). It consumes the same API contracts and makes no local authorization
   decisions, but receives no new business features and is not a blocking job of
@@ -147,7 +152,7 @@ Vue 3 PWA (apps/web)          Flutter client (apps/flutter_kairo)
 
 ## Quality gates
 
-Backend `ruff` + `mypy` (304 source files) + `pytest` (409 tests), Web `vue-tsc` + `vite build` +
+Backend `ruff` + `mypy` (304 source files) + `pytest` (416 tests), Web `vue-tsc` + `vite build` +
 four Playwright packs (locale, roles, release-candidate, accessibility) plus the
 PWA packs (navigation contract on the dev server; single-worker/offline on the
 built preview) and the notification-installation pack, the canonical Service
@@ -270,10 +275,17 @@ never block the release pipeline. Commands of record:
   `beforeinstallprompt`, `appinstalled`, dismissal persistence, standalone
   detection and browser guidance without ever requesting notification
   permission. No per-association frontend exists.
-- Status: sprints 108–124 addressed i18n, capabilities, service decomposition,
+- Sprint 125 added tenant domains and host-based resolution: a unique indexed
+  `custom_domain` plus `<slug>.<PLATFORM_BASE_DOMAIN>` subdomains resolve
+  server-authoritatively from the request host (unknown/nested/inactive hosts
+  and client overrides never select a tenant); the PWA applies the resolved
+  branding and manifest pre-authentication and seeds the login tenant context.
+  HTTPS/cookie/CORS/CSRF/Service Worker/Web Push origin behavior and the
+  end-to-end onboarding runbook are documented in `docs/pwa/TENANT_DOMAINS.md`.
+- Status: sprints 108–125 addressed i18n, capabilities, service decomposition,
   domain events, notification convergence, the contract boundary, operational
   health/performance, the module framework, release hardening, the PWA-first
   client consolidation, the unified PWA Service Worker, the normalized
   notification installation model, secure actionable deep links, white-label
-  tenant branding and tenant-aware PWA installation; the active program is
-  S119–S128 (PWA-first, white-label SaaS).
+  tenant branding, tenant-aware PWA installation and tenant domains; the active
+  program is S119–S128 (PWA-first, white-label SaaS).

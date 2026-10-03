@@ -1,10 +1,12 @@
 import json
 from uuid import UUID
 
-from fastapi import APIRouter, Request, Response
+from fastapi import APIRouter, HTTPException, Request, Response, status
 
 from app.core.dependencies import AuthDep, DbDep
+from app.modules.tenancy.branding import branding_from_json
 from app.modules.tenancy.schemas import (
+    PublicTenantResolutionResponse,
     RoleBundleCreate,
     RoleResponse,
     TenantResponse,
@@ -14,6 +16,30 @@ from app.modules.tenancy.schemas import (
 from app.modules.tenancy.service import TenancyService
 
 router = APIRouter(prefix="/tenants", tags=["tenants"])
+
+
+@router.get("/public/resolve", response_model=PublicTenantResolutionResponse)
+async def resolve_public_tenant_host(request: Request, db: DbDep) -> PublicTenantResolutionResponse:
+    """Resolve the tenant mapped to the request Host header.
+
+    Server-authoritative: the client never supplies a tenant id or slug. Only an
+    exact custom domain or a direct platform subdomain resolves; any other host
+    returns 404 so it cannot select a tenant.
+    """
+    tenant = await TenancyService(db).resolve_host_tenant(request.headers.get("host", ""))
+    if tenant is None:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="No tenant is mapped to this host",
+        )
+    return PublicTenantResolutionResponse(
+        tenant_id=tenant.id,
+        slug=tenant.slug,
+        name=tenant.name,
+        default_language=tenant.default_language,
+        branding=branding_from_json(tenant.branding_json),
+        manifest_url=f"/api/v1/tenants/public/{tenant.slug}/manifest",
+    )
 
 
 @router.get("/public/{slug}/manifest")

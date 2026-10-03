@@ -3595,6 +3595,35 @@ class PolicyRecordUpdate {
 
 typedef PolicyStatus = String;
 
+class PublicTenantResolutionResponse {
+  const PublicTenantResolutionResponse({this.branding, this.default_language, this.manifest_url, this.name, this.slug, this.tenant_id});
+
+  factory PublicTenantResolutionResponse.fromJson(Map<String, dynamic> json) => PublicTenantResolutionResponse(
+        branding: json['branding'] == null ? null : TenantBranding.fromJson(json['branding'] as Map<String, dynamic>),
+        default_language: json['default_language'] as String?,
+        manifest_url: json['manifest_url'] as String?,
+        name: json['name'] as String?,
+        slug: json['slug'] as String?,
+        tenant_id: json['tenant_id'] as String?,
+      );
+
+  final TenantBranding? branding;
+  final String? default_language;
+  final String? manifest_url;
+  final String? name;
+  final String? slug;
+  final String? tenant_id;
+
+  Map<String, dynamic> toJson() => <String, dynamic>{
+        if (branding != null) 'branding': branding!.toJson(),
+        if (default_language != null) 'default_language': default_language,
+        if (manifest_url != null) 'manifest_url': manifest_url,
+        if (name != null) 'name': name,
+        if (slug != null) 'slug': slug,
+        if (tenant_id != null) 'tenant_id': tenant_id,
+      };
+}
+
 class PushConfigurationResponse {
   const PushConfigurationResponse({this.enabled, this.public_key, this.reason});
 
@@ -4612,6 +4641,7 @@ const Map<String, String> apiOperationIds = <String, String>{
   'PATCH /api/v1/sports/events/{event_id}': 'update_sports_event_api_v1_sports_events__event_id__patch',
   'DELETE /api/v1/sports/events/{event_id}': 'delete_sports_event_api_v1_sports_events__event_id__delete',
   'GET /api/v1/tenants/': 'list_my_tenants_api_v1_tenants__get',
+  'GET /api/v1/tenants/public/resolve': 'resolve_public_tenant_host_api_v1_tenants_public_resolve_get',
   'GET /api/v1/tenants/public/{slug}/manifest': 'get_public_tenant_manifest_api_v1_tenants_public__slug__manifest_get',
   'GET /api/v1/tenants/{tenant_id}': 'get_tenant_api_v1_tenants__tenant_id__get',
   'GET /api/v1/tenants/{tenant_id}/roles': 'list_tenant_roles_api_v1_tenants__tenant_id__roles_get',

@@ -16,6 +16,7 @@ import { useTenantStore } from "@/stores/tenant.store";
 import { listenForOperationNotifications, type OperationNotification } from "@/services/operation-notifications";
 import { applyBranding } from "@/services/branding";
 import { applyTenantManifest } from "@/services/pwa-install";
+import { hostTenant, resolveHostTenant } from "@/services/host-tenant";
 
 const authStore = useAuthStore();
 const localeStore = useLocaleStore();
@@ -25,13 +26,14 @@ const toast = useToast()
 let removeNotificationListener: (() => void) | undefined
 
 // Tenant branding is configuration: every surface consumes the same contract
-// and the safe Kairo defaults apply when a tenant has no branding. The manifest
-// link follows the tenant so an installed app carries the tenant identity.
+// and the safe Kairo defaults apply when a tenant has no branding. An
+// authenticated tenant wins over the host-resolved tenant, which wins over the
+// platform defaults.
 watch(
-  () => tenantStore.currentTenant,
-  (tenant) => {
-    applyBranding(tenant?.branding)
-    applyTenantManifest(tenant?.slug ?? null)
+  () => [tenantStore.currentTenant, hostTenant.value] as const,
+  ([currentTenant, resolvedHostTenant]) => {
+    applyBranding(currentTenant?.branding ?? resolvedHostTenant?.branding)
+    applyTenantManifest(currentTenant?.slug ?? resolvedHostTenant?.slug ?? null)
   },
   { immediate: true, deep: true },
 )
@@ -54,6 +56,7 @@ function displayOperationNotification(notification: OperationNotification) {
 
 onMounted(() => {
   localeStore.initialize();
+  void resolveHostTenant();
   void authStore.restoreSession();
   window.addEventListener('kairo:pwa-update-available', markUpdateAvailable)
   removeNotificationListener = listenForOperationNotifications(displayOperationNotification)

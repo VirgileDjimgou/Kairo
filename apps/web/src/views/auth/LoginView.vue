@@ -422,6 +422,7 @@ import { useLocaleStore } from "@/stores/locale.store";
 import { getApiErrorDetail, mapLoginError, mapMfaError } from "@/utils/authErrors";
 import LanguageSelector from "@/components/LanguageSelector.vue";
 import { IS_DEMO_MODE } from "@/config/demoAccounts";
+import { hostTenant } from "@/services/host-tenant";
 
 const router = useRouter();
 const authStore = useAuthStore();
@@ -486,7 +487,9 @@ async function handleLogin() {
   needsMfa.value = false;
 
   try {
-    const result = await authStore.login(form.email, form.password);
+    // A host-resolved tenant seeds the login context; the backend still
+    // validates membership and never trusts a client-selected tenant.
+    const result = await authStore.login(form.email, form.password, hostTenant.value?.slug);
 
     if (result === "mfa_required") {
       needsMfa.value = true;

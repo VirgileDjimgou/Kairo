@@ -15,8 +15,10 @@ from app.core.capabilities import (
     has_capability,
     normalize_bundle_capabilities,
 )
+from app.core.config import settings
 from app.modules.audit.service import AuditService
 from app.modules.tenancy.branding import branding_from_json
+from app.modules.tenancy.models import Tenant
 from app.modules.tenancy.module_toggles import default_module_toggles, parse_module_toggles
 from app.modules.tenancy.repository import TenancyRepository
 from app.modules.tenancy.role_catalog import is_canonical_role
@@ -40,6 +42,16 @@ DEFAULT_MANIFEST_ICONS: tuple[tuple[str, str, str], ...] = (
     ("/pwa-512x512.png", "512x512", "any"),
     ("/pwa-512x512.png", "512x512", "maskable"),
 )
+
+
+def normalize_host(raw: str) -> str:
+    """Normalize a Host header value to a lowercase hostname without a port."""
+    value = str(raw or "").split(",")[0].strip().lower()
+    if value.startswith("["):  # bracketed IPv6 literal
+        value = value.split("]", 1)[0].lstrip("[")
+    else:
+        value = value.split(":", 1)[0]
+    return value.rstrip(".")
 
 
 class TenancyService:
@@ -267,6 +279,20 @@ class TenancyService:
 
         if settings.branding is not None:
             current_branding_raw.update(settings.branding.model_dump(exclude_unset=True))
+
+        # The custom domain is an explicit host mapping, not just presentation:
+        # normalize it, reject collisions with another tenant and keep the
+        # indexed column in sync with the branding contract.
+        custom_domain = str(current_branding_raw.get("custom_domain", "") or "").strip().lower().strip(".")
+        current_branding_raw["custom_domain"] = custom_domain
+        if custom_domain:
+            existing_domain_tenant = await self._repo.get_tenant_by_custom_domain(custom_domain)
+            if existing_domain_tenant is not None and existing_domain_tenant.id != tenant_id:
+                raise HTTPException(
+                    status_code=status.HTTP_409_CONFLICT,
+                    detail="This domain is already assigned to another organization",
+                )
+
         if settings.modules is not None:
             current_settings_raw["modules"] = {
                 **default_module_toggles(),
@@ -294,6 +320,7 @@ class TenancyService:
                 status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
                 detail="Failed to update tenant settings",
             )
+        await self._repo.set_tenant_custom_domain(tenant_id, custom_domain or None)
 
         await self._audit.record_event(
             tenant_id=tenant_id,
@@ -388,6 +415,29 @@ class TenancyService:
             "scope": "/",
             "icons": icons,
         }
+
+    async def resolve_host_tenant(self, host: str) -> Tenant | None:
+        """Resolve the tenant bound to a request host, server-authoritatively.
+
+        Only two explicit mappings exist: an exact tenant `custom_domain`, or a
+        direct `<slug>.<platform_base_domain>` subdomain of the configured
+        platform domain. Unknown hosts, nested subdomains and client-supplied
+        overrides never select a tenant.
+        """
+        normalized = normalize_host(host)
+        if not normalized:
+            return None
+
+        tenant = await self._repo.get_tenant_by_custom_domain(normalized)
+        if tenant is not None:
+            return tenant
+
+        base = (settings.platform_base_domain or "").strip().lower().strip(".")
+        if base and normalized.endswith(f".{base}"):
+            slug = normalized[: -(len(base) + 1)]
+            if slug and "." not in slug:
+                return await self._repo.get_tenant_by_slug(slug)
+        return None
 
     def _build_recovery_evidence(self, settings_raw: dict) -> RecoveryEvidenceResponse:
         operations_raw = settings_raw.get("operations", {})

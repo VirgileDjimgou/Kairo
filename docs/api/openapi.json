@@ -6722,6 +6722,45 @@
         "title": "PolicyStatus",
         "type": "string"
       },
+      "PublicTenantResolutionResponse": {
+        "description": "Host-resolved tenant identity for pre-authentication presentation.",
+        "properties": {
+          "branding": {
+            "$ref": "#/components/schemas/TenantBranding"
+          },
+          "default_language": {
+            "title": "Default Language",
+            "type": "string"
+          },
+          "manifest_url": {
+            "title": "Manifest Url",
+            "type": "string"
+          },
+          "name": {
+            "title": "Name",
+            "type": "string"
+          },
+          "slug": {
+            "title": "Slug",
+            "type": "string"
+          },
+          "tenant_id": {
+            "format": "uuid",
+            "title": "Tenant Id",
+            "type": "string"
+          }
+        },
+        "required": [
+          "tenant_id",
+          "slug",
+          "name",
+          "default_language",
+          "branding",
+          "manifest_url"
+        ],
+        "title": "PublicTenantResolutionResponse",
+        "type": "object"
+      },
       "PushConfigurationResponse": {
         "properties": {
           "enabled": {
@@ -15390,6 +15429,28 @@
           }
         ],
         "summary": "List My Tenants",
+        "tags": [
+          "tenants"
+        ]
+      }
+    },
+    "/api/v1/tenants/public/resolve": {
+      "get": {
+        "description": "Resolve the tenant mapped to the request Host header.\n\nServer-authoritative: the client never supplies a tenant id or slug. Only an\nexact custom domain or a direct platform subdomain resolves; any other host\nreturns 404 so it cannot select a tenant.",
+        "operationId": "resolve_public_tenant_host_api_v1_tenants_public_resolve_get",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PublicTenantResolutionResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          }
+        },
+        "summary": "Resolve Public Tenant Host",
         "tags": [
           "tenants"
         ]

@@ -91,9 +91,11 @@ notificationclick
 ## Tenant-aware manifest and installation
 
 - Before sign-in the static platform manifest (`/manifest.webmanifest`) is
-  active. Once a tenant context exists, `applyTenantManifest()` swaps the
-  `<link rel="manifest">` href to
-  `/api/v1/tenants/public/{slug}/manifest`.
+  active. Once a tenant context exists — authenticated or resolved from the
+  request host — `applyTenantManifest()` swaps the `<link rel="manifest">` href
+  to `/api/v1/tenants/public/{slug}/manifest`. Host resolution is
+  server-authoritative (`docs/pwa/TENANT_DOMAINS.md`); an unmapped host keeps
+  the platform defaults.
 - The manifest endpoint is public (install-time presentation data), built from
   the canonical `TenantBranding` with safe Kairo defaults: name, short name,
   theme/background colors, language, `display: standalone`, `start_url:
