@@ -60,20 +60,20 @@ reference only.
 
 ## Notification and deep-link gap register (S120–S124)
 
-| Gap | Description | Owner sprint |
-| --- | --- | --- |
-| G1 | Firebase Web Messaging background handler inside the canonical Service Worker (in addition to VAPID Web Push). | S120 |
-| G2 | Exactly one Service Worker controls the origin/scope; verify no competing registration from legacy code. | S120 |
-| G3 | `SERVICE WORKER → NAVIGATE(targetPath) → VUE ROUTER` contract: in-app navigation for an already-open client instead of a full page reload where possible. | S120 |
-| G4 | Click behavior verified for app open, backgrounded, closed, multiple tabs, standalone PWA and browser window. | S120 |
-| G5 | Normalized browser installation model (`status`, browser/device metadata, `last_seen_at`, `revoked_at`) beyond the current subscription record. | S121 |
-| G6 | FCM web token registration, renewal and invalid-token cleanup through the same installation identity; retry telemetry. | S121 |
-| G7 | Tenant switching and logout revoke only the matching profile binding; no cross-tenant or cross-account leakage. | S121 |
-| G8 | Click target verification: authentication → tenant → capability → resource authorization; fall back to the authenticated inbox when the target is inaccessible (currently falls back to the dashboard). | S122 |
-| G9 | Client-side internal route allowlist/validation aligned with the backend deep-link contract. | S122 |
-| G10 | Privacy-safe payload verification for payment, contribution, receipt, cash handover, treasury confirmation, expense, announcement, event, disciplinary and administrative cases. | S122 |
-| G11 | Tenant-aware manifest, application name, short name, icons, maskable icon, theme and background colors. | S123, S124 |
-| G12 | Installation UX (`beforeinstallprompt`, custom CTA, `appinstalled`, standalone detection, fallback guidance, post-install onboarding) without aggressive permission prompts. | S124 |
+| Gap | Description | Owner sprint | Status |
+| --- | --- | --- | --- |
+| G1 | Firebase Web Messaging background handler inside the canonical Service Worker (in addition to VAPID Web Push). | S120 | Closed in S120 (`src/sw.ts`, `onBackgroundMessage`; registration and token lifecycle remain S121) |
+| G2 | Exactly one Service Worker controls the origin/scope; verify no competing registration from legacy code. | S120 | Closed in S120 (`npm run pwa:check` + built-worker Playwright test) |
+| G3 | `SERVICE WORKER → NAVIGATE(targetPath) → VUE ROUTER` contract: in-app navigation for an already-open client instead of a full page reload where possible. | S120 | Closed in S120 (`src/services/pwa-navigation.ts`, `postMessage` contract) |
+| G4 | Click behavior verified for app open, backgrounded, closed, multiple tabs, standalone PWA and browser window. | S120 | Partially closed in S120 (open/closed window focus and openWindow paths tested); multi-tab/standalone real-device validation remains in S128 |
+| G5 | Normalized browser installation model (`status`, browser/device metadata, `last_seen_at`, `revoked_at`) beyond the current subscription record. | S121 | Pending |
+| G6 | FCM web token registration, renewal and invalid-token cleanup through the same installation identity; retry telemetry. | S121 | Pending |
+| G7 | Tenant switching and logout revoke only the matching profile binding; no cross-tenant or cross-account leakage. | S121 | Pending |
+| G8 | Click target verification: authentication → tenant → capability → resource authorization; fall back to the authenticated inbox when the target is inaccessible (currently falls back to the dashboard). | S122 | Pending |
+| G9 | Client-side internal route allowlist/validation aligned with the backend deep-link contract. | S122 | Pending |
+| G10 | Privacy-safe payload verification for payment, contribution, receipt, cash handover, treasury confirmation, expense, announcement, event, disciplinary and administrative cases. | S122 | Pending |
+| G11 | Tenant-aware manifest, application name, short name, icons, maskable icon, theme and background colors. | S123, S124 | Pending |
+| G12 | Installation UX (`beforeinstallprompt`, custom CTA, `appinstalled`, standalone detection, fallback guidance, post-install onboarding) without aggressive permission prompts. | S124 | Pending |
 
 ## Reference-only Flutter assets
 

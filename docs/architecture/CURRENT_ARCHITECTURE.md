@@ -1,6 +1,6 @@
 # Kairo — Current Architecture Snapshot
 
-Last verified: 2026-10-03 (Roadmap V2 Sprint 119)
+Last verified: 2026-10-03 (Roadmap V2 Sprint 120)
 
 This file is the concise description of what Kairo IS today. When code and this
 file disagree, trust the code and update this file. Historical narrative lives in
@@ -107,8 +107,12 @@ Vue 3 PWA (apps/web)          Flutter client (apps/flutter_kairo)
   authorization decision is made in the client. Notification inbox/push/health
   DTOs come from the generated OpenAPI contract types
   (`src/api/generated/contracts.ts`). A single canonical Service Worker
-  (`src/sw.ts`, vite-plugin-pwa `injectManifest`) owns caching, Web Push display
-  and notification-click routing.
+  (`src/sw.ts`, vite-plugin-pwa `injectManifest`) owns install/activate, the
+  offline strategy, update detection, Web Push display, Firebase background
+  messages and notification-click routing. Notification clicks focus an existing
+  window and post a `kairo:navigate` message so Vue Router opens the exact
+  authorized target; the worker falls back to `openWindow` and `/dashboard`
+  only for unsafe or missing targets. See `docs/pwa/PWA_ARCHITECTURE.md`.
 - **Flutter client** (`apps/flutter_kairo/`) — **FROZEN / LEGACY REFERENCE**
   (ADR-014). It consumes the same API contracts and makes no local authorization
   decisions, but receives no new business features and is not a blocking job of
@@ -130,7 +134,10 @@ Vue 3 PWA (apps/web)          Flutter client (apps/flutter_kairo)
 ## Quality gates
 
 Backend `ruff` + `mypy` (301 source files) + `pytest` (359 tests), Web `vue-tsc` + `vite build` +
-three Playwright packs (locale, roles, release-candidate), OpenAPI contract checks
+four Playwright packs (locale, roles, release-candidate, accessibility) plus the
+PWA packs (navigation contract on the dev server; single-worker/offline on the
+built preview), the canonical Service Worker guard
+(`node scripts/check-pwa-service-worker.mjs`), OpenAPI contract checks
 (`scripts/check-openapi-contract.mjs`, generated-contract drift check, client
 route coverage), an opt-in performance regression check
 (`npm run perf:check`, statement counts deterministic), repository guards
@@ -211,8 +218,15 @@ never block the release pipeline. Commands of record:
   no longer block `main`, and Flutter-only capability continuity plus the
   S120–S124 notification/deep-link gaps are recorded in
   `docs/pwa/FLUTTER_TO_PWA_PARITY.md`.
-- Status: sprints 108–119 addressed i18n, capabilities, service decomposition,
+- Sprint 120 unified the PWA Service Worker: one canonical worker handles
+  lifecycle, offline strategy, update detection, VAPID Web Push, Firebase
+  background messages and notification clicks; clicks focus an existing window
+  and post a `kairo:navigate` message that Vue Router resolves to the exact
+  authorized route (with `/login?redirect=` preservation for unauthenticated
+  users); a static guard and built-worker Playwright tests prove a single
+  controlling worker and the offline fallback. See `docs/pwa/PWA_ARCHITECTURE.md`.
+- Status: sprints 108–120 addressed i18n, capabilities, service decomposition,
   domain events, notification convergence, the contract boundary, operational
-  health/performance, the module framework, release hardening and the PWA-first
-  client consolidation; the active program is S119–S128 (PWA-first, white-label
-  SaaS).
+  health/performance, the module framework, release hardening, the PWA-first
+  client consolidation and the unified PWA Service Worker; the active program is
+  S119–S128 (PWA-first, white-label SaaS).

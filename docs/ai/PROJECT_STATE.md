@@ -1,6 +1,6 @@
 # Project State
 
-Last verified: 2026-10-03 (Roadmap V2 Sprint 119)
+Last verified: 2026-10-03 (Roadmap V2 Sprint 120)
 
 ## What this file is
 
@@ -117,3 +117,11 @@ new business features during S119–S128.
   pipeline no longer runs Flutter, and Flutter-only capability continuity plus
   the S120–S124 notification/deep-link gaps are recorded in
   `docs/pwa/FLUTTER_TO_PWA_PARITY.md`.
+  Sprint 120 unified the PWA Service Worker: one canonical worker
+  (`apps/web/src/sw.ts`) owns lifecycle, offline strategy, update detection,
+  VAPID Web Push, Firebase background messages and notification clicks; clicks
+  focus an existing window and post a `kairo:navigate` message resolved by Vue
+  Router to the exact authorized route, with `?redirect=` preservation for
+  unauthenticated users. `npm run pwa:check` guards the single-worker contract
+  and built-worker Playwright tests prove the single controlling worker and the
+  offline fallback; architecture lives in `docs/pwa/PWA_ARCHITECTURE.md`.

@@ -23,6 +23,7 @@
     "openapi:update": "node scripts/check-openapi-contract.mjs --update",
     "contracts:generate": "node scripts/generate-client-contracts.mjs",
     "contracts:check": "node scripts/check-openapi-contract.mjs && node scripts/generate-client-contracts.mjs --check && node scripts/check-client-route-coverage.mjs",
+    "pwa:check": "node scripts/check-pwa-service-worker.mjs",
     "perf:baseline": "node scripts/run-performance-baseline.mjs",
     "perf:check": "node scripts/check-performance-regression.mjs"
   }

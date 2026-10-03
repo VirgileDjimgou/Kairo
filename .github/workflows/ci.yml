@@ -133,6 +133,9 @@ jobs:
       - name: Report potential hardcoded user-facing strings
         run: node scripts/check-i18n-coverage.mjs
 
+      - name: Guard canonical PWA Service Worker
+        run: node scripts/check-pwa-service-worker.mjs
+
       - name: Build
         run: |
           cd apps/web
@@ -168,3 +171,15 @@ jobs:
         run: |
           cd apps/web
           npm run test:e2e:a11y
+
+      - name: Run PWA service worker and navigation pack
+        if: success() || failure()
+        run: |
+          cd apps/web
+          npm run test:e2e:pwa
+
+      - name: Verify built PWA worker, offline shell and update behavior
+        if: success() || failure()
+        run: |
+          cd apps/web
+          npm run test:e2e:pwa:built

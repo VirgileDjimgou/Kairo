@@ -5,6 +5,7 @@ import Toast, { POSITION } from 'vue-toastification'
 
 import App from './App.vue'
 import router from './router'
+import { installNotificationNavigation } from './services/pwa-navigation'
 import { watchPushSubscriptionRotation } from './services/web-push'
 
 // Bootstrap CSS + JS
@@ -50,6 +51,7 @@ window.addEventListener('kairo:pwa-apply-update', () => {
 })
 
 watchPushSubscriptionRotation()
+installNotificationNavigation(router)
 
 window.setInterval(() => {
   void updateServiceWorker()

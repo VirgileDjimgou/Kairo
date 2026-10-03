@@ -161,6 +161,24 @@ Set-Location ../..
   checks of the API boundary (`npm run contracts:check`).
 - Capability continuity and deprecations: `docs/pwa/FLUTTER_TO_PWA_PARITY.md`.
 
+## PWA Service Worker
+
+```bash
+node scripts/check-pwa-service-worker.mjs       # canonical worker guard (CI)
+cd apps/web && npm run test:e2e:pwa             # navigation contract (dev server)
+cd apps/web && npm run test:e2e:pwa:built       # single worker + offline (vite preview)
+```
+
+- The guard proves one canonical worker source (`src/sw.ts`, injectManifest), the
+  required lifecycle/push/FCM/navigation handlers and the absence of a competing
+  `firebase-messaging-sw.js`.
+- The dev pack proves notification-click navigation lands on the exact target
+  route, ignores unsafe external targets and preserves the target through the
+  login redirect. The built pack proves exactly one Service Worker controls the
+  origin, that the web manifest is installable and that an offline navigation
+  falls back to the cached shell.
+- Architecture: `docs/pwa/PWA_ARCHITECTURE.md`; decision: ADR-010 / ADR-014.
+
 ## Notification Operations
 
 ```bash

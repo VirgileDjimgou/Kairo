@@ -4,6 +4,10 @@ import { clientsClaim } from 'workbox-core'
 import { cleanupOutdatedCaches, precacheAndRoute } from 'workbox-precaching'
 import { registerRoute } from 'workbox-routing'
 import { NetworkFirst } from 'workbox-strategies'
+import { getApps, initializeApp } from 'firebase/app'
+import { getMessaging, isSupported as messagingIsSupported, onBackgroundMessage } from 'firebase/messaging/sw'
+import type { MessagePayload } from 'firebase/messaging/sw'
+import { firebaseWebConfig } from './firebase-config'
 
 type PrecacheEntry = { url: string; revision?: string | null }
 type PushPayload = { title?: string; body?: string; url?: string }
@@ -11,6 +15,9 @@ type PushPayload = { title?: string; body?: string; url?: string }
 declare let self: ServiceWorkerGlobalScope & { __WB_MANIFEST: PrecacheEntry[] }
 
 const DEFAULT_TARGET = '/dashboard'
+const PWA_NAVIGATE_MESSAGE = 'kairo:navigate'
+const GENERIC_TITLE = 'Kairo'
+const GENERIC_BODY = 'Une nouvelle notification est disponible.'
 
 self.skipWaiting()
 clientsClaim()
@@ -40,21 +47,66 @@ function safeTarget(raw: unknown): string {
   }
 }
 
-self.addEventListener('push', (event) => {
-  let payload: PushPayload | undefined
+function showNotification(title: string, body: string, target: unknown): Promise<void> {
+  const options: NotificationOptions = {
+    body,
+    icon: '/pwa-192x192.png',
+    badge: '/pwa-192x192.png',
+    data: { url: safeTarget(target) },
+    tag: 'kairo-notification',
+  }
+  return self.registration.showNotification(title, options)
+}
+
+// FCM messages are delivered as push events with a Firebase-specific shape.
+// They are handled by the Firebase background handler below; the standards-based
+// Web Push handler must not display them a second time.
+function isFirebaseMessage(payload: unknown): boolean {
+  if (!payload || typeof payload !== 'object') return false
+  const candidate = payload as Record<string, unknown>
+  return (
+    typeof candidate.from === 'string' ||
+    'messageId' in candidate ||
+    'fcmMessageId' in candidate
+  )
+}
+
+let firebaseReady = false
+
+async function setupFirebaseBackgroundMessaging(): Promise<void> {
+  const config = firebaseWebConfig()
+  if (!config) return
   try {
-    payload = event.data?.json() as PushPayload | undefined
+    if (!(await messagingIsSupported())) return
+    const app = getApps()[0] ?? initializeApp(config)
+    const messaging = getMessaging(app)
+    onBackgroundMessage(messaging, (payload: MessagePayload) => {
+      const target = payload.data?.target_path ?? payload.data?.url
+      return showNotification(
+        payload.notification?.title ?? GENERIC_TITLE,
+        payload.notification?.body ?? GENERIC_BODY,
+        target,
+      )
+    })
+    firebaseReady = true
+  } catch {
+    // FCM stays disabled; standards-based Web Push keeps working.
+  }
+}
+
+void setupFirebaseBackgroundMessaging()
+
+// Standard Web Push (VAPID) from the Kairo notification outbox.
+self.addEventListener('push', (event) => {
+  let payload: unknown
+  try {
+    payload = event.data?.json()
   } catch {
     payload = undefined
   }
-  const options: NotificationOptions = {
-    body: payload?.body ?? 'Une nouvelle notification est disponible.',
-    icon: '/pwa-192x192.png',
-    badge: '/pwa-192x192.png',
-    data: { url: safeTarget(payload?.url) },
-    tag: 'kairo-notification',
-  }
-  event.waitUntil(self.registration.showNotification(payload?.title ?? 'Kairo', options))
+  if (firebaseReady && isFirebaseMessage(payload)) return
+  const typed = (payload ?? {}) as PushPayload
+  event.waitUntil(showNotification(typed.title ?? GENERIC_TITLE, typed.body ?? GENERIC_BODY, typed.url))
 })
 
 self.addEventListener('notificationclick', (event) => {
@@ -65,7 +117,9 @@ self.addEventListener('notificationclick', (event) => {
     const existing = windows[0]
     if (existing) {
       await existing.focus()
-      await existing.navigate(url)
+      // SERVICE WORKER -> NAVIGATE(targetPath) -> VUE ROUTER. The client
+      // navigates in-app; it never reloads through the dashboard.
+      existing.postMessage({ type: PWA_NAVIGATE_MESSAGE, target: url })
       return
     }
     await self.clients.openWindow(url)
