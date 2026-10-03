@@ -88,15 +88,40 @@ notificationclick
   authenticated inbox remains the source of truth. Full model and lifecycle:
   `docs/notifications/NOTIFICATION_INSTALLATION_MODEL.md`.
 
+## Tenant-aware manifest and installation
+
+- Before sign-in the static platform manifest (`/manifest.webmanifest`) is
+  active. Once a tenant context exists, `applyTenantManifest()` swaps the
+  `<link rel="manifest">` href to
+  `/api/v1/tenants/public/{slug}/manifest`.
+- The manifest endpoint is public (install-time presentation data), built from
+  the canonical `TenantBranding` with safe Kairo defaults: name, short name,
+  theme/background colors, language, `display: standalone`, `start_url:
+  /dashboard`, `scope: /` and absolute icon URLs (tenant 192/512/maskable icons
+  or the platform defaults). Unknown or inactive tenants are 404 and no roles,
+  members or settings are ever exposed.
+- Installation UX (`src/services/pwa-install.ts`, `InstallAppPrompt.vue`):
+  `beforeinstallprompt` is captured at application start (before the shell
+  mounts), the prompt is offered through an explicit in-app CTA, `appinstalled`
+  marks the installation and shows a confirmation, dismissal persists per
+  installation, and standalone mode is detected. Browser-specific fallback
+  guidance exists for iOS/Firefox/other. **Installation never requests
+  notification permission**; notification opt-in stays an explicit separate
+  action in the notification bell.
+- The same frontend serves every association: tenant identity comes from
+  configuration and the manifest endpoint, never from per-association code.
+
 ## Verification
 
 ```bash
 node scripts/check-pwa-service-worker.mjs   # architecture guard (CI)
 cd apps/web && npm run test:e2e:pwa         # navigation contract (dev server)
 cd apps/web && npm run test:e2e:pwa:built   # single worker + offline (vite preview)
+cd apps/web && npm run test:e2e:whitelabel  # branding + tenant installation
 ```
 
 The built pack proves that exactly one Service Worker controls the origin, that
 the web manifest is installable, and that an offline navigation falls back to
 the cached shell. Manual real-device validation (Android Chrome, installed PWA,
-background/closed delivery) remains part of the S128 pilot checklist.
+background/closed delivery, launcher identity) remains part of the S128 pilot
+checklist.

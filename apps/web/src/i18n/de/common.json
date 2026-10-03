@@ -148,5 +148,13 @@
   "layout.secretaryWorkspace": "Sekretariatsbereich",
   "layout.backToPortal": "Zurück zum Portal",
   "nav.more": "Mehr",
-  "layout.skipToContent": "Zum Hauptinhalt springen"
+  "layout.skipToContent": "Zum Hauptinhalt springen",
+  "install.title": "{name} installieren",
+  "install.body": "Fügen Sie die App Ihrem Startbildschirm für schnelleren Zugriff hinzu.",
+  "install.cta": "Installieren",
+  "install.dismiss": "Später",
+  "install.installed": "{name} ist auf diesem Gerät installiert.",
+  "install.guidanceIos": "Zum Installieren das Teilen-Menü öffnen und „Zum Home-Bildschirm“ wählen.",
+  "install.guidanceFirefox": "Zum Installieren das Browsermenü öffnen und „Installieren“ wählen.",
+  "install.guidanceGeneric": "Zum Installieren das Browsermenü öffnen und „Zum Startbildschirm hinzufügen“ wählen."
 }

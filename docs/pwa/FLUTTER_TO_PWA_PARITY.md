@@ -72,8 +72,8 @@ reference only.
 | G8 | Click target verification: authentication → tenant → capability → resource authorization; fall back to the authenticated inbox when the target is inaccessible (currently falls back to the dashboard). | S122 | Closed in S122 (client route validation + inbox fallback; ADR-015) |
 | G9 | Client-side internal route allowlist/validation aligned with the backend deep-link contract. | S122 | Closed in S122 (backend `deep_links.py` allowlist + client router validation) |
 | G10 | Privacy-safe payload verification for payment, contribution, receipt, cash handover, treasury confirmation, expense, announcement, event, disciplinary and administrative cases. | S122 | Closed in S122 (representative-case tests assert generic push payloads and exact targets) |
-| G11 | Tenant-aware manifest, application name, short name, icons, maskable icon, theme and background colors. | S123, S124 | Partially closed in S123 (canonical `TenantBranding` contract, defaults, title/favicon/theme/logo/colors); manifest and launcher icons remain S124 |
-| G12 | Installation UX (`beforeinstallprompt`, custom CTA, `appinstalled`, standalone detection, fallback guidance, post-install onboarding) without aggressive permission prompts. | S124 | Pending |
+| G11 | Tenant-aware manifest, application name, short name, icons, maskable icon, theme and background colors. | S123, S124 | Closed in S123/S124 (canonical `TenantBranding` + public tenant manifest endpoint with absolute icons and defaults) |
+| G12 | Installation UX (`beforeinstallprompt`, custom CTA, `appinstalled`, standalone detection, fallback guidance, post-install onboarding) without aggressive permission prompts. | S124 | Closed in S124 (`pwa-install.ts` + `InstallAppPrompt.vue`; installation never requests notification permission) |
 
 ## Reference-only Flutter assets
 

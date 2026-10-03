@@ -30,7 +30,8 @@ export const useLocaleStore = defineStore('locale', () => {
     locale.value = nextLocale
     localStorage.setItem(LOCALE_STORAGE_KEY, nextLocale)
     document.documentElement.lang = nextLocale
-    document.title = messages[nextLocale]['app.name'] ?? 'Kairo'
+    // document.title is owned by the branding service (tenant display name or
+    // the safe Kairo default); a locale switch must not overwrite it.
   }
 
   async function setLocale(nextLocale: SupportedLocale, syncWithBackend = false) {

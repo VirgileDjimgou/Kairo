@@ -148,5 +148,13 @@
   "layout.secretaryWorkspace": "Secretary workspace",
   "layout.backToPortal": "Back to portal",
   "nav.more": "More",
-  "layout.skipToContent": "Skip to main content"
+  "layout.skipToContent": "Skip to main content",
+  "install.title": "Install {name}",
+  "install.body": "Add the app to your home screen for faster access.",
+  "install.cta": "Install",
+  "install.dismiss": "Not now",
+  "install.installed": "{name} is installed on this device.",
+  "install.guidanceIos": "To install, open the Share menu and choose “Add to Home Screen”.",
+  "install.guidanceFirefox": "To install, open the browser menu and choose “Install”.",
+  "install.guidanceGeneric": "To install, open the browser menu and choose “Add to Home screen”."
 }

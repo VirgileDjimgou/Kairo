@@ -20,6 +20,8 @@
       :label="localeStore.t('layout.mobileNavigation')"
     />
 
+    <InstallAppPrompt />
+
     <main id="kairo-main-content" class="app-shell__content" tabindex="-1">
       <div class="app-shell__content-inner">
         <slot />
@@ -48,6 +50,7 @@ import AppTopBar from '@/components/ui/AppTopBar.vue'
 import AppBottomNavigation from '@/components/ui/AppBottomNavigation.vue'
 import RoleTopNavigation from '@/components/ui/RoleTopNavigation.vue'
 import GlobalSearchOverlay from '@/components/search/GlobalSearchOverlay.vue'
+import InstallAppPrompt from '@/components/ui/InstallAppPrompt.vue'
 import type { BottomNavItem } from '@/components/ui/AppBottomNavigation.vue'
 import { effectiveBranding } from '@/services/branding'
 

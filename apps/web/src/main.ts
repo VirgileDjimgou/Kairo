@@ -6,6 +6,7 @@ import Toast, { POSITION } from 'vue-toastification'
 import App from './App.vue'
 import router from './router'
 import { installNotificationNavigation } from './services/pwa-navigation'
+import { initializeInstallPrompt } from './services/pwa-install'
 import { renewPushBinding, watchPushSubscriptionRotation } from './services/web-push'
 
 // Bootstrap CSS + JS
@@ -52,6 +53,9 @@ window.addEventListener('kairo:pwa-apply-update', () => {
 
 watchPushSubscriptionRotation()
 installNotificationNavigation(router)
+// Capture beforeinstallprompt/appinstalled as early as possible: the browser
+// can fire the install event before the shell mounts.
+initializeInstallPrompt()
 // Token/subscription renewal: re-persists an existing binding for the current
 // session and tenant without asking for permission again.
 void renewPushBinding()

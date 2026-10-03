@@ -1,6 +1,7 @@
+import json
 from uuid import UUID
 
-from fastapi import APIRouter
+from fastapi import APIRouter, Request, Response
 
 from app.core.dependencies import AuthDep, DbDep
 from app.modules.tenancy.schemas import (
@@ -13,6 +14,21 @@ from app.modules.tenancy.schemas import (
 from app.modules.tenancy.service import TenancyService
 
 router = APIRouter(prefix="/tenants", tags=["tenants"])
+
+
+@router.get("/public/{slug}/manifest")
+async def get_public_tenant_manifest(slug: str, request: Request, db: DbDep) -> Response:
+    """Public, tenant-aware Web App Manifest built from tenant branding.
+
+    No authentication is required: a manifest is install-time presentation
+    data. Only branding values are exposed; settings, roles and members are
+    never included, and unknown or inactive tenants are not resolvable.
+    """
+    manifest = await TenancyService(db).get_public_manifest(slug, str(request.base_url))
+    return Response(
+        content=json.dumps(manifest),
+        media_type="application/manifest+json",
+    )
 
 
 @router.get("/", response_model=list[TenantResponse])

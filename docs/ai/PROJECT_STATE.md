@@ -1,6 +1,6 @@
 # Project State
 
-Last verified: 2026-10-03 (Roadmap V2 Sprint 123)
+Last verified: 2026-10-03 (Roadmap V2 Sprint 124)
 
 ## What this file is
 
@@ -33,12 +33,12 @@ new business features during S119–S128.
 
 ## Current engineering posture
 
-- Verified baseline (2026-10-03): 405 backend tests, web type-check/build, four
+- Verified baseline (2026-10-03): 409 backend tests, web type-check/build, four
   Playwright packs (locale 20, roles 17, release-candidate 9, accessibility 6)
-  plus the PWA, notification-installation and white-label packs, OpenAPI
-  contract checks, an opt-in performance regression check, repository guards
-  green. Flutter analyze/tests/builds are optional and manual since Sprint 119
-  (`.github/workflows/flutter-legacy.yml`, ADR-014). Details:
+  plus the PWA, notification-installation and white-label/installation packs,
+  OpenAPI contract checks, an opt-in performance regression check, repository
+  guards green. Flutter analyze/tests/builds are optional and manual since
+  Sprint 119 (`.github/workflows/flutter-legacy.yml`, ADR-014). Details:
   `docs/operations/validation-baseline.md`. Sprint 118 evidence:
   `docs/sprint-118-release-candidate-evidence.md`.
 - Open security item (HUMAN_REQUIRED): historical JWT secret rotation and
@@ -150,3 +150,10 @@ new business features during S119–S128.
   and support identity. COMBIS branding is configuration only; the backend suite
   has 405 passing tests and the contract is documented in
   `docs/pwa/WHITE_LABEL_BRANDING.md`.
+  Sprint 124 made installation tenant-aware: the PWA swaps its manifest link to
+  the public tenant manifest endpoint (name, short name, colors, absolute
+  192/512/maskable icons with platform defaults), offers an explicit
+  `beforeinstallprompt` CTA with `appinstalled` confirmation, dismissal
+  persistence, standalone detection and browser guidance, and never requests
+  notification permission during installation; the backend suite has 409
+  passing tests.

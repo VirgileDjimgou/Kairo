@@ -15,6 +15,7 @@ import { useLocaleStore } from "@/stores/locale.store";
 import { useTenantStore } from "@/stores/tenant.store";
 import { listenForOperationNotifications, type OperationNotification } from "@/services/operation-notifications";
 import { applyBranding } from "@/services/branding";
+import { applyTenantManifest } from "@/services/pwa-install";
 
 const authStore = useAuthStore();
 const localeStore = useLocaleStore();
@@ -24,10 +25,14 @@ const toast = useToast()
 let removeNotificationListener: (() => void) | undefined
 
 // Tenant branding is configuration: every surface consumes the same contract
-// and the safe Kairo defaults apply when a tenant has no branding.
+// and the safe Kairo defaults apply when a tenant has no branding. The manifest
+// link follows the tenant so an installed app carries the tenant identity.
 watch(
-  () => tenantStore.currentTenant?.branding,
-  (branding) => applyBranding(branding),
+  () => tenantStore.currentTenant,
+  (tenant) => {
+    applyBranding(tenant?.branding)
+    applyTenantManifest(tenant?.slug ?? null)
+  },
   { immediate: true, deep: true },
 )
 

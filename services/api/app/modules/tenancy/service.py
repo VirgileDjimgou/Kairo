@@ -1,6 +1,7 @@
 import json
 from datetime import UTC, datetime, timedelta
 from typing import Any
+from urllib.parse import urljoin
 from uuid import UUID
 
 from fastapi import HTTPException, status
@@ -32,6 +33,13 @@ from app.modules.tenancy.schemas import (
 
 _BACKUP_STALE_AFTER_DAYS = 7
 _RESTORE_DRILL_STALE_AFTER_DAYS = 90
+
+# Default launcher icons used when a tenant has not provided its own assets.
+DEFAULT_MANIFEST_ICONS: tuple[tuple[str, str, str], ...] = (
+    ("/pwa-192x192.png", "192x192", "any"),
+    ("/pwa-512x512.png", "512x512", "any"),
+    ("/pwa-512x512.png", "512x512", "maskable"),
+)
 
 
 class TenancyService:
@@ -322,6 +330,64 @@ class TenancyService:
             operations=operations,
             updated_at=updated.updated_at,
         )
+
+    # ── Public tenant manifest ──────────────────────────────────────────────
+
+    async def get_public_manifest(self, slug: str, base_url: str) -> dict[str, object]:
+        """Return the tenant-aware Web App Manifest.
+
+        Public presentation data only: the manifest exposes the tenant branding
+        and never roles, members or settings. Unknown or inactive tenants are
+        not resolvable.
+        """
+        tenant = await self._repo.get_tenant_by_slug(slug)
+        if tenant is None or tenant.status != "active":
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail="Organization not found",
+            )
+
+        branding = branding_from_json(tenant.branding_json)
+
+        def absolute(value: str, default: str) -> str:
+            candidate = value or default
+            if candidate.startswith("http://") or candidate.startswith("https://"):
+                return candidate
+            return urljoin(base_url, candidate)
+
+        icon_sources = (
+            (branding.icon_192_url, "/pwa-192x192.png", "192x192", "any"),
+            (branding.icon_512_url, "/pwa-512x512.png", "512x512", "any"),
+            (
+                branding.maskable_icon_url or branding.icon_512_url,
+                "/pwa-512x512.png",
+                "512x512",
+                "maskable",
+            ),
+        )
+        icons: list[dict[str, str]] = []
+        seen: set[tuple[str, str, str]] = set()
+        for value, default, sizes, purpose in icon_sources:
+            src = absolute(value, default)
+            key = (src, sizes, purpose)
+            if key in seen:
+                continue
+            seen.add(key)
+            icons.append({"src": src, "sizes": sizes, "type": "image/png", "purpose": purpose})
+
+        return {
+            "name": branding.display_name,
+            "short_name": branding.short_name,
+            "description": f"{branding.display_name} — association management",
+            "lang": tenant.default_language,
+            "theme_color": branding.theme_color,
+            "background_color": branding.background_color,
+            "display": "standalone",
+            "orientation": "any",
+            "start_url": "/dashboard",
+            "scope": "/",
+            "icons": icons,
+        }
 
     def _build_recovery_evidence(self, settings_raw: dict) -> RecoveryEvidenceResponse:
         operations_raw = settings_raw.get("operations", {})

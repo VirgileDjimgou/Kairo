@@ -15395,6 +15395,47 @@
         ]
       }
     },
+    "/api/v1/tenants/public/{slug}/manifest": {
+      "get": {
+        "description": "Public, tenant-aware Web App Manifest built from tenant branding.\n\nNo authentication is required: a manifest is install-time presentation\ndata. Only branding values are exposed; settings, roles and members are\nnever included, and unknown or inactive tenants are not resolvable.",
+        "operationId": "get_public_tenant_manifest_api_v1_tenants_public__slug__manifest_get",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "slug",
+            "required": true,
+            "schema": {
+              "title": "Slug",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Get Public Tenant Manifest",
+        "tags": [
+          "tenants"
+        ]
+      }
+    },
     "/api/v1/tenants/{tenant_id}": {
       "get": {
         "description": "Return a specific organization.\n\nReturns 403 if the current user is not a member � enforcing tenant isolation.",

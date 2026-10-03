@@ -1559,6 +1559,7 @@ export interface ApiOperations {
   'PATCH /api/v1/sports/events/{event_id}': { request: EventUpdate; response: EventResponse };
   'DELETE /api/v1/sports/events/{event_id}': { request: undefined; response: undefined };
   'GET /api/v1/tenants/': { request: undefined; response: Array<TenantResponse> };
+  'GET /api/v1/tenants/public/{slug}/manifest': { request: undefined; response: unknown };
   'GET /api/v1/tenants/{tenant_id}': { request: undefined; response: TenantResponse };
   'GET /api/v1/tenants/{tenant_id}/roles': { request: undefined; response: Array<RoleResponse> };
   'POST /api/v1/tenants/{tenant_id}/roles': { request: RoleBundleCreate; response: RoleResponse };

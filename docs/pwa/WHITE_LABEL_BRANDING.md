@@ -46,7 +46,8 @@ Validation:
 | Navigation and layouts | Existing semantic CSS variables, so no component-specific branding code |
 | Push sender | Outbox worker resolves `notification_name` per tenant for the push title; generic body unchanged |
 | Transactional email | Invitation and password-reset subjects/bodies use `notification_name`, `support_name` and `support_email` when configured |
-| PWA manifest, launcher icons, install UX | Planned in S124 (consumes the same contract) |
+| PWA manifest and launcher identity | `GET /api/v1/tenants/public/{slug}/manifest` returns the tenant-aware manifest (name, short name, colors, absolute icons, `start_url`, `scope`); the PWA swaps the manifest link after sign-in and offers an explicit install CTA |
+| Install UX | `beforeinstallprompt` CTA, `appinstalled` confirmation, dismissal persistence, standalone detection and browser-specific guidance; notification permission is never requested during installation |
 | Host-based tenant resolution | Planned in S125 (consumes `custom_domain`) |
 
 ## Configuration only — no conditional code

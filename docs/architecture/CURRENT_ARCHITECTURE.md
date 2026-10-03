@@ -1,6 +1,6 @@
 # Kairo — Current Architecture Snapshot
 
-Last verified: 2026-10-03 (Roadmap V2 Sprint 123)
+Last verified: 2026-10-03 (Roadmap V2 Sprint 124)
 
 This file is the concise description of what Kairo IS today. When code and this
 file disagree, trust the code and update this file. Historical narrative lives in
@@ -82,6 +82,8 @@ Vue 3 PWA (apps/web)          Flutter client (apps/flutter_kairo)
   and a shared parser (`branding.py`) used by settings, memberships, the push
   sender and transactional email. Branding is configuration only and never
   affects authorization or business rules (`docs/pwa/WHITE_LABEL_BRANDING.md`).
+  A public manifest endpoint exposes branding-only install metadata for the
+  tenant-aware PWA installation.
 - Canonical office roles: member, secretary_general, treasurer, auditor, censor,
   sports_manager, president, vice_president, principal_admin (+ legacy `admin`).
 - Roles are capability bundles. Effective capabilities are exposed read-only on
@@ -121,7 +123,10 @@ Vue 3 PWA (apps/web)          Flutter client (apps/flutter_kairo)
   See `docs/pwa/PWA_ARCHITECTURE.md` and ADR-015. Tenant branding
   (`src/services/branding.ts`) applies the canonical `TenantBranding` contract
   to the page title, favicon, theme-color, shell logo and semantic CSS
-  variables, with safe Kairo defaults.
+  variables, with safe Kairo defaults. After sign-in the manifest link follows
+  the tenant (`GET /api/v1/tenants/public/{slug}/manifest`) and an explicit
+  install CTA handles `beforeinstallprompt`/`appinstalled` without requesting
+  notification permission.
 - **Flutter client** (`apps/flutter_kairo/`) — **FROZEN / LEGACY REFERENCE**
   (ADR-014). It consumes the same API contracts and makes no local authorization
   decisions, but receives no new business features and is not a blocking job of
@@ -142,7 +147,7 @@ Vue 3 PWA (apps/web)          Flutter client (apps/flutter_kairo)
 
 ## Quality gates
 
-Backend `ruff` + `mypy` (304 source files) + `pytest` (405 tests), Web `vue-tsc` + `vite build` +
+Backend `ruff` + `mypy` (304 source files) + `pytest` (409 tests), Web `vue-tsc` + `vite build` +
 four Playwright packs (locale, roles, release-candidate, accessibility) plus the
 PWA packs (navigation contract on the dev server; single-worker/offline on the
 built preview) and the notification-installation pack, the canonical Service
@@ -258,10 +263,17 @@ never block the release pipeline. Commands of record:
   the tenant notification name as the push sender and transactional emails use
   the branding support identity. COMBIS branding is configuration only
   (`docs/pwa/WHITE_LABEL_BRANDING.md`).
-- Status: sprints 108–123 addressed i18n, capabilities, service decomposition,
+- Sprint 124 made installation tenant-aware: the public
+  `GET /api/v1/tenants/public/{slug}/manifest` endpoint serves the tenant
+  manifest (branding only, absolute icons, active-tenant requirement), the PWA
+  swaps its manifest link after sign-in, and an explicit install CTA handles
+  `beforeinstallprompt`, `appinstalled`, dismissal persistence, standalone
+  detection and browser guidance without ever requesting notification
+  permission. No per-association frontend exists.
+- Status: sprints 108–124 addressed i18n, capabilities, service decomposition,
   domain events, notification convergence, the contract boundary, operational
   health/performance, the module framework, release hardening, the PWA-first
   client consolidation, the unified PWA Service Worker, the normalized
-  notification installation model, secure actionable deep links and white-label
-  tenant branding; the active program is S119–S128 (PWA-first, white-label
-  SaaS).
+  notification installation model, secure actionable deep links, white-label
+  tenant branding and tenant-aware PWA installation; the active program is
+  S119–S128 (PWA-first, white-label SaaS).

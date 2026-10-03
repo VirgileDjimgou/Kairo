@@ -4612,6 +4612,7 @@ const Map<String, String> apiOperationIds = <String, String>{
   'PATCH /api/v1/sports/events/{event_id}': 'update_sports_event_api_v1_sports_events__event_id__patch',
   'DELETE /api/v1/sports/events/{event_id}': 'delete_sports_event_api_v1_sports_events__event_id__delete',
   'GET /api/v1/tenants/': 'list_my_tenants_api_v1_tenants__get',
+  'GET /api/v1/tenants/public/{slug}/manifest': 'get_public_tenant_manifest_api_v1_tenants_public__slug__manifest_get',
   'GET /api/v1/tenants/{tenant_id}': 'get_tenant_api_v1_tenants__tenant_id__get',
   'GET /api/v1/tenants/{tenant_id}/roles': 'list_tenant_roles_api_v1_tenants__tenant_id__roles_get',
   'POST /api/v1/tenants/{tenant_id}/roles': 'create_tenant_role_bundle_api_v1_tenants__tenant_id__roles_post',
