@@ -1,9 +1,5 @@
 import http from './http'
-
-export interface BrandingConfig {
-  primary_color: string
-  logo_url: string
-}
+import type { TenantBranding } from './branding.types'
 
 export interface RecoveryEvidenceConfig {
   last_backup_at: string | null
@@ -41,7 +37,7 @@ export interface TenantSettingsResponse {
   name: string
   slug: string
   default_language: string
-  branding: BrandingConfig
+  branding: TenantBranding
   modules: ModuleToggles
   operations: RecoveryEvidenceResponse
   updated_at: string
@@ -50,7 +46,7 @@ export interface TenantSettingsResponse {
 export interface TenantSettingsUpdate {
   name?: string
   default_language?: string
-  branding?: Partial<BrandingConfig>
+  branding?: Partial<TenantBranding>
   modules?: Partial<ModuleToggles>
   operations?: Partial<RecoveryEvidenceConfig>
 }

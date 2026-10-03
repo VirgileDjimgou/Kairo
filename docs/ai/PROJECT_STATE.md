@@ -1,6 +1,6 @@
 # Project State
 
-Last verified: 2026-10-03 (Roadmap V2 Sprint 122)
+Last verified: 2026-10-03 (Roadmap V2 Sprint 123)
 
 ## What this file is
 
@@ -33,11 +33,11 @@ new business features during S119–S128.
 
 ## Current engineering posture
 
-- Verified baseline (2026-10-03): 394 backend tests, web type-check/build, four
+- Verified baseline (2026-10-03): 405 backend tests, web type-check/build, four
   Playwright packs (locale 20, roles 17, release-candidate 9, accessibility 6)
-  plus the PWA and notification-installation packs, OpenAPI contract checks, an
-  opt-in performance regression check, repository guards green. Flutter
-  analyze/tests/builds are optional and manual since Sprint 119
+  plus the PWA, notification-installation and white-label packs, OpenAPI
+  contract checks, an opt-in performance regression check, repository guards
+  green. Flutter analyze/tests/builds are optional and manual since Sprint 119
   (`.github/workflows/flutter-legacy.yml`, ADR-014). Details:
   `docs/operations/validation-baseline.md`. Sprint 118 evidence:
   `docs/sprint-118-release-candidate-evidence.md`.
@@ -142,3 +142,11 @@ new business features during S119–S128.
   toggles with an authenticated-inbox fallback, and representative business
   cases prove generic push payloads and exact targets (ADR-015); the backend
   suite has 394 passing tests.
+  Sprint 123 separated platform and tenant identity with the canonical
+  `TenantBranding` contract (safe Kairo defaults, strict validation, exposed on
+  tenant settings and every `/auth/me` membership). The PWA applies the
+  effective branding to title, favicon, theme-color, shell logo and semantic CSS
+  variables; push sender and transactional email use the branding notification
+  and support identity. COMBIS branding is configuration only; the backend suite
+  has 405 passing tests and the contract is documented in
+  `docs/pwa/WHITE_LABEL_BRANDING.md`.

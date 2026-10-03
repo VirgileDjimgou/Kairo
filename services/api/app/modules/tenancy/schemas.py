@@ -41,6 +41,10 @@ class RoleResponse(BaseModel):
 
 # ── Tenant Settings ──────────────────────────────────────────────────────────
 
+HEX_COLOR_PATTERN = r"^#(?:[0-9a-fA-F]{3}|[0-9a-fA-F]{6})$"
+SAFE_ASSET_PATTERN = r"^(?:|https?://[^\s]+|/[^\s]*)$"
+HOSTNAME_PATTERN = r"^(?:|[a-z0-9](?:[a-z0-9-]{0,61}[a-z0-9])?(?:\.[a-z0-9](?:[a-z0-9-]{0,61}[a-z0-9])?)*)$"
+
 
 class ModuleToggles(BaseModel):
     membership: bool = True
@@ -53,9 +57,32 @@ class ModuleToggles(BaseModel):
     notifications: bool = True
 
 
-class BrandingConfig(BaseModel):
-    primary_color: str = "#1f4f8f"
-    logo_url: str = ""
+class TenantBranding(BaseModel):
+    """Canonical white-label identity for one tenant.
+
+    Platform identity and tenant identity are separate: every field has a safe
+    Kairo default, a tenant overrides only what it needs, and no business logic
+    may depend on a branding value. Assets accept only https(s) URLs or
+    site-relative paths so a branding value can never inject an unsafe URI.
+    """
+
+    display_name: str = Field(default="Kairo", max_length=120)
+    short_name: str = Field(default="Kairo", max_length=40)
+    legal_name: str = Field(default="", max_length=200)
+    logo_url: str = Field(default="", max_length=2048, pattern=SAFE_ASSET_PATTERN)
+    logo_dark_url: str = Field(default="", max_length=2048, pattern=SAFE_ASSET_PATTERN)
+    favicon_url: str = Field(default="", max_length=2048, pattern=SAFE_ASSET_PATTERN)
+    icon_192_url: str = Field(default="", max_length=2048, pattern=SAFE_ASSET_PATTERN)
+    icon_512_url: str = Field(default="", max_length=2048, pattern=SAFE_ASSET_PATTERN)
+    maskable_icon_url: str = Field(default="", max_length=2048, pattern=SAFE_ASSET_PATTERN)
+    primary_color: str = Field(default="#1f4f8f", pattern=HEX_COLOR_PATTERN)
+    secondary_color: str = Field(default="#2f6f55", pattern=HEX_COLOR_PATTERN)
+    background_color: str = Field(default="#f8f9fb", pattern=HEX_COLOR_PATTERN)
+    theme_color: str = Field(default="#1a3f6b", pattern=HEX_COLOR_PATTERN)
+    notification_name: str = Field(default="Kairo", max_length=80)
+    support_name: str = Field(default="Kairo Support", max_length=120)
+    support_email: str = Field(default="", max_length=254)
+    custom_domain: str = Field(default="", max_length=253, pattern=HOSTNAME_PATTERN)
 
 
 class RecoveryEvidenceConfig(BaseModel):
@@ -83,7 +110,7 @@ class TenantSettingsResponse(BaseModel):
     name: str
     slug: str
     default_language: str
-    branding: BrandingConfig
+    branding: TenantBranding
     modules: ModuleToggles
     operations: RecoveryEvidenceResponse = Field(default_factory=lambda: RecoveryEvidenceResponse(
         backup_is_stale=True,
@@ -98,7 +125,7 @@ class TenantSettingsResponse(BaseModel):
 class TenantSettingsUpdate(BaseModel):
     name: str | None = None
     default_language: str | None = None
-    branding: BrandingConfig | None = None
+    branding: TenantBranding | None = None
     modules: ModuleToggles | None = None
     operations: RecoveryEvidenceConfig | None = None
 

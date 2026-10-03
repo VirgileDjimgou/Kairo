@@ -232,9 +232,9 @@ import {
   checkModuleHasData,
   type TenantSettingsResponse,
   type ModuleToggles,
-  type BrandingConfig,
   type RecoveryEvidenceConfig,
 } from "../../api/settings.api";
+import { KAIRO_BRANDING_DEFAULTS, type TenantBranding } from "../../api/branding.types";
 
 const auth = useAuthStore();
 const localeStore = useLocaleStore();
@@ -248,7 +248,7 @@ const settings = ref<TenantSettingsResponse | null>(null);
 const form = reactive<{
   name: string;
   default_language: string;
-  branding: BrandingConfig;
+  branding: TenantBranding;
   modules: ModuleToggles;
   operations: {
     last_backup_at: string;
@@ -264,7 +264,7 @@ const form = reactive<{
 }>({
   name: "",
   default_language: "fr",
-  branding: { primary_color: "#1f4f8f", logo_url: "" },
+  branding: { ...KAIRO_BRANDING_DEFAULTS },
   modules: {
     membership: true,
     contributions: true,

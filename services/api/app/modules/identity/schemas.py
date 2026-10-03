@@ -4,7 +4,7 @@ from uuid import UUID
 
 from pydantic import BaseModel, EmailStr, Field, TypeAdapter, field_validator
 
-from app.modules.tenancy.schemas import BrandingConfig, ModuleToggles
+from app.modules.tenancy.schemas import ModuleToggles, TenantBranding
 
 # ── Auth Request DTOs ──────────────────────────────────────────────────────────
 
@@ -64,7 +64,7 @@ class TenantMembershipResponse(BaseModel):
     default_language: str
     roles: list[str]
     capabilities: list[str] = []
-    branding: BrandingConfig
+    branding: TenantBranding
     modules: ModuleToggles
     profile_type: str
 

@@ -1,6 +1,6 @@
 # Kairo — Current Architecture Snapshot
 
-Last verified: 2026-10-03 (Roadmap V2 Sprint 122)
+Last verified: 2026-10-03 (Roadmap V2 Sprint 123)
 
 This file is the concise description of what Kairo IS today. When code and this
 file disagree, trust the code and update this file. Historical narrative lives in
@@ -77,7 +77,11 @@ Vue 3 PWA (apps/web)          Flutter client (apps/flutter_kairo)
   unchanged `AuthService` facade, with shared repository/request-context state
   in `base.py`. (`services/api/app/modules/identity/`)
 - Tenant membership resolution, branding and module toggles per tenant.
-  (`services/api/app/modules/tenancy/`)
+  (`services/api/app/modules/tenancy/`) Branding is the canonical
+  `TenantBranding` contract with safe Kairo defaults, strict value validation
+  and a shared parser (`branding.py`) used by settings, memberships, the push
+  sender and transactional email. Branding is configuration only and never
+  affects authorization or business rules (`docs/pwa/WHITE_LABEL_BRANDING.md`).
 - Canonical office roles: member, secretary_general, treasurer, auditor, censor,
   sports_manager, president, vice_president, principal_admin (+ legacy `admin`).
 - Roles are capability bundles. Effective capabilities are exposed read-only on
@@ -114,7 +118,10 @@ Vue 3 PWA (apps/web)          Flutter client (apps/flutter_kairo)
   against the router, authentication state, role/module metadata and tenant
   toggles and opens the exact authorized route, falling back to the
   authenticated inbox for unsafe, unknown, redirected or inaccessible targets.
-  See `docs/pwa/PWA_ARCHITECTURE.md` and ADR-015.
+  See `docs/pwa/PWA_ARCHITECTURE.md` and ADR-015. Tenant branding
+  (`src/services/branding.ts`) applies the canonical `TenantBranding` contract
+  to the page title, favicon, theme-color, shell logo and semantic CSS
+  variables, with safe Kairo defaults.
 - **Flutter client** (`apps/flutter_kairo/`) — **FROZEN / LEGACY REFERENCE**
   (ADR-014). It consumes the same API contracts and makes no local authorization
   decisions, but receives no new business features and is not a blocking job of
@@ -135,7 +142,7 @@ Vue 3 PWA (apps/web)          Flutter client (apps/flutter_kairo)
 
 ## Quality gates
 
-Backend `ruff` + `mypy` (303 source files) + `pytest` (394 tests), Web `vue-tsc` + `vite build` +
+Backend `ruff` + `mypy` (304 source files) + `pytest` (405 tests), Web `vue-tsc` + `vite build` +
 four Playwright packs (locale, roles, release-candidate, accessibility) plus the
 PWA packs (navigation contract on the dev server; single-worker/offline on the
 built preview) and the notification-installation pack, the canonical Service
@@ -243,9 +250,18 @@ never block the release pipeline. Commands of record:
   tenant toggles, and unsafe/unknown/redirected/inaccessible targets fall back
   to the authenticated inbox instead of the dashboard; representative business
   cases prove generic push payloads and exact targets (ADR-015).
-- Status: sprints 108–122 addressed i18n, capabilities, service decomposition,
+- Sprint 123 separated platform and tenant identity with the canonical
+  `TenantBranding` contract (display/short/legal name, logos, favicon, launcher
+  icons, colors, notification name, support contact, custom domain) and safe
+  Kairo defaults. The PWA applies the effective branding to the page title,
+  favicon, theme-color, shell logo and semantic CSS variables; the outbox uses
+  the tenant notification name as the push sender and transactional emails use
+  the branding support identity. COMBIS branding is configuration only
+  (`docs/pwa/WHITE_LABEL_BRANDING.md`).
+- Status: sprints 108–123 addressed i18n, capabilities, service decomposition,
   domain events, notification convergence, the contract boundary, operational
   health/performance, the module framework, release hardening, the PWA-first
   client consolidation, the unified PWA Service Worker, the normalized
-  notification installation model and secure actionable deep links; the active
-  program is S119–S128 (PWA-first, white-label SaaS).
+  notification installation model, secure actionable deep links and white-label
+  tenant branding; the active program is S119–S128 (PWA-first, white-label
+  SaaS).

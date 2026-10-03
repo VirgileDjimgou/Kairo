@@ -3,7 +3,8 @@
     <div class="app-top-bar__inner">
       <div class="app-top-bar__identity">
         <span class="app-top-bar__mark" aria-hidden="true">
-          <i class="bi" :class="icon"></i>
+          <img v-if="logoUrl" class="app-top-bar__logo" :src="logoUrl" alt="" />
+          <i v-else class="bi" :class="icon"></i>
         </span>
         <div class="app-top-bar__copy">
           <span class="app-top-bar__eyebrow">{{ eyebrow }}</span>
@@ -50,6 +51,7 @@ defineProps<{
   eyebrow: string
   title: string
   icon: string
+  logoUrl?: string
   userName?: string
   userEmail?: string
   accountLabel: string
@@ -103,6 +105,14 @@ defineEmits<{
   background: var(--om-primary);
   color: #fff;
   font-size: 1.0625rem;
+}
+
+.app-top-bar__logo {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  border-radius: inherit;
+  background: var(--om-neutral-0);
 }
 
 .app-top-bar__copy {

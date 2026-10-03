@@ -28,7 +28,7 @@ python -m mypy --config-file services/api/pyproject.toml --explicit-package-base
 Notes:
 
 - The backend test suite defaults to an isolated SQLite database when `TEST_DATABASE_URL` is not set to PostgreSQL.
-- 394 integration tests pass (latest verified count, 2026-10-03; includes the eight installation-model tests added in Sprint 121 and the twenty-four deep-link tests added in Sprint 122).
+- 405 integration tests pass (latest verified count, 2026-10-03; includes the eight installation-model tests (S121), the twenty-four deep-link tests (S122) and the eleven branding tests (S123)).
 - Ruff baseline covers the entire `app/` tree and all tests with `--ignore E501` to focus on meaningful rules (security, unused imports, error handling) without cosmetic line-length noise.
 - Mypy baseline now covers all 301 source files across the entire `app/` tree — all modules, providers, core, db, and main.py — with zero errors.
 
@@ -211,6 +211,20 @@ cd apps/web && npm run test:e2e:pwa
   fallback to the authenticated inbox and login-redirect preservation.
 - Contract and decision record: ADR-015, `docs/pwa/PWA_ARCHITECTURE.md`,
   `docs/notifications/NOTIFICATION_EVENT_MATRIX.md`.
+
+## White-Label Branding
+
+```bash
+python -m pytest services/api/tests/test_tenant_branding.py -q
+cd apps/web && npm run test:e2e:whitelabel
+```
+
+- Backend coverage: safe Kairo defaults, settings persistence, `/auth/me`
+  membership exposure, unsafe asset/color/domain rejection, push sender naming
+  and the guarantee that branding never changes roles or modules.
+- Web coverage: page title, favicon, theme-color, shell logo, primary color,
+  default fallback and unsafe-asset fallback.
+- Contract and configuration: `docs/pwa/WHITE_LABEL_BRANDING.md`.
 
 ## Notification Operations
 

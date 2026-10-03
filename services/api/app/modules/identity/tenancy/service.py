@@ -21,8 +21,9 @@ from app.modules.identity.schemas import (
     TenantMembershipResponse,
     UpdateLanguagePreferenceRequest,
 )
+from app.modules.tenancy.branding import branding_from_json
 from app.modules.tenancy.module_toggles import parse_module_toggles
-from app.modules.tenancy.schemas import BrandingConfig, ModuleToggles
+from app.modules.tenancy.schemas import ModuleToggles
 
 
 class TenancyMixin(IdentityServiceBase):
@@ -37,13 +38,6 @@ class TenancyMixin(IdentityServiceBase):
                 continue
             roles = await self._tenancy_repo.get_user_role_codes(tenant.id, user_id)
 
-            branding_raw: dict[str, object] = {}
-            if isinstance(tenant.branding_json, str) and tenant.branding_json.strip():
-                try:
-                    branding_raw = json.loads(tenant.branding_json)
-                except json.JSONDecodeError:
-                    branding_raw = {}
-
             settings_raw: dict[str, object] = {}
             if isinstance(tenant.settings_json, str) and tenant.settings_json.strip():
                 try:
@@ -52,7 +46,7 @@ class TenancyMixin(IdentityServiceBase):
                     settings_raw = {}
 
             module_toggles = parse_module_toggles(settings_raw)
-            branding = BrandingConfig(**branding_raw) if branding_raw else BrandingConfig()  # type: ignore[arg-type]
+            branding = branding_from_json(tenant.branding_json)
             bundles = await self._tenancy_repo.get_role_bundle_capabilities(tenant.id, roles)
 
             result.append(

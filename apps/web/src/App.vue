@@ -7,18 +7,29 @@
 </template>
 
 <script setup lang="ts">
-import { onBeforeUnmount, onMounted, ref } from "vue";
+import { onBeforeUnmount, onMounted, ref, watch } from "vue";
 import { RouterView } from "vue-router";
 import { useToast } from "vue-toastification";
 import { useAuthStore } from "@/stores/auth.store";
 import { useLocaleStore } from "@/stores/locale.store";
+import { useTenantStore } from "@/stores/tenant.store";
 import { listenForOperationNotifications, type OperationNotification } from "@/services/operation-notifications";
+import { applyBranding } from "@/services/branding";
 
 const authStore = useAuthStore();
 const localeStore = useLocaleStore();
+const tenantStore = useTenantStore();
 const updateAvailable = ref(false)
 const toast = useToast()
 let removeNotificationListener: (() => void) | undefined
+
+// Tenant branding is configuration: every surface consumes the same contract
+// and the safe Kairo defaults apply when a tenant has no branding.
+watch(
+  () => tenantStore.currentTenant?.branding,
+  (branding) => applyBranding(branding),
+  { immediate: true, deep: true },
+)
 
 function markUpdateAvailable() {
   updateAvailable.value = true

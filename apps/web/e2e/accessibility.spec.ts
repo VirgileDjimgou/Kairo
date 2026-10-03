@@ -63,8 +63,46 @@ async function installAuthenticatedMemberRoutes(page: Page) {
     await route.fulfill({ status: 200, contentType: 'application/json', body: '[]' })
   })
 
-  await page.route('**/api/v1/notifications/', async (route) => {
-    await route.fulfill({ status: 200, contentType: 'application/json', body: '[]' })
+  await page.route('**/api/v1/notifications/inbox', async (route) => {
+    await route.fulfill({
+      status: 200,
+      contentType: 'application/json',
+      body: JSON.stringify({ items: [], unread_count: 0 }),
+    })
+  })
+
+  await page.route('**/api/v1/notifications/preferences', async (route) => {
+    await route.fulfill({
+      status: 200,
+      contentType: 'application/json',
+      body: JSON.stringify({
+        push_enabled: true,
+        finance_enabled: true,
+        discipline_enabled: true,
+        announcements_enabled: true,
+        events_enabled: true,
+      }),
+    })
+  })
+
+  await page.route('**/api/v1/notifications/devices', async (route) => {
+    await route.fulfill({ status: 204, body: '' })
+  })
+
+  await page.route('**/api/v1/notifications/push/configuration', async (route) => {
+    await route.fulfill({
+      status: 200,
+      contentType: 'application/json',
+      body: JSON.stringify({ enabled: false, reason: 'disabled' }),
+    })
+  })
+
+  await page.route('**/api/v1/attention', async (route) => {
+    await route.fulfill({
+      status: 200,
+      contentType: 'application/json',
+      body: JSON.stringify({ items: [] }),
+    })
   })
 
   await page.route('**/api/v1/memberships/me/statement', async (route) => {

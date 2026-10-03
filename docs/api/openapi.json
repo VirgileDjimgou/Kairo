@@ -1021,22 +1021,6 @@
         "title": "Body_upload_document_api_v1_documents_upload_post",
         "type": "object"
       },
-      "BrandingConfig": {
-        "properties": {
-          "logo_url": {
-            "default": "",
-            "title": "Logo Url",
-            "type": "string"
-          },
-          "primary_color": {
-            "default": "#1f4f8f",
-            "title": "Primary Color",
-            "type": "string"
-          }
-        },
-        "title": "BrandingConfig",
-        "type": "object"
-      },
       "BudgetCategoryTotal": {
         "properties": {
           "amount": {
@@ -7520,10 +7504,126 @@
         "title": "SwitchTenantResponse",
         "type": "object"
       },
+      "TenantBranding": {
+        "description": "Canonical white-label identity for one tenant.\n\nPlatform identity and tenant identity are separate: every field has a safe\nKairo default, a tenant overrides only what it needs, and no business logic\nmay depend on a branding value. Assets accept only https(s) URLs or\nsite-relative paths so a branding value can never inject an unsafe URI.",
+        "properties": {
+          "background_color": {
+            "default": "#f8f9fb",
+            "pattern": "^#(?:[0-9a-fA-F]{3}|[0-9a-fA-F]{6})$",
+            "title": "Background Color",
+            "type": "string"
+          },
+          "custom_domain": {
+            "default": "",
+            "maxLength": 253,
+            "pattern": "^(?:|[a-z0-9](?:[a-z0-9-]{0,61}[a-z0-9])?(?:\\.[a-z0-9](?:[a-z0-9-]{0,61}[a-z0-9])?)*)$",
+            "title": "Custom Domain",
+            "type": "string"
+          },
+          "display_name": {
+            "default": "Kairo",
+            "maxLength": 120,
+            "title": "Display Name",
+            "type": "string"
+          },
+          "favicon_url": {
+            "default": "",
+            "maxLength": 2048,
+            "pattern": "^(?:|https?://[^\\s]+|/[^\\s]*)$",
+            "title": "Favicon Url",
+            "type": "string"
+          },
+          "icon_192_url": {
+            "default": "",
+            "maxLength": 2048,
+            "pattern": "^(?:|https?://[^\\s]+|/[^\\s]*)$",
+            "title": "Icon 192 Url",
+            "type": "string"
+          },
+          "icon_512_url": {
+            "default": "",
+            "maxLength": 2048,
+            "pattern": "^(?:|https?://[^\\s]+|/[^\\s]*)$",
+            "title": "Icon 512 Url",
+            "type": "string"
+          },
+          "legal_name": {
+            "default": "",
+            "maxLength": 200,
+            "title": "Legal Name",
+            "type": "string"
+          },
+          "logo_dark_url": {
+            "default": "",
+            "maxLength": 2048,
+            "pattern": "^(?:|https?://[^\\s]+|/[^\\s]*)$",
+            "title": "Logo Dark Url",
+            "type": "string"
+          },
+          "logo_url": {
+            "default": "",
+            "maxLength": 2048,
+            "pattern": "^(?:|https?://[^\\s]+|/[^\\s]*)$",
+            "title": "Logo Url",
+            "type": "string"
+          },
+          "maskable_icon_url": {
+            "default": "",
+            "maxLength": 2048,
+            "pattern": "^(?:|https?://[^\\s]+|/[^\\s]*)$",
+            "title": "Maskable Icon Url",
+            "type": "string"
+          },
+          "notification_name": {
+            "default": "Kairo",
+            "maxLength": 80,
+            "title": "Notification Name",
+            "type": "string"
+          },
+          "primary_color": {
+            "default": "#1f4f8f",
+            "pattern": "^#(?:[0-9a-fA-F]{3}|[0-9a-fA-F]{6})$",
+            "title": "Primary Color",
+            "type": "string"
+          },
+          "secondary_color": {
+            "default": "#2f6f55",
+            "pattern": "^#(?:[0-9a-fA-F]{3}|[0-9a-fA-F]{6})$",
+            "title": "Secondary Color",
+            "type": "string"
+          },
+          "short_name": {
+            "default": "Kairo",
+            "maxLength": 40,
+            "title": "Short Name",
+            "type": "string"
+          },
+          "support_email": {
+            "default": "",
+            "maxLength": 254,
+            "title": "Support Email",
+            "type": "string"
+          },
+          "support_name": {
+            "default": "Kairo Support",
+            "maxLength": 120,
+            "title": "Support Name",
+            "type": "string"
+          },
+          "theme_color": {
+            "default": "#1a3f6b",
+            "pattern": "^#(?:[0-9a-fA-F]{3}|[0-9a-fA-F]{6})$",
+            "title": "Theme Color",
+            "type": "string"
+          }
+        },
+        "title": "TenantBranding",
+        "type": "object"
+      },
       "TenantMembershipResponse": {
         "properties": {
           "branding": {
-            "$ref": "#/components/schemas/BrandingConfig"
+            "$ref": "#/components/schemas/TenantBranding"
           },
           "capabilities": {
             "default": [],
@@ -7626,7 +7726,7 @@
       "TenantSettingsResponse": {
         "properties": {
           "branding": {
-            "$ref": "#/components/schemas/BrandingConfig"
+            "$ref": "#/components/schemas/TenantBranding"
           },
           "default_language": {
             "title": "Default Language",
@@ -7674,7 +7774,7 @@
           "branding": {
             "anyOf": [
               {
-                "$ref": "#/components/schemas/BrandingConfig"
+                "$ref": "#/components/schemas/TenantBranding"
               },
               {
                 "type": "null"

@@ -202,16 +202,21 @@ export interface InstallationRegistrationPayload {
   device_metadata?: DeviceMetadata
 }
 
+// Background installation registration is silent: bounded retries and final
+// telemetry (kairo:notification-registration-telemetry) replace per-request
+// operation toasts, and the explicit enable action surfaces real failures.
+const SILENT_REGISTRATION_HEADERS = { 'X-Kairo-Operation-Failure-Log': '1' }
+
 export async function registerNotificationDevice(payload: InstallationRegistrationPayload): Promise<void> {
-  await http.post('/notifications/devices', payload)
+  await http.post('/notifications/devices', payload, { headers: SILENT_REGISTRATION_HEADERS })
 }
 
 export async function savePushSubscription(payload: InstallationRegistrationPayload & { endpoint: string; p256dh: string; auth: string }): Promise<void> {
-  await http.post('/notifications/push-subscriptions', payload)
+  await http.post('/notifications/push-subscriptions', payload, { headers: SILENT_REGISTRATION_HEADERS })
 }
 
 export async function saveMobilePushToken(payload: InstallationRegistrationPayload & { fcm_token: string }): Promise<void> {
-  await http.post('/notifications/mobile-push-tokens', payload)
+  await http.post('/notifications/mobile-push-tokens', payload, { headers: SILENT_REGISTRATION_HEADERS })
 }
 
 export async function revokeNotificationDevice(installationId: string): Promise<NotificationDeviceRevocation> {

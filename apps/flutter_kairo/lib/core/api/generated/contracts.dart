@@ -561,23 +561,6 @@ class Body_upload_document_api_v1_documents_upload_post {
       };
 }
 
-class BrandingConfig {
-  const BrandingConfig({this.logo_url, this.primary_color});
-
-  factory BrandingConfig.fromJson(Map<String, dynamic> json) => BrandingConfig(
-        logo_url: json['logo_url'] as String?,
-        primary_color: json['primary_color'] as String?,
-      );
-
-  final String? logo_url;
-  final String? primary_color;
-
-  Map<String, dynamic> toJson() => <String, dynamic>{
-        if (logo_url != null) 'logo_url': logo_url,
-        if (primary_color != null) 'primary_color': primary_color,
-      };
-}
-
 class BudgetCategoryTotal {
   const BudgetCategoryTotal({this.amount, this.category});
 
@@ -4090,11 +4073,73 @@ class SwitchTenantResponse {
       };
 }
 
+class TenantBranding {
+  const TenantBranding({this.background_color, this.custom_domain, this.display_name, this.favicon_url, this.icon_192_url, this.icon_512_url, this.legal_name, this.logo_dark_url, this.logo_url, this.maskable_icon_url, this.notification_name, this.primary_color, this.secondary_color, this.short_name, this.support_email, this.support_name, this.theme_color});
+
+  factory TenantBranding.fromJson(Map<String, dynamic> json) => TenantBranding(
+        background_color: json['background_color'] as String?,
+        custom_domain: json['custom_domain'] as String?,
+        display_name: json['display_name'] as String?,
+        favicon_url: json['favicon_url'] as String?,
+        icon_192_url: json['icon_192_url'] as String?,
+        icon_512_url: json['icon_512_url'] as String?,
+        legal_name: json['legal_name'] as String?,
+        logo_dark_url: json['logo_dark_url'] as String?,
+        logo_url: json['logo_url'] as String?,
+        maskable_icon_url: json['maskable_icon_url'] as String?,
+        notification_name: json['notification_name'] as String?,
+        primary_color: json['primary_color'] as String?,
+        secondary_color: json['secondary_color'] as String?,
+        short_name: json['short_name'] as String?,
+        support_email: json['support_email'] as String?,
+        support_name: json['support_name'] as String?,
+        theme_color: json['theme_color'] as String?,
+      );
+
+  final String? background_color;
+  final String? custom_domain;
+  final String? display_name;
+  final String? favicon_url;
+  final String? icon_192_url;
+  final String? icon_512_url;
+  final String? legal_name;
+  final String? logo_dark_url;
+  final String? logo_url;
+  final String? maskable_icon_url;
+  final String? notification_name;
+  final String? primary_color;
+  final String? secondary_color;
+  final String? short_name;
+  final String? support_email;
+  final String? support_name;
+  final String? theme_color;
+
+  Map<String, dynamic> toJson() => <String, dynamic>{
+        if (background_color != null) 'background_color': background_color,
+        if (custom_domain != null) 'custom_domain': custom_domain,
+        if (display_name != null) 'display_name': display_name,
+        if (favicon_url != null) 'favicon_url': favicon_url,
+        if (icon_192_url != null) 'icon_192_url': icon_192_url,
+        if (icon_512_url != null) 'icon_512_url': icon_512_url,
+        if (legal_name != null) 'legal_name': legal_name,
+        if (logo_dark_url != null) 'logo_dark_url': logo_dark_url,
+        if (logo_url != null) 'logo_url': logo_url,
+        if (maskable_icon_url != null) 'maskable_icon_url': maskable_icon_url,
+        if (notification_name != null) 'notification_name': notification_name,
+        if (primary_color != null) 'primary_color': primary_color,
+        if (secondary_color != null) 'secondary_color': secondary_color,
+        if (short_name != null) 'short_name': short_name,
+        if (support_email != null) 'support_email': support_email,
+        if (support_name != null) 'support_name': support_name,
+        if (theme_color != null) 'theme_color': theme_color,
+      };
+}
+
 class TenantMembershipResponse {
   const TenantMembershipResponse({this.branding, this.capabilities, this.default_language, this.modules, this.name, this.profile_type, this.roles, this.slug, this.tenant_id});
 
   factory TenantMembershipResponse.fromJson(Map<String, dynamic> json) => TenantMembershipResponse(
-        branding: json['branding'] == null ? null : BrandingConfig.fromJson(json['branding'] as Map<String, dynamic>),
+        branding: json['branding'] == null ? null : TenantBranding.fromJson(json['branding'] as Map<String, dynamic>),
         capabilities: (json['capabilities'] as List<dynamic>?)?.map((dynamic item) => item as String).toList(),
         default_language: json['default_language'] as String?,
         modules: json['modules'] == null ? null : ModuleToggles.fromJson(json['modules'] as Map<String, dynamic>),
@@ -4105,7 +4150,7 @@ class TenantMembershipResponse {
         tenant_id: json['tenant_id'] as String?,
       );
 
-  final BrandingConfig? branding;
+  final TenantBranding? branding;
   final List<String>? capabilities;
   final String? default_language;
   final ModuleToggles? modules;
@@ -4164,7 +4209,7 @@ class TenantSettingsResponse {
   const TenantSettingsResponse({this.branding, this.default_language, this.modules, this.name, this.operations, this.slug, this.tenant_id, this.updated_at});
 
   factory TenantSettingsResponse.fromJson(Map<String, dynamic> json) => TenantSettingsResponse(
-        branding: json['branding'] == null ? null : BrandingConfig.fromJson(json['branding'] as Map<String, dynamic>),
+        branding: json['branding'] == null ? null : TenantBranding.fromJson(json['branding'] as Map<String, dynamic>),
         default_language: json['default_language'] as String?,
         modules: json['modules'] == null ? null : ModuleToggles.fromJson(json['modules'] as Map<String, dynamic>),
         name: json['name'] as String?,
@@ -4174,7 +4219,7 @@ class TenantSettingsResponse {
         updated_at: json['updated_at'] as String?,
       );
 
-  final BrandingConfig? branding;
+  final TenantBranding? branding;
   final String? default_language;
   final ModuleToggles? modules;
   final String? name;
@@ -4199,14 +4244,14 @@ class TenantSettingsUpdate {
   const TenantSettingsUpdate({this.branding, this.default_language, this.modules, this.name, this.operations});
 
   factory TenantSettingsUpdate.fromJson(Map<String, dynamic> json) => TenantSettingsUpdate(
-        branding: json['branding'] == null ? null : BrandingConfig.fromJson(json['branding'] as Map<String, dynamic>),
+        branding: json['branding'] == null ? null : TenantBranding.fromJson(json['branding'] as Map<String, dynamic>),
         default_language: json['default_language'] as String?,
         modules: json['modules'] == null ? null : ModuleToggles.fromJson(json['modules'] as Map<String, dynamic>),
         name: json['name'] as String?,
         operations: json['operations'] == null ? null : RecoveryEvidenceConfig.fromJson(json['operations'] as Map<String, dynamic>),
       );
 
-  final BrandingConfig? branding;
+  final TenantBranding? branding;
   final String? default_language;
   final ModuleToggles? modules;
   final String? name;

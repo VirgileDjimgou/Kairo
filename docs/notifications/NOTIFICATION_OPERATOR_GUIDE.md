@@ -71,7 +71,8 @@ services:
 - Firebase Admin credentials are server/worker only. They never reach the browser or
   the mobile client.
 - Push bodies are always generic. Detailed content is read from the authenticated
-  inbox after sign-in.
+  inbox after sign-in. The push sender title follows the tenant branding
+  `notification_name` (default `Kairo`); see `docs/pwa/WHITE_LABEL_BRANDING.md`.
 
 ### 3b. Firebase Web Messaging fallback (optional)
 

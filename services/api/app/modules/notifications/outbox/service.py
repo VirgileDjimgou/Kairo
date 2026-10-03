@@ -22,6 +22,8 @@ from app.modules.notifications.user_models import (
 from app.modules.notifications.user_schemas import (
     UnreachableNotificationRecipient,
 )
+from app.modules.tenancy.branding import branding_from_json
+from app.modules.tenancy.models import Tenant
 from app.providers.push.base import (
     FirebasePushProvider,
     FirebasePushTarget,
@@ -54,10 +56,11 @@ class OutboxMixin(UserNotificationServiceBase):
         for event in events:
             event.status, event.attempts = "processing", event.attempts + 1
         await self._db.commit()
+        push_titles = await self._push_titles_for_events(events)
         completed = 0
         for event in events:
             try:
-                await self._deliver_event(event)
+                await self._deliver_event(event, push_titles.get(event.tenant_id, GENERIC_PUSH_TITLE))
                 event.status, event.processed_at, event.last_error = "completed", datetime.now(UTC), None
                 completed += 1
             except Exception as exc:  # retained for outbox retry diagnostics; no user data is logged
@@ -142,7 +145,27 @@ class OutboxMixin(UserNotificationServiceBase):
             .distinct()
         )
         return set(result.scalars().all())
-    async def _deliver_event(self, event: NotificationOutboxEvent) -> None:
+    async def _push_titles_for_events(
+        self, events: list[NotificationOutboxEvent]
+    ) -> dict[UUID, str]:
+        """Resolve the tenant branding notification name once per batch.
+
+        Branding is presentation only: an unknown tenant or an empty value falls
+        back to the platform name and no business behavior changes.
+        """
+        tenant_ids = {event.tenant_id for event in events}
+        if not tenant_ids:
+            return {}
+        rows = await self._db.execute(
+            select(Tenant.id, Tenant.branding_json).where(Tenant.id.in_(tenant_ids))
+        )
+        titles: dict[UUID, str] = {}
+        for tenant_id, branding_json in rows.all():
+            branding = branding_from_json(branding_json)
+            titles[tenant_id] = branding.notification_name or GENERIC_PUSH_TITLE
+        return titles
+
+    async def _deliver_event(self, event: NotificationOutboxEvent, push_title: str) -> None:
         payload = json.loads(event.payload_json)
         recipients = [UUID(raw) for raw in payload.get("recipients", [])]
         event_id = payload.get("event_id")
@@ -162,7 +185,7 @@ class OutboxMixin(UserNotificationServiceBase):
             self._db.add(notification)
         await self._db.flush()
         message = PushMessage(
-            title=GENERIC_PUSH_TITLE,
+            title=push_title,
             body=GENERIC_PUSH_BODY,
             target_path=str(payload["target_path"]),
         )

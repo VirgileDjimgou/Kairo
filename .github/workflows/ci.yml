@@ -184,6 +184,12 @@ jobs:
           cd apps/web
           npm run test:e2e:notifications
 
+      - name: Run white-label branding pack
+        if: success() || failure()
+        run: |
+          cd apps/web
+          npm run test:e2e:whitelabel
+
       - name: Verify built PWA worker, offline shell and update behavior
         if: success() || failure()
         run: |

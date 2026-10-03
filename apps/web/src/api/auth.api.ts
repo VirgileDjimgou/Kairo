@@ -1,4 +1,5 @@
 import http from './http'
+import type { TenantBranding } from './branding.types'
 
 // ── Existing types ────────────────────────────────────────────────────────────
 
@@ -23,11 +24,6 @@ export interface MfaRequiredResponse {
   expires_in: number
 }
 
-export interface BrandingConfig {
-  primary_color: string
-  logo_url: string
-}
-
 export interface ModuleToggles {
   membership: boolean
   contributions: boolean
@@ -46,7 +42,7 @@ export interface TenantMembershipResponse {
   default_language: string
   roles: string[]
   capabilities?: string[]
-  branding: BrandingConfig
+  branding: TenantBranding
   modules: ModuleToggles
   profile_type: string
 }

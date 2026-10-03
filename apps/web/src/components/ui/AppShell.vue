@@ -5,6 +5,7 @@
       :eyebrow="eyebrow"
       :title="tenantStore.currentTenantName || title"
       :icon="icon"
+      :logo-url="branding.logo_url"
       :user-name="authStore.user?.display_name || ''"
       :user-email="authStore.user?.email || ''"
       :account-label="localeStore.t('layout.account')"
@@ -48,6 +49,7 @@ import AppBottomNavigation from '@/components/ui/AppBottomNavigation.vue'
 import RoleTopNavigation from '@/components/ui/RoleTopNavigation.vue'
 import GlobalSearchOverlay from '@/components/search/GlobalSearchOverlay.vue'
 import type { BottomNavItem } from '@/components/ui/AppBottomNavigation.vue'
+import { effectiveBranding } from '@/services/branding'
 
 defineProps<{
   eyebrow: string
@@ -63,8 +65,12 @@ const authStore = useAuthStore()
 const localeStore = useLocaleStore()
 const tenantStore = useTenantStore()
 
+const branding = computed(() => effectiveBranding(tenantStore.currentTenant?.branding))
+
 const brandStyle = computed(() => ({
-  '--om-primary': tenantStore.currentTenant?.branding.primary_color || '#1E63B5',
+  '--om-primary': branding.value.primary_color,
+  '--om-secondary': branding.value.secondary_color,
+  '--om-background': branding.value.background_color,
 }))
 
 const searchOpen = ref(false)

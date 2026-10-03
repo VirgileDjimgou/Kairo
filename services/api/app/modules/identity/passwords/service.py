@@ -21,6 +21,7 @@ from app.modules.identity.schemas import (
     ResetPasswordRequest,
     ResetPasswordResponse,
 )
+from app.modules.tenancy.branding import branding_from_json
 
 
 class PasswordsMixin(IdentityServiceBase):
@@ -145,13 +146,20 @@ class PasswordsMixin(IdentityServiceBase):
             expires_at=expires_at,
         )
         tenant_id = await self._first_tenant_id_for_user(user.id)
+        tenant = await self._tenancy_repo.get_tenant_by_id(tenant_id) if tenant_id is not None else None
+        branding = branding_from_json(tenant.branding_json) if tenant is not None else None
+        sender = branding.notification_name if branding is not None and branding.notification_name else settings.app_name
         delivery = await self._send_identity_email(
             tenant_id=tenant_id if tenant_id is not None else UUID(int=0),
             recipient=user.email,
-            subject=f"Reset your {settings.app_name} password",
-            body=self._build_password_reset_message(raw_token=raw_token),
+            subject=f"Reset your {sender} password",
+            body=self._build_password_reset_message(
+                raw_token=raw_token,
+                notification_name=sender,
+                support_name=branding.support_name if branding is not None else "",
+                support_email=branding.support_email if branding is not None else "",
+            ),
         )
-        tenant_id = await self._first_tenant_id_for_user(user.id)
         if tenant_id is not None:
             await self._audit.record_event(
                 tenant_id=tenant_id,
@@ -232,11 +240,25 @@ class PasswordsMixin(IdentityServiceBase):
         await self._db.commit()
 
         return ResetPasswordResponse()
-    def _build_password_reset_message(self, *, raw_token: str) -> str:
+    def _build_password_reset_message(
+        self,
+        *,
+        raw_token: str,
+        notification_name: str | None = None,
+        support_name: str = "",
+        support_email: str = "",
+    ) -> str:
+        sender = notification_name or settings.app_name
+        support_line = (
+            f"\n\nNeed help? Contact {support_name or sender} at {support_email}."
+            if support_email
+            else ""
+        )
         return (
-            f"{settings.app_name} password reset\n\n"
-            f"A password reset was requested for your {settings.app_name} account.\n\n"
+            f"{sender} password reset\n\n"
+            f"A password reset was requested for your {sender} account.\n\n"
             "Use this secure reset link:\n"
             f"/reset-password?token={raw_token}\n\n"
             "If you did not request this, you can ignore this email."
+            f"{support_line}"
         )

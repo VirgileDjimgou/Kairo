@@ -15,11 +15,11 @@ from app.core.capabilities import (
     normalize_bundle_capabilities,
 )
 from app.modules.audit.service import AuditService
+from app.modules.tenancy.branding import branding_from_json
 from app.modules.tenancy.module_toggles import default_module_toggles, parse_module_toggles
 from app.modules.tenancy.repository import TenancyRepository
 from app.modules.tenancy.role_catalog import is_canonical_role
 from app.modules.tenancy.schemas import (
-    BrandingConfig,
     ModuleToggles,
     RecoveryEvidenceConfig,
     RecoveryEvidenceResponse,
@@ -196,13 +196,6 @@ class TenancyService:
                 detail="Organization not found",
             )
 
-        branding_raw: dict[str, Any] = {}
-        if isinstance(tenant.branding_json, str) and tenant.branding_json.strip():
-            try:
-                branding_raw = json.loads(tenant.branding_json)
-            except json.JSONDecodeError:
-                branding_raw = {}
-
         settings_raw: dict[str, Any] = {}
         if isinstance(tenant.settings_json, str) and tenant.settings_json.strip():
             try:
@@ -211,7 +204,7 @@ class TenancyService:
                 settings_raw = {}
 
         module_toggles = parse_module_toggles(settings_raw)
-        branding = BrandingConfig(**branding_raw) if branding_raw else BrandingConfig()
+        branding = branding_from_json(tenant.branding_json)
         operations = self._build_recovery_evidence(settings_raw)
 
         return TenantSettingsResponse(
@@ -314,7 +307,7 @@ class TenancyService:
         module_toggles = parse_module_toggles(
             json.loads(settings_json) if settings_json else {}
         )
-        branding = BrandingConfig(**current_branding_raw)
+        branding = branding_from_json(current_branding_raw)
         operations = self._build_recovery_evidence(
             json.loads(settings_json) if settings_json else {}
         )

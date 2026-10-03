@@ -23,6 +23,7 @@ from app.modules.identity.schemas import (
     InviteRequest,
     InviteResponse,
 )
+from app.modules.tenancy.branding import branding_from_json
 
 
 class InvitationsMixin(IdentityServiceBase):
@@ -110,14 +111,18 @@ class InvitationsMixin(IdentityServiceBase):
             token_hash=token_hash_value,
             expires_at=expires_at,
         )
+        branding = branding_from_json(tenant.branding_json)
         delivery = await self._send_identity_email(
             tenant_id=request.tenant_id,
             recipient=request.email,
-            subject=f"You're invited to join {tenant.name} on {settings.app_name}",
+            subject=f"You're invited to join {tenant.name} on {branding.notification_name or settings.app_name}",
             body=self._build_invitation_message(
                 tenant_name=tenant.name,
                 role_code=request.role_code,
                 raw_token=raw_token,
+                notification_name=branding.notification_name or settings.app_name,
+                support_name=branding.support_name,
+                support_email=branding.support_email,
             ),
         )
         await self._audit.record_event(
@@ -336,11 +341,21 @@ class InvitationsMixin(IdentityServiceBase):
         tenant_name: str,
         role_code: str,
         raw_token: str,
+        notification_name: str | None = None,
+        support_name: str = "",
+        support_email: str = "",
     ) -> str:
+        sender = notification_name or settings.app_name
+        support_line = (
+            f"\n\nNeed help? Contact {support_name or sender} at {support_email}."
+            if support_email
+            else ""
+        )
         return (
-            f"{settings.app_name} access invitation\n\n"
+            f"{sender} access invitation\n\n"
             f"You have been invited to join {tenant_name} as {role_code}.\n\n"
             "Use this secure invitation link:\n"
             f"/accept-invite?token={raw_token}\n\n"
             "If you were not expecting this invitation, ignore this message."
+            f"{support_line}"
         )

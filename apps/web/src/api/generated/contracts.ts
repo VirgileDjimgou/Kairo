@@ -174,11 +174,6 @@ export interface Body_upload_document_api_v1_documents_upload_post {
   title?: string;
 }
 
-export interface BrandingConfig {
-  logo_url?: string;
-  primary_color?: string;
-}
-
 export interface BudgetCategoryTotal {
   amount: string;
   category: string;
@@ -1285,8 +1280,28 @@ export interface SwitchTenantResponse {
   user_id: string;
 }
 
+export interface TenantBranding {
+  background_color?: string;
+  custom_domain?: string;
+  display_name?: string;
+  favicon_url?: string;
+  icon_192_url?: string;
+  icon_512_url?: string;
+  legal_name?: string;
+  logo_dark_url?: string;
+  logo_url?: string;
+  maskable_icon_url?: string;
+  notification_name?: string;
+  primary_color?: string;
+  secondary_color?: string;
+  short_name?: string;
+  support_email?: string;
+  support_name?: string;
+  theme_color?: string;
+}
+
 export interface TenantMembershipResponse {
-  branding: BrandingConfig;
+  branding: TenantBranding;
   capabilities?: Array<string>;
   default_language: string;
   modules: ModuleToggles;
@@ -1308,7 +1323,7 @@ export interface TenantResponse {
 }
 
 export interface TenantSettingsResponse {
-  branding: BrandingConfig;
+  branding: TenantBranding;
   default_language: string;
   modules: ModuleToggles;
   name: string;
@@ -1319,7 +1334,7 @@ export interface TenantSettingsResponse {
 }
 
 export interface TenantSettingsUpdate {
-  branding?: BrandingConfig | null;
+  branding?: TenantBranding | null;
   default_language?: string | null;
   modules?: ModuleToggles | null;
   name?: string | null;
