@@ -3007,7 +3007,7 @@ class NotificationDispatchResponse {
 }
 
 class NotificationHealthResponse {
-  const NotificationHealthResponse({this.disabled_fcm_tokens, this.disabled_web_subscriptions, this.failed_outbox, this.firebase_configured, this.last_successful_dispatch_at, this.oldest_pending_seconds, this.pending_outbox, this.retrying_fcm_tokens, this.retrying_web_subscriptions, this.web_push_configured, this.worker_running});
+  const NotificationHealthResponse({this.disabled_fcm_tokens, this.disabled_web_subscriptions, this.failed_outbox, this.firebase_configured, this.last_successful_dispatch_at, this.oldest_pending_seconds, this.pending_outbox, this.retrying_fcm_tokens, this.retrying_outbox, this.retrying_web_subscriptions, this.stranded_outbox, this.web_push_configured, this.worker_running});
 
   factory NotificationHealthResponse.fromJson(Map<String, dynamic> json) => NotificationHealthResponse(
         disabled_fcm_tokens: json['disabled_fcm_tokens'] as int?,
@@ -3018,7 +3018,9 @@ class NotificationHealthResponse {
         oldest_pending_seconds: json['oldest_pending_seconds'] as int?,
         pending_outbox: json['pending_outbox'] as int?,
         retrying_fcm_tokens: json['retrying_fcm_tokens'] as int?,
+        retrying_outbox: json['retrying_outbox'] as int?,
         retrying_web_subscriptions: json['retrying_web_subscriptions'] as int?,
+        stranded_outbox: json['stranded_outbox'] as int?,
         web_push_configured: json['web_push_configured'] as bool?,
         worker_running: json['worker_running'] as bool?,
       );
@@ -3031,7 +3033,9 @@ class NotificationHealthResponse {
   final int? oldest_pending_seconds;
   final int? pending_outbox;
   final int? retrying_fcm_tokens;
+  final int? retrying_outbox;
   final int? retrying_web_subscriptions;
+  final int? stranded_outbox;
   final bool? web_push_configured;
   final bool? worker_running;
 
@@ -3044,7 +3048,9 @@ class NotificationHealthResponse {
         if (oldest_pending_seconds != null) 'oldest_pending_seconds': oldest_pending_seconds,
         if (pending_outbox != null) 'pending_outbox': pending_outbox,
         if (retrying_fcm_tokens != null) 'retrying_fcm_tokens': retrying_fcm_tokens,
+        if (retrying_outbox != null) 'retrying_outbox': retrying_outbox,
         if (retrying_web_subscriptions != null) 'retrying_web_subscriptions': retrying_web_subscriptions,
+        if (stranded_outbox != null) 'stranded_outbox': stranded_outbox,
         if (web_push_configured != null) 'web_push_configured': web_push_configured,
         if (worker_running != null) 'worker_running': worker_running,
       };

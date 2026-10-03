@@ -956,7 +956,9 @@ export interface NotificationHealthResponse {
   oldest_pending_seconds?: number | null;
   pending_outbox: number;
   retrying_fcm_tokens?: number;
+  retrying_outbox?: number;
   retrying_web_subscriptions?: number;
+  stranded_outbox?: number;
   web_push_configured: boolean;
   worker_running: boolean;
 }

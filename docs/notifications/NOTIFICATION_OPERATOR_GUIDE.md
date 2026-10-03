@@ -12,6 +12,7 @@ the Kairo FastAPI backend. It never asks you to commit credentials.
 | FastAPI (`api`) | Writes the notification outbox inside the business transaction; serves the authenticated inbox, preferences, installation registration, `/notifications/health`. |
 | Celery worker `domain_events.process_outbox` | Applies domain-event consumers (audit, inbox enqueue, custody notices). |
 | Celery worker `notifications.process_user_outbox` | Creates inbox rows and sends Web Push + FCM; disables invalid targets and deduplicates per installation. |
+| Celery worker `notifications.reconcile_user_outbox` | Reclaims expired processing leases and reports stranded/retrying/dead-letter counts every 5 minutes. |
 | Vue PWA service worker | Displays generic push and opens the safe internal deep link. |
 | Vue PWA client | Registers normalized installation metadata; uses VAPID Web Push by default and Firebase Web Messaging as the configured fallback; revokes its binding on sign-out and before tenant switching. |
 | Flutter Android client (frozen reference) | Registers FCM tokens after explicit opt-in; revokes its binding on sign-out. |
@@ -112,6 +113,12 @@ together with `FIREBASE_TEST_TOKEN`; the doctor is never part of generic CI.
 In-product operator view: **Admin → Notifications** shows pipeline health (Web Push
 configured, Firebase configured, worker running, pending/failed outbox, disabled
 subscriptions, retrying subscriptions) plus the operator channel history.
+
+Reliability: processing leases expire after `OUTBOX_PROCESSING_LEASE_SECONDS`
+(default 300) and are reclaimed automatically; retries back off up to five
+attempts before a dead-letter `failed` state. Health exposes
+`stranded_outbox`/`retrying_outbox`, and `notifications.reconcile_user_outbox`
+runs every five minutes. See `docs/notifications/NOTIFICATION_OUTBOX_RELIABILITY.md`.
 
 Metrics (`GET /metrics`): `kairo_notification_outbox_pending`,
 `kairo_notification_outbox_failed`, `kairo_notification_outbox_oldest_age_seconds`,

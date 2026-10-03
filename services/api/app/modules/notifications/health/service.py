@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from datetime import UTC, datetime
+from datetime import UTC, datetime, timedelta
 from uuid import UUID
 
 from sqlalchemy import func, select
@@ -99,6 +99,28 @@ class HealthMixin(UserNotificationServiceBase):
             )
             or 0
         )
+        lease_cutoff = now - timedelta(seconds=max(1, settings.outbox_processing_lease_seconds))
+        stranded_outbox = int(
+            await self._db.scalar(
+                select(func.count(NotificationOutboxEvent.id)).where(
+                    NotificationOutboxEvent.tenant_id == tenant_id,
+                    NotificationOutboxEvent.status == "processing",
+                    NotificationOutboxEvent.processing_started_at.is_not(None),
+                    NotificationOutboxEvent.processing_started_at < lease_cutoff,
+                )
+            )
+            or 0
+        )
+        retrying_outbox = int(
+            await self._db.scalar(
+                select(func.count(NotificationOutboxEvent.id)).where(
+                    NotificationOutboxEvent.tenant_id == tenant_id,
+                    NotificationOutboxEvent.status == "pending",
+                    NotificationOutboxEvent.attempts > 0,
+                )
+            )
+            or 0
+        )
 
         worker_running = True
         if pending > 0:
@@ -134,5 +156,7 @@ class HealthMixin(UserNotificationServiceBase):
             disabled_fcm_tokens=disabled_fcm,
             retrying_web_subscriptions=retrying_web,
             retrying_fcm_tokens=retrying_fcm,
+            stranded_outbox=stranded_outbox,
+            retrying_outbox=retrying_outbox,
             last_successful_dispatch_at=last_completed_at,
         )

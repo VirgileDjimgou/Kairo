@@ -6,7 +6,7 @@ from datetime import UTC, datetime, timedelta
 from uuid import UUID
 
 import structlog
-from sqlalchemy import func, select
+from sqlalchemy import func, select, update
 
 from app.core.config import settings
 from app.core.metrics import metrics
@@ -38,13 +38,96 @@ GENERIC_PUSH_BODY = "Une nouvelle notification est disponible."
 PUSH_RETRY_ATTEMPTS = 3
 PUSH_RETRY_BASE_SECONDS = 1.0
 PUSH_RETRY_MAX_SECONDS = 5.0
+MAX_OUTBOX_ATTEMPTS = 5
+STALE_RECLAIM_ERROR = "stale_processing_reclaimed"
 
 logger = structlog.get_logger(__name__)
 
 
 class OutboxMixin(UserNotificationServiceBase):
+    async def reclaim_stale_events(self, now: datetime | None = None) -> int:
+        """Return expired processing leases to pending so no event is stranded.
+
+        A worker crash after claiming an event leaves `status=processing` with a
+        `processing_started_at` timestamp. Once the lease expires another worker
+        reclaims the row; delivery is idempotent at the inbox level.
+        """
+        current = now or datetime.now(UTC)
+        cutoff = current - timedelta(seconds=max(1, settings.outbox_processing_lease_seconds))
+        result = await self._db.execute(
+            update(NotificationOutboxEvent)
+            .where(
+                NotificationOutboxEvent.status == "processing",
+                NotificationOutboxEvent.processing_started_at.is_not(None),
+                NotificationOutboxEvent.processing_started_at < cutoff,
+            )
+            .values(
+                status="pending",
+                available_at=current,
+                processing_started_at=None,
+                last_error=STALE_RECLAIM_ERROR,
+            )
+            .execution_options(synchronize_session=False)
+        )
+        reclaimed = int(getattr(result, "rowcount", 0) or 0)
+        await self._db.commit()
+        if reclaimed:
+            logger.warning("notification_outbox_stale_reclaimed", reclaimed=reclaimed)
+        return reclaimed
+
+    async def reconcile_outbox(self) -> dict[str, int]:
+        """Reclaim expired leases and report outbox health for operators."""
+        now = datetime.now(UTC)
+        reclaimed = await self.reclaim_stale_events(now)
+        cutoff = now - timedelta(seconds=max(1, settings.outbox_processing_lease_seconds))
+        pending = int(
+            await self._db.scalar(
+                select(func.count(NotificationOutboxEvent.id)).where(
+                    NotificationOutboxEvent.status == "pending"
+                )
+            )
+            or 0
+        )
+        stranded = int(
+            await self._db.scalar(
+                select(func.count(NotificationOutboxEvent.id)).where(
+                    NotificationOutboxEvent.status == "processing",
+                    NotificationOutboxEvent.processing_started_at.is_not(None),
+                    NotificationOutboxEvent.processing_started_at < cutoff,
+                )
+            )
+            or 0
+        )
+        retrying = int(
+            await self._db.scalar(
+                select(func.count(NotificationOutboxEvent.id)).where(
+                    NotificationOutboxEvent.status == "pending",
+                    NotificationOutboxEvent.attempts > 0,
+                )
+            )
+            or 0
+        )
+        dead_letter = int(
+            await self._db.scalar(
+                select(func.count(NotificationOutboxEvent.id)).where(
+                    NotificationOutboxEvent.status == "failed"
+                )
+            )
+            or 0
+        )
+        report = {
+            "reclaimed": reclaimed,
+            "pending": pending,
+            "stranded": stranded,
+            "retrying": retrying,
+            "dead_letter": dead_letter,
+        }
+        logger.info("notification_outbox_reconciled", **report)
+        return report
+
     async def process_outbox(self, batch_size: int = 100) -> int:
         now = datetime.now(UTC)
+        await self.reclaim_stale_events(now)
         result = await self._db.execute(
             select(NotificationOutboxEvent)
             .where(NotificationOutboxEvent.status == "pending", NotificationOutboxEvent.available_at <= now)
@@ -54,7 +137,7 @@ class OutboxMixin(UserNotificationServiceBase):
         )
         events = list(result.scalars().all())
         for event in events:
-            event.status, event.attempts = "processing", event.attempts + 1
+            event.status, event.attempts, event.processing_started_at = "processing", event.attempts + 1, now
         await self._db.commit()
         push_titles = await self._push_titles_for_events(events)
         completed = 0
@@ -62,11 +145,13 @@ class OutboxMixin(UserNotificationServiceBase):
             try:
                 await self._deliver_event(event, push_titles.get(event.tenant_id, GENERIC_PUSH_TITLE))
                 event.status, event.processed_at, event.last_error = "completed", datetime.now(UTC), None
+                event.processing_started_at = None
                 completed += 1
             except Exception as exc:  # retained for outbox retry diagnostics; no user data is logged
-                event.status = "pending" if event.attempts < 5 else "failed"
+                event.status = "pending" if event.attempts < MAX_OUTBOX_ATTEMPTS else "failed"
                 event.available_at = datetime.now(UTC) + timedelta(minutes=min(30, 2 ** event.attempts))
                 event.last_error = type(exc).__name__
+                event.processing_started_at = None
                 logger.warning(
                     "notification_outbox_delivery_failed",
                     event_id=str(event.id),
@@ -169,7 +254,28 @@ class OutboxMixin(UserNotificationServiceBase):
         payload = json.loads(event.payload_json)
         recipients = [UUID(raw) for raw in payload.get("recipients", [])]
         event_id = payload.get("event_id")
+        # Idempotent inbox projection: a reclaimed or retried event never
+        # duplicates a notification row (unique deduplication key). Push is a
+        # delivery hint and remains at-least-once.
+        existing_keys: set[str] = set()
+        if recipients:
+            dedup_keys = [f"{event.deduplication_key}:{recipient_id}" for recipient_id in recipients]
+            existing_keys = set(
+                (
+                    await self._db.execute(
+                        select(UserNotification.deduplication_key).where(
+                            UserNotification.tenant_id == event.tenant_id,
+                            UserNotification.deduplication_key.in_(dedup_keys),
+                        )
+                    )
+                )
+                .scalars()
+                .all()
+            )
         for recipient_id in recipients:
+            deduplication_key = f"{event.deduplication_key}:{recipient_id}"
+            if deduplication_key in existing_keys:
+                continue
             notification = UserNotification(
                 tenant_id=event.tenant_id,
                 recipient_user_id=recipient_id,
@@ -180,7 +286,7 @@ class OutboxMixin(UserNotificationServiceBase):
                 event_id=UUID(str(event_id)) if event_id else None,
                 correlation_id=payload.get("correlation_id"),
                 metadata_json=json.dumps(payload.get("metadata", {}), default=str),
-                deduplication_key=f"{event.deduplication_key}:{recipient_id}",
+                deduplication_key=deduplication_key,
             )
             self._db.add(notification)
         await self._db.flush()

@@ -94,7 +94,13 @@ async def test_health_surfaces_outbox_and_backup_checks(client: AsyncClient) -> 
         assert check["status"] in ("ok", "degraded", "unavailable", "disabled", "error")
         assert "latency_ms" in check
     outbox_check = body["checks"]["notification_outbox"]
-    assert set(outbox_check["detail"]) == {"pending", "failed", "oldest_pending_seconds"}
+    assert set(outbox_check["detail"]) == {
+        "pending",
+        "failed",
+        "oldest_pending_seconds",
+        "stranded",
+        "retrying",
+    }
 
 
 @pytest.mark.asyncio
@@ -103,8 +109,11 @@ async def test_metrics_include_operational_gauges(client: AsyncClient) -> None:
     text = response.text
     for name in (
         "kairo_notification_outbox_pending",
+        "kairo_notification_outbox_stranded",
+        "kairo_notification_outbox_retrying",
         "kairo_domain_event_outbox_pending",
         "kairo_domain_event_outbox_failed",
+        "kairo_domain_event_outbox_stranded",
         "kairo_domain_event_outbox_oldest_age_seconds",
         "kairo_backup_last_success_age_seconds",
         "kairo_backup_failed_runs",

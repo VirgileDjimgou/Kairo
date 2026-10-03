@@ -95,6 +95,8 @@ class NotificationHealthResponse(BaseModel):
     disabled_fcm_tokens: int
     retrying_web_subscriptions: int = 0
     retrying_fcm_tokens: int = 0
+    stranded_outbox: int = 0
+    retrying_outbox: int = 0
     last_successful_dispatch_at: datetime | None = None
 
 

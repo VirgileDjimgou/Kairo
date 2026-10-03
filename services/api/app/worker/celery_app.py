@@ -62,6 +62,11 @@ celery_app.conf.beat_schedule["process-user-notification-outbox"] = {
     "schedule": 15.0,
 }
 
+celery_app.conf.beat_schedule["reconcile-user-notification-outbox"] = {
+    "task": "notifications.reconcile_user_outbox",
+    "schedule": 300.0,
+}
+
 celery_app.conf.beat_schedule["process-domain-event-outbox"] = {
     "task": "domain_events.process_outbox",
     "schedule": 15.0,

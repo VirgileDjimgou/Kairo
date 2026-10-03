@@ -7,9 +7,10 @@ from typing import Any, Self
 from uuid import UUID
 
 import structlog
-from sqlalchemy import select
+from sqlalchemy import select, update
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from app.core.config import settings
 from app.core.request_context import current_request_id
 from app.modules.domain_events.models import (
     EVENT_STATUS_COMPLETED,
@@ -27,6 +28,7 @@ from app.providers.notifications.base import NotificationProvider
 
 MAX_HANDLER_ATTEMPTS = 5
 MAX_RETRY_DELAY_MINUTES = 30
+STALE_RECLAIM_ERROR = "stale_processing_reclaimed"
 
 logger = structlog.get_logger(__name__)
 
@@ -109,6 +111,7 @@ class DomainEventService:
         applied = set(event.applied_handlers)
         event.attempts += 1
         event.status = EVENT_STATUS_PROCESSING
+        event.processing_started_at = datetime.now(UTC)
 
         for handler in handlers:
             if handler.name in applied:
@@ -125,6 +128,7 @@ class DomainEventService:
                     minutes=min(MAX_RETRY_DELAY_MINUTES, 2**event.attempts)
                 )
                 event.last_error = f"{handler.name}:{type(exc).__name__}"
+                event.processing_started_at = None
                 logger.warning(
                     "domain_event_handler_failed",
                     event_id=str(event.id),
@@ -142,12 +146,38 @@ class DomainEventService:
         event.status = EVENT_STATUS_COMPLETED
         event.processed_at = datetime.now(UTC)
         event.last_error = None
+        event.processing_started_at = None
         await self._db.flush()
         return True
+
+    async def reclaim_stale_events(self, now: datetime | None = None) -> int:
+        """Return expired processing leases to pending so no event is stranded."""
+        current = now or datetime.now(UTC)
+        cutoff = current - timedelta(seconds=max(1, settings.outbox_processing_lease_seconds))
+        result = await self._db.execute(
+            update(DomainEvent)
+            .where(
+                DomainEvent.status == EVENT_STATUS_PROCESSING,
+                DomainEvent.processing_started_at.is_not(None),
+                DomainEvent.processing_started_at < cutoff,
+            )
+            .values(
+                status=EVENT_STATUS_PENDING,
+                available_at=current,
+                processing_started_at=None,
+                last_error=STALE_RECLAIM_ERROR,
+            )
+            .execution_options(synchronize_session=False)
+        )
+        reclaimed = int(getattr(result, "rowcount", 0) or 0)
+        if reclaimed:
+            logger.warning("domain_event_outbox_stale_reclaimed", reclaimed=reclaimed)
+        return reclaimed
 
     async def process_pending(self, batch_size: int = 100) -> int:
         """Worker entry point: retry events that were not fully applied inline."""
         now = datetime.now(UTC)
+        await self.reclaim_stale_events(now)
         result = await self._db.execute(
             select(DomainEvent)
             .where(DomainEvent.status == EVENT_STATUS_PENDING, DomainEvent.available_at <= now)

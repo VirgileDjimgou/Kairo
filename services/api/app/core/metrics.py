@@ -2,12 +2,13 @@ from __future__ import annotations
 
 from collections import Counter
 from dataclasses import dataclass, field
-from datetime import UTC, datetime
+from datetime import UTC, datetime, timedelta
 from threading import Lock
 
 from sqlalchemy import func, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from app.core.config import settings
 from app.modules.audit.models import AuditEvent
 from app.modules.chat.models import ChatQueryLog
 from app.modules.documents.models import IngestionJob
@@ -243,6 +244,28 @@ async def build_runtime_metrics(db: AsyncSession) -> str:
         )
         or 0
     )
+    notification_lease_cutoff = datetime.now(UTC) - timedelta(
+        seconds=max(1, settings.outbox_processing_lease_seconds)
+    )
+    notification_stranded = int(
+        await db.scalar(
+            select(func.count(NotificationOutboxEvent.id)).where(
+                NotificationOutboxEvent.status == "processing",
+                NotificationOutboxEvent.processing_started_at.is_not(None),
+                NotificationOutboxEvent.processing_started_at < notification_lease_cutoff,
+            )
+        )
+        or 0
+    )
+    notification_retrying = int(
+        await db.scalar(
+            select(func.count(NotificationOutboxEvent.id)).where(
+                NotificationOutboxEvent.status == "pending",
+                NotificationOutboxEvent.attempts > 0,
+            )
+        )
+        or 0
+    )
     domain_pending = int(
         await db.scalar(
             select(func.count(DomainEvent.id)).where(DomainEvent.status == "pending")
@@ -252,6 +275,16 @@ async def build_runtime_metrics(db: AsyncSession) -> str:
     domain_failed = int(
         await db.scalar(
             select(func.count(DomainEvent.id)).where(DomainEvent.status == "failed")
+        )
+        or 0
+    )
+    domain_stranded = int(
+        await db.scalar(
+            select(func.count(DomainEvent.id)).where(
+                DomainEvent.status == "processing",
+                DomainEvent.processing_started_at.is_not(None),
+                DomainEvent.processing_started_at < notification_lease_cutoff,
+            )
         )
         or 0
     )
@@ -319,12 +352,21 @@ async def build_runtime_metrics(db: AsyncSession) -> str:
             "# HELP kairo_notification_outbox_processing Notification outbox events currently claimed by a worker.",
             "# TYPE kairo_notification_outbox_processing gauge",
             f"kairo_notification_outbox_processing {notification_processing}",
+            "# HELP kairo_notification_outbox_stranded Notification outbox events whose processing lease expired.",
+            "# TYPE kairo_notification_outbox_stranded gauge",
+            f"kairo_notification_outbox_stranded {notification_stranded}",
+            "# HELP kairo_notification_outbox_retrying Notification outbox events waiting for a retry attempt.",
+            "# TYPE kairo_notification_outbox_retrying gauge",
+            f"kairo_notification_outbox_retrying {notification_retrying}",
             "# HELP kairo_domain_event_outbox_pending Domain events awaiting consumer dispatch.",
             "# TYPE kairo_domain_event_outbox_pending gauge",
             f"kairo_domain_event_outbox_pending {domain_pending}",
             "# HELP kairo_domain_event_outbox_failed Domain events in a terminal failed state.",
             "# TYPE kairo_domain_event_outbox_failed gauge",
             f"kairo_domain_event_outbox_failed {domain_failed}",
+            "# HELP kairo_domain_event_outbox_stranded Domain events whose processing lease expired.",
+            "# TYPE kairo_domain_event_outbox_stranded gauge",
+            f"kairo_domain_event_outbox_stranded {domain_stranded}",
             "# HELP kairo_domain_event_outbox_oldest_age_seconds Age of the oldest pending domain event.",
             "# TYPE kairo_domain_event_outbox_oldest_age_seconds gauge",
             f"kairo_domain_event_outbox_oldest_age_seconds {domain_oldest_age}",

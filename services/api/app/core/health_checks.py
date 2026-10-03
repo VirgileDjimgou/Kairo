@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import asyncio
 import time
-from datetime import UTC, datetime
+from datetime import UTC, datetime, timedelta
 
 import httpx
 import structlog
@@ -210,6 +210,28 @@ async def _check_notification_outbox(db: AsyncSession) -> dict:
         oldest_seconds = (
             int((datetime.now(UTC) - oldest).total_seconds()) if oldest is not None else None
         )
+        lease_cutoff = datetime.now(UTC) - timedelta(
+            seconds=max(1, settings.outbox_processing_lease_seconds)
+        )
+        stranded = int(
+            await db.scalar(
+                select(func.count(NotificationOutboxEvent.id)).where(
+                    NotificationOutboxEvent.status == "processing",
+                    NotificationOutboxEvent.processing_started_at.is_not(None),
+                    NotificationOutboxEvent.processing_started_at < lease_cutoff,
+                )
+            )
+            or 0
+        )
+        retrying = int(
+            await db.scalar(
+                select(func.count(NotificationOutboxEvent.id)).where(
+                    NotificationOutboxEvent.status == "pending",
+                    NotificationOutboxEvent.attempts > 0,
+                )
+            )
+            or 0
+        )
         elapsed = int((time.monotonic() - start) * 1000)
         return {
             "status": _outbox_status(
@@ -220,6 +242,8 @@ async def _check_notification_outbox(db: AsyncSession) -> dict:
                 "pending": pending,
                 "failed": failed,
                 "oldest_pending_seconds": oldest_seconds,
+                "stranded": stranded,
+                "retrying": retrying,
             },
         }
     except Exception as exc:

@@ -5769,9 +5769,19 @@
             "title": "Retrying Fcm Tokens",
             "type": "integer"
           },
+          "retrying_outbox": {
+            "default": 0,
+            "title": "Retrying Outbox",
+            "type": "integer"
+          },
           "retrying_web_subscriptions": {
             "default": 0,
             "title": "Retrying Web Subscriptions",
+            "type": "integer"
+          },
+          "stranded_outbox": {
+            "default": 0,
+            "title": "Stranded Outbox",
             "type": "integer"
           },
           "web_push_configured": {

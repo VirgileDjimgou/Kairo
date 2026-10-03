@@ -1,6 +1,6 @@
 # Project State
 
-Last verified: 2026-10-03 (Roadmap V2 Sprint 125)
+Last verified: 2026-10-03 (Roadmap V2 Sprint 126)
 
 ## What this file is
 
@@ -33,7 +33,7 @@ new business features during S119–S128.
 
 ## Current engineering posture
 
-- Verified baseline (2026-10-03): 416 backend tests, web type-check/build, four
+- Verified baseline (2026-10-03): 422 backend tests, web type-check/build, four
   Playwright packs (locale 20, roles 17, release-candidate 9, accessibility 6)
   plus the PWA, notification-installation and white-label/domain packs, OpenAPI
   contract checks, an opt-in performance regression check, repository guards
@@ -165,3 +165,11 @@ new business features during S119–S128.
   Service Worker/Web Push origin behavior and the onboarding runbook are
   documented in `docs/pwa/TENANT_DOMAINS.md`; the backend suite has 416 passing
   tests.
+  Sprint 126 closed the outbox reliability gap: processing leases
+  (`processing_started_at`, default 300s) are reclaimed automatically so a
+  worker crash cannot strand an event, retries back off to a five-attempt
+  dead-letter state, the inbox projection is idempotent per deduplication key,
+  a reconciliation task runs every five minutes and health/`/health`/metrics
+  expose stranded/retrying/dead-letter counts; domain-event dispatch gained the
+  same lease/reclaim. Design: `docs/notifications/NOTIFICATION_OUTBOX_RELIABILITY.md`;
+  the backend suite has 422 passing tests.

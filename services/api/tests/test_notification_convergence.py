@@ -431,6 +431,8 @@ async def test_notification_health_endpoint_is_admin_only_and_secret_free(
         "disabled_fcm_tokens",
         "retrying_web_subscriptions",
         "retrying_fcm_tokens",
+        "stranded_outbox",
+        "retrying_outbox",
         "last_successful_dispatch_at",
     }
     raw = response.text.lower()

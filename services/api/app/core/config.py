@@ -19,6 +19,9 @@ class Settings(BaseSettings):
     # White-label tenant domains: the base domain whose direct subdomains map to
     # tenant slugs (for example "kairo.example" resolves "combis.kairo.example").
     platform_base_domain: str | None = None
+    # Reliability: how long a worker may hold an outbox event in "processing"
+    # before another worker reclaims it. Covers worker crashes without stranding.
+    outbox_processing_lease_seconds: int = 300
 
     # CORS
     # Keep the documented comma-separated environment variable contract. Pydantic
