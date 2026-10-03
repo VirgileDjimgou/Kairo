@@ -27,3 +27,12 @@ export function firebaseWebConfig(): FirebaseOptions | null {
     ...(storageBucket ? { storageBucket } : {}),
   }
 }
+
+/**
+ * Optional Firebase Web Push certificate key used by `getToken`. When absent,
+ * the browser uses the project's default Web Push certificate.
+ */
+export function firebaseVapidKey(): string | null {
+  const value = import.meta.env.VITE_FIREBASE_VAPID_KEY?.trim()
+  return value || null
+}

@@ -61,9 +61,14 @@ class NotificationDevice(Base):
     tenant_id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), ForeignKey("tenants.id", ondelete="CASCADE"), nullable=False, index=True)
     installation_id: Mapped[str] = mapped_column(String(128), nullable=False)
     platform: Mapped[str | None] = mapped_column(String(80), nullable=True)
+    browser: Mapped[str | None] = mapped_column(String(80), nullable=True)
     user_agent: Mapped[str | None] = mapped_column(Text, nullable=True)
+    device_metadata_json: Mapped[str] = mapped_column(Text, nullable=False, server_default=text("'{}'"))
+    status: Mapped[str] = mapped_column(String(20), nullable=False, server_default="active", index=True)
     last_seen_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False, server_default=text("CURRENT_TIMESTAMP"))
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False, server_default=text("CURRENT_TIMESTAMP"))
+    updated_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False, server_default=text("CURRENT_TIMESTAMP"))
+    revoked_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
 
 
 class NotificationDeviceProfile(Base):
@@ -87,6 +92,7 @@ class WebPushSubscription(Base):
     id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
     tenant_id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), ForeignKey("tenants.id", ondelete="CASCADE"), nullable=False, index=True)
     device_id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), ForeignKey("notification_devices.id", ondelete="CASCADE"), nullable=False, index=True)
+    provider: Mapped[str] = mapped_column(String(20), nullable=False, server_default="web_push")
     endpoint: Mapped[str] = mapped_column(Text, nullable=False)
     p256dh: Mapped[str] = mapped_column(Text, nullable=False)
     auth: Mapped[str] = mapped_column(Text, nullable=False)
@@ -97,7 +103,7 @@ class WebPushSubscription(Base):
 
 
 class FirebasePushSubscription(Base):
-    """An opaque Android FCM token bound to one authenticated user profile."""
+    """An opaque FCM token (Android or web) bound to one authenticated user profile."""
 
     __tablename__ = "firebase_push_subscriptions"
     __table_args__ = (UniqueConstraint("device_id", "fcm_token", name="uq_firebase_push_device_token"),)
@@ -106,6 +112,8 @@ class FirebasePushSubscription(Base):
     tenant_id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), ForeignKey("tenants.id", ondelete="CASCADE"), nullable=False, index=True)
     device_id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), ForeignKey("notification_devices.id", ondelete="CASCADE"), nullable=False, index=True)
     recipient_user_id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), ForeignKey("users.id", ondelete="CASCADE"), nullable=False, index=True)
+    provider: Mapped[str] = mapped_column(String(20), nullable=False, server_default="firebase")
+    platform: Mapped[str | None] = mapped_column(String(80), nullable=True)
     fcm_token: Mapped[str] = mapped_column(Text, nullable=False)
     disabled_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True, index=True)
     failure_count: Mapped[int] = mapped_column(Integer, nullable=False, server_default="0")

@@ -19,6 +19,8 @@ interface ImportMetaEnv {
   readonly VITE_FIREBASE_APP_ID?: string
   readonly VITE_FIREBASE_AUTH_DOMAIN?: string
   readonly VITE_FIREBASE_STORAGE_BUCKET?: string
+  /** Firebase Web Push certificate key for FCM web token registration (public). */
+  readonly VITE_FIREBASE_VAPID_KEY?: string
 }
 
 interface ImportMeta {

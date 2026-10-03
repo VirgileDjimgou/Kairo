@@ -1,6 +1,6 @@
 # Kairo — Current Architecture Snapshot
 
-Last verified: 2026-10-03 (Roadmap V2 Sprint 120)
+Last verified: 2026-10-03 (Roadmap V2 Sprint 121)
 
 This file is the concise description of what Kairo IS today. When code and this
 file disagree, trust the code and update this file. Historical narrative lives in
@@ -94,7 +94,7 @@ Vue 3 PWA (apps/web)          Flutter client (apps/flutter_kairo)
 | Finance | `contributions/` (models, schemas, repository, router) + `finance/` (bounded context) | contributions, payments, receipts + custody handover, expenses, budgets, exports, reminders. `finance/` holds the decomposed domains (`contributions`, `receipts`, `custody`, `expenses`, `budgeting`, `reminders`, `reporting`), a notification contract seam (`notifications.py`) and a `ContributionService` facade; `contributions/service.py` re-exports the facade for API compatibility. Each command keeps its own transaction. |
 | Governance | `disciplinary/`, `events/`, `announcements/`, policies | role-scoped visibility |
 | Knowledge | `documents/`, `rag/`, `chat/` | ingestion, citations, refusal behavior. `chat/contexts/` holds the authorized domain context provider registry (membership, finance, governance, documents/publication, disciplinary, events/sports); providers check the capability-derived domain policy before querying, and `ChatService` consumes only the registry plus permission-aware RAG retrieval. |
-| Operations | `audit/`, `backup/`, `notifications/`, `domain_events/`, `module_registry/`, `worker/` | journal, encrypted backups, outbox delivery. `notifications/` is decomposed into `inbox`, `policy`, `preferences`, `devices`, `health`, `outbox` (user-facing) and `history`, `reconciliation`, `dispatch` (operator-facing), composed behind the unchanged `UserNotificationService` and `NotificationService` facades. `domain_events/` holds the internal event log, consumer registry and outbox service; `audit/event_handlers.py` and `notifications/event_handlers.py` consume events without business modules importing transport code. Push transports are provider protocols under `app/providers/push/` (Web Push VAPID + Firebase Admin FCM) with deterministic fakes for tests. `module_registry/` discovers per-module descriptors and composes routers, toggles, search/AI hooks, health checks and navigation (`GET /api/v1/modules`). |
+| Operations | `audit/`, `backup/`, `notifications/`, `domain_events/`, `module_registry/`, `worker/` | journal, encrypted backups, outbox delivery. `notifications/` is decomposed into `inbox`, `policy`, `preferences`, `devices`, `health`, `outbox` (user-facing) and `history`, `reconciliation`, `dispatch` (operator-facing), composed behind the unchanged `UserNotificationService` and `NotificationService` facades. `domain_events/` holds the internal event log, consumer registry and outbox service; `audit/event_handlers.py` and `notifications/event_handlers.py` consume events without business modules importing transport code. Push transports are provider protocols under `app/providers/push/` (Web Push VAPID + Firebase Admin FCM) with deterministic fakes for tests. Browser/Android installations are normalized in `notification_devices` (platform, browser, bounded metadata, status, timestamps) with provider subscriptions in `web_push_subscriptions`/`firebase_push_subscriptions`; delivery is deduplicated per `(recipient, installation)` (`docs/notifications/NOTIFICATION_INSTALLATION_MODEL.md`). `module_registry/` discovers per-module descriptors and composes routers, toggles, search/AI hooks, health checks and navigation (`GET /api/v1/modules`). |
 
 ## Clients
 
@@ -133,13 +133,13 @@ Vue 3 PWA (apps/web)          Flutter client (apps/flutter_kairo)
 
 ## Quality gates
 
-Backend `ruff` + `mypy` (301 source files) + `pytest` (359 tests), Web `vue-tsc` + `vite build` +
+Backend `ruff` + `mypy` (302 source files) + `pytest` (370 tests), Web `vue-tsc` + `vite build` +
 four Playwright packs (locale, roles, release-candidate, accessibility) plus the
 PWA packs (navigation contract on the dev server; single-worker/offline on the
-built preview), the canonical Service Worker guard
-(`node scripts/check-pwa-service-worker.mjs`), OpenAPI contract checks
-(`scripts/check-openapi-contract.mjs`, generated-contract drift check, client
-route coverage), an opt-in performance regression check
+built preview) and the notification-installation pack, the canonical Service
+Worker guard (`node scripts/check-pwa-service-worker.mjs`), OpenAPI contract
+checks (`scripts/check-openapi-contract.mjs`, generated-contract drift check,
+client route coverage), an opt-in performance regression check
 (`npm run perf:check`, statement counts deterministic), repository guards
 (`check-sensitive-files`, `check-i18n-coverage`, `check-api-collection-paths`)
 and gitleaks history scan. Flutter `analyze`/`test`/builds are **optional and
@@ -225,8 +225,18 @@ never block the release pipeline. Commands of record:
   authorized route (with `/login?redirect=` preservation for unauthenticated
   users); a static guard and built-worker Playwright tests prove a single
   controlling worker and the offline fallback. See `docs/pwa/PWA_ARCHITECTURE.md`.
-- Status: sprints 108–120 addressed i18n, capabilities, service decomposition,
+- Sprint 121 normalized the browser notification installation model (migration
+  0034): devices carry platform, browser, bounded metadata, status and
+  last-seen/updated/revoked timestamps; provider subscriptions record their
+  provider. VAPID Web Push stays the default browser transport and Firebase Web
+  Messaging is the configured fallback; delivery is deduplicated per
+  `(recipient, installation)`, FCM token rotation disables obsolete tokens,
+  tenant switching revokes the previous tenant binding first, and notification
+  health reports retrying subscriptions. See
+  `docs/notifications/NOTIFICATION_INSTALLATION_MODEL.md`.
+- Status: sprints 108–121 addressed i18n, capabilities, service decomposition,
   domain events, notification convergence, the contract boundary, operational
   health/performance, the module framework, release hardening, the PWA-first
-  client consolidation and the unified PWA Service Worker; the active program is
-  S119–S128 (PWA-first, white-label SaaS).
+  client consolidation, the unified PWA Service Worker and the normalized
+  notification installation model; the active program is S119–S128 (PWA-first,
+  white-label SaaS).

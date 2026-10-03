@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import json
 from datetime import UTC, datetime
 from uuid import UUID
 
@@ -16,32 +17,73 @@ from app.modules.notifications.user_models import (
 
 
 class DevicesMixin(UserNotificationServiceBase):
-    async def register_device(self, tenant_id: UUID, user_id: UUID, installation_id: str, platform: str | None, user_agent: str | None) -> NotificationDevice:
+    async def register_device(
+        self,
+        tenant_id: UUID,
+        user_id: UUID,
+        installation_id: str,
+        platform: str | None,
+        user_agent: str | None,
+        browser: str | None = None,
+        device_metadata: dict[str, object] | None = None,
+    ) -> NotificationDevice:
         result = await self._db.execute(select(NotificationDevice).where(NotificationDevice.tenant_id == tenant_id, NotificationDevice.installation_id == installation_id))
         device = result.scalar_one_or_none()
+        now = datetime.now(UTC)
+        metadata_json = json.dumps(device_metadata or {}, default=str)
         if device is None:
-            device = NotificationDevice(tenant_id=tenant_id, installation_id=installation_id, platform=platform, user_agent=user_agent)
+            device = NotificationDevice(
+                tenant_id=tenant_id,
+                installation_id=installation_id,
+                platform=platform,
+                browser=browser,
+                user_agent=user_agent,
+                device_metadata_json=metadata_json,
+                status="active",
+            )
             self._db.add(device)
             await self._db.flush()
         else:
             device.platform = platform or device.platform
+            device.browser = browser or device.browser
             device.user_agent = user_agent or device.user_agent
-            device.last_seen_at = datetime.now(UTC)
+            if device_metadata:
+                device.device_metadata_json = metadata_json
+            device.status = "active"
+            device.revoked_at = None
+            device.last_seen_at = now
+            device.updated_at = now
         await self._ensure_profile(tenant_id, device.id, user_id)
         await self._db.commit()
         return device
-    async def save_subscription(self, tenant_id: UUID, user_id: UUID, installation_id: str, platform: str | None, user_agent: str | None, endpoint: str, p256dh: str, auth: str) -> None:
-        device = await self.register_device(tenant_id, user_id, installation_id, platform, user_agent)
+
+    async def save_subscription(
+        self,
+        tenant_id: UUID,
+        user_id: UUID,
+        installation_id: str,
+        platform: str | None,
+        user_agent: str | None,
+        endpoint: str,
+        p256dh: str,
+        auth: str,
+        browser: str | None = None,
+        device_metadata: dict[str, object] | None = None,
+    ) -> None:
+        device = await self.register_device(
+            tenant_id, user_id, installation_id, platform, user_agent, browser, device_metadata
+        )
         result = await self._db.execute(select(WebPushSubscription).where(WebPushSubscription.device_id == device.id, WebPushSubscription.endpoint == endpoint))
         subscription = result.scalar_one_or_none()
         if subscription is None:
-            self._db.add(WebPushSubscription(tenant_id=tenant_id, device_id=device.id, endpoint=endpoint, p256dh=p256dh, auth=auth))
+            self._db.add(WebPushSubscription(tenant_id=tenant_id, device_id=device.id, provider="web_push", endpoint=endpoint, p256dh=p256dh, auth=auth))
         else:
             subscription.p256dh, subscription.auth = p256dh, auth
             subscription.disabled_at, subscription.failure_count, subscription.updated_at = None, 0, datetime.now(UTC)
         profile = await self._profile(tenant_id, user_id, device.id)
         profile.push_enabled, profile.opted_in_at, profile.revoked_at = True, datetime.now(UTC), None
         await self._db.commit()
+
     async def save_firebase_subscription(
         self,
         tenant_id: UUID,
@@ -49,8 +91,30 @@ class DevicesMixin(UserNotificationServiceBase):
         installation_id: str,
         user_agent: str | None,
         fcm_token: str,
+        platform: str | None = None,
+        browser: str | None = None,
+        device_metadata: dict[str, object] | None = None,
     ) -> None:
-        device = await self.register_device(tenant_id, user_id, installation_id, "android", user_agent)
+        device = await self.register_device(
+            tenant_id, user_id, installation_id, platform or "android", user_agent, browser, device_metadata
+        )
+        now = datetime.now(UTC)
+        # Token rotation: a refreshed FCM token replaces obsolete active tokens
+        # for this installation/profile so a device is never delivered twice.
+        rotated = list(
+            (
+                await self._db.execute(
+                    select(FirebasePushSubscription).where(
+                        FirebasePushSubscription.device_id == device.id,
+                        FirebasePushSubscription.recipient_user_id == user_id,
+                        FirebasePushSubscription.fcm_token != fcm_token,
+                        FirebasePushSubscription.disabled_at.is_(None),
+                    )
+                )
+            ).scalars()
+        )
+        for obsolete in rotated:
+            obsolete.disabled_at = now
         result = await self._db.execute(
             select(FirebasePushSubscription).where(
                 FirebasePushSubscription.device_id == device.id,
@@ -63,16 +127,62 @@ class DevicesMixin(UserNotificationServiceBase):
                 tenant_id=tenant_id,
                 device_id=device.id,
                 recipient_user_id=user_id,
+                provider="firebase",
+                platform=device.platform,
                 fcm_token=fcm_token,
             ))
         else:
             subscription.recipient_user_id = user_id
+            subscription.provider = "firebase"
+            subscription.platform = device.platform
             subscription.disabled_at = None
             subscription.failure_count = 0
-            subscription.updated_at = datetime.now(UTC)
+            subscription.updated_at = now
         profile = await self._profile(tenant_id, user_id, device.id)
-        profile.push_enabled, profile.opted_in_at, profile.revoked_at = True, datetime.now(UTC), None
+        profile.push_enabled, profile.opted_in_at, profile.revoked_at = True, now, None
         await self._db.commit()
+
+    async def _refresh_device_status(self, tenant_id: UUID, device: NotificationDevice) -> None:
+        """Mark an installation revoked only when no profile or provider remains."""
+        active_profiles = int(
+            await self._db.scalar(
+                select(func.count(NotificationDeviceProfile.id)).where(
+                    NotificationDeviceProfile.tenant_id == tenant_id,
+                    NotificationDeviceProfile.device_id == device.id,
+                    NotificationDeviceProfile.revoked_at.is_(None),
+                )
+            )
+            or 0
+        )
+        active_web = int(
+            await self._db.scalar(
+                select(func.count(WebPushSubscription.id)).where(
+                    WebPushSubscription.tenant_id == tenant_id,
+                    WebPushSubscription.device_id == device.id,
+                    WebPushSubscription.disabled_at.is_(None),
+                )
+            )
+            or 0
+        )
+        active_firebase = int(
+            await self._db.scalar(
+                select(func.count(FirebasePushSubscription.id)).where(
+                    FirebasePushSubscription.tenant_id == tenant_id,
+                    FirebasePushSubscription.device_id == device.id,
+                    FirebasePushSubscription.disabled_at.is_(None),
+                )
+            )
+            or 0
+        )
+        now = datetime.now(UTC)
+        if active_profiles == 0 and active_web == 0 and active_firebase == 0:
+            device.status = "revoked"
+            device.revoked_at = now
+        else:
+            device.status = "active"
+            device.revoked_at = None
+        device.updated_at = now
+
     async def push_configuration(self) -> dict[str, object]:
         if not settings.web_push_enabled:
             return {"enabled": False, "reason": "disabled"}
@@ -153,6 +263,8 @@ class DevicesMixin(UserNotificationServiceBase):
         )
         for subscription in firebase_subscriptions:
             subscription.disabled_at = now
+        await self._db.flush()
+        await self._refresh_device_status(tenant_id, device)
         await self._db.commit()
         return (len(profiles), len(web_subscriptions), len(firebase_subscriptions))
 
@@ -219,5 +331,19 @@ class DevicesMixin(UserNotificationServiceBase):
         )
         for subscription in firebase_subscriptions:
             subscription.disabled_at = now
+        await self._db.flush()
+        if device_ids:
+            devices = list(
+                (
+                    await self._db.execute(
+                        select(NotificationDevice).where(
+                            NotificationDevice.tenant_id == tenant_id,
+                            NotificationDevice.id.in_(device_ids),
+                        )
+                    )
+                ).scalars()
+            )
+            for device in devices:
+                await self._refresh_device_status(tenant_id, device)
         await self._db.commit()
         return (len(profiles), len(web_subscriptions), len(firebase_subscriptions))

@@ -1,6 +1,6 @@
 # Project State
 
-Last verified: 2026-10-03 (Roadmap V2 Sprint 120)
+Last verified: 2026-10-03 (Roadmap V2 Sprint 121)
 
 ## What this file is
 
@@ -33,11 +33,12 @@ new business features during S119–S128.
 
 ## Current engineering posture
 
-- Verified baseline (2026-10-03): 362 backend tests, web type-check/build, four
-  Playwright packs (locale 20, roles 17, release-candidate 9, accessibility 6),
-  OpenAPI contract checks, an opt-in performance regression check, repository
-  guards green. Flutter analyze/tests/builds are optional and manual since
-  Sprint 119 (`.github/workflows/flutter-legacy.yml`, ADR-014). Details:
+- Verified baseline (2026-10-03): 370 backend tests, web type-check/build, four
+  Playwright packs (locale 20, roles 17, release-candidate 9, accessibility 6)
+  plus the PWA and notification-installation packs, OpenAPI contract checks, an
+  opt-in performance regression check, repository guards green. Flutter
+  analyze/tests/builds are optional and manual since Sprint 119
+  (`.github/workflows/flutter-legacy.yml`, ADR-014). Details:
   `docs/operations/validation-baseline.md`. Sprint 118 evidence:
   `docs/sprint-118-release-candidate-evidence.md`.
 - Open security item (HUMAN_REQUIRED): historical JWT secret rotation and
@@ -125,3 +126,12 @@ new business features during S119–S128.
   unauthenticated users. `npm run pwa:check` guards the single-worker contract
   and built-worker Playwright tests prove the single controlling worker and the
   offline fallback; architecture lives in `docs/pwa/PWA_ARCHITECTURE.md`.
+  Sprint 121 normalized browser notification installations (platform, browser,
+  bounded metadata, status, timestamps, explicit provider; migration 0034),
+  kept VAPID Web Push as the default browser transport with Firebase Web
+  Messaging as the configured fallback, deduplicated delivery per installation,
+  disabled obsolete FCM tokens on rotation, revoked the previous tenant binding
+  before tenant switching, exposed retrying subscription counts in notification
+  health and added eight backend plus four web installation tests; the backend
+  suite has 370 passing tests and the model is documented in
+  `docs/notifications/NOTIFICATION_INSTALLATION_MODEL.md`.

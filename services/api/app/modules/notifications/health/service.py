@@ -79,6 +79,26 @@ class HealthMixin(UserNotificationServiceBase):
             )
             or 0
         )
+        retrying_web = int(
+            await self._db.scalar(
+                select(func.count(WebPushSubscription.id)).where(
+                    WebPushSubscription.tenant_id == tenant_id,
+                    WebPushSubscription.disabled_at.is_(None),
+                    WebPushSubscription.failure_count > 0,
+                )
+            )
+            or 0
+        )
+        retrying_fcm = int(
+            await self._db.scalar(
+                select(func.count(FirebasePushSubscription.id)).where(
+                    FirebasePushSubscription.tenant_id == tenant_id,
+                    FirebasePushSubscription.disabled_at.is_(None),
+                    FirebasePushSubscription.failure_count > 0,
+                )
+            )
+            or 0
+        )
 
         worker_running = True
         if pending > 0:
@@ -112,5 +132,7 @@ class HealthMixin(UserNotificationServiceBase):
             ),
             disabled_web_subscriptions=disabled_web,
             disabled_fcm_tokens=disabled_fcm,
+            retrying_web_subscriptions=retrying_web,
+            retrying_fcm_tokens=retrying_fcm,
             last_successful_dispatch_at=last_completed_at,
         )

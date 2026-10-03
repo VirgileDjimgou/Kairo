@@ -28,7 +28,7 @@ python -m mypy --config-file services/api/pyproject.toml --explicit-package-base
 Notes:
 
 - The backend test suite defaults to an isolated SQLite database when `TEST_DATABASE_URL` is not set to PostgreSQL.
-- 362 integration tests pass (latest verified count, 2026-09-27; includes the three notification-recovery tests added in Sprint 118).
+- 370 integration tests pass (latest verified count, 2026-10-03; includes the eight installation-model tests added in Sprint 121).
 - Ruff baseline covers the entire `app/` tree and all tests with `--ignore E501` to focus on meaningful rules (security, unused imports, error handling) without cosmetic line-length noise.
 - Mypy baseline now covers all 301 source files across the entire `app/` tree — all modules, providers, core, db, and main.py — with zero errors.
 
@@ -178,6 +178,23 @@ cd apps/web && npm run test:e2e:pwa:built       # single worker + offline (vite 
   origin, that the web manifest is installable and that an offline navigation
   falls back to the cached shell.
 - Architecture: `docs/pwa/PWA_ARCHITECTURE.md`; decision: ADR-010 / ADR-014.
+
+## Notification Installations
+
+```bash
+python -m pytest services/api/tests/test_notification_installations.py -q
+cd apps/web && npm run test:e2e:notifications
+```
+
+- Backend coverage: metadata normalization, multiple installations, shared
+  multi-profile installations, tenant isolation for devices and tokens, FCM
+  token rotation, per-installation delivery deduplication, retry telemetry and
+  endpoint metadata validation.
+- Web coverage: normalized registration payload, stable installation identity,
+  no first-visit permission prompt, explicit enablement without a provider and
+  revoke-before-tenant-switch ordering.
+- Migration `0034` adds the installation metadata, status and provider columns.
+- Model and lifecycle: `docs/notifications/NOTIFICATION_INSTALLATION_MODEL.md`.
 
 ## Notification Operations
 

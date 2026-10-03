@@ -178,6 +178,12 @@ jobs:
           cd apps/web
           npm run test:e2e:pwa
 
+      - name: Run notification installation pack
+        if: success() || failure()
+        run: |
+          cd apps/web
+          npm run test:e2e:notifications
+
       - name: Verify built PWA worker, offline shell and update behavior
         if: success() || failure()
         run: |

@@ -476,6 +476,8 @@ export interface ContributionReminderSendRequest {
 export type ContributionStatus = "pending" | "partial" | "paid" | "overdue" | "waived";
 
 export interface DeviceRegistrationRequest {
+  browser?: string | null;
+  device_metadata?: Record<string, string | number | boolean | null>;
   installation_id: string;
   platform?: string | null;
 }
@@ -887,6 +889,8 @@ export interface MfaVerifyResponse {
 }
 
 export interface MobilePushTokenRequest {
+  browser?: string | null;
+  device_metadata?: Record<string, string | number | boolean | null>;
   fcm_token: string;
   installation_id: string;
   platform?: string | null;
@@ -956,6 +960,8 @@ export interface NotificationHealthResponse {
   last_successful_dispatch_at?: string | null;
   oldest_pending_seconds?: number | null;
   pending_outbox: number;
+  retrying_fcm_tokens?: number;
+  retrying_web_subscriptions?: number;
   web_push_configured: boolean;
   worker_running: boolean;
 }
@@ -1139,6 +1145,8 @@ export interface PushConfigurationResponse {
 
 export interface PushSubscriptionRequest {
   auth: string;
+  browser?: string | null;
+  device_metadata?: Record<string, string | number | boolean | null>;
   endpoint: string;
   installation_id: string;
   p256dh: string;

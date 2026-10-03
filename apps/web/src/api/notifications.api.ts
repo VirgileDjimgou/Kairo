@@ -193,12 +193,25 @@ export async function updateNotificationPreferences(payload: NotificationPrefere
   return response.data
 }
 
-export async function registerNotificationDevice(payload: { installation_id: string; platform?: string }): Promise<void> {
+export type DeviceMetadata = Record<string, string | number | boolean | null>
+
+export interface InstallationRegistrationPayload {
+  installation_id: string
+  platform?: string
+  browser?: string
+  device_metadata?: DeviceMetadata
+}
+
+export async function registerNotificationDevice(payload: InstallationRegistrationPayload): Promise<void> {
   await http.post('/notifications/devices', payload)
 }
 
-export async function savePushSubscription(payload: { installation_id: string; platform?: string; endpoint: string; p256dh: string; auth: string }): Promise<void> {
+export async function savePushSubscription(payload: InstallationRegistrationPayload & { endpoint: string; p256dh: string; auth: string }): Promise<void> {
   await http.post('/notifications/push-subscriptions', payload)
+}
+
+export async function saveMobilePushToken(payload: InstallationRegistrationPayload & { fcm_token: string }): Promise<void> {
+  await http.post('/notifications/mobile-push-tokens', payload)
 }
 
 export async function revokeNotificationDevice(installationId: string): Promise<NotificationDeviceRevocation> {

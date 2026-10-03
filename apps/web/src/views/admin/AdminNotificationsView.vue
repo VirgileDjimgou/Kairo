@@ -232,6 +232,12 @@
                   <div class="triage-metric__label">{{ copy.healthDisabledSubscriptions }}</div>
                 </div>
               </div>
+              <div class="col-6 col-md-4">
+                <div class="triage-metric" :class="{ 'triage-metric--warning': (health.retrying_web_subscriptions ?? 0) + (health.retrying_fcm_tokens ?? 0) > 0 }">
+                  <div class="triage-metric__value">{{ (health.retrying_web_subscriptions ?? 0) + (health.retrying_fcm_tokens ?? 0) }}</div>
+                  <div class="triage-metric__label">{{ copy.healthRetryingSubscriptions }}</div>
+                </div>
+              </div>
             </div>
           </div>
         </div>
@@ -479,6 +485,7 @@ const copy = computed(() => {
       healthPending: 'Ausstehend',
       healthFailed: 'Fehlgeschlagen',
       healthDisabledSubscriptions: 'Deaktivierte Abos',
+      healthRetryingSubscriptions: 'Abos mit Wiederholung',
       healthYes: 'Ja',
       healthNo: 'Nein',
       summaryTotal: 'Gesamt',
@@ -574,6 +581,7 @@ const copy = computed(() => {
       healthPending: 'Pending',
       healthFailed: 'Failed',
       healthDisabledSubscriptions: 'Disabled subscriptions',
+      healthRetryingSubscriptions: 'Retrying subscriptions',
       healthYes: 'Yes',
       healthNo: 'No',
       summaryTotal: 'Total',
@@ -668,6 +676,7 @@ const copy = computed(() => {
     healthPending: 'En attente',
     healthFailed: 'En échec',
     healthDisabledSubscriptions: 'Abonnements désactivés',
+    healthRetryingSubscriptions: 'Abonnements en nouvelle tentative',
     healthYes: 'Oui',
     healthNo: 'Non',
     summaryTotal: 'Total',

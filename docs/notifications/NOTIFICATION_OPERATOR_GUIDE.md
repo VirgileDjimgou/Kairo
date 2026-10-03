@@ -1,6 +1,6 @@
 # Notification Operator Guide
 
-Last verified: 2026-09-26 (Roadmap V2 Sprint 114)
+Last verified: 2026-10-03 (Roadmap V2 Sprint 121)
 
 Audience: self-hosting operators. This guide configures Web Push and Android FCM for
 the Kairo FastAPI backend. It never asks you to commit credentials.
@@ -9,11 +9,12 @@ the Kairo FastAPI backend. It never asks you to commit credentials.
 
 | Component | Responsibility |
 | --- | --- |
-| FastAPI (`api`) | Writes the notification outbox inside the business transaction; serves the authenticated inbox, preferences, device registration, `/notifications/health`. |
+| FastAPI (`api`) | Writes the notification outbox inside the business transaction; serves the authenticated inbox, preferences, installation registration, `/notifications/health`. |
 | Celery worker `domain_events.process_outbox` | Applies domain-event consumers (audit, inbox enqueue, custody notices). |
-| Celery worker `notifications.process_user_outbox` | Creates inbox rows and sends Web Push + FCM; disables invalid targets. |
+| Celery worker `notifications.process_user_outbox` | Creates inbox rows and sends Web Push + FCM; disables invalid targets and deduplicates per installation. |
 | Vue PWA service worker | Displays generic push and opens the safe internal deep link. |
-| Flutter Android client | Registers FCM tokens after explicit opt-in; revokes its binding on sign-out. |
+| Vue PWA client | Registers normalized installation metadata; uses VAPID Web Push by default and Firebase Web Messaging as the configured fallback; revokes its binding on sign-out and before tenant switching. |
+| Flutter Android client (frozen reference) | Registers FCM tokens after explicit opt-in; revokes its binding on sign-out. |
 
 Beat schedule: `process-user-notification-outbox` and `process-domain-event-outbox`
 run every 15 seconds; `send-due-receipt-handover-reminders` every 60 seconds.
@@ -72,6 +73,29 @@ services:
 - Push bodies are always generic. Detailed content is read from the authenticated
   inbox after sign-in.
 
+### 3b. Firebase Web Messaging fallback (optional)
+
+The Vue PWA uses VAPID Web Push by default. Firebase Web Messaging is used only
+when VAPID is not configured but the public Firebase Web configuration is present.
+These are public client identifiers, never service-account keys:
+
+```dotenv
+VITE_FIREBASE_API_KEY=
+VITE_FIREBASE_PROJECT_ID=
+VITE_FIREBASE_MESSAGING_SENDER_ID=
+VITE_FIREBASE_APP_ID=
+VITE_FIREBASE_AUTH_DOMAIN=
+VITE_FIREBASE_STORAGE_BUCKET=
+# Optional Firebase Web Push certificate key; omit to use the project default.
+VITE_FIREBASE_VAPID_KEY=
+```
+
+- The PWA obtains the token through the canonical Service Worker, so background
+  messages and VAPID push share one worker; FCM topics are never used for access
+  control.
+- Full installation model, token rotation, tenant-switch and deduplication
+  rules: `docs/notifications/NOTIFICATION_INSTALLATION_MODEL.md`.
+
 ## 4. Diagnostics
 
 ```bash
@@ -86,7 +110,7 @@ together with `FIREBASE_TEST_TOKEN`; the doctor is never part of generic CI.
 
 In-product operator view: **Admin → Notifications** shows pipeline health (Web Push
 configured, Firebase configured, worker running, pending/failed outbox, disabled
-subscriptions) plus the operator channel history.
+subscriptions, retrying subscriptions) plus the operator channel history.
 
 Metrics (`GET /metrics`): `kairo_notification_outbox_pending`,
 `kairo_notification_outbox_failed`, `kairo_notification_outbox_oldest_age_seconds`,

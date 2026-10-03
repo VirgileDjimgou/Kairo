@@ -166,8 +166,12 @@ class OutboxMixin(UserNotificationServiceBase):
             body=GENERIC_PUSH_BODY,
             target_path=str(payload["target_path"]),
         )
-        await self._deliver_web_push(event.tenant_id, recipients, str(payload["category"]), message)
-        await self._deliver_firebase_push(event.tenant_id, recipients, str(payload["category"]), message)
+        web_delivered = await self._deliver_web_push(
+            event.tenant_id, recipients, str(payload["category"]), message
+        )
+        await self._deliver_firebase_push(
+            event.tenant_id, recipients, str(payload["category"]), message, web_delivered
+        )
     def _web_push_active(self) -> bool:
         if self._web_push_provider is not None:
             return True
@@ -205,21 +209,22 @@ class OutboxMixin(UserNotificationServiceBase):
         recipients: list[UUID],
         category: str,
         message: PushMessage,
-    ) -> None:
+    ) -> set[tuple[UUID, UUID]]:
         if not self._web_push_active():
-            return
+            return set()
         rows = await self._db.execute(
             select(WebPushSubscription, NotificationDeviceProfile)
             .join(NotificationDeviceProfile, NotificationDeviceProfile.device_id == WebPushSubscription.device_id)
             .where(WebPushSubscription.tenant_id == tenant_id, WebPushSubscription.disabled_at.is_(None), NotificationDeviceProfile.user_id.in_(recipients), NotificationDeviceProfile.push_enabled.is_(True), NotificationDeviceProfile.revoked_at.is_(None))
         )
-        delivered: set[UUID] = set()
+        processed: set[UUID] = set()
+        delivered_pairs: set[tuple[UUID, UUID]] = set()
         for subscription, profile in rows.all():
-            if subscription.id in delivered:
+            if subscription.id in processed:
                 continue
             if not self._preferences_from_profile(profile).get(f"{category}_enabled", True):
                 continue
-            delivered.add(subscription.id)
+            processed.add(subscription.id)
             outcome = await self._send_with_retry(
                 self.web_push_provider,
                 WebPushTarget(
@@ -231,20 +236,28 @@ class OutboxMixin(UserNotificationServiceBase):
             )
             metrics.record_push_delivery("web_push", outcome.value)
             if outcome is PushOutcome.DELIVERED:
+                # Record the (recipient, installation) pair so the Firebase
+                # dispatcher never delivers the same notification twice to one
+                # browser installation through a second provider.
+                delivered_pairs.add((profile.user_id, subscription.device_id))
                 continue
             if outcome is PushOutcome.INVALID_TARGET:
                 subscription.disabled_at = datetime.now(UTC)
             else:
                 subscription.failure_count += 1
+        return delivered_pairs
+
     async def _deliver_firebase_push(
         self,
         tenant_id: UUID,
         recipients: list[UUID],
         category: str,
         message: PushMessage,
+        web_delivered: set[tuple[UUID, UUID]] | None = None,
     ) -> None:
         if not self._firebase_active():
             return
+        already_delivered = web_delivered or set()
         rows = await self._db.execute(
             select(FirebasePushSubscription, NotificationDeviceProfile)
             .join(NotificationDeviceProfile, NotificationDeviceProfile.device_id == FirebasePushSubscription.device_id)
@@ -259,6 +272,8 @@ class OutboxMixin(UserNotificationServiceBase):
             )
         )
         for subscription, profile in rows.all():
+            if (profile.user_id, subscription.device_id) in already_delivered:
+                continue
             if not self._preferences_from_profile(profile).get(f"{category}_enabled", True):
                 continue
             outcome = await self._send_with_retry(

@@ -66,16 +66,23 @@ notificationclick
 
 ## Push transports
 
-- **Web Push (VAPID)** is the standards-based transport for browsers, owned by
-  the PWA. The outbox provider sends a generic body and a safe target only.
+- **Web Push (VAPID)** is the standards-based default transport for browsers,
+  owned by the PWA. The outbox provider sends a generic body and a safe target
+  only.
 - **Firebase Cloud Messaging** is handled in the same worker through
-  `firebase/messaging/sw` `onBackgroundMessage`. Configuration comes from the
-  public `VITE_FIREBASE_*` build variables (`src/firebase-config.ts`); when they
-  are absent, FCM stays disabled and VAPID Web Push keeps working.
-- FCM-shaped push events are detected and delegated to the Firebase handler so a
-  message is never displayed twice.
+  `firebase/messaging/sw` `onBackgroundMessage`. It is used as the browser
+  transport when VAPID is not configured but the public Firebase Web
+  configuration is present (`VITE_FIREBASE_*`); when neither is configured, the
+  enable action reports `not_configured`. FCM-shaped push events are delegated
+  to the Firebase handler so a message is never displayed twice.
+- Installation registration (`POST /notifications/devices` and the provider
+  endpoints) sends normalized browser metadata and a random installation
+  identity; one installation always resolves to one delivery provider per
+  recipient, and the outbox skips a Firebase send when the same
+  `(recipient, installation)` pair was already delivered through Web Push.
 - Detailed notification content is never placed in a push payload; the
-  authenticated inbox remains the source of truth.
+  authenticated inbox remains the source of truth. Full model and lifecycle:
+  `docs/notifications/NOTIFICATION_INSTALLATION_MODEL.md`.
 
 ## Verification
 

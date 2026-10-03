@@ -82,7 +82,7 @@ if (competingWorkers.length > 0) {
 }
 
 requireSnippet('apps/web/src/main.ts', "from 'virtual:pwa-register'");
-requireSnippet('apps/web/src/services/web-push.ts', "register('/sw.js'");
+requireSnippet('apps/web/src/services/notification-installation.ts', "register('/sw.js'");
 
 if (failures.length > 0) {
   console.error('Canonical PWA Service Worker check failed:');

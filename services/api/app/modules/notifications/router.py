@@ -88,12 +88,31 @@ async def get_web_push_configuration(current: AuthDep, db: DbDep) -> PushConfigu
 
 @router.post("/devices", status_code=status.HTTP_204_NO_CONTENT)
 async def register_notification_device(payload: DeviceRegistrationRequest, current: AuthDep, db: DbDep, user_agent: str | None = Header(default=None)) -> None:
-    await UserNotificationService(db).register_device(current.tenant_id, current.user.id, payload.installation_id, payload.platform, user_agent)
+    await UserNotificationService(db).register_device(
+        current.tenant_id,
+        current.user.id,
+        payload.installation_id,
+        payload.platform,
+        user_agent,
+        payload.browser,
+        payload.device_metadata,
+    )
 
 
 @router.post("/push-subscriptions", status_code=status.HTTP_204_NO_CONTENT)
 async def subscribe_to_web_push(payload: PushSubscriptionRequest, current: AuthDep, db: DbDep, user_agent: str | None = Header(default=None)) -> None:
-    await UserNotificationService(db).save_subscription(current.tenant_id, current.user.id, payload.installation_id, payload.platform, user_agent, payload.endpoint, payload.p256dh, payload.auth)
+    await UserNotificationService(db).save_subscription(
+        current.tenant_id,
+        current.user.id,
+        payload.installation_id,
+        payload.platform,
+        user_agent,
+        payload.endpoint,
+        payload.p256dh,
+        payload.auth,
+        payload.browser,
+        payload.device_metadata,
+    )
 
 
 @router.post("/mobile-push-tokens", status_code=status.HTTP_204_NO_CONTENT)
@@ -109,6 +128,9 @@ async def subscribe_to_mobile_push(
         payload.installation_id,
         user_agent,
         payload.fcm_token,
+        payload.platform,
+        payload.browser,
+        payload.device_metadata,
     )
 
 

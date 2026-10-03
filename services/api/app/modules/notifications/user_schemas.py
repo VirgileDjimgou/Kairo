@@ -3,7 +3,7 @@ from __future__ import annotations
 from datetime import datetime
 from uuid import UUID
 
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, field_validator
 
 
 class InboxNotificationResponse(BaseModel):
@@ -43,6 +43,22 @@ class NotificationPreferencesUpdate(BaseModel):
 class DeviceRegistrationRequest(BaseModel):
     installation_id: str = Field(min_length=16, max_length=128)
     platform: str | None = Field(default=None, max_length=80)
+    browser: str | None = Field(default=None, max_length=80)
+    device_metadata: dict[str, str | int | bool | None] = Field(default_factory=dict)
+
+    @field_validator("device_metadata")
+    @classmethod
+    def validate_device_metadata(
+        cls, value: dict[str, str | int | bool | None]
+    ) -> dict[str, str | int | bool | None]:
+        if len(value) > 12:
+            raise ValueError("device_metadata accepts at most 12 entries")
+        for key, item in value.items():
+            if not key or len(key) > 40:
+                raise ValueError("device_metadata keys must be between 1 and 40 characters")
+            if isinstance(item, str) and len(item) > 200:
+                raise ValueError("device_metadata string values must be at most 200 characters")
+        return value
 
 
 class PushSubscriptionRequest(DeviceRegistrationRequest):
@@ -77,6 +93,8 @@ class NotificationHealthResponse(BaseModel):
     oldest_pending_seconds: int | None = None
     disabled_web_subscriptions: int
     disabled_fcm_tokens: int
+    retrying_web_subscriptions: int = 0
+    retrying_fcm_tokens: int = 0
     last_successful_dispatch_at: datetime | None = None
 
 

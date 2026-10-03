@@ -1519,17 +1519,23 @@ class ContributionReminderSendRequest {
 typedef ContributionStatus = String;
 
 class DeviceRegistrationRequest {
-  const DeviceRegistrationRequest({this.installation_id, this.platform});
+  const DeviceRegistrationRequest({this.browser, this.device_metadata, this.installation_id, this.platform});
 
   factory DeviceRegistrationRequest.fromJson(Map<String, dynamic> json) => DeviceRegistrationRequest(
+        browser: json['browser'] as String?,
+        device_metadata: json['device_metadata'] as Map<String, dynamic>?,
         installation_id: json['installation_id'] as String?,
         platform: json['platform'] as String?,
       );
 
+  final String? browser;
+  final Map<String, dynamic>? device_metadata;
   final String? installation_id;
   final String? platform;
 
   Map<String, dynamic> toJson() => <String, dynamic>{
+        if (browser != null) 'browser': browser,
+        if (device_metadata != null) 'device_metadata': device_metadata,
         if (installation_id != null) 'installation_id': installation_id,
         if (platform != null) 'platform': platform,
       };
@@ -2812,19 +2818,25 @@ class MfaVerifyResponse {
 }
 
 class MobilePushTokenRequest {
-  const MobilePushTokenRequest({this.fcm_token, this.installation_id, this.platform});
+  const MobilePushTokenRequest({this.browser, this.device_metadata, this.fcm_token, this.installation_id, this.platform});
 
   factory MobilePushTokenRequest.fromJson(Map<String, dynamic> json) => MobilePushTokenRequest(
+        browser: json['browser'] as String?,
+        device_metadata: json['device_metadata'] as Map<String, dynamic>?,
         fcm_token: json['fcm_token'] as String?,
         installation_id: json['installation_id'] as String?,
         platform: json['platform'] as String?,
       );
 
+  final String? browser;
+  final Map<String, dynamic>? device_metadata;
   final String? fcm_token;
   final String? installation_id;
   final String? platform;
 
   Map<String, dynamic> toJson() => <String, dynamic>{
+        if (browser != null) 'browser': browser,
+        if (device_metadata != null) 'device_metadata': device_metadata,
         if (fcm_token != null) 'fcm_token': fcm_token,
         if (installation_id != null) 'installation_id': installation_id,
         if (platform != null) 'platform': platform,
@@ -3012,7 +3024,7 @@ class NotificationDispatchResponse {
 }
 
 class NotificationHealthResponse {
-  const NotificationHealthResponse({this.disabled_fcm_tokens, this.disabled_web_subscriptions, this.failed_outbox, this.firebase_configured, this.last_successful_dispatch_at, this.oldest_pending_seconds, this.pending_outbox, this.web_push_configured, this.worker_running});
+  const NotificationHealthResponse({this.disabled_fcm_tokens, this.disabled_web_subscriptions, this.failed_outbox, this.firebase_configured, this.last_successful_dispatch_at, this.oldest_pending_seconds, this.pending_outbox, this.retrying_fcm_tokens, this.retrying_web_subscriptions, this.web_push_configured, this.worker_running});
 
   factory NotificationHealthResponse.fromJson(Map<String, dynamic> json) => NotificationHealthResponse(
         disabled_fcm_tokens: json['disabled_fcm_tokens'] as int?,
@@ -3022,6 +3034,8 @@ class NotificationHealthResponse {
         last_successful_dispatch_at: json['last_successful_dispatch_at'] as String?,
         oldest_pending_seconds: json['oldest_pending_seconds'] as int?,
         pending_outbox: json['pending_outbox'] as int?,
+        retrying_fcm_tokens: json['retrying_fcm_tokens'] as int?,
+        retrying_web_subscriptions: json['retrying_web_subscriptions'] as int?,
         web_push_configured: json['web_push_configured'] as bool?,
         worker_running: json['worker_running'] as bool?,
       );
@@ -3033,6 +3047,8 @@ class NotificationHealthResponse {
   final String? last_successful_dispatch_at;
   final int? oldest_pending_seconds;
   final int? pending_outbox;
+  final int? retrying_fcm_tokens;
+  final int? retrying_web_subscriptions;
   final bool? web_push_configured;
   final bool? worker_running;
 
@@ -3044,6 +3060,8 @@ class NotificationHealthResponse {
         if (last_successful_dispatch_at != null) 'last_successful_dispatch_at': last_successful_dispatch_at,
         if (oldest_pending_seconds != null) 'oldest_pending_seconds': oldest_pending_seconds,
         if (pending_outbox != null) 'pending_outbox': pending_outbox,
+        if (retrying_fcm_tokens != null) 'retrying_fcm_tokens': retrying_fcm_tokens,
+        if (retrying_web_subscriptions != null) 'retrying_web_subscriptions': retrying_web_subscriptions,
         if (web_push_configured != null) 'web_push_configured': web_push_configured,
         if (worker_running != null) 'worker_running': worker_running,
       };
@@ -3615,10 +3633,12 @@ class PushConfigurationResponse {
 }
 
 class PushSubscriptionRequest {
-  const PushSubscriptionRequest({this.auth, this.endpoint, this.installation_id, this.p256dh, this.platform});
+  const PushSubscriptionRequest({this.auth, this.browser, this.device_metadata, this.endpoint, this.installation_id, this.p256dh, this.platform});
 
   factory PushSubscriptionRequest.fromJson(Map<String, dynamic> json) => PushSubscriptionRequest(
         auth: json['auth'] as String?,
+        browser: json['browser'] as String?,
+        device_metadata: json['device_metadata'] as Map<String, dynamic>?,
         endpoint: json['endpoint'] as String?,
         installation_id: json['installation_id'] as String?,
         p256dh: json['p256dh'] as String?,
@@ -3626,6 +3646,8 @@ class PushSubscriptionRequest {
       );
 
   final String? auth;
+  final String? browser;
+  final Map<String, dynamic>? device_metadata;
   final String? endpoint;
   final String? installation_id;
   final String? p256dh;
@@ -3633,6 +3655,8 @@ class PushSubscriptionRequest {
 
   Map<String, dynamic> toJson() => <String, dynamic>{
         if (auth != null) 'auth': auth,
+        if (browser != null) 'browser': browser,
+        if (device_metadata != null) 'device_metadata': device_metadata,
         if (endpoint != null) 'endpoint': endpoint,
         if (installation_id != null) 'installation_id': installation_id,
         if (p256dh != null) 'p256dh': p256dh,

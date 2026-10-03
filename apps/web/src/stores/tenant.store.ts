@@ -2,6 +2,7 @@ import { defineStore } from 'pinia'
 import { computed, ref } from 'vue'
 import type { TenantMembershipResponse } from '@/api/auth.api'
 import { switchTenant as apiSwitchTenant } from '@/api/auth.api'
+import { renewPushBinding, revokeCurrentDevice } from '@/services/web-push'
 
 const SELECTED_TENANT_KEY = 'selected_tenant_id'
 
@@ -41,6 +42,11 @@ export const useTenantStore = defineStore('tenant', () => {
     const target = memberships.value.find((m) => m.tenant_id === tenantId)
     if (!target) return false
 
+    // Revoke this installation's binding in the previous tenant before the
+    // switch so a notification from the old tenant can never surface on a
+    // browser that is now operating in another tenant.
+    await revokeCurrentDevice().catch(() => undefined)
+
     try {
       const result = await apiSwitchTenant({ tenant_id: tenantId })
       // Store the new token
@@ -48,8 +54,12 @@ export const useTenantStore = defineStore('tenant', () => {
       selectedTenantId.value = tenantId
       localStorage.setItem(SELECTED_TENANT_KEY, tenantId)
       setMemberships(result.memberships, tenantId)
+      // Re-bind the existing provider (VAPID or FCM) to the new tenant.
+      await renewPushBinding().catch(() => undefined)
       return true
     } catch {
+      // The switch failed; restore the previous tenant binding.
+      await renewPushBinding().catch(() => undefined)
       return false
     }
   }

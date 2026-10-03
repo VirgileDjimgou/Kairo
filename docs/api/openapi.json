@@ -2891,6 +2891,38 @@
       },
       "DeviceRegistrationRequest": {
         "properties": {
+          "browser": {
+            "anyOf": [
+              {
+                "maxLength": 80,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Browser"
+          },
+          "device_metadata": {
+            "additionalProperties": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "integer"
+                },
+                {
+                  "type": "boolean"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "title": "Device Metadata",
+            "type": "object"
+          },
           "installation_id": {
             "maxLength": 128,
             "minLength": 16,
@@ -5381,6 +5413,38 @@
       },
       "MobilePushTokenRequest": {
         "properties": {
+          "browser": {
+            "anyOf": [
+              {
+                "maxLength": 80,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Browser"
+          },
+          "device_metadata": {
+            "additionalProperties": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "integer"
+                },
+                {
+                  "type": "boolean"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "title": "Device Metadata",
+            "type": "object"
+          },
           "fcm_token": {
             "maxLength": 4096,
             "minLength": 32,
@@ -5714,6 +5778,16 @@
           },
           "pending_outbox": {
             "title": "Pending Outbox",
+            "type": "integer"
+          },
+          "retrying_fcm_tokens": {
+            "default": 0,
+            "title": "Retrying Fcm Tokens",
+            "type": "integer"
+          },
+          "retrying_web_subscriptions": {
+            "default": 0,
+            "title": "Retrying Web Subscriptions",
             "type": "integer"
           },
           "web_push_configured": {
@@ -6706,6 +6780,38 @@
             "minLength": 8,
             "title": "Auth",
             "type": "string"
+          },
+          "browser": {
+            "anyOf": [
+              {
+                "maxLength": 80,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Browser"
+          },
+          "device_metadata": {
+            "additionalProperties": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "integer"
+                },
+                {
+                  "type": "boolean"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "title": "Device Metadata",
+            "type": "object"
           },
           "endpoint": {
             "maxLength": 4096,
