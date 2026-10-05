@@ -1,6 +1,6 @@
 # Project State
 
-Last verified: 2026-10-03 (Roadmap V2 Sprint 128)
+Last verified: 2026-10-06 (Roadmap V2 Sprint 129)
 
 ## What this file is
 
@@ -196,3 +196,12 @@ new business features during S119–S128.
   the automated evidence and the manual real-device steps that remain explicitly
   pending. MinIO stays operator-provisioned and the GitHub workflow
   (`.github/workflows/full-stack-release-gate.yml`) is manual/nightly.
+  Sprint 129 (post-release evolution) made white-label branding self-service:
+  the admin settings page edits the complete `TenantBranding` contract with a
+  live preview, `applyBranding()` injects the per-tenant `apple-touch-icon`,
+  browsers without `beforeinstallprompt` receive localized install guidance, and
+  the public `/demo` page exposes a password-free white-label studio that
+  previews name, colors, launcher icons, install icons and the generated tenant
+  manifest (reset restores the real branding). The FR/EN/DE catalogs stay in
+  exact parity (916 keys per locale) and the white-label Playwright pack covers
+  the studio plus the per-tenant Apple touch icon.

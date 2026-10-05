@@ -224,9 +224,13 @@ cd apps/web && npm run test:e2e:whitelabel
   the public tenant manifest (branding-only, absolute icons, active-tenant
   requirement) and the guarantee that branding never changes roles or modules.
 - Web coverage: page title, favicon, theme-color, shell logo, primary color,
-  default fallback, unsafe-asset fallback, tenant manifest link swap and the
-  install prompt (offer, install, dismiss, no notification permission, phone
-  width).
+  default fallback, unsafe-asset fallback, per-tenant `apple-touch-icon`, tenant
+  manifest link swap and the install prompt (offer, install, dismiss, no
+  notification permission, phone width).
+- S129 adds the password-free white-label studio on `/demo`
+  (`e2e/white-label-studio.spec.ts`): live identity/color application, generated
+  manifest, install-icon preview, preset application and reset. Latest verified
+  result: 12 Chromium tests passed.
 - Contract and configuration: `docs/pwa/WHITE_LABEL_BRANDING.md`,
   `docs/pwa/PWA_ARCHITECTURE.md`.
 

@@ -92,6 +92,8 @@ test('tenant branding drives title, favicon, theme color, logo and primary color
     theme_color: '#0a5c2e',
     favicon_url: '/favicon.svg',
     logo_url: '/pwa-192x192.png',
+    icon_192_url: '/tenant-icon-192.png',
+    icon_512_url: '/tenant-icon-512.png',
   })
 
   await page.goto('/more')
@@ -100,6 +102,9 @@ test('tenant branding drives title, favicon, theme color, logo and primary color
 
   const favicon = await page.locator('link[rel="icon"]').getAttribute('href')
   expect(favicon).toContain('/favicon.svg')
+
+  const appleTouchIcon = await page.locator('link[rel="apple-touch-icon"]').getAttribute('href')
+  expect(appleTouchIcon).toContain('/tenant-icon-512.png')
 
   const themeColor = await page.locator('meta[name="theme-color"]').getAttribute('content')
   expect(themeColor).toBe('#0a5c2e')

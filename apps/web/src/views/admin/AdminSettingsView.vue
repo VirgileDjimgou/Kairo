@@ -62,17 +62,135 @@
           <div class="card shadow-sm border-0 mb-4">
             <div class="card-body p-4">
               <h5 class="fw-semibold mb-3">{{ copy.branding }}</h5>
+
+              <h6 class="fw-semibold text-muted mb-2">{{ copy.brandingIdentity }}</h6>
               <div class="row g-3">
-                <div class="col-sm-6">
-                  <label class="form-label small fw-semibold text-muted">{{ copy.primaryColor }}</label>
+                <div class="col-md-4">
+                  <label class="form-label small fw-semibold text-muted" for="brand-display-name">{{ copy.brandingDisplayName }}</label>
+                  <input id="brand-display-name" v-model="form.branding.display_name" type="text" class="form-control" />
+                </div>
+                <div class="col-md-4">
+                  <label class="form-label small fw-semibold text-muted" for="brand-short-name">{{ copy.brandingShortName }}</label>
+                  <input id="brand-short-name" v-model="form.branding.short_name" type="text" class="form-control" />
+                </div>
+                <div class="col-md-4">
+                  <label class="form-label small fw-semibold text-muted" for="brand-legal-name">{{ copy.brandingLegalName }}</label>
+                  <input id="brand-legal-name" v-model="form.branding.legal_name" type="text" class="form-control" />
+                </div>
+              </div>
+
+              <h6 class="fw-semibold text-muted mb-2 mt-4">{{ copy.brandingColors }}</h6>
+              <div class="row g-3">
+                <div class="col-sm-6 col-lg-3">
+                  <label class="form-label small fw-semibold text-muted" for="brand-primary-color">{{ copy.primaryColor }}</label>
                   <div class="d-flex align-items-center gap-2">
-                    <input v-model="form.branding.primary_color" type="color" class="form-control form-control-color w-auto" />
+                    <input id="brand-primary-color" v-model="form.branding.primary_color" type="color" class="form-control form-control-color w-auto" />
                     <input v-model="form.branding.primary_color" type="text" class="form-control" :placeholder="copy.primaryColorPlaceholder" />
                   </div>
                 </div>
-                <div class="col-sm-6">
-                  <label class="form-label small fw-semibold text-muted">{{ copy.logoUrl }}</label>
-                  <input v-model="form.branding.logo_url" type="text" class="form-control" :placeholder="copy.logoUrlPlaceholder" />
+                <div class="col-sm-6 col-lg-3">
+                  <label class="form-label small fw-semibold text-muted" for="brand-secondary-color">{{ copy.brandingSecondaryColor }}</label>
+                  <div class="d-flex align-items-center gap-2">
+                    <input id="brand-secondary-color" v-model="form.branding.secondary_color" type="color" class="form-control form-control-color w-auto" />
+                    <input v-model="form.branding.secondary_color" type="text" class="form-control" />
+                  </div>
+                </div>
+                <div class="col-sm-6 col-lg-3">
+                  <label class="form-label small fw-semibold text-muted" for="brand-background-color">{{ copy.brandingBackgroundColor }}</label>
+                  <div class="d-flex align-items-center gap-2">
+                    <input id="brand-background-color" v-model="form.branding.background_color" type="color" class="form-control form-control-color w-auto" />
+                    <input v-model="form.branding.background_color" type="text" class="form-control" />
+                  </div>
+                </div>
+                <div class="col-sm-6 col-lg-3">
+                  <label class="form-label small fw-semibold text-muted" for="brand-theme-color">{{ copy.brandingThemeColor }}</label>
+                  <div class="d-flex align-items-center gap-2">
+                    <input id="brand-theme-color" v-model="form.branding.theme_color" type="color" class="form-control form-control-color w-auto" />
+                    <input v-model="form.branding.theme_color" type="text" class="form-control" />
+                  </div>
+                </div>
+              </div>
+
+              <h6 class="fw-semibold text-muted mb-2 mt-4">{{ copy.brandingLogos }}</h6>
+              <div class="row g-3">
+                <div class="col-md-4">
+                  <label class="form-label small fw-semibold text-muted" for="brand-logo">{{ copy.logoUrl }}</label>
+                  <input id="brand-logo" v-model="form.branding.logo_url" type="text" class="form-control" :placeholder="copy.logoUrlPlaceholder" />
+                </div>
+                <div class="col-md-4">
+                  <label class="form-label small fw-semibold text-muted" for="brand-logo-dark">{{ copy.brandingLogoDarkUrl }}</label>
+                  <input id="brand-logo-dark" v-model="form.branding.logo_dark_url" type="text" class="form-control" />
+                </div>
+                <div class="col-md-4">
+                  <label class="form-label small fw-semibold text-muted" for="brand-favicon">{{ copy.brandingFaviconUrl }}</label>
+                  <input id="brand-favicon" v-model="form.branding.favicon_url" type="text" class="form-control" placeholder="/favicon.svg" />
+                </div>
+              </div>
+
+              <h6 class="fw-semibold text-muted mb-2 mt-4">{{ copy.brandingIcons }}</h6>
+              <div class="row g-3">
+                <div class="col-md-4">
+                  <label class="form-label small fw-semibold text-muted" for="brand-icon-192">{{ copy.brandingIcon192 }}</label>
+                  <input id="brand-icon-192" v-model="form.branding.icon_192_url" type="text" class="form-control" placeholder="/pwa-192x192.png" />
+                </div>
+                <div class="col-md-4">
+                  <label class="form-label small fw-semibold text-muted" for="brand-icon-512">{{ copy.brandingIcon512 }}</label>
+                  <input id="brand-icon-512" v-model="form.branding.icon_512_url" type="text" class="form-control" placeholder="/pwa-512x512.png" />
+                </div>
+                <div class="col-md-4">
+                  <label class="form-label small fw-semibold text-muted" for="brand-icon-maskable">{{ copy.brandingMaskable }}</label>
+                  <input id="brand-icon-maskable" v-model="form.branding.maskable_icon_url" type="text" class="form-control" placeholder="/pwa-512x512.png" />
+                </div>
+              </div>
+              <p class="small text-muted mb-0 mt-2">{{ copy.brandingIconsHint }}</p>
+
+              <h6 class="fw-semibold text-muted mb-2 mt-4">{{ copy.brandingNotifications }}</h6>
+              <div class="row g-3">
+                <div class="col-md-4">
+                  <label class="form-label small fw-semibold text-muted" for="brand-notification-name">{{ copy.brandingNotificationName }}</label>
+                  <input id="brand-notification-name" v-model="form.branding.notification_name" type="text" class="form-control" />
+                </div>
+                <div class="col-md-4">
+                  <label class="form-label small fw-semibold text-muted" for="brand-support-name">{{ copy.brandingSupportName }}</label>
+                  <input id="brand-support-name" v-model="form.branding.support_name" type="text" class="form-control" />
+                </div>
+                <div class="col-md-4">
+                  <label class="form-label small fw-semibold text-muted" for="brand-support-email">{{ copy.brandingSupportEmail }}</label>
+                  <input id="brand-support-email" v-model="form.branding.support_email" type="email" class="form-control" />
+                </div>
+              </div>
+
+              <h6 class="fw-semibold text-muted mb-2 mt-4">{{ copy.brandingDomain }}</h6>
+              <div class="row g-3">
+                <div class="col-md-6">
+                  <label class="form-label small fw-semibold text-muted" for="brand-custom-domain">{{ copy.brandingCustomDomain }}</label>
+                  <input id="brand-custom-domain" v-model="form.branding.custom_domain" type="text" class="form-control" placeholder="app.association.example" />
+                  <p class="small text-muted mb-0 mt-1">{{ copy.brandingCustomDomainHint }}</p>
+                </div>
+              </div>
+
+              <div class="branding-preview mt-4 p-3" :style="{ backgroundColor: form.branding.background_color }">
+                <strong class="d-block small text-muted text-uppercase mb-2">{{ copy.brandingPreview }}</strong>
+                <div class="d-flex align-items-center gap-2">
+                  <img v-if="form.branding.logo_url" :src="brandingAsset(form.branding.logo_url, '')" alt="" class="branding-preview__logo" />
+                  <span v-else class="branding-preview__mark" :style="{ backgroundColor: form.branding.primary_color }" aria-hidden="true">
+                    <i class="bi bi-diagram-3"></i>
+                  </span>
+                  <span>
+                    <strong class="d-block" :style="{ color: form.branding.primary_color }">{{ form.branding.display_name }}</strong>
+                    <small class="text-muted">{{ form.branding.short_name }}</small>
+                  </span>
+                </div>
+                <div class="d-flex gap-2 mt-2">
+                  <span class="branding-preview__swatch" :style="{ backgroundColor: form.branding.primary_color }"></span>
+                  <span class="branding-preview__swatch" :style="{ backgroundColor: form.branding.secondary_color }"></span>
+                  <span class="branding-preview__swatch" :style="{ backgroundColor: form.branding.theme_color }"></span>
+                  <span class="branding-preview__swatch" :style="{ backgroundColor: form.branding.background_color }"></span>
+                </div>
+                <div class="d-flex align-items-end gap-3 mt-3">
+                  <img :src="brandingAsset(form.branding.icon_192_url, '/pwa-192x192.png')" alt="" width="48" height="48" class="branding-preview__icon" />
+                  <img :src="brandingAsset(form.branding.icon_512_url, '/pwa-512x512.png')" alt="" width="64" height="64" class="branding-preview__icon" />
+                  <span class="small text-muted">{{ copy.brandingPreviewInstallIcon }}</span>
                 </div>
               </div>
             </div>
@@ -235,6 +353,7 @@ import {
   type RecoveryEvidenceConfig,
 } from "../../api/settings.api";
 import { KAIRO_BRANDING_DEFAULTS, type TenantBranding } from "../../api/branding.types";
+import { safeBrandingAsset } from "../../services/branding";
 
 const auth = useAuthStore();
 const localeStore = useLocaleStore();
@@ -315,6 +434,31 @@ const copy = computed(() => {
       primaryColorPlaceholder: "#1f4f8f",
       logoUrl: "Logo-URL",
       logoUrlPlaceholder: "https://example.com/logo.png",
+      brandingIdentity: "Identität",
+      brandingDisplayName: "Anwendungsname",
+      brandingShortName: "Kurzname (Symbol)",
+      brandingLegalName: "Rechtlicher Name",
+      brandingColors: "Farben",
+      brandingSecondaryColor: "Sekundärfarbe",
+      brandingBackgroundColor: "Hintergrundfarbe",
+      brandingThemeColor: "Themenfarbe",
+      brandingLogos: "Logos und Favicon",
+      brandingLogoDarkUrl: "Logo-URL (dunkel)",
+      brandingFaviconUrl: "Favicon-URL",
+      brandingIcons: "Installationssymbole",
+      brandingIcon192: "Symbol 192×192",
+      brandingIcon512: "Symbol 512×512",
+      brandingMaskable: "Maskierbares Symbol",
+      brandingIconsHint: "Diese Symbole erscheinen im Manifest des Mandanten und werden zum Symbol der installierten App auf Android und iOS.",
+      brandingNotifications: "Benachrichtigungen und Support",
+      brandingNotificationName: "Absendername der Benachrichtigungen",
+      brandingSupportName: "Supportname",
+      brandingSupportEmail: "Support-E-Mail",
+      brandingDomain: "Eigene Domain",
+      brandingCustomDomain: "Domain des Mandanten",
+      brandingCustomDomainHint: "Exakter Hostname (z. B. app.verein.example). DNS und TLS werden vom Betreiber konfiguriert; die Domain wird serverseitig aufgelöst.",
+      brandingPreview: "Vorschau",
+      brandingPreviewInstallIcon: "Vorschau des Installationssymbols",
       modules: "Module",
       modulesHint: "Aktivieren oder deaktivieren Sie Produktmodule für diesen Mandanten. Deaktivierte Module werden für Nutzer ausgeblendet.",
       recoveryEvidence: "Nachweis zur Wiederherstellung",
@@ -371,6 +515,31 @@ const copy = computed(() => {
       primaryColorPlaceholder: "#1f4f8f",
       logoUrl: "Logo URL",
       logoUrlPlaceholder: "https://example.com/logo.png",
+      brandingIdentity: "Identity",
+      brandingDisplayName: "Application name",
+      brandingShortName: "Short name (icon)",
+      brandingLegalName: "Legal name",
+      brandingColors: "Colors",
+      brandingSecondaryColor: "Secondary color",
+      brandingBackgroundColor: "Background color",
+      brandingThemeColor: "Theme color",
+      brandingLogos: "Logos and favicon",
+      brandingLogoDarkUrl: "Logo URL (dark)",
+      brandingFaviconUrl: "Favicon URL",
+      brandingIcons: "Install icons",
+      brandingIcon192: "192×192 icon",
+      brandingIcon512: "512×512 icon",
+      brandingMaskable: "Maskable icon",
+      brandingIconsHint: "These icons are exposed in the tenant manifest and become the installed application icon on Android and iOS.",
+      brandingNotifications: "Notifications and support",
+      brandingNotificationName: "Notification sender name",
+      brandingSupportName: "Support name",
+      brandingSupportEmail: "Support email",
+      brandingDomain: "Custom domain",
+      brandingCustomDomain: "Tenant domain",
+      brandingCustomDomainHint: "Exact hostname (for example app.association.example). DNS and TLS stay operator-configured; the host resolves server-side.",
+      brandingPreview: "Preview",
+      brandingPreviewInstallIcon: "Install icon preview",
       modules: "Modules",
       modulesHint: "Enable or disable product modules for this tenant. Disabled modules are hidden from users.",
       recoveryEvidence: "Recovery evidence",
@@ -426,6 +595,31 @@ const copy = computed(() => {
     primaryColorPlaceholder: "#1f4f8f",
     logoUrl: "URL du logo",
     logoUrlPlaceholder: "https://example.com/logo.png",
+    brandingIdentity: "Identité",
+    brandingDisplayName: "Nom de l'application",
+    brandingShortName: "Nom court (icône)",
+    brandingLegalName: "Nom légal",
+    brandingColors: "Couleurs",
+    brandingSecondaryColor: "Couleur secondaire",
+    brandingBackgroundColor: "Couleur de fond",
+    brandingThemeColor: "Couleur de thème",
+    brandingLogos: "Logos et favicon",
+    brandingLogoDarkUrl: "URL du logo (sombre)",
+    brandingFaviconUrl: "URL du favicon",
+    brandingIcons: "Icônes d'installation",
+    brandingIcon192: "Icône 192×192",
+    brandingIcon512: "Icône 512×512",
+    brandingMaskable: "Icône maskable",
+    brandingIconsHint: "Ces icônes sont exposées dans le manifeste du tenant et deviennent l'icône de l'application installée sur Android et iOS.",
+    brandingNotifications: "Notifications et support",
+    brandingNotificationName: "Nom de l'expéditeur des notifications",
+    brandingSupportName: "Nom du support",
+    brandingSupportEmail: "E-mail du support",
+    brandingDomain: "Domaine personnalisé",
+    brandingCustomDomain: "Domaine du tenant",
+    brandingCustomDomainHint: "Nom d'hôte exact (par exemple app.association.example). Le DNS et le TLS restent configurés par l'opérateur ; l'hôte est résolu côté serveur.",
+    brandingPreview: "Aperçu",
+    brandingPreviewInstallIcon: "Aperçu de l'icône d'installation",
     modules: "Modules",
     modulesHint: "Activez ou désactivez les modules du produit pour ce tenant. Les modules désactivés sont masqués pour les utilisateurs.",
     recoveryEvidence: "Preuves de reprise",
@@ -477,6 +671,10 @@ function moduleLabel(key: string): string {
     notifications: localeStore.currentLocale === "de" ? "Benachrichtigungen" : localeStore.currentLocale === "en" ? "Notifications" : "Notifications",
   };
   return labels[key] || key;
+}
+
+function brandingAsset(value: string, fallback: string): string {
+  return safeBrandingAsset(value, fallback);
 }
 
 function applySettings(value: TenantSettingsResponse) {
@@ -616,3 +814,40 @@ function statusLabel(status: string): string {
   }
 }
 </script>
+
+<style scoped>
+.branding-preview {
+  border-radius: 0.9rem;
+  border: 1px solid #e2e8f0;
+}
+
+.branding-preview__logo {
+  width: 2.25rem;
+  height: 2.25rem;
+  object-fit: contain;
+}
+
+.branding-preview__mark {
+  display: inline-flex;
+  width: 2.25rem;
+  height: 2.25rem;
+  align-items: center;
+  justify-content: center;
+  border-radius: 0.65rem;
+  color: #fff;
+}
+
+.branding-preview__swatch {
+  width: 1.6rem;
+  height: 1.6rem;
+  border-radius: 0.45rem;
+  border: 1px solid rgba(15, 33, 56, 0.12);
+}
+
+.branding-preview__icon {
+  border-radius: 0.75rem;
+  border: 1px solid #e2e8f0;
+  background: #fff;
+  object-fit: contain;
+}
+</style>

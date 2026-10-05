@@ -31,6 +31,25 @@ export function installPromptAvailable(): boolean {
   return installEvent.value !== null && !isInstalled() && !installPromptDismissed()
 }
 
+export function isIosDevice(): boolean {
+  return /iPhone|iPad|iPod/.test(navigator.userAgent)
+}
+
+/**
+ * Manual-install guidance is only meaningful on iOS: Chromium browsers fire
+ * `beforeinstallprompt` when the app is installable, while iOS Safari never
+ * does and requires the Share -> Add to Home Screen gesture. Firefox cannot
+ * install a PWA at all, so no guidance is offered there.
+ */
+export function installGuidanceAvailable(): boolean {
+  return (
+    installEvent.value === null
+    && !isInstalled()
+    && !installPromptDismissed()
+    && isIosDevice()
+  )
+}
+
 export function dismissInstallPrompt(): void {
   localStorage.setItem(INSTALL_DISMISSED_KEY, '1')
   installEvent.value = null

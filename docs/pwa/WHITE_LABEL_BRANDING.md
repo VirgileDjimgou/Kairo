@@ -50,6 +50,34 @@ Validation:
 | Install UX | `beforeinstallprompt` CTA, `appinstalled` confirmation, dismissal persistence, standalone detection and browser-specific guidance; notification permission is never requested during installation |
 | Host-based tenant resolution | `GET /api/v1/tenants/public/resolve` maps an exact `custom_domain` or a direct `<slug>.<PLATFORM_BASE_DOMAIN>` subdomain to a tenant (branding-only, server-authoritative); the PWA applies it pre-authentication and seeds `tenant_slug` for login. See `docs/pwa/TENANT_DOMAINS.md` |
 
+## Configuring branding from the admin UI (S129)
+
+An authorized tenant administrator configures the complete identity in
+**Admin → Settings → Branding**: display/short/legal name, primary, secondary,
+background and theme colors, light/dark logos, favicon, the launcher icons
+(192×192, 512×512 and maskable), the notification sender name, the support
+identity and the custom domain. The live preview shows the branded header, the
+color swatches and the install-icon rendering before saving; the existing
+`PUT /api/v1/tenants/{id}/settings` endpoint persists the values and they reach
+`/auth/me`, the public tenant manifest and the installed PWA identity.
+
+Installation icons are URLs: host the association assets at an https URL or a
+site-relative path served by the deployment. Android Chrome mints the installed
+WebAPK name/icon from the tenant manifest at install time; iOS reads the
+`apple-touch-icon` that the PWA injects per tenant (manifest icons remain the
+fallback). Because the installed app identity is bound to the origin, an
+association that wants its own installable app alongside another must use its
+custom domain (`docs/pwa/TENANT_DOMAINS.md`).
+
+## Testing the identity from the public demo page (S129)
+
+`/demo` includes a password-free **white-label studio**: change the name, short
+name, colors, logo and launcher icons and the page title, CSS variables, favicon,
+`apple-touch-icon`, install-icon previews and the generated manifest update
+live. Presets, a manifest preview and install guidance are included; nothing is
+persisted and the reset action restores the real branding. This lets an operator
+test the white-label mode end to end without touching a tenant.
+
 ## Configuration only — no conditional code
 
 The COMBIS pilot is configured entirely through data, for example:

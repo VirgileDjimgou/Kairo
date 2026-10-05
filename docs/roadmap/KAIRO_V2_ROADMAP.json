@@ -2,10 +2,10 @@
   "roadmap": "KAIRO_V2",
   "version": 3,
   "created_at": "2026-09-25T00:00:00Z",
-  "updated_at": "2026-10-03T00:00:00Z",
-  "baseline": "Sprints 100-118 completed (V2 stabilization and release candidate) plus the frozen Flutter client as legacy reference",
+  "updated_at": "2026-10-06T00:00:00Z",
+  "baseline": "Sprints 100-128 completed (V2 stabilization, the PWA-first white-label SaaS program and the real full-stack release gate); S129 is the post-release white-label self-service and install-experience evolution sprint",
   "active_program": "PWA_FIRST_WHITE_LABEL_SAAS",
-  "program_range": "S119-S128",
+  "program_range": "S119-S129",
   "objective": "CONSOLIDATE the Vue 3 PWA as the canonical client, freeze Flutter as legacy reference, and make Kairo a production-oriented multi-tenant white-label SaaS without replacing the modular monolith, weakening tenant isolation, or rewriting remote history.",
   "canonical_active_roadmap": true,
   "historical_roadmap": "IMPLEMENTATION_ROADMAP.md",
@@ -722,6 +722,30 @@
         "Documentation reflects the implemented reality; no fabricated PASS is recorded."
       ],
       "gate_profile": "release"
+    },
+    {
+      "id": 129,
+      "key": "white-label-self-service-and-install-experience",
+      "title": "White-Label Self-Service And Install Experience",
+      "phase": "WHITELABEL",
+      "dependencies": [123, 124, 128],
+      "goal": "Make white-label branding fully self-service and reliably installable: complete the admin branding editor, inject the per-tenant Apple touch icon, guide installation in browsers without beforeinstallprompt, and let anyone test the customization from the public demo page without credentials.",
+      "tasks": [
+        "Extend the admin tenant settings page into a complete white-label editor: identity (display/short/legal name), colors, logos, favicon, launcher icons (192/512/maskable), notification name, support identity and custom domain, with a live preview and the existing settings API.",
+        "Inject the per-tenant apple-touch-icon so the home-screen icon and name are correct on iOS (manifest icons remain the fallback), and expose localized installation guidance for browsers that never fire beforeinstallprompt (iOS Safari, Firefox).",
+        "Add an interactive white-label studio to the public demo page (no password): live preview of name, colors, logo and launcher icons, the generated manifest, install-icon previews and installation guidance, plus a reset action that restores the real branding.",
+        "Add FR/EN/DE strings for every new surface and keep exact catalog parity.",
+        "Cover the studio and the branding application with Playwright regression tests and keep the repository guards green.",
+        "Update WHITE_LABEL_BRANDING, PWA_ARCHITECTURE, PROJECT_STATUS, CURRENT_ARCHITECTURE and the roadmap with the delivered procedure."
+      ],
+      "acceptance": [
+        "An authorized tenant administrator can configure every branding field from the admin UI and the saved values reach /auth/me, the tenant manifest and the installed PWA identity.",
+        "The installed Android/iOS icon and application name follow the tenant branding when the user signs in before installing, and the Apple touch icon is served per tenant.",
+        "A visitor can open the public demo page, customize name, colors and launcher icons, see the manifest and icon previews, and read install guidance without entering a password.",
+        "FR/EN/DE catalogs remain in exact parity and no new hardcoded user-facing string is introduced.",
+        "Relevant Playwright tests, type-check, build and repository guards pass."
+      ],
+      "gate_profile": "whitelabel"
     }
   ]
 }

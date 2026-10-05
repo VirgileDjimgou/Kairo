@@ -112,6 +112,15 @@ notificationclick
   action in the notification bell.
 - The same frontend serves every association: tenant identity comes from
   configuration and the manifest endpoint, never from per-association code.
+- `applyBranding()` also injects the per-tenant `apple-touch-icon` (the 512 icon,
+  then the 192 icon, then the favicon) so the Home Screen identity is correct on
+  iOS; manifest icons remain the fallback everywhere else.
+- Browsers that never fire `beforeinstallprompt` get localized install guidance
+  instead of a dead CTA: iOS Safari sees the Share → Add to Home Screen hint
+  (dismissible, persisted), while Chromium keeps the explicit install prompt. The
+  public `/demo` page exposes a password-free white-label studio that previews
+  the identity, the manifest and the install icons
+  (`docs/pwa/WHITE_LABEL_BRANDING.md`).
 
 ## Verification
 

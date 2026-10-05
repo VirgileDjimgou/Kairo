@@ -322,11 +322,21 @@ manual** since Sprint 119 (`.github/workflows/flutter-legacy.yml`, ADR-014) and
   browser. The COMBIS Chrome Android pilot checklist
   (`docs/pwa/COMBIS_PILOT_CHECKLIST.md`) records the automated evidence and the
   manual real-device steps that remain explicitly pending.
-- Status: sprints 108–128 addressed i18n, capabilities, service decomposition,
+- Sprint 129 completed the white-label self-service and install experience: the
+  admin settings page edits the whole `TenantBranding` contract (identity,
+  colors, logos, favicon, 192/512/maskable launcher icons, notification sender,
+  support identity, custom domain) with a live preview; `applyBranding()`
+  injects the per-tenant `apple-touch-icon` for iOS; browsers without
+  `beforeinstallprompt` receive localized install guidance; and the public
+  `/demo` page exposes a password-free white-label studio that previews the
+  identity, install icons and generated tenant manifest
+  (`docs/pwa/WHITE_LABEL_BRANDING.md`).
+- Status: sprints 108–129 addressed i18n, capabilities, service decomposition,
   domain events, notification convergence, the contract boundary, operational
   health/performance, the module framework, release hardening, the PWA-first
   client consolidation, the unified PWA Service Worker, the normalized
   notification installation model, secure actionable deep links, white-label
   tenant branding, tenant-aware PWA installation, tenant domains, outbox
-  reliability, reproducible CI and the real full-stack release gate; the
-  S119–S128 program (PWA-first, white-label SaaS) is complete.
+  reliability, reproducible CI, the real full-stack release gate and white-label
+  self-service; the S119–S128 program (PWA-first, white-label SaaS) is complete
+  and S129 is the current post-release evolution sprint.

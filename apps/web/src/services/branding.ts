@@ -38,6 +38,21 @@ function applyFavicon(href: string): void {
 }
 
 /**
+ * iOS reads `apple-touch-icon` before the manifest icons for the Home Screen
+ * web clip. Injecting it per tenant keeps the installed identity branded on
+ * iPhone/iPad; manifest icons remain the fallback for every other platform.
+ */
+function applyAppleTouchIcon(href: string): void {
+  let link = document.querySelector<HTMLLinkElement>('link[rel="apple-touch-icon"]')
+  if (!link) {
+    link = document.createElement('link')
+    link.rel = 'apple-touch-icon'
+    document.head.appendChild(link)
+  }
+  link.href = href
+}
+
+/**
  * Applies the effective tenant branding to the shared presentation surfaces:
  * page title, favicon, theme/apple meta tags and the semantic CSS variables
  * consumed by the shell, buttons and layouts. It never touches authorization.
@@ -48,6 +63,12 @@ export function applyBranding(branding?: Partial<TenantBranding> | null): Tenant
 
   document.title = effective.display_name
   applyFavicon(safeBrandingAsset(effective.favicon_url, '/favicon.svg'))
+  applyAppleTouchIcon(
+    safeBrandingAsset(
+      effective.icon_512_url || effective.icon_192_url || effective.favicon_url,
+      '/pwa-192x192.png',
+    ),
+  )
   setMetaContent('theme-color', effective.theme_color)
   setMetaContent('apple-mobile-web-app-title', effective.short_name || effective.display_name)
 

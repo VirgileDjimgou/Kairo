@@ -1,6 +1,7 @@
-# Kairo Roadmap V2 — Sprint 100 To Sprint 128
+# Kairo Roadmap V2 — Sprint 100 To Sprint 129
 
-Status: COMPLETE — Sprints 100–128 delivered (canonical V2 record)
+Status: ACTIVE — Sprints 100–128 delivered; S129 (white-label self-service and
+install experience) is the current post-release evolution sprint
 
 This roadmap is the single active execution source for Kairo after the historical
 Sprint 0–99 track. The historical record remains in `IMPLEMENTATION_ROADMAP.md` and is
@@ -13,9 +14,12 @@ Sprints 100–128 are complete. The **S119–S128 program (PWA-first, white-labe
 SaaS)** closed with Sprint 128: the real full-stack release gate validated the
 integrated platform against a deterministic production-like stack and the COMBIS
 Chrome Android pilot checklist was prepared (`docs/pwa/COMBIS_PILOT_CHECKLIST.md`).
-The Vue 3 PWA is the canonical client; the Flutter client is frozen as
-legacy/reference code and receives no new business features. Any further product
-work is a new planning decision (see `docs/roadmap/KAIRO_V3_ROADMAP.md`).
+**Sprint 129** extends the white-label experience post-release: the admin branding
+editor becomes complete, the installed identity is reliable on Android and iOS,
+and the public demo page gains a password-free white-label studio so the
+customization can be tested directly. The Vue 3 PWA is the canonical client; the
+Flutter client is frozen as legacy/reference code and receives no new business
+features.
 
 Objective: **CONSOLIDATE → PWA → NOTIFICATIONS → WHITE-LABEL → RELIABILITY → HARDEN → RELEASE**.
 
@@ -1004,6 +1008,52 @@ production-like environment and prepare the COMBIS real-device pilot checklist.
 - The COMBIS pilot checklist exists and its manual steps are marked as
   human-validated or explicitly pending.
 - Documentation reflects the implemented reality; no fabricated PASS is recorded.
+
+---
+
+## Sprint 129 — White-Label Self-Service And Install Experience
+
+Phase: WHITELABEL. Dependencies: 123, 124, 128.
+
+**Goal:** Make white-label branding fully self-service and reliably installable:
+complete the admin branding editor, inject the per-tenant Apple touch icon, guide
+installation in browsers without `beforeinstallprompt`, and let anyone test the
+customization from the public demo page without credentials.
+
+**Tasks**
+
+- Extend the admin tenant settings page into a complete white-label editor:
+  identity (display/short/legal name), colors, logos, favicon, launcher icons
+  (192/512/maskable), notification name, support identity and custom domain, with
+  a live preview and the existing settings API.
+- Inject the per-tenant `apple-touch-icon` so the home-screen icon and name are
+  correct on iOS (manifest icons remain the fallback), and expose localized
+  installation guidance for browsers that never fire `beforeinstallprompt`
+  (iOS Safari, Firefox).
+- Add an interactive white-label studio to the public demo page (no password):
+  live preview of name, colors, logo and launcher icons, the generated manifest,
+  install-icon previews and installation guidance, plus a reset action that
+  restores the real branding.
+- Add FR/EN/DE strings for every new surface and keep exact catalog parity.
+- Cover the studio and the branding application with Playwright regression tests
+  and keep the repository guards green.
+- Update WHITE_LABEL_BRANDING, PWA_ARCHITECTURE, PROJECT_STATUS,
+  CURRENT_ARCHITECTURE and the roadmap with the delivered procedure.
+
+**Acceptance**
+
+- An authorized tenant administrator can configure every branding field from the
+  admin UI and the saved values reach `/auth/me`, the tenant manifest and the
+  installed PWA identity.
+- The installed Android/iOS icon and application name follow the tenant branding
+  when the user signs in before installing, and the Apple touch icon is served
+  per tenant.
+- A visitor can open the public demo page, customize name, colors and launcher
+  icons, see the manifest and icon previews, and read install guidance without
+  entering a password.
+- FR/EN/DE catalogs remain in exact parity and no new hardcoded user-facing
+  string is introduced.
+- Relevant Playwright tests, type-check, build and repository guards pass.
 
 ---
 

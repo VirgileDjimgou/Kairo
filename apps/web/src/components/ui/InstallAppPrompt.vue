@@ -4,10 +4,12 @@
       <strong class="install-prompt__title">
         {{ localeStore.t('install.title', { name: appName }) }}
       </strong>
-      <span class="install-prompt__body">{{ localeStore.t('install.body') }}</span>
+      <span class="install-prompt__body">
+        {{ promptAvailable ? localeStore.t('install.body') : localeStore.t('install.guidanceIos') }}
+      </span>
     </div>
     <div class="install-prompt__actions">
-      <button class="btn btn-sm btn-primary" type="button" :disabled="busy" @click="install">
+      <button v-if="promptAvailable" class="btn btn-sm btn-primary" type="button" :disabled="busy" @click="install">
         {{ localeStore.t('install.cta') }}
       </button>
       <button class="btn btn-sm btn-outline-secondary" type="button" @click="dismiss">
@@ -25,6 +27,7 @@ import { useTenantStore } from '@/stores/tenant.store'
 import { effectiveBranding } from '@/services/branding'
 import {
   dismissInstallPrompt,
+  installGuidanceAvailable,
   installPromptAvailable,
   promptInstall,
 } from '@/services/pwa-install'
@@ -40,9 +43,14 @@ const appName = computed(() => {
   return branding.short_name || branding.display_name
 })
 
-const visible = computed(() => {
+const promptAvailable = computed(() => {
   void revision.value
   return installPromptAvailable()
+})
+
+const visible = computed(() => {
+  void revision.value
+  return promptAvailable.value || installGuidanceAvailable()
 })
 
 function handleInstalled() {

@@ -22,7 +22,10 @@
       <section class="demo-hero text-center">
         <p class="demo-kicker mb-2">{{ localeStore.t("demo.heroKicker") }}</p>
         <h1 class="demo-title mb-3">{{ localeStore.t("demo.heroTitle") }}</h1>
-        <p class="demo-copy mx-auto mb-0">{{ localeStore.t("demo.heroCopy") }}</p>
+        <p class="demo-copy mx-auto mb-3">{{ localeStore.t("demo.heroCopy") }}</p>
+        <a class="btn btn-outline-primary btn-sm" href="#white-label-studio">
+          <i class="bi bi-palette me-1"></i>{{ localeStore.t("demo.studioJump") }}
+        </a>
       </section>
 
       <div v-if="!isDemoMode" class="alert alert-warning border-0 shadow-sm" role="alert">
@@ -106,6 +109,8 @@
           </details>
         </section>
 
+        <WhiteLabelStudio class="mt-5" />
+
         <section class="demo-steps mt-5">
           <div class="row g-3">
             <div v-for="(step, index) in steps" :key="step.titleKey" class="col-12 col-md-4">
@@ -128,6 +133,7 @@ import { useRouter } from "vue-router";
 import { useAuthStore } from "@/stores/auth.store";
 import { useLocaleStore } from "@/stores/locale.store";
 import LanguageSelector from "@/components/LanguageSelector.vue";
+import WhiteLabelStudio from "@/components/demo/WhiteLabelStudio.vue";
 import {
   IS_DEMO_MODE,
   advancedDemoAccounts,
