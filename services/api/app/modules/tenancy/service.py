@@ -405,7 +405,7 @@ class TenancyService:
         return {
             "name": branding.display_name,
             "short_name": branding.short_name,
-            "description": f"{branding.display_name} — association management",
+            "description": branding.tagline or f"{branding.display_name} — association management",
             "lang": tenant.default_language,
             "theme_color": branding.theme_color,
             "background_color": branding.background_color,

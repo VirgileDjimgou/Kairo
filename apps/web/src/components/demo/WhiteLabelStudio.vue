@@ -37,6 +37,12 @@
               <input id="studio-short-name" v-model="form.short_name" type="text" class="form-control" />
             </div>
             <div class="col-sm-6">
+              <label class="form-label small fw-semibold text-muted" for="studio-tagline">
+                {{ localeStore.t("demo.studioTagline") }}
+              </label>
+              <input id="studio-tagline" v-model="form.tagline" type="text" class="form-control" />
+            </div>
+            <div class="col-sm-6">
               <label class="form-label small fw-semibold text-muted" for="studio-logo">
                 {{ localeStore.t("demo.studioLogoUrl") }}
               </label>
@@ -102,7 +108,8 @@
               </span>
               <span>
                 <strong class="d-block" :style="{ color: form.primary_color }">{{ form.display_name }}</strong>
-                <small class="text-muted">{{ form.short_name }}</small>
+                <small class="text-muted d-block">{{ form.short_name }}</small>
+                <small v-if="form.tagline" class="text-muted">{{ form.tagline }}</small>
               </span>
             </div>
             <div class="d-flex gap-2">
@@ -221,7 +228,7 @@ function buildPreviewManifest(): Record<string, unknown> {
   return {
     name: form.display_name,
     short_name: form.short_name,
-    description: `${form.display_name} — association management`,
+    description: form.tagline || `${form.display_name} — association management`,
     lang: localeStore.currentLocale,
     theme_color: form.theme_color,
     background_color: form.background_color,

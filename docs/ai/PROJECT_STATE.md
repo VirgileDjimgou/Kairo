@@ -1,6 +1,6 @@
 # Project State
 
-Last verified: 2026-10-06 (Roadmap V2 Sprint 129)
+Last verified: 2026-10-06 (Roadmap V2 Sprint 130)
 
 ## What this file is
 
@@ -205,3 +205,11 @@ new business features during S119–S128.
   manifest (reset restores the real branding). The FR/EN/DE catalogs stay in
   exact parity (916 keys per locale) and the white-label Playwright pack covers
   the studio plus the per-tenant Apple touch icon.
+  Sprint 130 completed the prospect journey: the branding contract gained an
+  optional tagline (login surface + manifest description), the pre-authentication
+  login hero is branded with the effective display name, tagline and logo, the
+  Service Worker persists the tenant notification name so a title-less push is
+  attributed to the association instead of the platform, and the demo opens the
+  principal administrator in one click so a visitor can persist a real identity
+  and run the full member/finance/discipline simulation. The step-by-step
+  customer script is `docs/pwa/WHITE_LABEL_PILOT_TUTORIAL.md`.

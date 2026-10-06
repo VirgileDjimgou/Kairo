@@ -121,6 +121,13 @@ notificationclick
   public `/demo` page exposes a password-free white-label studio that previews
   the identity, the manifest and the install icons
   (`docs/pwa/WHITE_LABEL_BRANDING.md`).
+- Notification identity follows the tenant: the backend resolves
+  `notification_name` for every push title, and `applyBranding()` publishes that
+  name to the Service Worker, which persists it and uses it for any push that
+  arrives without a title. The platform name is only the default before a tenant
+  context exists, so a customized installation never shows the platform brand in
+  a notification. Full customer walkthrough:
+  `docs/pwa/WHITE_LABEL_PILOT_TUTORIAL.md`.
 
 ## Verification
 

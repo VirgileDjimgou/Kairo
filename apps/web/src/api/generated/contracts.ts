@@ -1308,6 +1308,7 @@ export interface TenantBranding {
   short_name?: string;
   support_email?: string;
   support_name?: string;
+  tagline?: string;
   theme_color?: string;
 }
 

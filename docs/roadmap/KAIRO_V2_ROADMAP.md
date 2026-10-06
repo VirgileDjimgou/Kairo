@@ -1,7 +1,7 @@
-# Kairo Roadmap V2 — Sprint 100 To Sprint 129
+# Kairo Roadmap V2 — Sprint 100 To Sprint 130
 
-Status: ACTIVE — Sprints 100–128 delivered; S129 (white-label self-service and
-install experience) is the current post-release evolution sprint
+Status: ACTIVE — Sprints 100–129 delivered; S130 (complete white-label customer
+demo and notification identity) is the current post-release evolution sprint
 
 This roadmap is the single active execution source for Kairo after the historical
 Sprint 0–99 track. The historical record remains in `IMPLEMENTATION_ROADMAP.md` and is
@@ -17,9 +17,13 @@ Chrome Android pilot checklist was prepared (`docs/pwa/COMBIS_PILOT_CHECKLIST.md
 **Sprint 129** extends the white-label experience post-release: the admin branding
 editor becomes complete, the installed identity is reliable on Android and iOS,
 and the public demo page gains a password-free white-label studio so the
-customization can be tested directly. The Vue 3 PWA is the canonical client; the
-Flutter client is frozen as legacy/reference code and receives no new business
-features.
+customization can be tested directly. **Sprint 130** completes the customer demo:
+a tagline/slogan joins the branding contract, the pre-authentication login
+surface is branded, the Service Worker no longer falls back to the platform name
+in notifications, and the public demo offers a one-click administrator path so a
+prospect can persist branding and run the full business simulation end to end.
+The Vue 3 PWA is the canonical client; the Flutter client is frozen as
+legacy/reference code and receives no new business features.
 
 Objective: **CONSOLIDATE → PWA → NOTIFICATIONS → WHITE-LABEL → RELIABILITY → HARDEN → RELEASE**.
 
@@ -1054,6 +1058,50 @@ customization from the public demo page without credentials.
 - FR/EN/DE catalogs remain in exact parity and no new hardcoded user-facing
   string is introduced.
 - Relevant Playwright tests, type-check, build and repository guards pass.
+
+---
+
+## Sprint 130 — Complete White-Label Customer Demo And Notification Identity
+
+Phase: WHITELABEL. Dependencies: 129.
+
+**Goal:** Let a prospect experience the complete white-label cycle: brand the
+application (name, tagline, colors, icons), persist it as an administrator,
+install it on Android/PC under the association name, run the full
+membership/finance/discipline simulation, and receive notifications under the
+association identity, never the platform name.
+
+**Tasks**
+
+- Add an optional tagline/slogan to `TenantBranding`, expose it in the admin
+  editor and the demo studio, and use it in the manifest description and the
+  branded login surface.
+- Brand the pre-authentication login surface with the effective tenant identity
+  (display name, tagline, logo) so a resolved host or selected tenant is visible
+  before sign-in.
+- Remove the hardcoded platform fallback from the Service Worker notification
+  identity: the PWA publishes the tenant notification name to the worker, which
+  uses it for any push lacking a title; the backend keeps using
+  `notification_name` for FCM and Web Push titles.
+- Add an administrator entry point to the public demo so a visitor can configure
+  and persist branding and run the whole business simulation without leaving the
+  demo.
+- Document the end-to-end customer demo tutorial (brand, persist, install on
+  Android/PC, member/finance/discipline simulation, notifications) and the FCM
+  identity behaviour.
+- Cover the tagline, the branded login surface and the notification identity with
+  tests.
+
+**Acceptance**
+
+- A tenant can set a tagline and it appears on the login surface and in the
+  manifest description.
+- The pre-authentication login surface shows the effective tenant display name,
+  tagline and logo.
+- A push payload without a title uses the tenant notification name, never the
+  platform name.
+- The demo exposes a one-click administrator path that can persist branding.
+- The tutorial documents the full cycle and the relevant tests and guards pass.
 
 ---
 

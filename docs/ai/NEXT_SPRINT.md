@@ -17,9 +17,10 @@ whose entry is not recorded as `completed` in `.kairo/sprint-batch/state.json`
 ## Program status
 
 Roadmap V2 S119–S128 is complete; **S129 (White-Label Self-Service And Install
-Experience)** is the current post-release evolution sprint. After S129, the next
-actions are operator-owned: execute the manual Chrome Android steps in
-`docs/pwa/COMBIS_PILOT_CHECKLIST.md`, then evaluate Roadmap V3
+Experience)** and **S130 (Complete White-Label Customer Demo And Notification
+Identity)** are the post-release evolution sprints, with S130 current. After
+S130, the next actions are operator-owned: execute the manual Chrome Android
+steps in `docs/pwa/COMBIS_PILOT_CHECKLIST.md`, then evaluate Roadmap V3
 (`docs/roadmap/KAIRO_V3_ROADMAP.md`) as a separate planning decision. Flutter
 archival remains a separate explicit decision after S128 (ADR-014).
 

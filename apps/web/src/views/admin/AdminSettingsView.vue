@@ -65,17 +65,21 @@
 
               <h6 class="fw-semibold text-muted mb-2">{{ copy.brandingIdentity }}</h6>
               <div class="row g-3">
-                <div class="col-md-4">
+                <div class="col-md-3">
                   <label class="form-label small fw-semibold text-muted" for="brand-display-name">{{ copy.brandingDisplayName }}</label>
                   <input id="brand-display-name" v-model="form.branding.display_name" type="text" class="form-control" />
                 </div>
-                <div class="col-md-4">
+                <div class="col-md-3">
                   <label class="form-label small fw-semibold text-muted" for="brand-short-name">{{ copy.brandingShortName }}</label>
                   <input id="brand-short-name" v-model="form.branding.short_name" type="text" class="form-control" />
                 </div>
-                <div class="col-md-4">
+                <div class="col-md-3">
                   <label class="form-label small fw-semibold text-muted" for="brand-legal-name">{{ copy.brandingLegalName }}</label>
                   <input id="brand-legal-name" v-model="form.branding.legal_name" type="text" class="form-control" />
+                </div>
+                <div class="col-md-3">
+                  <label class="form-label small fw-semibold text-muted" for="brand-tagline">{{ copy.brandingTagline }}</label>
+                  <input id="brand-tagline" v-model="form.branding.tagline" type="text" class="form-control" />
                 </div>
               </div>
 
@@ -438,6 +442,7 @@ const copy = computed(() => {
       brandingDisplayName: "Anwendungsname",
       brandingShortName: "Kurzname (Symbol)",
       brandingLegalName: "Rechtlicher Name",
+      brandingTagline: "Slogan",
       brandingColors: "Farben",
       brandingSecondaryColor: "Sekundärfarbe",
       brandingBackgroundColor: "Hintergrundfarbe",
@@ -519,6 +524,7 @@ const copy = computed(() => {
       brandingDisplayName: "Application name",
       brandingShortName: "Short name (icon)",
       brandingLegalName: "Legal name",
+      brandingTagline: "Tagline",
       brandingColors: "Colors",
       brandingSecondaryColor: "Secondary color",
       brandingBackgroundColor: "Background color",
@@ -599,6 +605,7 @@ const copy = computed(() => {
     brandingDisplayName: "Nom de l'application",
     brandingShortName: "Nom court (icône)",
     brandingLegalName: "Nom légal",
+    brandingTagline: "Slogan",
     brandingColors: "Couleurs",
     brandingSecondaryColor: "Couleur secondaire",
     brandingBackgroundColor: "Couleur de fond",

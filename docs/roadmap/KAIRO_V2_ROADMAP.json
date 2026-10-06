@@ -3,9 +3,9 @@
   "version": 3,
   "created_at": "2026-09-25T00:00:00Z",
   "updated_at": "2026-10-06T00:00:00Z",
-  "baseline": "Sprints 100-128 completed (V2 stabilization, the PWA-first white-label SaaS program and the real full-stack release gate); S129 is the post-release white-label self-service and install-experience evolution sprint",
+  "baseline": "Sprints 100-129 completed (V2 stabilization, the PWA-first white-label SaaS program, the real full-stack release gate and white-label self-service); S130 is the post-release complete white-label customer demo evolution sprint",
   "active_program": "PWA_FIRST_WHITE_LABEL_SAAS",
-  "program_range": "S119-S129",
+  "program_range": "S119-S130",
   "objective": "CONSOLIDATE the Vue 3 PWA as the canonical client, freeze Flutter as legacy reference, and make Kairo a production-oriented multi-tenant white-label SaaS without replacing the modular monolith, weakening tenant isolation, or rewriting remote history.",
   "canonical_active_roadmap": true,
   "historical_roadmap": "IMPLEMENTATION_ROADMAP.md",
@@ -744,6 +744,30 @@
         "A visitor can open the public demo page, customize name, colors and launcher icons, see the manifest and icon previews, and read install guidance without entering a password.",
         "FR/EN/DE catalogs remain in exact parity and no new hardcoded user-facing string is introduced.",
         "Relevant Playwright tests, type-check, build and repository guards pass."
+      ],
+      "gate_profile": "whitelabel"
+    },
+    {
+      "id": 130,
+      "key": "complete-white-label-customer-demo-and-notification-identity",
+      "title": "Complete White-Label Customer Demo And Notification Identity",
+      "phase": "WHITELABEL",
+      "dependencies": [129],
+      "goal": "Let a prospect experience the complete white-label cycle: brand the application (name, tagline, colors, icons), persist it as an administrator, install it on Android/PC under the association name, run the full membership/finance/discipline simulation, and receive notifications under the association identity, never the platform name.",
+      "tasks": [
+        "Add an optional tagline/slogan to TenantBranding, expose it in the admin editor and the demo studio, and use it in the manifest description and the branded login surface.",
+        "Brand the pre-authentication login surface with the effective tenant identity (display name, tagline, logo) so a resolved host or selected tenant is visible before sign-in.",
+        "Remove the hardcoded platform fallback from the Service Worker notification identity: the PWA publishes the tenant notification name to the worker, which uses it for any push lacking a title; the backend keeps using notification_name for FCM and Web Push titles.",
+        "Add an administrator entry point to the public demo so a visitor can configure and persist branding and run the whole business simulation without leaving the demo.",
+        "Document the end-to-end customer demo tutorial (brand, persist, install on Android/PC, member/finance/discipline simulation, notifications) and the FCM identity behaviour.",
+        "Cover the tagline, the branded login surface and the notification identity with tests."
+      ],
+      "acceptance": [
+        "A tenant can set a tagline and it appears on the login surface and in the manifest description.",
+        "The pre-authentication login surface shows the effective tenant display name, tagline and logo.",
+        "A push payload without a title uses the tenant notification name, never the platform name.",
+        "The demo exposes a one-click administrator path that can persist branding.",
+        "The tutorial documents the full cycle and the relevant tests and guards pass."
       ],
       "gate_profile": "whitelabel"
     }

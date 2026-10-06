@@ -14,6 +14,7 @@ from app.modules.tenancy.models import Tenant
 BRANDING = {
     "display_name": "COMBIS App",
     "short_name": "COMBIS",
+    "tagline": "Le club qui avance ensemble",
     "theme_color": "#0a5c2e",
     "background_color": "#f4f7f2",
     "icon_192_url": "/assets/combis-192.png",
@@ -39,6 +40,7 @@ async def test_manifest_uses_tenant_branding(
     body = response.json()
     assert body["name"] == "COMBIS App"
     assert body["short_name"] == "COMBIS"
+    assert body["description"] == "Le club qui avance ensemble"
     assert body["theme_color"] == "#0a5c2e"
     assert body["background_color"] == "#f4f7f2"
     assert body["display"] == "standalone"

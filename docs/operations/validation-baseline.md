@@ -175,8 +175,10 @@ cd apps/web && npm run test:e2e:pwa:built       # single worker + offline (vite 
 - The dev pack proves notification-click navigation lands on the exact target
   route, ignores unsafe external targets and preserves the target through the
   login redirect. The built pack proves exactly one Service Worker controls the
-  origin, that the web manifest is installable and that an offline navigation
-  falls back to the cached shell.
+  origin, that the web manifest is installable, that the worker persists the
+  tenant notification identity (title-less pushes are attributed to the
+  association, never the platform brand) and that an offline navigation falls
+  back to the cached shell.
 - Architecture: `docs/pwa/PWA_ARCHITECTURE.md`; decision: ADR-010 / ADR-014.
 
 ## Notification Installations
@@ -229,8 +231,10 @@ cd apps/web && npm run test:e2e:whitelabel
   notification permission, phone width).
 - S129 adds the password-free white-label studio on `/demo`
   (`e2e/white-label-studio.spec.ts`): live identity/color application, generated
-  manifest, install-icon preview, preset application and reset. Latest verified
-  result: 12 Chromium tests passed.
+  manifest, install-icon preview, preset application and reset. S130 adds the
+  tagline assertion, the branded pre-authentication login hero (display name,
+  tagline, logo) in `e2e/host-tenant.spec.ts` and the tagline manifest
+  description. Latest verified result: 12 Chromium tests passed.
 - Contract and configuration: `docs/pwa/WHITE_LABEL_BRANDING.md`,
   `docs/pwa/PWA_ARCHITECTURE.md`.
 

@@ -7,6 +7,7 @@ export interface TenantBranding {
   display_name: string
   short_name: string
   legal_name: string
+  tagline: string
   logo_url: string
   logo_dark_url: string
   favicon_url: string
@@ -28,6 +29,7 @@ export const KAIRO_BRANDING_DEFAULTS: TenantBranding = {
   display_name: 'Kairo',
   short_name: 'Kairo',
   legal_name: '',
+  tagline: '',
   logo_url: '',
   logo_dark_url: '',
   favicon_url: '',

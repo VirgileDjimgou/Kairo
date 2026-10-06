@@ -42,6 +42,30 @@ test('the web manifest is installable and linked from the shell', async ({ page 
   expect(manifest.icons.some((icon: { purpose?: string }) => icon.purpose === 'maskable')).toBe(true)
 })
 
+test('the Service Worker stores the tenant notification identity', async ({ page }) => {
+  await page.goto('/login')
+  await page.waitForFunction(() => Boolean(navigator.serviceWorker.controller))
+
+  // The authenticated PWA publishes the tenant name; a title-less push must be
+  // attributed to the association, never to the platform brand.
+  await page.evaluate(() => {
+    navigator.serviceWorker.controller?.postMessage({
+      type: 'kairo:notification-identity',
+      name: 'Foot100',
+    })
+  })
+
+  await expect
+    .poll(async () =>
+      page.evaluate(async () => {
+        const cache = await caches.open('kairo-meta')
+        const response = await cache.match('/__kairo_notification_identity__')
+        return response ? await response.text() : null
+      }),
+    )
+    .toBe('Foot100')
+})
+
 test('offline navigation falls back to the cached application shell', async ({ page, context }) => {
   await page.goto('/login')
   await page.waitForFunction(() => Boolean(navigator.serviceWorker.controller))

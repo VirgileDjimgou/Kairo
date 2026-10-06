@@ -8,6 +8,8 @@ const resolvedTenant = {
   branding: {
     display_name: 'COMBIS App',
     short_name: 'COMBIS',
+    tagline: 'Le club qui avance ensemble',
+    logo_url: '/assets/combis-logo.png',
     primary_color: '#0a5c2e',
     theme_color: '#0a5c2e',
   },
@@ -127,6 +129,11 @@ test('a mapped host applies tenant branding and manifest before sign-in', async 
     getComputedStyle(document.documentElement).getPropertyValue('--om-primary').trim(),
   )
   expect(primary).toBe('#0a5c2e')
+
+  // The pre-authentication login surface carries the resolved identity.
+  await expect(page.locator('.hero-brand-row .hero-kicker')).toHaveText('COMBIS App')
+  await expect(page.locator('.hero-brand-row .hero-subtitle')).toHaveText('Le club qui avance ensemble')
+  await expect(page.locator('.brand-mark__logo')).toHaveAttribute('src', '/assets/combis-logo.png')
 })
 
 test('an unmapped host keeps the safe platform defaults', async ({ page }) => {

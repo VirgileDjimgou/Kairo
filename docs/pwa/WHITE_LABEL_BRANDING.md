@@ -21,6 +21,7 @@ truth (`services/api/app/modules/tenancy/schemas.py`).
 | `display_name` | `Kairo` | Application name: page title, splash, app identity |
 | `short_name` | `Kairo` | Launcher/install short label |
 | `legal_name` | `""` | Legal entity name for documents/emails |
+| `tagline` | `""` | Slogan shown on the login surface and used as the manifest description |
 | `logo_url` / `logo_dark_url` | `""` | Shell and dark-surface logos |
 | `favicon_url` | `""` | Browser favicon (falls back to `/favicon.svg`) |
 | `icon_192_url` / `icon_512_url` / `maskable_icon_url` | `""` | PWA/launcher icons (applied by S124) |
@@ -43,6 +44,8 @@ Validation:
 | --- | --- |
 | Authentication / shell / dashboard | `apps/web/src/services/branding.ts` applies `--om-primary`, `--om-secondary`, `--om-background`; `AppShell` renders the tenant logo in the top bar |
 | Page title, favicon, theme-color, apple title | `applyBranding()` on every tenant change (safe defaults for missing values) |
+| Pre-authentication login surface | The hero shows the effective display name, tagline and logo from the host-resolved or selected tenant |
+| Notification identity | The PWA publishes `notification_name` to the Service Worker, which attributes title-less pushes to the association instead of the platform name |
 | Navigation and layouts | Existing semantic CSS variables, so no component-specific branding code |
 | Push sender | Outbox worker resolves `notification_name` per tenant for the push title; generic body unchanged |
 | Transactional email | Invitation and password-reset subjects/bodies use `notification_name`, `support_name` and `support_email` when configured |
@@ -50,16 +53,18 @@ Validation:
 | Install UX | `beforeinstallprompt` CTA, `appinstalled` confirmation, dismissal persistence, standalone detection and browser-specific guidance; notification permission is never requested during installation |
 | Host-based tenant resolution | `GET /api/v1/tenants/public/resolve` maps an exact `custom_domain` or a direct `<slug>.<PLATFORM_BASE_DOMAIN>` subdomain to a tenant (branding-only, server-authoritative); the PWA applies it pre-authentication and seeds `tenant_slug` for login. See `docs/pwa/TENANT_DOMAINS.md` |
 
-## Configuring branding from the admin UI (S129)
+## Configuring branding from the admin UI (S129–S130)
 
 An authorized tenant administrator configures the complete identity in
-**Admin → Settings → Branding**: display/short/legal name, primary, secondary,
-background and theme colors, light/dark logos, favicon, the launcher icons
-(192×192, 512×512 and maskable), the notification sender name, the support
+**Admin → Settings → Branding**: display/short/legal name, tagline, primary,
+secondary, background and theme colors, light/dark logos, favicon, the launcher
+icons (192×192, 512×512 and maskable), the notification sender name, the support
 identity and the custom domain. The live preview shows the branded header, the
 color swatches and the install-icon rendering before saving; the existing
 `PUT /api/v1/tenants/{id}/settings` endpoint persists the values and they reach
-`/auth/me`, the public tenant manifest and the installed PWA identity.
+`/auth/me`, the public tenant manifest and the installed PWA identity. The
+tagline is shown on the pre-authentication login surface and becomes the manifest
+description when set.
 
 Installation icons are URLs: host the association assets at an https URL or a
 site-relative path served by the deployment. Android Chrome mints the installed
@@ -72,11 +77,15 @@ custom domain (`docs/pwa/TENANT_DOMAINS.md`).
 ## Testing the identity from the public demo page (S129)
 
 `/demo` includes a password-free **white-label studio**: change the name, short
-name, colors, logo and launcher icons and the page title, CSS variables, favicon,
-`apple-touch-icon`, install-icon previews and the generated manifest update
-live. Presets, a manifest preview and install guidance are included; nothing is
-persisted and the reset action restores the real branding. This lets an operator
-test the white-label mode end to end without touching a tenant.
+name, tagline, colors, logo and launcher icons and the page title, CSS variables,
+favicon, `apple-touch-icon`, install-icon previews and the generated manifest
+update live. Presets, a manifest preview and install guidance are included;
+nothing is persisted and the reset action restores the real branding. The
+advanced role list also opens the **principal administrator** in one click, so a
+visitor can persist a real identity and run the complete business simulation.
+The end-to-end customer script (brand → persist → install on Android/PC →
+member/finance/discipline simulation → notifications) is
+`docs/pwa/WHITE_LABEL_PILOT_TUTORIAL.md`.
 
 ## Configuration only — no conditional code
 

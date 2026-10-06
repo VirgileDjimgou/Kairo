@@ -53,12 +53,26 @@ function applyAppleTouchIcon(href: string): void {
 }
 
 /**
+ * Publishes the tenant notification name to the Service Worker so a push that
+ * arrives without a title is attributed to the association, never the platform.
+ */
+function syncNotificationIdentity(name: string): void {
+  if (typeof navigator === 'undefined' || !('serviceWorker' in navigator)) return
+  const message = { type: 'kairo:notification-identity', name }
+  navigator.serviceWorker.controller?.postMessage(message)
+  void navigator.serviceWorker.ready
+    .then((registration) => registration.active?.postMessage(message))
+    .catch(() => undefined)
+}
+
+/**
  * Applies the effective tenant branding to the shared presentation surfaces:
  * page title, favicon, theme/apple meta tags and the semantic CSS variables
  * consumed by the shell, buttons and layouts. It never touches authorization.
  */
 export function applyBranding(branding?: Partial<TenantBranding> | null): TenantBranding {
   const effective = effectiveBranding(branding)
+  syncNotificationIdentity(effective.notification_name)
   if (typeof document === 'undefined') return effective
 
   document.title = effective.display_name

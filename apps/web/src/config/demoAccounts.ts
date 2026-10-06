@@ -97,6 +97,15 @@ const DEFAULT_ACCOUNTS: DemoAccount[] = [
     descriptionKey: 'demo.roleDesc.vice_president',
     advanced: true,
   },
+  {
+    key: 'principal_admin',
+    email: 'admin@demo.org',
+    password: 'Admin123!',
+    icon: 'bi-gear-wide-connected',
+    roleLabelKey: 'demo.role.principal_admin',
+    descriptionKey: 'demo.roleDesc.principal_admin',
+    advanced: true,
+  },
 ]
 
 function parseAccountOverride(raw: string | undefined): DemoAccount[] | null {

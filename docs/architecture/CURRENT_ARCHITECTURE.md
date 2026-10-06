@@ -331,12 +331,21 @@ manual** since Sprint 119 (`.github/workflows/flutter-legacy.yml`, ADR-014) and
   `/demo` page exposes a password-free white-label studio that previews the
   identity, install icons and generated tenant manifest
   (`docs/pwa/WHITE_LABEL_BRANDING.md`).
-- Status: sprints 108–129 addressed i18n, capabilities, service decomposition,
+- Sprint 130 completed the customer demo: `TenantBranding` gained an optional
+  tagline used by the branded pre-authentication login surface and the manifest
+  description; the Service Worker persists the tenant notification name published
+  by the PWA and never falls back to the platform brand for a customized
+  installation; and the public demo opens the principal administrator in one
+  click so a prospect can persist a real identity and run the full
+  membership/finance/discipline simulation
+  (`docs/pwa/WHITE_LABEL_PILOT_TUTORIAL.md`).
+- Status: sprints 108–130 addressed i18n, capabilities, service decomposition,
   domain events, notification convergence, the contract boundary, operational
   health/performance, the module framework, release hardening, the PWA-first
   client consolidation, the unified PWA Service Worker, the normalized
   notification installation model, secure actionable deep links, white-label
   tenant branding, tenant-aware PWA installation, tenant domains, outbox
-  reliability, reproducible CI, the real full-stack release gate and white-label
-  self-service; the S119–S128 program (PWA-first, white-label SaaS) is complete
-  and S129 is the current post-release evolution sprint.
+  reliability, reproducible CI, the real full-stack release gate, white-label
+  self-service and the complete white-label customer demo; the S119–S128 program
+  (PWA-first, white-label SaaS) is complete and S129–S130 are the post-release
+  evolution sprints.

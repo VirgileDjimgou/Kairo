@@ -69,6 +69,7 @@ class TenantBranding(BaseModel):
     display_name: str = Field(default="Kairo", max_length=120)
     short_name: str = Field(default="Kairo", max_length=40)
     legal_name: str = Field(default="", max_length=200)
+    tagline: str = Field(default="", max_length=160)
     logo_url: str = Field(default="", max_length=2048, pattern=SAFE_ASSET_PATTERN)
     logo_dark_url: str = Field(default="", max_length=2048, pattern=SAFE_ASSET_PATTERN)
     favicon_url: str = Field(default="", max_length=2048, pattern=SAFE_ASSET_PATTERN)

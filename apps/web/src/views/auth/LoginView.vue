@@ -180,14 +180,15 @@
               <div class="hero-content">
                 <div class="d-flex flex-wrap align-items-center gap-2 hero-brand-row">
                   <span class="brand-mark">
-                    <i class="bi bi-building-fill-gear"></i>
+                    <img v-if="heroLogo" :src="heroLogo" alt="" class="brand-mark__logo" />
+                    <i v-else class="bi bi-building-fill-gear"></i>
                   </span>
                   <div>
                     <div class="text-uppercase fw-semibold small hero-kicker">
-                      {{ localeStore.t('app.name') }}
+                      {{ branding.display_name }}
                     </div>
                     <div class="small hero-subtitle">
-                      {{ localeStore.t('login.brandSubtitle') }}
+                      {{ branding.tagline || localeStore.t('login.brandSubtitle') }}
                     </div>
                   </div>
                   <div class="ms-auto hero-language">
@@ -423,6 +424,7 @@ import { getApiErrorDetail, mapLoginError, mapMfaError } from "@/utils/authError
 import LanguageSelector from "@/components/LanguageSelector.vue";
 import { IS_DEMO_MODE } from "@/config/demoAccounts";
 import { hostTenant } from "@/services/host-tenant";
+import { effectiveBranding, safeBrandingAsset } from "@/services/branding";
 
 const router = useRouter();
 const authStore = useAuthStore();
@@ -430,6 +432,17 @@ const tenantStore = useTenantStore();
 const localeStore = useLocaleStore();
 const isDev = import.meta.env.DEV;
 const isDemoMode = IS_DEMO_MODE;
+
+// Pre-authentication identity: the host-resolved tenant wins before sign-in, the
+// selected tenant wins afterwards, and the safe platform defaults apply when
+// neither exists. Branding never influences authorization.
+const branding = computed(() =>
+  effectiveBranding(tenantStore.currentTenant?.branding ?? hostTenant.value?.branding),
+);
+const heroLogo = computed(() => {
+  const value = branding.value.logo_url || branding.value.icon_192_url;
+  return value ? safeBrandingAsset(value, "") : "";
+});
 
 const heroHighlights = computed(() => [
   {
@@ -832,6 +845,12 @@ function handleLogout() {
   color: #fff;
   font-size: 1.15rem;
   box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.08);
+}
+
+.brand-mark__logo {
+  width: 2rem;
+  height: 2rem;
+  object-fit: contain;
 }
 
 .feature-card {

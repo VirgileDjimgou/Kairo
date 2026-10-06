@@ -480,7 +480,7 @@
             "type": "string"
           },
           "count": {
-            "minimum": 0,
+            "minimum": 0.0,
             "title": "Count",
             "type": "integer"
           },
@@ -1512,8 +1512,8 @@
           },
           "top_k": {
             "default": 6,
-            "maximum": 10,
-            "minimum": 1,
+            "maximum": 10.0,
+            "minimum": 1.0,
             "title": "Top K",
             "type": "integer"
           }
@@ -1538,8 +1538,8 @@
             "type": "array"
           },
           "confidence": {
-            "maximum": 1,
-            "minimum": 0,
+            "maximum": 1.0,
+            "minimum": 0.0,
             "title": "Confidence",
             "type": "number"
           },
@@ -1591,7 +1591,7 @@
           "amount": {
             "anyOf": [
               {
-                "exclusiveMinimum": 0,
+                "exclusiveMinimum": 0.0,
                 "type": "number"
               },
               {
@@ -1728,8 +1728,8 @@
           },
           "handover_reminder_days": {
             "default": 2,
-            "maximum": 7,
-            "minimum": 1,
+            "maximum": 7.0,
+            "minimum": 1.0,
             "title": "Handover Reminder Days",
             "type": "integer"
           },
@@ -1748,7 +1748,7 @@
           "processed_amount": {
             "anyOf": [
               {
-                "exclusiveMinimum": 0,
+                "exclusiveMinimum": 0.0,
                 "type": "number"
               },
               {
@@ -2146,7 +2146,7 @@
           "amount": {
             "anyOf": [
               {
-                "exclusiveMinimum": 0,
+                "exclusiveMinimum": 0.0,
                 "type": "number"
               },
               {
@@ -2271,8 +2271,8 @@
       "ContributionReceiptHandoverReminderUpdate": {
         "properties": {
           "reminder_days": {
-            "maximum": 7,
-            "minimum": 1,
+            "maximum": 7.0,
+            "minimum": 1.0,
             "title": "Reminder Days",
             "type": "integer"
           }
@@ -2450,7 +2450,7 @@
           "expected_amount": {
             "anyOf": [
               {
-                "minimum": 0,
+                "minimum": 0.0,
                 "type": "number"
               },
               {
@@ -2469,7 +2469,7 @@
           "paid_amount": {
             "anyOf": [
               {
-                "minimum": 0,
+                "minimum": 0.0,
                 "type": "number"
               },
               {
@@ -2485,8 +2485,8 @@
             "default": "pending"
           },
           "year": {
-            "maximum": 2100,
-            "minimum": 2000,
+            "maximum": 2100.0,
+            "minimum": 2000.0,
             "title": "Year",
             "type": "integer"
           }
@@ -2608,7 +2608,7 @@
           "expected_amount": {
             "anyOf": [
               {
-                "minimum": 0,
+                "minimum": 0.0,
                 "type": "number"
               },
               {
@@ -2624,7 +2624,7 @@
           "paid_amount": {
             "anyOf": [
               {
-                "minimum": 0,
+                "minimum": 0.0,
                 "type": "number"
               },
               {
@@ -2671,8 +2671,8 @@
           },
           "limit": {
             "default": 25,
-            "maximum": 100,
-            "minimum": 1,
+            "maximum": 100.0,
+            "minimum": 1.0,
             "title": "Limit",
             "type": "integer"
           },
@@ -2689,8 +2689,8 @@
           "year": {
             "anyOf": [
               {
-                "maximum": 2100,
-                "minimum": 2000,
+                "maximum": 2100.0,
+                "minimum": 2000.0,
                 "type": "integer"
               },
               {
@@ -2937,7 +2937,7 @@
           "amount": {
             "anyOf": [
               {
-                "minimum": 0,
+                "minimum": 0.0,
                 "type": "number"
               },
               {
@@ -3130,7 +3130,7 @@
           "amount": {
             "anyOf": [
               {
-                "minimum": 0,
+                "minimum": 0.0,
                 "type": "number"
               },
               {
@@ -3705,7 +3705,7 @@
           "amount": {
             "anyOf": [
               {
-                "exclusiveMinimum": 0,
+                "exclusiveMinimum": 0.0,
                 "type": "number"
               },
               {
@@ -6329,8 +6329,8 @@
           "status_code": {
             "anyOf": [
               {
-                "maximum": 599,
-                "minimum": 0,
+                "maximum": 599.0,
+                "minimum": 0.0,
                 "type": "integer"
               },
               {
@@ -6363,7 +6363,7 @@
           "amount": {
             "anyOf": [
               {
-                "exclusiveMinimum": 0,
+                "exclusiveMinimum": 0.0,
                 "type": "number"
               },
               {
@@ -7364,7 +7364,7 @@
           },
           "score": {
             "description": "3 exact, 2 prefix, 1 substring match",
-            "minimum": 0,
+            "minimum": 0.0,
             "title": "Score",
             "type": "integer"
           },
@@ -7657,6 +7657,12 @@
             "default": "Kairo Support",
             "maxLength": 120,
             "title": "Support Name",
+            "type": "string"
+          },
+          "tagline": {
+            "default": "",
+            "maxLength": 160,
+            "title": "Tagline",
             "type": "string"
           },
           "theme_color": {
@@ -8211,7 +8217,7 @@
   },
   "info": {
     "description": "Local-first multi-tenant RAG platform for organizations. Backend is the sole policy enforcement point.",
-    "title": "Kairo � OrgMind AI API",
+    "title": "Kairo — OrgMind AI API",
     "version": "0.1.0"
   },
   "openapi": "3.1.0",
@@ -15509,7 +15515,7 @@
     },
     "/api/v1/tenants/{tenant_id}": {
       "get": {
-        "description": "Return a specific organization.\n\nReturns 403 if the current user is not a member � enforcing tenant isolation.",
+        "description": "Return a specific organization.\n\nReturns 403 if the current user is not a member — enforcing tenant isolation.",
         "operationId": "get_tenant_api_v1_tenants__tenant_id__get",
         "parameters": [
           {
@@ -15774,7 +15780,7 @@
     },
     "/health": {
       "get": {
-        "description": "Probes critical dependencies and returns their status.\n\nReturns HTTP 200 in all cases � callers should inspect the `status`\nfield (`ok` | `degraded` | `unavailable`) and per-service `checks`\nto determine overall health.",
+        "description": "Probes critical dependencies and returns their status.\n\nReturns HTTP 200 in all cases — callers should inspect the `status`\nfield (`ok` | `degraded` | `unavailable`) and per-service `checks`\nto determine overall health.",
         "operationId": "health_check_health_get",
         "responses": {
           "200": {

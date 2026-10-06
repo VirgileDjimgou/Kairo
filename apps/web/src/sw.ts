@@ -16,8 +16,45 @@ declare let self: ServiceWorkerGlobalScope & { __WB_MANIFEST: PrecacheEntry[] }
 
 const DEFAULT_TARGET = '/notifications'
 const PWA_NAVIGATE_MESSAGE = 'kairo:navigate'
-const GENERIC_TITLE = 'Kairo'
+const IDENTITY_MESSAGE = 'kairo:notification-identity'
+const IDENTITY_CACHE = 'kairo-meta'
+const IDENTITY_KEY = '/__kairo_notification_identity__'
 const GENERIC_BODY = 'Une nouvelle notification est disponible.'
+
+// The authenticated PWA publishes the tenant notification name. A push that
+// arrives without a title is then attributed to the association identity; the
+// platform name is only the default before a tenant context exists.
+let notificationIdentity = 'Kairo'
+let identityLoaded = false
+
+async function loadNotificationIdentity(): Promise<string> {
+  if (identityLoaded) return notificationIdentity
+  try {
+    const cache = await caches.open(IDENTITY_CACHE)
+    const response = await cache.match(IDENTITY_KEY)
+    if (response) {
+      const stored = (await response.text()).trim()
+      if (stored) notificationIdentity = stored
+    }
+  } catch {
+    // Keep the platform default when storage is unavailable.
+  }
+  identityLoaded = true
+  return notificationIdentity
+}
+
+self.addEventListener('message', (event) => {
+  const data = event.data as { type?: string; name?: string } | undefined
+  if (data?.type !== IDENTITY_MESSAGE || typeof data.name !== 'string') return
+  const name = data.name.trim()
+  if (!name) return
+  notificationIdentity = name
+  identityLoaded = true
+  void caches
+    .open(IDENTITY_CACHE)
+    .then((cache) => cache.put(IDENTITY_KEY, new Response(name)))
+    .catch(() => undefined)
+})
 
 self.skipWaiting()
 clientsClaim()
@@ -82,11 +119,10 @@ async function setupFirebaseBackgroundMessaging(): Promise<void> {
     const messaging = getMessaging(app)
     onBackgroundMessage(messaging, (payload: MessagePayload) => {
       const target = payload.data?.target_path ?? payload.data?.url
-      return showNotification(
-        payload.notification?.title ?? GENERIC_TITLE,
-        payload.notification?.body ?? GENERIC_BODY,
-        target,
-      )
+      return (async () => {
+        const title = payload.notification?.title ?? (await loadNotificationIdentity())
+        await showNotification(title, payload.notification?.body ?? GENERIC_BODY, target)
+      })()
     })
     firebaseReady = true
   } catch {
@@ -106,7 +142,10 @@ self.addEventListener('push', (event) => {
   }
   if (firebaseReady && isFirebaseMessage(payload)) return
   const typed = (payload ?? {}) as PushPayload
-  event.waitUntil(showNotification(typed.title ?? GENERIC_TITLE, typed.body ?? GENERIC_BODY, typed.url))
+  event.waitUntil((async () => {
+    const title = typed.title ?? (await loadNotificationIdentity())
+    await showNotification(title, typed.body ?? GENERIC_BODY, typed.url)
+  })())
 })
 
 self.addEventListener('notificationclick', (event) => {

@@ -4109,7 +4109,7 @@ class SwitchTenantResponse {
 }
 
 class TenantBranding {
-  const TenantBranding({this.background_color, this.custom_domain, this.display_name, this.favicon_url, this.icon_192_url, this.icon_512_url, this.legal_name, this.logo_dark_url, this.logo_url, this.maskable_icon_url, this.notification_name, this.primary_color, this.secondary_color, this.short_name, this.support_email, this.support_name, this.theme_color});
+  const TenantBranding({this.background_color, this.custom_domain, this.display_name, this.favicon_url, this.icon_192_url, this.icon_512_url, this.legal_name, this.logo_dark_url, this.logo_url, this.maskable_icon_url, this.notification_name, this.primary_color, this.secondary_color, this.short_name, this.support_email, this.support_name, this.tagline, this.theme_color});
 
   factory TenantBranding.fromJson(Map<String, dynamic> json) => TenantBranding(
         background_color: json['background_color'] as String?,
@@ -4128,6 +4128,7 @@ class TenantBranding {
         short_name: json['short_name'] as String?,
         support_email: json['support_email'] as String?,
         support_name: json['support_name'] as String?,
+        tagline: json['tagline'] as String?,
         theme_color: json['theme_color'] as String?,
       );
 
@@ -4147,6 +4148,7 @@ class TenantBranding {
   final String? short_name;
   final String? support_email;
   final String? support_name;
+  final String? tagline;
   final String? theme_color;
 
   Map<String, dynamic> toJson() => <String, dynamic>{
@@ -4166,6 +4168,7 @@ class TenantBranding {
         if (short_name != null) 'short_name': short_name,
         if (support_email != null) 'support_email': support_email,
         if (support_name != null) 'support_name': support_name,
+        if (tagline != null) 'tagline': tagline,
         if (theme_color != null) 'theme_color': theme_color,
       };
 }
