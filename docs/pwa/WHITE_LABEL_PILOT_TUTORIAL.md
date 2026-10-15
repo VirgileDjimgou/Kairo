@@ -120,6 +120,46 @@ the identity for the tenant.
   remain verifiable; the release-gate environment validates installation
   registration, revocation and inbox delivery.
 
+### Enabling real push in a self-hosted demo (VAPID)
+
+Chrome/Edge Web Push is delivered through Firebase Cloud Messaging
+infrastructure, so a phone receives a real push without creating a separate
+Firebase project. Configure the deployment VAPID pair once:
+
+```bash
+python - <<'PY'
+import base64
+from cryptography.hazmat.primitives import serialization
+from cryptography.hazmat.primitives.asymmetric import ec
+
+key = ec.generate_private_key(ec.SECP256R1())
+pub = key.public_key().public_bytes(
+    serialization.Encoding.X962, serialization.PublicFormat.UncompressedPoint
+)
+priv = key.private_numbers().private_value.to_bytes(32, "big")
+b64 = lambda value: base64.urlsafe_b64encode(value).rstrip(b"=").decode()
+print("WEB_PUSH_VAPID_PUBLIC_KEY=" + b64(pub))
+print("WEB_PUSH_VAPID_PRIVATE_KEY=" + b64(priv))
+print("WEB_PUSH_VAPID_SUBJECT=mailto:support@example.org")
+PY
+```
+
+Add the three lines to the operator `.env` (never commit them), recreate
+`api` and `worker`, then verify:
+
+```bash
+# authenticated
+curl -s -H "Authorization: Bearer <token>" \
+  <URL>/api/v1/notifications/push/configuration   # {"enabled": true, "public_key": "..."}
+curl -s -H "Authorization: Bearer <token>" \
+  <URL>/api/v1/notifications/health                # web_push_configured: true
+```
+
+On the phone: notification bell → enable notifications → allow. Each business
+event (receipt declaration, validation, payment, custody, announcement, event,
+disciplinary) then delivers a real push whose title is the tenant
+`notification_name` (for example `Foot100`).
+
 ## 6. Known constraints
 
 - The installed app identity is bound to the **origin**: two associations can run
