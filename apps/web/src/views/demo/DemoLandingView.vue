@@ -10,7 +10,7 @@
           <span class="demo-brand-sub">{{ localeStore.t("demo.brandSubtitle") }}</span>
         </div>
       </div>
-      <div class="d-flex align-items-center gap-2">
+      <div class="demo-actions">
         <LanguageSelector compact :show-label="false" />
         <RouterLink to="/login" class="btn btn-sm btn-outline-light">
           {{ localeStore.t("demo.signInInstead") }}
@@ -192,6 +192,22 @@ async function explore(account: DemoAccount) {
   color: #eaf1fb;
 }
 
+.demo-actions {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 0.5rem;
+  min-width: 0;
+}
+
+.demo-actions .btn {
+  display: inline-flex;
+  min-height: 2.75rem;
+  align-items: center;
+  justify-content: center;
+  white-space: nowrap;
+}
+
 .demo-brand {
   display: inline-flex;
   width: 2rem;
@@ -246,6 +262,13 @@ async function explore(account: DemoAccount) {
   box-shadow: 0 0.5rem 1.5rem rgba(15, 33, 56, 0.06);
 }
 
+.demo-role-card .btn {
+  display: inline-flex;
+  min-height: 2.5rem;
+  align-items: center;
+  justify-content: center;
+}
+
 .demo-role-icon {
   display: inline-flex;
   width: 2.5rem;
@@ -288,5 +311,16 @@ async function explore(account: DemoAccount) {
   font-size: 0.8rem;
   font-weight: 700;
   margin-bottom: 0.5rem;
+}
+
+@media (max-width: 30rem) {
+  .demo-header {
+    flex-wrap: wrap;
+    align-items: flex-start;
+  }
+
+  .demo-actions {
+    width: 100%;
+  }
 }
 </style>

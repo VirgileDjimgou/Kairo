@@ -192,7 +192,7 @@
                     </div>
                   </div>
                   <div class="ms-auto hero-language">
-                    <LanguageSelector />
+                    <LanguageSelector :show-label="false" />
                   </div>
                 </div>
 
@@ -746,7 +746,7 @@ function handleLogout() {
   }
 }
 
-/* — Desktop two-column styles — */
+/* Desktop two-column styles */
 .login-container,
 .login-grid {
   min-height: 100dvh;
@@ -819,19 +819,11 @@ function handleLogout() {
 .eyebrow {
   display: inline-flex;
   align-items: center;
-  gap: 0.35rem;
   text-transform: uppercase;
   letter-spacing: 0.14em;
   font-size: 0.72rem;
   font-weight: 700;
   color: rgba(255, 255, 255, 0.68);
-}
-
-.eyebrow::before {
-  content: "";
-  width: 2.25rem;
-  height: 1px;
-  background: rgba(255, 255, 255, 0.5);
 }
 
 .brand-mark {

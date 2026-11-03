@@ -6,7 +6,7 @@
           <h2 class="h5 fw-bold mb-1">{{ localeStore.t("demo.studioTitle") }}</h2>
           <p class="text-muted small mb-0">{{ localeStore.t("demo.studioSubtitle") }}</p>
         </div>
-        <div class="btn-group btn-group-sm" role="group" :aria-label="localeStore.t('demo.studioPresets')">
+        <div class="studio-presets" role="group" :aria-label="localeStore.t('demo.studioPresets')">
           <button
             v-for="preset in presets"
             :key="preset.key"
@@ -121,7 +121,7 @@
           </div>
 
           <h3 class="h6 fw-semibold mb-2 mt-4">{{ localeStore.t("demo.studioInstallIcons") }}</h3>
-          <div class="d-flex gap-3 align-items-end">
+          <div class="studio-install-icons d-flex gap-3 align-items-end">
             <figure class="studio-icon m-0">
               <img :src="iconPreview(form.icon_192_url, '/pwa-192x192.png')" alt="192x192" width="64" height="64" />
               <figcaption class="small text-muted text-center mt-1">192</figcaption>
@@ -228,7 +228,7 @@ function buildPreviewManifest(): Record<string, unknown> {
   return {
     name: form.display_name,
     short_name: form.short_name,
-    description: form.tagline || `${form.display_name} — association management`,
+    description: form.tagline || localeStore.t('demo.studioDefaultDescription'),
     lang: localeStore.currentLocale,
     theme_color: form.theme_color,
     background_color: form.background_color,
@@ -295,6 +295,16 @@ onBeforeUnmount(restoreRealBranding)
   border-radius: 1rem;
 }
 
+.studio-presets {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.25rem;
+}
+
+.studio-presets .btn {
+  min-height: 2rem;
+}
+
 .studio-preview {
   border-radius: 0.9rem;
   border: 1px solid #e2e8f0;
@@ -333,6 +343,10 @@ onBeforeUnmount(restoreRealBranding)
 .studio-icon--maskable img {
   border-radius: 50%;
   overflow: hidden;
+}
+
+.studio-install-icons {
+  flex-wrap: wrap;
 }
 
 .studio-manifest {

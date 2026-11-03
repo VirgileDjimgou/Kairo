@@ -1,5 +1,5 @@
 <template>
-  <div class="d-flex align-items-center gap-2" :class="{ 'language-selector--compact': compact }">
+  <div class="language-selector d-flex align-items-center gap-2" :class="{ 'language-selector--compact': compact }">
     <label v-if="showLabel" class="small text-muted mb-0">{{ localeStore.t('language.label') }}</label>
     <select
       class="form-select form-select-sm language-select"
@@ -47,6 +47,10 @@ async function handleChange(event: Event) {
 <style scoped>
 .language-select {
   min-width: 8.5rem;
+}
+
+.language-selector:not(.language-selector--compact) {
+  min-width: 0;
 }
 
 .language-selector--compact .language-select {
