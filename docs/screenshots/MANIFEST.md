@@ -1,7 +1,7 @@
 # Kairo README Screenshot Gallery
 
-Captured against the seeded demo tenant (local Docker core stack, current working tree)
-in locale `fr` at desktop (1440×900) and phone (390×844) widths.
+Captured against `https://kairo.patrickdjimgou.dev` (public demo) in locale `en` at desktop (1440×900) and
+phone (390×844) widths.
 
 Each capture authenticates through the real FastAPI login contract and screenshots an
 authorised role surface. No permission is simulated in the client.

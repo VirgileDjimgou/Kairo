@@ -16,13 +16,13 @@ import { chromium } from "../apps/web/node_modules/playwright/index.mjs";
  *
  * Override the target or locale with:
  *   KAIRO_SCREENSHOT_BASE_URL=https://kairo.patrickdjimgou.dev
- *   KAIRO_SCREENSHOT_LOCALE=fr
+ *   KAIRO_SCREENSHOT_LOCALE=en
  */
 
 const repoRoot = process.cwd();
 const baseUrl = (process.env.KAIRO_SCREENSHOT_BASE_URL || "https://kairo.patrickdjimgou.dev").replace(/\/$/, "");
 const apiBaseUrl = process.env.KAIRO_SCREENSHOT_API_URL || `${baseUrl}/api/v1`;
-const locale = process.env.KAIRO_SCREENSHOT_LOCALE || "fr";
+const locale = process.env.KAIRO_SCREENSHOT_LOCALE || "en";
 const targetLabel = process.env.KAIRO_SCREENSHOT_TARGET_LABEL || `\`${baseUrl}\``;
 const outputRoot = path.join(repoRoot, "docs", "screenshots");
 
@@ -340,6 +340,22 @@ async function login(account) {
     throw new Error(`Login for ${account.email} returned no access token`);
   }
 
+  // The profile language wins over the localStorage hint after session restore,
+  // so persist the README locale before opening any authenticated surface.
+  const preference = await fetch(`${apiBaseUrl}/auth/me/preferences/language`, {
+    method: "PATCH",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${payload.access_token}`,
+    },
+    body: JSON.stringify({ preferred_language: locale }),
+  });
+  if (!preference.ok) {
+    throw new Error(
+      `Could not set ${locale} for ${account.email}: HTTP ${preference.status}`,
+    );
+  }
+
   return { token: payload.access_token, tenantId: payload.tenant_id };
 }
 
@@ -513,7 +529,8 @@ async function run() {
     "```",
     "",
     "A deployment with rotated demo passwords passes the public `VITE_DEMO_ACCOUNTS`",
-    "payload through `KAIRO_SCREENSHOT_ACCOUNTS`.",
+    "payload through `KAIRO_SCREENSHOT_ACCOUNTS`. Point the capture at another instance with",
+    "`KAIRO_SCREENSHOT_BASE_URL` and label it with `KAIRO_SCREENSHOT_TARGET_LABEL`.",
     "",
     "> Capture-time note: the deployed reverse proxy currently normalises slash-less",
     "> FastAPI collection routes with an absolute `http://` redirect, which an HTTPS browser",
