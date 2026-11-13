@@ -18,11 +18,13 @@ from app.core.capabilities import (
 from app.core.config import settings
 from app.modules.audit.service import AuditService
 from app.modules.tenancy.branding import branding_from_json
+from app.modules.tenancy.currency import currency_from_settings, normalize_currency
 from app.modules.tenancy.models import Tenant
 from app.modules.tenancy.module_toggles import default_module_toggles, parse_module_toggles
 from app.modules.tenancy.repository import TenancyRepository
 from app.modules.tenancy.role_catalog import is_canonical_role
 from app.modules.tenancy.schemas import (
+    FinanceSettings,
     ModuleToggles,
     RecoveryEvidenceConfig,
     RecoveryEvidenceResponse,
@@ -226,12 +228,26 @@ class TenancyService:
         module_toggles = parse_module_toggles(settings_raw)
         branding = branding_from_json(tenant.branding_json)
         operations = self._build_recovery_evidence(settings_raw)
+        finance_raw = settings_raw.get("finance", {})
+        finance_settings = (
+            FinanceSettings(
+                **{
+                    key: value
+                    for key, value in finance_raw.items()
+                    if key in FinanceSettings.model_fields
+                }
+            )
+            if isinstance(finance_raw, dict)
+            else FinanceSettings()
+        )
 
         return TenantSettingsResponse(
             tenant_id=tenant.id,
             name=tenant.name,
             slug=tenant.slug,
             default_language=tenant.default_language,
+            currency=currency_from_settings(tenant.settings_json),
+            finance=finance_settings,
             branding=branding,
             modules=ModuleToggles(**module_toggles),
             operations=operations,
@@ -270,7 +286,7 @@ class TenancyService:
             except json.JSONDecodeError:
                 current_branding_raw = {}
 
-        current_settings_raw = {}
+        current_settings_raw: dict[str, Any] = {}
         if isinstance(tenant.settings_json, str) and tenant.settings_json.strip():
             try:
                 current_settings_raw = json.loads(tenant.settings_json)
@@ -298,6 +314,41 @@ class TenancyService:
                 **default_module_toggles(),
                 **settings.modules.model_dump(exclude_unset=True),
             }
+        if settings.currency is not None:
+            normalized_currency = normalize_currency(settings.currency)
+            if normalized_currency is None:
+                raise HTTPException(
+                    status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
+                    detail="Currency must be a three-letter ISO-4217 code",
+                )
+            if normalized_currency != currency_from_settings(tenant.settings_json):
+                if await self._has_financial_records(tenant_id):
+                    raise HTTPException(
+                        status_code=status.HTTP_409_CONFLICT,
+                        detail=(
+                            "The organization currency cannot change once financial "
+                            "records exist. Archive or normalize them first."
+                        ),
+                    )
+                current_settings_raw["currency"] = normalized_currency
+                currency_history = current_settings_raw.get("currency_history")
+                if not isinstance(currency_history, list):
+                    currency_history = []
+                currency_history.append(
+                    {
+                        "from": currency_from_settings(tenant.settings_json),
+                        "to": normalized_currency,
+                        "at": datetime.now(UTC).isoformat(),
+                        "actor_user_id": str(requesting_user_id),
+                    }
+                )
+                current_settings_raw["currency_history"] = currency_history
+        if settings.finance is not None:
+            finance_raw = current_settings_raw.get("finance", {})
+            if not isinstance(finance_raw, dict):
+                finance_raw = {}
+            finance_raw.update(settings.finance.model_dump(exclude_unset=True))
+            current_settings_raw["finance"] = finance_raw
         if settings.operations is not None:
             operations_raw = current_settings_raw.get("operations", {})
             if not isinstance(operations_raw, dict):
@@ -335,6 +386,9 @@ class TenancyService:
                 "branding_changed": settings.branding is not None,
                 "modules_changed": settings.modules is not None,
                 "operations_changed": settings.operations is not None,
+                "finance_changed": settings.finance is not None,
+                "currency_changed": settings.currency is not None,
+                "currency": currency_from_settings(settings_json),
             },
         )
         await self._db.commit()
@@ -346,12 +400,27 @@ class TenancyService:
         operations = self._build_recovery_evidence(
             json.loads(settings_json) if settings_json else {}
         )
+        response_settings = json.loads(settings_json) if settings_json else {}
+        finance_raw = response_settings.get("finance", {})
+        finance_settings = (
+            FinanceSettings(
+                **{
+                    key: value
+                    for key, value in finance_raw.items()
+                    if key in FinanceSettings.model_fields
+                }
+            )
+            if isinstance(finance_raw, dict)
+            else FinanceSettings()
+        )
 
         return TenantSettingsResponse(
             tenant_id=updated.id,
             name=updated.name,
             slug=updated.slug,
             default_language=updated.default_language,
+            currency=currency_from_settings(settings_json),
+            finance=finance_settings,
             branding=branding,
             modules=ModuleToggles(**module_toggles),
             operations=operations,
@@ -438,6 +507,36 @@ class TenancyService:
             if slug and "." not in slug:
                 return await self._repo.get_tenant_by_slug(slug)
         return None
+
+    async def _has_financial_records(self, tenant_id: UUID) -> bool:
+        """True when the tenant already owns financial history.
+
+        Changing the organization currency after that point would silently mix
+        currencies inside the ledger, so the change is refused instead.
+        """
+        from sqlalchemy import func, select
+
+        from app.modules.contributions.models import (
+            ContributionReceiptDeclaration,
+            ContributionRecord,
+            ExpenseRecord,
+            FinanceBudgetLine,
+            FinanceOpeningBalance,
+        )
+
+        for model in (
+            ContributionRecord,
+            ExpenseRecord,
+            ContributionReceiptDeclaration,
+            FinanceBudgetLine,
+            FinanceOpeningBalance,
+        ):
+            result = await self._db.execute(
+                select(func.count()).select_from(model).where(model.tenant_id == tenant_id)
+            )
+            if int(result.scalar_one()) > 0:
+                return True
+        return False
 
     def _build_recovery_evidence(self, settings_raw: dict) -> RecoveryEvidenceResponse:
         operations_raw = settings_raw.get("operations", {})

@@ -58,23 +58,35 @@
       </div>
     </div>
 
+    <PeriodStatusCard :year="selectedYear" :can-close="false" />
+
+    <TreasuryPositionCard :year="selectedYear" :can-edit="false" />
+
+    <BudgetPlanCard :year="selectedYear" :can-edit="false" />
+
+    <AnnualBudgetOverview v-if="annualBudget" :budget="annualBudget" />
+
+    <ExpenseLedger :year="selectedYear" readonly />
+
+    <ReceiptDeclarationsList />
+
     <div v-if="summary" class="row g-3 mb-4">
       <div class="col-md-3">
         <div class="metric-card bg-primary-subtle">
           <div class="text-muted small">{{ t('contributions.expected') }}</div>
-          <div class="fw-bold fs-4">{{ summary.total_expected }} EUR</div>
+          <div class="fw-bold fs-4">{{ summary.total_expected }} {{ tenantStore.currentCurrency }}</div>
         </div>
       </div>
       <div class="col-md-3">
         <div class="metric-card bg-success-subtle">
           <div class="text-muted small">{{ t('contributions.paid') }}</div>
-          <div class="fw-bold fs-4">{{ summary.total_paid }} EUR</div>
+          <div class="fw-bold fs-4">{{ summary.total_paid }} {{ tenantStore.currentCurrency }}</div>
         </div>
       </div>
       <div class="col-md-3">
         <div class="metric-card" :class="Number(summary.total_balance) > 0 ? 'bg-warning-subtle' : 'bg-success-subtle'">
           <div class="text-muted small">{{ t('finance.outstandingBalance') }}</div>
-          <div class="fw-bold fs-4">{{ summary.total_balance }} EUR</div>
+          <div class="fw-bold fs-4">{{ summary.total_balance }} {{ tenantStore.currentCurrency }}</div>
         </div>
       </div>
       <div class="col-md-3">
@@ -163,9 +175,9 @@
                 </span>
               </template>
               <template #mobile-fields="{ item: row }">
-                <div class="om-data-card-row"><span class="om-data-card-label">{{ t('contributions.expected') }}</span><span class="om-data-card-value text-nowrap">{{ row.totalExpected }} EUR</span></div>
-                <div class="om-data-card-row"><span class="om-data-card-label">{{ t('contributions.paid') }}</span><span class="om-data-card-value text-nowrap">{{ row.totalPaid }} EUR</span></div>
-                <div class="om-data-card-row"><span class="om-data-card-label">{{ t('finance.outstandingBalance') }}</span><span class="om-data-card-value text-nowrap fw-semibold" :class="Number(row.totalBalance) > 0 ? 'text-danger' : 'text-success'">{{ row.totalBalance }} EUR</span></div>
+                <div class="om-data-card-row"><span class="om-data-card-label">{{ t('contributions.expected') }}</span><span class="om-data-card-value text-nowrap">{{ row.totalExpected }} {{ tenantStore.currentCurrency }}</span></div>
+                <div class="om-data-card-row"><span class="om-data-card-label">{{ t('contributions.paid') }}</span><span class="om-data-card-value text-nowrap">{{ row.totalPaid }} {{ tenantStore.currentCurrency }}</span></div>
+                <div class="om-data-card-row"><span class="om-data-card-label">{{ t('finance.outstandingBalance') }}</span><span class="om-data-card-value text-nowrap fw-semibold" :class="Number(row.totalBalance) > 0 ? 'text-danger' : 'text-success'">{{ row.totalBalance }} {{ tenantStore.currentCurrency }}</span></div>
                 <div class="om-data-card-row"><span class="om-data-card-label">{{ t('common.records') }}</span><span class="om-data-card-value">{{ row.contributionCount }}</span></div>
               </template>
             </ResponsiveDataView>
@@ -200,7 +212,7 @@
                   <div>
                     <div class="fw-medium">{{ payment.memberLabel }}</div>
                     <div class="small text-muted">
-                      {{ payment.amount }} EUR · {{ formatPaymentMethod(payment.payment_method) }}
+                      {{ payment.amount }} {{ tenantStore.currentCurrency }} · {{ formatPaymentMethod(payment.payment_method) }}
                     </div>
                   </div>
                   <div class="text-end small text-muted">
@@ -221,9 +233,11 @@
 import {
   exportFinanceReportCsv,
   exportMemberFinanceReport,
+  getAnnualBudget,
   getContributionSummary,
   listContributions,
   listTenantPayments,
+  type AnnualBudgetResponse,
   type ContributionRecordResponse,
   type ContributionSummary,
   type PaymentRecordResponse,
@@ -233,11 +247,19 @@ import { getMemberStatement, listMembers, type MemberStatementResponse, type Mem
 import { useCsvExport } from '@/composables/useCsvExport'
 import { useRecoveryState } from '@/composables/useRecoveryState'
 import { useLocaleStore } from '@/stores/locale.store'
+import { useTenantStore } from '@/stores/tenant.store'
 import ResponsiveDataView from '@/components/ui/ResponsiveDataView.vue'
+import AnnualBudgetOverview from '@/features/finance/components/AnnualBudgetOverview.vue'
+import ExpenseLedger from '@/features/finance/components/ExpenseLedger.vue'
+import PeriodStatusCard from '@/features/finance/components/PeriodStatusCard.vue'
+import ReceiptDeclarationsList from '@/features/finance/components/ReceiptDeclarationsList.vue'
+import TreasuryPositionCard from '@/features/finance/components/TreasuryPositionCard.vue'
+import BudgetPlanCard from '@/features/finance/components/BudgetPlanCard.vue'
 import { notifyOperation } from '@/services/operation-notifications'
 import { computed, onMounted, ref } from 'vue'
 
 const localeStore = useLocaleStore()
+const tenantStore = useTenantStore()
 const t = (key: string) => localeStore.t(key)
 
 type AuditorPaymentRow = PaymentRecordResponse & { memberLabel: string }
@@ -249,6 +271,7 @@ const members = ref<MembershipProfileResponse[]>([])
 const contributions = ref<ContributionRecordResponse[]>([])
 const payments = ref<PaymentRecordResponse[]>([])
 const summary = ref<ContributionSummary | null>(null)
+const annualBudget = ref<AnnualBudgetResponse | null>(null)
 const memberSearch = ref('')
 const showMemberResults = ref(false)
 const selectedStatement = ref<MemberStatementResponse | null>(null)
@@ -325,32 +348,36 @@ async function refreshAll() {
   clearError()
   actionError.value = ''
   await run(async () => {
-    const [memberRows, contributionRows, summaryData, paymentRows] = await Promise.all([
+    const [memberRows, contributionRows, summaryData, paymentRows, budgetData] = await Promise.all([
       listMembers(),
       listContributions(selectedYear.value),
       getContributionSummary(selectedYear.value),
       listTenantPayments(),
+      getAnnualBudget(selectedYear.value),
     ])
     members.value = memberRows
     contributions.value = contributionRows
     summary.value = summaryData
     payments.value = paymentRows
+    annualBudget.value = budgetData
   })
 }
 
 async function retryRefresh() {
   actionError.value = ''
   await retry(async () => {
-    const [memberRows, contributionRows, summaryData, paymentRows] = await Promise.all([
+    const [memberRows, contributionRows, summaryData, paymentRows, budgetData] = await Promise.all([
       listMembers(),
       listContributions(selectedYear.value),
       getContributionSummary(selectedYear.value),
       listTenantPayments(),
+      getAnnualBudget(selectedYear.value),
     ])
     members.value = memberRows
     contributions.value = contributionRows
     summary.value = summaryData
     payments.value = paymentRows
+    annualBudget.value = budgetData
   })
 }
 

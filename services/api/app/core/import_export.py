@@ -19,6 +19,7 @@ class ImportResult(BaseModel):
     total_rows: int
     success_count: int
     error_count: int
+    skipped_count: int = 0
     errors: list[ImportRowError]
     dry_run: bool
 

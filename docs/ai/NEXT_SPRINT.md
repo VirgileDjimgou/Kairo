@@ -16,17 +16,19 @@ whose entry is not recorded as `completed` in `.kairo/sprint-batch/state.json`
 
 ## Program status
 
-Roadmap V2 S119–S128 is complete; **S129 (White-Label Self-Service And Install
-Experience)** and **S130 (Complete White-Label Customer Demo And Notification
-Identity)** are the post-release evolution sprints, with S130 current. After
-S130, the next actions are operator-owned: execute the manual Chrome Android
-steps in `docs/pwa/COMBIS_PILOT_CHECKLIST.md`, then evaluate Roadmap V3
+Roadmap V2 S100–S130 is complete. The S119–S130 program (PWA-first, white-label
+SaaS) is closed, and **no sprint is currently executable**. The next actions are
+operator-owned: execute the manual Chrome Android steps in
+`docs/pwa/COMBIS_PILOT_CHECKLIST.md`, then evaluate Roadmap V3
 (`docs/roadmap/KAIRO_V3_ROADMAP.md`) as a separate planning decision. Flutter
 archival remains a separate explicit decision after S128 (ADR-014).
 
+Confirm with `npm run session:brief` instead of trusting this paragraph; the brief
+derives progress from the roadmap and the batch state machine.
+
 ## Rules
 
-- The S119–S128 program (PWA-first, white-label SaaS) is complete; the Vue 3 PWA is
+- The S119–S130 program (PWA-first, white-label SaaS) is complete; the Vue 3 PWA is
   the canonical client and Flutter is frozen as legacy/reference code.
 - Execute exactly one sprint at a time unless the operator requests a batch
   (`Start Next Sprint N`, `1 <= N <= 10`; `Start Next Sprints N` is a

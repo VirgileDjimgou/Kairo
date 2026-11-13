@@ -126,13 +126,15 @@ async def test_contribution_records_payment_and_statement_lifecycle(
     assert updated.json()["expected_amount"] == "150.00"
 
     admin_token = await login(client, admin["user"].email, admin["password"], admin["tenant"].slug)
-    deleted = await client.delete(
+    refused_delete = await client.delete(
         f"/api/v1/contributions/{record['id']}",
         headers={"Authorization": f"Bearer {admin_token}"},
     )
-    assert deleted.status_code == 204
-    remaining = await client.get("/api/v1/contributions/", headers=headers)
-    assert remaining.json() == []
+    # A contribution with recorded payments is financial history: it must be
+    # reversed, never deleted.
+    assert refused_delete.status_code == 409
+    still_there = await client.get("/api/v1/contributions/", headers=headers)
+    assert [row["id"] for row in still_there.json()] == [record["id"]]
 
 
 async def test_receipt_rejection_requires_note_and_stays_out_of_budget(
@@ -235,16 +237,24 @@ async def test_expense_budget_and_finance_exports_end_to_end(
     assert body["income_total"] == "60.00"
     assert body["expense_total"] == "10.00"
     assert body["available_balance"] == "50.00"
-    assert body["income_by_category"] == [
-        {"category": "membership_contribution", "amount": "60.00"},
-        {"category": "donation", "amount": "0.00"},
-        {"category": "sponsorship", "amount": "0.00"},
-        {"category": "tournament_proceeds", "amount": "0.00"},
-        {"category": "disciplinary_payment", "amount": "0.00"},
-        {"category": "other_income", "amount": "0.00"},
-    ]
-    assert body["expenses_by_category"][0] == {"category": "sport_equipment", "amount": "0.00"}
-    assert body["expenses_by_category"][4] == {"category": "administration", "amount": "10.00"}
+    income_by_category = {
+        item["category"]: item for item in body["income_by_category"]
+    }
+    assert income_by_category["membership_contribution"]["amount"] == "60.00"
+    assert income_by_category["membership_contribution"]["planned_amount"] == "0.00"
+    assert set(income_by_category) == {
+        "membership_contribution",
+        "donation",
+        "sponsorship",
+        "tournament_proceeds",
+        "disciplinary_payment",
+        "other_income",
+    }
+    expenses_by_category = {
+        item["category"]: item for item in body["expenses_by_category"]
+    }
+    assert expenses_by_category["sport_equipment"]["amount"] == "0.00"
+    assert expenses_by_category["administration"]["amount"] == "10.00"
     assert len(body["recent_expenses"]) == 1
 
     admin_token = await login(client, admin["user"].email, admin["password"], admin["tenant"].slug)
@@ -291,7 +301,8 @@ async def test_expense_budget_and_finance_exports_end_to_end(
     )
     assert whatsapp.status_code == 200, whatsapp.text
     assert "Member Finance" in whatsapp.text
-    assert "Total dû" in whatsapp.text
+    assert "Cotisation" in whatsapp.text
+    assert "Sanctions" not in whatsapp.text
 
     statement = await client.get(
         f"/api/v1/memberships/{member['profile'].id}/statement", headers=headers

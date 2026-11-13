@@ -1,7 +1,7 @@
 from typing import Literal
 from uuid import UUID
 
-from fastapi import APIRouter, Query, UploadFile
+from fastapi import APIRouter, File, Query, UploadFile
 from fastapi.responses import StreamingResponse
 
 from app.core.authorization import require_capability
@@ -13,18 +13,22 @@ from app.core.capabilities import (
     CAP_CONTRIBUTION_RECEIPT_TENANT_READ,
     CAP_EXPORT_SENSITIVE,
     CAP_FINANCE_AUDIT,
+    CAP_FINANCE_EXPENSES_APPROVE,
     CAP_FINANCE_EXPENSES_WRITE,
+    CAP_FINANCE_SELF_READ,
     CAP_FINANCE_TENANT_READ,
     CAP_FINANCE_WRITE,
     CAP_TENANT_ADMINISTRATION,
 )
-from app.core.dependencies import AuthDep, DbDep, NotificationsDep
+from app.core.dependencies import AuthDep, DbDep, NotificationsDep, ObjectStorageDep
 from app.core.import_export import ImportResult
 from app.core.module_guard import require_module
 from app.modules.audit.service import AuditService
 from app.modules.backup.preflight import require_pre_operation_backup
 from app.modules.contributions.schemas import (
     AnnualBudgetResponse,
+    BudgetPlanResponse,
+    BudgetPlanUpdate,
     ContributionReceiptDeclarationCreate,
     ContributionReceiptDeclarationProcess,
     ContributionReceiptDeclarationResponse,
@@ -40,10 +44,20 @@ from app.modules.contributions.schemas import (
     ContributionReminderBatchResponse,
     ContributionReminderResponse,
     ContributionReminderSendRequest,
+    ExpenseCategoryCreate,
+    ExpenseCategoryResponse,
     ExpenseRecordCreate,
     ExpenseRecordResponse,
+    ExpenseRejectRequest,
+    ExpenseReversalRequest,
+    FinanceAccountResponse,
+    FinancePeriodReopenRequest,
+    FinancePeriodResponse,
+    OpeningBalanceUpdate,
     PaymentRecordCreate,
     PaymentRecordResponse,
+    PaymentReversalRequest,
+    TreasuryPositionResponse,
 )
 from app.modules.contributions.service import ContributionService
 from app.modules.membership.repository import MembershipRepository
@@ -318,11 +332,11 @@ async def get_annual_budget(
     db: DbDep,
     year: int = Query(..., ge=2000, le=2100),
 ) -> AnnualBudgetResponse:
-    """Return the annual treasury budget, available only to the treasurer."""
+    """Return the annual treasury budget for finance and audit roles."""
     require_capability(
         current,
-        CAP_FINANCE_EXPENSES_WRITE,
-        detail="Treasurer expense capability required",
+        CAP_FINANCE_TENANT_READ,
+        detail="Finance read capability required",
     )
     return await ContributionService(db).get_annual_budget(current.tenant_id, year=year)
 
@@ -341,6 +355,397 @@ async def create_expense(
     )
     return await ContributionService(db).create_expense(
         current.tenant_id, data, actor_user_id=current.user.id
+    )
+
+
+@router.get("/expenses", response_model=list[ExpenseRecordResponse])
+async def list_expenses(
+    current: AuthDep,
+    db: DbDep,
+    year: int | None = Query(None, ge=2000, le=2100),
+    category: str | None = None,
+    limit: int = Query(100, ge=1, le=500),
+    offset: int = Query(0, ge=0),
+) -> list[ExpenseRecordResponse]:
+    """List the expense ledger for treasurer and auditor review."""
+    require_capability(
+        current,
+        CAP_FINANCE_TENANT_READ,
+        detail="Finance read capability required",
+    )
+    return await ContributionService(db).list_expenses(
+        current.tenant_id,
+        year=year,
+        category=category,
+        limit=limit,
+        offset=offset,
+    )
+
+
+@router.get("/expense-categories", response_model=list[ExpenseCategoryResponse])
+async def list_expense_categories(
+    current: AuthDep,
+    db: DbDep,
+) -> list[ExpenseCategoryResponse]:
+    """List the tenant expense categories, seeding the defaults on first use."""
+    require_capability(
+        current,
+        CAP_FINANCE_TENANT_READ,
+        detail="Finance read capability required",
+    )
+    return await ContributionService(db).list_expense_categories(current.tenant_id)
+
+
+@router.post(
+    "/expense-categories",
+    response_model=ExpenseCategoryResponse,
+    status_code=201,
+)
+async def create_expense_category(
+    data: ExpenseCategoryCreate,
+    current: AuthDep,
+    db: DbDep,
+) -> ExpenseCategoryResponse:
+    """Add a tenant-specific expense category."""
+    require_capability(
+        current,
+        CAP_FINANCE_EXPENSES_WRITE,
+        detail="Treasurer expense capability required",
+    )
+    return await ContributionService(db).create_expense_category(
+        current.tenant_id, data.name, actor_user_id=current.user.id
+    )
+
+
+@router.get("/expenses/export")
+async def export_expenses(
+    current: AuthDep,
+    db: DbDep,
+    year: int | None = Query(None, ge=2000, le=2100),
+    export_format: Literal["csv", "xlsx"] = "csv",
+) -> StreamingResponse:
+    """Export the expense ledger for the treasurer, auditor or fiduciary."""
+    require_capability(
+        current,
+        CAP_FINANCE_TENANT_READ,
+        detail="Finance read capability required",
+    )
+    service = ContributionService(db)
+    if export_format == "xlsx":
+        content: bytes | str = await service.export_expenses_xlsx(
+            current.tenant_id, year=year
+        )
+        media_type = "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+        filename = f"depenses-{year or 'all'}.xlsx"
+    else:
+        content = await service.export_expenses_csv(current.tenant_id, year=year)
+        media_type = "text/csv"
+        filename = f"depenses-{year or 'all'}.csv"
+    await AuditService(db).record_event(
+        tenant_id=current.tenant_id,
+        actor_user_id=current.user.id,
+        action="export",
+        entity_type="expense_ledger",
+        module_key="contributions",
+        details={"format": export_format, "year": year},
+    )
+    await db.commit()
+    return StreamingResponse(
+        iter([content]),
+        media_type=media_type,
+        headers={"Content-Disposition": f'attachment; filename="{filename}"'},
+    )
+
+
+@router.get("/expenses/{expense_id}", response_model=ExpenseRecordResponse)
+async def get_expense(
+    expense_id: UUID,
+    current: AuthDep,
+    db: DbDep,
+) -> ExpenseRecordResponse:
+    """Return one expense with its attachment metadata."""
+    require_capability(
+        current,
+        CAP_FINANCE_TENANT_READ,
+        detail="Finance read capability required",
+    )
+    return await ContributionService(db).get_expense(current.tenant_id, expense_id)
+
+
+@router.post(
+    "/expenses/{expense_id}/attachment",
+    response_model=ExpenseRecordResponse,
+)
+async def upload_expense_attachment(
+    expense_id: UUID,
+    current: AuthDep,
+    db: DbDep,
+    storage: ObjectStorageDep,
+    file: UploadFile = File(...),
+) -> ExpenseRecordResponse:
+    """Attach the invoice or receipt supporting an expense."""
+    require_capability(
+        current,
+        CAP_FINANCE_EXPENSES_WRITE,
+        detail="Treasurer expense capability required",
+    )
+    data = await file.read()
+    return await ContributionService(db).attach_expense_receipt(
+        current.tenant_id,
+        expense_id,
+        file_name=file.filename or "receipt",
+        content_type=file.content_type or "application/octet-stream",
+        data=data,
+        storage=storage,
+        actor_user_id=current.user.id,
+    )
+
+
+@router.get("/expenses/{expense_id}/attachment")
+async def download_expense_attachment(
+    expense_id: UUID,
+    current: AuthDep,
+    db: DbDep,
+    storage: ObjectStorageDep,
+) -> StreamingResponse:
+    """Download the supporting document attached to an expense."""
+    require_capability(
+        current,
+        CAP_FINANCE_TENANT_READ,
+        detail="Finance read capability required",
+    )
+    content, media_type, filename = await ContributionService(db).read_expense_receipt(
+        current.tenant_id, expense_id, storage=storage
+    )
+    return StreamingResponse(
+        iter([content]),
+        media_type=media_type,
+        headers={"Content-Disposition": f'attachment; filename="{filename}"'},
+    )
+
+
+@router.post(
+    "/expenses/{expense_id}/reverse",
+    response_model=ExpenseRecordResponse,
+)
+async def reverse_expense(
+    expense_id: UUID,
+    data: ExpenseReversalRequest,
+    current: AuthDep,
+    db: DbDep,
+) -> ExpenseRecordResponse:
+    """Reverse an expense without deleting its audit history."""
+    require_capability(
+        current,
+        CAP_FINANCE_EXPENSES_WRITE,
+        detail="Treasurer expense capability required",
+    )
+    return await ContributionService(db).reverse_expense(
+        current.tenant_id,
+        expense_id,
+        reason=data.reason,
+        actor_user_id=current.user.id,
+    )
+
+
+@router.post(
+    "/expenses/{expense_id}/approve",
+    response_model=ExpenseRecordResponse,
+)
+async def approve_expense(
+    expense_id: UUID,
+    current: AuthDep,
+    db: DbDep,
+) -> ExpenseRecordResponse:
+    """Approve a recorded expense (president, vice-president or administrator)."""
+    require_capability(
+        current,
+        CAP_FINANCE_EXPENSES_APPROVE,
+        detail="Expense approval capability required",
+    )
+    return await ContributionService(db).approve_expense(
+        current.tenant_id, expense_id, actor_user_id=current.user.id
+    )
+
+
+@router.post(
+    "/expenses/{expense_id}/reject",
+    response_model=ExpenseRecordResponse,
+)
+async def reject_expense(
+    expense_id: UUID,
+    data: ExpenseRejectRequest,
+    current: AuthDep,
+    db: DbDep,
+) -> ExpenseRecordResponse:
+    """Reject a recorded expense with a mandatory note."""
+    require_capability(
+        current,
+        CAP_FINANCE_EXPENSES_APPROVE,
+        detail="Expense approval capability required",
+    )
+    return await ContributionService(db).reject_expense(
+        current.tenant_id,
+        expense_id,
+        note=data.note,
+        actor_user_id=current.user.id,
+    )
+
+
+@router.get("/periods", response_model=list[FinancePeriodResponse])
+async def list_finance_periods(
+    current: AuthDep,
+    db: DbDep,
+) -> list[FinancePeriodResponse]:
+    """List closed exercises and their audit metadata."""
+    require_capability(
+        current,
+        CAP_FINANCE_TENANT_READ,
+        detail="Finance read capability required",
+    )
+    return await ContributionService(db).list_finance_periods(current.tenant_id)
+
+
+@router.get("/periods/{year}", response_model=FinancePeriodResponse)
+async def get_finance_period(
+    year: int,
+    current: AuthDep,
+    db: DbDep,
+) -> FinancePeriodResponse:
+    """Return the closing status of one exercise."""
+    require_capability(
+        current,
+        CAP_FINANCE_TENANT_READ,
+        detail="Finance read capability required",
+    )
+    return await ContributionService(db).get_finance_period(current.tenant_id, year)
+
+
+@router.post("/periods/{year}/close", response_model=FinancePeriodResponse)
+async def close_finance_period(
+    year: int,
+    current: AuthDep,
+    db: DbDep,
+) -> FinancePeriodResponse:
+    """Close an exercise so no further financial write can alter it."""
+    require_capability(
+        current,
+        CAP_FINANCE_WRITE,
+        detail="Finance write capability required",
+    )
+    return await ContributionService(db).close_finance_period(
+        current.tenant_id, year, actor_user_id=current.user.id
+    )
+
+
+@router.post("/periods/{year}/reopen", response_model=FinancePeriodResponse)
+async def reopen_finance_period(
+    year: int,
+    data: FinancePeriodReopenRequest,
+    current: AuthDep,
+    db: DbDep,
+) -> FinancePeriodResponse:
+    """Reopen a closed exercise, reserved to tenant administration."""
+    require_capability(
+        current,
+        CAP_TENANT_ADMINISTRATION,
+        detail="Tenant administration capability required",
+    )
+    return await ContributionService(db).reopen_finance_period(
+        current.tenant_id,
+        year,
+        reason=data.reason,
+        actor_user_id=current.user.id,
+    )
+
+
+@router.get("/accounts", response_model=list[FinanceAccountResponse])
+async def list_treasury_accounts(
+    current: AuthDep,
+    db: DbDep,
+) -> list[FinanceAccountResponse]:
+    """List the cash and bank accounts used by the treasury position."""
+    require_capability(
+        current,
+        CAP_FINANCE_TENANT_READ,
+        detail="Finance read capability required",
+    )
+    return await ContributionService(db).list_accounts(current.tenant_id)
+
+
+@router.get("/treasury-position", response_model=TreasuryPositionResponse)
+async def get_treasury_position(
+    current: AuthDep,
+    db: DbDep,
+    year: int = Query(..., ge=2000, le=2100),
+) -> TreasuryPositionResponse:
+    """Return opening, movements and closing balance per treasury account."""
+    require_capability(
+        current,
+        CAP_FINANCE_TENANT_READ,
+        detail="Finance read capability required",
+    )
+    return await ContributionService(db).get_treasury_position(
+        current.tenant_id, year
+    )
+
+
+@router.put(
+    "/accounts/{account_id}/opening-balance/{year}",
+    response_model=TreasuryPositionResponse,
+)
+async def set_opening_balance(
+    account_id: UUID,
+    year: int,
+    data: OpeningBalanceUpdate,
+    current: AuthDep,
+    db: DbDep,
+) -> TreasuryPositionResponse:
+    """Set or correct the opening balance of an account for an exercise."""
+    require_capability(
+        current,
+        CAP_FINANCE_WRITE,
+        detail="Finance write capability required",
+    )
+    return await ContributionService(db).set_opening_balance(
+        current.tenant_id,
+        account_id,
+        year,
+        data.amount,
+        actor_user_id=current.user.id,
+    )
+
+
+@router.get("/budget-plan", response_model=BudgetPlanResponse)
+async def get_budget_plan(
+    current: AuthDep,
+    db: DbDep,
+    year: int = Query(..., ge=2000, le=2100),
+) -> BudgetPlanResponse:
+    """Return the voted budget plan, including empty categories."""
+    require_capability(
+        current,
+        CAP_FINANCE_TENANT_READ,
+        detail="Finance read capability required",
+    )
+    return await ContributionService(db).get_budget_plan(current.tenant_id, year=year)
+
+
+@router.put("/budget-plan/{year}", response_model=BudgetPlanResponse)
+async def set_budget_plan(
+    year: int,
+    data: BudgetPlanUpdate,
+    current: AuthDep,
+    db: DbDep,
+) -> BudgetPlanResponse:
+    """Replace the voted budget plan of an exercise."""
+    require_capability(
+        current,
+        CAP_FINANCE_WRITE,
+        detail="Finance write capability required",
+    )
+    return await ContributionService(db).set_budget_plan(
+        current.tenant_id, year, data, actor_user_id=current.user.id
     )
 
 
@@ -413,11 +818,11 @@ async def import_contributions(
     db: DbDep,
     dry_run: bool = Query(False, description="Validate without persisting"),
 ) -> ImportResult:
-    """Import contribution records from a CSV file (admin only)."""
+    """Import contribution records from a CSV file with replay protection."""
     require_capability(
         current,
-        CAP_TENANT_ADMINISTRATION,
-        detail="Tenant administration capability required",
+        CAP_FINANCE_WRITE,
+        detail="Finance write capability required",
     )
     content = await file.read()
     if not dry_run:
@@ -433,16 +838,58 @@ async def import_contributions(
     )
 
 
-@router.get("/export")
-async def export_contributions(current: AuthDep, db: DbDep) -> StreamingResponse:
-    """Export contribution records as CSV (admin only)."""
+@router.get("/journal/export")
+async def export_finance_journal(
+    current: AuthDep,
+    db: DbDep,
+    year: int | None = Query(None, ge=2000, le=2100),
+) -> StreamingResponse:
+    """Export a chronological journal of every treasury movement."""
     require_capability(
         current,
-        CAP_TENANT_ADMINISTRATION,
-        detail="Tenant administration capability required",
+        CAP_FINANCE_TENANT_READ,
+        detail="Finance read capability required",
+    )
+    content = await ContributionService(db).export_finance_journal(
+        current.tenant_id, year=year
+    )
+    await AuditService(db).record_event(
+        tenant_id=current.tenant_id,
+        actor_user_id=current.user.id,
+        action="export",
+        entity_type="finance_journal",
+        module_key="contributions",
+        details={"format": "csv", "year": year},
+    )
+    await db.commit()
+    return StreamingResponse(
+        iter([content]),
+        media_type="text/csv",
+        headers={
+            "Content-Disposition": f'attachment; filename="journal-financier-{year or "all"}.csv"'
+        },
+    )
+
+
+@router.get("/export")
+async def export_contributions(current: AuthDep, db: DbDep) -> StreamingResponse:
+    """Export contribution records as CSV for finance roles."""
+    require_capability(
+        current,
+        CAP_FINANCE_TENANT_READ,
+        detail="Finance read capability required",
     )
     service = ContributionService(db)
     csv_content = await service.export_csv(current.tenant_id)
+    await AuditService(db).record_event(
+        tenant_id=current.tenant_id,
+        actor_user_id=current.user.id,
+        action="export",
+        entity_type="contribution_ledger",
+        module_key="contributions",
+        details={"format": "csv"},
+    )
+    await db.commit()
     return StreamingResponse(
         iter([csv_content]),
         media_type="text/csv",
@@ -576,6 +1023,53 @@ async def record_payment(
     )
     service = ContributionService(db)
     return await service.record_payment(current.tenant_id, data, actor_user_id=current.user.id)
+
+
+@router.post(
+    "/payments/{payment_id}/reverse",
+    response_model=PaymentRecordResponse,
+)
+async def reverse_payment(
+    payment_id: UUID,
+    data: PaymentReversalRequest,
+    current: AuthDep,
+    db: DbDep,
+) -> PaymentRecordResponse:
+    """Reverse a recorded payment while keeping its audit history."""
+    require_capability(
+        current,
+        CAP_FINANCE_WRITE,
+        detail="Finance write capability required",
+    )
+    service = ContributionService(db)
+    return await service.reverse_payment(
+        current.tenant_id, payment_id, data, actor_user_id=current.user.id
+    )
+
+
+@router.get("/payments/{payment_id}/receipt.pdf")
+async def download_payment_receipt(
+    payment_id: UUID,
+    current: AuthDep,
+    db: DbDep,
+) -> StreamingResponse:
+    """Download the numbered receipt for a payment (own receipt or finance role)."""
+    require_capability(
+        current,
+        CAP_FINANCE_SELF_READ,
+        detail="Finance read capability required",
+    )
+    content, filename = await ContributionService(db).build_payment_receipt(
+        current.tenant_id,
+        payment_id,
+        user_id=current.user.id,
+        can_read_tenant=current.has_capability(CAP_FINANCE_TENANT_READ),
+    )
+    return StreamingResponse(
+        iter([content]),
+        media_type="application/pdf",
+        headers={"Content-Disposition": f'attachment; filename="{filename}"'},
+    )
 
 
 @router.post(

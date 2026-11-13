@@ -22,6 +22,7 @@ from app.modules.identity.schemas import (
     UpdateLanguagePreferenceRequest,
 )
 from app.modules.tenancy.branding import branding_from_json
+from app.modules.tenancy.currency import currency_from_settings
 from app.modules.tenancy.module_toggles import parse_module_toggles
 from app.modules.tenancy.schemas import ModuleToggles
 
@@ -55,6 +56,7 @@ class TenancyMixin(IdentityServiceBase):
                     slug=tenant.slug,
                     name=tenant.name,
                     default_language=tenant.default_language,
+                    currency=currency_from_settings(tenant.settings_json),
                     roles=roles,
                     capabilities=list(capabilities_for_roles(roles, bundles)),
                     branding=branding,

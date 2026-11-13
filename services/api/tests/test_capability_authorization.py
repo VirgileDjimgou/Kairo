@@ -454,7 +454,7 @@ async def test_auditor_can_read_finance_and_audit_but_cannot_mutate_finance(
     assert treasurer_xlsx.content[:2] == b"PK"
     workbook = load_workbook(BytesIO(treasurer_xlsx.content))
     worksheet = workbook["Cotisations"]
-    assert worksheet.auto_filter.ref == "A4:M5"
+    assert worksheet.auto_filter.ref == "A4:K5"
     assert list(worksheet.tables) == []
     assert worksheet["A5"].value == "AUD-001"
     with ZipFile(BytesIO(treasurer_xlsx.content)) as archive:

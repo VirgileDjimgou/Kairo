@@ -19,9 +19,10 @@
           <div v-if="importResult" class="mt-3">
             <hr />
             <div class="d-flex gap-3 mb-3">
-              <span class="badge bg-secondary">{{ t('common.total') }}: {{ importResult.total }}</span>
+              <span class="badge bg-secondary">{{ t('common.total') }}: {{ importResult.total_rows }}</span>
               <span class="badge bg-success">{{ t('common.successCount') }}: {{ importResult.success_count }}</span>
               <span class="badge" :class="importResult.error_count > 0 ? 'bg-danger' : 'bg-success'">{{ t('common.errorCount') }}: {{ importResult.error_count }}</span>
+        <span v-if="importResult.skipped_count > 0" class="badge bg-warning text-dark">{{ t('common.skippedCount') }}: {{ importResult.skipped_count }}</span>
             </div>
             <div v-if="importResult.errors.length > 0" class="mb-3">
               <h6 class="small fw-bold text-danger">{{ t('common.validationErrors') }}</h6>
@@ -29,8 +30,8 @@
                 <table class="table table-sm small mb-0">
                   <thead><tr><th>{{ t('common.row') }}</th><th>{{ t('common.errorColumn') }}</th></tr></thead>
                   <tbody>
-                    <tr v-for="err in importResult.errors" :key="err.row">
-                      <td>{{ err.row }}</td>
+                    <tr v-for="err in importResult.errors" :key="err.row_number">
+                      <td>{{ err.row_number }}</td>
                       <td><div class="text-break">{{ err.message }}</div></td>
                     </tr>
                   </tbody>

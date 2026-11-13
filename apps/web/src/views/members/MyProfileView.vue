@@ -111,7 +111,7 @@
               <div class="metric-card metric-neutral h-100">
                 <div class="metric-label">{{ copy.expected }}</div>
                 <div class="metric-value">{{ statement.summary.total_expected }}</div>
-                <div class="metric-foot">EUR</div>
+                <div class="metric-foot">{{ tenantStore.currentCurrency }}</div>
               </div>
             </div>
 
@@ -119,7 +119,7 @@
               <div class="metric-card metric-success h-100">
                 <div class="metric-label">{{ copy.paid }}</div>
                 <div class="metric-value">{{ statement.summary.total_paid }}</div>
-                <div class="metric-foot">EUR</div>
+                <div class="metric-foot">{{ tenantStore.currentCurrency }}</div>
               </div>
             </div>
 
@@ -221,9 +221,11 @@ import {
 } from '@/api/membership.api'
 import { listMemberContributionReceiptDeclarations, type ContributionReceiptDeclarationResponse } from '@/api/contributions.api'
 import { useLocaleStore } from '@/stores/locale.store'
+import { useTenantStore } from '@/stores/tenant.store'
 import { useRecoveryState } from '@/composables/useRecoveryState'
 
 const localeStore = useLocaleStore()
+const tenantStore = useTenantStore()
 const { loading, error, isRecovering, run, retry, clearError } = useRecoveryState()
 const downloadingPdf = ref(false)
 const statement = ref<MemberStatementResponse | null>(null)

@@ -13,7 +13,7 @@
         </div>
         <form class="row g-3 align-items-end" @submit.prevent="submitPayment">
           <div class="col-md-4">
-            <label for="finance-payment-amount" class="form-label small fw-medium">{{ t('common.amount') }} (EUR)</label>
+            <label for="finance-payment-amount" class="form-label small fw-medium">{{ t('common.amount') }} ({{ tenantStore.currentCurrency }})</label>
             <input id="finance-payment-amount" v-model="form.amount" type="number" step="0.01" min="0.01" class="form-control" required />
           </div>
           <div class="col-md-4">
@@ -51,6 +51,7 @@
 import { ref, watch } from 'vue'
 import type { ContributionRecordResponse } from '@/api/contributions.api'
 import { useLocaleStore } from '@/stores/locale.store'
+import { useTenantStore } from '@/stores/tenant.store'
 import type { PaymentInput } from '../composables/useFinanceWorkspace'
 
 const props = defineProps<{
@@ -67,6 +68,7 @@ const emit = defineEmits<{
 }>()
 
 const localeStore = useLocaleStore()
+const tenantStore = useTenantStore()
 const t = (key: string) => localeStore.t(key)
 
 function defaultForm(balance = '') {

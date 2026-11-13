@@ -30,6 +30,14 @@ export const SPRINT_STATUSES = [
   'failed',
 ];
 
+/**
+ * Batch states that no longer accept sprint transitions. A terminal batch must
+ * never advertise remaining work: an archived batch with `completed_count` below
+ * `requested_count` used to report "Remaining in this batch: 1", which made every
+ * new session re-investigate an empty queue.
+ */
+export const TERMINAL_BATCH_STATES = new Set(['completed', 'failed', 'idle']);
+
 const STALE_LOCK_MS = 60 * 60 * 1000;
 const STALE_DEAD_PROCESS_MS = 5 * 60 * 1000;
 

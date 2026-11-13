@@ -156,5 +156,6 @@
   "install.installed": "{name} ist auf diesem Gerät installiert.",
   "install.guidanceIos": "Zum Installieren das Teilen-Menü öffnen und „Zum Home-Bildschirm“ wählen.",
   "install.guidanceFirefox": "Zum Installieren das Browsermenü öffnen und „Installieren“ wählen.",
-  "install.guidanceGeneric": "Zum Installieren das Browsermenü öffnen und „Zum Startbildschirm hinzufügen“ wählen."
+  "install.guidanceGeneric": "Zum Installieren das Browsermenü öffnen und „Zum Startbildschirm hinzufügen“ wählen.",
+  "common.skippedCount": "Übersprungen"
 }

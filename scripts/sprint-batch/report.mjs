@@ -1,7 +1,7 @@
 import { existsSync, mkdirSync, readdirSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { getSprint, nextRoadmapSprintAfter, nextUnfinishedSprint } from './roadmap.mjs';
-import { reportsDir, stateDir } from './state.mjs';
+import { reportsDir, stateDir, TERMINAL_BATCH_STATES } from './state.mjs';
 
 function line(value = '') {
   return `${value}\n`;
@@ -80,9 +80,11 @@ export function buildStatusReport(state, roadmap) {
     lines.push(...recent);
     lines.push('');
   }
-  lines.push('Remaining in this batch:');
-  lines.push(String(remainingInBatch));
-  lines.push('');
+  if (!TERMINAL_BATCH_STATES.has(state.status)) {
+    lines.push('Remaining in this batch:');
+    lines.push(String(remainingInBatch));
+    lines.push('');
+  }
   if (nextUnfinished && state.status !== 'completed') {
     lines.push('Next unfinished sprint:');
     lines.push(`S${nextUnfinished.id} — ${nextUnfinished.title}`);

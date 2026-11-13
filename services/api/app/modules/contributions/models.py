@@ -3,7 +3,16 @@ from datetime import datetime
 from decimal import Decimal
 from enum import StrEnum
 
-from sqlalchemy import DateTime, ForeignKey, Integer, Numeric, String, Text
+from sqlalchemy import (
+    Boolean,
+    DateTime,
+    ForeignKey,
+    Integer,
+    Numeric,
+    String,
+    Text,
+    UniqueConstraint,
+)
 from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.orm import Mapped, mapped_column
 from sqlalchemy.sql import text as sql_text
@@ -141,6 +150,11 @@ class PaymentRecord(Base):
         nullable=False,
         index=True,
     )
+    account_id: Mapped[uuid.UUID | None] = mapped_column(
+        UUID(as_uuid=True),
+        ForeignKey("finance_accounts.id", ondelete="SET NULL"),
+        nullable=True,
+    )
     amount: Mapped[Decimal] = mapped_column(nullable=False)
     currency: Mapped[str] = mapped_column(String(3), nullable=False, server_default="EUR")
     paid_at: Mapped[datetime] = mapped_column(
@@ -150,16 +164,38 @@ class PaymentRecord(Base):
         String(50), nullable=False, server_default=PaymentMethod.other.value
     )
     reference: Mapped[str | None] = mapped_column(String(255), nullable=True)
+    receipt_number: Mapped[str | None] = mapped_column(String(32), nullable=True)
     recorded_by: Mapped[uuid.UUID | None] = mapped_column(
         UUID(as_uuid=True),
         ForeignKey("users.id", ondelete="SET NULL"),
         nullable=True,
     )
+    idempotency_key: Mapped[str | None] = mapped_column(String(100), nullable=True)
+    reversed_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
+    reversed_by: Mapped[uuid.UUID | None] = mapped_column(
+        UUID(as_uuid=True),
+        ForeignKey("users.id", ondelete="SET NULL"),
+        nullable=True,
+    )
+    reversal_reason: Mapped[str | None] = mapped_column(Text, nullable=True)
     metadata_json: Mapped[dict] = mapped_column(
         Text, nullable=False, server_default=sql_text("'{}'")
     )
     created_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True), nullable=False, server_default=sql_text("CURRENT_TIMESTAMP")
+    )
+
+    __table_args__ = (
+        UniqueConstraint(
+            "tenant_id",
+            "idempotency_key",
+            name="uq_payment_records_tenant_idempotency",
+        ),
+        UniqueConstraint(
+            "tenant_id",
+            "receipt_number",
+            name="uq_payment_records_tenant_receipt_number",
+        ),
     )
 
     def __repr__(self) -> str:
@@ -190,6 +226,33 @@ class ExpenseRecord(Base):
         String(50), nullable=False, server_default=PaymentMethod.other.value
     )
     reference: Mapped[str | None] = mapped_column(String(255), nullable=True)
+    account_id: Mapped[uuid.UUID | None] = mapped_column(
+        UUID(as_uuid=True),
+        ForeignKey("finance_accounts.id", ondelete="SET NULL"),
+        nullable=True,
+    )
+    reversed_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
+    reversed_by: Mapped[uuid.UUID | None] = mapped_column(
+        UUID(as_uuid=True), ForeignKey("users.id", ondelete="SET NULL"), nullable=True
+    )
+    reversal_reason: Mapped[str | None] = mapped_column(Text, nullable=True)
+    status: Mapped[str] = mapped_column(String(20), nullable=False, server_default="recorded")
+    approved_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
+    approved_by: Mapped[uuid.UUID | None] = mapped_column(
+        UUID(as_uuid=True), ForeignKey("users.id", ondelete="SET NULL"), nullable=True
+    )
+    approval_note: Mapped[str | None] = mapped_column(Text, nullable=True)
+    attachment_bucket: Mapped[str | None] = mapped_column(String(100), nullable=True)
+    attachment_key: Mapped[str | None] = mapped_column(String(500), nullable=True)
+    attachment_file_name: Mapped[str | None] = mapped_column(String(255), nullable=True)
+    attachment_content_type: Mapped[str | None] = mapped_column(String(100), nullable=True)
+    attachment_size_bytes: Mapped[int | None] = mapped_column(Integer, nullable=True)
+    attachment_uploaded_at: Mapped[datetime | None] = mapped_column(
+        DateTime(timezone=True), nullable=True
+    )
+    attachment_uploaded_by: Mapped[uuid.UUID | None] = mapped_column(
+        UUID(as_uuid=True), ForeignKey("users.id", ondelete="SET NULL"), nullable=True
+    )
     created_by: Mapped[uuid.UUID | None] = mapped_column(
         UUID(as_uuid=True), ForeignKey("users.id", ondelete="SET NULL"), nullable=True
     )
@@ -306,3 +369,216 @@ class ContributionReminder(Base):
             f"<ContributionReminder tenant={self.tenant_id} contribution={self.contribution_record_id} "
             f"status={self.delivery_status}>"
         )
+
+
+class FinancePeriod(Base):
+    """Closing state of a treasury exercise.
+
+    A closed year refuses new contributions, payments, receipts and expenses until an
+    administrator reopens it with a reason.
+    """
+
+    __tablename__ = "finance_periods"
+
+    id: Mapped[uuid.UUID] = mapped_column(
+        UUID(as_uuid=True), primary_key=True, default=uuid.uuid4
+    )
+    tenant_id: Mapped[uuid.UUID] = mapped_column(
+        UUID(as_uuid=True),
+        ForeignKey("tenants.id", ondelete="CASCADE"),
+        nullable=False,
+        index=True,
+    )
+    year: Mapped[int] = mapped_column(Integer, nullable=False, index=True)
+    status: Mapped[str] = mapped_column(String(20), nullable=False, server_default="open")
+    closed_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
+    closed_by_user_id: Mapped[uuid.UUID | None] = mapped_column(
+        UUID(as_uuid=True), ForeignKey("users.id", ondelete="SET NULL"), nullable=True
+    )
+    reopened_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
+    reopened_by_user_id: Mapped[uuid.UUID | None] = mapped_column(
+        UUID(as_uuid=True), ForeignKey("users.id", ondelete="SET NULL"), nullable=True
+    )
+    reopen_reason: Mapped[str | None] = mapped_column(Text, nullable=True)
+    created_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True), nullable=False, server_default=sql_text("CURRENT_TIMESTAMP")
+    )
+    updated_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True), nullable=False, server_default=sql_text("CURRENT_TIMESTAMP")
+    )
+
+    __table_args__ = (
+        UniqueConstraint("tenant_id", "year", name="uq_finance_periods_tenant_year"),
+    )
+
+    def __repr__(self) -> str:
+        return f"<FinancePeriod tenant={self.tenant_id} year={self.year} status={self.status}>"
+
+
+class FinanceReceiptCounter(Base):
+    """Per-tenant, per-year sequence used to number payment receipts."""
+
+    __tablename__ = "finance_receipt_counters"
+
+    id: Mapped[uuid.UUID] = mapped_column(
+        UUID(as_uuid=True), primary_key=True, default=uuid.uuid4
+    )
+    tenant_id: Mapped[uuid.UUID] = mapped_column(
+        UUID(as_uuid=True),
+        ForeignKey("tenants.id", ondelete="CASCADE"),
+        nullable=False,
+        index=True,
+    )
+    year: Mapped[int] = mapped_column(Integer, nullable=False)
+    last_number: Mapped[int] = mapped_column(Integer, nullable=False, server_default="0")
+    updated_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True), nullable=False, server_default=sql_text("CURRENT_TIMESTAMP")
+    )
+
+    __table_args__ = (
+        UniqueConstraint(
+            "tenant_id", "year", name="uq_finance_receipt_counters_tenant_year"
+        ),
+    )
+
+
+class FinanceAccount(Base):
+    """A treasury account (cash box, bank account) used to compute the position."""
+
+    __tablename__ = "finance_accounts"
+
+    id: Mapped[uuid.UUID] = mapped_column(
+        UUID(as_uuid=True), primary_key=True, default=uuid.uuid4
+    )
+    tenant_id: Mapped[uuid.UUID] = mapped_column(
+        UUID(as_uuid=True),
+        ForeignKey("tenants.id", ondelete="CASCADE"),
+        nullable=False,
+        index=True,
+    )
+    name: Mapped[str] = mapped_column(String(120), nullable=False)
+    kind: Mapped[str] = mapped_column(String(20), nullable=False, server_default="cash")
+    is_default: Mapped[bool] = mapped_column(
+        Boolean, nullable=False, server_default=sql_text("false")
+    )
+    created_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True), nullable=False, server_default=sql_text("CURRENT_TIMESTAMP")
+    )
+
+    __table_args__ = (
+        UniqueConstraint("tenant_id", "name", name="uq_finance_accounts_tenant_name"),
+    )
+
+
+class FinanceOpeningBalance(Base):
+    """Opening balance of one account at the start of one exercise."""
+
+    __tablename__ = "finance_opening_balances"
+
+    id: Mapped[uuid.UUID] = mapped_column(
+        UUID(as_uuid=True), primary_key=True, default=uuid.uuid4
+    )
+    tenant_id: Mapped[uuid.UUID] = mapped_column(
+        UUID(as_uuid=True),
+        ForeignKey("tenants.id", ondelete="CASCADE"),
+        nullable=False,
+        index=True,
+    )
+    account_id: Mapped[uuid.UUID] = mapped_column(
+        UUID(as_uuid=True),
+        ForeignKey("finance_accounts.id", ondelete="CASCADE"),
+        nullable=False,
+        index=True,
+    )
+    year: Mapped[int] = mapped_column(Integer, nullable=False)
+    amount: Mapped[Decimal] = mapped_column(
+        Numeric(12, 2), nullable=False, server_default=sql_text("0.00")
+    )
+    currency: Mapped[str] = mapped_column(String(3), nullable=False, server_default="EUR")
+    created_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True), nullable=False, server_default=sql_text("CURRENT_TIMESTAMP")
+    )
+    updated_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True), nullable=False, server_default=sql_text("CURRENT_TIMESTAMP")
+    )
+
+    __table_args__ = (
+        UniqueConstraint(
+            "tenant_id",
+            "account_id",
+            "year",
+            name="uq_finance_opening_balances_tenant_account_year",
+        ),
+    )
+
+
+class FinanceBudgetLine(Base):
+    """Planned (voted) amount for one category of one exercise."""
+
+    __tablename__ = "finance_budget_lines"
+
+    id: Mapped[uuid.UUID] = mapped_column(
+        UUID(as_uuid=True), primary_key=True, default=uuid.uuid4
+    )
+    tenant_id: Mapped[uuid.UUID] = mapped_column(
+        UUID(as_uuid=True),
+        ForeignKey("tenants.id", ondelete="CASCADE"),
+        nullable=False,
+        index=True,
+    )
+    year: Mapped[int] = mapped_column(Integer, nullable=False)
+    direction: Mapped[str] = mapped_column(String(20), nullable=False)
+    category: Mapped[str] = mapped_column(String(64), nullable=False)
+    planned_amount: Mapped[Decimal] = mapped_column(
+        Numeric(12, 2), nullable=False, server_default=sql_text("0.00")
+    )
+    currency: Mapped[str] = mapped_column(String(3), nullable=False, server_default="EUR")
+    created_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True), nullable=False, server_default=sql_text("CURRENT_TIMESTAMP")
+    )
+    updated_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True), nullable=False, server_default=sql_text("CURRENT_TIMESTAMP")
+    )
+
+    __table_args__ = (
+        UniqueConstraint(
+            "tenant_id",
+            "year",
+            "direction",
+            "category",
+            name="uq_finance_budget_lines_tenant_year_direction_category",
+        ),
+    )
+
+
+class FinanceExpenseCategory(Base):
+    """Tenant-defined expense category used by the ledger and the budget."""
+
+    __tablename__ = "finance_expense_categories"
+
+    id: Mapped[uuid.UUID] = mapped_column(
+        UUID(as_uuid=True), primary_key=True, default=uuid.uuid4
+    )
+    tenant_id: Mapped[uuid.UUID] = mapped_column(
+        UUID(as_uuid=True),
+        ForeignKey("tenants.id", ondelete="CASCADE"),
+        nullable=False,
+        index=True,
+    )
+    code: Mapped[str] = mapped_column(String(64), nullable=False)
+    name: Mapped[str] = mapped_column(String(120), nullable=False)
+    is_default: Mapped[bool] = mapped_column(
+        Boolean, nullable=False, server_default=sql_text("false")
+    )
+    is_active: Mapped[bool] = mapped_column(
+        Boolean, nullable=False, server_default=sql_text("true")
+    )
+    created_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True), nullable=False, server_default=sql_text("CURRENT_TIMESTAMP")
+    )
+
+    __table_args__ = (
+        UniqueConstraint(
+            "tenant_id", "code", name="uq_finance_expense_categories_tenant_code"
+        ),
+    )

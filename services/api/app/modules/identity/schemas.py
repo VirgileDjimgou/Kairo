@@ -62,6 +62,7 @@ class TenantMembershipResponse(BaseModel):
     slug: str
     name: str
     default_language: str
+    currency: str = "EUR"
     roles: list[str]
     capabilities: list[str] = []
     branding: TenantBranding

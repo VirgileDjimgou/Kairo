@@ -131,15 +131,19 @@ export async function deleteMember(profileId: string): Promise<void> {
 }
 
 export interface ImportRowError {
-  row: number
+  row_number: number
   message: string
+  column?: string | null
+  value?: string | null
 }
 
 export interface ImportResult {
-  total: number
+  total_rows: number
   success_count: number
   error_count: number
+  skipped_count: number
   errors: ImportRowError[]
+  dry_run: boolean
 }
 
 export async function importMembersCsv(file: File, dryRun = false): Promise<ImportResult> {

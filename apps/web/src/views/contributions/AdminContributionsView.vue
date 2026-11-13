@@ -33,7 +33,7 @@
         <div class="card shadow-sm border-0 bg-primary-subtle">
           <div class="card-body text-center py-3">
             <div class="text-muted small">{{ t('contributions.expected') }}</div>
-            <div class="fw-bold fs-4">{{ summary.total_expected }} EUR</div>
+            <div class="fw-bold fs-4">{{ summary.total_expected }} {{ tenantStore.currentCurrency }}</div>
           </div>
         </div>
       </div>
@@ -41,7 +41,7 @@
         <div class="card shadow-sm border-0 bg-success-subtle">
           <div class="card-body text-center py-3">
             <div class="text-muted small">{{ t('contributions.paid') }}</div>
-            <div class="fw-bold fs-4">{{ summary.total_paid }} EUR</div>
+            <div class="fw-bold fs-4">{{ summary.total_paid }} {{ tenantStore.currentCurrency }}</div>
           </div>
         </div>
       </div>
@@ -50,7 +50,7 @@
           :class="Number(summary.total_balance) > 0 ? 'bg-danger-subtle' : 'bg-success-subtle'">
           <div class="card-body text-center py-3">
             <div class="text-muted small">{{ t('contributions.balance') }}</div>
-            <div class="fw-bold fs-4">{{ summary.total_balance }} EUR</div>
+            <div class="fw-bold fs-4">{{ summary.total_balance }} {{ tenantStore.currentCurrency }}</div>
           </div>
         </div>
       </div>
@@ -161,9 +161,10 @@
             <div v-if="contribImportResult" class="mt-3">
               <hr />
               <div class="d-flex gap-3 mb-3">
-                <span class="badge bg-secondary">{{ t('common.total') }}: {{ contribImportResult.total }}</span>
+                <span class="badge bg-secondary">{{ t('common.total') }}: {{ contribImportResult.total_rows }}</span>
                 <span class="badge bg-success">{{ t('common.successCount') }}: {{ contribImportResult.success_count }}</span>
                 <span class="badge" :class="contribImportResult.error_count > 0 ? 'bg-danger' : 'bg-success'">{{ t('common.errorCount') }}: {{ contribImportResult.error_count }}</span>
+                <span v-if="contribImportResult.skipped_count > 0" class="badge bg-warning text-dark">{{ t('common.skippedCount') }}: {{ contribImportResult.skipped_count }}</span>
               </div>
               <div v-if="contribImportResult.errors.length > 0" class="mb-3">
                 <h6 class="small fw-bold text-danger">{{ t('common.validationErrors') }}</h6>
@@ -171,8 +172,8 @@
                   <table class="table table-sm small mb-0">
                     <thead><tr><th>{{ t('common.row') }}</th><th>{{ t('common.errorColumn') }}</th></tr></thead>
                     <tbody>
-                      <tr v-for="err in contribImportResult.errors" :key="err.row">
-                        <td>{{ err.row }}</td>
+                      <tr v-for="err in contribImportResult.errors" :key="err.row_number">
+                        <td>{{ err.row_number }}</td>
                         <td><div class="text-break">{{ err.message }}</div></td>
                       </tr>
                     </tbody>
@@ -253,7 +254,7 @@
           </div>
           <div class="modal-body">
             <div class="mb-3">
-              <label class="form-label small fw-medium">{{ t('contributions.amountEur') }}</label>
+              <label class="form-label small fw-medium">{{ t('common.amount') }} ({{ tenantStore.currentCurrency }})</label>
               <input v-model="paymentForm.amount" type="number" step="0.01" class="form-control form-control-sm" />
             </div>
             <div class="mb-3">
@@ -294,8 +295,10 @@ import type { ContributionRecordResponse, ContributionSummary, ImportResult } fr
 import type { MembershipProfileResponse } from '@/api/membership.api'
 import { useCsvExport } from '@/composables/useCsvExport'
 import { useLocaleStore } from '@/stores/locale.store'
+import { useTenantStore } from '@/stores/tenant.store'
 
 const localeStore = useLocaleStore()
+const tenantStore = useTenantStore()
 const t = (key: string) => localeStore.t(key)
 
 const loading = ref(true)

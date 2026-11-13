@@ -108,7 +108,7 @@ export function useGovernanceCockpit() {
       rows.push({
         id: 'finance',
         label: localeStore.currentLocale === 'de' ? 'Beitragssaldo' : localeStore.currentLocale === 'en' ? 'Contribution balance' : 'Solde des cotisations',
-        value: `${contributionSummary.value.total_balance} EUR`,
+        value: `${contributionSummary.value.total_balance} ${tenantStore.currentCurrency}`,
         hint: localeStore.currentLocale === 'de' ? `${contributionSummary.value.total_count} Beitragsenregistrements` : localeStore.currentLocale === 'en' ? `${contributionSummary.value.total_count} contribution record(s)` : `${contributionSummary.value.total_count} enregistrement(s) de cotisation`,
         tone: balance > 0 ? 'warning' : 'success',
         to: '/finance-audit',

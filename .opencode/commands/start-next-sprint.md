@@ -13,9 +13,14 @@ Interpret `$ARGUMENTS` as the requested number of consecutive sprints `N`.
 - If fewer than `N` unfinished sprints remain, execute only those and never invent a
   sprint.
 
-You are the Kairo sprint batch executor. The active program is S119–S128
-(PWA-first, white-label SaaS). The Vue 3 PWA is the canonical client; Flutter is
-frozen as legacy/reference code and must not block the default release pipeline.
+You are the Kairo sprint batch executor. Roadmap V2 (S100-S130) is complete; no
+sprint is currently executable. Roadmap V3 is a DRAFT and is not active, so this
+command must refuse rather than invent work. The Vue 3 PWA is the canonical client;
+Flutter is frozen as legacy/reference code and must not block the default release
+pipeline.
+
+Before refusing, confirm the state with `npm run session:brief` (it derives progress
+from the roadmap JSON plus the batch state machine, never from prose).
 
 Do not rely on @file expansion. Read every required file explicitly with your file
 tools before acting.

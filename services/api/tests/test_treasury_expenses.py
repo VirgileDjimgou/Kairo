@@ -46,6 +46,7 @@ async def test_treasurer_records_expense_and_budget_groups_realized_flows(
     admin_token = await login(client, admin["user"].email, admin["password"], admin["tenant"].slug)
     treasurer_token = await login(client, treasurer["user"].email, treasurer["password"], admin["tenant"].slug)
     president_token = await login(client, president["user"].email, president["password"], admin["tenant"].slug)
+    member_token = await login(client, member["user"].email, member["password"], admin["tenant"].slug)
 
     contribution = await client.post(
         "/api/v1/contributions/",
@@ -126,7 +127,14 @@ async def test_treasurer_records_expense_and_budget_groups_realized_flows(
     assert {item["category"]: item["amount"] for item in budget.json()["expenses_by_category"]}["sport_equipment"] == "25.00"
     assert budget.json()["recent_expenses"][0]["description"] == "Training balls"
 
-    assert (await client.get(
+    # The president oversees the treasury and may read the budget, while an
+    # ordinary member may not.
+    president_budget = await client.get(
         "/api/v1/contributions/annual-budget?year=2026",
         headers={"Authorization": f"Bearer {president_token}"},
+    )
+    assert president_budget.status_code == 200, president_budget.text
+    assert (await client.get(
+        "/api/v1/contributions/annual-budget?year=2026",
+        headers={"Authorization": f"Bearer {member_token}"},
     )).status_code == 403

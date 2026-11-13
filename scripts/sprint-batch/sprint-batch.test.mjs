@@ -286,6 +286,13 @@ test('CLI reset archives an orphaned batch and a new start creates a fresh batch
     assert.match(reset.stdout, /archived/);
     assert.equal(loadState(root).status, 'completed');
 
+    // An archived batch must not advertise remaining work: that line used to send
+    // every new session hunting for a sprint that no longer exists.
+    const status = runCli(root, ['status']);
+    assert.equal(status.status, 0, status.stderr);
+    assert.match(status.stdout, /Status: COMPLETED/);
+    assert.doesNotMatch(status.stdout, /Remaining in this batch/);
+
     const start = runCli(root, ['start', '--count', '2']);
     assert.equal(start.status, 0, start.stderr);
     const fresh = loadState(root);

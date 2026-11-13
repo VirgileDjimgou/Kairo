@@ -15,6 +15,7 @@ export const useTenantStore = defineStore('tenant', () => {
   })
 
   const currentTenantName = computed(() => currentTenant.value?.name ?? 'Organization')
+  const currentCurrency = computed(() => currentTenant.value?.currency ?? 'EUR')
   const hasMultipleTenants = computed(() => memberships.value.length > 1)
 
   const enabledModules = computed(() => currentTenant.value?.modules ?? null)
@@ -82,6 +83,7 @@ export const useTenantStore = defineStore('tenant', () => {
     selectedTenantId,
     currentTenant,
     currentTenantName,
+    currentCurrency,
     hasMultipleTenants,
     enabledModules,
     setMemberships,

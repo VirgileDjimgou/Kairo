@@ -28,7 +28,7 @@
           </div>
         </div>
         <div>
-          <label for="finance-create-amount" class="form-label small fw-medium">{{ t('finance.expectedAmount') }} (EUR)</label>
+          <label for="finance-create-amount" class="form-label small fw-medium">{{ t('finance.expectedAmount') }} ({{ currency }})</label>
           <input id="finance-create-amount" v-model="form.expected_amount" type="number" step="0.01" min="0" class="form-control" required />
         </div>
         <button class="btn btn-primary" type="submit" :disabled="saving">
@@ -57,7 +57,7 @@ const emit = defineEmits<{ submit: [payload: ContributionCreateInput] }>()
 
 const localeStore = useLocaleStore()
 const t = (key: string) => localeStore.t(key)
-const { copy } = useFinanceFormatting()
+const { copy, currency } = useFinanceFormatting()
 
 function defaultForm() {
   return {

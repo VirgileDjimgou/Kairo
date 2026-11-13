@@ -106,11 +106,17 @@ class RecoveryEvidenceResponse(RecoveryEvidenceConfig):
     status_message: str
 
 
+class FinanceSettings(BaseModel):
+    require_separate_receipt_validator: bool = False
+
+
 class TenantSettingsResponse(BaseModel):
     tenant_id: UUID
     name: str
     slug: str
     default_language: str
+    currency: str = "EUR"
+    finance: FinanceSettings = Field(default_factory=FinanceSettings)
     branding: TenantBranding
     modules: ModuleToggles
     operations: RecoveryEvidenceResponse = Field(default_factory=lambda: RecoveryEvidenceResponse(
@@ -126,6 +132,8 @@ class TenantSettingsResponse(BaseModel):
 class TenantSettingsUpdate(BaseModel):
     name: str | None = None
     default_language: str | None = None
+    currency: str | None = Field(default=None, pattern=r"^[A-Za-z]{3}$")
+    finance: FinanceSettings | None = None
     branding: TenantBranding | None = None
     modules: ModuleToggles | None = None
     operations: RecoveryEvidenceConfig | None = None

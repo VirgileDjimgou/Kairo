@@ -43,6 +43,12 @@
 
     <AnnualBudgetOverview v-if="isTreasurer && annualBudget" :budget="annualBudget" />
 
+    <PeriodStatusCard :year="selectedYear" :can-close="isTreasurer" />
+
+    <TreasuryPositionCard :year="selectedYear" :can-edit="isTreasurer" />
+
+    <BudgetPlanCard :year="selectedYear" :can-edit="isTreasurer" />
+
     <ExpenseWorkspace
       v-if="isTreasurer"
       :budget="annualBudget"
@@ -50,7 +56,10 @@
       :saving="savingExpense"
       :reset-token="expenseFormResetToken"
       @submit="handleCreateExpense"
+      @category-created="expenseCategories.push($event)"
     />
+
+    <ExpenseLedger :year="selectedYear" :readonly="!isTreasurer" />
 
     <ReceiptValidationQueue
       v-if="canManageTreasury"
@@ -154,6 +163,10 @@ import { onMounted } from 'vue'
 import { useLocaleStore } from '@/stores/locale.store'
 import AnnualBudgetOverview from '@/features/finance/components/AnnualBudgetOverview.vue'
 import ExpenseWorkspace from '@/features/finance/components/ExpenseWorkspace.vue'
+import ExpenseLedger from '@/features/finance/components/ExpenseLedger.vue'
+import PeriodStatusCard from '@/features/finance/components/PeriodStatusCard.vue'
+import TreasuryPositionCard from '@/features/finance/components/TreasuryPositionCard.vue'
+import BudgetPlanCard from '@/features/finance/components/BudgetPlanCard.vue'
 import ReceiptValidationQueue from '@/features/finance/components/ReceiptValidationQueue.vue'
 import CustodyQueue from '@/features/finance/components/CustodyQueue.vue'
 import ReceiptDecisionModal from '@/features/finance/components/ReceiptDecisionModal.vue'

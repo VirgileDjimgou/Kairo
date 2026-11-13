@@ -9,6 +9,7 @@ import {
   listContributionReceiptDeclarations,
   listContributionReminders,
   listContributions,
+  listExpenseCategories,
   listTenantPayments,
   processContributionReceiptDeclaration,
   recordPayment,
@@ -21,8 +22,8 @@ import {
   type ContributionReceiptDeclarationResponse,
   type ContributionSummary,
   type MemberFinanceExportFormat,
+  type ExpenseCategoryResponse,
   type PaymentRecordResponse,
-  type TreasuryExpenseCategory,
 } from '@/api/contributions.api'
 import {
   getMemberBalance,
@@ -52,7 +53,7 @@ export interface PaymentInput {
 }
 
 export interface ExpenseInput {
-  category: TreasuryExpenseCategory
+  category: string
   amount: string
   spent_at: string
   description: string
@@ -139,14 +140,7 @@ export function useFinanceWorkspace() {
   const years = [currentYear - 1, currentYear, currentYear + 1]
   const selectedYear = ref(currentYear)
   const remindersEnabled = computed(() => tenantStore.isModuleEnabled('notifications'))
-  const expenseCategories: TreasuryExpenseCategory[] = [
-    'sport_equipment',
-    'fuel_transport',
-    'tournament',
-    'cultural_event',
-    'administration',
-    'other',
-  ]
+  const expenseCategories = ref<ExpenseCategoryResponse[]>([])
   const noContributionRecordsLabel = computed(() => `${t('contributions.noRecords').replace('{year}', String(selectedYear.value))}`)
 
   const membersById = computed(() =>
@@ -186,16 +180,18 @@ export function useFinanceWorkspace() {
 
   async function refreshFinanceData() {
     const reminderPromise = remindersEnabled.value ? listContributionReminders(selectedYear.value) : Promise.resolve([])
-    const [contributionRows, summaryData, paymentRows, reminderRows] = await Promise.all([
+    const [contributionRows, summaryData, paymentRows, reminderRows, categoryRows] = await Promise.all([
       listContributions(selectedYear.value),
       getContributionSummary(selectedYear.value),
       listTenantPayments(),
       reminderPromise,
+      listExpenseCategories(),
     ])
     contributions.value = contributionRows
     summary.value = summaryData
     recentPayments.value = paymentRows.slice(0, 8)
     reminderHistory.value = reminderRows.slice(0, 8)
+    expenseCategories.value = categoryRows
     if (canManageTreasury.value) {
       const [declarations, allContributions, budget] = await Promise.all([
         listContributionReceiptDeclarations(),

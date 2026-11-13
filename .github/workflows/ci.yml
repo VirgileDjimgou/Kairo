@@ -42,6 +42,13 @@ jobs:
       - name: Guard canonical PWA Service Worker
         run: node scripts/check-pwa-service-worker.mjs
 
+      # The session brief is the only orientation an agent reads at startup. If it
+      # drifts from the roadmap, every new session pays to re-derive the truth.
+      - name: Guard the generated session brief
+        run: |
+          npm run session:brief:check
+          npm run session:brief:test
+
       - name: Scan repository history for secrets
         uses: gitleaks/gitleaks-action@v2
         env:

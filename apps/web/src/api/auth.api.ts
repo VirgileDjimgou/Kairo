@@ -40,6 +40,7 @@ export interface TenantMembershipResponse {
   slug: string
   name: string
   default_language: string
+  currency: string
   roles: string[]
   capabilities?: string[]
   branding: TenantBranding

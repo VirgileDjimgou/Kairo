@@ -62,9 +62,13 @@ export interface AnnualBudgetResponse {
   available_balance: string;
   currency?: string;
   expense_total: string;
+  expense_variance?: string;
   expenses_by_category: Array<BudgetCategoryTotal>;
   income_by_category: Array<BudgetCategoryTotal>;
   income_total: string;
+  income_variance?: string;
+  planned_expense_total?: string;
+  planned_income_total?: string;
   recent_expenses: Array<ExpenseRecordResponse>;
   year: number;
 }
@@ -174,9 +178,39 @@ export interface Body_upload_document_api_v1_documents_upload_post {
   title?: string;
 }
 
+export interface Body_upload_expense_attachment_api_v1_contributions_expenses__expense_id__attachment_post {
+  file: string;
+}
+
 export interface BudgetCategoryTotal {
   amount: string;
   category: string;
+  planned_amount?: string;
+  variance?: string;
+}
+
+export interface BudgetPlanLine_Input {
+  category: string;
+  direction: "income" | "expense";
+  planned_amount?: number | string;
+}
+
+export interface BudgetPlanLine_Output {
+  category: string;
+  direction: "income" | "expense";
+  planned_amount?: string;
+}
+
+export interface BudgetPlanResponse {
+  currency: string;
+  lines: Array<BudgetPlanLine_Output>;
+  planned_expense_total: string;
+  planned_income_total: string;
+  year: number;
+}
+
+export interface BudgetPlanUpdate {
+  lines?: Array<BudgetPlanLine_Input>;
 }
 
 export interface BulkUploadItemResponse {
@@ -588,11 +622,22 @@ export interface EventUpdate {
 
 export type EventVisibility = "tenant_public" | "members_only" | "role_restricted" | "admin_only";
 
-export type ExpenseCategory = "sport_equipment" | "fuel_transport" | "tournament" | "cultural_event" | "administration" | "other";
+export interface ExpenseCategoryCreate {
+  name: string;
+}
+
+export interface ExpenseCategoryResponse {
+  code: string;
+  id: string;
+  is_active: boolean;
+  is_default: boolean;
+  name: string;
+}
 
 export interface ExpenseRecordCreate {
+  account_id?: string | null;
   amount: number | string;
-  category: ExpenseCategory;
+  category: string;
   currency?: string;
   description: string;
   payee?: string | null;
@@ -602,8 +647,16 @@ export interface ExpenseRecordCreate {
 }
 
 export interface ExpenseRecordResponse {
+  account_id?: string | null;
   amount: string;
-  category: ExpenseCategory;
+  approval_note?: string | null;
+  approved_at?: string | null;
+  approved_by?: string | null;
+  attachment_content_type?: string | null;
+  attachment_file_name?: string | null;
+  attachment_size_bytes?: number | null;
+  attachment_uploaded_at?: string | null;
+  category: string;
   created_at: string;
   created_by: string | null;
   currency: string;
@@ -612,8 +665,44 @@ export interface ExpenseRecordResponse {
   payee: string | null;
   payment_method: string;
   reference: string | null;
+  reversal_reason?: string | null;
+  reversed_at?: string | null;
+  reversed_by?: string | null;
   spent_at: string;
+  status?: string;
   tenant_id: string;
+}
+
+export interface ExpenseRejectRequest {
+  note: string;
+}
+
+export interface ExpenseReversalRequest {
+  reason: string;
+}
+
+export interface FinanceAccountResponse {
+  id: string;
+  is_default: boolean;
+  kind: string;
+  name: string;
+}
+
+export interface FinancePeriodReopenRequest {
+  reason: string;
+}
+
+export interface FinancePeriodResponse {
+  closed_at?: string | null;
+  closed_by?: string | null;
+  reopen_reason?: string | null;
+  reopened_at?: string | null;
+  status: "open" | "closed";
+  year: number;
+}
+
+export interface FinanceSettings {
+  require_separate_receipt_validator?: boolean;
 }
 
 export type FinancialIncomeType = "membership_contribution" | "donation" | "sponsorship" | "tournament_proceeds" | "other_income" | "disciplinary_payment";
@@ -635,6 +724,7 @@ export interface ImportResult {
   dry_run: boolean;
   error_count: number;
   errors: Array<ImportRowError>;
+  skipped_count?: number;
   success_count: number;
   total_rows: number;
 }
@@ -1068,6 +1158,10 @@ export interface NotificationTestResponse {
   results: Array<NotificationDispatchResponse>;
 }
 
+export interface OpeningBalanceUpdate {
+  amount: number | string;
+}
+
 export interface OperationFailureCreate {
   method: string;
   path: string;
@@ -1077,15 +1171,18 @@ export interface OperationFailureCreate {
 export type PaymentMethod = "cash" | "bank_transfer" | "card" | "check" | "other";
 
 export interface PaymentRecordCreate {
+  account_id?: string | null;
   amount: number | string;
   contribution_record_id: string;
   currency?: string;
+  idempotency_key?: string | null;
   paid_at?: string | null;
   payment_method?: PaymentMethod;
   reference?: string | null;
 }
 
 export interface PaymentRecordResponse {
+  account_id?: string | null;
   amount: string;
   contribution_record_id: string;
   created_at: string;
@@ -1093,9 +1190,17 @@ export interface PaymentRecordResponse {
   id: string;
   paid_at: string;
   payment_method: string;
+  receipt_number?: string | null;
   recorded_by: string | null;
   reference: string | null;
+  reversal_reason?: string | null;
+  reversed_at?: string | null;
+  reversed_by?: string | null;
   tenant_id: string;
+}
+
+export interface PaymentReversalRequest {
+  reason: string;
 }
 
 export interface PolicyCategoryResponse {
@@ -1315,6 +1420,7 @@ export interface TenantBranding {
 export interface TenantMembershipResponse {
   branding: TenantBranding;
   capabilities?: Array<string>;
+  currency?: string;
   default_language: string;
   modules: ModuleToggles;
   name: string;
@@ -1336,7 +1442,9 @@ export interface TenantResponse {
 
 export interface TenantSettingsResponse {
   branding: TenantBranding;
+  currency?: string;
   default_language: string;
+  finance?: FinanceSettings;
   modules: ModuleToggles;
   name: string;
   operations?: RecoveryEvidenceResponse;
@@ -1347,7 +1455,9 @@ export interface TenantSettingsResponse {
 
 export interface TenantSettingsUpdate {
   branding?: TenantBranding | null;
+  currency?: string | null;
   default_language?: string | null;
+  finance?: FinanceSettings | null;
   modules?: ModuleToggles | null;
   name?: string | null;
   operations?: RecoveryEvidenceConfig | null;
@@ -1360,6 +1470,28 @@ export interface TokenResponse {
   tenant_id: string;
   token_type?: string;
   user_id: string;
+}
+
+export interface TreasuryPositionAccount {
+  account_id: string | null;
+  closing_balance: string;
+  inflow: string;
+  kind: string;
+  name: string;
+  opening_balance: string;
+  outflow: string;
+  pending_custody?: string;
+}
+
+export interface TreasuryPositionResponse {
+  accounts: Array<TreasuryPositionAccount>;
+  currency: string;
+  total_closing: string;
+  total_inflow: string;
+  total_opening: string;
+  total_outflow: string;
+  total_pending_custody?: string;
+  year: number;
 }
 
 export interface UnreachableNotificationRecipient {
@@ -1467,13 +1599,34 @@ export interface ApiOperations {
   'POST /api/v1/chat/query-stream': { request: ChatQueryRequest; response: unknown };
   'GET /api/v1/contributions/': { request: undefined; response: Array<ContributionRecordResponse> };
   'POST /api/v1/contributions/': { request: ContributionRecordCreate; response: ContributionRecordResponse };
+  'GET /api/v1/contributions/accounts': { request: undefined; response: Array<FinanceAccountResponse> };
+  'PUT /api/v1/contributions/accounts/{account_id}/opening-balance/{year}': { request: OpeningBalanceUpdate; response: TreasuryPositionResponse };
   'GET /api/v1/contributions/annual-budget': { request: undefined; response: AnnualBudgetResponse };
+  'GET /api/v1/contributions/budget-plan': { request: undefined; response: BudgetPlanResponse };
+  'PUT /api/v1/contributions/budget-plan/{year}': { request: BudgetPlanUpdate; response: BudgetPlanResponse };
   'GET /api/v1/contributions/by-member/{profile_id}': { request: undefined; response: Array<ContributionRecordResponse> };
+  'GET /api/v1/contributions/expense-categories': { request: undefined; response: Array<ExpenseCategoryResponse> };
+  'POST /api/v1/contributions/expense-categories': { request: ExpenseCategoryCreate; response: ExpenseCategoryResponse };
+  'GET /api/v1/contributions/expenses': { request: undefined; response: Array<ExpenseRecordResponse> };
   'POST /api/v1/contributions/expenses': { request: ExpenseRecordCreate; response: ExpenseRecordResponse };
+  'GET /api/v1/contributions/expenses/export': { request: undefined; response: unknown };
+  'GET /api/v1/contributions/expenses/{expense_id}': { request: undefined; response: ExpenseRecordResponse };
+  'POST /api/v1/contributions/expenses/{expense_id}/approve': { request: undefined; response: ExpenseRecordResponse };
+  'GET /api/v1/contributions/expenses/{expense_id}/attachment': { request: undefined; response: unknown };
+  'POST /api/v1/contributions/expenses/{expense_id}/attachment': { request: undefined; response: ExpenseRecordResponse };
+  'POST /api/v1/contributions/expenses/{expense_id}/reject': { request: ExpenseRejectRequest; response: ExpenseRecordResponse };
+  'POST /api/v1/contributions/expenses/{expense_id}/reverse': { request: ExpenseReversalRequest; response: ExpenseRecordResponse };
   'GET /api/v1/contributions/export': { request: undefined; response: unknown };
   'POST /api/v1/contributions/import': { request: undefined; response: ImportResult };
+  'GET /api/v1/contributions/journal/export': { request: undefined; response: unknown };
   'GET /api/v1/contributions/payments': { request: undefined; response: Array<PaymentRecordResponse> };
   'POST /api/v1/contributions/payments': { request: PaymentRecordCreate; response: PaymentRecordResponse };
+  'GET /api/v1/contributions/payments/{payment_id}/receipt.pdf': { request: undefined; response: unknown };
+  'POST /api/v1/contributions/payments/{payment_id}/reverse': { request: PaymentReversalRequest; response: PaymentRecordResponse };
+  'GET /api/v1/contributions/periods': { request: undefined; response: Array<FinancePeriodResponse> };
+  'GET /api/v1/contributions/periods/{year}': { request: undefined; response: FinancePeriodResponse };
+  'POST /api/v1/contributions/periods/{year}/close': { request: undefined; response: FinancePeriodResponse };
+  'POST /api/v1/contributions/periods/{year}/reopen': { request: FinancePeriodReopenRequest; response: FinancePeriodResponse };
   'GET /api/v1/contributions/receipt-declarations': { request: undefined; response: Array<ContributionReceiptDeclarationResponse> };
   'POST /api/v1/contributions/receipt-declarations': { request: ContributionReceiptDeclarationCreate; response: ContributionReceiptDeclarationResponse };
   'GET /api/v1/contributions/receipt-declarations/me': { request: undefined; response: Array<ContributionReceiptDeclarationResponse> };
@@ -1490,6 +1643,7 @@ export interface ApiOperations {
   'GET /api/v1/contributions/report/export': { request: undefined; response: unknown };
   'GET /api/v1/contributions/report/export/{export_format}': { request: undefined; response: unknown };
   'GET /api/v1/contributions/summary': { request: undefined; response: Record<string, unknown> };
+  'GET /api/v1/contributions/treasury-position': { request: undefined; response: TreasuryPositionResponse };
   'GET /api/v1/contributions/{contribution_id}': { request: undefined; response: ContributionRecordResponse };
   'PATCH /api/v1/contributions/{contribution_id}': { request: ContributionRecordUpdate; response: ContributionRecordResponse };
   'DELETE /api/v1/contributions/{contribution_id}': { request: undefined; response: undefined };

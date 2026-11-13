@@ -19,6 +19,13 @@
         <div class="col-md-4"><div class="budget-stat budget-stat-balance"><span>{{ t('finance.availableTreasury') }}</span><strong>{{ formatMoney(budget.available_balance) }}</strong></div></div>
       </div>
 
+      <div class="row g-3 mb-4">
+        <div class="col-6 col-md-3"><div class="budget-stat"><span>{{ t('finance.plannedIncome') }}</span><strong>{{ formatMoney(budget.planned_income_total) }}</strong></div></div>
+        <div class="col-6 col-md-3"><div class="budget-stat"><span>{{ t('finance.plannedExpense') }}</span><strong>{{ formatMoney(budget.planned_expense_total) }}</strong></div></div>
+        <div class="col-6 col-md-3"><div class="budget-stat"><span>{{ t('finance.variance') }} · {{ t('finance.incomeBreakdown') }}</span><strong :class="Number(budget.income_variance) < 0 ? 'text-danger' : 'text-success'">{{ formatMoney(budget.income_variance) }}</strong></div></div>
+        <div class="col-6 col-md-3"><div class="budget-stat"><span>{{ t('finance.variance') }} · {{ t('finance.expenseBreakdown') }}</span><strong :class="Number(budget.expense_variance) > 0 ? 'text-danger' : 'text-success'">{{ formatMoney(budget.expense_variance) }}</strong></div></div>
+      </div>
+
       <div class="budget-charts-grid">
         <article class="budget-chart-panel">
           <div class="d-flex align-items-center justify-content-between gap-2 mb-3"><h3 class="h6 fw-bold mb-0">{{ t('finance.incomeBreakdown') }}</h3><span class="badge text-bg-success-subtle text-success-emphasis">{{ formatMoney(budget.income_total) }}</span></div>

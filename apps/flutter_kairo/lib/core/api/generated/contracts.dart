@@ -184,15 +184,19 @@ class AnnouncementUpdate {
 typedef AnnouncementVisibility = String;
 
 class AnnualBudgetResponse {
-  const AnnualBudgetResponse({this.available_balance, this.currency, this.expense_total, this.expenses_by_category, this.income_by_category, this.income_total, this.recent_expenses, this.year});
+  const AnnualBudgetResponse({this.available_balance, this.currency, this.expense_total, this.expense_variance, this.expenses_by_category, this.income_by_category, this.income_total, this.income_variance, this.planned_expense_total, this.planned_income_total, this.recent_expenses, this.year});
 
   factory AnnualBudgetResponse.fromJson(Map<String, dynamic> json) => AnnualBudgetResponse(
         available_balance: json['available_balance'] as String?,
         currency: json['currency'] as String?,
         expense_total: json['expense_total'] as String?,
+        expense_variance: json['expense_variance'] as String?,
         expenses_by_category: (json['expenses_by_category'] as List<dynamic>?)?.map((dynamic item) => BudgetCategoryTotal.fromJson(item as Map<String, dynamic>)).toList(),
         income_by_category: (json['income_by_category'] as List<dynamic>?)?.map((dynamic item) => BudgetCategoryTotal.fromJson(item as Map<String, dynamic>)).toList(),
         income_total: json['income_total'] as String?,
+        income_variance: json['income_variance'] as String?,
+        planned_expense_total: json['planned_expense_total'] as String?,
+        planned_income_total: json['planned_income_total'] as String?,
         recent_expenses: (json['recent_expenses'] as List<dynamic>?)?.map((dynamic item) => ExpenseRecordResponse.fromJson(item as Map<String, dynamic>)).toList(),
         year: json['year'] as int?,
       );
@@ -200,9 +204,13 @@ class AnnualBudgetResponse {
   final String? available_balance;
   final String? currency;
   final String? expense_total;
+  final String? expense_variance;
   final List<BudgetCategoryTotal>? expenses_by_category;
   final List<BudgetCategoryTotal>? income_by_category;
   final String? income_total;
+  final String? income_variance;
+  final String? planned_expense_total;
+  final String? planned_income_total;
   final List<ExpenseRecordResponse>? recent_expenses;
   final int? year;
 
@@ -210,9 +218,13 @@ class AnnualBudgetResponse {
         if (available_balance != null) 'available_balance': available_balance,
         if (currency != null) 'currency': currency,
         if (expense_total != null) 'expense_total': expense_total,
+        if (expense_variance != null) 'expense_variance': expense_variance,
         if (expenses_by_category != null) 'expenses_by_category': expenses_by_category!.map((item) => item.toJson()).toList(),
         if (income_by_category != null) 'income_by_category': income_by_category!.map((item) => item.toJson()).toList(),
         if (income_total != null) 'income_total': income_total,
+        if (income_variance != null) 'income_variance': income_variance,
+        if (planned_expense_total != null) 'planned_expense_total': planned_expense_total,
+        if (planned_income_total != null) 'planned_income_total': planned_income_total,
         if (recent_expenses != null) 'recent_expenses': recent_expenses!.map((item) => item.toJson()).toList(),
         if (year != null) 'year': year,
       };
@@ -561,20 +573,120 @@ class Body_upload_document_api_v1_documents_upload_post {
       };
 }
 
+class Body_upload_expense_attachment_api_v1_contributions_expenses__expense_id__attachment_post {
+  const Body_upload_expense_attachment_api_v1_contributions_expenses__expense_id__attachment_post({this.file});
+
+  factory Body_upload_expense_attachment_api_v1_contributions_expenses__expense_id__attachment_post.fromJson(Map<String, dynamic> json) => Body_upload_expense_attachment_api_v1_contributions_expenses__expense_id__attachment_post(
+        file: json['file'] as String?,
+      );
+
+  final String? file;
+
+  Map<String, dynamic> toJson() => <String, dynamic>{
+        if (file != null) 'file': file,
+      };
+}
+
 class BudgetCategoryTotal {
-  const BudgetCategoryTotal({this.amount, this.category});
+  const BudgetCategoryTotal({this.amount, this.category, this.planned_amount, this.variance});
 
   factory BudgetCategoryTotal.fromJson(Map<String, dynamic> json) => BudgetCategoryTotal(
         amount: json['amount'] as String?,
         category: json['category'] as String?,
+        planned_amount: json['planned_amount'] as String?,
+        variance: json['variance'] as String?,
       );
 
   final String? amount;
   final String? category;
+  final String? planned_amount;
+  final String? variance;
 
   Map<String, dynamic> toJson() => <String, dynamic>{
         if (amount != null) 'amount': amount,
         if (category != null) 'category': category,
+        if (planned_amount != null) 'planned_amount': planned_amount,
+        if (variance != null) 'variance': variance,
+      };
+}
+
+class BudgetPlanLine_Input {
+  const BudgetPlanLine_Input({this.category, this.direction, this.planned_amount});
+
+  factory BudgetPlanLine_Input.fromJson(Map<String, dynamic> json) => BudgetPlanLine_Input(
+        category: json['category'] as String?,
+        direction: json['direction'] as String?,
+        planned_amount: json['planned_amount'],
+      );
+
+  final String? category;
+  final String? direction;
+  final dynamic planned_amount;
+
+  Map<String, dynamic> toJson() => <String, dynamic>{
+        if (category != null) 'category': category,
+        if (direction != null) 'direction': direction,
+        if (planned_amount != null) 'planned_amount': planned_amount,
+      };
+}
+
+class BudgetPlanLine_Output {
+  const BudgetPlanLine_Output({this.category, this.direction, this.planned_amount});
+
+  factory BudgetPlanLine_Output.fromJson(Map<String, dynamic> json) => BudgetPlanLine_Output(
+        category: json['category'] as String?,
+        direction: json['direction'] as String?,
+        planned_amount: json['planned_amount'] as String?,
+      );
+
+  final String? category;
+  final String? direction;
+  final String? planned_amount;
+
+  Map<String, dynamic> toJson() => <String, dynamic>{
+        if (category != null) 'category': category,
+        if (direction != null) 'direction': direction,
+        if (planned_amount != null) 'planned_amount': planned_amount,
+      };
+}
+
+class BudgetPlanResponse {
+  const BudgetPlanResponse({this.currency, this.lines, this.planned_expense_total, this.planned_income_total, this.year});
+
+  factory BudgetPlanResponse.fromJson(Map<String, dynamic> json) => BudgetPlanResponse(
+        currency: json['currency'] as String?,
+        lines: (json['lines'] as List<dynamic>?)?.map((dynamic item) => BudgetPlanLine_Output.fromJson(item as Map<String, dynamic>)).toList(),
+        planned_expense_total: json['planned_expense_total'] as String?,
+        planned_income_total: json['planned_income_total'] as String?,
+        year: json['year'] as int?,
+      );
+
+  final String? currency;
+  final List<BudgetPlanLine_Output>? lines;
+  final String? planned_expense_total;
+  final String? planned_income_total;
+  final int? year;
+
+  Map<String, dynamic> toJson() => <String, dynamic>{
+        if (currency != null) 'currency': currency,
+        if (lines != null) 'lines': lines!.map((item) => item.toJson()).toList(),
+        if (planned_expense_total != null) 'planned_expense_total': planned_expense_total,
+        if (planned_income_total != null) 'planned_income_total': planned_income_total,
+        if (year != null) 'year': year,
+      };
+}
+
+class BudgetPlanUpdate {
+  const BudgetPlanUpdate({this.lines});
+
+  factory BudgetPlanUpdate.fromJson(Map<String, dynamic> json) => BudgetPlanUpdate(
+        lines: (json['lines'] as List<dynamic>?)?.map((dynamic item) => BudgetPlanLine_Input.fromJson(item as Map<String, dynamic>)).toList(),
+      );
+
+  final List<BudgetPlanLine_Input>? lines;
+
+  Map<String, dynamic> toJson() => <String, dynamic>{
+        if (lines != null) 'lines': lines!.map((item) => item.toJson()).toList(),
       };
 }
 
@@ -1863,12 +1975,51 @@ class EventUpdate {
 
 typedef EventVisibility = String;
 
-typedef ExpenseCategory = String;
+class ExpenseCategoryCreate {
+  const ExpenseCategoryCreate({this.name});
+
+  factory ExpenseCategoryCreate.fromJson(Map<String, dynamic> json) => ExpenseCategoryCreate(
+        name: json['name'] as String?,
+      );
+
+  final String? name;
+
+  Map<String, dynamic> toJson() => <String, dynamic>{
+        if (name != null) 'name': name,
+      };
+}
+
+class ExpenseCategoryResponse {
+  const ExpenseCategoryResponse({this.code, this.id, this.is_active, this.is_default, this.name});
+
+  factory ExpenseCategoryResponse.fromJson(Map<String, dynamic> json) => ExpenseCategoryResponse(
+        code: json['code'] as String?,
+        id: json['id'] as String?,
+        is_active: json['is_active'] as bool?,
+        is_default: json['is_default'] as bool?,
+        name: json['name'] as String?,
+      );
+
+  final String? code;
+  final String? id;
+  final bool? is_active;
+  final bool? is_default;
+  final String? name;
+
+  Map<String, dynamic> toJson() => <String, dynamic>{
+        if (code != null) 'code': code,
+        if (id != null) 'id': id,
+        if (is_active != null) 'is_active': is_active,
+        if (is_default != null) 'is_default': is_default,
+        if (name != null) 'name': name,
+      };
+}
 
 class ExpenseRecordCreate {
-  const ExpenseRecordCreate({this.amount, this.category, this.currency, this.description, this.payee, this.payment_method, this.reference, this.spent_at});
+  const ExpenseRecordCreate({this.account_id, this.amount, this.category, this.currency, this.description, this.payee, this.payment_method, this.reference, this.spent_at});
 
   factory ExpenseRecordCreate.fromJson(Map<String, dynamic> json) => ExpenseRecordCreate(
+        account_id: json['account_id'] as String?,
         amount: json['amount'],
         category: json['category'] as String?,
         currency: json['currency'] as String?,
@@ -1879,8 +2030,9 @@ class ExpenseRecordCreate {
         spent_at: json['spent_at'] as String?,
       );
 
+  final String? account_id;
   final dynamic amount;
-  final ExpenseCategory? category;
+  final String? category;
   final String? currency;
   final String? description;
   final String? payee;
@@ -1889,6 +2041,7 @@ class ExpenseRecordCreate {
   final String? spent_at;
 
   Map<String, dynamic> toJson() => <String, dynamic>{
+        if (account_id != null) 'account_id': account_id,
         if (amount != null) 'amount': amount,
         if (category != null) 'category': category,
         if (currency != null) 'currency': currency,
@@ -1901,10 +2054,18 @@ class ExpenseRecordCreate {
 }
 
 class ExpenseRecordResponse {
-  const ExpenseRecordResponse({this.amount, this.category, this.created_at, this.created_by, this.currency, this.description, this.id, this.payee, this.payment_method, this.reference, this.spent_at, this.tenant_id});
+  const ExpenseRecordResponse({this.account_id, this.amount, this.approval_note, this.approved_at, this.approved_by, this.attachment_content_type, this.attachment_file_name, this.attachment_size_bytes, this.attachment_uploaded_at, this.category, this.created_at, this.created_by, this.currency, this.description, this.id, this.payee, this.payment_method, this.reference, this.reversal_reason, this.reversed_at, this.reversed_by, this.spent_at, this.status, this.tenant_id});
 
   factory ExpenseRecordResponse.fromJson(Map<String, dynamic> json) => ExpenseRecordResponse(
+        account_id: json['account_id'] as String?,
         amount: json['amount'] as String?,
+        approval_note: json['approval_note'] as String?,
+        approved_at: json['approved_at'] as String?,
+        approved_by: json['approved_by'] as String?,
+        attachment_content_type: json['attachment_content_type'] as String?,
+        attachment_file_name: json['attachment_file_name'] as String?,
+        attachment_size_bytes: json['attachment_size_bytes'] as int?,
+        attachment_uploaded_at: json['attachment_uploaded_at'] as String?,
         category: json['category'] as String?,
         created_at: json['created_at'] as String?,
         created_by: json['created_by'] as String?,
@@ -1914,12 +2075,24 @@ class ExpenseRecordResponse {
         payee: json['payee'] as String?,
         payment_method: json['payment_method'] as String?,
         reference: json['reference'] as String?,
+        reversal_reason: json['reversal_reason'] as String?,
+        reversed_at: json['reversed_at'] as String?,
+        reversed_by: json['reversed_by'] as String?,
         spent_at: json['spent_at'] as String?,
+        status: json['status'] as String?,
         tenant_id: json['tenant_id'] as String?,
       );
 
+  final String? account_id;
   final String? amount;
-  final ExpenseCategory? category;
+  final String? approval_note;
+  final String? approved_at;
+  final String? approved_by;
+  final String? attachment_content_type;
+  final String? attachment_file_name;
+  final int? attachment_size_bytes;
+  final String? attachment_uploaded_at;
+  final String? category;
   final String? created_at;
   final String? created_by;
   final String? currency;
@@ -1928,11 +2101,23 @@ class ExpenseRecordResponse {
   final String? payee;
   final String? payment_method;
   final String? reference;
+  final String? reversal_reason;
+  final String? reversed_at;
+  final String? reversed_by;
   final String? spent_at;
+  final String? status;
   final String? tenant_id;
 
   Map<String, dynamic> toJson() => <String, dynamic>{
+        if (account_id != null) 'account_id': account_id,
         if (amount != null) 'amount': amount,
+        if (approval_note != null) 'approval_note': approval_note,
+        if (approved_at != null) 'approved_at': approved_at,
+        if (approved_by != null) 'approved_by': approved_by,
+        if (attachment_content_type != null) 'attachment_content_type': attachment_content_type,
+        if (attachment_file_name != null) 'attachment_file_name': attachment_file_name,
+        if (attachment_size_bytes != null) 'attachment_size_bytes': attachment_size_bytes,
+        if (attachment_uploaded_at != null) 'attachment_uploaded_at': attachment_uploaded_at,
         if (category != null) 'category': category,
         if (created_at != null) 'created_at': created_at,
         if (created_by != null) 'created_by': created_by,
@@ -1942,8 +2127,120 @@ class ExpenseRecordResponse {
         if (payee != null) 'payee': payee,
         if (payment_method != null) 'payment_method': payment_method,
         if (reference != null) 'reference': reference,
+        if (reversal_reason != null) 'reversal_reason': reversal_reason,
+        if (reversed_at != null) 'reversed_at': reversed_at,
+        if (reversed_by != null) 'reversed_by': reversed_by,
         if (spent_at != null) 'spent_at': spent_at,
+        if (status != null) 'status': status,
         if (tenant_id != null) 'tenant_id': tenant_id,
+      };
+}
+
+class ExpenseRejectRequest {
+  const ExpenseRejectRequest({this.note});
+
+  factory ExpenseRejectRequest.fromJson(Map<String, dynamic> json) => ExpenseRejectRequest(
+        note: json['note'] as String?,
+      );
+
+  final String? note;
+
+  Map<String, dynamic> toJson() => <String, dynamic>{
+        if (note != null) 'note': note,
+      };
+}
+
+class ExpenseReversalRequest {
+  const ExpenseReversalRequest({this.reason});
+
+  factory ExpenseReversalRequest.fromJson(Map<String, dynamic> json) => ExpenseReversalRequest(
+        reason: json['reason'] as String?,
+      );
+
+  final String? reason;
+
+  Map<String, dynamic> toJson() => <String, dynamic>{
+        if (reason != null) 'reason': reason,
+      };
+}
+
+class FinanceAccountResponse {
+  const FinanceAccountResponse({this.id, this.is_default, this.kind, this.name});
+
+  factory FinanceAccountResponse.fromJson(Map<String, dynamic> json) => FinanceAccountResponse(
+        id: json['id'] as String?,
+        is_default: json['is_default'] as bool?,
+        kind: json['kind'] as String?,
+        name: json['name'] as String?,
+      );
+
+  final String? id;
+  final bool? is_default;
+  final String? kind;
+  final String? name;
+
+  Map<String, dynamic> toJson() => <String, dynamic>{
+        if (id != null) 'id': id,
+        if (is_default != null) 'is_default': is_default,
+        if (kind != null) 'kind': kind,
+        if (name != null) 'name': name,
+      };
+}
+
+class FinancePeriodReopenRequest {
+  const FinancePeriodReopenRequest({this.reason});
+
+  factory FinancePeriodReopenRequest.fromJson(Map<String, dynamic> json) => FinancePeriodReopenRequest(
+        reason: json['reason'] as String?,
+      );
+
+  final String? reason;
+
+  Map<String, dynamic> toJson() => <String, dynamic>{
+        if (reason != null) 'reason': reason,
+      };
+}
+
+class FinancePeriodResponse {
+  const FinancePeriodResponse({this.closed_at, this.closed_by, this.reopen_reason, this.reopened_at, this.status, this.year});
+
+  factory FinancePeriodResponse.fromJson(Map<String, dynamic> json) => FinancePeriodResponse(
+        closed_at: json['closed_at'] as String?,
+        closed_by: json['closed_by'] as String?,
+        reopen_reason: json['reopen_reason'] as String?,
+        reopened_at: json['reopened_at'] as String?,
+        status: json['status'] as String?,
+        year: json['year'] as int?,
+      );
+
+  final String? closed_at;
+  final String? closed_by;
+  final String? reopen_reason;
+  final String? reopened_at;
+  final String? status;
+  final int? year;
+
+  Map<String, dynamic> toJson() => <String, dynamic>{
+        if (closed_at != null) 'closed_at': closed_at,
+        if (closed_by != null) 'closed_by': closed_by,
+        if (reopen_reason != null) 'reopen_reason': reopen_reason,
+        if (reopened_at != null) 'reopened_at': reopened_at,
+        if (status != null) 'status': status,
+        if (year != null) 'year': year,
+      };
+}
+
+class FinanceSettings {
+  const FinanceSettings({this.require_separate_receipt_validator});
+
+  factory FinanceSettings.fromJson(Map<String, dynamic> json) => FinanceSettings(
+        require_separate_receipt_validator: json['require_separate_receipt_validator'] as bool?,
+      );
+
+  final bool? require_separate_receipt_validator;
+
+  Map<String, dynamic> toJson() => <String, dynamic>{
+        if (require_separate_receipt_validator != null) 'require_separate_receipt_validator': require_separate_receipt_validator,
       };
 }
 
@@ -1995,12 +2292,13 @@ class HTTPValidationError {
 }
 
 class ImportResult {
-  const ImportResult({this.dry_run, this.error_count, this.errors, this.success_count, this.total_rows});
+  const ImportResult({this.dry_run, this.error_count, this.errors, this.skipped_count, this.success_count, this.total_rows});
 
   factory ImportResult.fromJson(Map<String, dynamic> json) => ImportResult(
         dry_run: json['dry_run'] as bool?,
         error_count: json['error_count'] as int?,
         errors: (json['errors'] as List<dynamic>?)?.map((dynamic item) => ImportRowError.fromJson(item as Map<String, dynamic>)).toList(),
+        skipped_count: json['skipped_count'] as int?,
         success_count: json['success_count'] as int?,
         total_rows: json['total_rows'] as int?,
       );
@@ -2008,6 +2306,7 @@ class ImportResult {
   final bool? dry_run;
   final int? error_count;
   final List<ImportRowError>? errors;
+  final int? skipped_count;
   final int? success_count;
   final int? total_rows;
 
@@ -2015,6 +2314,7 @@ class ImportResult {
         if (dry_run != null) 'dry_run': dry_run,
         if (error_count != null) 'error_count': error_count,
         if (errors != null) 'errors': errors!.map((item) => item.toJson()).toList(),
+        if (skipped_count != null) 'skipped_count': skipped_count,
         if (success_count != null) 'success_count': success_count,
         if (total_rows != null) 'total_rows': total_rows,
       };
@@ -3397,6 +3697,20 @@ class NotificationTestResponse {
       };
 }
 
+class OpeningBalanceUpdate {
+  const OpeningBalanceUpdate({this.amount});
+
+  factory OpeningBalanceUpdate.fromJson(Map<String, dynamic> json) => OpeningBalanceUpdate(
+        amount: json['amount'],
+      );
+
+  final dynamic amount;
+
+  Map<String, dynamic> toJson() => <String, dynamic>{
+        if (amount != null) 'amount': amount,
+      };
+}
+
 class OperationFailureCreate {
   const OperationFailureCreate({this.method, this.path, this.status_code});
 
@@ -3420,28 +3734,34 @@ class OperationFailureCreate {
 typedef PaymentMethod = String;
 
 class PaymentRecordCreate {
-  const PaymentRecordCreate({this.amount, this.contribution_record_id, this.currency, this.paid_at, this.payment_method, this.reference});
+  const PaymentRecordCreate({this.account_id, this.amount, this.contribution_record_id, this.currency, this.idempotency_key, this.paid_at, this.payment_method, this.reference});
 
   factory PaymentRecordCreate.fromJson(Map<String, dynamic> json) => PaymentRecordCreate(
+        account_id: json['account_id'] as String?,
         amount: json['amount'],
         contribution_record_id: json['contribution_record_id'] as String?,
         currency: json['currency'] as String?,
+        idempotency_key: json['idempotency_key'] as String?,
         paid_at: json['paid_at'] as String?,
         payment_method: json['payment_method'] as String?,
         reference: json['reference'] as String?,
       );
 
+  final String? account_id;
   final dynamic amount;
   final String? contribution_record_id;
   final String? currency;
+  final String? idempotency_key;
   final String? paid_at;
   final PaymentMethod? payment_method;
   final String? reference;
 
   Map<String, dynamic> toJson() => <String, dynamic>{
+        if (account_id != null) 'account_id': account_id,
         if (amount != null) 'amount': amount,
         if (contribution_record_id != null) 'contribution_record_id': contribution_record_id,
         if (currency != null) 'currency': currency,
+        if (idempotency_key != null) 'idempotency_key': idempotency_key,
         if (paid_at != null) 'paid_at': paid_at,
         if (payment_method != null) 'payment_method': payment_method,
         if (reference != null) 'reference': reference,
@@ -3449,9 +3769,10 @@ class PaymentRecordCreate {
 }
 
 class PaymentRecordResponse {
-  const PaymentRecordResponse({this.amount, this.contribution_record_id, this.created_at, this.currency, this.id, this.paid_at, this.payment_method, this.recorded_by, this.reference, this.tenant_id});
+  const PaymentRecordResponse({this.account_id, this.amount, this.contribution_record_id, this.created_at, this.currency, this.id, this.paid_at, this.payment_method, this.receipt_number, this.recorded_by, this.reference, this.reversal_reason, this.reversed_at, this.reversed_by, this.tenant_id});
 
   factory PaymentRecordResponse.fromJson(Map<String, dynamic> json) => PaymentRecordResponse(
+        account_id: json['account_id'] as String?,
         amount: json['amount'] as String?,
         contribution_record_id: json['contribution_record_id'] as String?,
         created_at: json['created_at'] as String?,
@@ -3459,11 +3780,16 @@ class PaymentRecordResponse {
         id: json['id'] as String?,
         paid_at: json['paid_at'] as String?,
         payment_method: json['payment_method'] as String?,
+        receipt_number: json['receipt_number'] as String?,
         recorded_by: json['recorded_by'] as String?,
         reference: json['reference'] as String?,
+        reversal_reason: json['reversal_reason'] as String?,
+        reversed_at: json['reversed_at'] as String?,
+        reversed_by: json['reversed_by'] as String?,
         tenant_id: json['tenant_id'] as String?,
       );
 
+  final String? account_id;
   final String? amount;
   final String? contribution_record_id;
   final String? created_at;
@@ -3471,11 +3797,16 @@ class PaymentRecordResponse {
   final String? id;
   final String? paid_at;
   final String? payment_method;
+  final String? receipt_number;
   final String? recorded_by;
   final String? reference;
+  final String? reversal_reason;
+  final String? reversed_at;
+  final String? reversed_by;
   final String? tenant_id;
 
   Map<String, dynamic> toJson() => <String, dynamic>{
+        if (account_id != null) 'account_id': account_id,
         if (amount != null) 'amount': amount,
         if (contribution_record_id != null) 'contribution_record_id': contribution_record_id,
         if (created_at != null) 'created_at': created_at,
@@ -3483,9 +3814,27 @@ class PaymentRecordResponse {
         if (id != null) 'id': id,
         if (paid_at != null) 'paid_at': paid_at,
         if (payment_method != null) 'payment_method': payment_method,
+        if (receipt_number != null) 'receipt_number': receipt_number,
         if (recorded_by != null) 'recorded_by': recorded_by,
         if (reference != null) 'reference': reference,
+        if (reversal_reason != null) 'reversal_reason': reversal_reason,
+        if (reversed_at != null) 'reversed_at': reversed_at,
+        if (reversed_by != null) 'reversed_by': reversed_by,
         if (tenant_id != null) 'tenant_id': tenant_id,
+      };
+}
+
+class PaymentReversalRequest {
+  const PaymentReversalRequest({this.reason});
+
+  factory PaymentReversalRequest.fromJson(Map<String, dynamic> json) => PaymentReversalRequest(
+        reason: json['reason'] as String?,
+      );
+
+  final String? reason;
+
+  Map<String, dynamic> toJson() => <String, dynamic>{
+        if (reason != null) 'reason': reason,
       };
 }
 
@@ -4174,11 +4523,12 @@ class TenantBranding {
 }
 
 class TenantMembershipResponse {
-  const TenantMembershipResponse({this.branding, this.capabilities, this.default_language, this.modules, this.name, this.profile_type, this.roles, this.slug, this.tenant_id});
+  const TenantMembershipResponse({this.branding, this.capabilities, this.currency, this.default_language, this.modules, this.name, this.profile_type, this.roles, this.slug, this.tenant_id});
 
   factory TenantMembershipResponse.fromJson(Map<String, dynamic> json) => TenantMembershipResponse(
         branding: json['branding'] == null ? null : TenantBranding.fromJson(json['branding'] as Map<String, dynamic>),
         capabilities: (json['capabilities'] as List<dynamic>?)?.map((dynamic item) => item as String).toList(),
+        currency: json['currency'] as String?,
         default_language: json['default_language'] as String?,
         modules: json['modules'] == null ? null : ModuleToggles.fromJson(json['modules'] as Map<String, dynamic>),
         name: json['name'] as String?,
@@ -4190,6 +4540,7 @@ class TenantMembershipResponse {
 
   final TenantBranding? branding;
   final List<String>? capabilities;
+  final String? currency;
   final String? default_language;
   final ModuleToggles? modules;
   final String? name;
@@ -4201,6 +4552,7 @@ class TenantMembershipResponse {
   Map<String, dynamic> toJson() => <String, dynamic>{
         if (branding != null) 'branding': branding!.toJson(),
         if (capabilities != null) 'capabilities': capabilities,
+        if (currency != null) 'currency': currency,
         if (default_language != null) 'default_language': default_language,
         if (modules != null) 'modules': modules!.toJson(),
         if (name != null) 'name': name,
@@ -4244,11 +4596,13 @@ class TenantResponse {
 }
 
 class TenantSettingsResponse {
-  const TenantSettingsResponse({this.branding, this.default_language, this.modules, this.name, this.operations, this.slug, this.tenant_id, this.updated_at});
+  const TenantSettingsResponse({this.branding, this.currency, this.default_language, this.finance, this.modules, this.name, this.operations, this.slug, this.tenant_id, this.updated_at});
 
   factory TenantSettingsResponse.fromJson(Map<String, dynamic> json) => TenantSettingsResponse(
         branding: json['branding'] == null ? null : TenantBranding.fromJson(json['branding'] as Map<String, dynamic>),
+        currency: json['currency'] as String?,
         default_language: json['default_language'] as String?,
+        finance: json['finance'] == null ? null : FinanceSettings.fromJson(json['finance'] as Map<String, dynamic>),
         modules: json['modules'] == null ? null : ModuleToggles.fromJson(json['modules'] as Map<String, dynamic>),
         name: json['name'] as String?,
         operations: json['operations'] == null ? null : RecoveryEvidenceResponse.fromJson(json['operations'] as Map<String, dynamic>),
@@ -4258,7 +4612,9 @@ class TenantSettingsResponse {
       );
 
   final TenantBranding? branding;
+  final String? currency;
   final String? default_language;
+  final FinanceSettings? finance;
   final ModuleToggles? modules;
   final String? name;
   final RecoveryEvidenceResponse? operations;
@@ -4268,7 +4624,9 @@ class TenantSettingsResponse {
 
   Map<String, dynamic> toJson() => <String, dynamic>{
         if (branding != null) 'branding': branding!.toJson(),
+        if (currency != null) 'currency': currency,
         if (default_language != null) 'default_language': default_language,
+        if (finance != null) 'finance': finance!.toJson(),
         if (modules != null) 'modules': modules!.toJson(),
         if (name != null) 'name': name,
         if (operations != null) 'operations': operations!.toJson(),
@@ -4279,25 +4637,31 @@ class TenantSettingsResponse {
 }
 
 class TenantSettingsUpdate {
-  const TenantSettingsUpdate({this.branding, this.default_language, this.modules, this.name, this.operations});
+  const TenantSettingsUpdate({this.branding, this.currency, this.default_language, this.finance, this.modules, this.name, this.operations});
 
   factory TenantSettingsUpdate.fromJson(Map<String, dynamic> json) => TenantSettingsUpdate(
         branding: json['branding'] == null ? null : TenantBranding.fromJson(json['branding'] as Map<String, dynamic>),
+        currency: json['currency'] as String?,
         default_language: json['default_language'] as String?,
+        finance: json['finance'] == null ? null : FinanceSettings.fromJson(json['finance'] as Map<String, dynamic>),
         modules: json['modules'] == null ? null : ModuleToggles.fromJson(json['modules'] as Map<String, dynamic>),
         name: json['name'] as String?,
         operations: json['operations'] == null ? null : RecoveryEvidenceConfig.fromJson(json['operations'] as Map<String, dynamic>),
       );
 
   final TenantBranding? branding;
+  final String? currency;
   final String? default_language;
+  final FinanceSettings? finance;
   final ModuleToggles? modules;
   final String? name;
   final RecoveryEvidenceConfig? operations;
 
   Map<String, dynamic> toJson() => <String, dynamic>{
         if (branding != null) 'branding': branding!.toJson(),
+        if (currency != null) 'currency': currency,
         if (default_language != null) 'default_language': default_language,
+        if (finance != null) 'finance': finance!.toJson(),
         if (modules != null) 'modules': modules!.toJson(),
         if (name != null) 'name': name,
         if (operations != null) 'operations': operations!.toJson(),
@@ -4330,6 +4694,76 @@ class TokenResponse {
         if (tenant_id != null) 'tenant_id': tenant_id,
         if (token_type != null) 'token_type': token_type,
         if (user_id != null) 'user_id': user_id,
+      };
+}
+
+class TreasuryPositionAccount {
+  const TreasuryPositionAccount({this.account_id, this.closing_balance, this.inflow, this.kind, this.name, this.opening_balance, this.outflow, this.pending_custody});
+
+  factory TreasuryPositionAccount.fromJson(Map<String, dynamic> json) => TreasuryPositionAccount(
+        account_id: json['account_id'] as String?,
+        closing_balance: json['closing_balance'] as String?,
+        inflow: json['inflow'] as String?,
+        kind: json['kind'] as String?,
+        name: json['name'] as String?,
+        opening_balance: json['opening_balance'] as String?,
+        outflow: json['outflow'] as String?,
+        pending_custody: json['pending_custody'] as String?,
+      );
+
+  final String? account_id;
+  final String? closing_balance;
+  final String? inflow;
+  final String? kind;
+  final String? name;
+  final String? opening_balance;
+  final String? outflow;
+  final String? pending_custody;
+
+  Map<String, dynamic> toJson() => <String, dynamic>{
+        if (account_id != null) 'account_id': account_id,
+        if (closing_balance != null) 'closing_balance': closing_balance,
+        if (inflow != null) 'inflow': inflow,
+        if (kind != null) 'kind': kind,
+        if (name != null) 'name': name,
+        if (opening_balance != null) 'opening_balance': opening_balance,
+        if (outflow != null) 'outflow': outflow,
+        if (pending_custody != null) 'pending_custody': pending_custody,
+      };
+}
+
+class TreasuryPositionResponse {
+  const TreasuryPositionResponse({this.accounts, this.currency, this.total_closing, this.total_inflow, this.total_opening, this.total_outflow, this.total_pending_custody, this.year});
+
+  factory TreasuryPositionResponse.fromJson(Map<String, dynamic> json) => TreasuryPositionResponse(
+        accounts: (json['accounts'] as List<dynamic>?)?.map((dynamic item) => TreasuryPositionAccount.fromJson(item as Map<String, dynamic>)).toList(),
+        currency: json['currency'] as String?,
+        total_closing: json['total_closing'] as String?,
+        total_inflow: json['total_inflow'] as String?,
+        total_opening: json['total_opening'] as String?,
+        total_outflow: json['total_outflow'] as String?,
+        total_pending_custody: json['total_pending_custody'] as String?,
+        year: json['year'] as int?,
+      );
+
+  final List<TreasuryPositionAccount>? accounts;
+  final String? currency;
+  final String? total_closing;
+  final String? total_inflow;
+  final String? total_opening;
+  final String? total_outflow;
+  final String? total_pending_custody;
+  final int? year;
+
+  Map<String, dynamic> toJson() => <String, dynamic>{
+        if (accounts != null) 'accounts': accounts!.map((item) => item.toJson()).toList(),
+        if (currency != null) 'currency': currency,
+        if (total_closing != null) 'total_closing': total_closing,
+        if (total_inflow != null) 'total_inflow': total_inflow,
+        if (total_opening != null) 'total_opening': total_opening,
+        if (total_outflow != null) 'total_outflow': total_outflow,
+        if (total_pending_custody != null) 'total_pending_custody': total_pending_custody,
+        if (year != null) 'year': year,
       };
 }
 
@@ -4546,13 +4980,34 @@ const Map<String, String> apiOperationIds = <String, String>{
   'POST /api/v1/chat/query-stream': 'query_chat_stream_api_v1_chat_query_stream_post',
   'GET /api/v1/contributions/': 'list_contributions_api_v1_contributions__get',
   'POST /api/v1/contributions/': 'create_contribution_api_v1_contributions__post',
+  'GET /api/v1/contributions/accounts': 'list_treasury_accounts_api_v1_contributions_accounts_get',
+  'PUT /api/v1/contributions/accounts/{account_id}/opening-balance/{year}': 'set_opening_balance_api_v1_contributions_accounts__account_id__opening_balance__year__put',
   'GET /api/v1/contributions/annual-budget': 'get_annual_budget_api_v1_contributions_annual_budget_get',
+  'GET /api/v1/contributions/budget-plan': 'get_budget_plan_api_v1_contributions_budget_plan_get',
+  'PUT /api/v1/contributions/budget-plan/{year}': 'set_budget_plan_api_v1_contributions_budget_plan__year__put',
   'GET /api/v1/contributions/by-member/{profile_id}': 'list_member_contributions_api_v1_contributions_by_member__profile_id__get',
+  'GET /api/v1/contributions/expense-categories': 'list_expense_categories_api_v1_contributions_expense_categories_get',
+  'POST /api/v1/contributions/expense-categories': 'create_expense_category_api_v1_contributions_expense_categories_post',
+  'GET /api/v1/contributions/expenses': 'list_expenses_api_v1_contributions_expenses_get',
   'POST /api/v1/contributions/expenses': 'create_expense_api_v1_contributions_expenses_post',
+  'GET /api/v1/contributions/expenses/export': 'export_expenses_api_v1_contributions_expenses_export_get',
+  'GET /api/v1/contributions/expenses/{expense_id}': 'get_expense_api_v1_contributions_expenses__expense_id__get',
+  'POST /api/v1/contributions/expenses/{expense_id}/approve': 'approve_expense_api_v1_contributions_expenses__expense_id__approve_post',
+  'GET /api/v1/contributions/expenses/{expense_id}/attachment': 'download_expense_attachment_api_v1_contributions_expenses__expense_id__attachment_get',
+  'POST /api/v1/contributions/expenses/{expense_id}/attachment': 'upload_expense_attachment_api_v1_contributions_expenses__expense_id__attachment_post',
+  'POST /api/v1/contributions/expenses/{expense_id}/reject': 'reject_expense_api_v1_contributions_expenses__expense_id__reject_post',
+  'POST /api/v1/contributions/expenses/{expense_id}/reverse': 'reverse_expense_api_v1_contributions_expenses__expense_id__reverse_post',
   'GET /api/v1/contributions/export': 'export_contributions_api_v1_contributions_export_get',
   'POST /api/v1/contributions/import': 'import_contributions_api_v1_contributions_import_post',
+  'GET /api/v1/contributions/journal/export': 'export_finance_journal_api_v1_contributions_journal_export_get',
   'GET /api/v1/contributions/payments': 'list_tenant_payments_api_v1_contributions_payments_get',
   'POST /api/v1/contributions/payments': 'record_payment_api_v1_contributions_payments_post',
+  'GET /api/v1/contributions/payments/{payment_id}/receipt.pdf': 'download_payment_receipt_api_v1_contributions_payments__payment_id__receipt_pdf_get',
+  'POST /api/v1/contributions/payments/{payment_id}/reverse': 'reverse_payment_api_v1_contributions_payments__payment_id__reverse_post',
+  'GET /api/v1/contributions/periods': 'list_finance_periods_api_v1_contributions_periods_get',
+  'GET /api/v1/contributions/periods/{year}': 'get_finance_period_api_v1_contributions_periods__year__get',
+  'POST /api/v1/contributions/periods/{year}/close': 'close_finance_period_api_v1_contributions_periods__year__close_post',
+  'POST /api/v1/contributions/periods/{year}/reopen': 'reopen_finance_period_api_v1_contributions_periods__year__reopen_post',
   'GET /api/v1/contributions/receipt-declarations': 'list_receipt_declarations_api_v1_contributions_receipt_declarations_get',
   'POST /api/v1/contributions/receipt-declarations': 'create_receipt_declaration_api_v1_contributions_receipt_declarations_post',
   'GET /api/v1/contributions/receipt-declarations/me': 'list_member_receipt_declarations_api_v1_contributions_receipt_declarations_me_get',
@@ -4569,6 +5024,7 @@ const Map<String, String> apiOperationIds = <String, String>{
   'GET /api/v1/contributions/report/export': 'export_finance_report_api_v1_contributions_report_export_get',
   'GET /api/v1/contributions/report/export/{export_format}': 'export_member_finance_report_api_v1_contributions_report_export__export_format__get',
   'GET /api/v1/contributions/summary': 'get_contribution_summary_api_v1_contributions_summary_get',
+  'GET /api/v1/contributions/treasury-position': 'get_treasury_position_api_v1_contributions_treasury_position_get',
   'GET /api/v1/contributions/{contribution_id}': 'get_contribution_api_v1_contributions__contribution_id__get',
   'PATCH /api/v1/contributions/{contribution_id}': 'update_contribution_api_v1_contributions__contribution_id__patch',
   'DELETE /api/v1/contributions/{contribution_id}': 'delete_contribution_api_v1_contributions__contribution_id__delete',

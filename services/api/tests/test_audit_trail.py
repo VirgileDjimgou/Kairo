@@ -53,7 +53,6 @@ async def _create_contribution(
             "expected_amount": "100.00",
             "paid_amount": "25.00",
             "currency": "EUR",
-            "status": "pending",
         },
     )
     assert response.status_code == 201, response.text

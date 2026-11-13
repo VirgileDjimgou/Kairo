@@ -4,16 +4,15 @@ This is a local-first, multi-tenant RAG platform for organizations.
 
 ## Source of truth
 
-Read these files before making changes:
+Start from the session brief, then read only what the task needs:
 
+- `docs/ai/SESSION_BRIEF.md` (generated; or run `npm run session:brief`)
 - `AGENTS.md`
-- `constitution/KAIRO_CONSTITUTION.md`
-- `IMPLEMENTATION_ROADMAP.md`
-- `PROJECT_STATUS.md`
-- `orgmind_prompt_pack/00_MASTER_PROMPT_CODEX.md`
-- `orgmind_prompt_pack/01_PROJECT_CONSTITUTION.md`
-- `orgmind_prompt_pack/02_ARCHITECTURE.md`
-- `orgmind_prompt_pack/03_ROADMAP_SPRINTS.md`
+- `constitution/KAIRO_CONSTITUTION.md` when the change touches policy or authorization
+
+Do not read `IMPLEMENTATION_ROADMAP.md`, `PROJECT_STATUS.md` or
+`orgmind_prompt_pack/` in full to get oriented. They are historical reference;
+grep the section a task names.
 
 ## Hard rules
 
@@ -51,9 +50,12 @@ Repository methods always accept `tenant_id: UUID` as a mandatory argument.
 
 ## Sprint continuity
 
-- Determine the current sprint from `PROJECT_STATUS.md` and `IMPLEMENTATION_ROADMAP.md`.
-- Do not skip ahead to later roadmap sprints unless explicitly requested.
-- If sprint progress changes, update `PROJECT_STATUS.md` and `IMPLEMENTATION_ROADMAP.md`.
+- Determine the current sprint from `docs/roadmap/KAIRO_V2_ROADMAP.json` plus the
+  batch state machine; `npm run session:brief` prints both.
+- Never infer sprint progress from `PROJECT_STATUS.md` or `IMPLEMENTATION_ROADMAP.md`
+  prose, and do not skip ahead unless explicitly requested.
+- Record sprint transitions through `scripts/sprint-batch/cli.mjs`; update
+  `PROJECT_STATUS.md` when the delivered product state changes.
 
 ## Flutter client (FROZEN / LEGACY REFERENCE)
 

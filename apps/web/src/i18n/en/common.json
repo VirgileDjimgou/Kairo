@@ -156,5 +156,6 @@
   "install.installed": "{name} is installed on this device.",
   "install.guidanceIos": "To install, open the Share menu and choose “Add to Home Screen”.",
   "install.guidanceFirefox": "To install, open the browser menu and choose “Install”.",
-  "install.guidanceGeneric": "To install, open the browser menu and choose “Add to Home screen”."
+  "install.guidanceGeneric": "To install, open the browser menu and choose “Add to Home screen”.",
+  "common.skippedCount": "Skipped"
 }

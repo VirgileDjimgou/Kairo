@@ -4,8 +4,10 @@ This folder is the continuity hub for agentic IDE sessions on Kairo.
 
 ## Authoritative Files
 
+- `SESSION_BRIEF.md`: generated one-page session warm-up (do not edit by hand;
+  regenerate with `npm run session:brief -- --write`)
 - `PROJECT_STATE.md`: verified implementation snapshot
-- `NEXT_SPRINT.md`: immediate execution target
+- `NEXT_SPRINT.md`: how the next sprint is resolved (no status is tracked there)
 - `POST_AUDIT_ROADMAP_2026-07-17.md`: dense roadmap extension after the July 17, 2026 audit pass
 - `AUDIT_WEAKNESSES_2026-07-17.md`: evidence-backed weakness summary used to build the post-audit roadmap
 
@@ -21,17 +23,12 @@ This folder is the continuity hub for agentic IDE sessions on Kairo.
 
 ## Recommended Read Order
 
-At the start of a new session, read:
+At the start of a new session, run `npm run session:brief` (or read
+`SESSION_BRIEF.md`). Then read only the documents the task routing table names.
 
-1. `README.md`
-2. `AGENTS.md`
-3. `constitution/KAIRO_CONSTITUTION.md`
-4. `IMPLEMENTATION_ROADMAP.md`
-5. `PROJECT_STATUS.md`
-6. `docs/ai/PROJECT_STATE.md`
-7. `docs/ai/NEXT_SPRINT.md`
-8. `prompts/CODEX_AUTOPILOT.md`
-9. `prompts/KAIRO_CONTINUE_UNIVERSAL.md`
+Do not read `IMPLEMENTATION_ROADMAP.md`, `PROJECT_STATUS.md`,
+`orgmind_prompt_pack/` or the Flutter documents in full to "get oriented"; they are
+reference material for a specific task, not a warm-up.
 
 ## Usage
 

@@ -5,8 +5,13 @@
         <div class="text-uppercase small fw-semibold text-danger mb-1">{{ t('finance.expenseKicker') }}</div>
         <h2 class="h5 fw-bold mb-1">{{ t('finance.expenseTitle') }}</h2><p class="small text-muted mb-4">{{ t('finance.expenseLead') }}</p>
         <form class="row g-3" @submit.prevent="submitExpense">
-          <div class="col-md-7"><label for="expense-category" class="form-label small fw-medium">{{ t('finance.expenseCategory') }}</label><select id="expense-category" v-model="form.category" class="form-select" required><option v-for="category in categories" :key="category" :value="category">{{ expenseCategoryLabel(category) }}</option></select></div>
-          <div class="col-md-5"><label for="expense-amount" class="form-label small fw-medium">{{ t('common.amount') }} (EUR)</label><input id="expense-amount" v-model="form.amount" class="form-control" type="number" min="0.01" step="0.01" required /></div>
+          <div class="col-md-7"><label for="expense-category" class="form-label small fw-medium">{{ t('finance.expenseCategory') }}</label><select id="expense-category" v-model="form.category" class="form-select" required><option v-for="category in categories" :key="category.code" :value="category.code">{{ category.is_default ? expenseCategoryLabel(category.code) : category.name }}</option></select></div>
+          <div class="col-12 d-flex gap-2">
+            <input v-model.trim="newCategoryName" class="form-control form-control-sm" type="text" :placeholder="t('finance.addCategory')" />
+            <button class="btn btn-outline-secondary btn-sm text-nowrap" type="button" :disabled="creatingCategory || !newCategoryName" @click="createCategory">{{ t('finance.addCategory') }}</button>
+          </div>
+          <div v-if="categoryError" class="col-12 small text-danger" role="alert">{{ categoryError }}</div>
+          <div class="col-md-5"><label for="expense-amount" class="form-label small fw-medium">{{ t('common.amount') }} ({{ currency }})</label><input id="expense-amount" v-model="form.amount" class="form-control" type="number" min="0.01" step="0.01" required /></div>
           <div class="col-md-6"><label for="expense-date" class="form-label small fw-medium">{{ t('finance.expenseDate') }}</label><input id="expense-date" v-model="form.spent_at" class="form-control" type="date" required /></div>
           <div class="col-md-6"><label for="expense-method" class="form-label small fw-medium">{{ t('contributions.paymentMethod') }}</label><select id="expense-method" v-model="form.payment_method" class="form-select"><option value="cash">{{ t('contributions.cash') }}</option><option value="bank_transfer">{{ t('contributions.bankTransfer') }}</option><option value="card">{{ t('finance.card') }}</option><option value="check">{{ t('contributions.check') }}</option><option value="other">{{ t('finance.other') }}</option></select></div>
           <div class="col-12"><label for="expense-payee" class="form-label small fw-medium">{{ t('finance.expensePayee') }}</label><input id="expense-payee" v-model.trim="form.payee" class="form-control" /></div>
@@ -28,27 +33,37 @@
 
 <script setup lang="ts">
 import { ref, watch } from 'vue'
-import type { AnnualBudgetResponse, TreasuryExpenseCategory } from '@/api/contributions.api'
+import {
+  createExpenseCategory,
+  type AnnualBudgetResponse,
+  type ExpenseCategoryResponse,
+} from '@/api/contributions.api'
 import { useLocaleStore } from '@/stores/locale.store'
 import type { ExpenseInput } from '../composables/useFinanceWorkspace'
 import { useFinanceFormatting } from '../composables/useFinanceFormatting'
 
 const props = defineProps<{
   budget: AnnualBudgetResponse | null
-  categories: TreasuryExpenseCategory[]
+  categories: ExpenseCategoryResponse[]
   saving: boolean
   resetToken: number
 }>()
 
-const emit = defineEmits<{ submit: [payload: ExpenseInput] }>()
+const emit = defineEmits<{
+  submit: [payload: ExpenseInput]
+  'category-created': [category: ExpenseCategoryResponse]
+}>()
 
 const localeStore = useLocaleStore()
 const t = (key: string) => localeStore.t(key)
-const { expenseCategoryLabel, formatMoney, formatDate } = useFinanceFormatting()
+const { expenseCategoryLabel, formatMoney, formatDate, currency } = useFinanceFormatting()
+const newCategoryName = ref('')
+const creatingCategory = ref(false)
+const categoryError = ref('')
 
 function defaultForm() {
   return {
-    category: 'sport_equipment' as TreasuryExpenseCategory,
+    category: props.categories[0]?.code ?? 'other',
     amount: '',
     spent_at: new Date().toISOString().slice(0, 10),
     description: '',
@@ -66,6 +81,22 @@ function resetForm() {
 
 function submitExpense() {
   emit('submit', { ...form.value })
+}
+
+async function createCategory() {
+  if (!newCategoryName.value) return
+  creatingCategory.value = true
+  categoryError.value = ''
+  try {
+    const category = await createExpenseCategory(newCategoryName.value)
+    emit('category-created', category)
+    newCategoryName.value = ''
+    form.value.category = category.code
+  } catch {
+    categoryError.value = t('finance.categoryCreateFailed')
+  } finally {
+    creatingCategory.value = false
+  }
 }
 
 watch(() => props.resetToken, resetForm)

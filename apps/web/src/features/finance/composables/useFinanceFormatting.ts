@@ -1,10 +1,13 @@
+import { computed } from 'vue'
 import { useLocaleStore } from '@/stores/locale.store'
+import { useTenantStore } from '@/stores/tenant.store'
 import type {
   BudgetCategoryTotal,
   ContributionReminderResponse,
   ContributionReceiptDeclarationResponse,
 } from '@/api/contributions.api'
 import { useFinanceCopy } from './useFinanceCopy'
+import { useExpenseCategories } from './useExpenseCategories'
 
 export const FINANCE_INCOME_PALETTE = ['#2563a8', '#21a179', '#7a5af8', '#19a7ce', '#d38b18', '#546173']
 export const FINANCE_EXPENSE_PALETTE = ['#d33a4c', '#e88924', '#8f3f9f', '#2f855a', '#4a6fa5', '#7a7f89']
@@ -17,8 +20,11 @@ export const FINANCE_EXPENSE_PALETTE = ['#d33a4c', '#e88924', '#8f3f9f', '#2f855
  */
 export function useFinanceFormatting() {
   const localeStore = useLocaleStore()
+  const tenantStore = useTenantStore()
+  const { nameFor } = useExpenseCategories()
   const copy = useFinanceCopy()
   const t = (key: string) => localeStore.t(key)
+  const currency = computed(() => tenantStore.currentCurrency)
 
   function formatDate(value: string | null): string {
     if (!value) return '—'
@@ -32,7 +38,7 @@ export function useFinanceFormatting() {
   function formatMoney(value: string): string {
     return new Intl.NumberFormat(localeStore.currentLocale, {
       style: 'currency',
-      currency: 'EUR',
+      currency: currency.value,
       minimumFractionDigits: 2,
     }).format(Number(value || 0))
   }
@@ -58,7 +64,9 @@ export function useFinanceFormatting() {
       administration: 'finance.expenseCategory.administration',
       other: 'finance.expenseCategory.other',
     }
-    return t(keys[category] || 'finance.expenseCategory.other')
+    const key = keys[category]
+    if (key) return t(key)
+    return nameFor(category) || category
   }
 
   function budgetPercentage(amount: string, total: string): number {
@@ -120,6 +128,7 @@ export function useFinanceFormatting() {
 
   return {
     copy,
+    currency,
     formatDate,
     formatPaymentMethod,
     formatMoney,

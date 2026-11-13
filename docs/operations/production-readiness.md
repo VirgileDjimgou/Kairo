@@ -1,5 +1,11 @@
 # Production Readiness And Recovery
 
+Before loading real member or financial data, read
+[`TREASURY_OPERATIONAL_AUDIT.md`](./TREASURY_OPERATIONAL_AUDIT.md): it lists the
+remaining finance gaps (receipt-year booking, cash in custody, expense correction,
+exercise close, opening balances, currency lock) that this operational runbook does not
+cover. The F0–F3 delivery history is in `TREASURY_COMPLETENESS_AUDIT.md`.
+
 This document captures the validation steps for Sprint 24.
 
 The preferred operator flow now starts with [`docs/operations/deployment-runbook.md`](./deployment-runbook.md), which wraps these checks into install, upgrade, and rollback helpers.

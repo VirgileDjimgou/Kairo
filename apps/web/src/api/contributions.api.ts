@@ -24,6 +24,11 @@ export interface PaymentRecordResponse {
   paid_at: string
   payment_method: string
   reference: string | null
+  account_id: string | null
+  receipt_number: string | null
+  reversed_at: string | null
+  reversed_by: string | null
+  reversal_reason: string | null
   recorded_by: string | null
   created_at: string
 }
@@ -87,7 +92,7 @@ export type TreasuryExpenseCategory = 'sport_equipment' | 'fuel_transport' | 'to
 export interface ExpenseRecordResponse {
   id: string
   tenant_id: string
-  category: TreasuryExpenseCategory
+  category: string
   amount: string
   currency: string
   spent_at: string
@@ -95,12 +100,24 @@ export interface ExpenseRecordResponse {
   payee: string | null
   payment_method: string
   reference: string | null
+  account_id: string | null
+  reversed_at: string | null
+  reversed_by: string | null
+  reversal_reason: string | null
+  status: 'recorded' | 'approved' | 'rejected'
+  approved_at: string | null
+  approved_by: string | null
+  approval_note: string | null
+  attachment_file_name: string | null
+  attachment_content_type: string | null
+  attachment_size_bytes: number | null
+  attachment_uploaded_at: string | null
   created_by: string | null
   created_at: string
 }
 
 export interface CreateExpensePayload {
-  category: TreasuryExpenseCategory
+  category: string
   amount: string
   currency?: string
   spent_at?: string | null
@@ -113,6 +130,8 @@ export interface CreateExpensePayload {
 export interface BudgetCategoryTotal {
   category: string
   amount: string
+  planned_amount: string
+  variance: string
 }
 
 export interface AnnualBudgetResponse {
@@ -121,9 +140,64 @@ export interface AnnualBudgetResponse {
   income_total: string
   expense_total: string
   available_balance: string
+  planned_income_total: string
+  planned_expense_total: string
+  income_variance: string
+  expense_variance: string
   income_by_category: BudgetCategoryTotal[]
   expenses_by_category: BudgetCategoryTotal[]
   recent_expenses: ExpenseRecordResponse[]
+}
+
+export interface ExpenseCategoryResponse {
+  id: string
+  code: string
+  name: string
+  is_default: boolean
+  is_active: boolean
+}
+
+export interface FinanceAccountResponse {
+  id: string
+  name: string
+  kind: 'cash' | 'bank' | 'other'
+  is_default: boolean
+}
+
+export interface TreasuryPositionAccount {
+  account_id: string | null
+  name: string
+  kind: string
+  opening_balance: string
+  inflow: string
+  outflow: string
+  pending_custody: string
+  closing_balance: string
+}
+
+export interface TreasuryPositionResponse {
+  year: number
+  currency: string
+  accounts: TreasuryPositionAccount[]
+  total_opening: string
+  total_inflow: string
+  total_outflow: string
+  total_pending_custody: string
+  total_closing: string
+}
+
+export interface BudgetPlanLine {
+  direction: 'income' | 'expense'
+  category: string
+  planned_amount: string
+}
+
+export interface BudgetPlanResponse {
+  year: number
+  currency: string
+  lines: BudgetPlanLine[]
+  planned_income_total: string
+  planned_expense_total: string
 }
 
 export type ContributionReceiptStatus = 'draft' | 'submitted' | 'clarification_requested' | 'validated' | 'partially_validated' | 'rejected' | 'cancelled'
@@ -315,8 +389,150 @@ export async function getAnnualBudget(year: number): Promise<AnnualBudgetRespons
   return response.data
 }
 
+export async function listExpenseCategories(): Promise<ExpenseCategoryResponse[]> {
+  const response = await http.get<ExpenseCategoryResponse[]>('/contributions/expense-categories')
+  return response.data
+}
+
+export async function createExpenseCategory(name: string): Promise<ExpenseCategoryResponse> {
+  const response = await http.post<ExpenseCategoryResponse>('/contributions/expense-categories', { name })
+  return response.data
+}
+
+export async function listFinanceAccounts(): Promise<FinanceAccountResponse[]> {
+  const response = await http.get<FinanceAccountResponse[]>('/contributions/accounts')
+  return response.data
+}
+
+export async function getTreasuryPosition(year: number): Promise<TreasuryPositionResponse> {
+  const response = await http.get<TreasuryPositionResponse>('/contributions/treasury-position', {
+    params: { year },
+  })
+  return response.data
+}
+
+export async function setOpeningBalance(
+  accountId: string,
+  year: number,
+  amount: string,
+): Promise<TreasuryPositionResponse> {
+  const response = await http.put<TreasuryPositionResponse>(
+    `/contributions/accounts/${accountId}/opening-balance/${year}`,
+    { amount },
+  )
+  return response.data
+}
+
+export async function getBudgetPlan(year: number): Promise<BudgetPlanResponse> {
+  const response = await http.get<BudgetPlanResponse>('/contributions/budget-plan', {
+    params: { year },
+  })
+  return response.data
+}
+
+export async function setBudgetPlan(
+  year: number,
+  lines: BudgetPlanLine[],
+): Promise<BudgetPlanResponse> {
+  const response = await http.put<BudgetPlanResponse>(`/contributions/budget-plan/${year}`, {
+    lines,
+  })
+  return response.data
+}
+
+export async function downloadPaymentReceipt(paymentId: string): Promise<Blob> {
+  const response = await http.get(`/contributions/payments/${paymentId}/receipt.pdf`, {
+    responseType: 'blob',
+  })
+  return response.data
+}
+
+export async function exportFinanceJournal(year: number): Promise<Blob> {
+  const response = await http.get('/contributions/journal/export', {
+    params: { year },
+    responseType: 'blob',
+  })
+  return response.data
+}
+
 export async function createExpense(payload: CreateExpensePayload): Promise<ExpenseRecordResponse> {
   const response = await http.post<ExpenseRecordResponse>('/contributions/expenses', payload)
+  return response.data
+}
+
+export interface ExpenseListParams {
+  year?: number
+  category?: TreasuryExpenseCategory
+  limit?: number
+  offset?: number
+}
+
+export async function listExpenses(params: ExpenseListParams = {}): Promise<ExpenseRecordResponse[]> {
+  const response = await http.get<ExpenseRecordResponse[]>('/contributions/expenses', { params })
+  return response.data
+}
+
+export async function getExpense(expenseId: string): Promise<ExpenseRecordResponse> {
+  const response = await http.get<ExpenseRecordResponse>(`/contributions/expenses/${expenseId}`)
+  return response.data
+}
+
+export async function reverseExpense(expenseId: string, reason: string): Promise<ExpenseRecordResponse> {
+  const response = await http.post<ExpenseRecordResponse>(`/contributions/expenses/${expenseId}/reverse`, { reason })
+  return response.data
+}
+
+export async function approveExpense(expenseId: string): Promise<ExpenseRecordResponse> {
+  const response = await http.post<ExpenseRecordResponse>(`/contributions/expenses/${expenseId}/approve`)
+  return response.data
+}
+
+export async function rejectExpense(expenseId: string, note: string): Promise<ExpenseRecordResponse> {
+  const response = await http.post<ExpenseRecordResponse>(`/contributions/expenses/${expenseId}/reject`, { note })
+  return response.data
+}
+
+export async function exportExpenses(year: number, format: 'csv' | 'xlsx' = 'csv'): Promise<Blob> {
+  const response = await http.get('/contributions/expenses/export', {
+    params: { year, export_format: format },
+    responseType: 'blob',
+  })
+  return response.data
+}
+
+export async function uploadExpenseAttachment(expenseId: string, file: File): Promise<ExpenseRecordResponse> {
+  const formData = new FormData()
+  formData.append('file', file)
+  const response = await http.post<ExpenseRecordResponse>(
+    `/contributions/expenses/${expenseId}/attachment`,
+    formData,
+  )
+  return response.data
+}
+
+export async function downloadExpenseAttachment(expenseId: string): Promise<Blob> {
+  const response = await http.get(`/contributions/expenses/${expenseId}/attachment`, {
+    responseType: 'blob',
+  })
+  return response.data
+}
+
+export interface FinancePeriodResponse {
+  year: number
+  status: 'open' | 'closed'
+  closed_at: string | null
+  closed_by: string | null
+  reopened_at: string | null
+  reopen_reason: string | null
+}
+
+export async function getFinancePeriod(year: number): Promise<FinancePeriodResponse> {
+  const response = await http.get<FinancePeriodResponse>(`/contributions/periods/${year}`)
+  return response.data
+}
+
+export async function closeFinancePeriod(year: number): Promise<FinancePeriodResponse> {
+  const response = await http.post<FinancePeriodResponse>(`/contributions/periods/${year}/close`)
   return response.data
 }
 
@@ -371,15 +587,19 @@ export async function confirmContributionReceiptInTreasury(id: string, payload: 
 }
 
 export interface ImportRowError {
-  row: number
+  row_number: number
   message: string
+  column?: string | null
+  value?: string | null
 }
 
 export interface ImportResult {
-  total: number
+  total_rows: number
   success_count: number
   error_count: number
+  skipped_count: number
   errors: ImportRowError[]
+  dry_run: boolean
 }
 
 export async function importContributionsCsv(file: File, dryRun = false): Promise<ImportResult> {

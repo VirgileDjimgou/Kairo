@@ -4,7 +4,7 @@
       <div class="card shadow-sm border-0 bg-primary-subtle">
         <div class="card-body text-center py-3">
           <div class="text-muted small">{{ t('contributions.expected') }}</div>
-          <div class="fw-bold fs-4">{{ summary.total_expected }} EUR</div>
+          <div class="fw-bold fs-4">{{ summary.total_expected }} {{ tenantStore.currentCurrency }}</div>
         </div>
       </div>
     </div>
@@ -12,7 +12,7 @@
       <div class="card shadow-sm border-0 bg-success-subtle">
         <div class="card-body text-center py-3">
           <div class="text-muted small">{{ t('contributions.paid') }}</div>
-          <div class="fw-bold fs-4">{{ summary.total_paid }} EUR</div>
+          <div class="fw-bold fs-4">{{ summary.total_paid }} {{ tenantStore.currentCurrency }}</div>
         </div>
       </div>
     </div>
@@ -20,7 +20,7 @@
       <div class="card shadow-sm border-0" :class="Number(summary.total_balance) > 0 ? 'bg-warning-subtle' : 'bg-success-subtle'">
         <div class="card-body text-center py-3">
           <div class="text-muted small">{{ t('finance.outstandingBalance') }}</div>
-          <div class="fw-bold fs-4">{{ summary.total_balance }} EUR</div>
+          <div class="fw-bold fs-4">{{ summary.total_balance }} {{ tenantStore.currentCurrency }}</div>
         </div>
       </div>
     </div>
@@ -30,9 +30,11 @@
 <script setup lang="ts">
 import type { ContributionSummary } from '@/api/contributions.api'
 import { useLocaleStore } from '@/stores/locale.store'
+import { useTenantStore } from '@/stores/tenant.store'
 
 defineProps<{ summary: ContributionSummary | null }>()
 
 const localeStore = useLocaleStore()
+const tenantStore = useTenantStore()
 const t = (key: string) => localeStore.t(key)
 </script>

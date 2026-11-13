@@ -9,7 +9,6 @@ from app.modules.contributions.models import (
     CashHandoverStatus,
     ContributionReceiptStatus,
     ContributionStatus,
-    ExpenseCategory,
     FinancialIncomeType,
     PaymentMethod,
     ReminderDeliveryStatus,
@@ -57,11 +56,17 @@ class ContributionRecordResponse(BaseModel):
 
 class PaymentRecordCreate(BaseModel):
     contribution_record_id: UUID
+    account_id: UUID | None = None
     amount: Decimal = Field(..., gt=0)
     currency: str = Field(default="EUR", max_length=3)
     paid_at: datetime | None = None
     payment_method: PaymentMethod = PaymentMethod.other
     reference: str | None = Field(None, max_length=255)
+    idempotency_key: str | None = Field(default=None, min_length=8, max_length=100)
+
+
+class PaymentReversalRequest(BaseModel):
+    reason: str = Field(..., min_length=3, max_length=500)
 
 
 class PaymentRecordResponse(BaseModel):
@@ -73,7 +78,12 @@ class PaymentRecordResponse(BaseModel):
     paid_at: datetime
     payment_method: str
     reference: str | None
+    account_id: UUID | None = None
+    receipt_number: str | None = None
     recorded_by: UUID | None
+    reversed_at: datetime | None = None
+    reversed_by: UUID | None = None
+    reversal_reason: str | None = None
     created_at: datetime
 
     model_config = {"from_attributes": True}
@@ -86,7 +96,7 @@ class PaymentRecordResponse(BaseModel):
 class ExpenseRecordCreate(BaseModel):
     """Treasurer-entered association outflow."""
 
-    category: ExpenseCategory
+    category: str = Field(..., min_length=2, max_length=64)
     amount: Decimal = Field(..., gt=0)
     currency: str = Field(default="EUR", min_length=3, max_length=3)
     spent_at: datetime | None = None
@@ -94,12 +104,13 @@ class ExpenseRecordCreate(BaseModel):
     payee: str | None = Field(default=None, max_length=255)
     payment_method: PaymentMethod = PaymentMethod.other
     reference: str | None = Field(default=None, max_length=255)
+    account_id: UUID | None = None
 
 
 class ExpenseRecordResponse(BaseModel):
     id: UUID
     tenant_id: UUID
-    category: ExpenseCategory
+    category: str
     amount: Decimal
     currency: str
     spent_at: datetime
@@ -107,6 +118,18 @@ class ExpenseRecordResponse(BaseModel):
     payee: str | None
     payment_method: str
     reference: str | None
+    account_id: UUID | None = None
+    reversed_at: datetime | None = None
+    reversed_by: UUID | None = None
+    reversal_reason: str | None = None
+    status: str = "recorded"
+    approved_at: datetime | None = None
+    approved_by: UUID | None = None
+    approval_note: str | None = None
+    attachment_file_name: str | None = None
+    attachment_content_type: str | None = None
+    attachment_size_bytes: int | None = None
+    attachment_uploaded_at: datetime | None = None
     created_by: UUID | None
     created_at: datetime
 
@@ -120,8 +143,10 @@ class ExpenseRecordResponse(BaseModel):
 class BudgetCategoryTotal(BaseModel):
     category: str
     amount: Decimal
+    planned_amount: Decimal = Decimal("0.00")
+    variance: Decimal = Decimal("0.00")
 
-    @field_serializer("amount")
+    @field_serializer("amount", "planned_amount", "variance")
     def serialize_budget_decimal(self, value: Decimal) -> str:
         return str(value.quantize(Decimal("0.01"), rounding=ROUND_HALF_UP))
 
@@ -132,11 +157,23 @@ class AnnualBudgetResponse(BaseModel):
     income_total: Decimal
     expense_total: Decimal
     available_balance: Decimal
+    planned_income_total: Decimal = Decimal("0.00")
+    planned_expense_total: Decimal = Decimal("0.00")
+    income_variance: Decimal = Decimal("0.00")
+    expense_variance: Decimal = Decimal("0.00")
     income_by_category: list[BudgetCategoryTotal]
     expenses_by_category: list[BudgetCategoryTotal]
     recent_expenses: list[ExpenseRecordResponse]
 
-    @field_serializer("income_total", "expense_total", "available_balance")
+    @field_serializer(
+        "income_total",
+        "expense_total",
+        "available_balance",
+        "planned_income_total",
+        "planned_expense_total",
+        "income_variance",
+        "expense_variance",
+    )
     def serialize_budget_total(self, value: Decimal) -> str:
         return str(value.quantize(Decimal("0.01"), rounding=ROUND_HALF_UP))
 
@@ -302,3 +339,107 @@ class ContributionReminderBatchResponse(BaseModel):
     attempted_count: int
     reminder_count: int
     reminders: list[ContributionReminderResponse]
+
+
+class FinancePeriodResponse(BaseModel):
+    year: int
+    status: Literal["open", "closed"]
+    closed_at: datetime | None = None
+    closed_by: UUID | None = None
+    reopened_at: datetime | None = None
+    reopen_reason: str | None = None
+
+
+class FinancePeriodReopenRequest(BaseModel):
+    reason: str = Field(..., min_length=3, max_length=500)
+
+
+class FinanceAccountResponse(BaseModel):
+    id: UUID
+    name: str
+    kind: str
+    is_default: bool
+
+
+class OpeningBalanceUpdate(BaseModel):
+    amount: Decimal
+
+
+class TreasuryPositionAccount(BaseModel):
+    account_id: UUID | None
+    name: str
+    kind: str
+    opening_balance: Decimal
+    inflow: Decimal
+    outflow: Decimal
+    pending_custody: Decimal = Decimal("0.00")
+    closing_balance: Decimal
+
+    @field_serializer(
+        "opening_balance", "inflow", "outflow", "pending_custody", "closing_balance"
+    )
+    def serialize_amounts(self, value: Decimal) -> str:
+        return str(value.quantize(Decimal("0.01"), rounding=ROUND_HALF_UP))
+
+
+class TreasuryPositionResponse(BaseModel):
+    year: int
+    currency: str
+    accounts: list[TreasuryPositionAccount]
+    total_opening: Decimal
+    total_inflow: Decimal
+    total_outflow: Decimal
+    total_pending_custody: Decimal = Decimal("0.00")
+    total_closing: Decimal
+
+    @field_serializer(
+        "total_opening",
+        "total_inflow",
+        "total_outflow",
+        "total_pending_custody",
+        "total_closing",
+    )
+    def serialize_totals(self, value: Decimal) -> str:
+        return str(value.quantize(Decimal("0.01"), rounding=ROUND_HALF_UP))
+
+
+class BudgetPlanLine(BaseModel):
+    direction: Literal["income", "expense"]
+    category: str = Field(..., min_length=1, max_length=64)
+    planned_amount: Decimal = Field(default=Decimal("0.00"), ge=0)
+
+
+class BudgetPlanUpdate(BaseModel):
+    lines: list[BudgetPlanLine] = Field(default_factory=list)
+
+
+class BudgetPlanResponse(BaseModel):
+    year: int
+    currency: str
+    lines: list[BudgetPlanLine]
+    planned_income_total: Decimal
+    planned_expense_total: Decimal
+
+    @field_serializer("planned_income_total", "planned_expense_total")
+    def serialize_plan_total(self, value: Decimal) -> str:
+        return str(value.quantize(Decimal("0.01"), rounding=ROUND_HALF_UP))
+
+
+class ExpenseReversalRequest(BaseModel):
+    reason: str = Field(..., min_length=3, max_length=500)
+
+
+class ExpenseCategoryResponse(BaseModel):
+    id: UUID
+    code: str
+    name: str
+    is_default: bool
+    is_active: bool
+
+
+class ExpenseCategoryCreate(BaseModel):
+    name: str = Field(..., min_length=2, max_length=120)
+
+
+class ExpenseRejectRequest(BaseModel):
+    note: str = Field(..., min_length=3, max_length=1000)

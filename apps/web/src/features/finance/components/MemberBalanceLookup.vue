@@ -36,16 +36,16 @@
         <div class="row g-2 small">
           <div class="col-6">
             <div class="text-muted">{{ t('contributions.expected') }}</div>
-            <div class="fw-semibold">{{ selectedBalance.total_expected }} EUR</div>
+            <div class="fw-semibold">{{ selectedBalance.total_expected }} {{ tenantStore.currentCurrency }}</div>
           </div>
           <div class="col-6">
             <div class="text-muted">{{ t('contributions.paid') }}</div>
-            <div class="fw-semibold">{{ selectedBalance.total_paid }} EUR</div>
+            <div class="fw-semibold">{{ selectedBalance.total_paid }} {{ tenantStore.currentCurrency }}</div>
           </div>
           <div class="col-12">
             <div class="text-muted">{{ t('contributions.balance') }}</div>
             <div class="fw-semibold" :class="Number(selectedBalance.total_balance) > 0 ? 'text-danger' : 'text-success'">
-              {{ selectedBalance.total_balance }} EUR
+              {{ selectedBalance.total_balance }} {{ tenantStore.currentCurrency }}
             </div>
           </div>
         </div>
@@ -61,6 +61,7 @@
 import { computed, ref } from 'vue'
 import type { MemberBalanceResponse, MembershipProfileResponse } from '@/api/membership.api'
 import { useLocaleStore } from '@/stores/locale.store'
+import { useTenantStore } from '@/stores/tenant.store'
 
 const props = defineProps<{
   members: MembershipProfileResponse[]
@@ -71,6 +72,7 @@ const emit = defineEmits<{ 'member-selected': [] }>()
 const selectedMemberId = defineModel<string>('selectedMemberId', { required: true })
 
 const localeStore = useLocaleStore()
+const tenantStore = useTenantStore()
 const t = (key: string) => localeStore.t(key)
 
 const memberSearch = ref('')

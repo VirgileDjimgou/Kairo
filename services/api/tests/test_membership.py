@@ -580,14 +580,22 @@ async def test_update_contribution_record(client: AsyncClient, db_session: Async
 
     patch_resp = await client.patch(
         f"/api/v1/contributions/{contrib_id}",
-        json={"expected_amount": "150.00", "status": "partial"},
+        json={"expected_amount": "150.00"},
         headers={"Authorization": f"Bearer {token}"},
     )
     assert patch_resp.status_code == 200, patch_resp.text
     updated = patch_resp.json()
     assert updated["expected_amount"] == "150.00"
-    assert updated["status"] == "partial"
+    assert updated["status"] == "pending"
     assert updated["balance"] == "150.00"
+
+    # The status is derived from the payment ledger and cannot be forced.
+    contradictory = await client.patch(
+        f"/api/v1/contributions/{contrib_id}",
+        json={"status": "partial"},
+        headers={"Authorization": f"Bearer {token}"},
+    )
+    assert contradictory.status_code == 422
 
 
 @pytest.mark.asyncio
@@ -1024,7 +1032,7 @@ async def test_treasurer_can_run_finance_operations_but_not_admin_only_exports_o
         "/api/v1/contributions/export",
         headers={"Authorization": f"Bearer {treasurer_token}"},
     )
-    assert export_contributions_resp.status_code == 403
+    assert export_contributions_resp.status_code == 200
 
     delete_contribution_resp = await client.delete(
         f"/api/v1/contributions/{contribution_id}",

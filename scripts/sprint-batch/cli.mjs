@@ -23,6 +23,7 @@ import {
   releaseLock,
   requestStop,
   saveState,
+  TERMINAL_BATCH_STATES as TERMINAL_STATES,
 } from './state.mjs';
 import { loadHandoff, normalizeHandoff, writeHandoff } from './handoff.mjs';
 import {
@@ -43,7 +44,6 @@ import { formatDoctor, runDoctor } from './doctor.mjs';
 
 const MAX_BATCH = 10;
 const MAX_REPAIR_ATTEMPTS = 3;
-const TERMINAL_STATES = new Set(['completed', 'failed', 'idle']);
 
 function fail(message, code = 1) {
   console.error(message);

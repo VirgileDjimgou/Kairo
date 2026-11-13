@@ -286,6 +286,21 @@ class MembershipService:
             }
         else:
             details = {"profile_id": str(profile_id)}
+
+        # Deleting a member cascades to contributions, payments, reminders,
+        # receipt declarations and disciplinary records. Financial history must
+        # survive a departure, so only a profile with no history can be removed;
+        # anything else is archived by setting its status to resigned/inactive.
+        has_history = await self._has_membership_history(tenant_id, profile_id)
+        if has_history:
+            raise HTTPException(
+                status_code=status.HTTP_409_CONFLICT,
+                detail=(
+                    "This member has financial or disciplinary history and cannot be "
+                    "deleted. Set the membership status to resigned or inactive instead."
+                ),
+            )
+
         deleted = await self._repo.delete(tenant_id, profile_id)
         if not deleted:
             raise HTTPException(
@@ -302,6 +317,36 @@ class MembershipService:
             details=details,
         )
         await self._db.commit()
+
+    async def _has_membership_history(self, tenant_id: UUID, profile_id: UUID) -> bool:
+        """Return True when deleting the member would erase financial history."""
+        from sqlalchemy import func, select
+
+        from app.modules.contributions.models import (
+            ContributionReceiptDeclaration,
+            ContributionRecord,
+            ContributionReminder,
+        )
+        from app.modules.disciplinary.models import DisciplinaryRecord
+
+        models = (
+            ContributionRecord,
+            ContributionReminder,
+            ContributionReceiptDeclaration,
+            DisciplinaryRecord,
+        )
+        for model in models:
+            result = await self._db.execute(
+                select(func.count())
+                .select_from(model)
+                .where(
+                    model.tenant_id == tenant_id,
+                    model.membership_profile_id == profile_id,
+                )
+            )
+            if int(result.scalar_one()) > 0:
+                return True
+        return False
 
     async def get_my_balance(
         self, tenant_id: UUID, user_id: UUID

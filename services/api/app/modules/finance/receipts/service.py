@@ -42,7 +42,15 @@ class ReceiptWorkflowMixin(FinanceServiceBase):
             if disciplinary is None or disciplinary.membership_profile_id != data.membership_profile_id:
                 raise HTTPException(status_code=status.HTTP_422_UNPROCESSABLE_ENTITY, detail="Disciplinary record does not belong to this member")
         payload = data.model_dump()
+        tenant_currency = await self.tenant_currency(tenant_id)
+        requested_currency = (
+            payload.get("currency")
+            if "currency" in getattr(data, "model_fields_set", set())
+            else None
+        )
+        payload["currency"] = self.resolve_currency(requested_currency, tenant_currency)
         payload["received_at"] = payload["received_at"] or datetime.now(UTC)
+        await self.ensure_year_open(tenant_id, payload["received_at"].year)
         payload.update({
             "declarant_user_id": declarant_user_id,
             "declarant_role_code": declarant_role_code,
@@ -81,6 +89,7 @@ class ReceiptWorkflowMixin(FinanceServiceBase):
             ContributionReceiptStatus.draft.value, ContributionReceiptStatus.clarification_requested.value,
         }:
             raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Receipt declaration cannot be edited")
+        await self.ensure_year_open(tenant_id, record.received_at.year)
         updated = await self._repo.update_receipt_declaration(
             tenant_id, declaration_id, data.model_dump(exclude_unset=True)
         )
@@ -114,6 +123,7 @@ class ReceiptWorkflowMixin(FinanceServiceBase):
             ContributionReceiptStatus.draft.value, ContributionReceiptStatus.clarification_requested.value,
         }:
             raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail="Receipt declaration cannot be submitted")
+        await self.ensure_year_open(tenant_id, record.received_at.year)
         updated = await self._repo.update_receipt_declaration(tenant_id, declaration_id, {
             "status": ContributionReceiptStatus.submitted.value, "submitted_at": datetime.now(UTC),
             "processing_note": None,
@@ -145,6 +155,18 @@ class ReceiptWorkflowMixin(FinanceServiceBase):
             raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Receipt declaration not found")
         if record.status != ContributionReceiptStatus.submitted.value:
             raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail="Only submitted declarations can be processed")
+        await self.ensure_year_open(tenant_id, record.received_at.year)
+        if (
+            record.declarant_user_id == processor_user_id
+            and await self.segregation_required(tenant_id)
+        ):
+            raise HTTPException(
+                status_code=status.HTTP_403_FORBIDDEN,
+                detail=(
+                    "This organization requires a different office holder to "
+                    "validate the receipt"
+                ),
+            )
         if data.action in {"rejected", "clarification_requested", "cancelled"} and not data.note:
             raise HTTPException(status_code=status.HTTP_422_UNPROCESSABLE_ENTITY, detail="A processing note is required")
         if data.action in {"validated", "partially_validated"} and record.income_type == FinancialIncomeType.membership_contribution.value:
@@ -160,11 +182,18 @@ class ReceiptWorkflowMixin(FinanceServiceBase):
                 raise HTTPException(status_code=status.HTTP_422_UNPROCESSABLE_ENTITY, detail="Contribution record does not belong to this member")
             payment = await self._repo.create_payment(tenant_id, {
                 "contribution_record_id": contribution.id, "amount": amount, "currency": record.currency,
-                "paid_at": datetime.now(UTC), "payment_method": record.payment_method,
+                "paid_at": record.received_at, "payment_method": record.payment_method,
                 "reference": record.reference, "recorded_by": processor_user_id,
+                "idempotency_key": f"receipt:{declaration_id}",
+                "account_id": await self.resolve_account_id(
+                    tenant_id, None, record.payment_method
+                ),
+                "receipt_number": await self.next_receipt_number(
+                    tenant_id, record.received_at.year
+                ),
                 "metadata_json": '{"source":"receipt_declaration"}',
             })
-            await self._repo.update_contribution(tenant_id, contribution.id, {"paid_amount": contribution.paid_amount + amount})
+            await self.sync_contribution_totals(tenant_id, contribution)
             updated = await self._repo.update_receipt_declaration(tenant_id, declaration_id, {
                 "status": data.action, "processed_at": datetime.now(UTC), "processed_by_user_id": processor_user_id,
                 "processed_amount": amount, "processing_note": data.note, "contribution_record_id": contribution.id,

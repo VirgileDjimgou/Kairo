@@ -370,6 +370,10 @@
             "title": "Expense Total",
             "type": "string"
           },
+          "expense_variance": {
+            "title": "Expense Variance",
+            "type": "string"
+          },
           "expenses_by_category": {
             "items": {
               "$ref": "#/components/schemas/BudgetCategoryTotal"
@@ -386,6 +390,18 @@
           },
           "income_total": {
             "title": "Income Total",
+            "type": "string"
+          },
+          "income_variance": {
+            "title": "Income Variance",
+            "type": "string"
+          },
+          "planned_expense_total": {
+            "title": "Planned Expense Total",
+            "type": "string"
+          },
+          "planned_income_total": {
+            "title": "Planned Income Total",
             "type": "string"
           },
           "recent_expenses": {
@@ -480,7 +496,7 @@
             "type": "string"
           },
           "count": {
-            "minimum": 0.0,
+            "minimum": 0,
             "title": "Count",
             "type": "integer"
           },
@@ -1021,6 +1037,20 @@
         "title": "Body_upload_document_api_v1_documents_upload_post",
         "type": "object"
       },
+      "Body_upload_expense_attachment_api_v1_contributions_expenses__expense_id__attachment_post": {
+        "properties": {
+          "file": {
+            "contentMediaType": "application/octet-stream",
+            "title": "File",
+            "type": "string"
+          }
+        },
+        "required": [
+          "file"
+        ],
+        "title": "Body_upload_expense_attachment_api_v1_contributions_expenses__expense_id__attachment_post",
+        "type": "object"
+      },
       "BudgetCategoryTotal": {
         "properties": {
           "amount": {
@@ -1030,6 +1060,14 @@
           "category": {
             "title": "Category",
             "type": "string"
+          },
+          "planned_amount": {
+            "title": "Planned Amount",
+            "type": "string"
+          },
+          "variance": {
+            "title": "Variance",
+            "type": "string"
           }
         },
         "required": [
@@ -1037,6 +1075,123 @@
           "amount"
         ],
         "title": "BudgetCategoryTotal",
+        "type": "object"
+      },
+      "BudgetPlanLine-Input": {
+        "properties": {
+          "category": {
+            "maxLength": 64,
+            "minLength": 1,
+            "title": "Category",
+            "type": "string"
+          },
+          "direction": {
+            "enum": [
+              "income",
+              "expense"
+            ],
+            "title": "Direction",
+            "type": "string"
+          },
+          "planned_amount": {
+            "anyOf": [
+              {
+                "minimum": 0,
+                "type": "number"
+              },
+              {
+                "pattern": "^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$",
+                "type": "string"
+              }
+            ],
+            "default": "0.00",
+            "title": "Planned Amount"
+          }
+        },
+        "required": [
+          "direction",
+          "category"
+        ],
+        "title": "BudgetPlanLine",
+        "type": "object"
+      },
+      "BudgetPlanLine-Output": {
+        "properties": {
+          "category": {
+            "maxLength": 64,
+            "minLength": 1,
+            "title": "Category",
+            "type": "string"
+          },
+          "direction": {
+            "enum": [
+              "income",
+              "expense"
+            ],
+            "title": "Direction",
+            "type": "string"
+          },
+          "planned_amount": {
+            "default": "0.00",
+            "pattern": "^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$",
+            "title": "Planned Amount",
+            "type": "string"
+          }
+        },
+        "required": [
+          "direction",
+          "category"
+        ],
+        "title": "BudgetPlanLine",
+        "type": "object"
+      },
+      "BudgetPlanResponse": {
+        "properties": {
+          "currency": {
+            "title": "Currency",
+            "type": "string"
+          },
+          "lines": {
+            "items": {
+              "$ref": "#/components/schemas/BudgetPlanLine-Output"
+            },
+            "title": "Lines",
+            "type": "array"
+          },
+          "planned_expense_total": {
+            "title": "Planned Expense Total",
+            "type": "string"
+          },
+          "planned_income_total": {
+            "title": "Planned Income Total",
+            "type": "string"
+          },
+          "year": {
+            "title": "Year",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "year",
+          "currency",
+          "lines",
+          "planned_income_total",
+          "planned_expense_total"
+        ],
+        "title": "BudgetPlanResponse",
+        "type": "object"
+      },
+      "BudgetPlanUpdate": {
+        "properties": {
+          "lines": {
+            "items": {
+              "$ref": "#/components/schemas/BudgetPlanLine-Input"
+            },
+            "title": "Lines",
+            "type": "array"
+          }
+        },
+        "title": "BudgetPlanUpdate",
         "type": "object"
       },
       "BulkUploadItemResponse": {
@@ -1512,8 +1667,8 @@
           },
           "top_k": {
             "default": 6,
-            "maximum": 10.0,
-            "minimum": 1.0,
+            "maximum": 10,
+            "minimum": 1,
             "title": "Top K",
             "type": "integer"
           }
@@ -1538,8 +1693,8 @@
             "type": "array"
           },
           "confidence": {
-            "maximum": 1.0,
-            "minimum": 0.0,
+            "maximum": 1,
+            "minimum": 0,
             "title": "Confidence",
             "type": "number"
           },
@@ -1591,7 +1746,7 @@
           "amount": {
             "anyOf": [
               {
-                "exclusiveMinimum": 0.0,
+                "exclusiveMinimum": 0,
                 "type": "number"
               },
               {
@@ -1728,8 +1883,8 @@
           },
           "handover_reminder_days": {
             "default": 2,
-            "maximum": 7.0,
-            "minimum": 1.0,
+            "maximum": 7,
+            "minimum": 1,
             "title": "Handover Reminder Days",
             "type": "integer"
           },
@@ -1748,7 +1903,7 @@
           "processed_amount": {
             "anyOf": [
               {
-                "exclusiveMinimum": 0.0,
+                "exclusiveMinimum": 0,
                 "type": "number"
               },
               {
@@ -2146,7 +2301,7 @@
           "amount": {
             "anyOf": [
               {
-                "exclusiveMinimum": 0.0,
+                "exclusiveMinimum": 0,
                 "type": "number"
               },
               {
@@ -2271,8 +2426,8 @@
       "ContributionReceiptHandoverReminderUpdate": {
         "properties": {
           "reminder_days": {
-            "maximum": 7.0,
-            "minimum": 1.0,
+            "maximum": 7,
+            "minimum": 1,
             "title": "Reminder Days",
             "type": "integer"
           }
@@ -2450,7 +2605,7 @@
           "expected_amount": {
             "anyOf": [
               {
-                "minimum": 0.0,
+                "minimum": 0,
                 "type": "number"
               },
               {
@@ -2469,7 +2624,7 @@
           "paid_amount": {
             "anyOf": [
               {
-                "minimum": 0.0,
+                "minimum": 0,
                 "type": "number"
               },
               {
@@ -2485,8 +2640,8 @@
             "default": "pending"
           },
           "year": {
-            "maximum": 2100.0,
-            "minimum": 2000.0,
+            "maximum": 2100,
+            "minimum": 2000,
             "title": "Year",
             "type": "integer"
           }
@@ -2608,7 +2763,7 @@
           "expected_amount": {
             "anyOf": [
               {
-                "minimum": 0.0,
+                "minimum": 0,
                 "type": "number"
               },
               {
@@ -2624,7 +2779,7 @@
           "paid_amount": {
             "anyOf": [
               {
-                "minimum": 0.0,
+                "minimum": 0,
                 "type": "number"
               },
               {
@@ -2671,8 +2826,8 @@
           },
           "limit": {
             "default": 25,
-            "maximum": 100.0,
-            "minimum": 1.0,
+            "maximum": 100,
+            "minimum": 1,
             "title": "Limit",
             "type": "integer"
           },
@@ -2689,8 +2844,8 @@
           "year": {
             "anyOf": [
               {
-                "maximum": 2100.0,
-                "minimum": 2000.0,
+                "maximum": 2100,
+                "minimum": 2000,
                 "type": "integer"
               },
               {
@@ -2937,7 +3092,7 @@
           "amount": {
             "anyOf": [
               {
-                "minimum": 0.0,
+                "minimum": 0,
                 "type": "number"
               },
               {
@@ -3130,7 +3285,7 @@
           "amount": {
             "anyOf": [
               {
-                "minimum": 0.0,
+                "minimum": 0,
                 "type": "number"
               },
               {
@@ -3686,26 +3841,74 @@
         "title": "EventVisibility",
         "type": "string"
       },
-      "ExpenseCategory": {
-        "description": "Treasury expense categories used by the annual budget.",
-        "enum": [
-          "sport_equipment",
-          "fuel_transport",
-          "tournament",
-          "cultural_event",
-          "administration",
-          "other"
+      "ExpenseCategoryCreate": {
+        "properties": {
+          "name": {
+            "maxLength": 120,
+            "minLength": 2,
+            "title": "Name",
+            "type": "string"
+          }
+        },
+        "required": [
+          "name"
         ],
-        "title": "ExpenseCategory",
-        "type": "string"
+        "title": "ExpenseCategoryCreate",
+        "type": "object"
+      },
+      "ExpenseCategoryResponse": {
+        "properties": {
+          "code": {
+            "title": "Code",
+            "type": "string"
+          },
+          "id": {
+            "format": "uuid",
+            "title": "Id",
+            "type": "string"
+          },
+          "is_active": {
+            "title": "Is Active",
+            "type": "boolean"
+          },
+          "is_default": {
+            "title": "Is Default",
+            "type": "boolean"
+          },
+          "name": {
+            "title": "Name",
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "code",
+          "name",
+          "is_default",
+          "is_active"
+        ],
+        "title": "ExpenseCategoryResponse",
+        "type": "object"
       },
       "ExpenseRecordCreate": {
         "description": "Treasurer-entered association outflow.",
         "properties": {
+          "account_id": {
+            "anyOf": [
+              {
+                "format": "uuid",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Account Id"
+          },
           "amount": {
             "anyOf": [
               {
-                "exclusiveMinimum": 0.0,
+                "exclusiveMinimum": 0,
                 "type": "number"
               },
               {
@@ -3716,7 +3919,10 @@
             "title": "Amount"
           },
           "category": {
-            "$ref": "#/components/schemas/ExpenseCategory"
+            "maxLength": 64,
+            "minLength": 2,
+            "title": "Category",
+            "type": "string"
           },
           "currency": {
             "default": "EUR",
@@ -3782,12 +3988,105 @@
       },
       "ExpenseRecordResponse": {
         "properties": {
+          "account_id": {
+            "anyOf": [
+              {
+                "format": "uuid",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Account Id"
+          },
           "amount": {
             "title": "Amount",
             "type": "string"
           },
+          "approval_note": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Approval Note"
+          },
+          "approved_at": {
+            "anyOf": [
+              {
+                "format": "date-time",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Approved At"
+          },
+          "approved_by": {
+            "anyOf": [
+              {
+                "format": "uuid",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Approved By"
+          },
+          "attachment_content_type": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Attachment Content Type"
+          },
+          "attachment_file_name": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Attachment File Name"
+          },
+          "attachment_size_bytes": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Attachment Size Bytes"
+          },
+          "attachment_uploaded_at": {
+            "anyOf": [
+              {
+                "format": "date-time",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Attachment Uploaded At"
+          },
           "category": {
-            "$ref": "#/components/schemas/ExpenseCategory"
+            "title": "Category",
+            "type": "string"
           },
           "created_at": {
             "format": "date-time",
@@ -3845,9 +4144,49 @@
             ],
             "title": "Reference"
           },
+          "reversal_reason": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Reversal Reason"
+          },
+          "reversed_at": {
+            "anyOf": [
+              {
+                "format": "date-time",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Reversed At"
+          },
+          "reversed_by": {
+            "anyOf": [
+              {
+                "format": "uuid",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Reversed By"
+          },
           "spent_at": {
             "format": "date-time",
             "title": "Spent At",
+            "type": "string"
+          },
+          "status": {
+            "default": "recorded",
+            "title": "Status",
             "type": "string"
           },
           "tenant_id": {
@@ -3871,6 +4210,160 @@
           "created_at"
         ],
         "title": "ExpenseRecordResponse",
+        "type": "object"
+      },
+      "ExpenseRejectRequest": {
+        "properties": {
+          "note": {
+            "maxLength": 1000,
+            "minLength": 3,
+            "title": "Note",
+            "type": "string"
+          }
+        },
+        "required": [
+          "note"
+        ],
+        "title": "ExpenseRejectRequest",
+        "type": "object"
+      },
+      "ExpenseReversalRequest": {
+        "properties": {
+          "reason": {
+            "maxLength": 500,
+            "minLength": 3,
+            "title": "Reason",
+            "type": "string"
+          }
+        },
+        "required": [
+          "reason"
+        ],
+        "title": "ExpenseReversalRequest",
+        "type": "object"
+      },
+      "FinanceAccountResponse": {
+        "properties": {
+          "id": {
+            "format": "uuid",
+            "title": "Id",
+            "type": "string"
+          },
+          "is_default": {
+            "title": "Is Default",
+            "type": "boolean"
+          },
+          "kind": {
+            "title": "Kind",
+            "type": "string"
+          },
+          "name": {
+            "title": "Name",
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "name",
+          "kind",
+          "is_default"
+        ],
+        "title": "FinanceAccountResponse",
+        "type": "object"
+      },
+      "FinancePeriodReopenRequest": {
+        "properties": {
+          "reason": {
+            "maxLength": 500,
+            "minLength": 3,
+            "title": "Reason",
+            "type": "string"
+          }
+        },
+        "required": [
+          "reason"
+        ],
+        "title": "FinancePeriodReopenRequest",
+        "type": "object"
+      },
+      "FinancePeriodResponse": {
+        "properties": {
+          "closed_at": {
+            "anyOf": [
+              {
+                "format": "date-time",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Closed At"
+          },
+          "closed_by": {
+            "anyOf": [
+              {
+                "format": "uuid",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Closed By"
+          },
+          "reopen_reason": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Reopen Reason"
+          },
+          "reopened_at": {
+            "anyOf": [
+              {
+                "format": "date-time",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Reopened At"
+          },
+          "status": {
+            "enum": [
+              "open",
+              "closed"
+            ],
+            "title": "Status",
+            "type": "string"
+          },
+          "year": {
+            "title": "Year",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "year",
+          "status"
+        ],
+        "title": "FinancePeriodResponse",
+        "type": "object"
+      },
+      "FinanceSettings": {
+        "properties": {
+          "require_separate_receipt_validator": {
+            "default": false,
+            "title": "Require Separate Receipt Validator",
+            "type": "boolean"
+          }
+        },
+        "title": "FinanceSettings",
         "type": "object"
       },
       "FinancialIncomeType": {
@@ -3952,6 +4445,11 @@
             },
             "title": "Errors",
             "type": "array"
+          },
+          "skipped_count": {
+            "default": 0,
+            "title": "Skipped Count",
+            "type": "integer"
           },
           "success_count": {
             "title": "Success Count",
@@ -6311,6 +6809,27 @@
         "title": "NotificationTestResponse",
         "type": "object"
       },
+      "OpeningBalanceUpdate": {
+        "properties": {
+          "amount": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "pattern": "^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$",
+                "type": "string"
+              }
+            ],
+            "title": "Amount"
+          }
+        },
+        "required": [
+          "amount"
+        ],
+        "title": "OpeningBalanceUpdate",
+        "type": "object"
+      },
       "OperationFailureCreate": {
         "description": "A deliberately small, non-sensitive client-side failure report.",
         "properties": {
@@ -6329,8 +6848,8 @@
           "status_code": {
             "anyOf": [
               {
-                "maximum": 599.0,
-                "minimum": 0.0,
+                "maximum": 599,
+                "minimum": 0,
                 "type": "integer"
               },
               {
@@ -6360,10 +6879,22 @@
       },
       "PaymentRecordCreate": {
         "properties": {
+          "account_id": {
+            "anyOf": [
+              {
+                "format": "uuid",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Account Id"
+          },
           "amount": {
             "anyOf": [
               {
-                "exclusiveMinimum": 0.0,
+                "exclusiveMinimum": 0,
                 "type": "number"
               },
               {
@@ -6383,6 +6914,19 @@
             "maxLength": 3,
             "title": "Currency",
             "type": "string"
+          },
+          "idempotency_key": {
+            "anyOf": [
+              {
+                "maxLength": 100,
+                "minLength": 8,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Idempotency Key"
           },
           "paid_at": {
             "anyOf": [
@@ -6422,6 +6966,18 @@
       },
       "PaymentRecordResponse": {
         "properties": {
+          "account_id": {
+            "anyOf": [
+              {
+                "format": "uuid",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Account Id"
+          },
           "amount": {
             "title": "Amount",
             "type": "string"
@@ -6454,6 +7010,17 @@
             "title": "Payment Method",
             "type": "string"
           },
+          "receipt_number": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Receipt Number"
+          },
           "recorded_by": {
             "anyOf": [
               {
@@ -6477,6 +7044,41 @@
             ],
             "title": "Reference"
           },
+          "reversal_reason": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Reversal Reason"
+          },
+          "reversed_at": {
+            "anyOf": [
+              {
+                "format": "date-time",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Reversed At"
+          },
+          "reversed_by": {
+            "anyOf": [
+              {
+                "format": "uuid",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Reversed By"
+          },
           "tenant_id": {
             "format": "uuid",
             "title": "Tenant Id",
@@ -6496,6 +7098,21 @@
           "created_at"
         ],
         "title": "PaymentRecordResponse",
+        "type": "object"
+      },
+      "PaymentReversalRequest": {
+        "properties": {
+          "reason": {
+            "maxLength": 500,
+            "minLength": 3,
+            "title": "Reason",
+            "type": "string"
+          }
+        },
+        "required": [
+          "reason"
+        ],
+        "title": "PaymentReversalRequest",
         "type": "object"
       },
       "PolicyCategoryResponse": {
@@ -7364,7 +7981,7 @@
           },
           "score": {
             "description": "3 exact, 2 prefix, 1 substring match",
-            "minimum": 0.0,
+            "minimum": 0,
             "title": "Score",
             "type": "integer"
           },
@@ -7688,6 +8305,11 @@
             "title": "Capabilities",
             "type": "array"
           },
+          "currency": {
+            "default": "EUR",
+            "title": "Currency",
+            "type": "string"
+          },
           "default_language": {
             "title": "Default Language",
             "type": "string"
@@ -7783,9 +8405,17 @@
           "branding": {
             "$ref": "#/components/schemas/TenantBranding"
           },
+          "currency": {
+            "default": "EUR",
+            "title": "Currency",
+            "type": "string"
+          },
           "default_language": {
             "title": "Default Language",
             "type": "string"
+          },
+          "finance": {
+            "$ref": "#/components/schemas/FinanceSettings"
           },
           "modules": {
             "$ref": "#/components/schemas/ModuleToggles"
@@ -7836,6 +8466,18 @@
               }
             ]
           },
+          "currency": {
+            "anyOf": [
+              {
+                "pattern": "^[A-Za-z]{3}$",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Currency"
+          },
           "default_language": {
             "anyOf": [
               {
@@ -7846,6 +8488,16 @@
               }
             ],
             "title": "Default Language"
+          },
+          "finance": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/FinanceSettings"
+              },
+              {
+                "type": "null"
+              }
+            ]
           },
           "modules": {
             "anyOf": [
@@ -7921,6 +8573,111 @@
           "user_id"
         ],
         "title": "TokenResponse",
+        "type": "object"
+      },
+      "TreasuryPositionAccount": {
+        "properties": {
+          "account_id": {
+            "anyOf": [
+              {
+                "format": "uuid",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Account Id"
+          },
+          "closing_balance": {
+            "title": "Closing Balance",
+            "type": "string"
+          },
+          "inflow": {
+            "title": "Inflow",
+            "type": "string"
+          },
+          "kind": {
+            "title": "Kind",
+            "type": "string"
+          },
+          "name": {
+            "title": "Name",
+            "type": "string"
+          },
+          "opening_balance": {
+            "title": "Opening Balance",
+            "type": "string"
+          },
+          "outflow": {
+            "title": "Outflow",
+            "type": "string"
+          },
+          "pending_custody": {
+            "title": "Pending Custody",
+            "type": "string"
+          }
+        },
+        "required": [
+          "account_id",
+          "name",
+          "kind",
+          "opening_balance",
+          "inflow",
+          "outflow",
+          "closing_balance"
+        ],
+        "title": "TreasuryPositionAccount",
+        "type": "object"
+      },
+      "TreasuryPositionResponse": {
+        "properties": {
+          "accounts": {
+            "items": {
+              "$ref": "#/components/schemas/TreasuryPositionAccount"
+            },
+            "title": "Accounts",
+            "type": "array"
+          },
+          "currency": {
+            "title": "Currency",
+            "type": "string"
+          },
+          "total_closing": {
+            "title": "Total Closing",
+            "type": "string"
+          },
+          "total_inflow": {
+            "title": "Total Inflow",
+            "type": "string"
+          },
+          "total_opening": {
+            "title": "Total Opening",
+            "type": "string"
+          },
+          "total_outflow": {
+            "title": "Total Outflow",
+            "type": "string"
+          },
+          "total_pending_custody": {
+            "title": "Total Pending Custody",
+            "type": "string"
+          },
+          "year": {
+            "title": "Year",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "year",
+          "currency",
+          "accounts",
+          "total_opening",
+          "total_inflow",
+          "total_outflow",
+          "total_closing"
+        ],
+        "title": "TreasuryPositionResponse",
         "type": "object"
       },
       "UnreachableNotificationRecipient": {
@@ -8217,7 +8974,7 @@
   },
   "info": {
     "description": "Local-first multi-tenant RAG platform for organizations. Backend is the sole policy enforcement point.",
-    "title": "Kairo — OrgMind AI API",
+    "title": "Kairo � OrgMind AI API",
     "version": "0.1.0"
   },
   "openapi": "3.1.0",
@@ -10866,9 +11623,108 @@
         ]
       }
     },
+    "/api/v1/contributions/accounts": {
+      "get": {
+        "description": "List the cash and bank accounts used by the treasury position.",
+        "operationId": "list_treasury_accounts_api_v1_contributions_accounts_get",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/FinanceAccountResponse"
+                  },
+                  "title": "Response List Treasury Accounts Api V1 Contributions Accounts Get",
+                  "type": "array"
+                }
+              }
+            },
+            "description": "Successful Response"
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "summary": "List Treasury Accounts",
+        "tags": [
+          "contributions"
+        ]
+      }
+    },
+    "/api/v1/contributions/accounts/{account_id}/opening-balance/{year}": {
+      "put": {
+        "description": "Set or correct the opening balance of an account for an exercise.",
+        "operationId": "set_opening_balance_api_v1_contributions_accounts__account_id__opening_balance__year__put",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "account_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "title": "Account Id",
+              "type": "string"
+            }
+          },
+          {
+            "in": "path",
+            "name": "year",
+            "required": true,
+            "schema": {
+              "title": "Year",
+              "type": "integer"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/OpeningBalanceUpdate"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TreasuryPositionResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "summary": "Set Opening Balance",
+        "tags": [
+          "contributions"
+        ]
+      }
+    },
     "/api/v1/contributions/annual-budget": {
       "get": {
-        "description": "Return the annual treasury budget, available only to the treasurer.",
+        "description": "Return the annual treasury budget for finance and audit roles.",
         "operationId": "get_annual_budget_api_v1_contributions_annual_budget_get",
         "parameters": [
           {
@@ -10911,6 +11767,114 @@
           }
         ],
         "summary": "Get Annual Budget",
+        "tags": [
+          "contributions"
+        ]
+      }
+    },
+    "/api/v1/contributions/budget-plan": {
+      "get": {
+        "description": "Return the voted budget plan, including empty categories.",
+        "operationId": "get_budget_plan_api_v1_contributions_budget_plan_get",
+        "parameters": [
+          {
+            "in": "query",
+            "name": "year",
+            "required": true,
+            "schema": {
+              "maximum": 2100,
+              "minimum": 2000,
+              "title": "Year",
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BudgetPlanResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "summary": "Get Budget Plan",
+        "tags": [
+          "contributions"
+        ]
+      }
+    },
+    "/api/v1/contributions/budget-plan/{year}": {
+      "put": {
+        "description": "Replace the voted budget plan of an exercise.",
+        "operationId": "set_budget_plan_api_v1_contributions_budget_plan__year__put",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "year",
+            "required": true,
+            "schema": {
+              "title": "Year",
+              "type": "integer"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/BudgetPlanUpdate"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BudgetPlanResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "summary": "Set Budget Plan",
         "tags": [
           "contributions"
         ]
@@ -10969,7 +11933,181 @@
         ]
       }
     },
+    "/api/v1/contributions/expense-categories": {
+      "get": {
+        "description": "List the tenant expense categories, seeding the defaults on first use.",
+        "operationId": "list_expense_categories_api_v1_contributions_expense_categories_get",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/ExpenseCategoryResponse"
+                  },
+                  "title": "Response List Expense Categories Api V1 Contributions Expense Categories Get",
+                  "type": "array"
+                }
+              }
+            },
+            "description": "Successful Response"
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "summary": "List Expense Categories",
+        "tags": [
+          "contributions"
+        ]
+      },
+      "post": {
+        "description": "Add a tenant-specific expense category.",
+        "operationId": "create_expense_category_api_v1_contributions_expense_categories_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ExpenseCategoryCreate"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ExpenseCategoryResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "summary": "Create Expense Category",
+        "tags": [
+          "contributions"
+        ]
+      }
+    },
     "/api/v1/contributions/expenses": {
+      "get": {
+        "description": "List the expense ledger for treasurer and auditor review.",
+        "operationId": "list_expenses_api_v1_contributions_expenses_get",
+        "parameters": [
+          {
+            "in": "query",
+            "name": "year",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "maximum": 2100,
+                  "minimum": 2000,
+                  "type": "integer"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Year"
+            }
+          },
+          {
+            "in": "query",
+            "name": "category",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Category"
+            }
+          },
+          {
+            "in": "query",
+            "name": "limit",
+            "required": false,
+            "schema": {
+              "default": 100,
+              "maximum": 500,
+              "minimum": 1,
+              "title": "Limit",
+              "type": "integer"
+            }
+          },
+          {
+            "in": "query",
+            "name": "offset",
+            "required": false,
+            "schema": {
+              "default": 0,
+              "minimum": 0,
+              "title": "Offset",
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/ExpenseRecordResponse"
+                  },
+                  "title": "Response List Expenses Api V1 Contributions Expenses Get",
+                  "type": "array"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "summary": "List Expenses",
+        "tags": [
+          "contributions"
+        ]
+      },
       "post": {
         "description": "Record an association cash outflow, restricted to the treasurer.",
         "operationId": "create_expense_api_v1_contributions_expenses_post",
@@ -11016,9 +12154,398 @@
         ]
       }
     },
+    "/api/v1/contributions/expenses/export": {
+      "get": {
+        "description": "Export the expense ledger for the treasurer, auditor or fiduciary.",
+        "operationId": "export_expenses_api_v1_contributions_expenses_export_get",
+        "parameters": [
+          {
+            "in": "query",
+            "name": "year",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "maximum": 2100,
+                  "minimum": 2000,
+                  "type": "integer"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Year"
+            }
+          },
+          {
+            "in": "query",
+            "name": "export_format",
+            "required": false,
+            "schema": {
+              "default": "csv",
+              "enum": [
+                "csv",
+                "xlsx"
+              ],
+              "title": "Export Format",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "summary": "Export Expenses",
+        "tags": [
+          "contributions"
+        ]
+      }
+    },
+    "/api/v1/contributions/expenses/{expense_id}": {
+      "get": {
+        "description": "Return one expense with its attachment metadata.",
+        "operationId": "get_expense_api_v1_contributions_expenses__expense_id__get",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "expense_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "title": "Expense Id",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ExpenseRecordResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "summary": "Get Expense",
+        "tags": [
+          "contributions"
+        ]
+      }
+    },
+    "/api/v1/contributions/expenses/{expense_id}/approve": {
+      "post": {
+        "description": "Approve a recorded expense (president, vice-president or administrator).",
+        "operationId": "approve_expense_api_v1_contributions_expenses__expense_id__approve_post",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "expense_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "title": "Expense Id",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ExpenseRecordResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "summary": "Approve Expense",
+        "tags": [
+          "contributions"
+        ]
+      }
+    },
+    "/api/v1/contributions/expenses/{expense_id}/attachment": {
+      "get": {
+        "description": "Download the supporting document attached to an expense.",
+        "operationId": "download_expense_attachment_api_v1_contributions_expenses__expense_id__attachment_get",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "expense_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "title": "Expense Id",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "summary": "Download Expense Attachment",
+        "tags": [
+          "contributions"
+        ]
+      },
+      "post": {
+        "description": "Attach the invoice or receipt supporting an expense.",
+        "operationId": "upload_expense_attachment_api_v1_contributions_expenses__expense_id__attachment_post",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "expense_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "title": "Expense Id",
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "$ref": "#/components/schemas/Body_upload_expense_attachment_api_v1_contributions_expenses__expense_id__attachment_post"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ExpenseRecordResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "summary": "Upload Expense Attachment",
+        "tags": [
+          "contributions"
+        ]
+      }
+    },
+    "/api/v1/contributions/expenses/{expense_id}/reject": {
+      "post": {
+        "description": "Reject a recorded expense with a mandatory note.",
+        "operationId": "reject_expense_api_v1_contributions_expenses__expense_id__reject_post",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "expense_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "title": "Expense Id",
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ExpenseRejectRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ExpenseRecordResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "summary": "Reject Expense",
+        "tags": [
+          "contributions"
+        ]
+      }
+    },
+    "/api/v1/contributions/expenses/{expense_id}/reverse": {
+      "post": {
+        "description": "Reverse an expense without deleting its audit history.",
+        "operationId": "reverse_expense_api_v1_contributions_expenses__expense_id__reverse_post",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "expense_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "title": "Expense Id",
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ExpenseReversalRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ExpenseRecordResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "summary": "Reverse Expense",
+        "tags": [
+          "contributions"
+        ]
+      }
+    },
     "/api/v1/contributions/export": {
       "get": {
-        "description": "Export contribution records as CSV (admin only).",
+        "description": "Export contribution records as CSV for finance roles.",
         "operationId": "export_contributions_api_v1_contributions_export_get",
         "responses": {
           "200": {
@@ -11043,7 +12570,7 @@
     },
     "/api/v1/contributions/import": {
       "post": {
-        "description": "Import contribution records from a CSV file (admin only).",
+        "description": "Import contribution records from a CSV file with replay protection.",
         "operationId": "import_contributions_api_v1_contributions_import_post",
         "parameters": [
           {
@@ -11097,6 +12624,61 @@
           }
         ],
         "summary": "Import Contributions",
+        "tags": [
+          "contributions"
+        ]
+      }
+    },
+    "/api/v1/contributions/journal/export": {
+      "get": {
+        "description": "Export a chronological journal of every treasury movement.",
+        "operationId": "export_finance_journal_api_v1_contributions_journal_export_get",
+        "parameters": [
+          {
+            "in": "query",
+            "name": "year",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "maximum": 2100,
+                  "minimum": 2000,
+                  "type": "integer"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Year"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "summary": "Export Finance Journal",
         "tags": [
           "contributions"
         ]
@@ -11173,6 +12755,297 @@
           }
         ],
         "summary": "Record Payment",
+        "tags": [
+          "contributions"
+        ]
+      }
+    },
+    "/api/v1/contributions/payments/{payment_id}/receipt.pdf": {
+      "get": {
+        "description": "Download the numbered receipt for a payment (own receipt or finance role).",
+        "operationId": "download_payment_receipt_api_v1_contributions_payments__payment_id__receipt_pdf_get",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "payment_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "title": "Payment Id",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "summary": "Download Payment Receipt",
+        "tags": [
+          "contributions"
+        ]
+      }
+    },
+    "/api/v1/contributions/payments/{payment_id}/reverse": {
+      "post": {
+        "description": "Reverse a recorded payment while keeping its audit history.",
+        "operationId": "reverse_payment_api_v1_contributions_payments__payment_id__reverse_post",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "payment_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "title": "Payment Id",
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/PaymentReversalRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PaymentRecordResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "summary": "Reverse Payment",
+        "tags": [
+          "contributions"
+        ]
+      }
+    },
+    "/api/v1/contributions/periods": {
+      "get": {
+        "description": "List closed exercises and their audit metadata.",
+        "operationId": "list_finance_periods_api_v1_contributions_periods_get",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/FinancePeriodResponse"
+                  },
+                  "title": "Response List Finance Periods Api V1 Contributions Periods Get",
+                  "type": "array"
+                }
+              }
+            },
+            "description": "Successful Response"
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "summary": "List Finance Periods",
+        "tags": [
+          "contributions"
+        ]
+      }
+    },
+    "/api/v1/contributions/periods/{year}": {
+      "get": {
+        "description": "Return the closing status of one exercise.",
+        "operationId": "get_finance_period_api_v1_contributions_periods__year__get",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "year",
+            "required": true,
+            "schema": {
+              "title": "Year",
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FinancePeriodResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "summary": "Get Finance Period",
+        "tags": [
+          "contributions"
+        ]
+      }
+    },
+    "/api/v1/contributions/periods/{year}/close": {
+      "post": {
+        "description": "Close an exercise so no further financial write can alter it.",
+        "operationId": "close_finance_period_api_v1_contributions_periods__year__close_post",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "year",
+            "required": true,
+            "schema": {
+              "title": "Year",
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FinancePeriodResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "summary": "Close Finance Period",
+        "tags": [
+          "contributions"
+        ]
+      }
+    },
+    "/api/v1/contributions/periods/{year}/reopen": {
+      "post": {
+        "description": "Reopen a closed exercise, reserved to tenant administration.",
+        "operationId": "reopen_finance_period_api_v1_contributions_periods__year__reopen_post",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "year",
+            "required": true,
+            "schema": {
+              "title": "Year",
+              "type": "integer"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/FinancePeriodReopenRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FinancePeriodResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "summary": "Reopen Finance Period",
         "tags": [
           "contributions"
         ]
@@ -11955,6 +13828,56 @@
           }
         ],
         "summary": "Get Contribution Summary",
+        "tags": [
+          "contributions"
+        ]
+      }
+    },
+    "/api/v1/contributions/treasury-position": {
+      "get": {
+        "description": "Return opening, movements and closing balance per treasury account.",
+        "operationId": "get_treasury_position_api_v1_contributions_treasury_position_get",
+        "parameters": [
+          {
+            "in": "query",
+            "name": "year",
+            "required": true,
+            "schema": {
+              "maximum": 2100,
+              "minimum": 2000,
+              "title": "Year",
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TreasuryPositionResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "summary": "Get Treasury Position",
         "tags": [
           "contributions"
         ]
@@ -15515,7 +17438,7 @@
     },
     "/api/v1/tenants/{tenant_id}": {
       "get": {
-        "description": "Return a specific organization.\n\nReturns 403 if the current user is not a member — enforcing tenant isolation.",
+        "description": "Return a specific organization.\n\nReturns 403 if the current user is not a member � enforcing tenant isolation.",
         "operationId": "get_tenant_api_v1_tenants__tenant_id__get",
         "parameters": [
           {
@@ -15780,7 +17703,7 @@
     },
     "/health": {
       "get": {
-        "description": "Probes critical dependencies and returns their status.\n\nReturns HTTP 200 in all cases — callers should inspect the `status`\nfield (`ok` | `degraded` | `unavailable`) and per-service `checks`\nto determine overall health.",
+        "description": "Probes critical dependencies and returns their status.\n\nReturns HTTP 200 in all cases � callers should inspect the `status`\nfield (`ok` | `degraded` | `unavailable`) and per-service `checks`\nto determine overall health.",
         "operationId": "health_check_health_get",
         "responses": {
           "200": {

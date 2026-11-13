@@ -156,5 +156,6 @@
   "install.installed": "{name} est installé sur cet appareil.",
   "install.guidanceIos": "Pour installer, ouvrez le menu Partager puis choisissez « Sur l’écran d’accueil ».",
   "install.guidanceFirefox": "Pour installer, ouvrez le menu du navigateur puis choisissez « Installer ».",
-  "install.guidanceGeneric": "Pour installer, ouvrez le menu du navigateur et choisissez « Ajouter à l’écran d’accueil »."
+  "install.guidanceGeneric": "Pour installer, ouvrez le menu du navigateur et choisissez « Ajouter à l’écran d’accueil ».",
+  "common.skippedCount": "Ignorées"
 }

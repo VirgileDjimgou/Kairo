@@ -49,7 +49,7 @@
               <div class="fw-medium">{{ reminder.member_display_name }} ({{ reminder.member_code }})</div>
               <div class="small text-muted">{{ reminder.subject }}</div>
               <div class="small text-muted">
-                {{ reminder.balance_snapshot }} EUR · {{ reminderStatusLabel(reminder.delivery_status) }}
+                {{ reminder.balance_snapshot }} {{ currency }} · {{ reminderStatusLabel(reminder.delivery_status) }}
               </div>
             </div>
             <div class="text-end small text-muted">
@@ -79,7 +79,7 @@ const emit = defineEmits<{ submit: [payload: ReminderBatchInput] }>()
 
 const localeStore = useLocaleStore()
 const t = (key: string) => localeStore.t(key)
-const { copy, formatDate, reminderStatusLabel } = useFinanceFormatting()
+const { copy, formatDate, reminderStatusLabel, currency } = useFinanceFormatting()
 
 const batchForm = ref<ReminderBatchInput>({
   due_scope: 'overdue',
